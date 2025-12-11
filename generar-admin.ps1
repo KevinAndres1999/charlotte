@@ -1,87 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrador | Charlotte</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        body { background: #f8fafc; margin: 0; }
-        .admin-header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .admin-header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .admin-header h1 { margin: 0; font-size: 24px; }
-        .admin-header h1 i { margin-right: 10px; }
-        .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .logout-btn:hover { background: rgba(255,255,255,0.3); }
-        .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 80px); gap: 0; }
-        .sidebar { background: #fff; border-right: 1px solid #e8f0fe; padding: 0; }
-        .sidebar-header { padding: 24px; border-bottom: 2px solid #e8f0fe; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); }
-        .sidebar-header h3 { margin: 0 0 8px 0; color: #1e3a8a; font-size: 18px; }
-        .sidebar-header p { margin: 0; color: #64748b; font-size: 14px; }
-        .nav-menu { padding: 0; }
-        .nav-item { padding: 16px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #334155; }
-        .nav-item:hover { background: #f8fafc; border-left-color: #3b82f6; }
-        .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); border-left-color: #3b82f6; color: #1e40af; font-weight: 600; }
-        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
-        .main-content { padding: 32px; overflow-y: auto; }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
-        .page-header { margin-bottom: 32px; }
-        .page-header h2 { margin: 0 0 8px 0; color: #0a1628; font-size: 32px; }
-        .page-header p { margin: 0; color: #64748b; font-size: 16px; }
-        .upload-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .upload-card h3 { margin: 0 0 24px 0; color: #1e3a8a; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #334155; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.3s; font-family: inherit; box-sizing: border-box; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .form-group textarea { resize: vertical; min-height: 120px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
-        .content-list { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .content-list-header { padding: 20px 24px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-bottom: 2px solid #e2e8f0; }
-        .content-list-header h4 { margin: 0; color: #1e3a8a; font-size: 18px; }
-        .content-item { padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-        .content-item:hover { background: #f8fafc; }
-        .content-item:last-child { border-bottom: none; }
-        .content-info { flex: 1; }
-        .content-info h5 { margin: 0 0 4px 0; color: #0a1628; font-size: 16px; }
-        .content-info p { margin: 0; color: #64748b; font-size: 14px; }
-        .content-actions { display: flex; gap: 8px; }
-        .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-        .btn-delete { background: #fee2e2; color: #dc2626; }
-        .btn-delete:hover { background: #fecaca; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .stat-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .stat-card-icon.blue { background: #dbeafe; color: #3b82f6; }
-        .stat-card-icon.green { background: #dcfce7; color: #22c55e; }
-        .stat-card-icon.purple { background: #f3e8ff; color: #a855f7; }
-        .stat-card-icon.orange { background: #fed7aa; color: #f97316; }
-        .stat-value { font-size: 32px; font-weight: 700; color: #0a1628; margin: 0; }
-        .stat-label { color: #64748b; font-size: 14px; margin: 4px 0 0 0; }
-        .mobile-menu-toggle { display: none; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 24px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-        .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
-        .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
-        .alert i { font-size: 20px; }
-        @media (max-width: 768px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; left: -100%; top: 60px; width: 280px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); }
-            .sidebar.open { left: 0; }
-            .mobile-menu-toggle { display: block; }
-            .main-content { padding: 20px 16px; }
-            .page-header h2 { font-size: 24px; }
-            .upload-card { padding: 20px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .content-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .content-actions { width: 100%; justify-content: flex-end; }
-        }
-    </style>
-</head><body>
+# Script para generar admin.html optimizado
+$html = Get-Content "C:\workspace\admin.html" -Raw
+
+# Agregar el cuerpo HTML
+$bodyHTML = @"
+<body>
     <header class="admin-header">
         <div class="container">
             <h1><i class="fas fa-user-shield"></i> Panel Administrador</h1>
@@ -196,14 +118,19 @@ function saveCuestionario(e){e.preventDefault();const formData=new FormData(e.ta
 function saveMaterial(e){e.preventDefault();const formData=new FormData(e.target);const material={id:Date.now(),titulo:formData.get('titulo'),descripcion:formData.get('descripcion'),url:formData.get('url'),programa:formData.get('programa'),fecha:new Date().toLocaleDateString()};const materiales=JSON.parse(localStorage.getItem('materiales')||'[]');materiales.push(material);localStorage.setItem('materiales',JSON.stringify(materiales));e.target.reset();loadMateriales();updateStats();showAlert('Material guardado exitosamente');}
 function deleteItem(type,id){if(confirm('¿Estás seguro de eliminar este elemento?')){const items=JSON.parse(localStorage.getItem(type)||'[]');const filtered=items.filter(item=>item.id!==id);localStorage.setItem(type,JSON.stringify(filtered));loadContent(type);updateStats();showAlert('Elemento eliminado exitosamente');}}
 function loadContent(section){switch(section){case 'videos':loadVideos();break;case 'clases':loadClases();break;case 'actividades':loadActividades();break;case 'cuestionarios':loadCuestionarios();break;case 'materiales':loadMateriales();break;case 'dashboard':updateStats();break;}}
-function loadVideos(){const videos=JSON.parse(localStorage.getItem('videos')||'[]');const container=document.getElementById('videos-list');if(videos.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay videos publicados</h5><p>Los videos que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=videos.map(video=><div class="content-item"><div class="content-info"><h5></h5><p> •  • </p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('videos',)"><i class="fas fa-trash"></i></button></div></div>).join('');}
-function loadClases(){const clases=JSON.parse(localStorage.getItem('clases')||'[]');const container=document.getElementById('clases-list');if(clases.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay clases publicadas</h5><p>Las clases que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=clases.map(clase=><div class="content-item"><div class="content-info"><h5></h5><p> • </p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('clases',)"><i class="fas fa-trash"></i></button></div></div>).join('');}
-function loadActividades(){const actividades=JSON.parse(localStorage.getItem('actividades')||'[]');const container=document.getElementById('actividades-list');if(actividades.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay actividades creadas</h5><p>Las actividades que crees aparecerán aquí</p></div></div>';return;}container.innerHTML=actividades.map(actividad=><div class="content-item"><div class="content-info"><h5></h5><p> • Entrega:  • Creada: </p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('actividades',)"><i class="fas fa-trash"></i></button></div></div>).join('');}
-function loadCuestionarios(){const cuestionarios=JSON.parse(localStorage.getItem('cuestionarios')||'[]');const container=document.getElementById('cuestionarios-list');if(cuestionarios.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=cuestionarios.map(cuestionario=><div class="content-item"><div class="content-info"><h5></h5><p> •  • </p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('cuestionarios',)"><i class="fas fa-trash"></i></button></div></div>).join('');}
-function loadMateriales(){const materiales=JSON.parse(localStorage.getItem('materiales')||'[]');const container=document.getElementById('materiales-list');if(materiales.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay materiales publicados</h5><p>Los materiales que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=materiales.map(material=><div class="content-item"><div class="content-info"><h5></h5><p> •  • </p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('materiales',)"><i class="fas fa-trash"></i></button></div></div>).join('');}
+function loadVideos(){const videos=JSON.parse(localStorage.getItem('videos')||'[]');const container=document.getElementById('videos-list');if(videos.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay videos publicados</h5><p>Los videos que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=videos.map(video=>`<div class="content-item"><div class="content-info"><h5>${video.titulo}</h5><p>${video.descripcion||'Sin descripción'} • ${video.programa} • ${video.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('videos',${video.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');}
+function loadClases(){const clases=JSON.parse(localStorage.getItem('clases')||'[]');const container=document.getElementById('clases-list');if(clases.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay clases publicadas</h5><p>Las clases que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=clases.map(clase=>`<div class="content-item"><div class="content-info"><h5>${clase.titulo}</h5><p>${clase.programa} • ${clase.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('clases',${clase.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');}
+function loadActividades(){const actividades=JSON.parse(localStorage.getItem('actividades')||'[]');const container=document.getElementById('actividades-list');if(actividades.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay actividades creadas</h5><p>Las actividades que crees aparecerán aquí</p></div></div>';return;}container.innerHTML=actividades.map(actividad=>`<div class="content-item"><div class="content-info"><h5>${actividad.titulo}</h5><p>${actividad.programa} • Entrega: ${actividad.fecha||'Sin fecha'} • Creada: ${actividad.fechaCreacion}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('actividades',${actividad.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');}
+function loadCuestionarios(){const cuestionarios=JSON.parse(localStorage.getItem('cuestionarios')||'[]');const container=document.getElementById('cuestionarios-list');if(cuestionarios.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=cuestionarios.map(cuestionario=>`<div class="content-item"><div class="content-info"><h5>${cuestionario.titulo}</h5><p>${cuestionario.descripcion||'Sin descripción'} • ${cuestionario.programa} • ${cuestionario.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('cuestionarios',${cuestionario.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');}
+function loadMateriales(){const materiales=JSON.parse(localStorage.getItem('materiales')||'[]');const container=document.getElementById('materiales-list');if(materiales.length===0){container.innerHTML='<div class="content-item"><div class="content-info"><h5>No hay materiales publicados</h5><p>Los materiales que subas aparecerán aquí</p></div></div>';return;}container.innerHTML=materiales.map(material=>`<div class="content-item"><div class="content-info"><h5>${material.titulo}</h5><p>${material.descripcion||'Sin descripción'} • ${material.programa} • ${material.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteItem('materiales',${material.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');}
 function updateStats(){document.getElementById('stat-videos').textContent=JSON.parse(localStorage.getItem('videos')||'[]').length;document.getElementById('stat-clases').textContent=JSON.parse(localStorage.getItem('clases')||'[]').length;document.getElementById('stat-actividades').textContent=JSON.parse(localStorage.getItem('actividades')||'[]').length;document.getElementById('stat-materiales').textContent=JSON.parse(localStorage.getItem('materiales')||'[]').length;}
-function showAlert(message){const alertDiv=document.createElement('div');alertDiv.className='alert alert-success';alertDiv.innerHTML=<i class="fas fa-check-circle"></i><div></div>;alertDiv.style.position='fixed';alertDiv.style.top='80px';alertDiv.style.right='20px';alertDiv.style.zIndex='1000';alertDiv.style.minWidth='300px';document.body.appendChild(alertDiv);setTimeout(()=>alertDiv.remove(),3000);}
+function showAlert(message){const alertDiv=document.createElement('div');alertDiv.className='alert alert-success';alertDiv.innerHTML=`<i class="fas fa-check-circle"></i><div>${message}</div>`;alertDiv.style.position='fixed';alertDiv.style.top='80px';alertDiv.style.right='20px';alertDiv.style.zIndex='1000';alertDiv.style.minWidth='300px';document.body.appendChild(alertDiv);setTimeout(()=>alertDiv.remove(),3000);}
 updateStats();
     </script>
 </body>
 </html>
+"@
+
+$fullHTML = $html + $bodyHTML
+$fullHTML | Out-File -FilePath "C:\workspace\admin.html" -Encoding UTF8
+Write-Host "✅ admin.html completo generado!" -ForegroundColor Green
