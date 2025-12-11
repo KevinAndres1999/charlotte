@@ -67,7 +67,12 @@
           <span class="brand-name">CHARLOTTE</span>
         </a>
       </div>
-      <nav class="main-nav">
+      <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="main-nav" id="mainNav">
         <a href="index.html">Inicio</a>
         <a href="sobre.html">Sobre Nosotros</a>
         <a href="cursos.html">Cursos</a>
@@ -340,5 +345,14 @@
     });
   </script>
   <script src="script.js"></script>
-</body>
+
+<script>
+function toggleMobileMenu() {
+    const nav = document.getElementById('mainNav');
+    const hamburger = document.querySelector('.hamburger-menu');
+    nav.classList.toggle('active');
+    hamburger.classList.toggle('active');
+}
+</script></body>
 </html>
+
