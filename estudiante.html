@@ -393,7 +393,109 @@
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
             </button>
-        </div>
+        
+            <!-- Sección: Materiales de Estudio -->
+            <div id="materiales" class="content-section">
+                <div class="content-header">
+                    <h2>Materiales de Estudio</h2>
+                    <p>Cuestionarios, evaluaciones y recetarios de tu curso</p>
+                </div>
+
+                <!-- Materiales según el curso del estudiante -->
+                <div id="materialesPanaderia" style="display:none;">
+                    <div class="card">
+                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Panadería</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>📄 Cuestionario de Panadería</h4>
+                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>✅ Cuestionario RESUELTO</h4>
+                                    <p>Respuestas correctas para verificar tu estudio</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Panadería</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>🎓 Evaluación Oficial</h4>
+                                    <p>Examen del curso de Panadería</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Evaluación Panadería.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Evaluacion Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-book"></i> Recetario de Panadería</h3>
+                        <div class="lesson-item">
+                            <div class="lesson-info">
+                                <h4>�� Recetario Completo 2024-2025</h4>
+                                <p>Más de 40 recetas profesionales con instrucciones detalladas</p>
+                            </div>
+                            <a href="recetario-index.html" class="btn-primary" style="text-decoration:none;">Ver Recetario Online →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="materialesBelleza" style="display:none;">
+                    <div class="card">
+                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Belleza</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>📄 Cuestionario de Belleza</h4>
+                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>✅ Cuestionario RESUELTO</h4>
+                                    <p>Respuestas correctas para verificar tu estudio</p>
+                                </div>
+                                <a href="cuestionarios y evaluaciones/Cuestionario Belleza RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Belleza</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>🎓 Evaluación Oficial</h4>
+                                    <p>Examen del curso de Belleza</p>
+                                </div>
+                                <a href="cuestionarios y evaluaciones/Evaluacion Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
     </div>
 
     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
@@ -425,7 +527,11 @@
                     <i class="fas fa-file-alt"></i>
                     <span>Cuestionarios</span>
                 </div>
-                <div class="nav-item" onclick="window.location.href='recursos.html'">
+                                <div class="nav-item" onclick="showSection('materiales')">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Materiales de Estudio</span>
+                </div>
+<div class="nav-item" onclick="window.location.href='recursos.html'">
                     <i class="fas fa-images"></i>
                     <span>Galería</span>
                 </div>
@@ -522,6 +628,15 @@
         `;
 
         document.getElementById('programName').textContent = currentUser.programa;
+
+        // Mostrar materiales según el programa del estudiante
+        if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
+            document.getElementById('materialesPanaderia').style.display = 'block';
+            document.getElementById('materialesBelleza').style.display = 'none';
+        } else if (currentUser.programa.toLowerCase().includes('belleza')) {
+            document.getElementById('materialesBelleza').style.display = 'block';
+            document.getElementById('materialesPanaderia').style.display = 'none';
+        }
 
         // Función para cambiar de sección
         window.showSection = function(sectionId) {
