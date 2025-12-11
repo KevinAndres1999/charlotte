@@ -161,7 +161,22 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+            authDomain: "charlotte-babda.firebaseapp.com",
+            projectId: "charlotte-babda",
+            storageBucket: "charlotte-babda.firebasestorage.app",
+            messagingSenderId: "486360806502",
+            appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
 
@@ -171,7 +186,7 @@
             messageDiv.style.display = 'block';
         }
 
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
@@ -179,7 +194,7 @@
 
             // Verificar si es admin
             if (email === 'admin@charlotte.com' && password === 'admin123') {
-                localStorage.setItem('currentUser', JSON.stringify({
+                sessionStorage.setItem('currentUser', JSON.stringify({
                     email: email,
                     role: 'admin',
                     name: 'Administrador'
@@ -188,19 +203,29 @@
                 return;
             }
 
-            // Obtener estudiantes aprobados
-            const students = JSON.parse(localStorage.getItem('approvedStudents') || '[]');
-            const student = students.find(s => s.email === email && s.password === password);
+            try {
+                // Buscar estudiante aprobado
+                const q = query(collection(db, 'approvedStudents'), where('email', '==', email), where('password', '==', password));
+                const querySnapshot = await getDocs(q);
 
-            if (student) {
-                localStorage.setItem('currentUser', JSON.stringify({
-                    email: student.email,
-                    role: 'student',
-                    name: student.name
-                }));
-                window.location.href = 'estudiante.html';
-            } else {
-                showMessage('Credenciales incorrectas o cuenta no aprobada', 'error');
+                if (!querySnapshot.empty) {
+                    const studentData = querySnapshot.docs[0].data();
+                    sessionStorage.setItem('currentUser', JSON.stringify({
+                        email: studentData.email,
+                        role: 'student',
+                        name: studentData.name,
+                        cedula: studentData.cedula,
+                        telefono: studentData.telefono,
+                        programa: studentData.programa,
+                        sede: studentData.sede
+                    }));
+                    window.location.href = 'estudiante.html';
+                } else {
+                    showMessage('Credenciales incorrectas o cuenta no aprobada', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error al iniciar sesión. Intenta de nuevo.', 'error');
             }
         });
     </script>

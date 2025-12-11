@@ -198,101 +198,147 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+            authDomain: "charlotte-babda.firebaseapp.com",
+            projectId: "charlotte-babda",
+            storageBucket: "charlotte-babda.firebasestorage.app",
+            messagingSenderId: "486360806502",
+            appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         // Verificar autenticación
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
         }
 
-        function logout() {
-            localStorage.removeItem('currentUser');
+        window.logout = function() {
+            sessionStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
 
-        function loadData() {
-            const pending = JSON.parse(localStorage.getItem('pendingStudents') || '[]');
-            const approved = JSON.parse(localStorage.getItem('approvedStudents') || '[]');
+        async function loadData() {
+            try {
+                // Cargar estudiantes pendientes
+                const pendingSnapshot = await getDocs(collection(db, 'pendingStudents'));
+                const pending = [];
+                pendingSnapshot.forEach((doc) => {
+                    pending.push({ id: doc.id, ...doc.data() });
+                });
 
-            // Actualizar estadísticas
-            document.getElementById('pendingCount').textContent = pending.length;
-            document.getElementById('approvedCount').textContent = approved.length;
-            document.getElementById('totalCount').textContent = pending.length + approved.length;
+                // Cargar estudiantes aprobados
+                const approvedSnapshot = await getDocs(collection(db, 'approvedStudents'));
+                const approved = [];
+                approvedSnapshot.forEach((doc) => {
+                    approved.push({ id: doc.id, ...doc.data() });
+                });
 
-            // Cargar tabla de pendientes
-            const pendingBody = document.getElementById('pendingBody');
-            if (pending.length === 0) {
-                pendingBody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay solicitudes pendientes</td></tr>';
-            } else {
-                pendingBody.innerHTML = pending.map((student, index) => `
-                    <tr>
-                        <td>${student.name}</td>
-                        <td>${student.email}</td>
-                        <td>${student.cedula}</td>
-                        <td>${student.programa}</td>
-                        <td>${student.sede}</td>
-                        <td>${new Date(student.registeredDate).toLocaleDateString()}</td>
-                        <td>
-                            <button class="btn-approve" onclick="approveStudent(${index})">
-                                <i class="fas fa-check"></i> Aprobar
-                            </button>
-                            <button class="btn-reject" onclick="rejectStudent(${index})">
-                                <i class="fas fa-times"></i> Rechazar
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+                // Actualizar estadísticas
+                document.getElementById('pendingCount').textContent = pending.length;
+                document.getElementById('approvedCount').textContent = approved.length;
+                document.getElementById('totalCount').textContent = pending.length + approved.length;
 
-            // Cargar tabla de aprobados
-            const approvedBody = document.getElementById('approvedBody');
-            if (approved.length === 0) {
-                approvedBody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay estudiantes aprobados</td></tr>';
-            } else {
-                approvedBody.innerHTML = approved.map(student => `
-                    <tr>
-                        <td>${student.name}</td>
-                        <td>${student.email}</td>
-                        <td>${student.programa}</td>
-                        <td>${student.sede}</td>
-                        <td><span class="status-badge status-approved">Aprobado</span></td>
-                    </tr>
-                `).join('');
+                // Cargar tabla de pendientes
+                const pendingBody = document.getElementById('pendingBody');
+                if (pending.length === 0) {
+                    pendingBody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay solicitudes pendientes</td></tr>';
+                } else {
+                    pendingBody.innerHTML = pending.map((student) => `
+                        <tr>
+                            <td>${student.name}</td>
+                            <td>${student.email}</td>
+                            <td>${student.cedula}</td>
+                            <td>${student.programa}</td>
+                            <td>${student.sede}</td>
+                            <td>${new Date(student.registeredDate).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn-approve" onclick="approveStudent('${student.id}')">
+                                    <i class="fas fa-check"></i> Aprobar
+                                </button>
+                                <button class="btn-reject" onclick="rejectStudent('${student.id}')">
+                                    <i class="fas fa-times"></i> Rechazar
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                // Cargar tabla de aprobados
+                const approvedBody = document.getElementById('approvedBody');
+                if (approved.length === 0) {
+                    approvedBody.innerHTML = '<tr><td colspan="5" class="empty-state">No hay estudiantes aprobados</td></tr>';
+                } else {
+                    approvedBody.innerHTML = approved.map(student => `
+                        <tr>
+                            <td>${student.name}</td>
+                            <td>${student.email}</td>
+                            <td>${student.programa}</td>
+                            <td>${student.sede}</td>
+                            <td><span class="status-badge status-approved">Aprobado</span></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error cargando datos:', error);
             }
         }
 
-        function approveStudent(index) {
-            const pending = JSON.parse(localStorage.getItem('pendingStudents') || '[]');
-            const approved = JSON.parse(localStorage.getItem('approvedStudents') || '[]');
+        window.approveStudent = async function(studentId) {
+            try {
+                // Obtener datos del estudiante pendiente
+                const pendingSnapshot = await getDocs(collection(db, 'pendingStudents'));
+                let studentData = null;
+                let docToDelete = null;
+                
+                pendingSnapshot.forEach((docSnap) => {
+                    if (docSnap.id === studentId) {
+                        studentData = docSnap.data();
+                        docToDelete = docSnap;
+                    }
+                });
 
-            const student = pending[index];
-            student.status = 'approved';
-            student.approvedDate = new Date().toISOString();
+                if (studentData) {
+                    // Agregar a aprobados
+                    studentData.status = 'approved';
+                    studentData.approvedDate = new Date().toISOString();
+                    await addDoc(collection(db, 'approvedStudents'), studentData);
 
-            // Mover de pendiente a aprobado
-            approved.push(student);
-            pending.splice(index, 1);
+                    // Eliminar de pendientes
+                    await deleteDoc(doc(db, 'pendingStudents', studentId));
 
-            localStorage.setItem('pendingStudents', JSON.stringify(pending));
-            localStorage.setItem('approvedStudents', JSON.stringify(approved));
-
-            loadData();
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error aprobando estudiante:', error);
+                alert('Error al aprobar estudiante');
+            }
         }
 
-        function rejectStudent(index) {
+        window.rejectStudent = async function(studentId) {
             if (confirm('¿Estás seguro de rechazar esta solicitud?')) {
-                const pending = JSON.parse(localStorage.getItem('pendingStudents') || '[]');
-                pending.splice(index, 1);
-                localStorage.setItem('pendingStudents', JSON.stringify(pending));
-                loadData();
+                try {
+                    await deleteDoc(doc(db, 'pendingStudents', studentId));
+                    loadData();
+                } catch (error) {
+                    console.error('Error rechazando estudiante:', error);
+                    alert('Error al rechazar estudiante');
+                }
             }
         }
 
         // Cargar datos al inicio
         loadData();
 
-        // Actualizar cada 5 segundos
-        setInterval(loadData, 5000);
+        // Actualizar cada 10 segundos
+        setInterval(loadData, 10000);
     </script>
 </body>
 </html>

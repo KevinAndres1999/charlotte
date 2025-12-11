@@ -154,61 +154,56 @@
 
     <script>
         // Verificar autenticación
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser || currentUser.role !== 'student') {
             window.location.href = 'login.html';
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
+            sessionStorage.removeItem('currentUser');
             window.location.href = 'login.html';
         }
 
-        // Cargar información del estudiante
-        const approvedStudents = JSON.parse(localStorage.getItem('approvedStudents') || '[]');
-        const student = approvedStudents.find(s => s.email === currentUser.email);
+        // Mostrar información del estudiante
+        document.getElementById('welcomeName').textContent = `¡Bienvenido/a, ${currentUser.name}!`;
+        
+        document.getElementById('studentInfo').innerHTML = `
+            <div class="info-item">
+                <span class="info-label">Nombre:</span>
+                <span class="info-value">${currentUser.name}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">${currentUser.email}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Cédula:</span>
+                <span class="info-value">${currentUser.cedula}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Teléfono:</span>
+                <span class="info-value">${currentUser.telefono}</span>
+            </div>
+        `;
 
-        if (student) {
-            document.getElementById('welcomeName').textContent = `¡Bienvenido/a, ${student.name}!`;
-            
-            document.getElementById('studentInfo').innerHTML = `
-                <div class="info-item">
-                    <span class="info-label">Nombre:</span>
-                    <span class="info-value">${student.name}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Email:</span>
-                    <span class="info-value">${student.email}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Cédula:</span>
-                    <span class="info-value">${student.cedula}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Teléfono:</span>
-                    <span class="info-value">${student.telefono}</span>
-                </div>
-            `;
-
-            document.getElementById('programInfo').innerHTML = `
-                <div class="info-item">
-                    <span class="info-label">Programa:</span>
-                    <span class="info-value">${student.programa}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Sede:</span>
-                    <span class="info-value">${student.sede}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Duración:</span>
-                    <span class="info-value">9 meses / 300 horas</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Estado:</span>
-                    <span class="info-value" style="color:#10b981;font-weight:600">Activo</span>
-                </div>
-            `;
-        }
+        document.getElementById('programInfo').innerHTML = `
+            <div class="info-item">
+                <span class="info-label">Programa:</span>
+                <span class="info-value">${currentUser.programa}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Sede:</span>
+                <span class="info-value">${currentUser.sede}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Duración:</span>
+                <span class="info-value">9 meses / 300 horas</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Estado:</span>
+                <span class="info-value" style="color:#10b981;font-weight:600">Activo</span>
+            </div>
+        `;
     </script>
 </body>
 </html>
