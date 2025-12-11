@@ -14,28 +14,41 @@
             overflow: hidden;
             border-radius: 12px;
             position: relative;
+            background: #000;
         }
         .carousel-track {
             display: flex;
             transition: transform 0.5s ease-in-out;
+            height: 500px;
         }
         .carousel-slide {
             min-width: 100%;
-            height: 500px;
-            flex-shrink: 0;
-        }
-        .carousel-slide img,
-        .carousel-slide video {
             width: 100%;
             height: 100%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .carousel-slide img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
-            background: #000;
+        }
+        .carousel-slide video {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
         .carousel-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             color: white;
             border: none;
             padding: 20px 15px;
@@ -46,7 +59,7 @@
             z-index: 10;
         }
         .carousel-btn:hover {
-            background: rgba(0,0,0,0.8);
+            background: rgba(230,57,113,0.9);
         }
         .carousel-btn.prev {
             left: 10px;
@@ -79,7 +92,7 @@
             text-align: center;
         }
         @media (max-width: 768px) {
-            .carousel-slide {
+            .carousel-track {
                 height: 300px;
             }
             .carousel-btn {
@@ -372,6 +385,37 @@
         };
 
         function initCarousels() {
+            // Precargar todas las imágenes
+            const imageTrack = document.getElementById('imageCarousel');
+            const images = imageTrack.querySelectorAll('img');
+            let loadedCount = 0;
+            
+            images.forEach(img => {
+                if (img.complete) {
+                    loadedCount++;
+                } else {
+                    img.onload = () => {
+                        loadedCount++;
+                        if (loadedCount === images.length) {
+                            startCarousels();
+                        }
+                    };
+                    img.onerror = () => {
+                        console.error('Error cargando imagen:', img.src);
+                        loadedCount++;
+                        if (loadedCount === images.length) {
+                            startCarousels();
+                        }
+                    };
+                }
+            });
+            
+            if (loadedCount === images.length) {
+                startCarousels();
+            }
+        }
+        
+        function startCarousels() {
             Object.keys(carousels).forEach(carouselId => {
                 updateCarousel(carouselId);
                 createIndicators(carouselId);
@@ -400,7 +444,7 @@
                 
                 // Reproducir el primer video
                 if (index === 0) {
-                    video.play();
+                    video.play().catch(e => console.log('Autoplay bloqueado:', e));
                 }
             });
         }
@@ -423,7 +467,7 @@
                 const videos = track.querySelectorAll('video');
                 videos.forEach((video, index) => {
                     if (index === carousel.currentIndex) {
-                        video.play();
+                        video.play().catch(e => console.log('Autoplay bloqueado:', e));
                     } else {
                         video.pause();
                         video.currentTime = 0;
@@ -467,7 +511,11 @@
         }
 
         // Inicializar al cargar la página
-        document.addEventListener('DOMContentLoaded', initCarousels);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCarousels);
+        } else {
+            initCarousels();
+        }
     </script>
 
     <!-- Testimonios -->
