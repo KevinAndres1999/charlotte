@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Estudiante | Charlotte</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: #f8fafc;
+        }
+        .student-header {
+            background: linear-gradient(135deg, var(--accent-2), var(--accent));
+            color: #fff;
+            padding: 20px 0;
+        }
+        .student-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .student-content {
+            padding: 40px 0;
+        }
+        .welcome-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .welcome-card h2 {
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .info-card {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .info-card h3 {
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-card p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e8f0fe;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #0a1628;
+        }
+        .info-value {
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="student-header">
+        <div class="container">
+            <h1><i class="fas fa-user-graduate"></i> Portal del Estudiante</h1>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </div>
+    </div>
+
+    <div class="student-content">
+        <div class="container">
+            <div class="welcome-card">
+                <h2 id="welcomeName">¡Bienvenido/a!</h2>
+                <p>Aquí podrás acceder a tu información académica y recursos del programa</p>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3><i class="fas fa-user"></i> Mi Información</h3>
+                    <div id="studentInfo"></div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-book"></i> Mi Programa</h3>
+                    <div id="programInfo"></div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-map-marker-alt"></i> Información de Contacto</h3>
+                    <div class="info-item">
+                        <span class="info-label">WhatsApp:</span>
+                        <span class="info-value">+593 96 424 5339</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">onanuor@gmail.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Horarios:</span>
+                        <span class="info-value">Lun-Vie 8:00-17:00</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3><i class="fas fa-images"></i> Recursos</h3>
+                    <p>
+                        <a href="recursos.html" style="color:var(--accent);font-weight:600;text-decoration:none">
+                            <i class="fas fa-arrow-right"></i> Ver Galería de Trabajos
+                        </a>
+                    </p>
+                    <p style="margin-top:12px">
+                        <a href="index.html" style="color:var(--accent);font-weight:600;text-decoration:none">
+                            <i class="fas fa-arrow-right"></i> Volver al Inicio
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (!currentUser || currentUser.role !== 'student') {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Cargar información del estudiante
+        const approvedStudents = JSON.parse(localStorage.getItem('approvedStudents') || '[]');
+        const student = approvedStudents.find(s => s.email === currentUser.email);
+
+        if (student) {
+            document.getElementById('welcomeName').textContent = `¡Bienvenido/a, ${student.name}!`;
+            
+            document.getElementById('studentInfo').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">${student.name}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">${student.email}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Cédula:</span>
+                    <span class="info-value">${student.cedula}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Teléfono:</span>
+                    <span class="info-value">${student.telefono}</span>
+                </div>
+            `;
+
+            document.getElementById('programInfo').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">Programa:</span>
+                    <span class="info-value">${student.programa}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Sede:</span>
+                    <span class="info-value">${student.sede}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Duración:</span>
+                    <span class="info-value">9 meses / 300 horas</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Estado:</span>
+                    <span class="info-value" style="color:#10b981;font-weight:600">Activo</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
