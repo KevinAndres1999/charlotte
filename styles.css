@@ -623,3 +623,50 @@ body{background:var(--bg);color:#111}
         order: 3;
     }
 }
+
+/* Elementos para menú móvil */
+.nav-social-mobile,
+.nav-login-mobile {
+    display: none;
+}
+
+@media(max-width:768px){
+    /* Ocultar header-actions en móvil */
+    .header-actions {
+        display: none !important;
+    }
+    
+    /* Mostrar redes sociales dentro del nav en móvil */
+    .nav-social-mobile {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        padding: 16px;
+        border-top: 1px solid rgba(230,57,113,0.1);
+        border-bottom: 1px solid rgba(230,57,113,0.1);
+        margin: 12px 0;
+    }
+    
+    .nav-social-mobile a {
+        font-size: 24px !important;
+        color: var(--accent-2) !important;
+        padding: 0 !important;
+        border: none !important;
+        width: auto !important;
+    }
+    
+    /* Mostrar botón acceso estudiantes dentro del nav en móvil */
+    .nav-login-mobile {
+        display: block !important;
+        width: calc(100% - 32px) !important;
+        margin: 16px auto !important;
+        text-align: center;
+        padding: 12px 20px !important;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white !important;
+        border: none !important;
+        border-radius: var(--radius);
+        text-decoration: none;
+        font-weight: 700;
+    }
+}
