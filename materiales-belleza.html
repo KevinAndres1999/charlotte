@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiales de Estudio - Belleza - ECE CHARLOTTE</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .materials-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .material-card { background: white; border-radius: 10px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .material-card h2 { color: #e91e63; border-bottom: 3px solid #f48fb1; padding-bottom: 15px; margin-bottom: 20px; }
+        .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .download-item { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #e91e63; transition: transform 0.3s, box-shadow 0.3s; }
+        .download-item:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .download-item h3 { color: #c2185b; margin-bottom: 10px; font-size: 1.2em; }
+        .download-item p { color: #666; margin-bottom: 15px; line-height: 1.6; }
+        .download-btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
+        .download-btn:hover { background: #5568d3; }
+        .download-btn.pdf { background: #dc3545; }
+        .download-btn.pdf:hover { background: #c82333; }
+        .download-btn.docx { background: #28a745; }
+        .download-btn.docx:hover { background: #218838; }
+        .icon { font-size: 2em; margin-bottom: 10px; }
+        .nav-buttons { display: flex; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
+        .nav-buttons a { flex: 1; min-width: 200px; text-align: center; padding: 15px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        .nav-buttons a:hover { background: #5568d3; }
+        .info-box { background: #FCE4EC; padding: 20px; border-radius: 8px; border-left: 5px solid #e91e63; margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-content">
+            <div class="header-brand">
+                <h1>CHARLOTTE</h1>
+                <p>Centro Educativo</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="materials-container">
+        <div class="nav-buttons">
+            <a href="belleza.html">← Volver al Curso de Belleza</a>
+        </div>
+
+        <h1 style="text-align: center; color: #e91e63; font-size: 2.5em; margin: 40px 0;">💄 Materiales de Estudio - Belleza</h1>
+
+        <div class="info-box">
+            <h3 style="color: #c2185b; margin-bottom: 10px;">📌 Instrucciones</h3>
+            <ul style="line-height: 1.8;">
+                <li>Descarga los cuestionarios para practicar antes de las evaluaciones</li>
+                <li>Los archivos RESUELTOS te ayudarán a verificar tus respuestas</li>
+                <li>Puedes descargar en formato PDF (para leer) o DOCX (para editar)</li>
+                <li>Las evaluaciones son los exámenes oficiales del curso</li>
+            </ul>
+        </div>
+
+        <!-- Cuestionarios -->
+        <div class="material-card">
+            <h2>📝 Cuestionarios de Práctica</h2>
+            <p>Material de estudio para reforzar los conocimientos del curso</p>
+            
+            <div class="download-grid">
+                <div class="download-item">
+                    <div class="icon">📄</div>
+                    <h3>Cuestionario - Belleza</h3>
+                    <p>Preguntas de práctica sobre todos los temas del curso</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="cuestionarios y evaluaciones/Cuestionario Belleza.pdf" class="download-btn pdf" download>📕 PDF</a>
+                        <a href="cuestionarios y evaluaciones/Cuestionario Belleza.docx" class="download-btn docx" download>📗 DOCX</a>
+                    </div>
+                </div>
+
+                <div class="download-item">
+                    <div class="icon">✅</div>
+                    <h3>Cuestionario RESUELTO</h3>
+                    <p>Respuestas correctas para verificar tu estudio</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="cuestionarios y evaluaciones/Cuestionario Belleza RESUELTO.pdf" class="download-btn pdf" download>📕 PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluaciones -->
+        <div class="material-card">
+            <h2>📋 Evaluaciones Oficiales</h2>
+            <p>Exámenes del curso de Belleza</p>
+            
+            <div class="download-grid">
+                <div class="download-item">
+                    <div class="icon">🎓</div>
+                    <h3>Evaluación - Belleza</h3>
+                    <p>Examen oficial del curso</p>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="cuestionarios y evaluaciones/Evaluacion Belleza.docx" class="download-btn docx" download>📗 DOCX</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="belleza.html">← Volver al Curso</a>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="container">© 2025 CHARLOTTE · Todos los derechos reservados</div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const nav = document.getElementById('mainNav');
+            const hamburger = document.querySelector('.hamburger-menu');
+            nav.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
