@@ -5,102 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panadería y Pastelería Profesional | Nuestra Receta</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        .carousel-container {
-            position: relative;
-            margin-bottom: 50px;
-        }
-        .carousel-wrapper {
-            overflow: hidden;
-            border-radius: 12px;
-            position: relative;
-            background: #000;
-        }
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-            height: 500px;
-        }
-        .carousel-slide {
-            min-width: 100%;
-            width: 100%;
-            height: 100%;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .carousel-slide img {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-        .carousel-slide video {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            padding: 20px 15px;
-            cursor: pointer;
-            font-size: 24px;
-            border-radius: 4px;
-            transition: background 0.3s;
-            z-index: 10;
-        }
-        .carousel-btn:hover {
-            background: rgba(230,57,113,0.9);
-        }
-        .carousel-btn.prev {
-            left: 10px;
-        }
-        .carousel-btn.next {
-            right: 10px;
-        }
-        .carousel-indicators {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .carousel-indicators span {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ccc;
-            margin: 0 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .carousel-indicators span.active {
-            background: var(--accent);
-        }
-        .gallery-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        @media (max-width: 768px) {
-            .carousel-track {
-                height: 300px;
-            }
-            .carousel-btn {
-                padding: 15px 10px;
-                font-size: 18px;
-            }
-        }
-    </style>
 </head>
 <body>
   <header class="site-header">
@@ -248,275 +152,114 @@
             <h2>Algunos de Nuestros Trabajos</h2>
             <p style="color:var(--muted);margin-bottom:40px;text-align:center;">Descubre lo que aprenderás a crear en nuestro programa</p>
             
-            <!-- Carrusel de Imágenes -->
-            <div class="carousel-container">
-                <h3 class="gallery-title">📸 Galería de Imágenes</h3>
-                <div class="carousel-wrapper">
-                    <div class="carousel-track" id="imageCarousel">
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20250927_172717_429.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251004_125909_002.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_141638_121.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_141651_615.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_142330_106.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_142334_924.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_145341_193.jpg" alt="Trabajo de panadería">
-                        </div>
-                        <div class="carousel-slide">
-                            <img src="Trabajos panadería/IMG_20251108_175222_843.jpg" alt="Trabajo de panadería">
-                        </div>
-                    </div>
-                    <button class="carousel-btn prev" onclick="moveCarousel('imageCarousel', -1)">‹</button>
-                    <button class="carousel-btn next" onclick="moveCarousel('imageCarousel', 1)">›</button>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20250927_172717_429.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
                 </div>
-                <div class="carousel-indicators" id="imageIndicators"></div>
-            </div>
-
-            <!-- Carrusel de Videos -->
-            <div class="carousel-container">
-                <h3 class="gallery-title">🎥 Galería de Videos</h3>
-                <div class="carousel-wrapper">
-                    <div class="carousel-track" id="videoCarousel">
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20250504_183912.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20250728_120800.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251108_141629.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251108_172241.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251108_175300.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251108_175405.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251108_180448.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_115056.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_115655.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_115705.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_121507.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_123147.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_124605.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_125530.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_130028.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-slide">
-                            <video preload="metadata" controls muted loop playsinline>
-                                <source src="Trabajos panadería/VID_20251109_130310.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                    </div>
-                    <button class="carousel-btn prev" onclick="moveCarousel('videoCarousel', -1)">‹</button>
-                    <button class="carousel-btn next" onclick="moveCarousel('videoCarousel', 1)">›</button>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251004_125909_002.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
                 </div>
-                <div class="carousel-indicators" id="videoIndicators"></div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_141638_121.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_141651_615.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_142330_106.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_142334_924.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_145341_193.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <img src="Trabajos panadería/IMG_20251108_175222_843.jpg" alt="Trabajo de panadería" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20250504_183912.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20250728_120800.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251108_141629.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251108_172241.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251108_175300.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251108_175405.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251108_180448.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_115056.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_115655.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_115705.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_121507.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_123147.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_124605.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_125530.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_130028.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="gallery-item">
+                    <video autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;">
+                        <source src="Trabajos panadería/VID_20251109_130310.mp4" type="video/mp4">
+                    </video>
+                </div>
             </div>
         </div>
     </section>
-
-    <script>
-        const carousels = {
-            imageCarousel: { currentIndex: 0, totalSlides: 8, interval: null },
-            videoCarousel: { currentIndex: 0, totalSlides: 16, interval: null }
-        };
-
-        function initCarousels() {
-            // Precargar todas las imágenes
-            const imageTrack = document.getElementById('imageCarousel');
-            const images = imageTrack.querySelectorAll('img');
-            let loadedCount = 0;
-            
-            images.forEach(img => {
-                if (img.complete) {
-                    loadedCount++;
-                } else {
-                    img.onload = () => {
-                        loadedCount++;
-                        if (loadedCount === images.length) {
-                            startCarousels();
-                        }
-                    };
-                    img.onerror = () => {
-                        console.error('Error cargando imagen:', img.src);
-                        loadedCount++;
-                        if (loadedCount === images.length) {
-                            startCarousels();
-                        }
-                    };
-                }
-            });
-            
-            if (loadedCount === images.length) {
-                startCarousels();
-            }
-        }
-        
-        function startCarousels() {
-            Object.keys(carousels).forEach(carouselId => {
-                updateCarousel(carouselId);
-                createIndicators(carouselId);
-            });
-            
-            // Auto-play para imágenes cada 2 segundos
-            carousels.imageCarousel.interval = setInterval(() => {
-                moveCarousel('imageCarousel', 1);
-            }, 2000);
-            
-            // Configurar videos para cambiar cuando terminen
-            setupVideoAutoPlay();
-        }
-
-        function setupVideoAutoPlay() {
-            const videoTrack = document.getElementById('videoCarousel');
-            const videos = videoTrack.querySelectorAll('video');
-            
-            videos.forEach((video, index) => {
-                video.addEventListener('ended', () => {
-                    moveCarousel('videoCarousel', 1);
-                    // Reproducir el siguiente video
-                    const nextIndex = (index + 1) % videos.length;
-                    videos[nextIndex].play();
-                });
-                
-                // Reproducir el primer video
-                if (index === 0) {
-                    video.play().catch(e => console.log('Autoplay bloqueado:', e));
-                }
-            });
-        }
-
-        function moveCarousel(carouselId, direction) {
-            const carousel = carousels[carouselId];
-            carousel.currentIndex += direction;
-            
-            if (carousel.currentIndex < 0) {
-                carousel.currentIndex = carousel.totalSlides - 1;
-            } else if (carousel.currentIndex >= carousel.totalSlides) {
-                carousel.currentIndex = 0;
-            }
-            
-            updateCarousel(carouselId);
-            
-            // Si es carrusel de videos, reproducir el video actual
-            if (carouselId === 'videoCarousel') {
-                const track = document.getElementById(carouselId);
-                const videos = track.querySelectorAll('video');
-                videos.forEach((video, index) => {
-                    if (index === carousel.currentIndex) {
-                        video.play().catch(e => console.log('Autoplay bloqueado:', e));
-                    } else {
-                        video.pause();
-                        video.currentTime = 0;
-                    }
-                });
-            }
-        }
-
-        function updateCarousel(carouselId) {
-            const track = document.getElementById(carouselId);
-            const carousel = carousels[carouselId];
-            const offset = -carousel.currentIndex * 100;
-            track.style.transform = `translateX(${offset}%)`;
-            updateIndicators(carouselId);
-        }
-
-        function createIndicators(carouselId) {
-            const indicatorContainer = document.getElementById(carouselId.replace('Carousel', 'Indicators'));
-            const carousel = carousels[carouselId];
-            
-            for (let i = 0; i < carousel.totalSlides; i++) {
-                const indicator = document.createElement('span');
-                indicator.onclick = () => goToSlide(carouselId, i);
-                indicatorContainer.appendChild(indicator);
-            }
-        }
-
-        function updateIndicators(carouselId) {
-            const indicatorContainer = document.getElementById(carouselId.replace('Carousel', 'Indicators'));
-            const indicators = indicatorContainer.querySelectorAll('span');
-            const carousel = carousels[carouselId];
-            
-            indicators.forEach((indicator, index) => {
-                indicator.classList.toggle('active', index === carousel.currentIndex);
-            });
-        }
-
-        function goToSlide(carouselId, index) {
-            carousels[carouselId].currentIndex = index;
-            updateCarousel(carouselId);
-        }
-
-        // Inicializar al cargar la página
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initCarousels);
-        } else {
-            initCarousels();
-        }
-    </script>
 
     <!-- Testimonios -->
     <section class="testimonials-section">
