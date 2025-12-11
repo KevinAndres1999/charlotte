@@ -288,6 +288,102 @@
             background: #dbeafe;
             color: #1e40af;
         }
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(230,57,113,0.4);
+            z-index: 1000;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 60px;
+                height: calc(100vh - 60px);
+                width: 280px;
+                transition: left 0.3s;
+                z-index: 999;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                overflow-y: auto;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .student-header h1 {
+                font-size: 18px;
+            }
+            .logout-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            .content-header h2 {
+                font-size: 24px;
+            }
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .quiz-header .btn-primary {
+                width: 100%;
+            }
+            .activity-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .student-header .container {
+                padding: 0 15px;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .lesson-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .video-card {
+                margin-bottom: 16px;
+            }
+            .student-profile {
+                padding: 16px;
+            }
+            .nav-item {
+                padding: 14px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -299,6 +395,10 @@
             </button>
         </div>
     </div>
+
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <div class="dashboard-container">
         <!-- Sidebar con perfil y menú -->
@@ -440,7 +540,29 @@
             
             // Marcar el item del menú como activo
             event.currentTarget.classList.add('active');
+            
+            // Cerrar menú móvil si está abierto
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('open');
+            }
         }
+
+        // Función para toggle del menú móvil
+        window.toggleMobileMenu = function() {
+            document.querySelector('.sidebar').classList.toggle('open');
+        }
+
+        // Cerrar menú al hacer click fuera de él
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
 
         // Cargar clases según el programa
         const lessonsData = {
