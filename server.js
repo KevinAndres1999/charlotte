@@ -1,0 +1,198 @@
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const Database = require('better-sqlite3');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-this';
+
+app.use(cors());
+app.use(express.json());
+
+// Inicializar SQLite (archivo data.db en la raíz del proyecto)
+const db = new Database(path.join(__dirname, 'data.db'));
+db.exec(
+  `CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    passwordHash TEXT NOT NULL,
+    active INTEGER DEFAULT 1,
+    role TEXT DEFAULT 'student'
+  );`
+);
+// Tabla de settings para opciones configurables
+db.exec(
+  `CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );`
+);
+// Si la tabla existía sin las columnas, añadirlas (ALTER TABLE solo si faltan)
+const cols = db.prepare("PRAGMA table_info('users')").all().map(r => r.name);
+if (!cols.includes('active')) db.prepare("ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1").run();
+if (!cols.includes('role')) db.prepare("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'student'").run();
+
+// Crear usuario demo si no existe (password: password123 por defecto o DEV_STUDENT_PASSWORD env)
+(async function ensureDemoUser(){
+  try{
+    const demoEmail = 'estudiante@ejemplo.edu';
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(demoEmail);
+    if(!existing){
+      const plain = process.env.DEV_STUDENT_PASSWORD || 'password123';
+      const passwordHash = await bcrypt.hash(plain, 10);
+      const insert = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
+      insert.run(demoEmail, 'estudiante', passwordHash, 1, 'student');
+      console.log('Usuario demo creado:', demoEmail);
+    }
+    // Crear admin demo si no existe
+    const adminEmail = 'admin@admin.local';
+    const adminExists = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+    if(!adminExists){
+      const adminPass = process.env.DEV_ADMIN_PASSWORD || 'admin123';
+      const adminHash = await bcrypt.hash(adminPass, 10);
+      const insertAdmin = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
+      insertAdmin.run(adminEmail, 'admin', adminHash, 1, 'admin');
+      console.log('Usuario admin creado:', adminEmail);
+    }
+  }catch(err){ console.error('Error creando usuario demo', err); }
+})();
+
+// Helpers para settings
+function getSetting(key){
+  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key);
+  return row ? row.value : null;
+}
+function setSetting(key, value){
+  const up = db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
+  up.run(key, value);
+}
+
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) return res.status(400).json({ message: 'Email y contraseña requeridos' });
+  try{
+    const row = db.prepare('SELECT email, name, passwordHash, active, role FROM users WHERE email = ?').get(email);
+    if(!row) return res.status(401).json({ message: 'Credenciales inválidas' });
+    if(!row.active) return res.status(403).json({ message: 'Cuenta deshabilitada' });
+    const ok = await bcrypt.compare(password, row.passwordHash);
+    if(!ok) return res.status(401).json({ message: 'Credenciales inválidas' });
+    const token = jwt.sign({ email: row.email, name: row.name, role: row.role }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token, user: { email: row.email, name: row.name, role: row.role, active: row.active } });
+  }catch(err){
+    console.error('Login error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Registro de usuario (demo, guardar en memoria)
+app.post('/api/register', async (req, res) => {
+  const { email, password, name } = req.body || {};
+  if (!email || !password || !name) return res.status(400).json({ message: 'Nombre, email y contraseña requeridos' });
+  if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
+  try{
+    const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (exists) return res.status(409).json({ message: 'El email ya está registrado' });
+    const passwordHash = await bcrypt.hash(password, 10);
+    const insert = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
+    insert.run(email, name, passwordHash, 1, 'student');
+    const token = jwt.sign({ email, name, role: 'student' }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(201).json({ token, user: { email, name, role: 'student', active: 1 } });
+  }catch(err){
+    console.error('Register error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Middleware simple para verificar token y adjuntar payload
+function requireAuth(req, res, next){
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if(parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try{
+    const data = jwt.verify(token, JWT_SECRET);
+    req.user = data; // {email,name,role}
+    next();
+  } catch(err){
+    return res.status(401).json({ message: 'Token inválido' });
+  }
+}
+
+// Endpoint admin: listar usuarios
+app.get('/api/admin/users', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  try{
+    const rows = db.prepare('SELECT id, email, name, role, active FROM users ORDER BY id DESC').all();
+    res.json({ users: rows });
+  }catch(err){
+    console.error('Admin list error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Endpoint admin: actualizar active
+app.patch('/api/admin/users/:email/active', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  const email = req.params.email;
+  const { active } = req.body || {};
+  if(typeof active === 'undefined') return res.status(400).json({ message: 'Campo active requerido' });
+  try{
+    const update = db.prepare('UPDATE users SET active = ? WHERE email = ?');
+    const info = update.run(active ? 1 : 0, email);
+    if(info.changes === 0) return res.status(404).json({ message: 'Usuario no encontrado' });
+    res.json({ message: 'OK' });
+  }catch(err){
+    console.error('Admin update error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Endpoint admin: obtener/actualizar settings
+app.get('/api/admin/settings', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  try{
+    const confirmWord = getSetting('confirmWord') || 'CONFIRMAR';
+    res.json({ settings: { confirmWord } });
+  }catch(err){
+    console.error('Admin settings get error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+app.patch('/api/admin/settings', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  const { confirmWord } = req.body || {};
+  if(typeof confirmWord !== 'string' || !confirmWord.trim()) return res.status(400).json({ message: 'confirmWord requerido' });
+  try{
+    setSetting('confirmWord', confirmWord.trim().toUpperCase());
+    res.json({ message: 'OK', settings: { confirmWord: confirmWord.trim().toUpperCase() } });
+  }catch(err){
+    console.error('Admin settings update error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+app.get('/api/profile', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    res.json({ user: { email: data.email, name: data.name } });
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+});
+
+// Servir archivos estáticos (frontend) desde la carpeta del proyecto
+app.use(express.static(path.join(__dirname)));
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));

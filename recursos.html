@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería | Centro Educativo Charlotte</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .gallery-page {
+            padding: 60px 0;
+            background: linear-gradient(180deg, #f8fafc, #fff);
+        }
+        .gallery-grid-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .gallery-photo {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(230, 57, 113, 0.1);
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            cursor: pointer;
+        }
+        .gallery-photo:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(230, 57, 113, 0.2);
+        }
+        .gallery-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            border-radius: 8px;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        @media (max-width: 768px) {
+            .gallery-grid-photos {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-brand">
+        <a href="index.html">
+          <img src="Mesa de trabajo 3.png" alt="Centro Educativo" class="header-logo">
+          <span class="brand-name">CHARLOTTE</span>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html">Inicio</a>
+        <a href="sobre.html">Sobre</a>
+        <a href="cursos.html">Cursos</a>
+        <a href="recursos.html">Galería</a>
+        <a href="contacto.html">Contacto</a>
+        <a href="#admin" id="adminLink" class="nav-admin" hidden>Admin</a>
+      </nav>
+      <div class="header-actions">
+        <button id="studentAccessBtn" class="btn btn-header">Acceso Estudiantes</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="gallery-page">
+      <div class="container">
+        <div class="section-header" style="text-align: center; margin-bottom: 20px;">
+          <h1 style="font-size: 42px; margin: 0 0 16px; color: #0a1628;">📸 Galería de Momentos</h1>
+          <p style="color: var(--muted); font-size: 18px;">Descubre los increíbles trabajos y momentos de nuestros estudiantes</p>
+        </div>
+
+        <div class="gallery-grid-photos">
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 09.52.48.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 09.52.48.jpeg" alt="Galería 1" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (1).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (1).jpeg" alt="Galería 2" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (2).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (2).jpeg" alt="Galería 3" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (3).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (3).jpeg" alt="Galería 4" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (4).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (4).jpeg" alt="Galería 5" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (5).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (5).jpeg" alt="Galería 6" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (6).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (6).jpeg" alt="Galería 7" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (7).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (7).jpeg" alt="Galería 8" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (8).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (8).jpeg" alt="Galería 9" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03 (9).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03 (9).jpeg" alt="Galería 10" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.03.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.03.jpeg" alt="Galería 11" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (1).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (1).jpeg" alt="Galería 12" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (10).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (10).jpeg" alt="Galería 13" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (11).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (11).jpeg" alt="Galería 14" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (12).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (12).jpeg" alt="Galería 15" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (2).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (2).jpeg" alt="Galería 16" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (3).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (3).jpeg" alt="Galería 17" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (4).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (4).jpeg" alt="Galería 18" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (5).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (5).jpeg" alt="Galería 19" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (6).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (6).jpeg" alt="Galería 20" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (7).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (7).jpeg" alt="Galería 21" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (8).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (8).jpeg" alt="Galería 22" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20 (9).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20 (9).jpeg" alt="Galería 23" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.20.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.20.jpeg" alt="Galería 24" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (1).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (1).jpeg" alt="Galería 25" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (10).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (10).jpeg" alt="Galería 26" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (11).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (11).jpeg" alt="Galería 27" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (12).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (12).jpeg" alt="Galería 28" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (13).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (13).jpeg" alt="Galería 29" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (14).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (14).jpeg" alt="Galería 30" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (15).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (15).jpeg" alt="Galería 31" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (16).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (16).jpeg" alt="Galería 32" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (2).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (2).jpeg" alt="Galería 33" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (3).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (3).jpeg" alt="Galería 34" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (4).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (4).jpeg" alt="Galería 35" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (5).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (5).jpeg" alt="Galería 36" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (6).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (6).jpeg" alt="Galería 37" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (7).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (7).jpeg" alt="Galería 38" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (8).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (8).jpeg" alt="Galería 39" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38 (9).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38 (9).jpeg" alt="Galería 40" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.38.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.38.jpeg" alt="Galería 41" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.39 (1).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.39 (1).jpeg" alt="Galería 42" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-04-12 at 12.06.39.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-04-12 at 12.06.39.jpeg" alt="Galería 43" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-05-26 at 14.46.57.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-05-26 at 14.46.57.jpeg" alt="Galería 44" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-05-26 at 14.47.08.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-05-26 at 14.47.08.jpeg" alt="Galería 45" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-28 at 13.01.37.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-28 at 13.01.37.jpeg" alt="Galería 46" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-28 at 13.02.10.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-28 at 13.02.10.jpeg" alt="Galería 47" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-28 at 13.02.11 (1).jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-28 at 13.02.11 (1).jpeg" alt="Galería 48" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-28 at 13.02.11.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-28 at 13.02.11.jpeg" alt="Galería 49" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-28 at 14.52.57.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-28 at 14.52.57.jpeg" alt="Galería 50" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-06-29 at 10.04.51.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-06-29 at 10.04.51.jpeg" alt="Galería 51" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-05 at 12.36.02.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-05 at 12.36.02.jpeg" alt="Galería 52" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-05 at 12.48.20.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-05 at 12.48.20.jpeg" alt="Galería 53" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-05 at 13.30.29.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-05 at 13.30.29.jpeg" alt="Galería 54" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-05 at 13.30.30.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-05 at 13.30.30.jpeg" alt="Galería 55" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-12 at 15.21.00.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-12 at 15.21.00.jpeg" alt="Galería 56" loading="lazy">
+          </div>
+          <div class="gallery-photo" onclick="openLightbox('fotos/WhatsApp Image 2025-07-12 at 15.30.36.jpeg')">
+            <img src="fotos/WhatsApp Image 2025-07-12 at 15.30.36.jpeg" alt="Galería 57" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© 2025 Centro Educativo · Todos los derechos reservados</div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="Imagen ampliada">
+  </div>
+
+  <script>
+    function openLightbox(src) {
+      document.getElementById('lightbox').classList.add('active');
+      document.getElementById('lightbox-img').src = src;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
