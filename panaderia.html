@@ -367,14 +367,41 @@
 
     <script>
         const carousels = {
-            imageCarousel: { currentIndex: 0, totalSlides: 8 },
-            videoCarousel: { currentIndex: 0, totalSlides: 16 }
+            imageCarousel: { currentIndex: 0, totalSlides: 8, interval: null },
+            videoCarousel: { currentIndex: 0, totalSlides: 16, interval: null }
         };
 
         function initCarousels() {
             Object.keys(carousels).forEach(carouselId => {
                 updateCarousel(carouselId);
                 createIndicators(carouselId);
+            });
+            
+            // Auto-play para imágenes cada 2 segundos
+            carousels.imageCarousel.interval = setInterval(() => {
+                moveCarousel('imageCarousel', 1);
+            }, 2000);
+            
+            // Configurar videos para cambiar cuando terminen
+            setupVideoAutoPlay();
+        }
+
+        function setupVideoAutoPlay() {
+            const videoTrack = document.getElementById('videoCarousel');
+            const videos = videoTrack.querySelectorAll('video');
+            
+            videos.forEach((video, index) => {
+                video.addEventListener('ended', () => {
+                    moveCarousel('videoCarousel', 1);
+                    // Reproducir el siguiente video
+                    const nextIndex = (index + 1) % videos.length;
+                    videos[nextIndex].play();
+                });
+                
+                // Reproducir el primer video
+                if (index === 0) {
+                    video.play();
+                }
             });
         }
 
@@ -389,6 +416,20 @@
             }
             
             updateCarousel(carouselId);
+            
+            // Si es carrusel de videos, reproducir el video actual
+            if (carouselId === 'videoCarousel') {
+                const track = document.getElementById(carouselId);
+                const videos = track.querySelectorAll('video');
+                videos.forEach((video, index) => {
+                    if (index === carousel.currentIndex) {
+                        video.play();
+                    } else {
+                        video.pause();
+                        video.currentTime = 0;
+                    }
+                });
+            }
         }
 
         function updateCarousel(carouselId) {
@@ -424,13 +465,6 @@
             carousels[carouselId].currentIndex = index;
             updateCarousel(carouselId);
         }
-
-        // Auto-play para carruseles (opcional)
-        setInterval(() => {
-            Object.keys(carousels).forEach(carouselId => {
-                moveCarousel(carouselId, 1);
-            });
-        }, 5000);
 
         // Inicializar al cargar la página
         document.addEventListener('DOMContentLoaded', initCarousels);
