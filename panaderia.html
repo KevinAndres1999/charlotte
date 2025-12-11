@@ -97,7 +97,10 @@
         <div class="container">
             <h2>📚 Malla Curricular - 300 Horas Totales</h2>
             <p style="color:var(--muted);margin-bottom:20px;">Programa profesional con formación integral en panadería y pastelería</p>
-            <div class="curriculum-grid">
+            <button class="curriculum-toggle" onclick="toggleCurriculum()">
+                <span class="toggle-icon">▼</span> Ver Malla Curricular Completa
+            </button>
+            <div class="curriculum-grid" id="curriculumContent" style="display:none;margin-top:20px;">
                 <div class="curriculum-module">
                     <div class="module-number">I</div>
                     <h3>Fundamentos Básicos</h3>
@@ -307,5 +310,23 @@
 
     <script src="load-components.js"></script>
     <script src="script.js"></script>
-</body>
+
+    <script>
+        function toggleCurriculum() {
+            const content = document.getElementById('curriculumContent');
+            const button = document.querySelector('.curriculum-toggle');
+            const icon = button.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'grid';
+                icon.textContent = '▲';
+                button.innerHTML = '<span class="toggle-icon">▲</span> Ocultar Malla Curricular';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+                button.innerHTML = '<span class="toggle-icon">▼</span> Ver Malla Curricular Completa';
+            }
+        }
+    </script></body>
 </html>
+
