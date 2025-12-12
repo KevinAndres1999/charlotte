@@ -328,6 +328,23 @@
         <footer class="footer">
         <p>© 2025 CHARLOTTE Centro Educativo · Todos los derechos reservados</p>
     </footer>
+
+<script>
+// Verificar acceso exclusivo para estudiantes de Panadería
+(function() {
+    const currentUser = sessionStorage.getItem('currentUser');
+    if (!currentUser) {
+        alert('Debes iniciar sesión para acceder a las recetas');
+        window.location.href = 'login.html';
+        return;
+    }
+    const user = JSON.parse(currentUser);
+    if (user.programa !== 'Panadería') {
+        alert('⚠️ Acceso Denegado\n\nEste contenido es exclusivo para estudiantes de Panadería.');
+        window.location.href = 'estudiante.html';
+    }
+})();
+</script>
+
 </body>
 </html>
-

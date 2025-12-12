@@ -177,5 +177,33 @@
     <footer class="footer">
         <p>© 2025 ECE CHARLOTTE · Todos los derechos reservados</p>
     </footer>
+
+<script>
+// Verificar que el usuario esté autenticado y sea de Panadería
+(function() {
+    const currentUser = sessionStorage.getItem('currentUser');
+    
+    if (!currentUser) {
+        alert('Debes iniciar sesión para acceder al recetario');
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    try {
+        const user = JSON.parse(currentUser);
+        
+        // Verificar que el programa sea Panadería
+        if (user.programa !== 'Panadería') {
+            alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes del programa de Panadería.\n\nTu programa: ' + (user.programa || 'No especificado'));
+            window.location.href = 'estudiante.html';
+            return;
+        }
+    } catch (error) {
+        console.error('Error al verificar usuario:', error);
+        window.location.href = 'login.html';
+    }
+})();
+</script>
+
 </body>
 </html>
