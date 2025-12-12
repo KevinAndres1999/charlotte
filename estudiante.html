@@ -690,19 +690,6 @@ async function loadMateriales() {
 
     const filtered = filterByProgram(allMaterials);
 
-    if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
-        const recetas = [
-            // Botón eliminado - acceso directo desde menú de materiales
-            { titulo: '🍞 Panes Básicos', descripcion: 'Pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
-            { titulo: '🥖 Panes Especiales', descripcion: 'Ciabatta, focaccia, bagels', url: 'recetas-panes-especiales.html' },
-            { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Brownies, cookies, muffins', url: 'recetas-bizcochos-galletas.html' },
-            { titulo: '🥐 Empanadas y Hojaldre', descripcion: 'Masa hojaldre y laminado', url: 'recetas-empanadas-hojaldre.html' },
-            { titulo: '🎂 Pastelería', descripcion: 'Tartas, pasteles, éclairs', url: 'recetas-pasteleria.html' },
-            { titulo: '✨ Recetas Especiales', descripcion: 'Creaciones únicas', url: 'recetas-especiales.html' }
-        ];
-        recetas.forEach(r => filtered.push({ ...r, tipo: r.tipo || 'receta' }));
-    }
-
     if (filtered.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3></div>';
         return;

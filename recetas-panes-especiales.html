@@ -329,27 +329,7 @@
         <p>© 2025 CHARLOTTE Centro Educativo · Todos los derechos reservados</p>
     </footer>
 
-<script>
-// Verificación simple de acceso para Panadería
-(function() {
-    const userStr = sessionStorage.getItem('currentUser');
-    if (!userStr) { window.location.replace('login.html'); return; }
-    
-    try {
-        const user = JSON.parse(userStr);
-        if (!user.programa) { 
-            alert('⚠️ No tienes programa asignado.');
-            window.location.replace('estudiante.html');
-            return;
-        }
-        const programa = user.programa.toLowerCase().replace(/[áàäâ]/, 'a').replace(/[éèëê]/, 'e').replace(/[íìïî]/, 'i');
-        if (!programa.includes('panaderia')) {
-            alert('⚠️ Contenido exclusivo para estudiantes de Panadería.');
-            window.location.replace('estudiante.html');
-        }
-    } catch (e) { window.location.replace('login.html'); }
-})();
-</script>
+
 
 </body>
 </html>

@@ -59,7 +59,7 @@
                 <img src="fotos/logo.png" alt="Charlotte Logo" onerror="this.style.display='none'">
                 <h1>CHARLOTTE</h1>
             </div>
-            <a href="estudiante.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver al Portal</a>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Inicio</a>
         </div>
     </header>
 
@@ -67,7 +67,7 @@
         <section class="hero">
             <h2>📖 Recetario de Panadería y Pastelería</h2>
             <p>Año Académico 2024-2025</p>
-            <p style="font-size: 1em;">Material exclusivo para estudiantes de Panadería ECE CHARLOTTE</p>
+            <p style="font-size: 1em;">Ver Recetas Completas de Panadería ECE CHARLOTTE</p>
         </section>
 
         <h2 class="section-title">Índice de Recetas</h2>
@@ -178,46 +178,7 @@
         <p>© 2025 ECE CHARLOTTE · Todos los derechos reservados</p>
     </footer>
 
-<script>
-// Verificación simple: usuario debe estar logueado y ser de Panadería
-(function() {
-    const userStr = sessionStorage.getItem('currentUser');
-    
-    // Si no hay usuario, redirigir a login
-    if (!userStr) {
-        window.location.replace('login.html');
-        return;
-    }
-    
-    // Parsear usuario
-    let user;
-    try {
-        user = JSON.parse(userStr);
-    } catch (e) {
-        window.location.replace('login.html');
-        return;
-    }
-    
-    // Verificar que tenga programa asignado
-    if (!user.programa) {
-        alert('⚠️ No tienes un programa asignado. Contacta al administrador.');
-        window.location.replace('estudiante.html');
-        return;
-    }
-    
-    // Verificar si es de Panadería (normalizar texto para evitar problemas con tildes)
-    const programa = user.programa.toLowerCase().replace(/[áàäâ]/, 'a').replace(/[éèëê]/, 'e').replace(/[íìïî]/, 'i');
-    
-    if (!programa.includes('panaderia')) {
-        alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes de Panadería.\n\nTu programa: ' + user.programa);
-        window.location.replace('estudiante.html');
-        return;
-    }
-    
-    // Usuario válido - permitir acceso
-    console.log('Acceso autorizado al recetario para:', user.name, '- Programa:', user.programa);
-})();
-</script>
+
 
 </body>
 </html>
