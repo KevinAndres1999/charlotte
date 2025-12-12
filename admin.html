@@ -418,25 +418,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script>
-// EXPONER FUNCIONES GLOBALES PRIMERO
-window.showSection = showSection;
-window.loadContent = loadContent;
-window.deleteMaterial = deleteMaterial;
-window.savePDF = savePDF;
-window.saveVideo = saveVideo;
-window.saveClase = saveClase;
-window.saveActividad = saveActividad;
-window.saveCuestionario = saveCuestionario;
-window.saveMaterial = saveMaterial;
-window.deleteItem = deleteItem;
-window.logout = logout;
-window.toggleMobileMenu = toggleMobileMenu;
-window.agregarPregunta = agregarPregunta;
-window.eliminarPregunta = eliminarPregunta;
-window.toggleTipoPregunta = toggleTipoPregunta;
-window.verCuestionario = verCuestionario;
-window.deleteCuestionario = deleteCuestionario;
-
 const firebaseConfig = {
     apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
     authDomain: "charlotte-babda.firebaseapp.com",
@@ -479,7 +460,7 @@ if (savedAdminSection && savedAdminSection !== 'dashboard') {
     sessionStorage.setItem('adminActiveSection', 'dashboard');
 }
 
-function showSection(sectionId, event) {
+window.showSection = function(sectionId, event) {
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
@@ -507,7 +488,7 @@ function showSection(sectionId, event) {
     loadContent(sectionId);
 }
 
-async function deleteMaterial(id) {
+window.deleteMaterial = async function(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
     try {
         await db.collection('materiales').doc(id).delete();
@@ -590,11 +571,11 @@ window.addEventListener('popstate', function(event) {
 // Establecer el estado inicial
 history.replaceState({ section: 'inicio' }, '', '#inicio');
 
-function toggleMobileMenu() {
+window.toggleMobileMenu = function() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
-function logout() {
+window.logout = function() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         sessionStorage.removeItem('currentUser');
         sessionStorage.removeItem('adminActiveSection');
@@ -602,7 +583,7 @@ function logout() {
     }
 }
 
-function saveVideo(e) {
+window.saveVideo = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const video = {
@@ -622,7 +603,7 @@ function saveVideo(e) {
     showAlert('Video guardado exitosamente');
 }
 
-function saveClase(e) {
+window.saveClase = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const clase = {
@@ -641,7 +622,7 @@ function saveClase(e) {
     showAlert('Clase guardada exitosamente');
 }
 
-function saveActividad(e) {
+window.saveActividad = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const actividad = {
@@ -661,7 +642,7 @@ function saveActividad(e) {
     showAlert('Actividad creada exitosamente');
 }
 
-function saveCuestionario(e) {
+window.saveCuestionario = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     
@@ -724,7 +705,7 @@ function saveCuestionario(e) {
 
 let contadorPreguntas = 0;
 
-function agregarPregunta() {
+window.agregarPregunta = function() {
     contadorPreguntas++;
     const container = document.getElementById('preguntasContainer');
     
@@ -773,11 +754,11 @@ function agregarPregunta() {
     container.insertAdjacentHTML('beforeend', preguntaHTML);
 }
 
-function eliminarPregunta(id) {
+window.eliminarPregunta = function(id) {
     document.getElementById('pregunta' + id).remove();
 }
 
-function toggleTipoPregunta(id) {
+window.toggleTipoPregunta = function(id) {
     const tipo = document.querySelector(`[name="tipoPregunta${id}"]`).value;
     const opcionesDiv = document.getElementById(`opcionesMultiple${id}`);
     const abiertoDiv = document.getElementById(`respuestaAbierta${id}`);
@@ -795,7 +776,7 @@ function toggleTipoPregunta(id) {
     }
 }
 
-function saveMaterial(e) {
+window.saveMaterial = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const material = {
@@ -816,7 +797,7 @@ function saveMaterial(e) {
     showAlert('Material guardado exitosamente');
 }
 
-function deleteItem(type, id) {
+window.deleteItem = function(type, id) {
     if (confirm('¿Estás seguro de eliminar este elemento?')) {
         const items = JSON.parse(localStorage.getItem(type) || '[]');
         const filtered = items.filter(item => item.id != id); // Usar != para comparación flexible
@@ -827,7 +808,7 @@ function deleteItem(type, id) {
     }
 }
 
-function loadContent(section) {
+window.loadContent = function(section) {
     switch(section) {
         case 'videos': loadVideos(); break;
         case 'clases': loadClases(); break;
@@ -940,7 +921,7 @@ function loadCuestionarios() {
     }).join('');
 }
 
-function verCuestionario(id) {
+window.verCuestionario = function(id) {
     const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     const cuestionario = cuestionarios.find(c => c.id == id);
     
@@ -977,7 +958,7 @@ function verCuestionario(id) {
     console.log('Preguntas:', cuestionario.preguntas);
 }
 
-function deleteCuestionario(id) {
+window.deleteCuestionario = function(id) {
     if (!confirm('¿Eliminar este cuestionario?')) return;
     let cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     cuestionarios = cuestionarios.filter(c => c.id != id);
@@ -988,7 +969,7 @@ function deleteCuestionario(id) {
 }
 }
 
-function verCuestionario(id) {
+window.verCuestionario = function(id) {
     const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     const cuestionario = cuestionarios.find(c => c.id === id);
     if (cuestionario) {
@@ -1006,7 +987,7 @@ function editarCuestionario(id) {
     }
 }
 
-function deleteCuestionario(id) {
+window.deleteCuestionario = function(id) {
     if (!confirm('¿Estás seguro de eliminar este cuestionario?')) return;
     let cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     cuestionarios = cuestionarios.filter(c => c.id !== id);
@@ -1129,7 +1110,7 @@ async function loadMateriales() {
     }
 }
 
-async function deleteMaterial(id) {
+window.deleteMaterial = async function(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
     try {
         await db.collection('materiales').doc(id).delete();
