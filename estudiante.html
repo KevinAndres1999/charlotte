@@ -349,13 +349,22 @@
                 // Filtrar por programa
                 const filtered = filterByProgram(allMaterials);
 
-                // Agregar recetario para estudiantes de panadería
+                // Agregar recetas individuales para estudiantes de panadería
                 if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
-                    filtered.push({
-                        titulo: '📖 Recetario de Panadería 2024-2025',
-                        descripcion: 'Más de 40 recetas profesionales organizadas por categorías',
-                        tipo: 'recetario',
-                        fecha: '2024-2025'
+                    const recetas = [
+                        { titulo: '🍞 Panes Básicos', descripcion: 'Recetas fundamentales de panadería: pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
+                        { titulo: '🥖 Panes Especiales', descripcion: 'Pan ciabatta, focaccia, bagels y técnicas avanzadas', url: 'recetas-panes-especiales.html' },
+                        { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Recetas dulces: brownies, cookies, muffins y bizcochos', url: 'recetas-bizcochos-galletas.html' },
+                        { titulo: '🥐 Empanadas y Hojaldre', descripcion: 'Masa hojaldre, empanadas y técnicas de laminado', url: 'recetas-empanadas-hojaldre.html' },
+                        { titulo: '🎂 Pastelería', descripcion: 'Tartas, pasteles, éclairs y técnicas de pastelería fina', url: 'recetas-pasteleria.html' },
+                        { titulo: '✨ Recetas Especiales', descripcion: 'Creaciones únicas y recetas para ocasiones especiales', url: 'recetas-especiales.html' }
+                    ];
+                    recetas.forEach(receta => {
+                        filtered.push({
+                            ...receta,
+                            tipo: 'receta',
+                            fecha: '2024-2025'
+                        });
                     });
                 }
 
@@ -365,6 +374,18 @@
                 }
 
                 container.innerHTML = filtered.map(material => {
+                    if (material.tipo === 'receta') {
+                        return `
+                            <div class="content-card" style="border-top-color: #f59e0b;">
+                                <h4>${material.titulo}</h4>
+                                <p>${material.descripcion}</p>
+                                <a href="${material.url}" target="_blank" class="btn-view" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                    <i class="fas fa-utensils"></i> Ver Recetas
+                                </a>
+                            </div>
+                        `;
+                    }
+                    
                     if (material.tipo === 'recetario') {
                         return `
                             <div class="content-card" style="border-top-color: #22c55e;">
