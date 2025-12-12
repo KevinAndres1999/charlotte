@@ -330,30 +330,24 @@
     </footer>
 
 <script>
-// Verificar acceso exclusivo para estudiantes de Panadería
+// Verificación simple de acceso para Panadería
 (function() {
+    const userStr = sessionStorage.getItem('currentUser');
+    if (!userStr) { window.location.replace('login.html'); return; }
+    
     try {
-        const currentUserStr = sessionStorage.getItem('currentUser');
-        if (!currentUserStr) {
-            alert('Debes iniciar sesión para acceder a las recetas');
-            window.location.href = 'login.html';
+        const user = JSON.parse(userStr);
+        if (!user.programa) { 
+            alert('⚠️ No tienes programa asignado.');
+            window.location.replace('estudiante.html');
             return;
         }
-        const user = JSON.parse(currentUserStr);
-        if (!user.programa) {
-            alert('⚠️ Error: No tienes un programa asignado.');
-            window.location.href = 'estudiante.html';
-            return;
+        const programa = user.programa.toLowerCase().replace(/[áàäâ]/, 'a').replace(/[éèëê]/, 'e').replace(/[íìïî]/, 'i');
+        if (!programa.includes('panaderia')) {
+            alert('⚠️ Contenido exclusivo para estudiantes de Panadería.');
+            window.location.replace('estudiante.html');
         }
-        const programaNormalizado = user.programa.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        if (programaNormalizado !== 'panaderia') {
-            alert('⚠️ Acceso Denegado\n\nEste contenido es exclusivo para estudiantes de Panadería.');
-            window.location.href = 'estudiante.html';
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        window.location.href = 'login.html';
-    }
+    } catch (e) { window.location.replace('login.html'); }
 })();
 </script>
 

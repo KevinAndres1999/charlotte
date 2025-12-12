@@ -59,7 +59,7 @@
                 <img src="fotos/logo.png" alt="Charlotte Logo" onerror="this.style.display='none'">
                 <h1>CHARLOTTE</h1>
             </div>
-            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Inicio</a>
+            <a href="estudiante.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver al Portal</a>
         </div>
     </header>
 
@@ -179,44 +179,43 @@
     </footer>
 
 <script>
-// Verificar que el usuario esté autenticado y sea de Panadería
+// Verificación simple: usuario debe estar logueado y ser de Panadería
 (function() {
-    try {
-        const currentUserStr = sessionStorage.getItem('currentUser');
-        
-        if (!currentUserStr) {
-            console.error('No hay usuario en sesión');
-            alert('Debes iniciar sesión para acceder al recetario');
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        const user = JSON.parse(currentUserStr);
-        
-        // Verificar que el usuario tenga el campo programa
-        if (!user.programa) {
-            console.error('Usuario sin programa asignado');
-            alert('⚠️ Error: No tienes un programa asignado. Contacta al administrador.');
-            window.location.href = 'estudiante.html';
-            return;
-        }
-        
-        // Verificar que el programa sea Panadería (case-insensitive)
-        const programaNormalizado = user.programa.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        if (programaNormalizado !== 'panaderia') {
-            alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes del programa de Panadería.\n\nTu programa: ' + user.programa);
-            window.location.href = 'estudiante.html';
-            return;
-        }
-        
-        // Usuario autenticado y con acceso - permitir navegación
-        console.log('Acceso autorizado al recetario para:', user.name);
-        
-    } catch (error) {
-        console.error('Error al verificar usuario:', error);
-        alert('Error al verificar tu sesión. Por favor, inicia sesión nuevamente.');
-        window.location.href = 'login.html';
+    const userStr = sessionStorage.getItem('currentUser');
+    
+    // Si no hay usuario, redirigir a login
+    if (!userStr) {
+        window.location.replace('login.html');
+        return;
     }
+    
+    // Parsear usuario
+    let user;
+    try {
+        user = JSON.parse(userStr);
+    } catch (e) {
+        window.location.replace('login.html');
+        return;
+    }
+    
+    // Verificar que tenga programa asignado
+    if (!user.programa) {
+        alert('⚠️ No tienes un programa asignado. Contacta al administrador.');
+        window.location.replace('estudiante.html');
+        return;
+    }
+    
+    // Verificar si es de Panadería (normalizar texto para evitar problemas con tildes)
+    const programa = user.programa.toLowerCase().replace(/[áàäâ]/, 'a').replace(/[éèëê]/, 'e').replace(/[íìïî]/, 'i');
+    
+    if (!programa.includes('panaderia')) {
+        alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes de Panadería.\n\nTu programa: ' + user.programa);
+        window.location.replace('estudiante.html');
+        return;
+    }
+    
+    // Usuario válido - permitir acceso
+    console.log('Acceso autorizado al recetario para:', user.name, '- Programa:', user.programa);
 })();
 </script>
 
