@@ -260,50 +260,19 @@
                 <div class="content-list"><div class="content-list-header"><h4>Actividades Creadas</h4></div><div id="actividades-list"></div></div>
             </div>
             <div id="cuestionarios" class="content-section">
-                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios con preguntas de opción múltiple o abiertas</p></div>
+                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios y evaluaciones para tus estudiantes</p></div>
                 
                 <div class="upload-card">
                     <h3><i class="fas fa-file-alt"></i> Nuevo Cuestionario</h3>
-                    <form onsubmit="saveCuestionario(event)" class="upload-form" id="formCuestionario">
+                    <form onsubmit="saveCuestionario(event)" class="upload-form">
                         <input type="text" name="titulo" placeholder="Título del cuestionario" required>
                         <textarea name="descripcion" placeholder="Descripción o instrucciones" rows="3"></textarea>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Programa</label>
-                                <select name="programa" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Todos">Todos los programas</option>
-                                    <option value="Panadería">Panadería</option>
-                                    <option value="Belleza">Belleza</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Fecha límite</label>
-                                <input type="datetime-local" name="fechaLimite" required>
-                            </div>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Tiempo disponible (minutos)</label>
-                                <input type="number" name="tiempoDisponible" placeholder="Ej: 30" min="1" required>
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Intentos permitidos</label>
-                                <input type="number" name="intentos" placeholder="Ej: 1" min="1" value="1" required>
-                            </div>
-                        </div>
-                        
-                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e8f0fe;">
-                        
-                        <h4 style="margin-bottom: 15px; color: #1e3a8a;"><i class="fas fa-question-circle"></i> Preguntas</h4>
-                        <div id="preguntasContainer"></div>
-                        
-                        <button type="button" onclick="agregarPregunta()" class="btn" style="background: #10b981; margin-bottom: 15px;">
-                            <i class="fas fa-plus"></i> Agregar Pregunta
-                        </button>
-                        
+                        <select name="programa" required>
+                            <option value="">Seleccionar programa</option>
+                            <option value="Todos">Todos los programas</option>
+                            <option value="Panadería">Panadería</option>
+                            <option value="Belleza">Belleza</option>
+                        </select>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Guardar Cuestionario
                         </button>
@@ -445,7 +414,7 @@ window.addEventListener('popstate', function(event) {
     const activeSection = sessionStorage.getItem('adminActiveSection');
     if (activeSection && activeSection !== 'dashboard') {
         event.preventDefault();
-        showSection('dashboard');
+        window.showSection('dashboard');
         window.history.pushState({page: 'admin', section: 'dashboard'}, 'Dashboard', 'admin.html');
     }
 });
@@ -454,7 +423,7 @@ window.addEventListener('popstate', function(event) {
 const savedAdminSection = sessionStorage.getItem('adminActiveSection');
 if (savedAdminSection && savedAdminSection !== 'dashboard') {
     window.addEventListener('DOMContentLoaded', () => {
-        showSection(savedAdminSection);
+        window.showSection(savedAdminSection);
     });
 } else if (!savedAdminSection) {
     sessionStorage.setItem('adminActiveSection', 'dashboard');
@@ -484,9 +453,12 @@ window.showSection = function(sectionId, event) {
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
     }
-    
+    // Agregar al historial del navegador
+    if (event) {
+        history.pushState({ section: sectionId }, '', `#${sectionId}`);
+    }
     loadContent(sectionId);
-}
+};
 
 window.deleteMaterial = async function(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
@@ -645,135 +617,20 @@ window.saveActividad = function(e) {
 window.saveCuestionario = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
-    // Recopilar preguntas del formulario
-    const preguntas = [];
-    const preguntasElements = document.querySelectorAll('.pregunta-item');
-    
-    preguntasElements.forEach((item, index) => {
-        const tipo = item.querySelector('[name^="tipoPregunta"]').value;
-        const textoPregunta = item.querySelector('[name^="pregunta"]').value;
-        
-        if (!textoPregunta.trim()) return; // Saltar preguntas vacías
-        
-        const pregunta = {
-            id: Date.now() + index,
-            texto: textoPregunta,
-            tipo: tipo
-        };
-        
-        if (tipo === 'multiple') {
-            pregunta.opciones = [
-                item.querySelector('[name^="opcion1"]').value,
-                item.querySelector('[name^="opcion2"]').value,
-                item.querySelector('[name^="opcion3"]').value,
-                item.querySelector('[name^="opcion4"]').value
-            ];
-            pregunta.respuestaCorrecta = parseInt(item.querySelector('[name^="correcta"]').value);
-        }
-        
-        preguntas.push(pregunta);
-    });
-    
-    if (preguntas.length === 0) {
-        alert('⚠️ Debes agregar al menos una pregunta al cuestionario');
-        return;
-    }
-    
     const cuestionario = {
         id: Date.now(),
         titulo: formData.get('titulo'),
         descripcion: formData.get('descripcion'),
         programa: formData.get('programa'),
-        fechaLimite: formData.get('fechaLimite'),
-        tiempoDisponible: parseInt(formData.get('tiempoDisponible')),
-        intentos: parseInt(formData.get('intentos')),
-        preguntas: preguntas,
-        fechaCreacion: new Date().toISOString()
+        fecha: new Date().toLocaleDateString()
     };
-    
     const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     cuestionarios.push(cuestionario);
     localStorage.setItem('cuestionarios', JSON.stringify(cuestionarios));
-    
     e.target.reset();
-    document.getElementById('preguntasContainer').innerHTML = '';
     loadCuestionarios();
     updateStats();
-    showAlert('Cuestionario guardado exitosamente con ' + preguntas.length + ' preguntas');
-}
-
-let contadorPreguntas = 0;
-
-window.agregarPregunta = function() {
-    contadorPreguntas++;
-    const container = document.getElementById('preguntasContainer');
-    
-    const preguntaHTML = `
-        <div class="pregunta-item" id="pregunta${contadorPreguntas}" style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #3b82f6;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h5 style="margin: 0; color: #1e3a8a;"><i class="fas fa-question"></i> Pregunta ${contadorPreguntas}</h5>
-                <button type="button" onclick="eliminarPregunta(${contadorPreguntas})" class="btn" style="background: #ef4444; padding: 5px 10px; font-size: 12px;">
-                    <i class="fas fa-trash"></i> Eliminar
-                </button>
-            </div>
-            
-            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Tipo de pregunta</label>
-            <select name="tipoPregunta${contadorPreguntas}" onchange="toggleTipoPregunta(${contadorPreguntas})" style="margin-bottom: 15px;" required>
-                <option value="multiple">Opción múltiple</option>
-                <option value="abierta">Respuesta abierta</option>
-            </select>
-            
-            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Pregunta</label>
-            <textarea name="pregunta${contadorPreguntas}" placeholder="Escribe tu pregunta aquí" rows="2" required style="margin-bottom: 15px;"></textarea>
-            
-            <div id="opcionesMultiple${contadorPreguntas}">
-                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #0a1628;">Opciones de respuesta</label>
-                <div style="display: grid; gap: 10px;">
-                    <input type="text" name="opcion1_${contadorPreguntas}" placeholder="Opción 1" required>
-                    <input type="text" name="opcion2_${contadorPreguntas}" placeholder="Opción 2" required>
-                    <input type="text" name="opcion3_${contadorPreguntas}" placeholder="Opción 3" required>
-                    <input type="text" name="opcion4_${contadorPreguntas}" placeholder="Opción 4" required>
-                </div>
-                
-                <label style="display: block; margin: 15px 0 5px; font-weight: 600; color: #0a1628;">Respuesta correcta</label>
-                <select name="correcta${contadorPreguntas}" required>
-                    <option value="0">Opción 1</option>
-                    <option value="1">Opción 2</option>
-                    <option value="2">Opción 3</option>
-                    <option value="3">Opción 4</option>
-                </select>
-            </div>
-            
-            <div id="respuestaAbierta${contadorPreguntas}" style="display: none;">
-                <p style="color: #64748b; font-size: 14px;"><i class="fas fa-info-circle"></i> Los estudiantes podrán escribir su respuesta libremente</p>
-            </div>
-        </div>
-    `;
-    
-    container.insertAdjacentHTML('beforeend', preguntaHTML);
-}
-
-window.eliminarPregunta = function(id) {
-    document.getElementById('pregunta' + id).remove();
-}
-
-window.toggleTipoPregunta = function(id) {
-    const tipo = document.querySelector(`[name="tipoPregunta${id}"]`).value;
-    const opcionesDiv = document.getElementById(`opcionesMultiple${id}`);
-    const abiertoDiv = document.getElementById(`respuestaAbierta${id}`);
-    
-    if (tipo === 'multiple') {
-        opcionesDiv.style.display = 'block';
-        abiertoDiv.style.display = 'none';
-        // Hacer campos requeridos
-        opcionesDiv.querySelectorAll('input, select').forEach(input => input.required = true);
-    } else {
-        opcionesDiv.style.display = 'none';
-        abiertoDiv.style.display = 'block';
-        // Quitar requerimiento
-        opcionesDiv.querySelectorAll('input, select').forEach(input => input.required = false);
-    }
+    showAlert('Cuestionario guardado exitosamente');
 }
 
 window.saveMaterial = function(e) {
@@ -895,81 +752,29 @@ function loadCuestionarios() {
         container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que crees aparecerán aquí</p></div></div>';
         return;
     }
-    container.innerHTML = cuestionarios.map(cuestionario => {
-        const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite).toLocaleString('es-ES') : 'Sin fecha límite';
-        const numPreguntas = cuestionario.preguntas?.length || 0;
-        const tiempoDisp = cuestionario.tiempoDisponible ? cuestionario.tiempoDisponible + ' min' : 'Sin límite';
-        
-        return `
+    container.innerHTML = cuestionarios.map(cuestionario => `
         <div class="content-item">
             <div class="content-info">
                 <h5>${cuestionario.titulo}</h5>
-                <p>${cuestionario.programa} • ${numPreguntas} pregunta${numPreguntas !== 1 ? 's' : ''} • ${tiempoDisp} • ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</p>
+                <p>${cuestionario.programa} • ${cuestionario.preguntas?.length || 0} preguntas${cuestionario.tiempo ? ' • ' + cuestionario.tiempo + ' min' : ''}</p>
                 <p style="font-size: 13px; color: #64748b; margin-top: 4px;">${cuestionario.descripcion || ''}</p>
-                <p style="font-size: 12px; color: #ef4444; margin-top: 4px;"><i class="fas fa-clock"></i> Fecha límite: ${fechaLimite}</p>
             </div>
             <div class="content-actions">
-                <button class="btn-icon" onclick="verCuestionario(${cuestionario.id})" title="Ver cuestionario">
+                <button class="btn-icon" onclick="verCuestionario('${cuestionario.id}')" title="Ver cuestionario">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn-icon btn-delete" onclick="deleteCuestionario(${cuestionario.id})" title="Eliminar">
+                <button class="btn-icon" onclick="editarCuestionario('${cuestionario.id}')" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-icon btn-delete" onclick="deleteCuestionario('${cuestionario.id}')" title="Eliminar">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
-        `;
-    }).join('');
+    `).join('');
 }
 
-window.verCuestionario = function(id) {
-    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
-    const cuestionario = cuestionarios.find(c => c.id == id);
-    
-    if (!cuestionario) return;
-    
-    let preguntasHTML = cuestionario.preguntas.map((p, index) => {
-        if (p.tipo === 'multiple') {
-            return `
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <h5 style="color: #1e3a8a; margin-bottom: 10px;">${index + 1}. ${p.texto}</h5>
-                    <div style="margin-left: 20px;">
-                        ${p.opciones.map((op, i) => `
-                            <p style="margin: 5px 0; ${i === p.respuestaCorrecta ? 'color: #10b981; font-weight: 600;' : ''}">
-                                ${i === p.respuestaCorrecta ? '✓' : '○'} ${op}
-                            </p>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        } else {
-            return `
-                <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <h5 style="color: #1e3a8a; margin-bottom: 10px;">${index + 1}. ${p.texto}</h5>
-                    <p style="color: #64748b; font-style: italic; margin-left: 20px;"><i class="fas fa-pencil-alt"></i> Respuesta abierta</p>
-                </div>
-            `;
-        }
-    }).join('');
-    
-    alert(`📋 ${cuestionario.titulo}\n\n${cuestionario.descripcion}\n\nPreguntas: ${cuestionario.preguntas.length}\nTiempo: ${cuestionario.tiempoDisponible} min\nIntentos: ${cuestionario.intentos}\n\nVer detalles en consola`);
-    console.log('=== CUESTIONARIO ===');
-    console.log('Título:', cuestionario.titulo);
-    console.log('Descripción:', cuestionario.descripcion);
-    console.log('Preguntas:', cuestionario.preguntas);
-}
-
-window.deleteCuestionario = function(id) {
-    if (!confirm('¿Eliminar este cuestionario?')) return;
-    let cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
-    cuestionarios = cuestionarios.filter(c => c.id != id);
-    localStorage.setItem('cuestionarios', JSON.stringify(cuestionarios));
-    loadCuestionarios();
-    updateStats();
-    showAlert('Cuestionario eliminado');
-}
-}
-
-window.verCuestionario = function(id) {
+function verCuestionario(id) {
     const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     const cuestionario = cuestionarios.find(c => c.id === id);
     if (cuestionario) {
@@ -987,7 +792,7 @@ function editarCuestionario(id) {
     }
 }
 
-window.deleteCuestionario = function(id) {
+function deleteCuestionario(id) {
     if (!confirm('¿Estás seguro de eliminar este cuestionario?')) return;
     let cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     cuestionarios = cuestionarios.filter(c => c.id !== id);
@@ -1110,7 +915,7 @@ async function loadMateriales() {
     }
 }
 
-window.deleteMaterial = async function(id) {
+async function deleteMaterial(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
     try {
         await db.collection('materiales').doc(id).delete();
