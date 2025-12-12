@@ -1,3 +1,44 @@
+// =================== EVALUACIONES ===================
+async function loadEvaluaciones() {
+    const container = document.getElementById('evaluacionesList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('evaluaciones').orderBy('fechaRegistro', 'desc').get();
+        const evaluaciones = [];
+        snapshot.forEach(doc => evaluaciones.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(evaluaciones);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay evaluaciones disponibles</h3></div>';
+            return;
+        }
+        const ahora = new Date();
+        container.innerHTML = filtered.map(evaluacion => {
+            const fechaInicio = evaluacion.fechaInicio ? new Date(evaluacion.fechaInicio) : null;
+            const fechaFin = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
+            const activa = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
+            return `
+            <div class="content-card" style="border-top-color: ${activa ? '#3b82f6' : '#94a3b8'};">
+                <h4><i class="fas fa-file-alt"></i> ${evaluacion.titulo}</h4>
+                <p>${evaluacion.cuestionarioNombre || ''}</p>
+                <div class="meta" style="margin: 15px 0;">
+                    <span><i class="fas fa-list"></i> ${evaluacion.numPreguntas || 0} preguntas</span>
+                    <span><i class="fas fa-redo"></i> ${evaluacion.maxIntentos || 1} intentos</span>
+                </div>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
+                    <i class="fas fa-calendar-alt"></i> Desde: ${fechaInicio ? fechaInicio.toLocaleString('es-ES') : '-'} hasta ${fechaFin ? fechaFin.toLocaleString('es-ES') : '-'}
+                    ${!activa ? ' <strong>(FUERA DE FECHA)</strong>' : ''}
+                </p>
+                <button class="btn-view" disabled style="background: #94a3b8; cursor: not-allowed;">
+                    <i class="fas fa-eye"></i> Próximamente
+                </button>
+            </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar evaluaciones:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar evaluaciones</h3><p>Intenta recargar la página</p></div>';
+    }
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -201,11 +242,24 @@
                 <div id="actividadesList" class="grid"></div>
             </section>
 
+
             <section id="cuestionarios" class="section">
                 <h2 class="page-title">Cuestionarios</h2>
                 <p class="page-subtitle">Evaluaciones y prácticas</p>
                 <div id="cuestionariosList" class="grid"></div>
             </section>
+
+            <section id="evaluaciones" class="section">
+                <h2 class="page-title">Evaluaciones</h2>
+                <p class="page-subtitle">Exámenes y pruebas globales</p>
+                <div id="evaluacionesList" class="grid"></div>
+            </section>
+// Llamar a loadEvaluaciones cuando se muestre la sección
+const oldShowSection = showSection;
+showSection = function(sectionId) {
+    oldShowSection(sectionId);
+    if (sectionId === 'evaluaciones') loadEvaluaciones();
+}
 
             <section id="materiales" class="section">
                 <h2 class="page-title">Materiales de Estudio</h2>
@@ -318,113 +372,130 @@ function logout() {
     window.location.href = 'login.html';
 }
 
-function filterByProgram(items) {
-    const userProgram = currentUser.programa.toLowerCase();
-    return items.filter(item => {
-        const itemProgram = (item.programa || '').toLowerCase();
-        return itemProgram === 'todos' || itemProgram === userProgram || 
-               (userProgram.includes('panadería') && itemProgram.includes('panadería')) ||
-               (userProgram.includes('panaderia') && itemProgram.includes('panaderia')) ||
-               (userProgram.includes('belleza') && itemProgram.includes('belleza'));
-    });
-}
-
-function loadContent(section) {
-    if (section === 'clases') loadClases();
-    else if (section === 'videos') loadVideos();
-    else if (section === 'actividades') loadActividades();
-    else if (section === 'cuestionarios') loadCuestionarios();
-    else if (section === 'materiales') loadMateriales();
-}
-
-function updateDashboard() {
-    const clases = JSON.parse(localStorage.getItem('clases') || '[]');
-    const videos = JSON.parse(localStorage.getItem('videos') || '[]');
-    const actividades = JSON.parse(localStorage.getItem('actividades') || '[]');
-    const materiales = JSON.parse(localStorage.getItem('materiales') || '[]');
-    
-    document.getElementById('totalClases').textContent = filterByProgram(clases).length;
-    document.getElementById('totalVideos').textContent = filterByProgram(videos).length;
-    document.getElementById('totalActividades').textContent = filterByProgram(actividades).length;
-    document.getElementById('totalMateriales').textContent = filterByProgram(materiales).length;
-}
-
-function loadClases() {
-    const clases = JSON.parse(localStorage.getItem('clases') || '[]');
-    const filtered = filterByProgram(clases);
-    const container = document.getElementById('clasesList');
-    
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p>Pronto se agregarán contenidos</p></div>';
-        return;
-    }
-
-    container.innerHTML = filtered.map(clase => `
-        <div class="card">
-            <h3><i class="fas fa-book"></i> ${clase.titulo}</h3>
-            <div style="color: #64748b; line-height: 1.8; white-space: pre-wrap;">${clase.contenido}</div>
-            <div class="meta" style="margin-top: 1rem;">
-                <span><i class="fas fa-calendar"></i> ${clase.fecha}</span>
-                <span><i class="fas fa-graduation-cap"></i> ${clase.programa}</span>
-            </div>
-        </div>
-    `).join('');
-}
-
-function loadVideos() {
-    const videos = JSON.parse(localStorage.getItem('videos') || '[]');
-    const filtered = filterByProgram(videos);
-    const container = document.getElementById('videosList');
-    
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3></div>';
-        return;
-    }
-
-    function getVideoId(url) {
-        const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
-        return match ? match[1] : null;
-    }
-
-    container.innerHTML = filtered.map(video => {
-        const videoId = getVideoId(video.url);
-        return `
-            <div class="video-card">
-                <div class="video-thumbnail">
-                    ${videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>` : ''}
+async function loadCuestionarios() {
+    const container = document.getElementById('cuestionariosList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('cuestionarios').orderBy('fechaRegistro', 'desc').get();
+        const cuestionarios = [];
+        snapshot.forEach(doc => cuestionarios.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(cuestionarios);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3></div>';
+            return;
+        }
+        const ahora = new Date();
+        container.innerHTML = filtered.map(cuestionario => {
+            const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+            const vencido = fechaLimite && ahora > fechaLimite;
+            // Verificar intentos realizados
+            const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+            const misClave = `${currentUser.email}_${cuestionario.id}`;
+            const misIntentos = respuestas[misClave] || [];
+            const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
+            const puedeResponder = !vencido && intentosRestantes > 0;
+            return `
+            <div class="content-card" style="border-top-color: ${vencido ? '#94a3b8' : '#3b82f6'};">
+                <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
+                <p>${cuestionario.descripcion || ''}</p>
+                <div class="meta" style="margin: 15px 0;">
+                    <span><i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas</span>
+                    <span><i class="fas fa-clock"></i> ${cuestionario.tiempoDisponible || 0} minutos</span>
+                    <span><i class="fas fa-redo"></i> ${intentosRestantes} de ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</span>
                 </div>
-                <div class="video-info">
-                    <h4>${video.titulo}</h4>
-                    <p>${video.descripcion || ''}</p>
-                    <div class="meta">
-                        <span><i class="fas fa-calendar"></i> ${video.fecha}</span>
+                ${fechaLimite ? `<p style="font-size: 13px; color: ${vencido ? '#ef4444' : '#f59e0b'}; margin-bottom: 10px;">
+                    <i class="fas fa-calendar-alt"></i> Fecha límite: ${fechaLimite.toLocaleString('es-ES')}
+                    ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+                </p>` : ''}
+                ${misIntentos.length > 0 ? `
+                    <div style="background: #e0f2fe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                        <p style="margin: 0; font-size: 13px; color: #0369a1;">
+                            <i class="fas fa-check-circle"></i> Último intento: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente de calificación'}
+                        </p>
+                    </div>
+                ` : ''}
+                <button class="btn-view" onclick="iniciarCuestionario('${cuestionario.id}')" 
+                        ${!puedeResponder ? 'disabled' : ''}
+                        style="background: ${puedeResponder ? '#3b82f6' : '#94a3b8'}; cursor: ${puedeResponder ? 'pointer' : 'not-allowed'};">
+                    <i class="fas fa-play"></i> ${misIntentos.length > 0 ? 'Reintentar' : 'Iniciar'} Cuestionario
+                </button>
+            </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar cuestionarios:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar cuestionarios</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+
+async function loadVideos() {
+    const container = document.getElementById('videosList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('videos').orderBy('fechaCreacion', 'desc').get();
+        const videos = [];
+        snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(videos);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3></div>';
+            return;
+        }
+        function getVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+            return match ? match[1] : null;
+        }
+        container.innerHTML = filtered.map(video => {
+            const videoId = getVideoId(video.url);
+            return `
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        ${videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>` : ''}
+                    </div>
+                    <div class="video-info">
+                        <h4>${video.titulo}</h4>
+                        <p>${video.descripcion || ''}</p>
+                        <div class="meta">
+                            <span><i class="fas fa-calendar"></i> ${video.fecha}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
-    }).join('');
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar videos:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>Error al cargar videos</h3><p>Intenta recargar la página</p></div>';
+    }
 }
 
-function loadActividades() {
-    const actividades = JSON.parse(localStorage.getItem('actividades') || '[]');
-    const filtered = filterByProgram(actividades);
+async function loadActividades() {
     const container = document.getElementById('actividadesList');
-    
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3></div>';
-        return;
-    }
-
-    container.innerHTML = filtered.map(actividad => `
-        <div class="content-card">
-            <h4><i class="fas fa-clipboard-list"></i> ${actividad.titulo}</h4>
-            <p style="white-space: pre-wrap;">${actividad.instrucciones}</p>
-            <div class="meta">
-                ${actividad.fecha ? `<span><i class="fas fa-calendar-check"></i> ${actividad.fecha}</span>` : ''}
-                <span><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('actividades').orderBy('fechaRegistro', 'desc').get();
+        const actividades = [];
+        snapshot.forEach(doc => actividades.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(actividades);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3></div>';
+            return;
+        }
+        container.innerHTML = filtered.map(actividad => `
+            <div class="content-card">
+                <h4><i class="fas fa-clipboard-list"></i> ${actividad.titulo}</h4>
+                <p style="white-space: pre-wrap;">${actividad.instrucciones}</p>
+                <div class="meta">
+                    ${actividad.fecha ? `<span><i class="fas fa-calendar-check"></i> ${actividad.fecha}</span>` : ''}
+                    <span><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    } catch (error) {
+        console.error('Error al cargar actividades:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>Error al cargar actividades</h3><p>Intenta recargar la página</p></div>';
+    }
 }
 
 function loadCuestionarios() {
