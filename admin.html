@@ -260,19 +260,50 @@
                 <div class="content-list"><div class="content-list-header"><h4>Actividades Creadas</h4></div><div id="actividades-list"></div></div>
             </div>
             <div id="cuestionarios" class="content-section">
-                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios y evaluaciones para tus estudiantes</p></div>
+                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios con preguntas de opción múltiple o abiertas</p></div>
                 
                 <div class="upload-card">
                     <h3><i class="fas fa-file-alt"></i> Nuevo Cuestionario</h3>
-                    <form onsubmit="saveCuestionario(event)" class="upload-form">
+                    <form onsubmit="saveCuestionario(event)" class="upload-form" id="formCuestionario">
                         <input type="text" name="titulo" placeholder="Título del cuestionario" required>
                         <textarea name="descripcion" placeholder="Descripción o instrucciones" rows="3"></textarea>
-                        <select name="programa" required>
-                            <option value="">Seleccionar programa</option>
-                            <option value="Todos">Todos los programas</option>
-                            <option value="Panadería">Panadería</option>
-                            <option value="Belleza">Belleza</option>
-                        </select>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Programa</label>
+                                <select name="programa" required>
+                                    <option value="">Seleccionar programa</option>
+                                    <option value="Todos">Todos los programas</option>
+                                    <option value="Panadería">Panadería</option>
+                                    <option value="Belleza">Belleza</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Fecha límite</label>
+                                <input type="datetime-local" name="fechaLimite" required>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Tiempo disponible (minutos)</label>
+                                <input type="number" name="tiempoDisponible" placeholder="Ej: 30" min="1" required>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Intentos permitidos</label>
+                                <input type="number" name="intentos" placeholder="Ej: 1" min="1" value="1" required>
+                            </div>
+                        </div>
+                        
+                        <hr style="margin: 20px 0; border: none; border-top: 1px solid #e8f0fe;">
+                        
+                        <h4 style="margin-bottom: 15px; color: #e63971;"><i class="fas fa-question-circle"></i> Preguntas</h4>
+                        <div id="preguntasContainer"></div>
+                        
+                        <button type="button" onclick="agregarPregunta()" class="btn" style="background: #10b981; margin-bottom: 15px;">
+                            <i class="fas fa-plus"></i> Agregar Pregunta
+                        </button>
+                        
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Guardar Cuestionario
                         </button>
@@ -617,20 +648,133 @@ window.saveActividad = function(e) {
 window.saveCuestionario = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+    
+    // Recopilar preguntas
+    const preguntas = [];
+    const preguntasElements = document.querySelectorAll('.pregunta-item');
+    
+    preguntasElements.forEach((item, index) => {
+        const tipo = item.querySelector('[name^="tipoPregunta"]').value;
+        const textoPregunta = item.querySelector('[name^="pregunta"]').value;
+        
+        if (!textoPregunta.trim()) return;
+        
+        const pregunta = {
+            id: Date.now() + index,
+            texto: textoPregunta,
+            tipo: tipo
+        };
+        
+        if (tipo === 'multiple') {
+            pregunta.opciones = [
+                item.querySelector('[name^="opcion1"]').value,
+                item.querySelector('[name^="opcion2"]').value,
+                item.querySelector('[name^="opcion3"]').value,
+                item.querySelector('[name^="opcion4"]').value
+            ];
+            pregunta.respuestaCorrecta = parseInt(item.querySelector('[name^="correcta"]').value);
+        }
+        
+        preguntas.push(pregunta);
+    });
+    
+    if (preguntas.length === 0) {
+        alert('⚠️ Debes agregar al menos una pregunta');
+        return;
+    }
+    
     const cuestionario = {
         id: Date.now(),
         titulo: formData.get('titulo'),
         descripcion: formData.get('descripcion'),
         programa: formData.get('programa'),
+        fechaLimite: formData.get('fechaLimite'),
+        tiempoDisponible: parseInt(formData.get('tiempoDisponible')),
+        intentos: parseInt(formData.get('intentos')),
+        preguntas: preguntas,
         fecha: new Date().toLocaleDateString()
     };
+    
     const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
     cuestionarios.push(cuestionario);
     localStorage.setItem('cuestionarios', JSON.stringify(cuestionarios));
+    
     e.target.reset();
+    document.getElementById('preguntasContainer').innerHTML = '';
     loadCuestionarios();
     updateStats();
-    showAlert('Cuestionario guardado exitosamente');
+    showAlert('Cuestionario guardado con ' + preguntas.length + ' preguntas');
+}
+
+let contadorPreguntas = 0;
+
+window.agregarPregunta = function() {
+    contadorPreguntas++;
+    const container = document.getElementById('preguntasContainer');
+    
+    const preguntaHTML = `
+        <div class="pregunta-item" id="pregunta${contadorPreguntas}" style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #e63971;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h5 style="margin: 0; color: #0b3460;"><i class="fas fa-question"></i> Pregunta ${contadorPreguntas}</h5>
+                <button type="button" onclick="eliminarPregunta(${contadorPreguntas})" class="btn" style="background: #ef4444; padding: 5px 10px; font-size: 12px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Tipo de pregunta</label>
+            <select name="tipoPregunta${contadorPreguntas}" onchange="toggleTipoPregunta(${contadorPreguntas})" style="margin-bottom: 15px;" required>
+                <option value="multiple">Opción múltiple</option>
+                <option value="abierta">Respuesta abierta</option>
+            </select>
+            
+            <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #0a1628;">Pregunta</label>
+            <textarea name="pregunta${contadorPreguntas}" placeholder="Escribe tu pregunta aquí" rows="2" required style="margin-bottom: 15px;"></textarea>
+            
+            <div id="opcionesMultiple${contadorPreguntas}">
+                <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #0a1628;">Opciones de respuesta</label>
+                <div style="display: grid; gap: 10px;">
+                    <input type="text" name="opcion1_${contadorPreguntas}" placeholder="Opción 1" required>
+                    <input type="text" name="opcion2_${contadorPreguntas}" placeholder="Opción 2" required>
+                    <input type="text" name="opcion3_${contadorPreguntas}" placeholder="Opción 3" required>
+                    <input type="text" name="opcion4_${contadorPreguntas}" placeholder="Opción 4" required>
+                </div>
+                
+                <label style="display: block; margin: 15px 0 5px; font-weight: 600; color: #0a1628;">Respuesta correcta</label>
+                <select name="correcta${contadorPreguntas}" required>
+                    <option value="0">Opción 1</option>
+                    <option value="1">Opción 2</option>
+                    <option value="2">Opción 3</option>
+                    <option value="3">Opción 4</option>
+                </select>
+            </div>
+            
+            <div id="respuestaAbierta${contadorPreguntas}" style="display: none;">
+                <p style="color: #64748b; font-size: 14px;"><i class="fas fa-info-circle"></i> Los estudiantes podrán escribir su respuesta libremente</p>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', preguntaHTML);
+}
+
+window.eliminarPregunta = function(id) {
+    document.getElementById('pregunta' + id).remove();
+}
+
+window.toggleTipoPregunta = function(id) {
+    const tipo = document.querySelector(`[name="tipoPregunta${id}"]`).value;
+    const opcionesDiv = document.getElementById(`opcionesMultiple${id}`);
+    const abiertoDiv = document.getElementById(`respuestaAbierta${id}`);
+    
+    if (tipo === 'multiple') {
+        opcionesDiv.style.display = 'block';
+        abiertoDiv.style.display = 'none';
+        opcionesDiv.querySelectorAll('input, select').forEach(input => input.required = true);
+    } else {
+        opcionesDiv.style.display = 'none';
+        abiertoDiv.style.display = 'block';
+        opcionesDiv.querySelectorAll('input, select').forEach(input => input.required = false);
+    }
 }
 
 window.saveMaterial = function(e) {
@@ -752,26 +896,37 @@ function loadCuestionarios() {
         container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que crees aparecerán aquí</p></div></div>';
         return;
     }
-    container.innerHTML = cuestionarios.map(cuestionario => `
+    container.innerHTML = cuestionarios.map(cuestionario => {
+        const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite).toLocaleString('es-ES') : 'Sin fecha límite';
+        const numPreguntas = cuestionario.preguntas?.length || 0;
+        const tiempo = cuestionario.tiempoDisponible ? cuestionario.tiempoDisponible + ' min' : 'Sin límite';
+        
+        return `
         <div class="content-item">
             <div class="content-info">
                 <h5>${cuestionario.titulo}</h5>
-                <p>${cuestionario.programa} • ${cuestionario.preguntas?.length || 0} preguntas${cuestionario.tiempo ? ' • ' + cuestionario.tiempo + ' min' : ''}</p>
+                <p>${cuestionario.programa} • ${numPreguntas} pregunta${numPreguntas !== 1 ? 's' : ''} • ${tiempo} • ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</p>
                 <p style="font-size: 13px; color: #64748b; margin-top: 4px;">${cuestionario.descripcion || ''}</p>
+                <p style="font-size: 12px; color: #e63971; margin-top: 4px;"><i class="fas fa-clock"></i> ${fechaLimite}</p>
             </div>
             <div class="content-actions">
-                <button class="btn-icon" onclick="verCuestionario('${cuestionario.id}')" title="Ver cuestionario">
-                    <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn-icon" onclick="editarCuestionario('${cuestionario.id}')" title="Editar">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteCuestionario('${cuestionario.id}')" title="Eliminar">
+                <button class="btn-icon btn-delete" onclick="deleteCuestionario(${cuestionario.id})" title="Eliminar">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
+}
+
+window.deleteCuestionario = function(id) {
+    if (!confirm('¿Eliminar este cuestionario?')) return;
+    let cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    cuestionarios = cuestionarios.filter(c => c.id != id);
+    localStorage.setItem('cuestionarios', JSON.stringify(cuestionarios));
+    loadCuestionarios();
+    updateStats();
+    showAlert('Cuestionario eliminado');
 }
 
 function verCuestionario(id) {
