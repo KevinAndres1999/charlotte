@@ -333,6 +333,8 @@
         // Cargar Materiales (Firestore + localStorage)
         async function loadMateriales() {
             const container = document.getElementById('materialesList');
+            container.innerHTML = '<div style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin" style="font-size:32px;color:#e63971;"></i></div>';
+            
             const allMaterials = [];
 
             try {
@@ -341,96 +343,100 @@
                 firestoreSnapshot.forEach(doc => {
                     allMaterials.push({ id: doc.id, ...doc.data(), tipo: 'pdf' });
                 });
+            } catch (error) {
+                console.error('Error cargando de Firestore:', error);
+            }
 
-                // Cargar enlaces de localStorage
+            // Cargar enlaces de localStorage
+            try {
                 const localMaterials = JSON.parse(localStorage.getItem('materiales') || '[]');
                 allMaterials.push(...localMaterials);
+            } catch (error) {
+                console.error('Error cargando de localStorage:', error);
+            }
 
-                // Filtrar por programa
-                const filtered = filterByProgram(allMaterials);
+            // Filtrar por programa
+            const filtered = filterByProgram(allMaterials);
 
-                // Agregar recetas individuales para estudiantes de panadería
-                if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
-                    const recetas = [
-                        { titulo: '🍞 Panes Básicos', descripcion: 'Recetas fundamentales de panadería: pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
-                        { titulo: '🥖 Panes Especiales', descripcion: 'Pan ciabatta, focaccia, bagels y técnicas avanzadas', url: 'recetas-panes-especiales.html' },
-                        { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Recetas dulces: brownies, cookies, muffins y bizcochos', url: 'recetas-bizcochos-galletas.html' },
-                        { titulo: '🥐 Empanadas y Hojaldre', descripcion: 'Masa hojaldre, empanadas y técnicas de laminado', url: 'recetas-empanadas-hojaldre.html' },
-                        { titulo: '🎂 Pastelería', descripcion: 'Tartas, pasteles, éclairs y técnicas de pastelería fina', url: 'recetas-pasteleria.html' },
-                        { titulo: '✨ Recetas Especiales', descripcion: 'Creaciones únicas y recetas para ocasiones especiales', url: 'recetas-especiales.html' }
-                    ];
-                    recetas.forEach(receta => {
-                        filtered.push({
-                            ...receta,
-                            tipo: 'receta',
-                            fecha: '2024-2025'
-                        });
+            // Agregar recetas individuales para estudiantes de panadería
+            if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
+                const recetas = [
+                    { titulo: '🍞 Panes Básicos', descripcion: 'Recetas fundamentales de panadería: pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
+                    { titulo: '🥖 Panes Especiales', descripcion: 'Pan ciabatta, focaccia, bagels y técnicas avanzadas', url: 'recetas-panes-especiales.html' },
+                    { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Recetas dulces: brownies, cookies, muffins y bizcochos', url: 'recetas-bizcochos-galletas.html' },
+                    { titulo: '🥐 Empanadas y Hojaldre', descripcion: 'Masa hojaldre, empanadas y técnicas de laminado', url: 'recetas-empanadas-hojaldre.html' },
+                    { titulo: '🎂 Pastelería', descripcion: 'Tartas, pasteles, éclairs y técnicas de pastelería fina', url: 'recetas-pasteleria.html' },
+                    { titulo: '✨ Recetas Especiales', descripcion: 'Creaciones únicas y recetas para ocasiones especiales', url: 'recetas-especiales.html' }
+                ];
+                recetas.forEach(receta => {
+                    filtered.push({
+                        ...receta,
+                        tipo: 'receta',
+                        fecha: '2024-2025'
                     });
-                }
+                });
+            }
 
-                if (filtered.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3><p>Pronto se agregarán materiales para tu programa</p></div>';
-                    return;
-                }
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3><p>Pronto se agregarán materiales para tu programa</p></div>';
+                return;
+            }
 
-                container.innerHTML = filtered.map(material => {
-                    if (material.tipo === 'receta') {
-                        return `
-                            <div class="content-card" style="border-top-color: #f59e0b;">
-                                <h4>${material.titulo}</h4>
-                                <p>${material.descripcion}</p>
-                                <a href="${material.url}" target="_blank" class="btn-view" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                                    <i class="fas fa-utensils"></i> Ver Recetas
-                                </a>
-                            </div>
-                        `;
-                    }
-                    
-                    if (material.tipo === 'recetario') {
-                        return `
-                            <div class="content-card" style="border-top-color: #22c55e;">
-                                <h4>📖 ${material.titulo}</h4>
-                                <p>${material.descripcion}</p>
-                                <a href="recetario-index.html" class="btn-view" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
-                                    <i class="fas fa-book-open"></i> Ver Recetario
-                                </a>
-                            </div>
-                        `;
-                    }
-                    
-                    if (material.tipo === 'pdf' || material.pdfData) {
-                        return `
-                            <div class="content-card">
-                                <h4><i class="fas fa-file-pdf" style="color: #dc2626;"></i> ${material.titulo}</h4>
-                                <p>${material.descripcion || ''}</p>
-                                <div class="meta">
-                                    <span><i class="fas fa-calendar"></i> ${material.fecha || ''}</span>
-                                    ${material.tamano ? `<span><i class="fas fa-file"></i> ${(material.tamano / 1024 / 1024).toFixed(2)} MB</span>` : ''}
-                                </div>
-                                <a href="ver-documento.html?id=${material.id}" target="_blank" class="btn-view">
-                                    <i class="fas fa-eye"></i> Ver PDF
-                                </a>
-                            </div>
-                        `;
-                    }
-                    
+            container.innerHTML = '<div class="grid-content">' + filtered.map(material => {
+                if (material.tipo === 'receta') {
                     return `
-                        <div class="content-card">
-                            <h4><i class="fas fa-link"></i> ${material.titulo}</h4>
-                            <p>${material.descripcion || ''}</p>
-                            <div class="meta">
-                                <span><i class="fas fa-calendar"></i> ${material.fecha}</span>
-                            </div>
-                            <a href="${material.url}" target="_blank" class="btn-view">
-                                <i class="fas fa-external-link-alt"></i> Abrir Enlace
+                        <div class="content-card" style="border-top-color: #f59e0b;">
+                            <h4>${material.titulo}</h4>
+                            <p>${material.descripcion}</p>
+                            <a href="${material.url}" target="_blank" class="btn-view" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                <i class="fas fa-utensils"></i> Ver Recetas
                             </a>
                         </div>
                     `;
-                }).join('');
-            } catch (error) {
-                console.error('Error cargando materiales:', error);
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar materiales</h3><p>Por favor, intenta recargar la página</p></div>';
-            }
+                }
+                
+                if (material.tipo === 'recetario') {
+                    return `
+                        <div class="content-card" style="border-top-color: #22c55e;">
+                            <h4>📖 ${material.titulo}</h4>
+                            <p>${material.descripcion}</p>
+                            <a href="recetario-index.html" class="btn-view" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                <i class="fas fa-book-open"></i> Ver Recetario
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                if (material.tipo === 'pdf' || material.pdfData) {
+                    return `
+                        <div class="content-card">
+                            <h4><i class="fas fa-file-pdf" style="color: #dc2626;"></i> ${material.titulo}</h4>
+                            <p>${material.descripcion || ''}</p>
+                            <div class="meta">
+                                <span><i class="fas fa-calendar"></i> ${material.fecha || ''}</span>
+                                ${material.tamano ? `<span><i class="fas fa-file"></i> ${(material.tamano / 1024 / 1024).toFixed(2)} MB</span>` : ''}
+                            </div>
+                            <a href="ver-documento.html?id=${material.id}" target="_blank" class="btn-view">
+                                <i class="fas fa-eye"></i> Ver PDF
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="content-card">
+                        <h4><i class="fas fa-link"></i> ${material.titulo}</h4>
+                        <p>${material.descripcion || ''}</p>
+                        <div class="meta">
+                            <span><i class="fas fa-calendar"></i> ${material.fecha}</span>
+                        </div>
+                        <a href="${material.url}" target="_blank" class="btn-view">
+                            <i class="fas fa-external-link-alt"></i> Abrir Enlace
+                        </a>
+                    </div>
+                `;
+            }).join('') + '</div>';
+        }
         }
 
         // Cargar contenido inicial
