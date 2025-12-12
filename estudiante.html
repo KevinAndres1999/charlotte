@@ -239,6 +239,24 @@ if (!currentUser || currentUser.role !== 'student') {
     window.location.href = 'login.html';
 }
 
+// Limpiar historial para evitar volver a login con botón atrás
+if (window.history && window.history.pushState) {
+    // Reemplazar la entrada actual del historial para que no vuelva a login
+    window.history.replaceState({page: 'estudiante'}, 'Portal Estudiante', 'estudiante.html');
+}
+
+// Interceptar el botón atrás del navegador
+window.addEventListener('popstate', function(event) {
+    // Si el usuario presiona atrás, llevarlo al dashboard
+    const activeSection = sessionStorage.getItem('activeSection');
+    if (activeSection && activeSection !== 'dashboard') {
+        event.preventDefault();
+        showSection('dashboard');
+        // Agregar nueva entrada al historial
+        window.history.pushState({page: 'estudiante', section: 'dashboard'}, 'Dashboard', 'estudiante.html');
+    }
+});
+
 // Restaurar la sección activa al recargar la página
 const savedSection = sessionStorage.getItem('activeSection');
 if (savedSection && savedSection !== 'dashboard') {
@@ -266,6 +284,11 @@ function showSection(sectionId) {
     
     // Guardar la sección actual en sessionStorage para mantenerla al recargar
     sessionStorage.setItem('activeSection', sectionId);
+    
+    // Agregar al historial del navegador para control de navegación
+    if (window.history && window.history.pushState) {
+        window.history.pushState({page: 'estudiante', section: sectionId}, sectionId, 'estudiante.html');
+    }
     
     // Marcar el nav-item correspondiente como activo
     const navItems = document.querySelectorAll('.nav-item');

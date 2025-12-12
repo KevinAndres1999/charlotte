@@ -404,6 +404,21 @@ if (!currentUser || currentUser.role !== 'admin') {
     window.location.href = 'login.html';
 }
 
+// Limpiar historial para evitar volver a login con botón atrás
+if (window.history && window.history.pushState) {
+    window.history.replaceState({page: 'admin'}, 'Panel Administrador', 'admin.html');
+}
+
+// Interceptar el botón atrás del navegador
+window.addEventListener('popstate', function(event) {
+    const activeSection = sessionStorage.getItem('adminActiveSection');
+    if (activeSection && activeSection !== 'dashboard') {
+        event.preventDefault();
+        window.showSection('dashboard');
+        window.history.pushState({page: 'admin', section: 'dashboard'}, 'Dashboard', 'admin.html');
+    }
+});
+
 // Restaurar la sección activa al recargar la página
 const savedAdminSection = sessionStorage.getItem('adminActiveSection');
 if (savedAdminSection && savedAdminSection !== 'dashboard') {
@@ -421,6 +436,11 @@ window.showSection = function(sectionId, event) {
     
     // Guardar la sección actual en sessionStorage
     sessionStorage.setItem('adminActiveSection', sectionId);
+    
+    // Agregar al historial del navegador
+    if (window.history && window.history.pushState) {
+        window.history.pushState({page: 'admin', section: sectionId}, sectionId, 'admin.html');
+    }
     
     // Activar el item del menú correspondiente
     const navItems = document.querySelectorAll('.nav-item');
