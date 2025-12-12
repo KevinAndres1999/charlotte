@@ -366,10 +366,9 @@
             </div>
         </div>
     </div>
-    <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script>
 const firebaseConfig = {
     apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
     authDomain: "charlotte-babda.firebaseapp.com",
@@ -379,8 +378,8 @@ const firebaseConfig = {
     appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 if (!currentUser || currentUser.role !== 'admin') {
@@ -413,7 +412,7 @@ window.showSection = function(sectionId, event) {
 window.deleteMaterial = async function(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
     try {
-        await deleteDoc(doc(db, 'materiales', id));
+        await db.collection('materiales').doc(id).delete();
         await loadMateriales();
         updateStats();
         showAlert('Material eliminado exitosamente');
@@ -466,7 +465,7 @@ window.savePDF = async function(e) {
             };
             
             // Guardar en Firestore
-            await addDoc(collection(db, 'materiales'), material);
+            await db.collection('materiales').add(material);
             
             document.getElementById('form-pdf').reset();
             await loadMateriales();
@@ -493,18 +492,18 @@ window.addEventListener('popstate', function(event) {
 // Establecer el estado inicial
 history.replaceState({ section: 'inicio' }, '', '#inicio');
 
-function toggleMobileMenu() {
+window.toggleMobileMenu = function() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
-function logout() {
+window.logout = function() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
         sessionStorage.removeItem('currentUser');
         window.location.replace('index.html');
     }
 }
 
-function saveVideo(e) {
+window.saveVideo = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const video = {
@@ -524,7 +523,7 @@ function saveVideo(e) {
     showAlert('Video guardado exitosamente');
 }
 
-function saveClase(e) {
+window.saveClase = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const clase = {
@@ -543,7 +542,7 @@ function saveClase(e) {
     showAlert('Clase guardada exitosamente');
 }
 
-function saveActividad(e) {
+window.saveActividad = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const actividad = {
@@ -563,7 +562,7 @@ function saveActividad(e) {
     showAlert('Actividad creada exitosamente');
 }
 
-function saveCuestionario(e) {
+window.saveCuestionario = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const cuestionario = {
@@ -582,7 +581,7 @@ function saveCuestionario(e) {
     showAlert('Cuestionario guardado exitosamente');
 }
 
-function saveMaterial(e) {
+window.saveMaterial = function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const material = {
@@ -603,7 +602,7 @@ function saveMaterial(e) {
     showAlert('Material guardado exitosamente');
 }
 
-function deleteItem(type, id) {
+window.deleteItem = function(type, id) {
     if (confirm('¿Estás seguro de eliminar este elemento?')) {
         const items = JSON.parse(localStorage.getItem(type) || '[]');
         const filtered = items.filter(item => item.id != id); // Usar != para comparación flexible
@@ -614,7 +613,7 @@ function deleteItem(type, id) {
     }
 }
 
-function loadContent(section) {
+window.loadContent = function(section) {
     switch(section) {
         case 'videos': loadVideos(); break;
         case 'clases': loadClases(); break;
@@ -805,7 +804,7 @@ function deleteEvaluacion(id) {
 
 async function loadMateriales() {
     try {
-        const materialesSnapshot = await getDocs(query(collection(db, 'materiales'), orderBy('fechaCreacion', 'desc')));
+        const materialesSnapshot = await db.collection('materiales').orderBy('fechaCreacion', 'desc').get();
         const materiales = [];
         materialesSnapshot.forEach((doc) => {
             materiales.push({ id: doc.id, ...doc.data() });
@@ -867,7 +866,7 @@ async function loadMateriales() {
 async function deleteMaterial(id) {
     if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
     try {
-        await deleteDoc(doc(db, 'materiales', id));
+        await db.collection('materiales').doc(id).delete();
         await loadMateriales();
         updateStats();
         showAlert('Material eliminado exitosamente');
@@ -884,7 +883,7 @@ async function updateStats() {
     
     // Contar materiales desde Firestore
     try {
-        const materialesSnapshot = await getDocs(collection(db, 'materiales'));
+        const materialesSnapshot = await db.collection('materiales').get();
         document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
     } catch (error) {
         console.error('Error al contar materiales:', error);
@@ -1042,7 +1041,7 @@ async function loadUsuariosAprobados() {
     }
 }
 
-async function aprobarUsuario(id, email, name, cedula, telefono, programa, sede, password) {
+window.aprobarUsuario = async function(id, email, name, cedula, telefono, programa, sede, password) {
     if (!confirm(`¿Aprobar a ${name}?\n\nNOTA: El estudiante deberá cambiar su contraseña en el primer inicio de sesión.`)) return;
     try {
         // Marcar que necesita cambiar contraseña en el primer inicio
@@ -1075,7 +1074,7 @@ async function aprobarUsuario(id, email, name, cedula, telefono, programa, sede,
     }
 }
 
-async function rechazarUsuario(id) {
+window.rechazarUsuario = async function(id) {
     if (!confirm('¿Rechazar esta solicitud?')) return;
     try {
         await fetch(`https://firestore.googleapis.com/v1/projects/charlotte-babda/databases/(default)/documents/pendingStudents/${id}`, {
@@ -1089,7 +1088,7 @@ async function rechazarUsuario(id) {
     }
 }
 
-function copiarContrasena(password, nombre) {
+window.copiarContrasena = function(password, nombre) {
     navigator.clipboard.writeText(password).then(() => {
         showAlert(`Contraseña de ${nombre} copiada al portapapeles`);
     }).catch(err => {
@@ -1104,7 +1103,7 @@ function copiarContrasena(password, nombre) {
     });
 }
 
-async function restablecerContrasena(id, email, name, cedula, telefono, programa, sede) {
+window.restablecerContrasena = async function(id, email, name, cedula, telefono, programa, sede) {
     const nuevaContrasena = prompt(`Restablecer contraseña para ${name}\n\nIngresa la nueva contraseña (dejar vacío para usar "charlotte123"):`, 'charlotte123');
     
     if (nuevaContrasena === null) return; // Usuario canceló
@@ -1351,7 +1350,7 @@ function loadCalificaciones() {
     container.innerHTML = html;
 }
 
-function guardarCalificacion(emailEstudiante, tipo, id) {
+window.guardarCalificacion = function(emailEstudiante, tipo, id) {
     const inputId = `nota_${tipo}_${id}`;
     const nota = document.getElementById(inputId).value;
     
@@ -1377,7 +1376,7 @@ function guardarCalificacion(emailEstudiante, tipo, id) {
     showAlert('Calificación guardada exitosamente');
 }
 
-function resetCalificaciones() {
+window.resetCalificaciones = function() {
     document.getElementById('calificaciones-estudiante').value = '';
     document.getElementById('calificaciones-programa').value = '';
     cargarEstudiantesPorPrograma();
