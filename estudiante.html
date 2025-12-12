@@ -55,7 +55,23 @@
         .video-thumbnail iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .video-info { padding: 1rem; }
         .video-info h4 { margin-bottom: 0.5rem; color: #0a1628; }
-        .menu-toggle { display: none; background: rgba(255,255,255,0.2); color: white; font-size: 1.5rem; padding: 0.5rem; border-radius: 8px; cursor: pointer; }
+        .menu-toggle { display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #3b82f6, #1e3a8a); color: white; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(59,130,246,0.4); z-index: 1000; font-size: 1.5rem; border: none; transition: all 0.3s; }
+        .menu-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(59,130,246,0.6); }
+        .menu-toggle i { display: block; transition: transform 0.3s; }
+        .menu-toggle.open i { transform: rotate(90deg); }
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+        .stat-card h3 { font-size: 2rem; margin: 0.5rem 0; color: #1e3a8a; }
+        .stat-card p { color: #64748b; margin: 0; font-size: 0.9rem; }
+        .stat-card i { font-size: 2rem; color: #3b82f6; opacity: 0.8; }
+        .welcome-banner { background: linear-gradient(135deg, #3b82f6, #1e3a8a); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .welcome-banner h2 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+        .welcome-banner p { margin: 0; opacity: 0.9; }
+        .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .quick-link { background: white; padding: 1.2rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .quick-link:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(59,130,246,0.15); }
+        .quick-link i { font-size: 2.5rem; color: #3b82f6; margin-bottom: 0.5rem; }
+        .quick-link h4 { margin: 0.5rem 0 0 0; color: #0a1628; font-size: 1rem; }
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 100%; position: fixed; left: -100%; top: 72px; height: calc(100vh - 72px); z-index: 99; transition: left 0.3s; overflow-y: auto; }
@@ -63,6 +79,7 @@
             .menu-toggle { display: block; }
             .main-content { padding: 1rem; }
             .grid { grid-template-columns: 1fr; }
+            .stat-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -71,11 +88,14 @@
         <div class="header-content">
             <h1><i class="fas fa-user-graduate"></i> <span id="userName">Portal Estudiante</span></h1>
             <div class="header-actions">
-                <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
                 <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
             </div>
         </div>
     </header>
+
+    <button class="menu-toggle" onclick="toggleMenu()" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <div class="container">
         <aside class="sidebar" id="sidebar">
@@ -98,7 +118,8 @@
                 </div>
             </div>
             <nav class="nav-menu">
-                <div class="nav-item active" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
+                <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
                 <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-play-circle"></i><span>Videos</span></div>
                 <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
@@ -107,7 +128,57 @@
         </aside>
 
         <main class="main-content">
-            <section id="clases" class="section active">
+            <section id="dashboard" class="section active">
+                <div class="welcome-banner">
+                    <h2>¡Bienvenido de nuevo, <span id="welcomeName"></span>!</h2>
+                    <p>Aquí está tu resumen de actividades y recursos disponibles</p>
+                </div>
+
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <i class="fas fa-book-open"></i>
+                        <h3 id="totalClases">0</h3>
+                        <p>Clases Disponibles</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #10b981;">
+                        <i class="fas fa-play-circle" style="color: #10b981;"></i>
+                        <h3 id="totalVideos">0</h3>
+                        <p>Videos Educativos</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                        <i class="fas fa-tasks" style="color: #f59e0b;"></i>
+                        <h3 id="totalActividades">0</h3>
+                        <p>Actividades</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #8b5cf6;">
+                        <i class="fas fa-folder-open" style="color: #8b5cf6;"></i>
+                        <h3 id="totalMateriales">0</h3>
+                        <p>Materiales</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: #0a1628;">Accesos Rápidos</h3>
+                <div class="quick-links">
+                    <div class="quick-link" onclick="showSection('clases')">
+                        <i class="fas fa-book-open"></i>
+                        <h4>Ver Mis Clases</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('videos')">
+                        <i class="fas fa-play-circle"></i>
+                        <h4>Videos</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('actividades')">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>Actividades</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('materiales')">
+                        <i class="fas fa-folder-open"></i>
+                        <h4>Materiales</h4>
+                    </div>
+                </div>
+            </section>
+
+            <section id="clases" class="section">
                 <h2 class="page-title">Mis Clases</h2>
                 <p class="page-subtitle">Contenido de tus cursos</p>
                 <div id="clasesList"></div>
@@ -169,18 +240,25 @@ document.getElementById('programBadge').textContent = currentUser.programa;
 document.getElementById('userEmail').textContent = currentUser.email;
 document.getElementById('userProgram').textContent = currentUser.programa;
 document.getElementById('userSede').textContent = currentUser.sede;
+document.getElementById('welcomeName').textContent = currentUser.name;
 
 function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
     event.target.closest('.nav-item').classList.add('active');
-    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
-    loadContent(sectionId);
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('menuToggle').classList.remove('open');
+    }
+    if (sectionId !== 'dashboard') loadContent(sectionId);
 }
 
 function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuToggle');
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('open');
 }
 
 function logout() {
@@ -205,6 +283,18 @@ function loadContent(section) {
     else if (section === 'actividades') loadActividades();
     else if (section === 'cuestionarios') loadCuestionarios();
     else if (section === 'materiales') loadMateriales();
+}
+
+function updateDashboard() {
+    const clases = JSON.parse(localStorage.getItem('clases') || '[]');
+    const videos = JSON.parse(localStorage.getItem('videos') || '[]');
+    const actividades = JSON.parse(localStorage.getItem('actividades') || '[]');
+    const materiales = JSON.parse(localStorage.getItem('materiales') || '[]');
+    
+    document.getElementById('totalClases').textContent = filterByProgram(clases).length;
+    document.getElementById('totalVideos').textContent = filterByProgram(videos).length;
+    document.getElementById('totalActividades').textContent = filterByProgram(actividades).length;
+    document.getElementById('totalMateriales').textContent = filterByProgram(materiales).length;
 }
 
 function loadClases() {
@@ -386,7 +476,7 @@ async function loadMateriales() {
     }).join('');
 }
 
-loadClases();
+updateDashboard();
     </script>
 </body>
 </html>
