@@ -239,6 +239,18 @@ if (!currentUser || currentUser.role !== 'student') {
     window.location.href = 'login.html';
 }
 
+// Restaurar la sección activa al recargar la página
+const savedSection = sessionStorage.getItem('activeSection');
+if (savedSection && savedSection !== 'dashboard') {
+    // Esperar a que el DOM esté listo antes de restaurar la sección
+    window.addEventListener('DOMContentLoaded', () => {
+        showSection(savedSection);
+    });
+} else if (!savedSection) {
+    // Si no hay sección guardada, establecer dashboard por defecto
+    sessionStorage.setItem('activeSection', 'dashboard');
+}
+
 document.getElementById('userName').textContent = currentUser.name;
 document.getElementById('studentName').textContent = currentUser.name;
 document.getElementById('programBadge').textContent = currentUser.programa;
@@ -251,6 +263,9 @@ function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
+    
+    // Guardar la sección actual en sessionStorage para mantenerla al recargar
+    sessionStorage.setItem('activeSection', sectionId);
     
     // Marcar el nav-item correspondiente como activo
     const navItems = document.querySelectorAll('.nav-item');
@@ -276,6 +291,7 @@ function toggleMenu() {
 
 function logout() {
     sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('activeSection');
     window.location.href = 'login.html';
 }
 
@@ -432,7 +448,7 @@ async function loadMateriales() {
 
     if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
         const recetas = [
-            { titulo: '📖 Ver Todas las Recetas', descripcion: 'Recetario completo con más de 40 recetas profesionales', url: 'recetas-todas.html', tipo: 'receta-completa' },
+            // Botón eliminado - acceso directo desde menú de materiales
             { titulo: '🍞 Panes Básicos', descripcion: 'Pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
             { titulo: '🥖 Panes Especiales', descripcion: 'Ciabatta, focaccia, bagels', url: 'recetas-panes-especiales.html' },
             { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Brownies, cookies, muffins', url: 'recetas-bizcochos-galletas.html' },
@@ -449,17 +465,6 @@ async function loadMateriales() {
     }
 
     container.innerHTML = filtered.map(m => {
-        if (m.tipo === 'receta-completa') {
-            return `
-                <div class="content-card" style="border-top-color: #e63971;">
-                    <h4>${m.titulo}</h4>
-                    <p>${m.descripcion}</p>
-                    <a href="${m.url}" target="_blank" class="btn-view" style="background: linear-gradient(135deg, #e63971, #0b3460);">
-                        <i class="fas fa-book-open"></i> Ver Todas las Recetas
-                    </a>
-                </div>
-            `;
-        }
         if (m.tipo === 'receta') {
             return `
                 <div class="content-card" style="border-top-color: #f59e0b;">
