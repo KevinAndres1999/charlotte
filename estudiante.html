@@ -4,615 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Estudiante | Charlotte</title>
-    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            background: #f8fafc;
-            margin: 0;
-        }
-        .student-header {
-            background: linear-gradient(135deg, var(--accent-2), var(--accent));
-            color: #fff;
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .student-header .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .student-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            min-height: calc(100vh - 80px);
-            gap: 0;
-        }
-        .sidebar {
-            background: #fff;
-            border-right: 1px solid #e8f0fe;
-            padding: 0;
-        }
-        .student-profile {
-            padding: 24px;
-            border-bottom: 2px solid #e8f0fe;
-        }
-        .student-profile h3 {
-            margin: 0 0 16px 0;
-            color: var(--accent);
-            font-size: 18px;
-        }
-        .profile-item {
-            margin-bottom: 12px;
-        }
-        .profile-label {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .profile-value {
-            color: #0a1628;
-            font-weight: 500;
-        }
-        .nav-menu {
-            padding: 0;
-        }
-        .nav-item {
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        .nav-item:hover {
-            background: #f8fafc;
-            border-left-color: var(--accent);
-        }
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(230,57,113,0.1), transparent);
-            border-left-color: var(--accent);
-            color: var(--accent);
-            font-weight: 600;
-        }
-        .nav-item i {
-            font-size: 18px;
-            width: 24px;
-        }
-        .main-content {
-            padding: 40px;
-            overflow-y: auto;
-        }
-        .content-header {
-            margin-bottom: 30px;
-        }
-        .content-header h2 {
-            color: #0a1628;
-            font-size: 28px;
-            margin: 0 0 8px 0;
-        }
-        .content-header p {
-            color: #64748b;
-            margin: 0;
-        }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .card h3 {
-            color: var(--accent);
-            margin: 0 0 16px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .lessons-grid {
-            display: grid;
-            gap: 16px;
-        }
-        .lesson-item {
-            padding: 16px;
-            border: 2px solid #e8f0fe;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s;
-        }
-        .lesson-item:hover {
-            border-color: var(--accent);
-            background: #fef1f7;
-        }
-        .lesson-info h4 {
-            margin: 0 0 4px 0;
-            color: #0a1628;
-        }
-        .lesson-info p {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
-        }
-        .lesson-status {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .videos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .video-card {
-            border: 2px solid #e8f0fe;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-        .video-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-4px);
-        }
-        .video-thumbnail {
-            width: 100%;
-            height: 160px;
-            background: linear-gradient(135deg, var(--accent-2), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 48px;
-        }
-        .video-info {
-            padding: 16px;
-        }
-        .video-info h4 {
-            margin: 0 0 8px 0;
-            color: #0a1628;
-        }
-        .video-info p {
-            margin: 0;
-            color: #64748b;
-            font-size: 14px;
-        }
-        .quiz-card {
-            border: 2px solid #e8f0fe;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.3s;
-        }
-        .quiz-card:hover {
-            border-color: var(--accent);
-        }
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .quiz-header h4 {
-            margin: 0;
-            color: #0a1628;
-        }
-        .quiz-meta {
-            display: flex;
-            gap: 16px;
-            color: #64748b;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-primary:hover {
-            background: #d32f5f;
-            transform: translateY(-2px);
-        }
-        .activity-card {
-            border-left: 4px solid var(--accent);
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .activity-card h4 {
-            margin: 0 0 8px 0;
-            color: #0a1628;
-        }
-        .activity-meta {
-            display: flex;
-            gap: 20px;
-            color: #64748b;
-            font-size: 14px;
-            margin-top: 12px;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .badge-urgent {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        .badge-normal {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(230,57,113,0.4);
-            z-index: 1000;
-        }
-        
-        /* Responsive Design */
+        body { background: #f8fafc; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .student-header { background: linear-gradient(135deg, #e63971, #0b3460); color: #fff; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .student-header .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .student-header h1 { margin: 0; font-size: 24px; }
+        .student-header h1 i { margin-right: 10px; }
+        .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
+        .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 80px); gap: 0; max-width: 1600px; margin: 0 auto; }
+        .sidebar { background: #fff; border-right: 1px solid #e8f0fe; padding: 0; }
+        .sidebar-header { padding: 24px; border-bottom: 2px solid #e8f0fe; background: linear-gradient(135deg, #fef5f9, #fce7f3); }
+        .sidebar-header h3 { margin: 0 0 8px 0; color: #e63971; font-size: 18px; }
+        .sidebar-header .program-badge { background: linear-gradient(135deg, #e63971, #0b3460); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-block; margin-top: 8px; }
+        .profile-info { padding: 20px 24px; border-bottom: 1px solid #f1f5f9; }
+        .profile-item { margin-bottom: 12px; }
+        .profile-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .profile-value { color: #0a1628; font-weight: 500; font-size: 14px; }
+        .nav-menu { padding: 0; }
+        .nav-item { padding: 16px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #334155; }
+        .nav-item:hover { background: #f8fafc; border-left-color: #e63971; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(230,57,113,0.1), transparent); border-left-color: #e63971; color: #e63971; font-weight: 600; }
+        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
+        .main-content { padding: 32px; overflow-y: auto; background: #f8fafc; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .page-header { margin-bottom: 32px; }
+        .page-header h2 { margin: 0 0 8px 0; color: #0a1628; font-size: 32px; }
+        .page-header p { margin: 0; color: #64748b; font-size: 16px; }
+        .card { background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .card h3 { margin: 0 0 20px 0; color: #e63971; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .grid-content { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .content-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #e63971; transition: all 0.3s; }
+        .content-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(230,57,113,0.15); }
+        .content-card h4 { margin: 0 0 8px 0; color: #0a1628; font-size: 18px; }
+        .content-card p { margin: 0; color: #64748b; font-size: 14px; line-height: 1.6; }
+        .content-card .meta { display: flex; gap: 16px; margin-top: 12px; font-size: 13px; color: #64748b; }
+        .content-card .meta i { margin-right: 4px; }
+        .btn-view { display: inline-block; margin-top: 16px; padding: 10px 20px; background: linear-gradient(135deg, #e63971, #0b3460); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s; }
+        .btn-view:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(230,57,113,0.4); }
+        .video-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s; }
+        .video-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .video-thumbnail { position: relative; padding-top: 56.25%; background: #f1f5f9; }
+        .video-thumbnail iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .video-info { padding: 16px; }
+        .video-info h4 { margin: 0 0 8px 0; color: #0a1628; }
+        .video-info p { margin: 0; color: #64748b; font-size: 14px; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state i { font-size: 64px; color: #cbd5e1; margin-bottom: 16px; }
+        .empty-state h3 { color: #64748b; font-size: 20px; margin: 0 0 8px 0; }
+        .empty-state p { color: #94a3b8; }
+        .mobile-menu-toggle { display: none; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 24px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
         @media (max-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                position: fixed;
-                left: -100%;
-                top: 60px;
-                height: calc(100vh - 60px);
-                width: 280px;
-                transition: left 0.3s;
-                z-index: 999;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                overflow-y: auto;
-            }
-            .sidebar.open {
-                left: 0;
-            }
-            .mobile-menu-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .main-content {
-                padding: 20px;
-            }
-            .student-header h1 {
-                font-size: 18px;
-            }
-            .logout-btn {
-                padding: 8px 12px;
-                font-size: 14px;
-            }
-            .content-header h2 {
-                font-size: 24px;
-            }
-            .videos-grid {
-                grid-template-columns: 1fr;
-            }
-            .quiz-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            .quiz-header .btn-primary {
-                width: 100%;
-            }
-            .activity-meta {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .student-header .container {
-                padding: 0 15px;
-            }
-            .main-content {
-                padding: 15px;
-            }
-            .card {
-                padding: 16px;
-            }
-            .lesson-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            .video-card {
-                margin-bottom: 16px;
-            }
-            .student-profile {
-                padding: 16px;
-            }
-            .nav-item {
-                padding: 14px 20px;
-            }
+            .dashboard-container { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; left: -100%; top: 60px; width: 280px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); overflow-y: auto; }
+            .sidebar.open { left: 0; }
+            .mobile-menu-toggle { display: block; }
+            .main-content { padding: 20px 16px; }
+            .page-header h2 { font-size: 24px; }
+            .grid-content { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="student-header">
+    <header class="student-header">
         <div class="container">
-            <h1 id="welcomeName"><i class="fas fa-user-graduate"></i> Portal del Estudiante</h1>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
-        
-            <!-- Sección: Materiales de Estudio -->
-            <div id="materiales" class="content-section">
-                <div class="content-header">
-                    <h2>Materiales de Estudio</h2>
-                    <p>Cuestionarios, evaluaciones y recetarios de tu curso</p>
-                </div>
-
-                <!-- Materiales según el curso del estudiante -->
-                <div id="materialesPanaderia" style="display:none;">
-                    <div class="card">
-                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Panadería</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>📄 Cuestionario de Panadería</h4>
-                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>✅ Cuestionario RESUELTO</h4>
-                                    <p>Respuestas correctas para verificar tu estudio</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Panadería</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>🎓 Evaluación Oficial</h4>
-                                    <p>Examen del curso de Panadería</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Evaluación Panadería.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Evaluacion Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-book"></i> Recetario de Panadería</h3>
-                        <div class="lesson-item">
-                            <div class="lesson-info">
-                                <h4>�� Recetario Completo 2024-2025</h4>
-                                <p>Más de 40 recetas profesionales con instrucciones detalladas</p>
-                            </div>
-                            <a href="recetario-index.html" class="btn-primary" style="text-decoration:none;">Ver Recetario Online →</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="materialesBelleza" style="display:none;">
-                    <div class="card">
-                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Belleza</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>📄 Cuestionario de Belleza</h4>
-                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>✅ Cuestionario RESUELTO</h4>
-                                    <p>Respuestas correctas para verificar tu estudio</p>
-                                </div>
-                                <a href="cuestionarios y evaluaciones/Cuestionario Belleza RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Belleza</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>🎓 Evaluación Oficial</h4>
-                                    <p>Examen del curso de Belleza</p>
-                                </div>
-                                <a href="cuestionarios y evaluaciones/Evaluacion Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-</div>
-    </div>
-
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-        <i class="fas fa-bars"></i>
-    </button>
+            <h1><i class="fas fa-user-graduate"></i> <span id="welcomeText">Portal Estudiante</span></h1>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+    </header>
 
     <div class="dashboard-container">
-        <!-- Sidebar con perfil y menú -->
-        <div class="sidebar">
-            <div class="student-profile">
-                <h3><i class="fas fa-user-circle"></i> Mi Perfil</h3>
-                <div id="studentInfo"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3 id="studentName">Estudiante</h3>
+                <span class="program-badge" id="programBadge"></span>
             </div>
-            
-            <nav class="nav-menu">
-                <div class="nav-item active" onclick="showSection('clases')">
-                    <i class="fas fa-book-open"></i>
-                    <span>Mis Clases</span>
-                </div>
-                <div class="nav-item" onclick="showSection('videos')">
-                    <i class="fas fa-play-circle"></i>
-                    <span>Videos</span>
-                </div>
-                <div class="nav-item" onclick="showSection('actividades')">
-                    <i class="fas fa-tasks"></i>
-                    <span>Actividades</span>
-                </div>
-                <div class="nav-item" onclick="showSection('cuestionarios')">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Cuestionarios</span>
-                </div>
-                                <div class="nav-item" onclick="showSection('materiales')">
-                    <i class="fas fa-folder-open"></i>
-                    <span>Materiales de Estudio</span>
-                </div>
-<div class="nav-item" onclick="window.location.href='recursos.html'">
-                    <i class="fas fa-images"></i>
-                    <span>Galería</span>
-                </div>
-            </nav>
+            <div class="profile-info" id="profileInfo"></div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
+                <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-play-circle"></i><span>Videos</span></div>
+                <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Actividades</span></div>
+                <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
+                <div class="nav-item" onclick="showSection('materiales')"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
+                <div class="nav-item" onclick="window.location.href='recursos.html'"><i class="fas fa-images"></i><span>Galería</span></div>
+            </div>
         </div>
 
-        <!-- Contenido principal -->
         <div class="main-content">
-            <!-- Sección: Mis Clases -->
+            <!-- Sección: Clases -->
             <div id="clases" class="content-section active">
-                <div class="content-header">
+                <div class="page-header">
                     <h2>Mis Clases</h2>
-                    <p>Progreso de tu programa de estudios</p>
+                    <p>Contenido de tus cursos</p>
                 </div>
-                
-                <div class="card">
-                    <h3><i class="fas fa-graduation-cap"></i> <span id="programName"></span></h3>
-                    <div class="lessons-grid" id="lessonsGrid">
-                        <!-- Las clases se cargarán dinámicamente -->
-                    </div>
-                </div>
+                <div id="clasesList"></div>
             </div>
 
             <!-- Sección: Videos -->
             <div id="videos" class="content-section">
-                <div class="content-header">
+                <div class="page-header">
                     <h2>Videos Educativos</h2>
                     <p>Material audiovisual de apoyo</p>
                 </div>
-                
-                <div class="videos-grid" id="videosGrid">
-                    <!-- Los videos se cargarán dinámicamente -->
-                </div>
+                <div id="videosList" class="grid-content"></div>
             </div>
 
             <!-- Sección: Actividades -->
             <div id="actividades" class="content-section">
-                <div class="content-header">
+                <div class="page-header">
                     <h2>Actividades</h2>
                     <p>Tareas y proyectos del curso</p>
                 </div>
-                
-                <div id="activitiesGrid">
-                    <!-- Las actividades se cargarán dinámicamente -->
-                </div>
+                <div id="actividadesList"></div>
             </div>
 
             <!-- Sección: Cuestionarios -->
             <div id="cuestionarios" class="content-section">
-                <div class="content-header">
+                <div class="page-header">
                     <h2>Cuestionarios</h2>
-                    <p>Evaluaciones y tests</p>
+                    <p>Evaluaciones y prácticas</p>
                 </div>
-                
-                <div id="quizzesGrid">
-                    <!-- Los cuestionarios se cargarán dinámicamente -->
+                <div id="cuestionariosList"></div>
+            </div>
+
+            <!-- Sección: Materiales -->
+            <div id="materiales" class="content-section">
+                <div class="page-header">
+                    <h2>Materiales de Estudio</h2>
+                    <p>Documentos, PDFs y recursos adicionales</p>
                 </div>
+                <div id="materialesList"></div>
             </div>
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+            authDomain: "charlotte-babda.firebaseapp.com",
+            projectId: "charlotte-babda",
+            storageBucket: "charlotte-babda.firebasestorage.app",
+            messagingSenderId: "486360806502",
+            appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Verificar autenticación
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser || currentUser.role !== 'student') {
             window.location.href = 'login.html';
         }
 
-        function logout() {
-            sessionStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
-        }
-
         // Mostrar información del estudiante
-        document.getElementById('welcomeName').innerHTML = `<i class="fas fa-user-graduate"></i> ${currentUser.name}`;
-        
-        document.getElementById('studentInfo').innerHTML = `
-            <div class="profile-item">
-                <span class="profile-label">Nombre</span>
-                <div class="profile-value">${currentUser.name}</div>
-            </div>
+        document.getElementById('welcomeText').textContent = currentUser.name;
+        document.getElementById('studentName').textContent = currentUser.name;
+        document.getElementById('programBadge').textContent = currentUser.programa;
+
+        document.getElementById('profileInfo').innerHTML = `
             <div class="profile-item">
                 <span class="profile-label">Email</span>
                 <div class="profile-value">${currentUser.email}</div>
@@ -627,188 +182,239 @@
             </div>
         `;
 
-        document.getElementById('programName').textContent = currentUser.programa;
-
-        // Mostrar materiales según el programa del estudiante
-        if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
-            document.getElementById('materialesPanaderia').style.display = 'block';
-            document.getElementById('materialesBelleza').style.display = 'none';
-        } else if (currentUser.programa.toLowerCase().includes('belleza')) {
-            document.getElementById('materialesBelleza').style.display = 'block';
-            document.getElementById('materialesPanaderia').style.display = 'none';
-        }
-
-        // Función para cambiar de sección
-        window.showSection = function(sectionId) {
-            // Ocultar todas las secciones
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Quitar active de todos los items del menú
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Mostrar la sección seleccionada
+        // Funciones de navegación
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
-            
-            // Marcar el item del menú como activo
-            event.currentTarget.classList.add('active');
-            
-            // Cerrar menú móvil si está abierto
+            event.target.closest('.nav-item').classList.add('active');
             if (window.innerWidth <= 768) {
-                document.querySelector('.sidebar').classList.remove('open');
+                document.getElementById('sidebar').classList.remove('open');
+            }
+            loadContent(sectionId);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Filtrar por programa del estudiante
+        function filterByProgram(items) {
+            const userProgram = currentUser.programa.toLowerCase();
+            return items.filter(item => {
+                const itemProgram = (item.programa || '').toLowerCase();
+                return itemProgram === 'todos' || 
+                       itemProgram === userProgram || 
+                       (userProgram.includes('panadería') && itemProgram.includes('panadería')) ||
+                       (userProgram.includes('panaderia') && itemProgram.includes('panaderia')) ||
+                       (userProgram.includes('belleza') && itemProgram.includes('belleza'));
+            });
+        }
+
+        // Cargar contenido según sección
+        function loadContent(section) {
+            switch(section) {
+                case 'clases': loadClases(); break;
+                case 'videos': loadVideos(); break;
+                case 'actividades': loadActividades(); break;
+                case 'cuestionarios': loadCuestionarios(); break;
+                case 'materiales': loadMateriales(); break;
             }
         }
 
-        // Función para toggle del menú móvil
-        window.toggleMobileMenu = function() {
-            document.querySelector('.sidebar').classList.toggle('open');
-        }
-
-        // Cerrar menú al hacer click fuera de él
-        document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
-            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+        // Cargar Clases
+        function loadClases() {
+            const clases = JSON.parse(localStorage.getItem('clases') || '[]');
+            const filtered = filterByProgram(clases);
+            const container = document.getElementById('clasesList');
             
-            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
-                    sidebar.classList.remove('open');
-                }
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p>Pronto se agregarán contenidos para tu programa</p></div>';
+                return;
             }
-        });
 
-        // Cargar clases según el programa
-        const lessonsData = {
-            'Belleza y Cosmetología': [
-                { title: 'Introducción a la Cosmetología', duration: '2 horas', status: 'completed' },
-                { title: 'Técnicas de Corte Básico', duration: '3 horas', status: 'completed' },
-                { title: 'Colorimetría Profesional', duration: '4 horas', status: 'pending' },
-                { title: 'Maquillaje Social', duration: '3 horas', status: 'pending' },
-                { title: 'Diseño de Uñas', duration: '2 horas', status: 'pending' },
-                { title: 'Tratamientos Faciales', duration: '3 horas', status: 'pending' }
-            ],
-            'Panadería y Pastelería': [
-                { title: 'Fundamentos de Panadería', duration: '2 horas', status: 'completed' },
-                { title: 'Masas Básicas', duration: '3 horas', status: 'completed' },
-                { title: 'Técnicas de Fermentación', duration: '4 horas', status: 'pending' },
-                { title: 'Decoración con Fondant', duration: '3 horas', status: 'pending' },
-                { title: 'Pasteles Gourmet', duration: '4 horas', status: 'pending' },
-                { title: 'Chocolatería Artesanal', duration: '3 horas', status: 'pending' }
-            ]
-        };
+            container.innerHTML = filtered.map(clase => `
+                <div class="card">
+                    <h3><i class="fas fa-book"></i> ${clase.titulo}</h3>
+                    <div style="color: #64748b; line-height: 1.8; white-space: pre-wrap;">${clase.contenido}</div>
+                    <div class="meta" style="margin-top: 16px; display: flex; gap: 16px; color: #94a3b8; font-size: 14px;">
+                        <span><i class="fas fa-calendar"></i> ${clase.fecha}</span>
+                        <span><i class="fas fa-graduation-cap"></i> ${clase.programa}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-        const lessons = lessonsData[currentUser.programa] || [];
-        const lessonsHTML = lessons.map(lesson => `
-            <div class="lesson-item">
-                <div class="lesson-info">
-                    <h4>${lesson.title}</h4>
-                    <p><i class="fas fa-clock"></i> ${lesson.duration}</p>
-                </div>
-                <span class="lesson-status status-${lesson.status}">
-                    ${lesson.status === 'completed' ? 'Completada' : 'Pendiente'}
-                </span>
-            </div>
-        `).join('');
-        document.getElementById('lessonsGrid').innerHTML = lessonsHTML;
+        // Cargar Videos
+        function loadVideos() {
+            const videos = JSON.parse(localStorage.getItem('videos') || '[]');
+            const filtered = filterByProgram(videos);
+            const container = document.getElementById('videosList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3><p>Pronto se agregarán videos para tu programa</p></div>';
+                return;
+            }
 
-        // Cargar videos
-        const videosData = {
-            'Belleza y Cosmetología': [
-                { title: 'Técnicas de Maquillaje', duration: '15:30' },
-                { title: 'Cuidado del Cabello', duration: '12:45' },
-                { title: 'Manicure Profesional', duration: '18:20' },
-                { title: 'Tratamientos Capilares', duration: '22:10' }
-            ],
-            'Panadería y Pastelería': [
-                { title: 'Masas Hojaldradas', duration: '20:15' },
-                { title: 'Decoración de Pasteles', duration: '25:30' },
-                { title: 'Pan Artesanal', duration: '18:45' },
-                { title: 'Técnicas de Glaseado', duration: '16:20' }
-            ]
-        };
+            function getVideoId(url) {
+                const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+                return match ? match[1] : null;
+            }
 
-        const videos = videosData[currentUser.programa] || [];
-        const videosHTML = videos.map(video => `
-            <div class="video-card">
-                <div class="video-thumbnail">
-                    <i class="fas fa-play"></i>
-                </div>
-                <div class="video-info">
-                    <h4>${video.title}</h4>
-                    <p><i class="fas fa-clock"></i> ${video.duration}</p>
-                </div>
-            </div>
-        `).join('');
-        document.getElementById('videosGrid').innerHTML = videosHTML;
+            container.innerHTML = filtered.map(video => {
+                const videoId = getVideoId(video.url);
+                return `
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            ${videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>` : ''}
+                        </div>
+                        <div class="video-info">
+                            <h4>${video.titulo}</h4>
+                            <p>${video.descripcion || ''}</p>
+                            <div class="meta">
+                                <span><i class="fas fa-calendar"></i> ${video.fecha}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
-        // Cargar actividades
-        const activitiesHTML = `
-            <div class="activity-card">
-                <h4>Práctica de Técnicas Básicas</h4>
-                <p>Realizar un video demostrativo aplicando las técnicas aprendidas en las primeras 3 clases.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 20 Dic 2025</span>
-                    <span class="badge badge-urgent">Urgente</span>
-                </div>
-            </div>
-            <div class="activity-card">
-                <h4>Proyecto Final del Módulo 1</h4>
-                <p>Presentación de portafolio con fotografías de trabajos realizados.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 28 Dic 2025</span>
-                    <span class="badge badge-normal">Normal</span>
-                </div>
-            </div>
-            <div class="activity-card">
-                <h4>Investigación de Tendencias</h4>
-                <p>Documento con análisis de tendencias actuales en tu área de estudio.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 5 Ene 2026</span>
-                    <span class="badge badge-normal">Normal</span>
-                </div>
-            </div>
-        `;
-        document.getElementById('activitiesGrid').innerHTML = activitiesHTML;
+        // Cargar Actividades
+        function loadActividades() {
+            const actividades = JSON.parse(localStorage.getItem('actividades') || '[]');
+            const filtered = filterByProgram(actividades);
+            const container = document.getElementById('actividadesList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3><p>Pronto se agregarán actividades para tu programa</p></div>';
+                return;
+            }
 
-        // Cargar cuestionarios
-        const quizzesHTML = `
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Evaluación Módulo 1</h4>
-                    <button class="btn-primary">Iniciar Test</button>
+            container.innerHTML = filtered.map(actividad => `
+                <div class="content-card">
+                    <h4><i class="fas fa-clipboard-list"></i> ${actividad.titulo}</h4>
+                    <p style="white-space: pre-wrap; line-height: 1.6;">${actividad.instrucciones}</p>
+                    <div class="meta">
+                        ${actividad.fecha ? `<span><i class="fas fa-calendar-check"></i> Entrega: ${actividad.fecha}</span>` : ''}
+                        <span><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
+                    </div>
                 </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 20 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 30 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 70% mínimo para aprobar</span>
+            `).join('');
+        }
+
+        // Cargar Cuestionarios
+        function loadCuestionarios() {
+            const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+            const filtered = filterByProgram(cuestionarios);
+            const container = document.getElementById('cuestionariosList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3><p>Pronto se agregarán cuestionarios para tu programa</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(cuestionario => `
+                <div class="content-card">
+                    <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
+                    <p>${cuestionario.descripcion || ''}</p>
+                    <div class="meta">
+                        <span><i class="fas fa-calendar"></i> ${cuestionario.fecha}</span>
+                        <span><i class="fas fa-graduation-cap"></i> ${cuestionario.programa}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Quiz Rápido: Fundamentos</h4>
-                    <button class="btn-primary">Iniciar Test</button>
-                </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 10 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 15 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 60% mínimo para aprobar</span>
-                </div>
-            </div>
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Examen Final</h4>
-                    <button class="btn-primary" disabled style="opacity:0.5;cursor:not-allowed">Próximamente</button>
-                </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 50 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 90 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 80% mínimo para aprobar</span>
-                </div>
-            </div>
-        `;
-        document.getElementById('quizzesGrid').innerHTML = quizzesHTML;
+            `).join('');
+        }
+
+        // Cargar Materiales (Firestore + localStorage)
+        async function loadMateriales() {
+            const container = document.getElementById('materialesList');
+            const allMaterials = [];
+
+            try {
+                // Cargar PDFs de Firestore
+                const firestoreSnapshot = await db.collection('materiales').get();
+                firestoreSnapshot.forEach(doc => {
+                    allMaterials.push({ id: doc.id, ...doc.data(), tipo: 'pdf' });
+                });
+
+                // Cargar enlaces de localStorage
+                const localMaterials = JSON.parse(localStorage.getItem('materiales') || '[]');
+                allMaterials.push(...localMaterials);
+
+                // Filtrar por programa
+                const filtered = filterByProgram(allMaterials);
+
+                // Agregar recetario para estudiantes de panadería
+                if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
+                    filtered.push({
+                        titulo: '📖 Recetario de Panadería 2024-2025',
+                        descripcion: 'Más de 40 recetas profesionales organizadas por categorías',
+                        tipo: 'recetario',
+                        fecha: '2024-2025'
+                    });
+                }
+
+                if (filtered.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3><p>Pronto se agregarán materiales para tu programa</p></div>';
+                    return;
+                }
+
+                container.innerHTML = filtered.map(material => {
+                    if (material.tipo === 'recetario') {
+                        return `
+                            <div class="content-card" style="border-top-color: #22c55e;">
+                                <h4>📖 ${material.titulo}</h4>
+                                <p>${material.descripcion}</p>
+                                <a href="recetario-index.html" class="btn-view" style="background: linear-gradient(135deg, #22c55e, #16a34a);">
+                                    <i class="fas fa-book-open"></i> Ver Recetario
+                                </a>
+                            </div>
+                        `;
+                    }
+                    
+                    if (material.tipo === 'pdf' || material.pdfData) {
+                        return `
+                            <div class="content-card">
+                                <h4><i class="fas fa-file-pdf" style="color: #dc2626;"></i> ${material.titulo}</h4>
+                                <p>${material.descripcion || ''}</p>
+                                <div class="meta">
+                                    <span><i class="fas fa-calendar"></i> ${material.fecha || ''}</span>
+                                    ${material.tamano ? `<span><i class="fas fa-file"></i> ${(material.tamano / 1024 / 1024).toFixed(2)} MB</span>` : ''}
+                                </div>
+                                <a href="ver-documento.html?id=${material.id}" target="_blank" class="btn-view">
+                                    <i class="fas fa-eye"></i> Ver PDF
+                                </a>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="content-card">
+                            <h4><i class="fas fa-link"></i> ${material.titulo}</h4>
+                            <p>${material.descripcion || ''}</p>
+                            <div class="meta">
+                                <span><i class="fas fa-calendar"></i> ${material.fecha}</span>
+                            </div>
+                            <a href="${material.url}" target="_blank" class="btn-view">
+                                <i class="fas fa-external-link-alt"></i> Abrir Enlace
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error cargando materiales:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar materiales</h3><p>Por favor, intenta recargar la página</p></div>';
+            }
+        }
+
+        // Cargar contenido inicial
+        loadClases();
     </script>
 </body>
 </html>
