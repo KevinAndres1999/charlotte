@@ -15,7 +15,9 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); }
         .header { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .header .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
-        .header h1 { font-size: 28px; display: flex; align-items: center; gap: 12px; }
+        .header .logo-text { display: flex; align-items: center; gap: 15px; }
+        .header .logo-text img { height: 60px; width: auto; background: white; padding: 5px; border-radius: 8px; }
+        .header h1 { font-size: 28px; }
         .header .back-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; transition: all 0.3s; }
         .header .back-btn:hover { background: rgba(255,255,255,0.3); }
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -53,7 +55,10 @@
 <body>
     <header class="header">
         <div class="container">
-            <h1><i class="fas fa-book"></i> CHARLOTTE</h1>
+            <div class="logo-text">
+                <img src="fotos/logo.png" alt="Charlotte Logo" onerror="this.style.display='none'">
+                <h1>CHARLOTTE</h1>
+            </div>
             <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Inicio</a>
         </div>
     </header>
