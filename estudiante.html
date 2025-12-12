@@ -437,16 +437,237 @@ function loadCuestionarios() {
         return;
     }
 
-    container.innerHTML = filtered.map(cuestionario => `
-        <div class="content-card">
+    const ahora = new Date();
+    
+    container.innerHTML = filtered.map(cuestionario => {
+        const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+        const vencido = fechaLimite && ahora > fechaLimite;
+        
+        // Verificar intentos realizados
+        const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+        const misClave = `${currentUser.email}_${cuestionario.id}`;
+        const misIntentos = respuestas[misClave] || [];
+        const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
+        
+        const puedeResponder = !vencido && intentosRestantes > 0;
+        
+        return `
+        <div class="content-card" style="border-top-color: ${vencido ? '#94a3b8' : '#3b82f6'};">
             <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
             <p>${cuestionario.descripcion || ''}</p>
-            <div class="meta">
-                <span><i class="fas fa-calendar"></i> ${cuestionario.fecha}</span>
-                <span><i class="fas fa-graduation-cap"></i> ${cuestionario.programa}</span>
+            <div class="meta" style="margin: 15px 0;">
+                <span><i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas</span>
+                <span><i class="fas fa-clock"></i> ${cuestionario.tiempoDisponible || 0} minutos</span>
+                <span><i class="fas fa-redo"></i> ${intentosRestantes} de ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</span>
             </div>
+            ${fechaLimite ? `<p style="font-size: 13px; color: ${vencido ? '#ef4444' : '#f59e0b'}; margin-bottom: 10px;">
+                <i class="fas fa-calendar-alt"></i> Fecha límite: ${fechaLimite.toLocaleString('es-ES')}
+                ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+            </p>` : ''}
+            
+            ${misIntentos.length > 0 ? `
+                <div style="background: #e0f2fe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                    <p style="margin: 0; font-size: 13px; color: #0369a1;">
+                        <i class="fas fa-check-circle"></i> Último intento: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente de calificación'}
+                    </p>
+                </div>
+            ` : ''}
+            
+            <button class="btn-view" onclick="iniciarCuestionario(${cuestionario.id})" 
+                    ${!puedeResponder ? 'disabled' : ''}
+                    style="background: ${puedeResponder ? '#3b82f6' : '#94a3b8'}; cursor: ${puedeResponder ? 'pointer' : 'not-allowed'};">
+                <i class="fas fa-play"></i> ${misIntentos.length > 0 ? 'Reintentar' : 'Iniciar'} Cuestionario
+            </button>
         </div>
-    `).join('');
+        `;
+    }).join('');
+}
+
+window.iniciarCuestionario = function(id) {
+    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    const cuestionario = cuestionarios.find(c => c.id == id);
+    
+    if (!cuestionario) return;
+    
+    // Verificar fecha límite
+    const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+    if (fechaLimite && new Date() > fechaLimite) {
+        alert('⚠️ Este cuestionario ya ha vencido');
+        return;
+    }
+    
+    // Verificar intentos
+    const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+    const misClave = `${currentUser.email}_${cuestionario.id}`;
+    const misIntentos = respuestas[misClave] || [];
+    
+    if (misIntentos.length >= (cuestionario.intentos || 1)) {
+        alert('⚠️ Ya has agotado todos los intentos para este cuestionario');
+        return;
+    }
+    
+    // Mostrar cuestionario en modal
+    mostrarCuestionarioModal(cuestionario);
+}
+
+function mostrarCuestionarioModal(cuestionario) {
+    const modal = document.createElement('div');
+    modal.id = 'modalCuestionario';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto; padding: 20px;';
+    
+    const preguntasHTML = cuestionario.preguntas.map((pregunta, index) => {
+        if (pregunta.tipo === 'multiple') {
+            return `
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                    <h4 style="color: #0a1628; margin-bottom: 15px;">${index + 1}. ${pregunta.texto}</h4>
+                    <div style="display: grid; gap: 10px;">
+                        ${pregunta.opciones.map((opcion, i) => `
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <input type="radio" name="pregunta_${pregunta.id}" value="${i}" required style="margin-right: 10px;">
+                                <span>${opcion}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+                    <h4 style="color: #0a1628; margin-bottom: 15px;">${index + 1}. ${pregunta.texto}</h4>
+                    <textarea name="pregunta_${pregunta.id}" rows="4" placeholder="Escribe tu respuesta aquí..." required
+                              style="width: 100%; padding: 12px; border: 2px solid #e8f0fe; border-radius: 6px; font-size: 14px; font-family: inherit;"></textarea>
+                </div>
+            `;
+        }
+    }).join('');
+    
+    let tiempoRestante = cuestionario.tiempoDisponible * 60; // convertir a segundos
+    let intervaloTiempo;
+    
+    modal.innerHTML = `
+        <div style="max-width: 800px; margin: 0 auto; background: #f8fafc; border-radius: 12px; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #e8f0fe;">
+                <div>
+                    <h2 style="color: #0a1628; margin: 0;">${cuestionario.titulo}</h2>
+                    <p style="color: #64748b; margin: 5px 0 0;">${cuestionario.descripcion}</p>
+                </div>
+                <div style="text-align: right;">
+                    <div id="cronometro" style="font-size: 24px; font-weight: bold; color: #3b82f6;">
+                        <i class="fas fa-clock"></i> <span id="tiempoDisplay">${cuestionario.tiempoDisponible}:00</span>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin: 5px 0 0;">${cuestionario.preguntas.length} preguntas</p>
+                </div>
+            </div>
+            
+            <form id="formCuestionario" onsubmit="enviarRespuestasCuestionario(event, ${cuestionario.id})">
+                ${preguntasHTML}
+                
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 15px; font-size: 16px;">
+                        <i class="fas fa-check"></i> Enviar Respuestas
+                    </button>
+                    <button type="button" onclick="cerrarCuestionarioModal()" class="btn" style="background: #94a3b8; padding: 15px; font-size: 16px;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Iniciar cronómetro
+    intervaloTiempo = setInterval(() => {
+        tiempoRestante--;
+        const minutos = Math.floor(tiempoRestante / 60);
+        const segundos = tiempoRestante % 60;
+        document.getElementById('tiempoDisplay').textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+        
+        if (tiempoRestante <= 0) {
+            clearInterval(intervaloTiempo);
+            alert('⏰ Se acabó el tiempo');
+            document.getElementById('formCuestionario').dispatchEvent(new Event('submit'));
+        }
+    }, 1000);
+    
+    modal.dataset.intervalo = intervaloTiempo;
+}
+
+window.cerrarCuestionarioModal = function() {
+    const modal = document.getElementById('modalCuestionario');
+    if (modal) {
+        clearInterval(modal.dataset.intervalo);
+        modal.remove();
+    }
+}
+
+window.enviarRespuestasCuestionario = function(event, cuestionarioId) {
+    event.preventDefault();
+    
+    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    const cuestionario = cuestionarios.find(c => c.id == cuestionarioId);
+    
+    if (!cuestionario) return;
+    
+    const formData = new FormData(event.target);
+    const misRespuestas = [];
+    let correctas = 0;
+    
+    cuestionario.preguntas.forEach(pregunta => {
+        const respuesta = formData.get(`pregunta_${pregunta.id}`);
+        
+        if (pregunta.tipo === 'multiple') {
+            const respuestaNum = parseInt(respuesta);
+            const esCorrecta = respuestaNum === pregunta.respuestaCorrecta;
+            if (esCorrecta) correctas++;
+            
+            misRespuestas.push({
+                preguntaId: pregunta.id,
+                pregunta: pregunta.texto,
+                tipo: 'multiple',
+                respuesta: pregunta.opciones[respuestaNum],
+                correcta: esCorrecta
+            });
+        } else {
+            misRespuestas.push({
+                preguntaId: pregunta.id,
+                pregunta: pregunta.texto,
+                tipo: 'abierta',
+                respuesta: respuesta,
+                correcta: null // Requiere revisión manual
+            });
+        }
+    });
+    
+    // Calcular calificación (solo preguntas de opción múltiple)
+    const preguntasMultiple = cuestionario.preguntas.filter(p => p.tipo === 'multiple').length;
+    const calificacion = preguntasMultiple > 0 ? ((correctas / preguntasMultiple) * 100).toFixed(1) : 'Pendiente';
+    
+    // Guardar respuestas
+    const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+    const misClave = `${currentUser.email}_${cuestionarioId}`;
+    
+    if (!respuestas[misClave]) respuestas[misClave] = [];
+    
+    respuestas[misClave].push({
+        fecha: new Date().toISOString(),
+        respuestas: misRespuestas,
+        calificacion: preguntasMultiple > 0 ? `${correctas}/${preguntasMultiple} (${calificacion}%)` : 'Pendiente de revisión',
+        estudiante: currentUser.name,
+        email: currentUser.email
+    });
+    
+    localStorage.setItem('respuestasCuestionarios', JSON.stringify(respuestas));
+    
+    cerrarCuestionarioModal();
+    
+    if (preguntasMultiple > 0) {
+        alert(`✅ Cuestionario enviado\n\nCalificación: ${calificacion}%\nRespuestas correctas: ${correctas}/${preguntasMultiple}`);
+    } else {
+        alert('✅ Cuestionario enviado exitosamente\n\nTus respuestas están pendientes de revisión por el docente.');
+    }
+    
+    loadCuestionarios();
 }
 
 async function loadMateriales() {
