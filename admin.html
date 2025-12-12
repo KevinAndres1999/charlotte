@@ -100,16 +100,16 @@
                 <p>Gestión de Contenidos</p>
             </div>
             <div class="nav-menu">
-                <div class="nav-item active" onclick="showSection('dashboard', event)"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
-                <div class="nav-item" onclick="showSection('usuarios', event)"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
-                <div class="nav-item" onclick="showSection('calificaciones', event)"><i class="fas fa-star"></i><span>Calificaciones</span></div>
-                <div class="nav-item" onclick="showSection('videos', event)"><i class="fas fa-video"></i><span>Subir Videos</span></div>
-                <div class="nav-item" onclick="showSection('clases', event)"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
-                <div class="nav-item" onclick="showSection('actividades', event)"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
-                <div class="nav-item" onclick="window.location.href='ver-entregas.html'"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
-                <div class="nav-item" onclick="showSection('cuestionarios', event)"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
-                <div class="nav-item" onclick="showSection('evaluaciones', event)"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
-                <div class="nav-item" onclick="showSection('materiales', event)"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
+                <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" data-section="usuarios"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
+                <div class="nav-item" data-section="calificaciones"><i class="fas fa-star"></i><span>Calificaciones</span></div>
+                <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Subir Videos</span></div>
+                <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
+                <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
+                <div class="nav-item" data-section="ver-entregas"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
+                <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
+                <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
+                <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
             </div>
         </div>
         <div class="main-content">
@@ -418,6 +418,23 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script>
+// Delegación de eventos para navegación robusta
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.nav-menu').addEventListener('click', function(e) {
+        const navItem = e.target.closest('.nav-item[data-section]');
+        if (navItem) {
+            const section = navItem.getAttribute('data-section');
+            if(section === 'ver-entregas') {
+                window.location.href = 'ver-entregas.html';
+            } else {
+                showSection(section, e);
+            }
+        }
+    });
+    // Inicializar sección activa
+    const savedSection = sessionStorage.getItem('adminActiveSection') || 'dashboard';
+    showSection(savedSection);
+});
 const firebaseConfig = {
     apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
     authDomain: "charlotte-babda.firebaseapp.com",
@@ -461,32 +478,26 @@ if (savedAdminSection && savedAdminSection !== 'dashboard') {
 }
 
 window.showSection = function(sectionId, event) {
+    // Oculta todas las secciones
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    // Quita el activo de todos los nav-item
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(sectionId).classList.add('active');
-    
-    // Guardar la sección actual en sessionStorage
+    // Muestra la sección seleccionada
+    const section = document.getElementById(sectionId);
+    if (section) section.classList.add('active');
+    // Activa el nav-item correspondiente
+    const navItem = document.querySelector(`.nav-item[data-section='${sectionId}']`);
+    if (navItem) navItem.classList.add('active');
+    // Guarda la sección actual
     sessionStorage.setItem('adminActiveSection', sectionId);
-    
-    // Agregar al historial del navegador
+    // Responsive: cierra sidebar en móvil
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
+    }
+    // Historial navegador
     if (window.history && window.history.pushState) {
         window.history.pushState({page: 'admin', section: sectionId}, sectionId, 'admin.html');
-    }
-    
-    // Activar el item del menú correspondiente
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        if (item.onclick && item.onclick.toString().includes(`'${sectionId}'`)) {
-            item.classList.add('active');
-        }
-    });
-    
-    if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-    }
-    // Agregar al historial del navegador
-    if (event) {
-        history.pushState({ section: sectionId }, '', `#${sectionId}`);
     }
     loadContent(sectionId);
 };
@@ -504,127 +515,8 @@ window.saveCuestionario = async function(e) {
         const pregunta = {
             id: Date.now() + index,
             texto: textoPregunta,
-            tipo: tipo
-        };
-        if (tipo === 'multiple') {
-            pregunta.opciones = [
-                item.querySelector('[name^="opcion1"]').value,
-                item.querySelector('[name^="opcion2"]').value,
-                item.querySelector('[name^="opcion3"]').value,
-                item.querySelector('[name^="opcion4"]').value
-            ];
-            pregunta.respuestaCorrecta = parseInt(item.querySelector('[name^="correcta"]').value);
-        }
-        preguntas.push(pregunta);
-    });
-    if (preguntas.length === 0) {
-        alert('⚠️ Debes agregar al menos una pregunta');
-        return;
-    }
-    const cuestionario = {
-        titulo: formData.get('titulo'),
-        descripcion: formData.get('descripcion'),
-        programa: formData.get('programa'),
-        fechaLimite: formData.get('fechaLimite'),
-        tiempoDisponible: parseInt(formData.get('tiempoDisponible')),
-        intentos: parseInt(formData.get('intentos')),
-        preguntas: preguntas,
-        fecha: new Date().toLocaleDateString(),
-        fechaRegistro: new Date().toISOString()
-    };
-    try {
-        await db.collection('cuestionarios').add(cuestionario);
-        e.target.reset();
-        document.getElementById('preguntasContainer').innerHTML = '';
-        await loadCuestionarios();
-        updateStats();
-        showAlert('Cuestionario guardado con ' + preguntas.length + ' preguntas y sincronizado en todos los dispositivos');
-    } catch (error) {
-        console.error('Error al guardar cuestionario:', error);
-        alert('Error al guardar el cuestionario. Intenta nuevamente.');
-    }
-}
-            updateStats();
-            showAlert('PDF subido exitosamente y sincronizado en todos los dispositivos');
-        } catch (error) {
-            console.error('Error al guardar PDF:', error);
-            alert('Error al subir el PDF. Intenta nuevamente.');
-        }
-    };
-    reader.readAsDataURL(file);
-};
-
-// Manejar el botón atrás del navegador
-window.addEventListener('popstate', function(event) {
-    if (event.state && event.state.section) {
-        showSection(event.state.section, null);
-    } else {
-        // Si no hay estado, ir a inicio
-        showSection('inicio', null);
-    }
-});
-
-// Establecer el estado inicial
-history.replaceState({ section: 'inicio' }, '', '#inicio');
-
-window.toggleMobileMenu = function() {
-    document.getElementById('sidebar').classList.toggle('open');
-}
-
-window.logout = function() {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        sessionStorage.removeItem('currentUser');
-        sessionStorage.removeItem('adminActiveSection');
-        window.location.replace('index.html');
-    }
-}
-
-window.saveVideo = async function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const video = {
-        titulo: formData.get('titulo'),
-        descripcion: formData.get('descripcion'),
-        url: formData.get('url'),
-        programa: formData.get('programa'),
-        fecha: new Date().toLocaleDateString(),
-        fechaCreacion: new Date().toISOString()
-    };
-    try {
-        await db.collection('videos').add(video);
-        e.target.reset();
-        await loadVideos();
-        updateStats();
-        showAlert('Video guardado exitosamente y sincronizado en todos los dispositivos');
-    } catch (error) {
-        console.error('Error al guardar video:', error);
-        alert('Error al guardar el video. Intenta nuevamente.');
-    }
-}
-
-window.saveClase = async function(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const clase = {
-        titulo: formData.get('titulo'),
-        contenido: formData.get('contenido'),
-        programa: formData.get('programa'),
-        fecha: new Date().toLocaleDateString(),
-        fechaCreacion: new Date().toISOString()
-    };
-    try {
-        await db.collection('clases').add(clase);
-        e.target.reset();
-        await loadClases();
-        updateStats();
-        showAlert('Clase guardada exitosamente y sincronizada en todos los dispositivos');
-    } catch (error) {
-        console.error('Error al guardar clase:', error);
-        alert('Error al guardar la clase. Intenta nuevamente.');
-    }
-}
-
-window.saveActividad = async function(e) {
+            // ===== GESTIÓN DE CALIFICACIONES =====
+            // (El código de calificaciones y recetas con localStorage ha sido eliminado para limpieza)
     e.preventDefault();
     const formData = new FormData(e.target);
     const actividad = {
