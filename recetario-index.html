@@ -181,25 +181,40 @@
 <script>
 // Verificar que el usuario esté autenticado y sea de Panadería
 (function() {
-    const currentUser = sessionStorage.getItem('currentUser');
-    
-    if (!currentUser) {
-        alert('Debes iniciar sesión para acceder al recetario');
-        window.location.href = 'login.html';
-        return;
-    }
-    
     try {
-        const user = JSON.parse(currentUser);
+        const currentUserStr = sessionStorage.getItem('currentUser');
         
-        // Verificar que el programa sea Panadería
-        if (user.programa !== 'Panadería') {
-            alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes del programa de Panadería.\n\nTu programa: ' + (user.programa || 'No especificado'));
+        if (!currentUserStr) {
+            console.error('No hay usuario en sesión');
+            alert('Debes iniciar sesión para acceder al recetario');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        const user = JSON.parse(currentUserStr);
+        
+        // Verificar que el usuario tenga el campo programa
+        if (!user.programa) {
+            console.error('Usuario sin programa asignado');
+            alert('⚠️ Error: No tienes un programa asignado. Contacta al administrador.');
             window.location.href = 'estudiante.html';
             return;
         }
+        
+        // Verificar que el programa sea Panadería (case-insensitive)
+        const programaNormalizado = user.programa.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (programaNormalizado !== 'panaderia') {
+            alert('⚠️ Acceso Denegado\n\nEste recetario es exclusivo para estudiantes del programa de Panadería.\n\nTu programa: ' + user.programa);
+            window.location.href = 'estudiante.html';
+            return;
+        }
+        
+        // Usuario autenticado y con acceso - permitir navegación
+        console.log('Acceso autorizado al recetario para:', user.name);
+        
     } catch (error) {
         console.error('Error al verificar usuario:', error);
+        alert('Error al verificar tu sesión. Por favor, inicia sesión nuevamente.');
         window.location.href = 'login.html';
     }
 })();
