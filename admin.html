@@ -484,10 +484,7 @@ window.showSection = function(sectionId, event) {
     if (window.innerWidth <= 768) {
         document.getElementById('sidebar').classList.remove('open');
     }
-    // Agregar al historial del navegador
-    if (event) {
-        history.pushState({ section: sectionId }, '', `#${sectionId}`);
-    }
+    
     loadContent(sectionId);
 };
 
