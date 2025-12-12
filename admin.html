@@ -515,27 +515,44 @@ window.saveCuestionario = async function(e) {
         const pregunta = {
             id: Date.now() + index,
             texto: textoPregunta,
-            // ===== GESTIÓN DE CALIFICACIONES =====
-            // (El código de calificaciones y recetas con localStorage ha sido eliminado para limpieza)
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const actividad = {
+            tipo: tipo
+        };
+        if (tipo === 'multiple') {
+            pregunta.opciones = [
+                item.querySelector('[name^="opcion1"]').value,
+                item.querySelector('[name^="opcion2"]').value,
+                item.querySelector('[name^="opcion3"]').value,
+                item.querySelector('[name^="opcion4"]').value
+            ];
+            pregunta.respuestaCorrecta = parseInt(item.querySelector('[name^="correcta"]').value);
+        }
+        preguntas.push(pregunta);
+    });
+    if (preguntas.length === 0) {
+        alert('⚠️ Debes agregar al menos una pregunta');
+        return;
+    }
+    const cuestionario = {
         titulo: formData.get('titulo'),
-        instrucciones: formData.get('instrucciones'),
-        fecha: formData.get('fecha'),
+        descripcion: formData.get('descripcion'),
         programa: formData.get('programa'),
-        fechaCreacion: new Date().toLocaleDateString(),
+        fechaLimite: formData.get('fechaLimite'),
+        tiempoDisponible: parseInt(formData.get('tiempoDisponible')),
+        intentos: parseInt(formData.get('intentos')),
+        preguntas: preguntas,
+        fecha: new Date().toLocaleDateString(),
         fechaRegistro: new Date().toISOString()
     };
     try {
-        await db.collection('actividades').add(actividad);
+        await db.collection('cuestionarios').add(cuestionario);
         e.target.reset();
-        await loadActividades();
+        document.getElementById('preguntasContainer').innerHTML = '';
+        await loadCuestionarios();
         updateStats();
-        showAlert('Actividad creada exitosamente y sincronizada en todos los dispositivos');
+        showAlert('Cuestionario guardado exitosamente');
     } catch (error) {
-        console.error('Error al guardar actividad:', error);
-        alert('Error al guardar la actividad. Intenta nuevamente.');
+        console.error('Error al guardar cuestionario:', error);
+        alert('Error al guardar el cuestionario. Intenta nuevamente.');
     }
 }
 
