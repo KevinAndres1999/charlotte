@@ -258,22 +258,23 @@
                 <div class="content-list"><div class="content-list-header"><h4>Actividades Creadas</h4></div><div id="actividades-list"></div></div>
             </div>
             <div id="cuestionarios" class="content-section">
-                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios interactivos con opción múltiple</p></div>
-                
-                <div class="alert alert-info">
-                    <i class="fas fa-lightbulb"></i>
-                    <div>
-                        <strong>Nuevo Sistema de Cuestionarios</strong>
-                        <p style="margin: 4px 0 0 0; font-size: 14px;">Ahora puedes crear cuestionarios de forma visual con preguntas de opción múltiple e imágenes.</p>
-                    </div>
-                </div>
+                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Crea cuestionarios y evaluaciones para tus estudiantes</p></div>
                 
                 <div class="upload-card">
-                    <h3><i class="fas fa-edit"></i> Crear Cuestionario Visual</h3>
-                    <p style="color: #64748b; margin-bottom: 20px;">Sistema intuitivo para crear cuestionarios con preguntas de opción múltiple, imágenes y respuestas automáticas.</p>
-                    <a href="crear-cuestionario.html" class="btn btn-primary" style="text-decoration: none;">
-                        <i class="fas fa-plus-circle"></i> Crear Nuevo Cuestionario
-                    </a>
+                    <h3><i class="fas fa-file-alt"></i> Nuevo Cuestionario</h3>
+                    <form onsubmit="saveCuestionario(event)" class="upload-form">
+                        <input type="text" name="titulo" placeholder="Título del cuestionario" required>
+                        <textarea name="descripcion" placeholder="Descripción o instrucciones" rows="3"></textarea>
+                        <select name="programa" required>
+                            <option value="">Seleccionar programa</option>
+                            <option value="Todos">Todos los programas</option>
+                            <option value="Panadería">Panadería</option>
+                            <option value="Belleza">Belleza</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Cuestionario
+                        </button>
+                    </form>
                 </div>
                 
                 <div class="content-list">
