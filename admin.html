@@ -1010,7 +1010,17 @@ function deleteEvaluacion(id) {
 }
 
 async function loadMateriales() {
+    const container = document.getElementById('materiales-list');
+    if (!container) {
+        console.error('Container materiales-list no encontrado');
+        return;
+    }
+    
     try {
+        if (!db) {
+            throw new Error('Firebase no inicializado');
+        }
+        
         const materialesSnapshot = await db.collection('materiales').orderBy('fechaCreacion', 'desc').get();
         const materiales = [];
         materialesSnapshot.forEach((doc) => {
@@ -1020,7 +1030,6 @@ async function loadMateriales() {
         console.log('📦 Admin - Total materiales en Firestore:', materiales.length);
         console.log('📦 Materiales:', materiales);
         
-        const container = document.getElementById('materiales-list');
         if (materiales.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay materiales publicados</h5><p>Los materiales que subas aparecerán aquí</p></div></div>';
             return;
@@ -1040,7 +1049,7 @@ async function loadMateriales() {
                             <button class="btn-icon" onclick="window.open('ver-documento.html?id=${material.id}', '_blank')" title="Ver PDF">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-icon btn-delete" onclick="deleteMaterial('${material.id}')">
+                            <button class="btn-icon btn-delete" onclick="window.deleteMaterial('${material.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1055,7 +1064,7 @@ async function loadMateriales() {
                             <p>${material.programa} • ${material.fecha} • <a href="${material.url}" target="_blank">Ver Material</a></p>
                         </div>
                         <div class="content-actions">
-                            <button class="btn-icon btn-delete" onclick="deleteMaterial('${material.id}')">
+                            <button class="btn-icon btn-delete" onclick="window.deleteMaterial('${material.id}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1066,20 +1075,8 @@ async function loadMateriales() {
         console.log('✅ Admin - Materiales renderizados desde Firestore');
     } catch (error) {
         console.error('Error al cargar materiales:', error);
-        document.getElementById('materiales-list').innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar materiales</h5><p>Intenta recargar la página</p></div></div>';
-    }
-}
-
-async function deleteMaterial(id) {
-    if (!confirm('¿Estás seguro de eliminar este material? Se eliminará de todos los dispositivos.')) return;
-    try {
-        await db.collection('materiales').doc(id).delete();
-        await loadMateriales();
-        updateStats();
-        showAlert('Material eliminado exitosamente');
-    } catch (error) {
-        console.error('Error al eliminar material:', error);
-        alert('Error al eliminar el material');
+        console.error('Detalles del error:', error.message, error.stack);
+        container.innerHTML = `<div class="content-item"><div class="content-info"><h5>Error al cargar materiales</h5><p>${error.message || 'Intenta recargar la página'}</p></div></div>`;
     }
 }
 
