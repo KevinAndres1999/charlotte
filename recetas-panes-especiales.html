@@ -4,29 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panes Especiales - Recetario ECE CHARLOTTE</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
+        <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+        .header { background: linear-gradient(135deg, #e63971, #0b3460); color: white; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+        .logo { width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e63971; font-size: 1.5rem; }
+        .header h1 { font-size: 1.8rem; }
+        .header p { opacity: 0.9; font-size: 0.9rem; }
         .recipe-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .recipe { background: white; border-radius: 10px; padding: 30px; margin: 30px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .recipe h2 { color: #A0522D; border-bottom: 3px solid #DEB887; padding-bottom: 10px; margin-bottom: 20px; }
-        .recipe h3 { color: #8B4513; margin-top: 25px; }
+        .recipe { background: white; border-radius: 12px; padding: 30px; margin: 30px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-top: 4px solid #e63971; }
+        .recipe h2 { color: #e63971; border-bottom: 3px solid #0b3460; padding-bottom: 10px; margin-bottom: 20px; }
+        .recipe h3 { color: #0b3460; margin-top: 25px; }
         .recipe table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        .recipe th, .recipe td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .recipe th { background-color: #F5DEB3; color: #8B4513; font-weight: bold; }
-        .tips { background-color: #FFF8DC; border-left: 4px solid #DAA520; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .procedure { background-color: #F5F5F5; padding: 20px; border-radius: 8px; margin: 15px 0; line-height: 1.8; }
+        .recipe th, .recipe td { border: 1px solid #e8f0fe; padding: 12px; text-align: left; }
+        .recipe th { background: linear-gradient(135deg, #fef5f9, #fce7f3); color: #e63971; font-weight: bold; }
+        .tips { background: linear-gradient(135deg, #fef5f9, #fce7f3); border-left: 4px solid #e63971; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .procedure { background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 15px 0; line-height: 1.8; border-left: 3px solid #0b3460; }
         .time-table { width: auto; }
         .page-number { text-align: right; color: #888; font-size: 0.9em; margin-top: 15px; font-style: italic; }
         .nav-buttons { display: flex; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
-        .nav-buttons a { flex: 1; min-width: 200px; text-align: center; padding: 15px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
-        .nav-buttons a:hover { background: #5568d3; }
-        @media print { .nav-buttons, .site-header, .site-footer { display: none; } .recipe { page-break-inside: avoid; } }
+        .nav-buttons a { flex: 1; min-width: 200px; text-align: center; padding: 15px; background: linear-gradient(135deg, #e63971, #0b3460); color: white; text-decoration: none; border-radius: 10px; font-weight: bold; transition: all 0.3s; }
+        .nav-buttons a:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(230,57,113,0.4); }
+        .footer { background: #0b3460; color: white; text-align: center; padding: 2rem; margin-top: 3rem; }
+        @media print { .nav-buttons, .header, .footer { display: none; } .recipe { page-break-inside: avoid; } }
     </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="container header-content">
-            <div class="header-brand"><h1>CHARLOTTE</h1><p>Centro Educativo</p></div>
+        <header class="header">
+        <div class="header-content">
+            <div class="logo">C</div>
+            <div>
+                <h1>CHARLOTTE</h1>
+                <p>Centro Educativo - Recetario de Panadería</p>
+            </div>
         </div>
     </header>
 
@@ -36,7 +47,7 @@
             <a href="javascript:window.print()">🖨️ Imprimir</a>
         </div>
 
-        <h1 style="text-align: center; color: #8B4513; font-size: 2.5em; margin: 40px 0;">🍞 Panes Especiales</h1>
+        <h1 style="text-align: center; color: #e63971; font-size: 2.5em; margin: 40px 0;">🍞 Panes Especiales</h1>
 
         <!-- PAN DE CHOCOLATE -->
         <div class="recipe">
@@ -312,8 +323,9 @@
         </div>
     </div>
 
-    <footer class="site-footer">
-        <div class="container">© 2025 CHARLOTTE · Todos los derechos reservados</div>
+        <footer class="footer">
+        <p>© 2025 CHARLOTTE Centro Educativo · Todos los derechos reservados</p>
     </footer>
 </body>
 </html>
+

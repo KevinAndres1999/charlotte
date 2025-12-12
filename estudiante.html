@@ -419,6 +419,7 @@ async function loadMateriales() {
 
     if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
         const recetas = [
+            { titulo: '📖 Ver Todas las Recetas', descripcion: 'Recetario completo con más de 40 recetas profesionales', url: 'recetas-todas.html', tipo: 'receta-completa' },
             { titulo: '🍞 Panes Básicos', descripcion: 'Pan francés, integral, de molde y más', url: 'recetas-panes-basicos.html' },
             { titulo: '🥖 Panes Especiales', descripcion: 'Ciabatta, focaccia, bagels', url: 'recetas-panes-especiales.html' },
             { titulo: '🍪 Bizcochos y Galletas', descripcion: 'Brownies, cookies, muffins', url: 'recetas-bizcochos-galletas.html' },
@@ -426,7 +427,7 @@ async function loadMateriales() {
             { titulo: '🎂 Pastelería', descripcion: 'Tartas, pasteles, éclairs', url: 'recetas-pasteleria.html' },
             { titulo: '✨ Recetas Especiales', descripcion: 'Creaciones únicas', url: 'recetas-especiales.html' }
         ];
-        recetas.forEach(r => filtered.push({ ...r, tipo: 'receta' }));
+        recetas.forEach(r => filtered.push({ ...r, tipo: r.tipo || 'receta' }));
     }
 
     if (filtered.length === 0) {
@@ -435,6 +436,17 @@ async function loadMateriales() {
     }
 
     container.innerHTML = filtered.map(m => {
+        if (m.tipo === 'receta-completa') {
+            return `
+                <div class="content-card" style="border-top-color: #e63971;">
+                    <h4>${m.titulo}</h4>
+                    <p>${m.descripcion}</p>
+                    <a href="${m.url}" target="_blank" class="btn-view" style="background: linear-gradient(135deg, #e63971, #0b3460);">
+                        <i class="fas fa-book-open"></i> Ver Todas las Recetas
+                    </a>
+                </div>
+            `;
+        }
         if (m.tipo === 'receta') {
             return `
                 <div class="content-card" style="border-top-color: #f59e0b;">
