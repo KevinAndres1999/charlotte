@@ -647,26 +647,21 @@ window.saveActividad = async function(e) {
     }
 }
 
-window.saveCuestionario = function(e) {
+window.saveCuestionario = async function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
     // Recopilar preguntas
     const preguntas = [];
     const preguntasElements = document.querySelectorAll('.pregunta-item');
-    
     preguntasElements.forEach((item, index) => {
         const tipo = item.querySelector('[name^="tipoPregunta"]').value;
         const textoPregunta = item.querySelector('[name^="pregunta"]').value;
-        
         if (!textoPregunta.trim()) return;
-        
         const pregunta = {
             id: Date.now() + index,
             texto: textoPregunta,
             tipo: tipo
         };
-        
         if (tipo === 'multiple') {
             pregunta.opciones = [
                 item.querySelector('[name^="opcion1"]').value,
@@ -676,17 +671,13 @@ window.saveCuestionario = function(e) {
             ];
             pregunta.respuestaCorrecta = parseInt(item.querySelector('[name^="correcta"]').value);
         }
-        
         preguntas.push(pregunta);
     });
-    
     if (preguntas.length === 0) {
         alert('⚠️ Debes agregar al menos una pregunta');
         return;
     }
-    
     const cuestionario = {
-        id: Date.now(),
         titulo: formData.get('titulo'),
         descripcion: formData.get('descripcion'),
         programa: formData.get('programa'),
@@ -694,18 +685,20 @@ window.saveCuestionario = function(e) {
         tiempoDisponible: parseInt(formData.get('tiempoDisponible')),
         intentos: parseInt(formData.get('intentos')),
         preguntas: preguntas,
-        fecha: new Date().toLocaleDateString()
+        fecha: new Date().toLocaleDateString(),
+        fechaRegistro: new Date().toISOString()
     };
-    
-    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
-    cuestionarios.push(cuestionario);
-    localStorage.setItem('cuestionarios', JSON.stringify(cuestionarios));
-    
-    e.target.reset();
-    document.getElementById('preguntasContainer').innerHTML = '';
-    loadCuestionarios();
-    updateStats();
-    showAlert('Cuestionario guardado con ' + preguntas.length + ' preguntas');
+    try {
+        await db.collection('cuestionarios').add(cuestionario);
+        e.target.reset();
+        document.getElementById('preguntasContainer').innerHTML = '';
+        await loadCuestionarios();
+        updateStats();
+        showAlert('Cuestionario guardado con ' + preguntas.length + ' preguntas y sincronizado en todos los dispositivos');
+    } catch (error) {
+        console.error('Error al guardar cuestionario:', error);
+        alert('Error al guardar el cuestionario. Intenta nuevamente.');
+    }
 }
 
 let contadorPreguntas = 0;
@@ -779,25 +772,28 @@ window.toggleTipoPregunta = function(id) {
     }
 }
 
-window.saveMaterial = function(e) {
+window.saveMaterial = async function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const material = {
-        id: Date.now(),
         titulo: formData.get('titulo'),
         descripcion: formData.get('descripcion'),
         url: formData.get('url'),
         programa: formData.get('programa'),
         fecha: new Date().toLocaleDateString(),
-        tipo: 'enlace'
+        tipo: 'enlace',
+        fechaCreacion: new Date().toISOString()
     };
-    const materiales = JSON.parse(localStorage.getItem('materiales') || '[]');
-    materiales.push(material);
-    localStorage.setItem('materiales', JSON.stringify(materiales));
-    e.target.reset();
-    loadMateriales();
-    updateStats();
-    showAlert('Material guardado exitosamente');
+    try {
+        await db.collection('materiales').add(material);
+        e.target.reset();
+        await loadMateriales();
+        updateStats();
+        showAlert('Material guardado exitosamente y sincronizado en todos los dispositivos');
+    } catch (error) {
+        console.error('Error al guardar material:', error);
+        alert('Error al guardar el material. Intenta nuevamente.');
+    }
 }
 
 window.deleteItem = function(type, id) {
