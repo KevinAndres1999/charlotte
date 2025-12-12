@@ -705,28 +705,23 @@ window.saveMaterial = async function(e) {
     }
 }
 
-window.deleteItem = function(type, id) {
-    if (confirm('¿Estás seguro de eliminar este elemento?')) {
-        const items = JSON.parse(localStorage.getItem(type) || '[]');
-        const filtered = items.filter(item => item.id != id); // Usar != para comparación flexible
-        localStorage.setItem(type, JSON.stringify(filtered));
-        loadContent(type);
-        updateStats();
-        showAlert('Elemento eliminado exitosamente');
-    }
-}
+// Eliminar función deleteItem basada en localStorage (ya no se usa)
 
 window.loadContent = function(section) {
-    switch(section) {
-        case 'videos': loadVideos(); break;
-        case 'clases': loadClases(); break;
-        case 'actividades': loadActividades(); break;
-        case 'cuestionarios': loadCuestionarios(); break;
-        case 'evaluaciones': loadEvaluaciones(); break;
-        case 'materiales': loadMateriales(); break;
-        case 'usuarios': loadUsuarios(); break;
-        case 'calificaciones': cargarEstudiantesPorPrograma(); break;
-        case 'dashboard': updateStats(); break;
+    try {
+        switch(section) {
+            case 'videos': typeof loadVideos === 'function' ? loadVideos() : console.warn('Falta loadVideos'); break;
+            case 'clases': typeof loadClases === 'function' ? loadClases() : console.warn('Falta loadClases'); break;
+            case 'actividades': typeof loadActividades === 'function' ? loadActividades() : console.warn('Falta loadActividades'); break;
+            case 'cuestionarios': typeof loadCuestionarios === 'function' ? loadCuestionarios() : console.warn('Falta loadCuestionarios'); break;
+            case 'evaluaciones': typeof loadEvaluaciones === 'function' ? loadEvaluaciones() : console.warn('Falta loadEvaluaciones'); break;
+            case 'materiales': typeof loadMateriales === 'function' ? loadMateriales() : console.warn('Falta loadMateriales'); break;
+            case 'usuarios': typeof loadUsuarios === 'function' ? loadUsuarios() : console.warn('Falta loadUsuarios'); break;
+            case 'calificaciones': typeof cargarEstudiantesPorPrograma === 'function' ? cargarEstudiantesPorPrograma() : console.warn('Falta cargarEstudiantesPorPrograma'); break;
+            case 'dashboard': typeof updateStats === 'function' ? updateStats() : console.warn('Falta updateStats'); break;
+        }
+    } catch (err) {
+        console.error('Error al cargar sección:', section, err);
     }
 }
 
@@ -1253,8 +1248,29 @@ async function loadUsuariosAprobados() {
                         </button>
                     </div>
                 </div>
+                <div class="content-actions">
+                    <button onclick="eliminarUsuarioAprobado('${user.id}', '${user.name}')"
+                            class="btn-icon btn-delete" 
+                            title="Eliminar estudiante">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
         `).join('');
+    // Eliminar estudiante aprobado de Firestore
+    window.eliminarUsuarioAprobado = async function(id, name) {
+        if (!confirm(`¿Eliminar definitivamente a ${name} del sistema? Esta acción no se puede deshacer.`)) return;
+        try {
+            await fetch(`https://firestore.googleapis.com/v1/projects/charlotte-babda/databases/(default)/documents/approvedStudents/${id}`, {
+                method: 'DELETE'
+            });
+            showAlert(`Estudiante ${name} eliminado correctamente.`);
+            loadUsuariosAprobados();
+        } catch (error) {
+            console.error('Error al eliminar usuario:', error);
+            alert('Error al eliminar el usuario. Intenta nuevamente.');
+        }
+    }
     } catch (error) {
         console.error('Error:', error);
     }
