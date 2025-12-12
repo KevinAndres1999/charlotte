@@ -162,6 +162,38 @@ async function loadEvaluaciones() {
                     <span class="profile-label">Sede</span>
                     <div class="profile-value" id="userSede"></div>
                 </div>
+                <div class="profile-item">
+                    <span class="profile-label">Contraseña</span>
+                    <button class="btn" id="btnCambiarContrasena" style="background:#3b82f6;color:white;margin-top:6px;">Cambiar contraseña</button>
+                </div>
+            // =================== CAMBIO DE CONTRASEÑA ===================
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('btnCambiarContrasena');
+                if (btn) {
+                    btn.addEventListener('click', async () => {
+                        const nueva = prompt('Ingresa tu nueva contraseña (mínimo 6 caracteres):');
+                        if (!nueva || nueva.length < 6) {
+                            alert('La contraseña debe tener al menos 6 caracteres.');
+                            return;
+                        }
+                        btn.disabled = true;
+                        btn.textContent = 'Actualizando...';
+                        try {
+                            // Buscar el documento del usuario por email
+                            const snapshot = await db.collection('approvedStudents').where('email', '==', currentUser.email).get();
+                            if (snapshot.empty) throw new Error('No se encontró el usuario.');
+                            const docId = snapshot.docs[0].id;
+                            await db.collection('approvedStudents').doc(docId).update({ password: nueva, needsPasswordReset: false });
+                            alert('Contraseña actualizada correctamente.');
+                        } catch (e) {
+                            alert('Error al actualizar la contraseña.');
+                            console.error(e);
+                        }
+                        btn.disabled = false;
+                        btn.textContent = 'Cambiar contraseña';
+                    });
+                }
+            });
             </div>
             <nav class="nav-menu">
                 <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
