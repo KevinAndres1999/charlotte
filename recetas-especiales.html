@@ -304,5 +304,11 @@
     <footer class="site-footer">
         <div class="container">© 2025 CHARLOTTE · Todos los derechos reservados</div>
     </footer>
+    <script>
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || currentUser.role !== 'student' || (!currentUser.programa?.toLowerCase().includes('panadería') && !currentUser.programa?.toLowerCase().includes('panaderia'))) {
+            window.location.href = 'recetario-index.html';
+        }
+    </script>
 </body>
 </html>
