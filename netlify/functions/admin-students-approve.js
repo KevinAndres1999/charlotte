@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     const userDoc = await db.collection('users').doc(decoded.uid).get();
-    if (!userDoc.exists || userDoc.data().role !== 'admin') {
+    if (!userDoc.exists || userDoc.data().status !== 'admin') {
       return { statusCode: 403, body: JSON.stringify({ message: 'Acceso denegado' }) };
     }
 
