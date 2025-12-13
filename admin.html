@@ -201,6 +201,11 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(section).classList.add('active');
             document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+
+            // Si se activa la sección de estudiantes, cargar los datos
+            if (section === 'estudiantes') {
+                loadStudents();
+            }
         }
 
         // Exponer función globalmente
