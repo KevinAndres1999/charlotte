@@ -19,18 +19,18 @@ exports.handler = async (event, context) => {
 
   const db = admin.firestore();
 
-  // const auth = event.headers.authorization || '';
-  // const parts = auth.split(' ');
-  // if (parts.length !== 2) {
-  //   return { statusCode: 401, body: JSON.stringify({ message: 'No autorizado' }) };
-  // }
-  // const token = parts[1];
+  const auth = event.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) {
+    return { statusCode: 401, body: JSON.stringify({ message: 'No autorizado' }) };
+  }
+  const token = parts[1];
   try {
-    // const decoded = await admin.auth().verifyIdToken(token);
-    // const userDoc = await db.collection('users').doc(decoded.uid).get();
-    // if (!userDoc.exists || userDoc.data().status !== 'admin') {
-    //   return { statusCode: 403, body: JSON.stringify({ message: 'Acceso denegado' }) };
-    // }
+    const decoded = await admin.auth().verifyIdToken(token);
+    const userDoc = await db.collection('users').doc(decoded.uid).get();
+    if (!userDoc.exists || userDoc.data().status !== 'admin') {
+      return { statusCode: 403, body: JSON.stringify({ message: 'Acceso denegado' }) };
+    }
 
     const snapshot = await db.collection('users').where('status', '==', 'pending').get();
     const students = snapshot.docs.map(doc => ({
