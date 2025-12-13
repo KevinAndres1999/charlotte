@@ -398,101 +398,10 @@
             <div id="materiales" class="content-section">
                 <div class="content-header">
                     <h2>Materiales de Estudio</h2>
-                    <p>Cuestionarios, evaluaciones y recetarios de tu curso</p>
+                    <p>Recursos adicionales subidos por el administrador</p>
                 </div>
-
-                <!-- Materiales según el curso del estudiante -->
-                <div id="materialesPanaderia" style="display:none;">
-                    <div class="card">
-                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Panadería</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>📄 Cuestionario de Panadería</h4>
-                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>✅ Cuestionario RESUELTO</h4>
-                                    <p>Respuestas correctas para verificar tu estudio</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Panadería</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>🎓 Evaluación Oficial</h4>
-                                    <p>Examen del curso de Panadería</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Evaluación Panadería.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Evaluacion Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-book"></i> Recetario de Panadería</h3>
-                        <div class="lesson-item">
-                            <div class="lesson-info">
-                                <h4>�� Recetario Completo 2024-2025</h4>
-                                <p>Más de 40 recetas profesionales con instrucciones detalladas</p>
-                            </div>
-                            <a href="recetario-index.html" class="btn-primary" style="text-decoration:none;">Ver Recetario Online →</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="materialesBelleza" style="display:none;">
-                    <div class="card">
-                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Belleza</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>📄 Cuestionario de Belleza</h4>
-                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
-                                </div>
-                                <div style="display:flex; gap:10px;">
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                                </div>
-                            </div>
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>✅ Cuestionario RESUELTO</h4>
-                                    <p>Respuestas correctas para verificar tu estudio</p>
-                                </div>
-                                <a href="cuestionarios y evaluaciones/Cuestionario Belleza RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Belleza</h3>
-                        <div class="lessons-grid">
-                            <div class="lesson-item">
-                                <div class="lesson-info">
-                                    <h4>🎓 Evaluación Oficial</h4>
-                                    <p>Examen del curso de Belleza</p>
-                                </div>
-                                <a href="cuestionarios y evaluaciones/Evaluacion Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
-                            </div>
-                        </div>
-                    </div>
+                <div id="materialesGrid" class="lessons-grid">
+                    <!-- Materiales dinámicos cargados aquí -->
                 </div>
             </div>
 </div>
@@ -660,6 +569,9 @@
             if (window.innerWidth <= 768) {
                 document.querySelector('.sidebar').classList.remove('open');
             }
+            
+            // Cargar contenido de la sección
+            loadContent(sectionId);
         }
 
         // Función para toggle del menú móvil
@@ -679,136 +591,119 @@
             }
         });
 
-        // Cargar clases según el programa
-        const lessonsData = {
-            'Belleza y Cosmetología': [
-                { title: 'Introducción a la Cosmetología', duration: '2 horas', status: 'completed' },
-                { title: 'Técnicas de Corte Básico', duration: '3 horas', status: 'completed' },
-                { title: 'Colorimetría Profesional', duration: '4 horas', status: 'pending' },
-                { title: 'Maquillaje Social', duration: '3 horas', status: 'pending' },
-                { title: 'Diseño de Uñas', duration: '2 horas', status: 'pending' },
-                { title: 'Tratamientos Faciales', duration: '3 horas', status: 'pending' }
-            ],
-            'Panadería y Pastelería': [
-                { title: 'Fundamentos de Panadería', duration: '2 horas', status: 'completed' },
-                { title: 'Masas Básicas', duration: '3 horas', status: 'completed' },
-                { title: 'Técnicas de Fermentación', duration: '4 horas', status: 'pending' },
-                { title: 'Decoración con Fondant', duration: '3 horas', status: 'pending' },
-                { title: 'Pasteles Gourmet', duration: '4 horas', status: 'pending' },
-                { title: 'Chocolatería Artesanal', duration: '3 horas', status: 'pending' }
-            ]
-        };
+        async function loadContent(section) {
+            switch(section) {
+                case 'clases': await loadClases(); break;
+                case 'videos': await loadVideos(); break;
+                case 'actividades': await loadActividades(); break;
+                case 'cuestionarios': await loadCuestionarios(); break;
+                case 'materiales': await loadMateriales(); break;
+            }
+        }
 
-        const lessons = lessonsData[currentUser.programa] || [];
-        const lessonsHTML = lessons.map(lesson => `
-            <div class="lesson-item">
-                <div class="lesson-info">
-                    <h4>${lesson.title}</h4>
-                    <p><i class="fas fa-clock"></i> ${lesson.duration}</p>
-                </div>
-                <span class="lesson-status status-${lesson.status}">
-                    ${lesson.status === 'completed' ? 'Completada' : 'Pendiente'}
-                </span>
-            </div>
-        `).join('');
-        document.getElementById('lessonsGrid').innerHTML = lessonsHTML;
+        async function loadClases() {
+            try {
+                const res = await fetch('/api/content/clases');
+                const data = await res.json();
+                const clases = data.content.filter(c => c.programa === currentUser.programa || c.programa === 'Todos');
+                const lessonsHTML = clases.length ? clases.map(clase => `
+                    <div class="lesson-item">
+                        <div class="lesson-info">
+                            <h4>${clase.titulo}</h4>
+                            <p>${clase.contenido.substring(0,100)}...</p>
+                            <small>Publicado: ${clase.fecha}</small>
+                        </div>
+                        <span class="lesson-status status-completed">Disponible</span>
+                    </div>
+                `).join('') : '<p>No hay clases disponibles para tu programa.</p>';
+                document.getElementById('lessonsGrid').innerHTML = lessonsHTML;
+            } catch(err) { console.error(err); }
+        }
 
-        // Cargar videos
-        const videosData = {
-            'Belleza y Cosmetología': [
-                { title: 'Técnicas de Maquillaje', duration: '15:30' },
-                { title: 'Cuidado del Cabello', duration: '12:45' },
-                { title: 'Manicure Profesional', duration: '18:20' },
-                { title: 'Tratamientos Capilares', duration: '22:10' }
-            ],
-            'Panadería y Pastelería': [
-                { title: 'Masas Hojaldradas', duration: '20:15' },
-                { title: 'Decoración de Pasteles', duration: '25:30' },
-                { title: 'Pan Artesanal', duration: '18:45' },
-                { title: 'Técnicas de Glaseado', duration: '16:20' }
-            ]
-        };
+        async function loadVideos() {
+            try {
+                const res = await fetch('/api/content/videos');
+                const data = await res.json();
+                const videos = data.content.filter(v => v.programa === currentUser.programa || v.programa === 'Todos');
+                const videosHTML = videos.length ? videos.map(video => `
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="video-info">
+                            <h4>${video.titulo}</h4>
+                            <p>${video.descripcion}</p>
+                            <small>Publicado: ${video.fecha}</small>
+                        </div>
+                        <a href="${video.url}" target="_blank" class="btn-primary">Ver Video</a>
+                    </div>
+                `).join('') : '<p>No hay videos disponibles para tu programa.</p>';
+                document.getElementById('videosGrid').innerHTML = videosHTML;
+            } catch(err) { console.error(err); }
+        }
 
-        const videos = videosData[currentUser.programa] || [];
-        const videosHTML = videos.map(video => `
-            <div class="video-card">
-                <div class="video-thumbnail">
-                    <i class="fas fa-play"></i>
-                </div>
-                <div class="video-info">
-                    <h4>${video.title}</h4>
-                    <p><i class="fas fa-clock"></i> ${video.duration}</p>
-                </div>
-            </div>
-        `).join('');
-        document.getElementById('videosGrid').innerHTML = videosHTML;
+        async function loadActividades() {
+            try {
+                const res = await fetch('/api/content/actividades');
+                const data = await res.json();
+                const actividades = data.content.filter(a => a.programa === currentUser.programa || a.programa === 'Todos');
+                const activitiesHTML = actividades.length ? actividades.map(actividad => `
+                    <div class="activity-card">
+                        <h4>${actividad.titulo}</h4>
+                        <p>${actividad.instrucciones}</p>
+                        <div class="activity-meta">
+                            <span><i class="fas fa-calendar"></i> Entrega: ${actividad.fecha_entrega || 'Sin fecha'}</span>
+                            <span class="badge badge-normal">Publicado: ${actividad.fecha}</span>
+                        </div>
+                    </div>
+                `).join('') : '<p>No hay actividades disponibles para tu programa.</p>';
+                document.getElementById('activitiesGrid').innerHTML = activitiesHTML;
+            } catch(err) { console.error(err); }
+        }
 
-        // Cargar actividades
-        const activitiesHTML = `
-            <div class="activity-card">
-                <h4>Práctica de Técnicas Básicas</h4>
-                <p>Realizar un video demostrativo aplicando las técnicas aprendidas en las primeras 3 clases.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 20 Dic 2025</span>
-                    <span class="badge badge-urgent">Urgente</span>
-                </div>
-            </div>
-            <div class="activity-card">
-                <h4>Proyecto Final del Módulo 1</h4>
-                <p>Presentación de portafolio con fotografías de trabajos realizados.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 28 Dic 2025</span>
-                    <span class="badge badge-normal">Normal</span>
-                </div>
-            </div>
-            <div class="activity-card">
-                <h4>Investigación de Tendencias</h4>
-                <p>Documento con análisis de tendencias actuales en tu área de estudio.</p>
-                <div class="activity-meta">
-                    <span><i class="fas fa-calendar"></i> Entrega: 5 Ene 2026</span>
-                    <span class="badge badge-normal">Normal</span>
-                </div>
-            </div>
-        `;
-        document.getElementById('activitiesGrid').innerHTML = activitiesHTML;
+        async function loadCuestionarios() {
+            try {
+                const res = await fetch('/api/content/cuestionarios');
+                const data = await res.json();
+                const cuestionarios = data.content.filter(q => q.programa === currentUser.programa || q.programa === 'Todos');
+                const quizzesHTML = cuestionarios.length ? cuestionarios.map(cuestionario => `
+                    <div class="quiz-card">
+                        <div class="quiz-header">
+                            <h4>${cuestionario.titulo}</h4>
+                            <button class="btn-primary">Iniciar Test</button>
+                        </div>
+                        <div class="quiz-meta">
+                            <span><i class="fas fa-file-alt"></i> ${cuestionario.descripcion}</span>
+                            <span><i class="fas fa-calendar"></i> Publicado: ${cuestionario.fecha}</span>
+                        </div>
+                    </div>
+                `).join('') : '<p>No hay cuestionarios disponibles para tu programa.</p>';
+                document.getElementById('quizzesGrid').innerHTML = quizzesHTML;
+            } catch(err) { console.error(err); }
+        }
 
-        // Cargar cuestionarios
-        const quizzesHTML = `
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Evaluación Módulo 1</h4>
-                    <button class="btn-primary">Iniciar Test</button>
-                </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 20 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 30 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 70% mínimo para aprobar</span>
-                </div>
-            </div>
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Quiz Rápido: Fundamentos</h4>
-                    <button class="btn-primary">Iniciar Test</button>
-                </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 10 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 15 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 60% mínimo para aprobar</span>
-                </div>
-            </div>
-            <div class="quiz-card">
-                <div class="quiz-header">
-                    <h4>Examen Final</h4>
-                    <button class="btn-primary" disabled style="opacity:0.5;cursor:not-allowed">Próximamente</button>
-                </div>
-                <div class="quiz-meta">
-                    <span><i class="fas fa-question-circle"></i> 50 preguntas</span>
-                    <span><i class="fas fa-clock"></i> 90 minutos</span>
-                    <span><i class="fas fa-chart-line"></i> 80% mínimo para aprobar</span>
-                </div>
-            </div>
-        `;
-        document.getElementById('quizzesGrid').innerHTML = quizzesHTML;
+        async function loadMateriales() {
+            try {
+                const res = await fetch('/api/content/materiales');
+                const data = await res.json();
+                const materiales = data.content.filter(m => m.programa === currentUser.programa || m.programa === 'Todos');
+                const materialesHTML = materiales.length ? materiales.map(material => `
+                    <div class="material-card">
+                        <h4>${material.titulo}</h4>
+                        <p>${material.descripcion}</p>
+                        <a href="${material.url}" target="_blank" class="btn-primary">Descargar/Ver</a>
+                        <small>Publicado: ${material.fecha}</small>
+                    </div>
+                `).join('') : '<p>No hay materiales disponibles para tu programa.</p>';
+                // Asumiendo que hay un contenedor para materiales, si no, ajustar
+                const container = document.getElementById('materialesGrid') || document.querySelector('.materiales-section .grid');
+                if (container) container.innerHTML = materialesHTML;
+            } catch(err) { console.error(err); }
+        }
+
+        // Cargar contenido inicial si es dashboard o algo, pero aquí no hay dashboard.
+        // Quizás cargar clases por defecto.
+        loadClases();
     </script>
 </body>
 </html>

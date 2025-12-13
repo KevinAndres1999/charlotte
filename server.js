@@ -31,6 +31,55 @@ db.exec(
     value TEXT
   );`
 );
+// Tablas para contenido
+db.exec(
+  `CREATE TABLE IF NOT EXISTS videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    descripcion TEXT,
+    url TEXT NOT NULL,
+    programa TEXT NOT NULL,
+    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+  );`
+);
+db.exec(
+  `CREATE TABLE IF NOT EXISTS clases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    contenido TEXT NOT NULL,
+    programa TEXT NOT NULL,
+    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+  );`
+);
+db.exec(
+  `CREATE TABLE IF NOT EXISTS actividades (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    instrucciones TEXT NOT NULL,
+    fecha_entrega TEXT,
+    programa TEXT NOT NULL,
+    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+  );`
+);
+db.exec(
+  `CREATE TABLE IF NOT EXISTS cuestionarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    descripcion TEXT,
+    programa TEXT NOT NULL,
+    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+  );`
+);
+db.exec(
+  `CREATE TABLE IF NOT EXISTS materiales (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT NOT NULL,
+    descripcion TEXT,
+    url TEXT NOT NULL,
+    programa TEXT NOT NULL,
+    fecha TEXT DEFAULT CURRENT_TIMESTAMP
+  );`
+);
 // Si la tabla existía sin las columnas, añadirlas (ALTER TABLE solo si faltan)
 const cols = db.prepare("PRAGMA table_info('users')").all().map(r => r.name);
 if (!cols.includes('active')) db.prepare("ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1").run();
@@ -172,6 +221,73 @@ app.patch('/api/admin/settings', requireAuth, (req, res) => {
     res.json({ message: 'OK', settings: { confirmWord: confirmWord.trim().toUpperCase() } });
   }catch(err){
     console.error('Admin settings update error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Endpoints para contenido
+app.post('/api/admin/content/:type', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  const type = req.params.type;
+  const tables = { videos: 'videos', clases: 'clases', actividades: 'actividades', cuestionarios: 'cuestionarios', materiales: 'materiales' };
+  if(!tables[type]) return res.status(400).json({ message: 'Tipo inválido' });
+  const table = tables[type];
+  const data = req.body;
+  try{
+    let sql, params;
+    if(type === 'videos'){
+      sql = 'INSERT INTO videos (titulo, descripcion, url, programa) VALUES (?, ?, ?, ?)';
+      params = [data.titulo, data.descripcion, data.url, data.programa];
+    }else if(type === 'clases'){
+      sql = 'INSERT INTO clases (titulo, contenido, programa) VALUES (?, ?, ?)';
+      params = [data.titulo, data.contenido, data.programa];
+    }else if(type === 'actividades'){
+      sql = 'INSERT INTO actividades (titulo, instrucciones, fecha_entrega, programa) VALUES (?, ?, ?, ?)';
+      params = [data.titulo, data.instrucciones, data.fecha, data.programa];
+    }else if(type === 'cuestionarios'){
+      sql = 'INSERT INTO cuestionarios (titulo, descripcion, programa) VALUES (?, ?, ?)';
+      params = [data.titulo, data.descripcion, data.programa];
+    }else if(type === 'materiales'){
+      sql = 'INSERT INTO materiales (titulo, descripcion, url, programa) VALUES (?, ?, ?, ?)';
+      params = [data.titulo, data.descripcion, data.url, data.programa];
+    }
+    const insert = db.prepare(sql);
+    insert.run(...params);
+    res.status(201).json({ message: 'Contenido subido exitosamente' });
+  }catch(err){
+    console.error('Upload error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+app.get('/api/content/:type', (req, res) => {
+  const type = req.params.type;
+  const tables = { videos: 'videos', clases: 'clases', actividades: 'actividades', cuestionarios: 'cuestionarios', materiales: 'materiales' };
+  if(!tables[type]) return res.status(400).json({ message: 'Tipo inválido' });
+  const table = tables[type];
+  try{
+    const rows = db.prepare(`SELECT * FROM ${table} ORDER BY id DESC`).all();
+    res.json({ content: rows });
+  }catch(err){
+    console.error('Fetch error', err);
+    res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+app.delete('/api/admin/content/:type/:id', requireAuth, (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  const type = req.params.type;
+  const id = req.params.id;
+  const tables = { videos: 'videos', clases: 'clases', actividades: 'actividades', cuestionarios: 'cuestionarios', materiales: 'materiales' };
+  if(!tables[type]) return res.status(400).json({ message: 'Tipo inválido' });
+  const table = tables[type];
+  try{
+    const del = db.prepare(`DELETE FROM ${table} WHERE id = ?`);
+    const info = del.run(id);
+    if(info.changes === 0) return res.status(404).json({ message: 'Contenido no encontrado' });
+    res.json({ message: 'Eliminado' });
+  }catch(err){
+    console.error('Delete error', err);
     res.status(500).json({ message: 'Error interno' });
   }
 });
