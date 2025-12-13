@@ -602,6 +602,8 @@
         }
 
         async function loadClases() {
+            const container = document.getElementById('lessonsGrid');
+            container.innerHTML = '<p>Cargando clases...</p>';
             try {
                 const res = await fetch('/api/content/clases');
                 const data = await res.json();
@@ -616,11 +618,16 @@
                         <span class="lesson-status status-completed">Disponible</span>
                     </div>
                 `).join('') : '<p>No hay clases disponibles para tu programa.</p>';
-                document.getElementById('lessonsGrid').innerHTML = lessonsHTML;
-            } catch(err) { console.error(err); }
+                container.innerHTML = lessonsHTML;
+            } catch(err) {
+                container.innerHTML = '<p>Error al cargar clases.</p>';
+                console.error(err);
+            }
         }
 
         async function loadVideos() {
+            const container = document.getElementById('videosGrid');
+            container.innerHTML = '<p>Cargando videos...</p>';
             try {
                 const res = await fetch('/api/content/videos');
                 const data = await res.json();
@@ -638,11 +645,16 @@
                         <a href="${video.url}" target="_blank" class="btn-primary">Ver Video</a>
                     </div>
                 `).join('') : '<p>No hay videos disponibles para tu programa.</p>';
-                document.getElementById('videosGrid').innerHTML = videosHTML;
-            } catch(err) { console.error(err); }
+                container.innerHTML = videosHTML;
+            } catch(err) {
+                container.innerHTML = '<p>Error al cargar videos.</p>';
+                console.error(err);
+            }
         }
 
         async function loadActividades() {
+            const container = document.getElementById('activitiesGrid');
+            container.innerHTML = '<p>Cargando actividades...</p>';
             try {
                 const res = await fetch('/api/content/actividades');
                 const data = await res.json();
@@ -657,11 +669,16 @@
                         </div>
                     </div>
                 `).join('') : '<p>No hay actividades disponibles para tu programa.</p>';
-                document.getElementById('activitiesGrid').innerHTML = activitiesHTML;
-            } catch(err) { console.error(err); }
+                container.innerHTML = activitiesHTML;
+            } catch(err) {
+                container.innerHTML = '<p>Error al cargar actividades.</p>';
+                console.error(err);
+            }
         }
 
         async function loadCuestionarios() {
+            const container = document.getElementById('quizzesGrid');
+            container.innerHTML = '<p>Cargando cuestionarios...</p>';
             try {
                 const res = await fetch('/api/content/cuestionarios');
                 const data = await res.json();
@@ -678,11 +695,16 @@
                         </div>
                     </div>
                 `).join('') : '<p>No hay cuestionarios disponibles para tu programa.</p>';
-                document.getElementById('quizzesGrid').innerHTML = quizzesHTML;
-            } catch(err) { console.error(err); }
+                container.innerHTML = quizzesHTML;
+            } catch(err) {
+                container.innerHTML = '<p>Error al cargar cuestionarios.</p>';
+                console.error(err);
+            }
         }
 
         async function loadMateriales() {
+            const container = document.getElementById('materialesGrid');
+            container.innerHTML = '<p>Cargando materiales...</p>';
             try {
                 const res = await fetch('/api/content/materiales');
                 const data = await res.json();
@@ -695,10 +717,11 @@
                         <small>Publicado: ${material.fecha}</small>
                     </div>
                 `).join('') : '<p>No hay materiales disponibles para tu programa.</p>';
-                // Asumiendo que hay un contenedor para materiales, si no, ajustar
-                const container = document.getElementById('materialesGrid') || document.querySelector('.materiales-section .grid');
-                if (container) container.innerHTML = materialesHTML;
-            } catch(err) { console.error(err); }
+                container.innerHTML = materialesHTML;
+            } catch(err) {
+                container.innerHTML = '<p>Error al cargar materiales.</p>';
+                console.error(err);
+            }
         }
 
         // Cargar contenido inicial si es dashboard o algo, pero aquí no hay dashboard.
