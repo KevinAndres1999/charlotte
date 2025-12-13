@@ -209,12 +209,31 @@
 
             // Verificar si es admin
             if (email === 'nuestrareceta.ec@gmail.com' && password === 'Ka140199123Ae') {
-                sessionStorage.setItem('currentUser', JSON.stringify({
-                    email: email,
-                    role: 'admin',
-                    name: 'Administrador'
-                }));
-                window.location.href = 'admin.html';
+                try {
+                    // Autenticar también en Firebase Auth para consistencia
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    const idToken = await user.getIdToken();
+
+                    sessionStorage.setItem('currentUser', JSON.stringify({
+                        email: email,
+                        role: 'admin',
+                        name: 'Administrador',
+                        token: idToken
+                    }));
+                    console.log('Admin autenticado en Firebase Auth y sessionStorage');
+                    window.location.href = 'admin.html';
+                } catch (firebaseError) {
+                    console.error('Error autenticando admin en Firebase:', firebaseError);
+                    // Si falla Firebase Auth, permitir acceso con sessionStorage solo
+                    sessionStorage.setItem('currentUser', JSON.stringify({
+                        email: email,
+                        role: 'admin',
+                        name: 'Administrador'
+                    }));
+                    console.log('Admin autenticado solo en sessionStorage (fallback)');
+                    window.location.href = 'admin.html';
+                }
                 return;
             }
 

@@ -98,6 +98,16 @@
         console.log('Admin page loaded, checking current auth state...');
         console.log('Current user before onAuthStateChanged:', auth.currentUser);
 
+        // Verificar si hay un admin logueado en sessionStorage (credenciales hardcodeadas)
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (currentUser && currentUser.role === 'admin') {
+            console.log('Admin encontrado en sessionStorage, cargando estudiantes...');
+            loadStudents();
+            return; // No ejecutar onAuthStateChanged
+        }
+
+        console.log('No hay admin en sessionStorage, verificando Firebase Auth...');
+
         onAuthStateChanged(auth, async (user) => {
             console.log('Estado de autenticación cambió:', user);
             console.log('User object details:', {
