@@ -74,7 +74,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
@@ -97,21 +97,14 @@
                 return;
             }
 
-            console.log('Usuario autenticado, verificando status...');
-            const userQuery = query(collection(db, 'users'), where('email', '==', user.email));
-            const userSnapshot = await getDocs(userQuery);
-            if (userSnapshot.empty) {
-                console.log('Usuario no encontrado en Firestore');
-                alert('Usuario no encontrado');
-                signOut(auth);
-                return;
-            }
+            console.log('Usuario autenticado, verificando si es admin...');
+            // Para admin, verificamos si el email está en una lista de admins conocidos
+            // o si tiene un documento en la colección 'admins'
+            const adminEmails = ['admin@charlotte.com', 'tu-email-admin@ejemplo.com']; // Agrega aquí los emails de admin
 
-            const userData = userSnapshot.docs[0].data();
-            console.log('Datos del usuario:', userData);
-            if (userData.status !== 'admin') {
-                console.log('Usuario no es admin, status:', userData.status);
-                alert('Acceso denegado');
+            if (!adminEmails.includes(user.email)) {
+                console.log('Usuario no es admin, email:', user.email);
+                alert('Acceso denegado - Solo administradores');
                 signOut(auth);
                 return;
             }
@@ -123,8 +116,10 @@
         async function loadStudents() {
             try {
                 console.log('Cargando estudiantes... Usuario autenticado:', auth.currentUser);
-                const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
-                console.log('Ejecutando consulta de estudiantes pendientes...');
+
+                // Cargar estudiantes pendientes
+                console.log('Cargando estudiantes pendientes de pendingStudents...');
+                const pendingQuery = query(collection(db, 'pendingStudents'), where('status', '==', 'pending'));
                 const pendingSnapshot = await getDocs(pendingQuery);
                 const pendingList = document.getElementById('pending-list');
                 pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
@@ -149,7 +144,9 @@
                     pendingList.appendChild(item);
                 });
 
-                const approvedQuery = query(collection(db, 'users'), where('status', '==', 'approved'));
+                // Cargar estudiantes aprobados
+                console.log('Cargando estudiantes aprobados de approvedStudents...');
+                const approvedQuery = query(collection(db, 'approvedStudents'));
                 const approvedSnapshot = await getDocs(approvedQuery);
                 const approvedList = document.getElementById('approved-list');
                 approvedList.innerHTML = approvedSnapshot.empty ? '<p>No hay estudiantes aprobados</p>' : '';
@@ -173,34 +170,76 @@
                     `;
                     approvedList.appendChild(item);
                 });
+
+                console.log('Estudiantes cargados exitosamente');
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar estudiantes');
+                console.error('Error al cargar estudiantes:', error);
+                alert('Error al cargar estudiantes: ' + error.message);
             }
         }
 
         window.approveStudent = async (id) => {
             if (confirm('¿Aprobar este estudiante?')) {
                 try {
-                    await updateDoc(doc(db, 'users', id), { status: 'approved' });
-                    alert('Estudiante aprobado');
-                    loadStudents();
+                    console.log('Aprobando estudiante con ID:', id);
+
+                    // Obtener datos del estudiante pendiente
+                    const pendingDoc = await getDoc(doc(db, 'pendingStudents', id));
+                    if (!pendingDoc.exists()) {
+                        alert('Estudiante no encontrado');
+                        return;
+                    }
+
+                    const studentData = pendingDoc.data();
+                    console.log('Datos del estudiante:', studentData);
+
+                    // Crear cuenta en Firebase Auth
+                    const { getAuth, createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js');
+                    const auth = getAuth();
+
+                    try {
+                        // Crear usuario en Firebase Auth
+                        const userCredential = await createUserWithEmailAndPassword(auth, studentData.email, studentData.password);
+                        console.log('Usuario creado en Auth:', userCredential.user.uid);
+
+                        // Agregar a colección approvedStudents
+                        await addDoc(collection(db, 'approvedStudents'), {
+                            ...studentData,
+                            status: 'approved',
+                            approvedDate: new Date().toISOString(),
+                            uid: userCredential.user.uid
+                        });
+
+                        // Eliminar de pendingStudents
+                        await deleteDoc(doc(db, 'pendingStudents', id));
+
+                        alert('Estudiante aprobado exitosamente');
+                        loadStudents();
+                    } catch (authError) {
+                        console.error('Error creando usuario en Auth:', authError);
+                        if (authError.code === 'auth/email-already-in-use') {
+                            alert('El email ya está en uso');
+                        } else {
+                            alert('Error al crear cuenta de usuario: ' + authError.message);
+                        }
+                    }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al aprobar');
+                    console.error('Error al aprobar:', error);
+                    alert('Error al aprobar estudiante: ' + error.message);
                 }
             }
         };
 
         window.deleteStudent = async (id) => {
-            if (confirm('¿Eliminar este estudiante?')) {
+            if (confirm('¿Eliminar este estudiante aprobado?')) {
                 try {
-                    await deleteDoc(doc(db, 'users', id));
-                    alert('Estudiante eliminado');
+                    console.log('Eliminando estudiante con ID:', id);
+                    await deleteDoc(doc(db, 'approvedStudents', id));
+                    alert('Estudiante eliminado exitosamente');
                     loadStudents();
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al eliminar');
+                    console.error('Error al eliminar:', error);
+                    alert('Error al eliminar estudiante: ' + error.message);
                 }
             }
         };
