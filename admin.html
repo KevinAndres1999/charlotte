@@ -430,8 +430,8 @@
             aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando estudiantes aprobados...</h5></div></div>';
             try {
                 const [pendientesRes, aprobadosRes] = await Promise.all([
-                    apiRequest('GET', '/api/admin/students/pending'),
-                    apiRequest('GET', '/api/admin/students/approved')
+                    apiRequest('GET', '/.netlify/functions/admin-students-pending'),
+                    apiRequest('GET', '/.netlify/functions/admin-students-approved')
                 ]);
                 // Pendientes
                 if (pendientesRes.length === 0) {
@@ -455,7 +455,7 @@
         async function approveStudent(id) {
             if (confirm('¿Aprobar este estudiante?')) {
                 try {
-                    await apiRequest('POST', `/api/admin/students/${id}/approve`);
+                    await apiRequest('POST', `/.netlify/functions/admin-students-approve/${id}`);
                     loadEstudiantes();
                     showAlert('Estudiante aprobado exitosamente');
                 } catch (err) {
@@ -467,7 +467,7 @@
         async function deleteStudent(id) {
             if (confirm('¿Eliminar este estudiante aprobado?')) {
                 try {
-                    await apiRequest('DELETE', `/api/admin/students/${id}`);
+                    await apiRequest('DELETE', `/.netlify/functions/admin-students-delete/${id}`);
                     loadEstudiantes();
                     showAlert('Estudiante eliminado exitosamente');
                 } catch (err) {
