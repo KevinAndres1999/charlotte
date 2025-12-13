@@ -90,32 +90,41 @@
         const db = getFirestore(app);
 
         onAuthStateChanged(auth, async (user) => {
+            console.log('Estado de autenticación cambió:', user);
             if (!user) {
+                console.log('Usuario no autenticado, redirigiendo a login');
                 window.location.href = 'login.html';
                 return;
             }
 
+            console.log('Usuario autenticado, verificando status...');
             const userQuery = query(collection(db, 'users'), where('email', '==', user.email));
             const userSnapshot = await getDocs(userQuery);
             if (userSnapshot.empty) {
+                console.log('Usuario no encontrado en Firestore');
                 alert('Usuario no encontrado');
                 signOut(auth);
                 return;
             }
 
             const userData = userSnapshot.docs[0].data();
+            console.log('Datos del usuario:', userData);
             if (userData.status !== 'admin') {
+                console.log('Usuario no es admin, status:', userData.status);
                 alert('Acceso denegado');
                 signOut(auth);
                 return;
             }
 
+            console.log('Usuario es admin, cargando estudiantes...');
             loadStudents();
         });
 
         async function loadStudents() {
             try {
+                console.log('Cargando estudiantes... Usuario autenticado:', auth.currentUser);
                 const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
+                console.log('Ejecutando consulta de estudiantes pendientes...');
                 const pendingSnapshot = await getDocs(pendingQuery);
                 const pendingList = document.getElementById('pending-list');
                 pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
