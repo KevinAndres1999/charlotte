@@ -207,17 +207,26 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Verificar si es admin
-            if (email === 'admin@charlotte.com' && password === 'admin123') {
-                sessionStorage.setItem('currentUser', JSON.stringify({
-                    email: email,
-                    role: 'admin',
-                    name: 'Administrador'
-                }));
-                // Limpiar sección guardada para que siempre vaya al dashboard
-                sessionStorage.removeItem('adminActiveSection');
-                window.location.href = 'admin.html';
-                return;
+            // Si es admin, iniciar sesión vía backend para recibir token JWT
+            if (email === 'admin@charlotte.com') {
+                try {
+                    const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                    if (!res.ok) {
+                        const json = await res.json().catch(()=>null);
+                        showMessage((json && json.message) || 'Credenciales inválidas', 'error');
+                        return;
+                    }
+                    const data = await res.json();
+                    // data: { token, user }
+                    sessionStorage.setItem('currentUser', JSON.stringify({ email: data.user.email, role: data.user.role, name: data.user.name, token: data.token }));
+                    sessionStorage.removeItem('adminActiveSection');
+                    window.location.href = 'admin.html';
+                    return;
+                } catch (err) {
+                    console.error('Login admin error:', err);
+                    showMessage('Error al iniciar sesión como admin', 'error');
+                    return;
+                }
             }
 
             try {

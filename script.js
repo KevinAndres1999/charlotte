@@ -7,6 +7,38 @@ let confirmCallback = null;
 
 const API_BASE = '/api';
 
+// Helpers para usar el proxy backend cuando Firestore no esté accesible
+async function proxyGetCollection(col){
+  const resp = await fetch(`${API_BASE}/firestore/${encodeURIComponent(col)}`);
+  if(!resp.ok) throw new Error(`Error al obtener ${col}: ${resp.status}`);
+  return resp.json();
+}
+
+async function proxyPostCollection(col, body){
+  const token = localStorage.getItem('authToken');
+  const headers = { 'Content-Type': 'application/json' };
+  if(token) headers.Authorization = `Bearer ${token}`;
+  const resp = await fetch(`${API_BASE}/firestore/${encodeURIComponent(col)}`, {
+    method: 'POST', headers, body: JSON.stringify(body)
+  });
+  if(!resp.ok){ const e = await resp.json().catch(()=>({message:'Error'})); throw new Error(e.message || `Error al crear ${col}`); }
+  return resp.json();
+}
+
+async function proxyDeleteCollection(col, id){
+  const token = localStorage.getItem('authToken');
+  const resp = await fetch(`${API_BASE}/firestore/${encodeURIComponent(col)}/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  if(!resp.ok) { const e = await resp.json().catch(()=>({message:'Error'})); throw new Error(e.message || 'Error al eliminar'); }
+  return resp.json();
+}
+
+async function proxyPatchCollection(col, id, body){
+  const token = localStorage.getItem('authToken');
+  const resp = await fetch(`${API_BASE}/firestore/${encodeURIComponent(col)}/${encodeURIComponent(id)}`, { method: 'PATCH', headers: { 'Content-Type':'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
+  if(!resp.ok){ const e = await resp.json().catch(()=>({message:'Error'})); throw new Error(e.message || 'Error al actualizar'); }
+  return resp.json();
+}
+
 function openModal(){ if(studentModal) studentModal.setAttribute('aria-hidden','false'); }
 function closeModalFn(){ if(studentModal) studentModal.setAttribute('aria-hidden','true'); }
 

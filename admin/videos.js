@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         window.firebase.initializeApp(firebaseConfig);
     }
-    const db = window.firebase.firestore();
+    // Usar proxy backend en lugar de Firebase client si está disponible
+    const db = window.firebase && window.firebase.firestore ? window.firebase.firestore() : null;
 
     const form = document.getElementById('form-video');
     if (form) {
@@ -27,11 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 fechaCreacion: new Date().toISOString()
             };
             try {
-                await db.collection('videos').add(video);
+                if (typeof proxyPostCollection === 'function') {
+                    await proxyPostCollection('videos', video);
+                } else if (db) {
+                    await db.collection('videos').add(video);
+                } else {
+                    throw new Error('No hay método para subir video');
+                }
                 form.reset();
                 await loadVideos();
                 alert('Video subido exitosamente');
             } catch (error) {
+                console.error('Error subiendo video', error);
                 alert('Error al subir el video');
             }
         });
@@ -40,10 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.loadVideos = async function() {
         const container = document.getElementById('videos-list');
         if (!container) return;
-        try {
-            const snapshot = await db.collection('videos').orderBy('fechaCreacion', 'desc').get();
-            const videos = [];
-            snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+            try {
+            let videos = [];
+            if (typeof proxyGetCollection === 'function') {
+                videos = await proxyGetCollection('videos');
+            } else if (db) {
+                const snapshot = await db.collection('videos').orderBy('fechaCreacion', 'desc').get();
+                snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+            }
             if (videos.length === 0) {
                 container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos subidos</h5><p>Los videos que subas aparecerán aquí</p></div></div>';
                 return;

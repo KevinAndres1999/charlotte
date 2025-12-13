@@ -494,6 +494,77 @@ function filterByProgram(items) {
     }
 }
 
+// ----- Helpers para usar el proxy backend cuando Firestore no responde -----
+async function proxyGetCollection(collection) {
+    try {
+        const token = (JSON.parse(sessionStorage.getItem('currentUser') || '{}')).token;
+        const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+        const res = await fetch(`/api/firestore/${collection}`, { headers });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(res.status + ' ' + (text || res.statusText));
+        }
+        return await res.json();
+    } catch (err) {
+        console.warn('proxyGetCollection fallo:', collection, err.message);
+        throw err;
+    }
+}
+
+async function proxyPostCollection(collection, body) {
+    const adminCollections = ['videos','clases','actividades','materiales','cuestionarios','evaluaciones','pendingStudents','approvedStudents'];
+    const url = adminCollections.includes(collection) ? `/api/public-admin/${collection}` : `/api/firestore/${collection}`;
+    try {
+        const token = (JSON.parse(sessionStorage.getItem('currentUser') || '{}')).token;
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {});
+        const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+        if (!res.ok) {
+            const json = await res.json().catch(()=>null);
+            throw new Error((json && json.message) || `Error ${res.status}`);
+        }
+        return await res.json();
+    } catch (err) {
+        console.error('proxyPostCollection error:', collection, err);
+        throw err;
+    }
+}
+
+async function proxyDeleteCollection(collection, id) {
+    const adminCollections = ['videos','clases','actividades','materiales','cuestionarios','evaluaciones'];
+    const url = adminCollections.includes(collection) ? `/api/public-admin/${collection}/${id}` : `/api/firestore/${collection}/${id}`;
+    try {
+        const token = (JSON.parse(sessionStorage.getItem('currentUser') || '{}')).token;
+        const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+        const res = await fetch(url, { method: 'DELETE', headers });
+        if (!res.ok) {
+            const json = await res.json().catch(()=>null);
+            throw new Error((json && json.message) || `Error ${res.status}`);
+        }
+        return await res.json();
+    } catch (err) {
+        console.error('proxyDeleteCollection error:', collection, id, err);
+        throw err;
+    }
+}
+
+async function proxyPatchCollection(collection, id, body) {
+    const adminCollections = ['videos','clases','actividades','materiales','cuestionarios','evaluaciones','pendingStudents','approvedStudents'];
+    const url = adminCollections.includes(collection) ? `/api/public-admin/${collection}/${id}` : `/api/firestore/${collection}/${id}`;
+    try {
+        const token = (JSON.parse(sessionStorage.getItem('currentUser') || '{}')).token;
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {});
+        const res = await fetch(url, { method: 'PATCH', headers, body: JSON.stringify(body) });
+        if (!res.ok) {
+            const json = await res.json().catch(()=>null);
+            throw new Error((json && json.message) || `Error ${res.status}`);
+        }
+        return await res.json();
+    } catch (err) {
+        console.error('proxyPatchCollection error:', collection, id, err);
+        throw err;
+    }
+}
+
 window.showSection = function(sectionId, event) {
     // Oculta todas las secciones
     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -561,7 +632,7 @@ window.saveCuestionario = async function(e) {
         fechaRegistro: new Date().toISOString()
     };
     try {
-        await db.collection('cuestionarios').add(cuestionario);
+        await proxyPostCollection('cuestionarios', cuestionario);
         e.target.reset();
         document.getElementById('preguntasContainer').innerHTML = '';
         await loadCuestionarios();
@@ -615,7 +686,7 @@ window.saveCuestionario = async function(e) {
         fechaRegistro: new Date().toISOString()
     };
     try {
-        await db.collection('cuestionarios').add(cuestionario);
+        await proxyPostCollection('cuestionarios', cuestionario);
         e.target.reset();
         document.getElementById('preguntasContainer').innerHTML = '';
         await loadCuestionarios();
@@ -711,7 +782,7 @@ window.saveMaterial = async function(e) {
         fechaCreacion: new Date().toISOString()
     };
     try {
-        await db.collection('materiales').add(material);
+        await proxyPostCollection('materiales', material);
         e.target.reset();
         await loadMateriales();
         updateStats();
@@ -734,8 +805,7 @@ window.saveClase = async function(e) {
         fechaCreacion: new Date().toISOString()
     };
     try {
-        if (!db) throw new Error('Firebase no inicializado');
-        await db.collection('clases').add(clase);
+        await proxyPostCollection('clases', clase);
         e.target.reset();
         await loadClases();
         updateStats();
@@ -783,9 +853,7 @@ async function loadVideos() {
     const container = document.getElementById('videos-list');
     if (!container) return;
     try {
-        const snapshot = await db.collection('videos').orderBy('fechaCreacion', 'desc').get();
-        const videos = [];
-        snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+        const videos = await proxyGetCollection('videos');
         const filtered = (typeof filterByProgram === 'function') ? filterByProgram(videos) : videos;
         if (filtered.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos publicados</h5><p>Los videos que subas aparecerán aquí</p></div></div>';
@@ -834,7 +902,7 @@ async function loadVideos() {
 window.deleteVideoFirestore = async function(id) {
     if (!confirm('¿Estás seguro de eliminar este video?')) return;
     try {
-        await db.collection('videos').doc(id).delete();
+        await proxyDeleteCollection('videos', id);
         await loadVideos();
         updateStats();
         showAlert('Video eliminado exitosamente');
@@ -848,9 +916,7 @@ async function loadClases() {
     const container = document.getElementById('clases-list');
     if (!container) return;
     try {
-        const snapshot = await db.collection('clases').orderBy('fechaCreacion', 'desc').get();
-        const clases = [];
-        snapshot.forEach(doc => clases.push({ id: doc.id, ...doc.data() }));
+        const clases = await proxyGetCollection('clases');
         const filtered = filterByProgram(clases);
         if (filtered.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases publicadas</h5><p>Las clases que subas aparecerán aquí</p></div></div>';
@@ -878,7 +944,7 @@ async function loadClases() {
 window.deleteClaseFirestore = async function(id) {
     if (!confirm('¿Estás seguro de eliminar esta clase?')) return;
     try {
-        await db.collection('clases').doc(id).delete();
+        await proxyDeleteCollection('clases', id);
         await loadClases();
         updateStats();
         showAlert('Clase eliminada exitosamente');
@@ -892,9 +958,7 @@ async function loadActividades() {
     const container = document.getElementById('actividades-list');
     if (!container) return;
     try {
-        const snapshot = await db.collection('actividades').orderBy('fechaRegistro', 'desc').get();
-        const actividades = [];
-        snapshot.forEach(doc => actividades.push({ id: doc.id, ...doc.data() }));
+        const actividades = await proxyGetCollection('actividades');
         const filtered = filterByProgram(actividades);
         if (filtered.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades creadas</h5><p>Las actividades que crees aparecerán aquí</p></div></div>';
@@ -922,7 +986,7 @@ async function loadActividades() {
 window.deleteActividadFirestore = async function(id) {
     if (!confirm('¿Estás seguro de eliminar esta actividad?')) return;
     try {
-        await db.collection('actividades').doc(id).delete();
+        await proxyDeleteCollection('actividades', id);
         await loadActividades();
         updateStats();
         showAlert('Actividad eliminada exitosamente');
@@ -936,9 +1000,7 @@ async function loadCuestionarios() {
     const container = document.getElementById('cuestionarios-list');
     if (!container) return;
     try {
-        const snapshot = await db.collection('cuestionarios').orderBy('fechaRegistro', 'desc').get();
-        const cuestionarios = [];
-        snapshot.forEach(doc => cuestionarios.push({ id: doc.id, ...doc.data() }));
+        const cuestionarios = await proxyGetCollection('cuestionarios');
         const filtered = filterByProgram(cuestionarios);
         if (filtered.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que crees aparecerán aquí</p></div></div>';
@@ -973,7 +1035,7 @@ async function loadCuestionarios() {
 window.deleteCuestionarioFirestore = async function(id) {
     if (!confirm('¿Eliminar este cuestionario?')) return;
     try {
-        await db.collection('cuestionarios').doc(id).delete();
+        await proxyDeleteCollection('cuestionarios', id);
         await loadCuestionarios();
         updateStats();
         showAlert('Cuestionario eliminado exitosamente');
@@ -1025,9 +1087,7 @@ async function loadEvaluaciones() {
     const container = document.getElementById('evaluaciones-list');
     if (!container) return;
     try {
-        const snapshot = await db.collection('evaluaciones').orderBy('fechaRegistro', 'desc').get();
-        const evaluaciones = [];
-        snapshot.forEach(doc => evaluaciones.push({ id: doc.id, ...doc.data() }));
+        const evaluaciones = await proxyGetCollection('evaluaciones');
         if (evaluaciones.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay evaluaciones publicadas</h5><p>Las evaluaciones que crees aparecerán aquí</p></div></div>';
             return;
@@ -1061,7 +1121,7 @@ async function loadEvaluaciones() {
 window.deleteEvaluacionFirestore = async function(id) {
     if (!confirm('¿Estás seguro de eliminar esta evaluación?')) return;
     try {
-        await db.collection('evaluaciones').doc(id).delete();
+        await proxyDeleteCollection('evaluaciones', id);
         await loadEvaluaciones();
         updateStats();
         showAlert('Evaluación eliminada exitosamente');
@@ -1106,11 +1166,7 @@ async function loadMateriales() {
             throw new Error('Firebase no inicializado');
         }
         
-        const materialesSnapshot = await db.collection('materiales').orderBy('fechaCreacion', 'desc').get();
-        const materiales = [];
-        materialesSnapshot.forEach((doc) => {
-            materiales.push({ id: doc.id, ...doc.data() });
-        });
+        const materiales = await proxyGetCollection('materiales');
         
         console.log('📦 Admin - Total materiales en Firestore:', materiales.length);
         console.log('📦 Materiales:', materiales);
@@ -1172,8 +1228,10 @@ async function updateStats() {
     
     // Contar materiales desde Firestore
     try {
-        const materialesSnapshot = await db.collection('materiales').get();
-        document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
+        try {
+            const materialesCount = (await proxyGetCollection('materiales')).length;
+            document.getElementById('stat-materiales').textContent = materialesCount;
+        } catch (e) { document.getElementById('stat-materiales').textContent = '0'; }
     } catch (error) {
         console.error('Error al contar materiales:', error);
         document.getElementById('stat-materiales').textContent = '0';
@@ -1207,25 +1265,21 @@ function loadUsuarios() {
 async function loadUsuariosPendientes() {
     const container = document.getElementById('usuarios-pendientes');
     try {
-        const snapshot = await db.collection('pendingStudents').get();
-        if (snapshot.empty) {
+        const usuariosSnapshot = await proxyGetCollection('pendingStudents');
+        if (!usuariosSnapshot || usuariosSnapshot.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay solicitudes pendientes</h5><p>Las nuevas solicitudes aparecerán aquí</p></div></div>';
             return;
         }
-        const usuarios = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            usuarios.push({
-                id: doc.id,
-                name: data.name || '',
-                email: data.email || '',
-                cedula: data.cedula || '',
-                telefono: data.telefono || '',
-                programa: data.programa || '',
-                sede: data.sede || '',
-                password: data.password || 'charlotte123'
-            });
-        });
+        const usuarios = usuariosSnapshot.map(data => ({
+            id: data.id || data._id || '',
+            name: data.name || '',
+            email: data.email || '',
+            cedula: data.cedula || '',
+            telefono: data.telefono || '',
+            programa: data.programa || '',
+            sede: data.sede || '',
+            password: data.password || 'charlotte123'
+        }));
         container.innerHTML = usuarios.map(user => `
             <div class="content-item">
                 <div class="content-info">
@@ -1255,25 +1309,21 @@ async function loadUsuariosAprobados() {
     const filterLugar = document.getElementById('filterLugar')?.value || '';
     
     try {
-        const snapshot = await db.collection('approvedStudents').get();
-        if (snapshot.empty) {
+        const approved = await proxyGetCollection('approvedStudents');
+        if (!approved || approved.length === 0) {
             container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay usuarios aprobados</h5></div></div>';
             return;
         }
-        let usuarios = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            usuarios.push({
-                id: doc.id,
-                name: data.name || '',
-                email: data.email || '',
-                password: data.password || 'charlotte123',
-                programa: data.programa || '',
-                sede: data.sede || '',
-                cedula: data.cedula || '',
-                telefono: data.telefono || ''
-            });
-        });
+        let usuarios = approved.map(data => ({
+            id: data.id || '',
+            name: data.name || '',
+            email: data.email || '',
+            password: data.password || 'charlotte123',
+            programa: data.programa || '',
+            sede: data.sede || '',
+            cedula: data.cedula || '',
+            telefono: data.telefono || ''
+        }));
         // Poblar filtro de lugares
         const lugares = [...new Set(usuarios.map(u => u.sede))].filter(Boolean);
         const filterLugarSelect = document.getElementById('filterLugar');
@@ -1335,8 +1385,8 @@ async function loadUsuariosAprobados() {
 window.aprobarUsuario = async function(id, email, name, cedula, telefono, programa, sede, password) {
     if (!confirm(`¿Aprobar a ${name}?\n\nNOTA: El estudiante deberá cambiar su contraseña en el primer inicio de sesión.`)) return;
     try {
-        // Guardar usuario aprobado en Firestore usando SDK
-        await db.collection('approvedStudents').doc(id).set({
+        // Crear usuario aprobado en approvedStudents vía proxy y eliminar pending
+        await proxyPostCollection('approvedStudents', {
             name: name,
             email: email,
             cedula: cedula,
@@ -1347,9 +1397,9 @@ window.aprobarUsuario = async function(id, email, name, cedula, telefono, progra
             approved: true,
             needsPasswordReset: true,
             fechaAprobacion: new Date().toISOString()
-        }, { merge: true });
+        });
         // Eliminar de pending
-        await db.collection('pendingStudents').doc(id).delete();
+        await proxyDeleteCollection('pendingStudents', id);
         showAlert(`Usuario ${name} aprobado exitosamente.\n\nEl estudiante deberá crear una nueva contraseña en su primer inicio de sesión.`);
         loadUsuarios();
     } catch (error) {
@@ -1361,7 +1411,7 @@ window.aprobarUsuario = async function(id, email, name, cedula, telefono, progra
 window.rechazarUsuario = async function(id) {
     if (!confirm('¿Rechazar esta solicitud?')) return;
     try {
-        await db.collection('pendingStudents').doc(id).delete();
+        await proxyDeleteCollection('pendingStudents', id);
         showAlert('Solicitud rechazada');
         loadUsuarios();
     } catch (error) {
@@ -1395,7 +1445,7 @@ window.restablecerContrasena = async function(id, email, name, cedula, telefono,
     if (!confirm(`¿Cambiar la contraseña de ${name} a "${password}"?`)) return;
     
     try {
-        await db.collection('approvedStudents').doc(id).set({
+        await proxyPatchCollection('approvedStudents', id, {
             email: email,
             name: name,
             cedula: cedula,
@@ -1405,7 +1455,7 @@ window.restablecerContrasena = async function(id, email, name, cedula, telefono,
             password: password,
             approved: true,
             lastPasswordReset: new Date().toISOString()
-        }, { merge: true });
+        });
         showAlert(`Contraseña restablecida exitosamente para ${name}`);
         loadUsuariosAprobados();
     } catch (error) {
@@ -1421,14 +1471,8 @@ async function cargarEstudiantesPorPrograma() {
     const selectEstudiante = document.getElementById('calificaciones-estudiante');
     
     try {
-        const snapshot = await db.collection('approvedStudents').get();
-        let estudiantes = [];
-        if (snapshot && !snapshot.empty) {
-            snapshot.forEach(doc => {
-                const d = doc.data();
-                estudiantes.push({ name: d.name || '', email: d.email || '', programa: d.programa || '' });
-            });
-        }
+        const approved = await proxyGetCollection('approvedStudents');
+        let estudiantes = (approved || []).map(d => ({ name: d.name || '', email: d.email || '', programa: d.programa || '' }));
         if (!estudiantes.length) {
             selectEstudiante.innerHTML = '<option value="">No hay estudiantes</option>';
             return;
