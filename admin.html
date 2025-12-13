@@ -722,6 +722,43 @@ window.saveMaterial = async function(e) {
     }
 }
 
+// Guardar nueva clase en Firestore (con fallback a localStorage)
+window.saveClase = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const clase = {
+        titulo: formData.get('titulo'),
+        contenido: formData.get('contenido'),
+        programa: formData.get('programa'),
+        fecha: new Date().toLocaleDateString(),
+        fechaCreacion: new Date().toISOString()
+    };
+    try {
+        if (!db) throw new Error('Firebase no inicializado');
+        await db.collection('clases').add(clase);
+        e.target.reset();
+        await loadClases();
+        updateStats();
+        showAlert('Clase guardada exitosamente y sincronizada en Firestore');
+    } catch (error) {
+        console.error('Error al guardar clase (Firestore):', error);
+        // Fallback local
+        try {
+            const clases = JSON.parse(localStorage.getItem('clases') || '[]');
+            clase.id = Date.now();
+            clases.push(clase);
+            localStorage.setItem('clases', JSON.stringify(clases));
+            e.target.reset();
+            loadClases();
+            updateStats();
+            showAlert('Clase guardada localmente (Firestone inaccesible)');
+        } catch (e2) {
+            console.error('Fallback localStorage error:', e2);
+            alert('Error al guardar la clase. Intenta nuevamente.');
+        }
+    }
+}
+
 // Eliminar función deleteItem basada en localStorage (ya no se usa)
 
 window.loadContent = function(section) {
