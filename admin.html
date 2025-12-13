@@ -89,10 +89,27 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Configurar persistencia de sesión
+        import { setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        setPersistence(auth, browserSessionPersistence).catch((error) => {
+            console.error('Error setting persistence:', error);
+        });
+
+        console.log('Admin page loaded, checking current auth state...');
+        console.log('Current user before onAuthStateChanged:', auth.currentUser);
+
         onAuthStateChanged(auth, async (user) => {
             console.log('Estado de autenticación cambió:', user);
+            console.log('User object details:', {
+                uid: user?.uid,
+                email: user?.email,
+                emailVerified: user?.emailVerified,
+                isAnonymous: user?.isAnonymous
+            });
+
             if (!user) {
                 console.log('Usuario no autenticado, redirigiendo a login');
+                alert('Debes iniciar sesión primero');
                 window.location.href = 'login.html';
                 return;
             }
@@ -108,64 +125,79 @@
             try {
                 console.log('Cargando estudiantes... Usuario autenticado:', auth.currentUser);
 
+                // Verificar que el usuario esté autenticado antes de hacer consultas
+                if (!auth.currentUser) {
+                    console.log('Usuario no autenticado en loadStudents, redirigiendo...');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
                 // Cargar estudiantes pendientes
                 console.log('Cargando estudiantes pendientes...');
                 const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
                 const pendingSnapshot = await getDocs(pendingQuery);
                 const pendingList = document.getElementById('pending-list');
-                pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
+                if (pendingList) {
+                    pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
 
-                pendingSnapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = 'student-item';
-                    item.innerHTML = `
-                        <div class="student-info">
-                            <h4>${data.name}</h4>
-                            <p>Email: ${data.email}</p>
-                            <p>Cédula: ${data.cedula}</p>
-                            <p>Programa: ${data.programa}</p>
-                            <p>Sede: ${data.sede}</p>
-                            <p>Teléfono: ${data.telefono}</p>
-                        </div>
-                        <div class="student-actions">
-                            <button class="btn-approve" onclick="approveStudent('${docSnap.id}')">Aprobar</button>
-                        </div>
-                    `;
-                    pendingList.appendChild(item);
-                });
+                    pendingSnapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const item = document.createElement('div');
+                        item.className = 'student-item';
+                        item.innerHTML = `
+                            <div class="student-info">
+                                <h4>${data.name || 'Sin nombre'}</h4>
+                                <p>Email: ${data.email || 'Sin email'}</p>
+                                <p>Cédula: ${data.cedula || 'Sin cédula'}</p>
+                                <p>Programa: ${data.programa || 'Sin programa'}</p>
+                                <p>Sede: ${data.sede || 'Sin sede'}</p>
+                                <p>Teléfono: ${data.telefono || 'Sin teléfono'}</p>
+                            </div>
+                            <div class="student-actions">
+                                <button class="btn-approve" onclick="approveStudent('${docSnap.id}')">Aprobar</button>
+                            </div>
+                        `;
+                        pendingList.appendChild(item);
+                    });
+                }
 
                 // Cargar estudiantes aprobados
                 console.log('Cargando estudiantes aprobados...');
                 const approvedQuery = query(collection(db, 'users'), where('status', '==', 'approved'));
                 const approvedSnapshot = await getDocs(approvedQuery);
                 const approvedList = document.getElementById('approved-list');
-                approvedList.innerHTML = approvedSnapshot.empty ? '<p>No hay estudiantes aprobados</p>' : '';
+                if (approvedList) {
+                    approvedList.innerHTML = approvedSnapshot.empty ? '<p>No hay estudiantes aprobados</p>' : '';
 
-                approvedSnapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const item = document.createElement('div');
-                    item.className = 'student-item';
-                    item.innerHTML = `
-                        <div class="student-info">
-                            <h4>${data.name}</h4>
-                            <p>Email: ${data.email}</p>
-                            <p>Cédula: ${data.cedula}</p>
-                            <p>Programa: ${data.programa}</p>
-                            <p>Sede: ${data.sede}</p>
-                            <p>Teléfono: ${data.telefono}</p>
-                        </div>
-                        <div class="student-actions">
-                            <button class="btn-delete" onclick="deleteStudent('${docSnap.id}')">Eliminar</button>
-                        </div>
-                    `;
-                    approvedList.appendChild(item);
-                });
+                    approvedSnapshot.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const item = document.createElement('div');
+                        item.className = 'student-item';
+                        item.innerHTML = `
+                            <div class="student-info">
+                                <h4>${data.name || 'Sin nombre'}</h4>
+                                <p>Email: ${data.email || 'Sin email'}</p>
+                                <p>Cédula: ${data.cedula || 'Sin cédula'}</p>
+                                <p>Programa: ${data.programa || 'Sin programa'}</p>
+                                <p>Sede: ${data.sede || 'Sin sede'}</p>
+                                <p>Teléfono: ${data.telefono || 'Sin teléfono'}</p>
+                            </div>
+                            <div class="student-actions">
+                                <button class="btn-delete" onclick="deleteStudent('${docSnap.id}')">Eliminar</button>
+                            </div>
+                        `;
+                        approvedList.appendChild(item);
+                    });
+                }
 
                 console.log('Estudiantes cargados exitosamente');
             } catch (error) {
                 console.error('Error al cargar estudiantes:', error);
-                alert('Error al cargar estudiantes: ' + error.message);
+                // No mostrar alert que pueda confundir, solo loggear
+                const pendingList = document.getElementById('pending-list');
+                const approvedList = document.getElementById('approved-list');
+                if (pendingList) pendingList.innerHTML = '<p>Error al cargar estudiantes pendientes</p>';
+                if (approvedList) approvedList.innerHTML = '<p>Error al cargar estudiantes aprobados</p>';
             }
         }
 
