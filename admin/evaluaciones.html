@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluaciones | Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <h1><i class="fas fa-file-alt"></i> Evaluaciones</h1>
+            <a href="../login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </header>
+    <main class="main-content">
+        <h2>Gestión de Evaluaciones</h2>
+        <p>Aquí podrás crear y administrar evaluaciones para los estudiantes.</p>
+        <form id="form-evaluacion" style="margin-bottom:2rem;">
+            <div class="form-group">
+                <label for="titulo">Título de la Evaluación *</label>
+                <input type="text" id="titulo" name="titulo" required placeholder="Ej: Evaluación Final">
+            </div>
+            <div class="form-group">
+                <label for="instrucciones">Instrucciones *</label>
+                <textarea id="instrucciones" name="instrucciones" required placeholder="Describe las instrucciones..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="preguntas">Preguntas *</label>
+                <textarea id="preguntas" name="preguntas" required placeholder="Una pregunta por línea"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="programa">Programa *</label>
+                <select id="programa" name="programa" required>
+                    <option value="">Selecciona un programa</option>
+                    <option value="Panadería">Panadería y Repostería</option>
+                    <option value="Belleza">Belleza y Cosmetología</option>
+                    <option value="Todos">Todos los programas</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Subir Evaluación</button>
+        </form>
+        <div class="content-list">
+            <div class="content-list-header"><h4>Evaluaciones Subidas</h4></div>
+            <div id="evaluaciones-list"></div>
+        </div>
+    </main>
+    <script src="evaluaciones.js"></script>
+</body>
+</html>

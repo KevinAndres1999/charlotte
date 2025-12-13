@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprobar Usuarios | Admin</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <h1><i class="fas fa-user-check"></i> Aprobar Usuarios</h1>
+            <a href="../login.html" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
+    </header>
+    <main class="main-content">
+        <h2>Gestión de Usuarios</h2>
+        <p>Aquí podrás aprobar o rechazar solicitudes de registro de estudiantes.</p>
+
+        <div id="message" class="message"></div>
+
+        <table id="usersTable" class="users-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Programa</th>
+                    <th>Sede</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Usuarios pendientes se cargarán aquí -->
+            </tbody>
+        </table>
+
+        <script type="module">
+            import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+            import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+                authDomain: "charlotte-babda.firebaseapp.com",
+                projectId: "charlotte-babda",
+                storageBucket: "charlotte-babda.firebasestorage.app",
+                messagingSenderId: "486360806502",
+                appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            const usersTable = document.getElementById('usersTable').querySelector('tbody');
+            const messageDiv = document.getElementById('message');
+
+            function showMessage(text, type) {
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            }
+
+            async function loadPendingUsers() {
+                try {
+                    const querySnapshot = await getDocs(collection(db, 'pendingStudents'));
+                    usersTable.innerHTML = '';
+
+                    querySnapshot.forEach(doc => {
+                        const user = doc.data();
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.programa}</td>
+                            <td>${user.sede}</td>
+                            <td>
+                                <button class="btn-approve" data-id="${doc.id}">Aprobar</button>
+                                <button class="btn-reject" data-id="${doc.id}">Rechazar</button>
+                            </td>
+                        `;
+
+                        usersTable.appendChild(row);
+                    });
+
+                    document.querySelectorAll('.btn-approve').forEach(button => {
+                        button.addEventListener('click', async () => {
+                            const userId = button.getAttribute('data-id');
+                            await approveUser(userId);
+                        });
+                    });
+
+                    document.querySelectorAll('.btn-reject').forEach(button => {
+                        button.addEventListener('click', async () => {
+                            const userId = button.getAttribute('data-id');
+                            await rejectUser(userId);
+                        });
+                    });
+                } catch (error) {
+                    console.error('Error al cargar usuarios:', error);
+                    showMessage('Error al cargar usuarios. Intenta de nuevo.', 'error');
+                }
+            }
+
+            async function approveUser(userId) {
+                try {
+                    const userRef = doc(db, 'pendingStudents', userId);
+                    const userDoc = await getDocs(userRef);
+                    const userData = userDoc.data();
+
+                    await updateDoc(doc(db, 'approvedStudents', userId), userData);
+                    await deleteDoc(userRef);
+
+                    showMessage('Usuario aprobado con éxito.', 'success');
+                    loadPendingUsers();
+                } catch (error) {
+                    console.error('Error al aprobar usuario:', error);
+                    showMessage('Error al aprobar usuario. Intenta de nuevo.', 'error');
+                }
+            }
+
+            async function rejectUser(userId) {
+                try {
+                    await deleteDoc(doc(db, 'pendingStudents', userId));
+                    showMessage('Usuario rechazado con éxito.', 'success');
+                    loadPendingUsers();
+                } catch (error) {
+                    console.error('Error al rechazar usuario:', error);
+                    showMessage('Error al rechazar usuario. Intenta de nuevo.', 'error');
+                }
+            }
+
+            loadPendingUsers();
+        </script>
+    </main>
+</body>
+</html>
