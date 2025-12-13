@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
       return { statusCode: 403, body: JSON.stringify({ message: 'Acceso denegado' }) };
     }
 
-    const snapshot = await db.collection('users').where('role', '==', 'student').get();
+    const snapshot = await db.collection('users').where('status', '==', 'approved').get();
     const students = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()

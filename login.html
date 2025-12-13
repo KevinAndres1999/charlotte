@@ -176,7 +176,8 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
@@ -188,6 +189,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         const loginForm = document.getElementById('loginForm');
@@ -217,28 +219,36 @@
             }
 
             try {
-                // Buscar estudiante aprobado
-                const q = query(collection(db, 'approvedStudents'), where('email', '==', email), where('password', '==', password));
-                const querySnapshot = await getDocs(q);
+                // Login con Firebase Auth
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const idToken = await user.getIdToken();
 
-                if (!querySnapshot.empty) {
-                    const studentData = querySnapshot.docs[0].data();
+                // Verificar status en Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (!userDoc.exists) {
+                    showMessage('Usuario no encontrado', 'error');
+                    return;
+                }
+                const userData = userDoc.data();
+                if (userData.status === 'pending') {
+                    showMessage('Cuenta pendiente de aprobación', 'error');
+                    return;
+                }
+                if (userData.status === 'approved' || userData.status === 'admin') {
                     sessionStorage.setItem('currentUser', JSON.stringify({
-                        email: studentData.email,
-                        role: 'student',
-                        name: studentData.name,
-                        cedula: studentData.cedula,
-                        telefono: studentData.telefono,
-                        programa: studentData.programa,
-                        sede: studentData.sede
+                        email: userData.email,
+                        role: userData.status === 'admin' ? 'admin' : 'student',
+                        name: userData.name,
+                        token: idToken
                     }));
-                    window.location.href = 'estudiante.html';
+                    window.location.href = userData.status === 'admin' ? 'admin.html' : 'estudiante.html';
                 } else {
-                    showMessage('Credenciales incorrectas o cuenta no aprobada', 'error');
+                    showMessage('Status no válido', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Error al iniciar sesión. Intenta de nuevo.', 'error');
+                showMessage('Credenciales incorrectas', 'error');
             }
         });
     </script>

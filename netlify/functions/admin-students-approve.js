@@ -42,11 +42,11 @@ exports.handler = async (event, context) => {
     }
 
     const studentDoc = await db.collection('users').doc(id).get();
-    if (!studentDoc.exists || studentDoc.data().role !== 'pending') {
+    if (!studentDoc.exists || studentDoc.data().status !== 'pending') {
       return { statusCode: 404, body: JSON.stringify({ message: 'Estudiante no encontrado o ya aprobado' }) };
     }
 
-    await db.collection('users').doc(id).update({ role: 'student' });
+    await db.collection('users').doc(id).update({ status: 'approved' });
 
     return {
       statusCode: 200,
