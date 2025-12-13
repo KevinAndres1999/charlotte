@@ -203,6 +203,9 @@
             document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
         }
 
+        // Exponer función globalmente
+        window.showSection = showSection;
+
         document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth).then(() => window.location.href = 'index.html');
         });
