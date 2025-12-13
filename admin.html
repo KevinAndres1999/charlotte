@@ -3,513 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrador | Charlotte</title>
+    <title>Panel Admin | Charlotte</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { background: #f8fafc; margin: 0; }
-        .admin-header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .admin-header .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .admin-header h1 { margin: 0; font-size: 24px; }
-        .admin-header h1 i { margin-right: 10px; }
-        .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .logout-btn:hover { background: rgba(255,255,255,0.3); }
-        .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 80px); gap: 0; }
-        .sidebar { background: #fff; border-right: 1px solid #e8f0fe; padding: 0; }
-        .sidebar-header { padding: 24px; border-bottom: 2px solid #e8f0fe; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); }
-        .sidebar-header h3 { margin: 0 0 8px 0; color: #1e3a8a; font-size: 18px; }
-        .sidebar-header p { margin: 0; color: #64748b; font-size: 14px; }
-        .nav-menu { padding: 0; }
-        .nav-item { padding: 16px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #334155; }
-        .nav-item:hover { background: #f8fafc; border-left-color: #3b82f6; }
-        .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); border-left-color: #3b82f6; color: #1e40af; font-weight: 600; }
-        .nav-item i { font-size: 18px; width: 24px; text-align: center; }
-        .main-content { padding: 32px; overflow-y: auto; }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
-        .page-header { margin-bottom: 32px; }
-        .page-header h2 { margin: 0 0 8px 0; color: #0a1628; font-size: 32px; }
-        .page-header p { margin: 0; color: #64748b; font-size: 16px; }
-        .upload-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .upload-card h3 { margin: 0 0 24px 0; color: #1e3a8a; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #334155; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.3s; font-family: inherit; box-sizing: border-box; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .form-group textarea { resize: vertical; min-height: 120px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
-        .content-list { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .content-list-header { padding: 20px 24px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-bottom: 2px solid #e2e8f0; }
-        .content-list-header h4 { margin: 0; color: #1e3a8a; font-size: 18px; }
-        .content-item { padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
-        .content-item:hover { background: #f8fafc; }
-        .content-item:last-child { border-bottom: none; }
-        .content-info { flex: 1; }
-        .content-info h5 { margin: 0 0 4px 0; color: #0a1628; font-size: 16px; }
-        .content-info p { margin: 0; color: #64748b; font-size: 14px; }
-        .content-actions { display: flex; gap: 8px; }
-        .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-        .btn-delete { background: #fee2e2; color: #dc2626; }
-        .btn-delete:hover { background: #fecaca; }
-        .btn-approve { background: #d1fae5; color: #059669; }
-        .btn-approve:hover { background: #a7f3d0; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px; }
-        .stat-card { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-        .stat-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .stat-card-icon.blue { background: #dbeafe; color: #3b82f6; }
-        .stat-card-icon.green { background: #dcfce7; color: #22c55e; }
-        .stat-card-icon.purple { background: #f3e8ff; color: #a855f7; }
-        .stat-card-icon.orange { background: #fed7aa; color: #f97316; }
-        .stat-value { font-size: 32px; font-weight: 700; color: #0a1628; margin: 0; }
-        .stat-label { color: #64748b; font-size: 14px; margin: 4px 0 0 0; }
-        .mobile-menu-toggle { display: none; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 24px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-        .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
-        .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
-        .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
-        .alert i { font-size: 20px; }
-        @media (max-width: 768px) {
-            .dashboard-container { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; left: -100%; top: 60px; width: 280px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); }
-            .sidebar.open { left: 0; }
-            .mobile-menu-toggle { display: block; }
-            .main-content { padding: 20px 16px; }
-            .page-header h2 { font-size: 24px; }
-            .upload-card { padding: 20px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .content-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .content-actions { width: 100%; justify-content: flex-end; }
-        }
+        .admin-container { min-height: 100vh; background: #f5f5f5; }
+        .admin-header { background: var(--accent); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-nav { background: white; padding: 10px 20px; border-bottom: 1px solid #e0e0e0; }
+        .nav-btn { background: none; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 5px; transition: background 0.3s; }
+        .nav-btn.active { background: var(--accent); color: white; }
+        .admin-main { padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { margin: 0 0 10px 0; color: #666; }
+        .stat-card p { font-size: 2em; font-weight: bold; color: var(--accent); margin: 0; }
+        .students-section { margin-top: 30px; }
+        .student-list { background: white; border-radius: 8px; padding: 20px; margin-top: 10px; }
+        .student-item { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .student-info h4 { margin: 0 0 5px 0; }
+        .student-info p { margin: 2px 0; color: #666; font-size: 14px; }
+        .student-actions { display: flex; gap: 10px; }
+        .btn-approve, .btn-delete { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .btn-approve { background: #28a745; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-logout { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
     </style>
-</head><body>
-    <header class="admin-header">
-        <div class="container">
-            <h1><i class="fas fa-user-shield"></i> Panel Administrador</h1>
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
-            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-        </div>
-    </header>
-    <div class="dashboard-container">
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h3>Admin Charlotte</h3>
-                <p>Gestión de Contenidos</p>
-            </div>
-            <div class="nav-menu">
-                <div class="nav-item active" onclick="showSection('dashboard', this)"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
-                <div class="nav-item" onclick="showSection('videos', this)"><i class="fas fa-video"></i><span>Subir Videos</span></div>
-                <div class="nav-item" onclick="showSection('clases', this)"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
-                <div class="nav-item" onclick="showSection('actividades', this)"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
-                <div class="nav-item" onclick="showSection('cuestionarios', this)"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
-                <div class="nav-item" onclick="showSection('materiales', this)"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
-                <div class="nav-item" onclick="showSection('estudiantes', this)"><i class="fas fa-user-check"></i><span>Aprobar Estudiantes</span></div>
-            </div>
-        </div>
-        <div class="main-content">
-            <div id="dashboard" class="content-section active">
-                <div class="page-header"><h2>Dashboard</h2><p>Resumen de contenidos publicados</p></div>
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>Panel de Administración</h1>
+            <button id="logoutBtn" class="btn-logout">Cerrar Sesión</button>
+        </header>
+
+        <nav class="admin-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showSection('estudiantes')">Aprobar Estudiantes</button>
+        </nav>
+
+        <main class="admin-main">
+            <section id="dashboard" class="section active">
+                <h2>Dashboard</h2>
                 <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-card-header"><div><h3 class="stat-value" id="stat-videos">0</h3><p class="stat-label">Videos Publicados</p></div><div class="stat-card-icon blue"><i class="fas fa-video"></i></div></div></div>
-                    <div class="stat-card"><div class="stat-card-header"><div><h3 class="stat-value" id="stat-clases">0</h3><p class="stat-label">Clases Subidas</p></div><div class="stat-card-icon green"><i class="fas fa-book-open"></i></div></div></div>
-                    <div class="stat-card"><div class="stat-card-header"><div><h3 class="stat-value" id="stat-actividades">0</h3><p class="stat-label">Actividades Creadas</p></div><div class="stat-card-icon purple"><i class="fas fa-tasks"></i></div></div></div>
-                    <div class="stat-card"><div class="stat-card-header"><div><h3 class="stat-value" id="stat-materiales">0</h3><p class="stat-label">Materiales Adicionales</p></div><div class="stat-card-icon orange"><i class="fas fa-folder-open"></i></div></div></div>
+                    <div class="stat-card"><h3>Videos</h3><p id="stat-videos">0</p></div>
+                    <div class="stat-card"><h3>Clases</h3><p id="stat-clases">0</p></div>
+                    <div class="stat-card"><h3>Actividades</h3><p id="stat-actividades">0</p></div>
+                    <div class="stat-card"><h3>Materiales</h3><p id="stat-materiales">0</p></div>
                 </div>
-            </div>
-            <div id="videos" class="content-section">
-                <div class="page-header"><h2>Gestión de Videos</h2><p>Sube y administra videos para tus estudiantes</p></div>
-                <div class="upload-card">
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Video</h3>
-                    <form id="form-video" onsubmit="saveVideo(event)">
-                        <div class="form-group"><label>Título del Video *</label><input type="text" name="titulo" required placeholder="Ej: Introducción a la Panadería"></div>
-                        <div class="form-group"><label>Descripción</label><textarea name="descripcion" placeholder="Describe el contenido del video..."></textarea></div>
-                        <div class="form-group"><label>URL del Video (YouTube, Vimeo, etc.) *</label><input type="url" name="url" required placeholder="https://youtube.com/watch?v=..."></div>
-                        <div class="form-group"><label>Programa *</label><select name="programa" required><option value="">Selecciona un programa</option><option value="Panadería">Panadería y Repostería</option><option value="Belleza">Belleza y Cosmetología</option><option value="Todos">Todos los programas</option></select></div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Video</button>
-                    </form>
+            </section>
+
+            <section id="estudiantes" class="section">
+                <h2>Gestión de Estudiantes</h2>
+                <p>Aprueba estudiantes registrados y elimina aprobados</p>
+
+                <div class="students-section">
+                    <h3>Estudiantes Pendientes de Aprobación</h3>
+                    <div id="pending-list" class="student-list"><p>Cargando...</p></div>
                 </div>
-                <div class="content-list"><div class="content-list-header"><h4>Videos Publicados</h4></div><div id="videos-list"></div></div>
-            </div>
-            <div id="clases" class="content-section">
-                <div class="page-header"><h2>Gestión de Clases</h2><p>Crea y publica material de clases</p></div>
-                <div class="upload-card">
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Subir Nueva Clase</h3>
-                    <form id="form-clase" onsubmit="saveClase(event)">
-                        <div class="form-group"><label>Título de la Clase *</label><input type="text" name="titulo" required placeholder="Ej: Técnicas de Amasado"></div>
-                        <div class="form-group"><label>Contenido *</label><textarea name="contenido" required placeholder="Escribe el contenido de la clase..."></textarea></div>
-                        <div class="form-group"><label>Programa *</label><select name="programa" required><option value="">Selecciona un programa</option><option value="Panadería">Panadería y Repostería</option><option value="Belleza">Belleza y Cosmetología</option><option value="Todos">Todos los programas</option></select></div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Clase</button>
-                    </form>
+
+                <div class="students-section">
+                    <h3>Estudiantes Aprobados</h3>
+                    <div id="approved-list" class="student-list"><p>Cargando...</p></div>
                 </div>
-                <div class="content-list"><div class="content-list-header"><h4>Clases Publicadas</h4></div><div id="clases-list"></div></div>
-            </div>
-            <div id="actividades" class="content-section">
-                <div class="page-header"><h2>Gestión de Actividades</h2><p>Crea actividades y tareas para los estudiantes</p></div>
-                <div class="upload-card">
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Crear Nueva Actividad</h3>
-                    <form id="form-actividad" onsubmit="saveActividad(event)">
-                        <div class="form-group"><label>Título de la Actividad *</label><input type="text" name="titulo" required placeholder="Ej: Práctica de Pan Francés"></div>
-                        <div class="form-group"><label>Instrucciones *</label><textarea name="instrucciones" required placeholder="Describe las instrucciones de la actividad..."></textarea></div>
-                        <div class="form-group"><label>Fecha de Entrega</label><input type="date" name="fecha"></div>
-                        <div class="form-group"><label>Programa *</label><select name="programa" required><option value="">Selecciona un programa</option><option value="Panadería">Panadería y Repostería</option><option value="Belleza">Belleza y Cosmetología</option><option value="Todos">Todos los programas</option></select></div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Crear Actividad</button>
-                    </form>
-                </div>
-                <div class="content-list"><div class="content-list-header"><h4>Actividades Creadas</h4></div><div id="actividades-list"></div></div>
-            </div>
-            <div id="cuestionarios" class="content-section">
-                <div class="page-header"><h2>Gestión de Cuestionarios</h2><p>Sube cuestionarios y evaluaciones</p></div>
-                <div class="upload-card">
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Cuestionario</h3>
-                    <form id="form-cuestionario" onsubmit="saveCuestionario(event)">
-                        <div class="form-group"><label>Título del Cuestionario *</label><input type="text" name="titulo" required placeholder="Ej: Evaluación Final Panadería"></div>
-                        <div class="form-group"><label>Descripción</label><textarea name="descripcion" placeholder="Describe el cuestionario..."></textarea></div>
-                        <div class="form-group"><label>Programa *</label><select name="programa" required><option value="">Selecciona un programa</option><option value="Panadería">Panadería y Repostería</option><option value="Belleza">Belleza y Cosmetología</option><option value="Todos">Todos los programas</option></select></div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Cuestionario</button>
-                    </form>
-                </div>
-                <div class="content-list"><div class="content-list-header"><h4>Cuestionarios Publicados</h4></div><div id="cuestionarios-list"></div></div>
-            </div>
-            <div id="materiales" class="content-section">
-                <div class="page-header"><h2>Gestión de Materiales</h2><p>Sube materiales adicionales de estudio</p></div>
-                <div class="upload-card">
-                    <h3><i class="fas fa-cloud-upload-alt"></i> Subir Nuevo Material</h3>
-                    <form id="form-material" onsubmit="saveMaterial(event)">
-                        <div class="form-group"><label>Nombre del Material *</label><input type="text" name="titulo" required placeholder="Ej: Tabla de Equivalencias"></div>
-                        <div class="form-group"><label>Descripción</label><textarea name="descripcion" placeholder="Describe el material..."></textarea></div>
-                        <div class="form-group"><label>URL o Enlace *</label><input type="text" name="url" placeholder="URL del archivo o enlace" required></div>
-                        <div class="form-group"><label>Programa *</label><select name="programa" required><option value="">Selecciona un programa</option><option value="Panadería">Panadería y Repostería</option><option value="Belleza">Belleza y Cosmetología</option><option value="Todos">Todos los programas</option></select></div>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar Material</button>
-                    </form>
-                </div>
-                <div class="content-list"><div class="content-list-header"><h4>Materiales Publicados</h4></div><div id="materiales-list"></div></div>
-            </div>
-            <div id="estudiantes" class="content-section">
-                <div class="page-header"><h2>Gestión de Estudiantes - Actualizado</h2><p>Aprueba estudiantes registrados y elimina aprobados</p></div>
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Estudiantes Pendientes de Aprobación</h4></div>
-                    <div id="estudiantes-pendientes-list"></div>
-                </div>
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Estudiantes Aprobados</h4></div>
-                    <div id="estudiantes-aprobados-list"></div>
-                </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
-    <script>
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        if (!currentUser || currentUser.role !== 'admin') {
-            window.location.href = 'login.html';
-        }
-        const token = currentUser.token;
 
-        async function apiRequest(method, url, body = null) {
-            const headers = { 'Authorization': `Bearer ${token}` };
-            if (body) headers['Content-Type'] = 'application/json';
-            const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
-            if (!res.ok) throw new Error(await res.text());
-            return res.json();
-        }
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-        function showSection(sectionId, navItem) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            navItem.classList.add('active');
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('open');
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+            authDomain: "charlotte-babda.firebaseapp.com",
+            projectId: "charlotte-babda",
+            storageBucket: "charlotte-babda.firebasestorage.app",
+            messagingSenderId: "486360806502",
+            appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
             }
-            loadContent(sectionId);
-        }
 
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
+            const userQuery = query(collection(db, 'users'), where('email', '==', user.email));
+            const userSnapshot = await getDocs(userQuery);
+            if (userSnapshot.empty) {
+                alert('Usuario no encontrado');
+                signOut(auth);
+                return;
+            }
 
-        function logout() {
-            sessionStorage.removeItem('currentUser');
-            window.location.href = 'index.html';
-        }
+            const userData = userSnapshot.docs[0].data();
+            if (userData.status !== 'admin') {
+                alert('Acceso denegado');
+                signOut(auth);
+                return;
+            }
 
-        async function saveVideo(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = { titulo: formData.get('titulo'), descripcion: formData.get('descripcion'), url: formData.get('url'), programa: formData.get('programa') };
+            loadStudents();
+        });
+
+        async function loadStudents() {
             try {
-                await apiRequest('POST', '/api/admin/content/videos', data);
-                e.target.reset();
-                loadVideos();
-                updateStats();
-                showAlert('Video guardado exitosamente');
-            } catch (err) {
-                showAlert('Error: ' + err.message);
+                const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
+                const pendingSnapshot = await getDocs(pendingQuery);
+                const pendingList = document.getElementById('pending-list');
+                pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
+
+                pendingSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'student-item';
+                    item.innerHTML = `
+                        <div class="student-info">
+                            <h4>${data.name}</h4>
+                            <p>Email: ${data.email}</p>
+                            <p>Cédula: ${data.cedula}</p>
+                            <p>Programa: ${data.programa}</p>
+                            <p>Sede: ${data.sede}</p>
+                            <p>Teléfono: ${data.telefono}</p>
+                        </div>
+                        <div class="student-actions">
+                            <button class="btn-approve" onclick="approveStudent('${docSnap.id}')">Aprobar</button>
+                        </div>
+                    `;
+                    pendingList.appendChild(item);
+                });
+
+                const approvedQuery = query(collection(db, 'users'), where('status', '==', 'approved'));
+                const approvedSnapshot = await getDocs(approvedQuery);
+                const approvedList = document.getElementById('approved-list');
+                approvedList.innerHTML = approvedSnapshot.empty ? '<p>No hay estudiantes aprobados</p>' : '';
+
+                approvedSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'student-item';
+                    item.innerHTML = `
+                        <div class="student-info">
+                            <h4>${data.name}</h4>
+                            <p>Email: ${data.email}</p>
+                            <p>Cédula: ${data.cedula}</p>
+                            <p>Programa: ${data.programa}</p>
+                            <p>Sede: ${data.sede}</p>
+                            <p>Teléfono: ${data.telefono}</p>
+                        </div>
+                        <div class="student-actions">
+                            <button class="btn-delete" onclick="deleteStudent('${docSnap.id}')">Eliminar</button>
+                        </div>
+                    `;
+                    approvedList.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar estudiantes');
             }
         }
 
-        async function saveClase(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = { titulo: formData.get('titulo'), contenido: formData.get('contenido'), programa: formData.get('programa') };
-            try {
-                await apiRequest('POST', '/api/admin/content/clases', data);
-                e.target.reset();
-                loadClases();
-                updateStats();
-                showAlert('Clase guardada exitosamente');
-            } catch (err) {
-                showAlert('Error: ' + err.message);
-            }
-        }
-
-        async function saveActividad(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = { titulo: formData.get('titulo'), instrucciones: formData.get('instrucciones'), fecha_entrega: formData.get('fecha'), programa: formData.get('programa') };
-            try {
-                await apiRequest('POST', '/api/admin/content/actividades', data);
-                e.target.reset();
-                loadActividades();
-                updateStats();
-                showAlert('Actividad creada exitosamente');
-            } catch (err) {
-                showAlert('Error: ' + err.message);
-            }
-        }
-
-        async function saveCuestionario(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = { titulo: formData.get('titulo'), descripcion: formData.get('descripcion'), programa: formData.get('programa') };
-            try {
-                await apiRequest('POST', '/api/admin/content/cuestionarios', data);
-                e.target.reset();
-                loadCuestionarios();
-                updateStats();
-                showAlert('Cuestionario guardado exitosamente');
-            } catch (err) {
-                showAlert('Error: ' + err.message);
-            }
-        }
-
-        async function saveMaterial(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = { titulo: formData.get('titulo'), descripcion: formData.get('descripcion'), url: formData.get('url'), programa: formData.get('programa') };
-            try {
-                await apiRequest('POST', '/api/admin/content/materiales', data);
-                e.target.reset();
-                loadMateriales();
-                updateStats();
-                showAlert('Material guardado exitosamente');
-            } catch (err) {
-                showAlert('Error: ' + err.message);
-            }
-        }
-
-        async function deleteItem(type, id) {
-            if (confirm('¿Estás seguro de eliminar este elemento?')) {
-                try {
-                    await apiRequest('DELETE', `/api/admin/content/${type}/${id}`);
-                    loadContent(type);
-                    updateStats();
-                    showAlert('Elemento eliminado exitosamente');
-                } catch (err) {
-                    showAlert('Error: ' + err.message);
-                }
-            }
-        }
-
-        function loadContent(section) {
-            switch (section) {
-                case 'videos': loadVideos(); break;
-                case 'clases': loadClases(); break;
-                case 'actividades': loadActividades(); break;
-                case 'cuestionarios': loadCuestionarios(); break;
-                case 'materiales': loadMateriales(); break;
-                case 'estudiantes': loadEstudiantes(); break;
-                case 'dashboard': updateStats(); break;
-            }
-        }
-
-        async function loadVideos() {
-            const container = document.getElementById('videos-list');
-            container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando videos...</h5></div></div>';
-            try {
-                const res = await fetch('/api/content/videos');
-                const data = await res.json();
-                const videos = data.content;
-                if (videos.length === 0) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos publicados</h5><p>Los videos que subas aparecerán aquí</p></div></div>';
-                    return;
-                }
-                container.innerHTML = videos.map(video => `<div class="content-item"><div class="content-info"><h5>${video.titulo}</h5><p>Programa: ${video.programa} • ${video.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="(async () => await deleteItem('videos', ${video.id}))()"><i class="fas fa-trash"></i></button></div></div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar videos</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function loadClases() {
-            const container = document.getElementById('clases-list');
-            container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando clases...</h5></div></div>';
-            try {
-                const res = await fetch('/api/content/clases');
-                const data = await res.json();
-                const clases = data.content;
-                if (clases.length === 0) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases publicadas</h5><p>Las clases que subas aparecerán aquí</p></div></div>';
-                    return;
-                }
-                container.innerHTML = clases.map(clase => `<div class="content-item"><div class="content-info"><h5>${clase.titulo}</h5><p>Programa: ${clase.programa} • ${clase.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="(async () => await deleteItem('clases', ${clase.id}))()"><i class="fas fa-trash"></i></button></div></div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar clases</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function loadActividades() {
-            const container = document.getElementById('actividades-list');
-            container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando actividades...</h5></div></div>';
-            try {
-                const res = await fetch('/api/content/actividades');
-                const data = await res.json();
-                const actividades = data.content;
-                if (actividades.length === 0) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades creadas</h5><p>Las actividades que crees aparecerán aquí</p></div></div>';
-                    return;
-                }
-                container.innerHTML = actividades.map(actividad => `<div class="content-item"><div class="content-info"><h5>${actividad.titulo}</h5><p>Programa: ${actividad.programa} • Entrega: ${actividad.fecha_entrega || 'Sin fecha'} • Creada: ${actividad.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="(async () => await deleteItem('actividades', ${actividad.id}))()"><i class="fas fa-trash"></i></button></div></div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar actividades</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function loadCuestionarios() {
-            const container = document.getElementById('cuestionarios-list');
-            container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando cuestionarios...</h5></div></div>';
-            try {
-                const res = await fetch('/api/content/cuestionarios');
-                const data = await res.json();
-                const cuestionarios = data.content;
-                if (cuestionarios.length === 0) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios publicados</h5><p>Los cuestionarios que subas aparecerán aquí</p></div></div>';
-                    return;
-                }
-                container.innerHTML = cuestionarios.map(cuestionario => `<div class="content-item"><div class="content-info"><h5>${cuestionario.titulo}</h5><p>Programa: ${cuestionario.programa} • ${cuestionario.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="(async () => await deleteItem('cuestionarios', ${cuestionario.id}))()"><i class="fas fa-trash"></i></button></div></div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar cuestionarios</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function loadMateriales() {
-            const container = document.getElementById('materiales-list');
-            container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando materiales...</h5></div></div>';
-            try {
-                const res = await fetch('/api/content/materiales');
-                const data = await res.json();
-                const materiales = data.content;
-                if (materiales.length === 0) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay materiales publicados</h5><p>Los materiales que subas aparecerán aquí</p></div></div>';
-                    return;
-                }
-                container.innerHTML = materiales.map(material => `<div class="content-item"><div class="content-info"><h5>${material.titulo}</h5><p>Programa: ${material.programa} • ${material.fecha}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="(async () => await deleteItem('materiales', ${material.id}))()"><i class="fas fa-trash"></i></button></div></div>`).join('');
-            } catch (err) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar materiales</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function loadEstudiantes() {
-            const pendientesContainer = document.getElementById('estudiantes-pendientes-list');
-            const aprobadosContainer = document.getElementById('estudiantes-aprobados-list');
-            pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando estudiantes pendientes...</h5></div></div>';
-            aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando estudiantes aprobados...</h5></div></div>';
-            try {
-                const [pendientesRes, aprobadosRes] = await Promise.all([
-                    apiRequest('GET', '/.netlify/functions/admin-students-pending'),
-                    apiRequest('GET', '/.netlify/functions/admin-students-approved')
-                ]);
-                // Pendientes
-                if (pendientesRes.length === 0) {
-                    pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay estudiantes pendientes</h5><p>Los nuevos registros aparecerán aquí</p></div></div>';
-                } else {
-                    pendientesContainer.innerHTML = pendientesRes.map(student => `<div class="content-item"><div class="content-info"><h5>${student.name}</h5><p>Email: ${student.email}</p></div><div class="content-actions"><button class="btn-icon btn-approve" onclick="approveStudent(${student.id})"><i class="fas fa-check"></i></button></div></div>`).join('');
-                }
-                // Aprobados
-                if (aprobadosRes.length === 0) {
-                    aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay estudiantes aprobados</h5></div></div>';
-                } else {
-                    aprobadosContainer.innerHTML = aprobadosRes.map(student => `<div class="content-item"><div class="content-info"><h5>${student.name}</h5><p>Email: ${student.email}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteStudent(${student.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
-                }
-            } catch (err) {
-                pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar estudiantes pendientes</h5><p>Revisa la conexión</p></div></div>';
-                aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar estudiantes aprobados</h5><p>Revisa la conexión</p></div></div>';
-                console.error(err);
-            }
-        }
-
-        async function approveStudent(id) {
+        window.approveStudent = async (id) => {
             if (confirm('¿Aprobar este estudiante?')) {
                 try {
-                    await apiRequest('POST', `/.netlify/functions/admin-students-approve`, { id: id });
-                    loadEstudiantes();
-                    showAlert('Estudiante aprobado exitosamente');
-                } catch (err) {
-                    showAlert('Error: ' + err.message);
+                    await updateDoc(doc(db, 'users', id), { status: 'approved' });
+                    alert('Estudiante aprobado');
+                    loadStudents();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al aprobar');
                 }
             }
-        }
+        };
 
-        async function deleteStudent(id) {
-            if (confirm('¿Eliminar este estudiante aprobado?')) {
+        window.deleteStudent = async (id) => {
+            if (confirm('¿Eliminar este estudiante?')) {
                 try {
-                    await apiRequest('DELETE', `/.netlify/functions/admin-students-delete`, { id: id });
-                    loadEstudiantes();
-                    showAlert('Estudiante eliminado exitosamente');
-                } catch (err) {
-                    showAlert('Error: ' + err.message);
+                    await deleteDoc(doc(db, 'users', id));
+                    alert('Estudiante eliminado');
+                    loadStudents();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar');
                 }
             }
+        };
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
         }
 
-        async function updateStats() {
-            document.getElementById('stat-videos').textContent = '0';
-            document.getElementById('stat-clases').textContent = '0';
-            document.getElementById('stat-actividades').textContent = '0';
-            document.getElementById('stat-materiales').textContent = '0';
-            // try {
-            //     const [v, c, a, q, m] = await Promise.all(['videos', 'clases', 'actividades', 'cuestionarios', 'materiales'].map(t => fetch(`/api/content/${t}`).then(r => r.json()).then(d => d.content.length)));
-            //     document.getElementById('stat-videos').textContent = v;
-            //     document.getElementById('stat-clases').textContent = c;
-            //     document.getElementById('stat-actividades').textContent = a;
-            //     document.getElementById('stat-materiales').textContent = m;
-            // } catch (err) {
-            //     document.getElementById('stat-videos').textContent = 'Error';
-            //     document.getElementById('stat-clases').textContent = 'Error';
-            //     document.getElementById('stat-actividades').textContent = 'Error';
-            //     document.getElementById('stat-materiales').textContent = 'Error';
-            //     console.error(err);
-            // }
-        }
-
-        function showAlert(message) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success';
-            alertDiv.innerHTML = '<i class="fas fa-check-circle"></i><div>' + message + '</div>';
-            alertDiv.style.position = 'fixed';
-            alertDiv.style.top = '80px';
-            alertDiv.style.right = '20px';
-            alertDiv.style.zIndex = '1000';
-            alertDiv.style.minWidth = '300px';
-            document.body.appendChild(alertDiv);
-            setTimeout(() => alertDiv.remove(), 3000);
-        }
-
-        updateStats();
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth).then(() => window.location.href = 'index.html');
+        });
     </script>
 </body>
 </html>
