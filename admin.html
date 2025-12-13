@@ -477,23 +477,23 @@
         }
 
         async function updateStats() {
-            document.getElementById('stat-videos').textContent = '...';
-            document.getElementById('stat-clases').textContent = '...';
-            document.getElementById('stat-actividades').textContent = '...';
-            document.getElementById('stat-materiales').textContent = '...';
-            try {
-                const [v, c, a, q, m] = await Promise.all(['videos', 'clases', 'actividades', 'cuestionarios', 'materiales'].map(t => fetch(`/api/content/${t}`).then(r => r.json()).then(d => d.content.length)));
-                document.getElementById('stat-videos').textContent = v;
-                document.getElementById('stat-clases').textContent = c;
-                document.getElementById('stat-actividades').textContent = a;
-                document.getElementById('stat-materiales').textContent = m;
-            } catch (err) {
-                document.getElementById('stat-videos').textContent = 'Error';
-                document.getElementById('stat-clases').textContent = 'Error';
-                document.getElementById('stat-actividades').textContent = 'Error';
-                document.getElementById('stat-materiales').textContent = 'Error';
-                console.error(err);
-            }
+            document.getElementById('stat-videos').textContent = '0';
+            document.getElementById('stat-clases').textContent = '0';
+            document.getElementById('stat-actividades').textContent = '0';
+            document.getElementById('stat-materiales').textContent = '0';
+            // try {
+            //     const [v, c, a, q, m] = await Promise.all(['videos', 'clases', 'actividades', 'cuestionarios', 'materiales'].map(t => fetch(`/api/content/${t}`).then(r => r.json()).then(d => d.content.length)));
+            //     document.getElementById('stat-videos').textContent = v;
+            //     document.getElementById('stat-clases').textContent = c;
+            //     document.getElementById('stat-actividades').textContent = a;
+            //     document.getElementById('stat-materiales').textContent = m;
+            // } catch (err) {
+            //     document.getElementById('stat-videos').textContent = 'Error';
+            //     document.getElementById('stat-clases').textContent = 'Error';
+            //     document.getElementById('stat-actividades').textContent = 'Error';
+            //     document.getElementById('stat-materiales').textContent = 'Error';
+            //     console.error(err);
+            // }
         }
 
         function showAlert(message) {
