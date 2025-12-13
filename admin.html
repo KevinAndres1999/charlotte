@@ -53,6 +53,8 @@
         .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .btn-delete { background: #fee2e2; color: #dc2626; }
         .btn-delete:hover { background: #fecaca; }
+        .btn-approve { background: #d1fae5; color: #059669; }
+        .btn-approve:hover { background: #a7f3d0; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .stat-card { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
@@ -102,6 +104,7 @@
                 <div class="nav-item" onclick="showSection('actividades', this)"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
                 <div class="nav-item" onclick="showSection('cuestionarios', this)"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
                 <div class="nav-item" onclick="showSection('materiales', this)"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
+                <div class="nav-item" onclick="showSection('estudiantes', this)"><i class="fas fa-user-check"></i><span>Aprobar Estudiantes</span></div>
             </div>
         </div>
         <div class="main-content">
@@ -181,6 +184,17 @@
                     </form>
                 </div>
                 <div class="content-list"><div class="content-list-header"><h4>Materiales Publicados</h4></div><div id="materiales-list"></div></div>
+            </div>
+            <div id="estudiantes" class="content-section">
+                <div class="page-header"><h2>Gestión de Estudiantes</h2><p>Aprueba estudiantes registrados y elimina aprobados</p></div>
+                <div class="content-list">
+                    <div class="content-list-header"><h4>Estudiantes Pendientes de Aprobación</h4></div>
+                    <div id="estudiantes-pendientes-list"></div>
+                </div>
+                <div class="content-list">
+                    <div class="content-list-header"><h4>Estudiantes Aprobados</h4></div>
+                    <div id="estudiantes-aprobados-list"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -314,6 +328,7 @@
                 case 'actividades': loadActividades(); break;
                 case 'cuestionarios': loadCuestionarios(); break;
                 case 'materiales': loadMateriales(); break;
+                case 'estudiantes': loadEstudiantes(); break;
                 case 'dashboard': updateStats(); break;
             }
         }
@@ -405,6 +420,59 @@
             } catch (err) {
                 container.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar materiales</h5><p>Revisa la conexión</p></div></div>';
                 console.error(err);
+            }
+        }
+
+        async function loadEstudiantes() {
+            const pendientesContainer = document.getElementById('estudiantes-pendientes-list');
+            const aprobadosContainer = document.getElementById('estudiantes-aprobados-list');
+            pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando estudiantes pendientes...</h5></div></div>';
+            aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Cargando estudiantes aprobados...</h5></div></div>';
+            try {
+                const [pendientesRes, aprobadosRes] = await Promise.all([
+                    apiRequest('GET', '/api/admin/students/pending'),
+                    apiRequest('GET', '/api/admin/students/approved')
+                ]);
+                // Pendientes
+                if (pendientesRes.length === 0) {
+                    pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay estudiantes pendientes</h5><p>Los nuevos registros aparecerán aquí</p></div></div>';
+                } else {
+                    pendientesContainer.innerHTML = pendientesRes.map(student => `<div class="content-item"><div class="content-info"><h5>${student.name}</h5><p>Email: ${student.email}</p></div><div class="content-actions"><button class="btn-icon btn-approve" onclick="approveStudent(${student.id})"><i class="fas fa-check"></i></button></div></div>`).join('');
+                }
+                // Aprobados
+                if (aprobadosRes.length === 0) {
+                    aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay estudiantes aprobados</h5></div></div>';
+                } else {
+                    aprobadosContainer.innerHTML = aprobadosRes.map(student => `<div class="content-item"><div class="content-info"><h5>${student.name}</h5><p>Email: ${student.email}</p></div><div class="content-actions"><button class="btn-icon btn-delete" onclick="deleteStudent(${student.id})"><i class="fas fa-trash"></i></button></div></div>`).join('');
+                }
+            } catch (err) {
+                pendientesContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar estudiantes pendientes</h5><p>Revisa la conexión</p></div></div>';
+                aprobadosContainer.innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar estudiantes aprobados</h5><p>Revisa la conexión</p></div></div>';
+                console.error(err);
+            }
+        }
+
+        async function approveStudent(id) {
+            if (confirm('¿Aprobar este estudiante?')) {
+                try {
+                    await apiRequest('POST', `/api/admin/students/${id}/approve`);
+                    loadEstudiantes();
+                    showAlert('Estudiante aprobado exitosamente');
+                } catch (err) {
+                    showAlert('Error: ' + err.message);
+                }
+            }
+        }
+
+        async function deleteStudent(id) {
+            if (confirm('¿Eliminar este estudiante aprobado?')) {
+                try {
+                    await apiRequest('DELETE', `/api/admin/students/${id}`);
+                    loadEstudiantes();
+                    showAlert('Estudiante eliminado exitosamente');
+                } catch (err) {
+                    showAlert('Error: ' + err.message);
+                }
             }
         }
 

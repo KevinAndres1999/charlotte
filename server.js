@@ -21,7 +21,7 @@ db.exec(
     name TEXT NOT NULL,
     passwordHash TEXT NOT NULL,
     active INTEGER DEFAULT 1,
-    role TEXT DEFAULT 'student'
+    role TEXT DEFAULT 'pending'
   );`
 );
 // Tabla de settings para opciones configurables
@@ -127,6 +127,7 @@ app.post('/api/login', async (req, res) => {
     const row = db.prepare('SELECT email, name, passwordHash, active, role FROM users WHERE email = ?').get(email);
     if(!row) return res.status(401).json({ message: 'Credenciales inválidas' });
     if(!row.active) return res.status(403).json({ message: 'Cuenta deshabilitada' });
+    if(row.role === 'pending') return res.status(403).json({ message: 'Cuenta pendiente de aprobación por el administrador' });
     const ok = await bcrypt.compare(password, row.passwordHash);
     if(!ok) return res.status(401).json({ message: 'Credenciales inválidas' });
     const token = jwt.sign({ email: row.email, name: row.name, role: row.role }, JWT_SECRET, { expiresIn: '1h' });
@@ -147,9 +148,9 @@ app.post('/api/register', async (req, res) => {
     if (exists) return res.status(409).json({ message: 'El email ya está registrado' });
     const passwordHash = await bcrypt.hash(password, 10);
     const insert = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
-    insert.run(email, name, passwordHash, 1, 'student');
-    const token = jwt.sign({ email, name, role: 'student' }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(201).json({ token, user: { email, name, role: 'student', active: 1 } });
+    insert.run(email, name, passwordHash, 1, 'pending');
+    const token = jwt.sign({ email, name, role: 'pending' }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(201).json({ token, user: { email, name, role: 'pending', active: 1 } });
   }catch(err){
     console.error('Register error', err);
     res.status(500).json({ message: 'Error interno' });
@@ -289,6 +290,88 @@ app.delete('/api/admin/content/:type/:id', requireAuth, (req, res) => {
   }catch(err){
     console.error('Delete error', err);
     res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+app.get('/api/profile', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    res.json({ user: { email: data.email, name: data.name } });
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+});
+
+// Rutas para gestión de estudiantes por admin
+app.get('/api/admin/students/pending', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    if(data.role !== 'admin') return res.status(403).json({ message: 'Acceso denegado' });
+    const stmt = db.prepare('SELECT id, name, email FROM users WHERE role = ?');
+    const students = stmt.all('pending');
+    res.json(students);
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+});
+
+app.get('/api/admin/students/approved', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    if(data.role !== 'admin') return res.status(403).json({ message: 'Acceso denegado' });
+    const stmt = db.prepare('SELECT id, name, email FROM users WHERE role = ?');
+    const students = stmt.all('student');
+    res.json(students);
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+});
+
+app.post('/api/admin/students/:id/approve', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    if(data.role !== 'admin') return res.status(403).json({ message: 'Acceso denegado' });
+    const id = req.params.id;
+    const update = db.prepare('UPDATE users SET role = ? WHERE id = ? AND role = ?');
+    const info = update.run('student', id, 'pending');
+    if(info.changes === 0) return res.status(404).json({ message: 'Estudiante no encontrado o ya aprobado' });
+    res.json({ message: 'Estudiante aprobado' });
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
+  }
+});
+
+app.delete('/api/admin/students/:id', (req, res) => {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if (parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  try {
+    const data = jwt.verify(token, JWT_SECRET);
+    if(data.role !== 'admin') return res.status(403).json({ message: 'Acceso denegado' });
+    const id = req.params.id;
+    const del = db.prepare('DELETE FROM users WHERE id = ? AND role = ?');
+    const info = del.run(id, 'student');
+    if(info.changes === 0) return res.status(404).json({ message: 'Estudiante no encontrado o no aprobado' });
+    res.json({ message: 'Estudiante eliminado' });
+  } catch (err) {
+    res.status(401).json({ message: 'Token inválido' });
   }
 });
 
