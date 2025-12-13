@@ -127,13 +127,6 @@ function initUI(){
 document.addEventListener('componentsLoaded', ()=>{ try{ initUI(); }catch(e){ console.error('initUI error', e); } });
 
 let confirmRequiredWord = 'CONFIRMAR';
-const confirmTokenLabel = document.getElementById('confirmTokenLabel');
-const confirmInput = document.getElementById('confirmInput');
-const confirmOk = document.getElementById('confirmOk');
-const confirmCancel = document.getElementById('confirmCancel');
-const confirmModal = document.getElementById('confirmModal');
-const confirmText = document.getElementById('confirmText');
-let confirmCallback = null;
 
 function showStudentArea(student){
   // Cerrar modal y mostrar panel de estudiante
@@ -334,32 +327,50 @@ function closeConfirm(){
   confirmCallback = null;
 }
 
-confirmCancel.addEventListener('click', ()=>{ closeConfirm(); });
-confirmOk.addEventListener('click', async ()=>{
+if (confirmCancel) confirmCancel.addEventListener('click', ()=>{ closeConfirm(); });
+if (confirmOk) confirmOk.addEventListener('click', async ()=>{
   if(typeof confirmCallback === 'function'){
     try{ await confirmCallback(); }catch(e){ console.error(e); }
   }
   closeConfirm();
 });
 // Cerrar al hacer click fuera
-confirmModal.addEventListener('click', (e)=>{ if(e.target === confirmModal) closeConfirm(); });
+if (confirmModal) confirmModal.addEventListener('click', (e)=>{ if(e.target === confirmModal) closeConfirm(); });
 
 // Habilitar el botón Confirmar sólo si el usuario escribe la palabra configurada (case-insensitive)
-if(confirmInput){
+if (confirmInput) {
   confirmInput.addEventListener('input', ()=>{
     const val = (confirmInput.value || '').trim().toUpperCase();
     if(val === (confirmRequiredWord || 'CONFIRMAR').toUpperCase()){
-      confirmOk.removeAttribute('disabled');
+      if (confirmOk) confirmOk.removeAttribute('disabled');
     } else {
-      confirmOk.setAttribute('disabled','');
+      if (confirmOk) confirmOk.setAttribute('disabled','');
     }
   });
   // Permitir Enter para confirmar cuando esté habilitado
   confirmInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
       e.preventDefault();
-      if(!confirmOk.hasAttribute('disabled')) confirmOk.click();
+      if (confirmOk && !confirmOk.hasAttribute('disabled')) confirmOk.click();
     }
   });
 }
 // fin de script
+
+// Filtrado genérico por programa utilizado por admin/estudiante
+function filterByProgram(items) {
+  try {
+    if (!Array.isArray(items)) return items;
+    // Preferencia de filtro en página (busca selects comunes)
+    const sel = document.getElementById('filterPrograma') || document.getElementById('programFilter') || null;
+    const value = sel ? (sel.value || '') : '';
+    if (!value || value === 'Todos') return items;
+    return items.filter(it => {
+      const prog = (it.programa || it.program || it.programName || '').toString();
+      return prog === value || prog.includes(value);
+    });
+  } catch (e) {
+    console.error('filterByProgram error', e);
+    return items;
+  }
+}
