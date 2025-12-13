@@ -96,12 +96,12 @@
                 <p>Gestión de Contenidos</p>
             </div>
             <div class="nav-menu">
-                <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
-                <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-video"></i><span>Subir Videos</span></div>
-                <div class="nav-item" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
-                <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
-                <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
-                <div class="nav-item" onclick="showSection('materiales')"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
+                <div class="nav-item active" onclick="showSection('dashboard', this)"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" onclick="showSection('videos', this)"><i class="fas fa-video"></i><span>Subir Videos</span></div>
+                <div class="nav-item" onclick="showSection('clases', this)"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
+                <div class="nav-item" onclick="showSection('actividades', this)"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
+                <div class="nav-item" onclick="showSection('cuestionarios', this)"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
+                <div class="nav-item" onclick="showSection('materiales', this)"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
             </div>
         </div>
         <div class="main-content">
@@ -194,7 +194,7 @@ async function apiRequest(method, url, body = null) {
     if (!res.ok) throw new Error(await res.text());
     return res.json();
 }
-function showSection(sectionId){document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById(sectionId).classList.add('active');event.target.closest('.nav-item').classList.add('active');if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');}loadContent(sectionId);}
+function showSection(sectionId, navItem){document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById(sectionId).classList.add('active');navItem.classList.add('active');if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');}loadContent(sectionId);}
 function toggleMobileMenu(){document.getElementById('sidebar').classList.toggle('open');}
 function logout(){sessionStorage.removeItem('currentUser');window.location.href='index.html';}
 async function saveVideo(e){e.preventDefault();const formData=new FormData(e.target);const data={titulo:formData.get('titulo'),descripcion:formData.get('descripcion'),url:formData.get('url'),programa:formData.get('programa')};try{await apiRequest('POST','/api/admin/content/videos',data);e.target.reset();loadVideos();updateStats();showAlert('Video guardado exitosamente');}catch(err){showAlert('Error: '+err.message);}}

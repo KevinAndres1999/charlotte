@@ -413,30 +413,30 @@
 
     <div class="dashboard-container">
         <!-- Sidebar con perfil y menú -->
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="student-profile">
                 <h3><i class="fas fa-user-circle"></i> Mi Perfil</h3>
                 <div id="studentInfo"></div>
             </div>
             
             <nav class="nav-menu">
-                <div class="nav-item active" onclick="showSection('clases')">
+                <div class="nav-item active" onclick="showSection('clases', this)">
                     <i class="fas fa-book-open"></i>
                     <span>Mis Clases</span>
                 </div>
-                <div class="nav-item" onclick="showSection('videos')">
+                <div class="nav-item" onclick="showSection('videos', this)">
                     <i class="fas fa-play-circle"></i>
                     <span>Videos</span>
                 </div>
-                <div class="nav-item" onclick="showSection('actividades')">
+                <div class="nav-item" onclick="showSection('actividades', this)">
                     <i class="fas fa-tasks"></i>
                     <span>Actividades</span>
                 </div>
-                <div class="nav-item" onclick="showSection('cuestionarios')">
+                <div class="nav-item" onclick="showSection('cuestionarios', this)">
                     <i class="fas fa-file-alt"></i>
                     <span>Cuestionarios</span>
                 </div>
-                                <div class="nav-item" onclick="showSection('materiales')">
+                                <div class="nav-item" onclick="showSection('materiales', this)">
                     <i class="fas fa-folder-open"></i>
                     <span>Materiales de Estudio</span>
                 </div>
@@ -548,7 +548,7 @@
         }
 
         // Función para cambiar de sección
-        window.showSection = function(sectionId) {
+        function showSection(sectionId, navItem) {
             // Ocultar todas las secciones
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
@@ -563,11 +563,11 @@
             document.getElementById(sectionId).classList.add('active');
             
             // Marcar el item del menú como activo
-            event.currentTarget.classList.add('active');
+            navItem.classList.add('active');
             
             // Cerrar menú móvil si está abierto
             if (window.innerWidth <= 768) {
-                document.querySelector('.sidebar').classList.remove('open');
+                document.getElementById('sidebar').classList.remove('open');
             }
             
             // Cargar contenido de la sección
@@ -575,13 +575,13 @@
         }
 
         // Función para toggle del menú móvil
-        window.toggleMobileMenu = function() {
-            document.querySelector('.sidebar').classList.toggle('open');
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
         }
 
         // Cerrar menú al hacer click fuera de él
         document.addEventListener('click', function(event) {
-            const sidebar = document.querySelector('.sidebar');
+            const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.querySelector('.mobile-menu-toggle');
             
             if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
