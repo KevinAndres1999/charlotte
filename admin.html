@@ -98,38 +98,60 @@
         console.log('Admin page loaded, checking current auth state...');
         console.log('Current user before onAuthStateChanged:', auth.currentUser);
 
-        // Verificar si hay un admin logueado en sessionStorage (credenciales hardcodeadas)
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        if (currentUser && currentUser.role === 'admin') {
-            console.log('Admin encontrado en sessionStorage, cargando estudiantes...');
-            loadStudents();
-            return; // No ejecutar onAuthStateChanged
-        }
-
-        console.log('No hay admin en sessionStorage, verificando Firebase Auth...');
-
-        onAuthStateChanged(auth, async (user) => {
-            console.log('Estado de autenticación cambió:', user);
-            console.log('User object details:', {
-                uid: user?.uid,
-                email: user?.email,
-                emailVerified: user?.emailVerified,
-                isAnonymous: user?.isAnonymous
-            });
-
-            if (!user) {
-                console.log('Usuario no autenticado, redirigiendo a login');
-                alert('Debes iniciar sesión primero');
-                window.location.href = 'login.html';
-                return;
+        // Función de inicialización
+        function initializeAdmin() {
+            // Verificar si hay un admin logueado en sessionStorage (credenciales hardcodeadas)
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            if (currentUser && currentUser.role === 'admin') {
+                console.log('Admin encontrado en sessionStorage, cargando estudiantes...');
+                loadStudents();
+                return; // No ejecutar onAuthStateChanged
             }
 
-            console.log('Usuario autenticado, verificando permisos...');
-            // Por ahora, permitir acceso a cualquier usuario autenticado
-            // TODO: Implementar verificación de admin más robusta
-            console.log('Acceso permitido temporalmente para debugging');
-            loadStudents();
-        });
+            console.log('No hay admin en sessionStorage, verificando Firebase Auth...');
+
+            onAuthStateChanged(auth, async (user) => {
+                console.log('Estado de autenticación cambió:', user);
+                console.log('User object details:', {
+                    uid: user?.uid,
+                    email: user?.email,
+                    emailVerified: user?.emailVerified,
+                    isAnonymous: user?.isAnonymous
+                });
+
+                if (!user) {
+                    console.log('Usuario no autenticado, redirigiendo a login');
+                    alert('Debes iniciar sesión primero');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log('Usuario autenticado, verificando permisos...');
+                // Por ahora, permitir acceso a cualquier usuario autenticado
+                // TODO: Implementar verificación de admin más robusta
+                console.log('Acceso permitido temporalmente para debugging');
+                loadStudents();
+            });
+        }
+
+        // Función para mostrar secciones
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
+
+            // Si se activa la sección de estudiantes, cargar los datos
+            if (section === 'estudiantes') {
+                loadStudents();
+            }
+        }
+
+        // Exponer función globalmente
+        window.showSection = showSection;
+
+        // Iniciar la aplicación
+        initializeAdmin();
 
         async function loadStudents() {
             try {
@@ -238,21 +260,6 @@
                 }
             }
         };
-
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-
-            // Si se activa la sección de estudiantes, cargar los datos
-            if (section === 'estudiantes') {
-                loadStudents();
-            }
-        }
-
-        // Exponer función globalmente
-        window.showSection = showSection;
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
             signOut(auth).then(() => window.location.href = 'index.html');
