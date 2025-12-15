@@ -163,13 +163,72 @@
                     <p>Cargando...</p>
                 </div>
             </div>
+
+            <div class="students-section">
+                <h2><i class="fas fa-tasks"></i> Crear Tarea</h2>
+                <div style="margin-top:10px;">
+                    <form id="assignmentForm">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="assignment-title" required placeholder="Título de la tarea" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;" />
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="assignment-desc" placeholder="Describe la tarea..." style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha límite</label>
+                            <input type="date" id="assignment-due" style="padding:8px;border:1px solid #ddd;border-radius:6px;" />
+                        </div>
+                        <button type="submit" class="btn-approve">Crear Tarea</button>
+                    </form>
+                </div>
+                <div style="margin-top:15px;">
+                    <h3>Tareas creadas</h3>
+                    <div id="assignments-list"><p>Cargando...</p></div>
+                </div>
+            </div>
+
+            <div class="students-section">
+                <h2><i class="fas fa-question-circle"></i> Crear Cuestionario</h2>
+                <div style="margin-top:10px;">
+                    <form id="quizForm">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="quiz-title" required placeholder="Título del cuestionario" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;" />
+                        </div>
+                        <div id="quiz-questions">
+                            <div class="form-group">
+                                <label>Pregunta 1</label>
+                                <input type="text" class="quiz-question" placeholder="Escribe la pregunta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;" />
+                                <input type="text" class="quiz-answer" placeholder="Respuesta correcta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px;" />
+                            </div>
+                        </div>
+                        <button type="button" id="addQuestion" class="btn-approve" style="margin-top:8px;">Agregar otra pregunta</button>
+                        <button type="submit" class="btn-approve" style="margin-left:8px;">Crear Cuestionario</button>
+                    </form>
+                </div>
+                <div style="margin-top:15px;">
+                    <h3>Cuestionarios creados</h3>
+                    <div id="quizzes-list"><p>Cargando...</p></div>
+                </div>
+            </div>
+
+            <div class="students-section">
+                <h2><i class="fas fa-inbox"></i> Entregas de Estudiantes</h2>
+                <div style="margin-top:10px;">
+                    <div id="submissions-list"><p>Cargando...</p></div>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
@@ -183,6 +242,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         let pendingCount = 0;
         let approvedCount = 0;
@@ -218,9 +278,12 @@
         async function loadData() {
             try {
                 await Promise.all([
-                    loadPendingStudents(),
-                    loadApprovedStudents(),
-                    updateStats()
+                        loadPendingStudents(),
+                        loadApprovedStudents(),
+                        updateStats(),
+                        listAssignments(),
+                        listQuizzes(),
+                        listSubmissions()
                 ]);
             } catch (error) {
                 console.error('Error cargando datos:', error);
@@ -320,6 +383,109 @@
             document.getElementById('classes-count').textContent = '0';
         }
 
+        // Tareas y quizzes
+        async function listAssignments() {
+            try {
+                const q = query(collection(db, 'assignments'));
+                const snap = await getDocs(q);
+                const container = document.getElementById('assignments-list');
+                if (snap.empty) {
+                    container.innerHTML = '<p>No hay tareas</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    const a = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'student-item';
+                    el.innerHTML = `<div><h4>${a.title}</h4><p>${a.description || ''}</p><p>Fecha límite: ${a.due || 'N/A'}</p></div><div><button class="btn-delete" onclick="deleteAssignment('${d.id}')">Eliminar</button></div>`;
+                    container.appendChild(el);
+                });
+            } catch (e) { console.error('listAssignments', e); }
+        }
+
+        async function createAssignment(data) {
+            try {
+                await addDoc(collection(db, 'assignments'), data);
+                showMessage('Tarea creada', 'success');
+                listAssignments();
+            } catch (e) { console.error('createAssignment', e); showMessage('Error creando tarea','error'); }
+        }
+
+        window.deleteAssignment = async (id) => {
+            if (!confirm('Eliminar tarea?')) return;
+            try { await deleteDoc(doc(db, 'assignments', id)); showMessage('Tarea eliminada','success'); listAssignments(); } catch(e){console.error(e);}
+        };
+
+        // Cuestionarios
+        async function listQuizzes() {
+            try {
+                const q = query(collection(db, 'quizzes'));
+                const snap = await getDocs(q);
+                const container = document.getElementById('quizzes-list');
+                if (snap.empty) { container.innerHTML = '<p>No hay cuestionarios</p>'; return; }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    const qd = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'student-item';
+                    el.innerHTML = `<div><h4>${qd.title}</h4><p>${(qd.questions||[]).length} preguntas</p></div><div><button class="btn-delete" onclick="deleteQuiz('${d.id}')">Eliminar</button></div>`;
+                    container.appendChild(el);
+                });
+            } catch(e){console.error('listQuizzes', e);}        
+        }
+
+        // Submissions
+        async function listSubmissions() {
+            try {
+                const snap = await getDocs(collection(db, 'submissions'));
+                const container = document.getElementById('submissions-list');
+                if (snap.empty) { container.innerHTML = '<p>No hay entregas</p>'; return; }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    const s = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'student-item';
+                    const created = s.createdAt && s.createdAt.toDate ? s.createdAt.toDate().toLocaleString() : (s.createdAt || '');
+                    el.innerHTML = `
+                        <div>
+                            <h4>${s.studentName || s.studentEmail}</h4>
+                            <p><strong>Tarea:</strong> ${s.assignmentId}</p>
+                            <p><strong>Archivo:</strong> <a href="${s.fileUrl}" target="_blank">${s.fileName}</a></p>
+                            <p><strong>Estado:</strong> ${s.status || 'submitted'}</p>
+                            <p><small>${created}</small></p>
+                        </div>
+                        <div>
+                            <button class="btn-approve" onclick="markReviewed('${d.id}')">Marcar revisada</button>
+                            <button class="btn-delete" onclick="deleteSubmission('${d.id}')">Eliminar</button>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            } catch (e) { console.error('listSubmissions', e); document.getElementById('submissions-list').innerHTML = '<p>Error cargando entregas</p>'; }
+        }
+
+        window.markReviewed = async (id) => {
+            if (!confirm('Marcar entrega como revisada?')) return;
+            try {
+                await updateDoc(doc(db, 'submissions', id), { status: 'reviewed' });
+                showMessage('Entrega marcada como revisada', 'success');
+                listSubmissions();
+            } catch (e) { console.error('markReviewed', e); showMessage('Error actualizando estado','error'); }
+        };
+
+        window.deleteSubmission = async (id) => {
+            if (!confirm('Eliminar esta entrega?')) return;
+            try { await deleteDoc(doc(db, 'submissions', id)); showMessage('Entrega eliminada','success'); listSubmissions(); } catch(e){console.error(e); showMessage('Error eliminando entrega','error'); }
+        };
+
+        async function createQuiz(docData) {
+            try { await addDoc(collection(db, 'quizzes'), docData); showMessage('Cuestionario creado','success'); listQuizzes(); } catch(e){console.error(e); showMessage('Error creando cuestionario','error'); }
+        }
+
+        window.deleteQuiz = async (id) => { if (!confirm('Eliminar cuestionario?')) return; try{ await deleteDoc(doc(db,'quizzes',id)); showMessage('Cuestionario eliminado','success'); listQuizzes(); }catch(e){console.error(e);} };
+
+
         // Funciones globales para los botones
         window.approveStudent = async (id) => {
             if (confirm('¿Aprobar este estudiante?')) {
@@ -346,6 +512,39 @@
                 }
             }
         };
+
+        // Form handlers
+        document.getElementById('assignmentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('assignment-title').value;
+            const description = document.getElementById('assignment-desc').value;
+            const due = document.getElementById('assignment-due').value || null;
+            createAssignment({ title, description, due, createdAt: new Date().toISOString() });
+            e.target.reset();
+        });
+
+        document.getElementById('addQuestion').addEventListener('click', () => {
+            const container = document.getElementById('quiz-questions');
+            const count = container.querySelectorAll('.form-group').length + 1;
+            const div = document.createElement('div');
+            div.className = 'form-group';
+            div.innerHTML = `<label>Pregunta ${count}</label><input type="text" class="quiz-question" placeholder="Escribe la pregunta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;" /><input type="text" class="quiz-answer" placeholder="Respuesta correcta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px;" />`;
+            container.appendChild(div);
+        });
+
+        document.getElementById('quizForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('quiz-title').value;
+            const questions = Array.from(document.querySelectorAll('#quiz-questions .form-group')).map((g) => {
+                const q = g.querySelector('.quiz-question').value;
+                const a = g.querySelector('.quiz-answer').value;
+                return { question: q, answer: a };
+            }).filter(x => x.question);
+            createQuiz({ title, questions, createdAt: new Date().toISOString() });
+            e.target.reset();
+            // reset questions to single
+            document.getElementById('quiz-questions').innerHTML = `<div class="form-group"><label>Pregunta 1</label><input type="text" class="quiz-question" placeholder="Escribe la pregunta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;" /><input type="text" class="quiz-answer" placeholder="Respuesta correcta" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px;" /></div>`;
+        });
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async () => {

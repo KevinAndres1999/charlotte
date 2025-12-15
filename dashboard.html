@@ -167,9 +167,28 @@
                     </div>
                     <div class="content-card-body">
                         <p>Realiza tus evaluaciones</p>
-                        <a href="#" class="btn-content" onclick="alert('Evaluaciones próximamente')">
+                        <a href="#" class="btn-content" id="open-evaluations">
                             <i class="fas fa-clipboard-check"></i> Ver Evaluaciones
                         </a>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <div class="students-section">
+                    <h2><i class="fas fa-tasks"></i> Tareas Asignadas</h2>
+                    <div id="assignments-section">
+                        <p id="assignments-loading">Cargando tareas...</p>
+                        <div id="assignments-list"></div>
+                    </div>
+                </div>
+
+                <div class="students-section">
+                    <h2><i class="fas fa-question-circle"></i> Cuestionarios Disponibles</h2>
+                    <div id="quizzes-section">
+                        <p id="quizzes-loading">Cargando cuestionarios...</p>
+                        <div id="quizzes-list"></div>
+                        <div id="quiz-take-container" style="margin-top:12px"></div>
                     </div>
                 </div>
             </div>
@@ -179,6 +198,8 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
@@ -191,6 +212,19 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        const ADMIN_EMAIL = 'nuestrareceta.ec@gmail.com';
+
+        async function callSendEmail(payload) {
+            try {
+                await fetch('/.netlify/functions/sendEmail', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) { console.warn('sendEmail failed', e); }
+        }
 
         function showMessage(text, type) {
             const messageDiv = document.getElementById('message');
@@ -220,6 +254,10 @@
             // Mostrar nombre del estudiante
             const userName = sessionStorage.getItem('userName') || 'Estudiante';
             document.getElementById('welcome-name').textContent = `¡Bienvenido, ${userName}!`;
+
+            // Cargar tareas y cuestionarios disponibles
+            loadAssignments();
+            loadQuizzes();
         });
 
         // Logout
@@ -232,6 +270,198 @@
                 console.error('Error cerrando sesión:', error);
             }
         });
+
+        // Open evaluations (scroll to section)
+        document.getElementById('open-evaluations').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('quizzes-section').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // ---------- Assignments (student) ----------
+        async function loadAssignments() {
+            try {
+                const snap = await getDocs(collection(db, 'assignments'));
+                const container = document.getElementById('assignments-list');
+                document.getElementById('assignments-loading').style.display = 'none';
+                if (snap.empty) { container.innerHTML = '<p>No hay tareas</p>'; return; }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    const a = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'student-item';
+                    el.innerHTML = `
+                        <div>
+                            <h4>${a.title}</h4>
+                            <p>${a.description || ''}</p>
+                            <p>Fecha límite: ${a.due || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <form data-assignment-id="${d.id}" class="submit-assignment-form">
+                                <input type="file" name="file" accept="image/*,video/*,application/pdf" required />
+                                <br/><br/>
+                                <button type="submit" class="btn-approve">Subir Entrega</button>
+                            </form>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+
+                // attach handlers
+                document.querySelectorAll('.submit-assignment-form').forEach(form => {
+                    form.addEventListener('submit', async (ev) => {
+                        ev.preventDefault();
+                        const fileInput = form.querySelector('input[type=file]');
+                        if (!fileInput.files.length) { showMessage('Selecciona un archivo','error'); return; }
+                        const file = fileInput.files[0];
+                        const assignmentId = form.dataset.assignmentId;
+                        await submitAssignment(assignmentId, file, form);
+                    });
+                });
+            } catch (e) { console.error('loadAssignments', e); document.getElementById('assignments-loading').textContent = 'Error cargando tareas'; }
+        }
+
+        async function submitAssignment(assignmentId, file, formEl) {
+            try {
+                const user = auth.currentUser;
+                if (!user) { showMessage('No autenticado','error'); return; }
+                formEl.querySelector('button').disabled = true;
+                const path = `submissions/${assignmentId}/${user.uid}_${Date.now()}_${file.name}`;
+                const sRef = storageRef(storage, path);
+                await uploadBytes(sRef, file);
+                const url = await getDownloadURL(sRef);
+                await addDoc(collection(db, 'submissions'), {
+                    assignmentId,
+                    studentId: user.uid,
+                    studentEmail: user.email,
+                    studentName: sessionStorage.getItem('userName') || null,
+                    fileUrl: url,
+                    fileName: file.name,
+                    status: 'submitted',
+                    createdAt: serverTimestamp()
+                });
+                // Notify admin and student
+                callSendEmail({
+                    to: [ADMIN_EMAIL],
+                    subject: `Nueva entrega para tarea ${assignmentId}`,
+                    text: `El estudiante ${sessionStorage.getItem('userName') || user.email} ha subido una entrega. Archivo: ${file.name}`
+                });
+                callSendEmail({
+                    to: [user.email],
+                    subject: `Entrega recibida: ${file.name}`,
+                    text: `Tu entrega para la tarea ha sido subida correctamente.`
+                });
+                showMessage('Entrega subida correctamente', 'success');
+                formEl.reset();
+            } catch (e) { console.error('submitAssignment', e); showMessage('Error subiendo archivo','error'); }
+            finally { formEl.querySelector('button').disabled = false; }
+        }
+
+        // ---------- Quizzes (student) ----------
+        async function loadQuizzes() {
+            try {
+                const snap = await getDocs(collection(db, 'quizzes'));
+                const container = document.getElementById('quizzes-list');
+                document.getElementById('quizzes-loading').style.display = 'none';
+                if (snap.empty) { container.innerHTML = '<p>No hay cuestionarios</p>'; return; }
+                container.innerHTML = '';
+                snap.forEach(d => {
+                    const q = d.data();
+                    const el = document.createElement('div');
+                    el.className = 'student-item';
+                    el.innerHTML = `
+                        <div>
+                            <h4>${q.title}</h4>
+                            <p>${(q.questions||[]).length} preguntas</p>
+                        </div>
+                        <div>
+                            <button class="btn-approve" data-quiz-id="${d.id}">Realizar Cuestionario</button>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+
+                document.querySelectorAll('[data-quiz-id]').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = btn.dataset.quizId;
+                        await openQuiz(id);
+                    });
+                });
+            } catch (e) { console.error('loadQuizzes', e); document.getElementById('quizzes-loading').textContent = 'Error cargando cuestionarios'; }
+        }
+
+        async function openQuiz(quizId) {
+            try {
+                const qDoc = await getDocs(collection(db, 'quizzes'));
+                // fetch specific
+                let quizData = null; let docId = null;
+                qDoc.forEach(d => { if (d.id === quizId) { quizData = d.data(); docId = d.id; } });
+                if (!quizData) { showMessage('Cuestionario no encontrado','error'); return; }
+
+                const container = document.getElementById('quiz-take-container');
+                container.innerHTML = '';
+                const form = document.createElement('form');
+                form.id = 'take-quiz-form';
+                form.innerHTML = `<h3>${quizData.title}</h3>`;
+                (quizData.questions || []).forEach((qq, idx) => {
+                    const qdiv = document.createElement('div');
+                    qdiv.style.marginBottom = '8px';
+                    qdiv.innerHTML = `<label><strong>Pregunta ${idx+1}:</strong> ${qq.question}</label><br/><input type="text" name="answer_${idx}" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:6px;margin-top:6px;" required />`;
+                    form.appendChild(qdiv);
+                });
+                const submitBtn = document.createElement('button');
+                submitBtn.className = 'btn-approve';
+                submitBtn.textContent = 'Enviar Respuestas';
+                form.appendChild(submitBtn);
+                container.appendChild(form);
+
+                form.addEventListener('submit', async (ev) => {
+                    ev.preventDefault();
+                    await submitQuizResponses(quizId, quizData, new FormData(form));
+                });
+                container.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) { console.error('openQuiz', e); showMessage('Error abriendo cuestionario','error'); }
+        }
+
+        async function submitQuizResponses(quizId, quizData, formData) {
+            try {
+                const user = auth.currentUser;
+                if (!user) { showMessage('No autenticado','error'); return; }
+                const answers = [];
+                let correctCount = 0;
+                (quizData.questions || []).forEach((qq, idx) => {
+                    const answer = (formData.get(`answer_${idx}`) || '').toString().trim();
+                    const correct = (qq.answer || '').toString().trim();
+                    const isCorrect = answer.toLowerCase() === correct.toLowerCase();
+                    if (isCorrect) correctCount++;
+                    answers.push({ question: qq.question, answer, correctAnswer: correct, correct: isCorrect });
+                });
+                const score = correctCount;
+                const total = (quizData.questions || []).length;
+                await addDoc(collection(db, 'quizResponses'), {
+                    quizId,
+                    studentId: user.uid,
+                    studentEmail: user.email,
+                    studentName: sessionStorage.getItem('userName') || null,
+                    answers,
+                    score,
+                    total,
+                    createdAt: serverTimestamp()
+                });
+                // Notify admin and student
+                callSendEmail({
+                    to: [ADMIN_EMAIL],
+                    subject: `Nuevo resultado de cuestionario: ${quizId}`,
+                    text: `Estudiante ${sessionStorage.getItem('userName') || user.email} obtuvo ${score}/${total} en el cuestionario ${quizId}`
+                });
+                callSendEmail({
+                    to: [user.email],
+                    subject: `Resultado enviado: ${quizData.title}`,
+                    text: `Has enviado el cuestionario. Puntaje: ${score}/${total}`
+                });
+                showMessage(`Cuestionario enviado. Puntaje: ${score}/${total}`, 'success');
+                document.getElementById('quiz-take-container').innerHTML = '';
+            } catch (e) { console.error('submitQuizResponses', e); showMessage('Error enviando respuestas','error'); }
+        }
     </script>
 </body>
 </html>
