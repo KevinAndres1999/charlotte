@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Plataforma Educativa — Catálogo</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="./firebase-config-loader.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-brand">
+        <a href="/index.html" class="brand-link">
+          <img src="/Mesa de trabajo 3.png" alt="Centro Educativo" class="header-logo">
+          <span class="brand-name">Centro Educativo</span>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="login.html">Acceso</a>
+        <a href="registro.html">Registro</a>
+        <a href="dashboard.html">Mi cuenta</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn primary header-cta" href="/index.html" target="_blank" rel="noopener">Volver al sitio</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section id="catalog">
+      <h2>Cursos disponibles</h2>
+      <div id="courses"></div>
+    </section>
+  </main>
+  <script type="module">
+    import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+
+    async function loadCourses(){
+      try{
+        const app = getApp();
+        const db = getFirestore(app);
+        const cols = collection(db, 'courses');
+        const snap = await getDocs(cols);
+        const container = document.getElementById('courses');
+        snap.forEach(doc => {
+          const d = doc.data();
+          const el = document.createElement('div');
+          el.className = 'course-card';
+          el.innerHTML = `<h3>${d.title}</h3><p>${d.description||''}</p><a href="course.html?courseId=${doc.id}">Ver curso</a>`;
+          container.appendChild(el);
+        });
+      }catch(e){ console.error('loadCourses', e); }
+    }
+
+    // Espera a que firebase se cargue
+    window.addEventListener('firebase-ready', loadCourses);
+  </script>
+</body>
+</html>
