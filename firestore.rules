@@ -22,7 +22,8 @@ service cloud.firestore {
     }
 
     match /pendingStudents/{doc} {
-      allow read: if false;
+      // Permitir lectura solo a usuarios autenticados (panel admin en cliente)
+      allow read: if request.auth != null;
       allow write: if false;
     }
 
