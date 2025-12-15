@@ -9,7 +9,11 @@ if (!fs.existsSync('./charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json'))
   console.error('Falta scripts/serviceAccount.json. Asegúrate de que el JSON esté en scripts/ y renómbalo si es necesario.');
   process.exit(1);
 }
-const svc = require('./charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json');
+if (!fs.existsSync('./charlotte-service-account.json')) {
+  console.error('Falta el archivo de clave de servicio en scripts/ (charlotte-service-account.json)');
+  process.exit(1);
+}
+const svc = require('./charlotte-service-account.json');
 admin.initializeApp({ credential: admin.credential.cert(svc) });
 const auth = admin.auth();
 const db = admin.firestore();

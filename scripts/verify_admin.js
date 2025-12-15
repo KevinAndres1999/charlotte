@@ -1,9 +1,9 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 
-const keyPath = './charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json';
+const keyPath = './charlotte-service-account.json';
 if (!fs.existsSync(keyPath)) {
-  console.error('Falta el JSON de servicio en scripts/ (charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json)');
+  console.error('Falta el JSON de servicio en scripts/ (charlotte-service-account.json)');
   process.exit(1);
 }
 const svc = require(keyPath);

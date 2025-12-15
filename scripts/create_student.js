@@ -6,7 +6,7 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 
-const KEY = './charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json';
+const KEY = './charlotte-service-account.json';
 if (!fs.existsSync(KEY)) {
   console.error('Falta scripts/' + KEY + '. Coloca la clave de servicio en scripts/');
   process.exit(1);

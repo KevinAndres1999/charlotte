@@ -2,7 +2,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const svc = require(path.resolve(__dirname, 'charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json'));
+const svc = require(path.resolve(__dirname, 'charlotte-service-account.json'));
 const projectId = svc.project_id;
 const apiKey = 'AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA';
 

@@ -1,14 +1,14 @@
 /**
  * Publica el archivo `firestore.rules` usando la cuenta de servicio
  * Uso: node publish_rules.js
- * Requiere: `scripts/charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json` y `../firestore.rules`
+ * Requiere: `scripts/charlotte-service-account.json` y `../firestore.rules`
  */
 const admin = require('firebase-admin');
 const fs = require('fs');
 const https = require('https');
 
 const path = require('path');
-const KEY = path.resolve(__dirname, 'charlotte-babda-firebase-adminsdk-fbsvc-3d48fe741d.json');
+const KEY = path.resolve(__dirname, 'charlotte-service-account.json');
 if (!fs.existsSync(KEY)) {
   console.error('Falta ' + KEY + '. Coloca la clave de servicio en scripts/');
   process.exit(1);
