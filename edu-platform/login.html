@@ -17,6 +17,7 @@
         <p class="login-sub">Entra con tus credenciales o regístrate para acceder a la plataforma</p>
 
         <div id="forms">
+          <div id="errorPanel" style="display:none;margin-bottom:8px;padding:8px;border-radius:6px;background:#fff6f6;border:1px solid #f2dede;color:#7a1a1a"></div>
           <form id="loginForm">
             <div class="form-field"><label for="email">Correo electrónico</label><input id="email" type="email" required></div>
             <div class="form-field"><label for="password">Contraseña</label><input id="password" type="password" required></div>
@@ -96,9 +97,23 @@
     showLogin.addEventListener('click', e=>{ e.preventDefault(); toggleForms('login'); });
 
     async function init(){
+      // helper to show errors on screen
+      function showError(msg){
+        try{
+          const p = document.getElementById('errorPanel');
+          if(!p) return console.error('errorPanel missing', msg);
+          p.textContent = msg;
+          p.style.display = 'block';
+        }catch(e){ console.error('showError', e, msg); }
+      }
+
+      window.addEventListener('error', e=>{ console.error('window.error', e); showError(e.message || String(e)); });
+      window.addEventListener('unhandledrejection', e=>{ console.error('unhandledrejection', e); showError(e.reason ? (e.reason.message||String(e.reason)) : 'Promise rejected'); });
+
       const app = getApp();
       const auth = getAuth(app);
       const db = getFirestore(app);
+      console.log('firebase init ready in login');
 
       loginForm.addEventListener('submit', async e=>{
         e.preventDefault();
@@ -107,9 +122,13 @@
         if(!email || !pass){ showToast('Rellena email y contraseña.', 'error'); return; }
         try{
           showToast('Iniciando sesión...', 'info');
-          await signInWithEmailAndPassword(auth, email, pass);
+          const cred = await signInWithEmailAndPassword(auth, email, pass);
+          console.log('login success', cred.user && cred.user.uid);
+          const idToken = await cred.user.getIdToken();
+          sessionStorage.setItem('idToken', idToken);
+          sessionStorage.setItem('userUid', cred.user.uid);
           window.location.href = '/edu-platform/dashboard.html';
-        }catch(err){ console.error(err); showToast('Error al iniciar sesión: '+(err.message||''),'error'); }
+        }catch(err){ console.error(err); showToast('Error al iniciar sesión: '+(err.message||''),'error'); showError(err.message||String(err)); }
       });
 
       registerForm.addEventListener('submit', async e=>{
@@ -124,12 +143,15 @@
         try{
           showToast('Creando cuenta...', 'info');
           const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+          console.log('register: created user', userCred.user && userCred.user.uid);
           await updateProfile(userCred.user, { displayName: name });
-          // create profile doc with extra fields
+          const idToken = await userCred.user.getIdToken();
+          sessionStorage.setItem('idToken', idToken);
+          sessionStorage.setItem('userUid', userCred.user.uid);
           await setDoc(doc(db,'users', userCred.user.uid), { name, email, cedula, sede, programa, createdAt: serverTimestamp() });
           showToast('Cuenta creada. Redirigiendo...', 'success');
           window.location.href = '/edu-platform/dashboard.html';
-        }catch(err){ console.error(err); showToast('Error: '+(err.message||''),'error'); }
+        }catch(err){ console.error(err); showToast('Error: '+(err.message||''),'error'); showError(err.message||String(err)); }
       });
     }
 
