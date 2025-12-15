@@ -12,16 +12,19 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <img src="hero-charlotte.png" alt="Charlotte Logo">
+        <img src="Mesa de trabajo 3.png" alt="Charlotte Logo">
         <h1>Acceso al Sistema</h1>
       </div>
       <div id="message" class="message"></div>
       <form id="loginForm">
         <label>Correo</label>
-        <input id="email" type="email" required />
+        <input id="email" type="email" required autofocus placeholder="correo@ejemplo.com" />
         <label>Contraseña</label>
-        <input id="password" type="password" required />
-        <button type="submit">Entrar</button>
+        <div class="form-row">
+          <input id="password" type="password" required placeholder="Contraseña" style="flex:1;" />
+          <button type="button" class="toggle-pass" id="togglePass">Mostrar</button>
+        </div>
+        <button type="submit" class="btn-login">Entrar</button>
       </form>
       <p>¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
     </div>
@@ -104,6 +107,17 @@
         else showMessage('Error al iniciar sesión. Revisa credenciales.', 'error');
       }
     });
+
+    // Toggle password visibility
+    (function(){
+      const toggle = document.getElementById('togglePass');
+      const pwd = document.getElementById('password');
+      if (!toggle || !pwd) return;
+      toggle.addEventListener('click', ()=>{
+        if (pwd.type === 'password') { pwd.type = 'text'; toggle.textContent = 'Ocultar'; }
+        else { pwd.type = 'password'; toggle.textContent = 'Mostrar'; }
+      });
+    })();
   </script>
 </body>
 </html>
