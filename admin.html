@@ -7,74 +7,169 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .admin-container { min-height: 100vh; background: #f5f5f5; }
-        .admin-header { background: var(--accent); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .admin-nav { background: white; padding: 10px 20px; border-bottom: 1px solid #e0e0e0; }
-        .nav-btn { background: none; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 5px; transition: background 0.3s; }
-        .nav-btn.active { background: var(--accent); color: white; }
-        .admin-main { padding: 20px; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
-        .stat-card h3 { margin: 0 0 10px 0; color: #666; }
-        .stat-card p { font-size: 2em; font-weight: bold; color: var(--accent); margin: 0; }
-        .students-section { margin-top: 30px; }
-        .student-list { background: white; border-radius: 8px; padding: 20px; margin-top: 10px; }
-        .student-item { border: 1px solid #e0e0e0; border-radius: 5px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .student-info h4 { margin: 0 0 5px 0; }
-        .student-info p { margin: 2px 0; color: #666; font-size: 14px; }
-        .student-actions { display: flex; gap: 10px; }
-        .btn-approve, .btn-delete { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        .btn-approve { background: #28a745; color: white; }
-        .btn-delete { background: #dc3545; color: white; }
-        .btn-logout { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .admin-container {
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+        .admin-header {
+            background: var(--accent);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            color: #666;
+        }
+        .stat-card p {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 0;
+        }
+        .students-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .student-list {
+            margin-top: 15px;
+        }
+        .student-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-info h4 {
+            margin: 0 0 5px 0;
+        }
+        .student-info p {
+            margin: 2px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .student-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-approve, .btn-delete {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-logout {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
     </style>
 </head>
 <body>
     <div class="admin-container">
         <header class="admin-header">
-            <h1>Panel de Administración</h1>
-            <button id="logoutBtn" class="btn-logout">Cerrar Sesión</button>
+            <h1><i class="fas fa-user-shield"></i> Panel de Administración</h1>
+            <button id="logoutBtn" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
         </header>
 
-        <nav class="admin-nav">
-            <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
-            <button class="nav-btn" onclick="showSection('estudiantes')">Aprobar Estudiantes</button>
-        </nav>
-
         <main class="admin-main">
-            <section id="dashboard" class="section active">
-                <h2>Dashboard</h2>
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Videos</h3><p id="stat-videos">0</p></div>
-                    <div class="stat-card"><h3>Clases</h3><p id="stat-clases">0</p></div>
-                    <div class="stat-card"><h3>Actividades</h3><p id="stat-actividades">0</p></div>
-                    <div class="stat-card"><h3>Materiales</h3><p id="stat-materiales">0</p></div>
-                </div>
-            </section>
+            <div id="message" class="message"></div>
 
-            <section id="estudiantes" class="section">
-                <h2>Gestión de Estudiantes</h2>
-                <p>Aprueba estudiantes registrados y elimina aprobados</p>
-
-                <div class="students-section">
-                    <h3>Estudiantes Pendientes de Aprobación</h3>
-                    <div id="pending-list" class="student-list"><p>Cargando...</p></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3><i class="fas fa-users"></i> Estudiantes Pendientes</h3>
+                    <p id="pending-count">0</p>
                 </div>
-
-                <div class="students-section">
-                    <h3>Estudiantes Aprobados</h3>
-                    <div id="approved-list" class="student-list"><p>Cargando...</p></div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-user-check"></i> Estudiantes Aprobados</h3>
+                    <p id="approved-count">0</p>
                 </div>
-            </section>
+                <div class="stat-card">
+                    <h3><i class="fas fa-video"></i> Videos</h3>
+                    <p id="videos-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-book"></i> Clases</h3>
+                    <p id="classes-count">0</p>
+                </div>
+            </div>
+
+            <div class="students-section">
+                <h2><i class="fas fa-clock"></i> Estudiantes Pendientes de Aprobación</h2>
+                <div id="pending-list" class="student-list">
+                    <p>Cargando...</p>
+                </div>
+            </div>
+
+            <div class="students-section">
+                <h2><i class="fas fa-check-circle"></i> Estudiantes Aprobados</h2>
+                <div id="approved-list" class="student-list">
+                    <p>Cargando...</p>
+                </div>
+            </div>
         </main>
     </div>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
@@ -89,160 +184,152 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Configurar persistencia de sesión
-        import { setPersistence, browserSessionPersistence } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        setPersistence(auth, browserSessionPersistence).catch((error) => {
-            console.error('Error setting persistence:', error);
+        let pendingCount = 0;
+        let approvedCount = 0;
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Verificar autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Verificar si es admin por sessionStorage
+            const userRole = sessionStorage.getItem('userRole');
+            if (userRole !== 'admin') {
+                showMessage('Acceso denegado', 'error');
+                signOut(auth);
+                return;
+            }
+
+            loadData();
         });
 
-        console.log('Admin page loaded, checking current auth state...');
-        console.log('Current user before onAuthStateChanged:', auth.currentUser);
-
-        // Función de inicialización
-        function initializeAdmin() {
-            // Verificar si hay un admin logueado en sessionStorage (credenciales hardcodeadas)
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            if (currentUser && currentUser.role === 'admin') {
-                console.log('Admin encontrado en sessionStorage, cargando estudiantes...');
-                loadStudents();
-                return; // No ejecutar onAuthStateChanged
-            }
-
-            console.log('No hay admin en sessionStorage, verificando Firebase Auth...');
-
-            onAuthStateChanged(auth, async (user) => {
-                console.log('Estado de autenticación cambió:', user);
-                console.log('User object details:', {
-                    uid: user?.uid,
-                    email: user?.email,
-                    emailVerified: user?.emailVerified,
-                    isAnonymous: user?.isAnonymous
-                });
-
-                if (!user) {
-                    console.log('Usuario no autenticado, redirigiendo a login');
-                    alert('Debes iniciar sesión primero');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                console.log('Usuario autenticado, verificando permisos...');
-                // Por ahora, permitir acceso a cualquier usuario autenticado
-                // TODO: Implementar verificación de admin más robusta
-                console.log('Acceso permitido temporalmente para debugging');
-                loadStudents();
-            });
-        }
-
-        // Función para mostrar secciones
-        function showSection(section) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(section).classList.add('active');
-            document.querySelector(`[onclick="showSection('${section}')"]`).classList.add('active');
-
-            // Si se activa la sección de estudiantes, cargar los datos
-            if (section === 'estudiantes') {
-                loadStudents();
-            }
-        }
-
-        // Exponer función globalmente
-        window.showSection = showSection;
-
-        // Iniciar la aplicación
-        initializeAdmin();
-
-        async function loadStudents() {
+        async function loadData() {
             try {
-                console.log('Cargando estudiantes... Usuario autenticado:', auth.currentUser);
-
-                // Verificar que el usuario esté autenticado antes de hacer consultas
-                if (!auth.currentUser) {
-                    console.log('Usuario no autenticado en loadStudents, redirigiendo...');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                // Cargar estudiantes pendientes
-                console.log('Cargando estudiantes pendientes...');
-                const pendingQuery = query(collection(db, 'users'), where('status', '==', 'pending'));
-                const pendingSnapshot = await getDocs(pendingQuery);
-                const pendingList = document.getElementById('pending-list');
-                if (pendingList) {
-                    pendingList.innerHTML = pendingSnapshot.empty ? '<p>No hay estudiantes pendientes</p>' : '';
-
-                    pendingSnapshot.forEach(docSnap => {
-                        const data = docSnap.data();
-                        const item = document.createElement('div');
-                        item.className = 'student-item';
-                        item.innerHTML = `
-                            <div class="student-info">
-                                <h4>${data.name || 'Sin nombre'}</h4>
-                                <p>Email: ${data.email || 'Sin email'}</p>
-                                <p>Cédula: ${data.cedula || 'Sin cédula'}</p>
-                                <p>Programa: ${data.programa || 'Sin programa'}</p>
-                                <p>Sede: ${data.sede || 'Sin sede'}</p>
-                                <p>Teléfono: ${data.telefono || 'Sin teléfono'}</p>
-                            </div>
-                            <div class="student-actions">
-                                <button class="btn-approve" onclick="approveStudent('${docSnap.id}')">Aprobar</button>
-                            </div>
-                        `;
-                        pendingList.appendChild(item);
-                    });
-                }
-
-                // Cargar estudiantes aprobados
-                console.log('Cargando estudiantes aprobados...');
-                const approvedQuery = query(collection(db, 'users'), where('status', '==', 'approved'));
-                const approvedSnapshot = await getDocs(approvedQuery);
-                const approvedList = document.getElementById('approved-list');
-                if (approvedList) {
-                    approvedList.innerHTML = approvedSnapshot.empty ? '<p>No hay estudiantes aprobados</p>' : '';
-
-                    approvedSnapshot.forEach(docSnap => {
-                        const data = docSnap.data();
-                        const item = document.createElement('div');
-                        item.className = 'student-item';
-                        item.innerHTML = `
-                            <div class="student-info">
-                                <h4>${data.name || 'Sin nombre'}</h4>
-                                <p>Email: ${data.email || 'Sin email'}</p>
-                                <p>Cédula: ${data.cedula || 'Sin cédula'}</p>
-                                <p>Programa: ${data.programa || 'Sin programa'}</p>
-                                <p>Sede: ${data.sede || 'Sin sede'}</p>
-                                <p>Teléfono: ${data.telefono || 'Sin teléfono'}</p>
-                            </div>
-                            <div class="student-actions">
-                                <button class="btn-delete" onclick="deleteStudent('${docSnap.id}')">Eliminar</button>
-                            </div>
-                        `;
-                        approvedList.appendChild(item);
-                    });
-                }
-
-                console.log('Estudiantes cargados exitosamente');
+                await Promise.all([
+                    loadPendingStudents(),
+                    loadApprovedStudents(),
+                    updateStats()
+                ]);
             } catch (error) {
-                console.error('Error al cargar estudiantes:', error);
-                // No mostrar alert que pueda confundir, solo loggear
-                const pendingList = document.getElementById('pending-list');
-                const approvedList = document.getElementById('approved-list');
-                if (pendingList) pendingList.innerHTML = '<p>Error al cargar estudiantes pendientes</p>';
-                if (approvedList) approvedList.innerHTML = '<p>Error al cargar estudiantes aprobados</p>';
+                console.error('Error cargando datos:', error);
+                showMessage('Error al cargar datos', 'error');
             }
         }
 
+        async function loadPendingStudents() {
+            try {
+                const q = query(collection(db, 'users'), where('status', '==', 'pending'));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('pending-list');
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<p>No hay estudiantes pendientes</p>';
+                    pendingCount = 0;
+                    return;
+                }
+
+                pendingCount = snapshot.size;
+                container.innerHTML = '';
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'student-item';
+                    item.innerHTML = `
+                        <div class="student-info">
+                            <h4>${data.name || 'Sin nombre'}</h4>
+                            <p><strong>Email:</strong> ${data.email || 'Sin email'}</p>
+                            <p><strong>Cédula:</strong> ${data.cedula || 'Sin cédula'}</p>
+                            <p><strong>Programa:</strong> ${data.programa || 'Sin programa'}</p>
+                            <p><strong>Sede:</strong> ${data.sede || 'Sin sede'}</p>
+                            <p><strong>Teléfono:</strong> ${data.telefono || 'Sin teléfono'}</p>
+                        </div>
+                        <div class="student-actions">
+                            <button class="btn-approve" onclick="approveStudent('${docSnap.id}')">
+                                <i class="fas fa-check"></i> Aprobar
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error cargando estudiantes pendientes:', error);
+                document.getElementById('pending-list').innerHTML = '<p>Error al cargar estudiantes pendientes</p>';
+            }
+        }
+
+        async function loadApprovedStudents() {
+            try {
+                const q = query(collection(db, 'users'), where('status', '==', 'approved'));
+                const snapshot = await getDocs(q);
+                const container = document.getElementById('approved-list');
+
+                if (snapshot.empty) {
+                    container.innerHTML = '<p>No hay estudiantes aprobados</p>';
+                    approvedCount = 0;
+                    return;
+                }
+
+                approvedCount = snapshot.size;
+                container.innerHTML = '';
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const item = document.createElement('div');
+                    item.className = 'student-item';
+                    item.innerHTML = `
+                        <div class="student-info">
+                            <h4>${data.name || 'Sin nombre'}</h4>
+                            <p><strong>Email:</strong> ${data.email || 'Sin email'}</p>
+                            <p><strong>Cédula:</strong> ${data.cedula || 'Sin cédula'}</p>
+                            <p><strong>Programa:</strong> ${data.programa || 'Sin programa'}</p>
+                            <p><strong>Sede:</strong> ${data.sede || 'Sin sede'}</p>
+                            <p><strong>Teléfono:</strong> ${data.telefono || 'Sin teléfono'}</p>
+                        </div>
+                        <div class="student-actions">
+                            <button class="btn-delete" onclick="deleteStudent('${docSnap.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Error cargando estudiantes aprobados:', error);
+                document.getElementById('approved-list').innerHTML = '<p>Error al cargar estudiantes aprobados</p>';
+            }
+        }
+
+        async function updateStats() {
+            document.getElementById('pending-count').textContent = pendingCount;
+            document.getElementById('approved-count').textContent = approvedCount;
+            // Aquí puedes agregar más estadísticas si las tienes en otras colecciones
+            document.getElementById('videos-count').textContent = '0';
+            document.getElementById('classes-count').textContent = '0';
+        }
+
+        // Funciones globales para los botones
         window.approveStudent = async (id) => {
             if (confirm('¿Aprobar este estudiante?')) {
                 try {
-                    console.log('Aprobando estudiante con ID:', id);
                     await updateDoc(doc(db, 'users', id), { status: 'approved' });
-                    alert('Estudiante aprobado exitosamente');
-                    loadStudents();
+                    showMessage('Estudiante aprobado exitosamente', 'success');
+                    loadData(); // Recargar todo
                 } catch (error) {
-                    console.error('Error al aprobar:', error);
-                    alert('Error al aprobar estudiante: ' + error.message);
+                    console.error('Error aprobando estudiante:', error);
+                    showMessage('Error al aprobar estudiante', 'error');
                 }
             }
         };
@@ -250,19 +337,25 @@
         window.deleteStudent = async (id) => {
             if (confirm('¿Eliminar este estudiante aprobado?')) {
                 try {
-                    console.log('Eliminando estudiante con ID:', id);
                     await deleteDoc(doc(db, 'users', id));
-                    alert('Estudiante eliminado exitosamente');
-                    loadStudents();
+                    showMessage('Estudiante eliminado exitosamente', 'success');
+                    loadData(); // Recargar todo
                 } catch (error) {
-                    console.error('Error al eliminar:', error);
-                    alert('Error al eliminar estudiante: ' + error.message);
+                    console.error('Error eliminando estudiante:', error);
+                    showMessage('Error al eliminar estudiante', 'error');
                 }
             }
         };
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = 'index.html');
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error cerrando sesión:', error);
+            }
         });
     </script>
 </body>

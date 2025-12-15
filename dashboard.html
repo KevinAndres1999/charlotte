@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Charlotte</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+        .dashboard-header {
+            background: var(--accent);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .welcome-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .welcome-card h1 {
+            margin: 0 0 10px 0;
+            color: var(--accent);
+        }
+        .welcome-card p {
+            margin: 0;
+            color: #666;
+            font-size: 18px;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .content-card-header {
+            background: var(--accent);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .content-card-header i {
+            font-size: 24px;
+        }
+        .content-card-body {
+            padding: 20px;
+        }
+        .content-card-body p {
+            margin: 0 0 15px 0;
+            color: #666;
+        }
+        .btn-content {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .btn-content:hover {
+            background: var(--accent-2);
+        }
+        .btn-logout {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1><i class="fas fa-graduation-cap"></i> Dashboard Estudiante</h1>
+            <button id="logoutBtn" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        </header>
+
+        <main class="dashboard-main">
+            <div id="message" class="message"></div>
+
+            <div class="welcome-card">
+                <h1 id="welcome-name">¡Bienvenido!</h1>
+                <p>Accede a tus materiales de estudio y recursos</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <i class="fas fa-video"></i>
+                        <h3>Videos</h3>
+                    </div>
+                    <div class="content-card-body">
+                        <p>Accede a los videos de tus clases</p>
+                        <a href="panaderia.html" class="btn-content">
+                            <i class="fas fa-play"></i> Ver Videos
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <i class="fas fa-book"></i>
+                        <h3>Recetas</h3>
+                    </div>
+                    <div class="content-card-body">
+                        <p>Explora nuestras recetas completas</p>
+                        <a href="recetario-index.html" class="btn-content">
+                            <i class="fas fa-utensils"></i> Ver Recetas
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Materiales</h3>
+                    </div>
+                    <div class="content-card-body">
+                        <p>Descarga materiales adicionales</p>
+                        <a href="materiales-panaderia.html" class="btn-content">
+                            <i class="fas fa-download"></i> Ver Materiales
+                        </a>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>Evaluaciones</h3>
+                    </div>
+                    <div class="content-card-body">
+                        <p>Realiza tus evaluaciones</p>
+                        <a href="#" class="btn-content" onclick="alert('Evaluaciones próximamente')">
+                            <i class="fas fa-clipboard-check"></i> Ver Evaluaciones
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+            authDomain: "charlotte-babda.firebaseapp.com",
+            projectId: "charlotte-babda",
+            storageBucket: "charlotte-babda.firebasestorage.app",
+            messagingSenderId: "486360806502",
+            appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Verificar autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Verificar si es estudiante por sessionStorage
+            const userRole = sessionStorage.getItem('userRole');
+            if (userRole !== 'student') {
+                showMessage('Acceso denegado', 'error');
+                signOut(auth);
+                return;
+            }
+
+            // Mostrar nombre del estudiante
+            const userName = sessionStorage.getItem('userName') || 'Estudiante';
+            document.getElementById('welcome-name').textContent = `¡Bienvenido, ${userName}!`;
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                sessionStorage.clear();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error cerrando sesión:', error);
+            }
+        });
+    </script>
+</body>
+</html>
