@@ -107,9 +107,22 @@
     <div class="dashboard-container">
         <header class="dashboard-header">
             <h1><i class="fas fa-graduation-cap"></i> Dashboard Estudiante</h1>
-            <button id="logoutBtn" class="btn-logout">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </button>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="position:relative">
+                    <button id="notificationsBtn" class="btn-logout" title="Notificaciones">
+                        <i class="fas fa-bell"></i>
+                        <span id="notif-badge" style="background:#dc2626;color:#fff;border-radius:12px;padding:2px 6px;font-size:12px;position:absolute;top:-8px;right:-8px;display:none">0</span>
+                    </button>
+                    <div id="notifications-panel" style="display:none;position:absolute;right:0;top:40px;background:white;border:1px solid #eee;padding:12px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08);width:320px;z-index:1000">
+                        <h4 style="margin:0 0 8px 0">Notificaciones</h4>
+                        <div id="notifications-list" style="max-height:300px;overflow:auto"></div>
+                        <div style="text-align:right;margin-top:8px"><button id="notif-clear" class="btn-approve">Ocultar leídas</button></div>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
         </header>
 
         <main class="dashboard-main">
@@ -198,7 +211,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-        import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, getDocs, addDoc, serverTimestamp, query, where } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 
         const firebaseConfig = {
@@ -462,6 +475,119 @@
                 document.getElementById('quiz-take-container').innerHTML = '';
             } catch (e) { console.error('submitQuizResponses', e); showMessage('Error enviando respuestas','error'); }
         }
+
+        // ---------- Notificaciones internas (student) ----------
+        async function loadNotifications() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const readRaw = localStorage.getItem('readNotifs') || '[]';
+                const readNotifs = new Set(JSON.parse(readRaw));
+
+                const notifs = [];
+
+                // assignments pending (no submission by this student)
+                const assignmentsSnap = await getDocs(collection(db, 'assignments'));
+                const subsSnap = await getDocs(query(collection(db, 'submissions'), where('studentId', '==', user.uid)));
+                const submitted = new Set();
+                subsSnap.forEach(s => { const sd = s.data(); if (sd.assignmentId) submitted.add(sd.assignmentId); });
+
+                assignmentsSnap.forEach(aDoc => {
+                    const a = aDoc.data();
+                    if (!submitted.has(aDoc.id)) {
+                        // only if not already read
+                        if (!readNotifs.has(`assignment:${aDoc.id}`)) {
+                            notifs.push({ id: aDoc.id, type: 'assignment', title: a.title || 'Tarea', text: a.description || '', due: a.due || null });
+                        }
+                    }
+                });
+
+                // quizzes pending (no response by this student)
+                const quizzesSnap = await getDocs(collection(db, 'quizzes'));
+                const respSnap = await getDocs(query(collection(db, 'quizResponses'), where('studentId', '==', user.uid)));
+                const responded = new Set();
+                respSnap.forEach(r => { const rd = r.data(); if (rd.quizId) responded.add(rd.quizId); });
+
+                quizzesSnap.forEach(qDoc => {
+                    if (!responded.has(qDoc.id)) {
+                        if (!readNotifs.has(`quiz:${qDoc.id}`)) {
+                            const qd = qDoc.data();
+                            notifs.push({ id: qDoc.id, type: 'quiz', title: qd.title || 'Cuestionario', text: `${(qd.questions||[]).length} preguntas` });
+                        }
+                    }
+                });
+
+                const listEl = document.getElementById('notifications-list');
+                listEl.innerHTML = '';
+                if (notifs.length === 0) {
+                    listEl.innerHTML = '<p style="margin:0;color:#666">No hay notificaciones</p>';
+                    document.getElementById('notif-badge').style.display = 'none';
+                    return;
+                }
+
+                notifs.forEach(n => {
+                    const item = document.createElement('div');
+                    item.style.padding = '8px 6px';
+                    item.style.borderBottom = '1px solid #f3f3f3';
+                    item.innerHTML = `<strong>${n.title}</strong><div style="font-size:13px;color:#666">${n.text || ''}</div><div style="margin-top:6px;text-align:right"><button class="btn-approve" data-notif='${JSON.stringify(n)}'>Ir</button></div>`;
+                    listEl.appendChild(item);
+                });
+
+                document.getElementById('notif-badge').textContent = notifs.length;
+                document.getElementById('notif-badge').style.display = 'inline-block';
+
+                // attach buttons
+                listEl.querySelectorAll('button[data-notif]').forEach(btn => {
+                    btn.addEventListener('click', (ev) => {
+                        const data = JSON.parse(btn.getAttribute('data-notif'));
+                        openNotification(data);
+                    });
+                });
+            } catch (e) { console.error('loadNotifications', e); }
+        }
+
+        function openNotification(n) {
+            // mark as read locally
+            const key = `${n.type}:${n.id}`;
+            const readRaw = localStorage.getItem('readNotifs') || '[]';
+            const arr = new Set(JSON.parse(readRaw));
+            arr.add(key);
+            localStorage.setItem('readNotifs', JSON.stringify(Array.from(arr)));
+
+            // navigate
+            if (n.type === 'assignment') {
+                const form = document.querySelector(`form[data-assignment-id="${n.id}"]`);
+                if (form) { form.scrollIntoView({ behavior: 'smooth' }); form.querySelector('input[type=file]').focus(); }
+            } else if (n.type === 'quiz') {
+                openQuiz(n.id);
+            }
+
+            // refresh notifications UI
+            loadNotifications();
+        }
+
+        // toggle panel handlers
+        document.getElementById('notificationsBtn').addEventListener('click', (e) => {
+            const panel = document.getElementById('notifications-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel.style.display === 'block') loadNotifications();
+        });
+
+        document.getElementById('notif-clear').addEventListener('click', () => {
+            // mark currently listed as read
+            const listNodes = Array.from(document.getElementById('notifications-list').querySelectorAll('div'));
+            const readRaw = localStorage.getItem('readNotifs') || '[]';
+            const arr = new Set(JSON.parse(readRaw));
+            listNodes.forEach(node => {
+                const btn = node.querySelector('button[data-notif]');
+                if (!btn) return;
+                const data = JSON.parse(btn.getAttribute('data-notif'));
+                arr.add(`${data.type}:${data.id}`);
+            });
+            localStorage.setItem('readNotifs', JSON.stringify(Array.from(arr)));
+            loadNotifications();
+        });
     </script>
 </body>
 </html>

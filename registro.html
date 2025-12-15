@@ -1,6 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registro | Charlotte</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .container{max-width:720px;margin:40px auto;padding:20px}
+    .message{padding:10px;border-radius:6px;display:none}
+    .error{background:#fdecea;color:#b71c1c}
+    .success{background:#e6f4ea;color:#0b6623}
+  </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Registro de Usuarios</h1>
+        <p>Regístrate como estudiante o docente. Los estudiantes requieren aprobación del docente.</p>
+
+        <div id="message" class="message"></div>
+
+        <form id="registerForm">
+            <label>Nombre completo</label>
+            <input id="name" required />
+            <label>Correo</label>
+            <input id="email" type="email" required />
+            <label>Contraseña</label>
+            <input id="password" type="password" minlength="6" required />
+            <label>Registro como</label>
+            <select id="role">
+                <option value="student">Estudiante</option>
+                <option value="teacher">Docente</option>
+            </select>
+            <div id="teacherKeyGroup" style="display:none">
+                <label>Clave docente</label>
+                <input id="teacherKey" type="password" />
+            </div>
+            <button type="submit">Registrar</button>
+        </form>
+
+        <p>¿Ya tienes cuenta? <a href="login.html">Entrar</a></p>
+    </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+      authDomain: "charlotte-babda.firebaseapp.com",
+      projectId: "charlotte-babda",
+      storageBucket: "charlotte-babda.firebasestorage.app",
+      messagingSenderId: "486360806502",
+      appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+    };
+
+    const TEACHER_KEY = 'charlotte2025';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const roleEl = document.getElementById('role');
+    const teacherKeyGroup = document.getElementById('teacherKeyGroup');
+    roleEl.addEventListener('change', ()=>{ teacherKeyGroup.style.display = roleEl.value==='teacher' ? 'block' : 'none'; });
+
+    const msg = document.getElementById('message');
+    function show(type, text){ msg.className='message '+(type==='error'?'error':'success'); msg.textContent = text; msg.style.display='block'; }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      msg.style.display='none';
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const role = document.getElementById('role').value;
+      if(role==='teacher'){
+        const key = document.getElementById('teacherKey').value||'';
+        if(key !== TEACHER_KEY){ show('error','Clave docente incorrecta'); return; }
+      }
+      try{
+        const cred = await createUserWithEmailAndPassword(auth,email,password);
+        // ensure token available
+        await cred.user.getIdToken(true).catch(()=>{});
+        const uid = cred.user.uid;
+        const userDoc = {
+          uid, name, email, role: role, status: role==='teacher'?'approved':'pending', createdAt: new Date().toISOString()
+        };
+        await setDoc(doc(db,'users',uid), userDoc);
+        show('success', role==='teacher' ? 'Docente creado y aprobado. Puedes ingresar.' : 'Solicitud enviada. Espera aprobación.');
+        setTimeout(()=>location.href='login.html',1500);
+      }catch(err){
+        console.error(err);
+        if(err && err.code==='auth/email-already-in-use') show('error','El correo ya está registrado.'); else show('error',err.message||'Error al registrar');
+      }
+    });
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Estudiantes | Charlotte</title>
@@ -220,7 +320,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
         import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -252,6 +352,16 @@
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
+        }
+
+        async function triggerPasswordReset(email) {
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage('Se ha enviado un correo para restablecer la contraseña. Revisa tu bandeja.', 'success');
+            } catch (e) {
+                console.error('Reset password error', e);
+                showMessage('No se pudo enviar el correo de restablecimiento. Intenta desde login.', 'error');
+            }
         }
 
         async function callSendEmail(payload) {
@@ -287,13 +397,20 @@
             }
 
             try {
-                // Check existing by email in 'users'
-                const q = query(collection(db, 'users'), where('email', '==', email));
-                const existing = await getDocs(q);
-                if (!existing.empty) { showMessage('Este correo ya está registrado', 'error'); return; }
-
-                // Crear usuario en Firebase Auth
+                // Crear usuario con Firebase Auth en cliente
                 const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+                // Esperar a que el usuario esté autenticado y tenga token
+                await new Promise((resolve) => {
+                    const unsub = auth.onAuthStateChanged(async (u) => {
+                        if (u && u.uid === userCred.user.uid) {
+                            try { await u.getIdToken(true); } catch (e) { console.warn('getIdToken warning', e); }
+                            unsub();
+                            resolve();
+                        }
+                    });
+                });
+
                 const uid = userCred.user.uid;
 
                 const userData = {
@@ -309,9 +426,10 @@
                     registeredDate: new Date().toISOString()
                 };
 
+                // Escritura directa desde cliente — las reglas permiten crear si request.auth != null
                 await setDoc(doc(db, 'users', uid), userData);
 
-                // Notify admin and student via sendEmail function
+                // Notificaciones
                 const adminPayload = {
                     to: [ADMIN_EMAIL],
                     subject: `Nuevo registro: ${userData.name}`,
@@ -331,7 +449,18 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                showMessage('Error al registrar. Intenta de nuevo.', 'error');
+                // Manejo específico para email ya en uso
+                if (error && error.code === 'auth/email-already-in-use') {
+                    // Mostrar mensaje con opción de restablecer contraseña
+                    messageDiv.innerHTML = `El correo ya está registrado. <a href="login.html">Ir a iniciar sesión</a> o <button id="resetBtn" class="btn-register">Restablecer contraseña</button>`;
+                    messageDiv.className = 'message error';
+                    messageDiv.style.display = 'block';
+                    const resetBtn = document.getElementById('resetBtn');
+                    if (resetBtn) resetBtn.addEventListener('click', () => triggerPasswordReset(email));
+                } else {
+                    const errMsg = (error && error.message) ? error.message : 'Error al registrar. Intenta de nuevo.';
+                    showMessage(errMsg, 'error');
+                }
             }
         });
     </script>

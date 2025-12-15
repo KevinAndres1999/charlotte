@@ -1,15 +1,13 @@
+functionsDirectory = "C:\\workspace\\netlify\\functions"
+functionsDirectoryOrigin = "config"
 plugins = []
 headers = []
 redirects = []
 
-[functions]
-
-[functions."*"]
-
 [build]
 publish = "C:\\workspace"
 publishOrigin = "config"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
+functions = "C:\\workspace\\netlify\\functions"
 
 [build.environment]
 
@@ -24,3 +22,10 @@ ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
 [build.processing.js]
 
 [build.services]
+
+[dev]
+functions = "netlify/functions"
+
+[functions]
+
+[functions."*"]
