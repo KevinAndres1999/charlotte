@@ -1325,7 +1325,16 @@ async function loadUsuariosAprobados() {
 window.aprobarUsuario = async function(id, email, name, cedula, telefono, programa, sede, password) {
     if (!confirm(`¿Aprobar a ${name}?\n\nNOTA: El estudiante deberá cambiar su contraseña en el primer inicio de sesión.`)) return;
     try {
-        // Preparar datos normales para Firestore SDK
+        // Leer la solicitud pendiente para obtener el UID real del usuario
+        const pendingRef = db.collection('pendingStudents').doc(id);
+        const pendingSnap = await pendingRef.get();
+        let targetUid = id; // fallback: usar id si no hay uid en el doc
+        if (pendingSnap && pendingSnap.exists) {
+            const pdata = pendingSnap.data();
+            if (pdata.uid) targetUid = pdata.uid;
+        }
+
+        // Preparar datos para approvedStudents y users/{uid}
         const approvedData = {
             email: email,
             name: name,
@@ -1338,9 +1347,17 @@ window.aprobarUsuario = async function(id, email, name, cedula, telefono, progra
             needsPasswordReset: true,
             approvedAt: new Date().toISOString()
         };
-        await db.collection('approvedStudents').doc(id).set(approvedData);
-        await db.collection('pendingStudents').doc(id).delete();
-        showAlert(`Usuario ${name} aprobado exitosamente.\n\nEl estudiante deberá crear una nueva contraseña en su primer inicio de sesión.`);
+
+        // Crear/actualizar approvedStudents con el UID como id (consistencia)
+        await db.collection('approvedStudents').doc(targetUid).set(approvedData);
+
+        // Actualizar el documento users/{uid} para marcarlo como aprobado
+        await db.collection('users').doc(targetUid).set({ status: 'approved', role: 'student', updatedAt: new Date().toISOString() }, { merge: true });
+
+        // Borrar la solicitud pendiente
+        await pendingRef.delete();
+
+        showAlert(`Usuario ${name} aprobado exitosamente.\n\nEl estudiante ya puede iniciar sesión con sus credenciales.`);
         loadUsuarios();
     } catch (error) {
         console.error('Error aprobando usuario:', error);
