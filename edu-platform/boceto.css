@@ -1,0 +1,46 @@
+:root{--navy:#0b3460;--magenta:#e63971;--muted:#6b7280;--bg:#ffffff}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#0b1720}
+.container{max-width:1100px;margin:0 auto;padding:16px}
+
+/* Header */
+.b-header{border-bottom:1px solid rgba(11,52,96,0.06);background:#fff;position:sticky;top:0;z-index:40}
+.b-header .container{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand-logo{width:56px;height:56px;object-fit:contain;border-radius:8px}
+.brand-title{font-weight:800;color:var(--navy)}
+.nav{display:flex;align-items:center;gap:12px}
+.nav-cta{background:linear-gradient(90deg,var(--magenta),var(--navy));color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800}
+.nav-toggle{display:none;background:transparent;border:0;font-size:20px}
+
+/* Hero */
+.hero{padding:28px 0}
+.hero h1{font-size:26px;margin:0 0 8px;color:var(--navy)}
+.lead{color:var(--muted);margin:0 0 16px}
+.hero-actions{display:flex;gap:12px}
+.btn{display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none}
+.btn.primary{background:var(--magenta);color:#fff}
+.btn.ghost{background:transparent;border:2px solid rgba(11,52,96,0.06);color:var(--navy)}
+
+/* Programs grid */
+.programs h2{margin:12px 0 6px;color:var(--navy)}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+.card{background:#fff;border-radius:12px;padding:12px;box-shadow:0 8px 24px rgba(11,52,96,0.04)}
+.card-media{height:140px;border-radius:10px;background-size:cover;background-position:center;margin-bottom:10px}
+.card h3{margin:0 0 6px}
+.link{color:var(--magenta);font-weight:700;text-decoration:none}
+
+/* Footer */
+.site-footer{border-top:1px solid rgba(11,52,96,0.04);padding:18px 0;text-align:center;color:var(--muted);font-size:14px}
+
+@media(min-width:800px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .hero h1{font-size:40px}
+  .nav-toggle{display:none}
+}
+
+@media(max-width:480px){
+  .brand-title{font-size:14px}
+  .nav-cta{padding:8px 10px;font-size:14px}
+  .nav-toggle{display:block}
+}

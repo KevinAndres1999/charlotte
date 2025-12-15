@@ -19,12 +19,18 @@
       <h2>Cursos</h2>
       <div id="courses"></div>
     </section>
+    <section id="myApproved">
+      <h2>Mis inscripciones aprobadas</h2>
+      <div id="approved"></div>
+    </section>
   </main>
 
   <script type="module">
     import { getApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
     import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    import { showToast } from './toast.js';
 
     async function init(){
       const app = getApp();
@@ -66,14 +72,32 @@
                 createdAt: new Date().toISOString()
               });
               btn.textContent = 'Solicitud enviada';
+              showToast('Solicitud enviada', 'success');
             }catch(err){
               console.error('enroll error', err);
               btn.textContent = 'Error, reintenta';
               btn.disabled = false;
+              showToast('Error enviando solicitud', 'error');
             }
           });
           container.appendChild(el);
         });
+        // Cargar inscripciones aprobadas del usuario
+        try{
+          const approvedSnap = await getDocs(collection(db, 'approvedStudents'));
+          const approvedContainer = document.getElementById('approved');
+          approvedContainer.innerHTML = '';
+          approvedSnap.forEach(d => {
+            const data = d.data();
+            if(data.uid === user.uid || data.email === user.email){
+              const el = document.createElement('div');
+              el.className = 'approved-item';
+              el.textContent = `${data.courseId} — aprobado: ${data.approvedAt || ''}`;
+              approvedContainer.appendChild(el);
+            }
+          });
+          if(approvedContainer.children.length === 0) approvedContainer.textContent = 'No tienes inscripciones aprobadas.';
+        }catch(err){ console.error('load approved', err); }
       });
     }
 

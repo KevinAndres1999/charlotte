@@ -1,0 +1,73 @@
+:root{
+	--accent:#0b3a62;
+	--accent-2:#e43d73;
+	--bg:#ffffff;
+	--muted:#6b7280;
+	--card:#ffffff;
+	--radius:12px;
+	--container:1100px;
+}
+
+/* Mobile-first base */
+html,body{height:100%;}
+body{font-family:Inter,system-ui,Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:#0b1720;-webkit-font-smoothing:antialiased;line-height:1.45}
+.container{max-width:var(--container);margin:0 auto;padding:16px}
+
+/* Header */
+header{display:flex;align-items:center;gap:12px;padding:12px 0}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-logo{width:56px;height:56px;object-fit:contain;border-radius:8px}
+.brand-name{font-weight:800;color:var(--accent-2)}
+.main-nav{display:flex;gap:12px;align-items:center}
+.main-nav a{color:var(--accent-2);text-decoration:none;font-weight:700;padding:8px 10px;border-radius:8px}
+.header-actions{margin-left:auto}
+.header-cta{padding:10px 14px;border-radius:10px;font-weight:800;background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#fff;border:0}
+
+/* Hero */
+.hero{padding:36px 0;background:linear-gradient(180deg,#fff,#f8fbff);text-align:left;border-radius:14px;margin-bottom:16px}
+.hero h1{font-size:28px;margin:0 0 8px}
+.hero p{color:var(--muted);margin:0 0 16px}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;padding:12px 16px;border-radius:12px;text-decoration:none;border:0;cursor:pointer}
+.btn-primary{background:var(--accent-2);color:#fff}
+.btn-ghost{background:transparent;border:2px solid rgba(11,52,96,0.06);color:var(--accent)}
+
+/* Cards / Courses */
+.course-list{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+.course-card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 8px 30px rgba(11,52,96,0.06);border:1px solid rgba(11,52,96,0.04)}
+.course-card h3{margin:0 0 8px;font-size:18px}
+.course-card p{margin:0;color:var(--muted)}
+
+/* Forms */
+form{display:flex;flex-direction:column;gap:12px;max-width:520px}
+input,textarea,select{padding:12px;border:1px solid rgba(11,52,96,0.06);border-radius:10px;font-size:15px}
+button{background:var(--accent-2);color:#fff;padding:12px 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700}
+
+/* Utilities */
+.text-center{text-align:center}
+img{max-width:100%;height:auto;display:block}
+
+/* Desktop / larger screens */
+@media(min-width:800px){
+	.hero{padding:64px 0}
+	.hero h1{font-size:40px}
+	.course-list{grid-template-columns:repeat(2,1fr)}
+	.main-nav{gap:18px}
+}
+
+@media(min-width:1200px){
+	.course-list{grid-template-columns:repeat(3,1fr)}
+}
+
+/* Accessibility / touch targets */
+a,button,input{touch-action:manipulation}
+button, .btn{min-height:44px}
+
+/* small screens specific tweaks */
+@media(max-width:480px){
+	.container{padding:12px}
+	header{padding:10px 0}
+	.header-logo{width:48px;height:48px}
+	.hero h1{font-size:22px}
+	.hero p{font-size:15px}
+}
