@@ -1,0 +1,44 @@
+redirectsOrigin = "config"
+plugins = []
+functionsDirectory = "C:\\workspace\\deploy_tmp\\netlify\\functions"
+functionsDirectoryOrigin = "config-v1"
+headers = []
+
+[dev]
+functions = "netlify/functions"
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "C:\\workspace\\deploy_tmp"
+publishOrigin = "config"
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
+functions = "C:\\workspace\\deploy_tmp\\netlify\\functions"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]
+
+[[redirects]]
+from = "/login.html"
+to = "/login-fixed.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
