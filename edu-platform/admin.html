@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Aprobaciones</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="./firebase-config-loader.js"></script>
+</head>
+<body>
+  <header><h1>Panel Admin</h1><nav><a href="index.html">Catálogo</a> | <a href="dashboard.html">Mi cuenta</a></nav></header>
+  <main>
+    <section id="authMsg">Comprobando permisos...</section>
+    <section id="pendingSection" style="display:none">
+      <h2>Solicitudes pendientes</h2>
+      <div id="pendingList">Cargando...</div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { getApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+    async function loadPending(db){
+      const list = document.getElementById('pendingList');
+      list.innerHTML = '';
+      try{
+        const snap = await getDocs(collection(db,'pendingStudents'));
+        if(snap.empty){ list.textContent = 'No hay solicitudes pendientes.'; return; }
+        snap.forEach(d=>{
+          const data = d.data();
+          const el = document.createElement('div');
+          el.className = 'pending-item';
+          el.innerHTML = `
+            <strong>${data.email||data.uid||'sin email'}</strong>
+            <div>Curso: ${data.courseId || '—'}</div>
+            <div>Fecha: ${data.createdAt || ''}</div>
+            <button data-id='${d.id}' class='approve'>Aprobar</button>
+            <button data-id='${d.id}' class='reject'>Rechazar</button>
+          `;
+          el.querySelector('.approve').addEventListener('click', async ()=>{
+            const id = d.id;
+            try{
+              const approvedRef = doc(db,'approvedStudents', id);
+              await setDoc(approvedRef, { ...data, approvedAt: new Date().toISOString() });
+              await deleteDoc(doc(db,'pendingStudents', id));
+              el.remove();
+            }catch(err){ console.error('approve', err); alert('Error al aprobar'); }
+          });
+          el.querySelector('.reject').addEventListener('click', async ()=>{
+            const id = d.id;
+            try{ await deleteDoc(doc(db,'pendingStudents', id)); el.remove(); }
+            catch(err){ console.error('reject', err); alert('Error al rechazar'); }
+          });
+          list.appendChild(el);
+        });
+      }catch(err){ console.error('loadPending', err); list.textContent = 'Error cargando solicitudes.'; }
+    }
+
+    async function init(){
+      const app = getApp();
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      onAuthStateChanged(auth, async user => {
+        const authMsg = document.getElementById('authMsg');
+        if(!user){ authMsg.textContent = 'No autenticado. Accede con una cuenta admin.'; return; }
+
+        try{
+          const udoc = await (await import('https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js')).getDoc(doc(db,'users',user.uid));
+          const role = udoc.exists() ? udoc.data().role : null;
+          if(!role || !['admin','teacher'].includes(role)){
+            authMsg.textContent = 'No tienes permisos de admin.';
+            return;
+          }
+          authMsg.style.display = 'none';
+          document.getElementById('pendingSection').style.display = 'block';
+          await loadPending(db);
+        }catch(err){ console.error('auth check', err); authMsg.textContent = 'Error comprobando permisos.'; }
+      });
+    }
+
+    window.addEventListener('firebase-ready', init);
+  </script>
+</body>
+</html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="./firebase-config-loader.js"></script>
+</head>
+<body>
+  <main>
+    <h2>Panel Admin (básico)</h2>
+    <section>
+      <h3>Crear curso de ejemplo</h3>
+      <form id="courseForm">
+        <input id="title" placeholder="Título" required>
+        <textarea id="desc" placeholder="Descripción"></textarea>
+        <button type="submit">Crear</button>
+      </form>
+      <div id="msg"></div>
+    </section>
+  </main>
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+
+    async function init(){
+      const app = getApp();
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      onAuthStateChanged(auth, user =>{
+        if(!user) { window.location.href='login.html'; return }
+      });
+
+      const form = document.getElementById('courseForm');
+      const msg = document.getElementById('msg');
+      form.addEventListener('submit', async e=>{
+        e.preventDefault();
+        const title = document.getElementById('title').value;
+        const desc = document.getElementById('desc').value;
+        try{
+          await addDoc(collection(db,'courses'), { title, description: desc, createdAt: new Date().toISOString() });
+          msg.textContent = 'Curso creado';
+        }catch(err){ msg.textContent = 'Error: '+err.message }
+      });
+    }
+
+    window.addEventListener('firebase-ready', init);
+  </script>
+</body>
+</html>

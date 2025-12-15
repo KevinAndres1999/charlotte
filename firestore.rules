@@ -22,8 +22,11 @@ service cloud.firestore {
 
     // Colección de solicitudes pendientes
     match /pendingStudents/{doc} {
-      // Crear: cualquier usuario autenticado puede crear su propia solicitud (email debe coincidir)
-      allow create: if request.auth != null && request.resource.data.email == request.auth.token.email;
+      // Crear: permitir desde la web para facilitar registros (temporal)
+      // Condición original: request.auth != null && request.resource.data.email == request.auth.token.email
+      // Ahora permitimos creación si el request proviene de un usuario autenticado cuyo email coincide,
+      // o si el cliente no está autenticado pero envía un email (esto facilita registros desde páginas estáticas).
+      allow create: if (request.auth != null && request.resource.data.email == request.auth.token.email) || (request.auth == null && request.resource.data.email is string);
       // Leer / borrar: solo admin o teacher
       allow read, delete: if request.auth != null && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin','teacher']);
       // Actualizar: reservado a admin/teacher
