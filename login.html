@@ -164,12 +164,22 @@
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (!userDoc.exists()) { showMessage('Usuario no encontrado', 'error'); return; }
           const userData = userDoc.data();
-          if (userData.role === 'teacher' && userData.status === 'approved') { window.location.href = 'admin.html'; return; }
-          if (userData.role === 'student') { if (userData.status === 'approved') { window.location.href = 'dashboard.html'; } else { showMessage('Cuenta pendiente de aprobación', 'error'); } return; }
+                    // Guardar usuario en sessionStorage para que las páginas de admin/estudiante
+                    // puedan validar la sesión sin depender solo de localStorage o estructuras locales
+                    const currentUser = {
+                        uid: user.uid,
+                        email: user.email,
+                        name: userData.name || '',
+                        role: userData.role,
+                        status: userData.status
+                    };
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    if (userData.role === 'teacher' && userData.status === 'approved') { window.location.href = 'admin.html'; return; }
+                    if (userData.role === 'student') { if (userData.status === 'approved') { window.location.href = 'dashboard.html'; } else { showMessage('Cuenta pendiente de aprobación', 'error'); } return; }
           showMessage('Rol no reconocido', 'error');
         } catch (err) { console.error(err); showMessage('Credenciales incorrectas', 'error'); }
       });
     </script>
 </body>
 </html>
-node delete_collections.js

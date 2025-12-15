@@ -1,13 +1,15 @@
-functionsDirectory = "C:\\workspace\\netlify\\functions"
-functionsDirectoryOrigin = "config"
+redirectsOrigin = "config"
 plugins = []
 headers = []
-redirects = []
+
+[functions]
+
+[functions."*"]
 
 [build]
 publish = "C:\\workspace"
 publishOrigin = "config"
-functions = "C:\\workspace\\netlify\\functions"
+ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
 
 [build.environment]
 
@@ -23,9 +25,14 @@ functions = "C:\\workspace\\netlify\\functions"
 
 [build.services]
 
-[dev]
-functions = "netlify/functions"
+[[redirects]]
+from = "/login.html"
+to = "/login-fixed.html"
+status = 200.0
+force = false
 
-[functions]
+[redirects.query]
 
-[functions."*"]
+[redirects.conditions]
+
+[redirects.headers]

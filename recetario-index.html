@@ -4,124 +4,167 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recetario de Panadería 2024-2025 - ECE CHARLOTTE</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --accent: #e63971;
+            --accent-2: #0b3460;
+            --bg: #fef5f9;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); }
+        .header { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: white; padding: 20px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+        .header .logo-text { display: flex; align-items: center; gap: 15px; }
+        .header .logo-text img { height: 60px; width: auto; background: white; padding: 5px; border-radius: 8px; }
+        .header h1 { font-size: 28px; }
+        .header .back-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; transition: all 0.3s; }
+        .header .back-btn:hover { background: rgba(255,255,255,0.3); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hero { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; padding: 60px 30px; border-radius: 16px; text-align: center; margin: 30px 0; box-shadow: 0 8px 24px rgba(230,57,113,0.2); }
+        .hero h2 { font-size: 2.5em; margin-bottom: 15px; }
+        .hero p { font-size: 1.2em; opacity: 0.95; margin: 8px 0; }
+        .section-title { color: var(--accent-2); border-bottom: 3px solid var(--accent); padding-bottom: 12px; margin: 40px 0 30px; font-size: 2em; }
+        .recipes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 30px; }
+        .recipe-card { background: white; padding: 28px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.3s; border-top: 4px solid var(--accent); }
+        .recipe-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(230,57,113,0.15); }
+        .recipe-card .icon { font-size: 3.5em; text-align: center; margin-bottom: 20px; }
+        .recipe-card h3 { color: var(--accent-2); text-align: center; margin-bottom: 18px; font-size: 1.4em; }
+        .recipe-card ul { list-style: none; padding: 0; }
+        .recipe-card li { padding: 8px 0; color: #555; border-bottom: 1px solid #f0f0f0; }
+        .recipe-card li:last-child { border-bottom: none; }
+        .recipe-card li::before { content: "🥖 "; margin-right: 8px; }
+        .recipe-card .btn { display: block; text-align: center; margin-top: 20px; padding: 14px; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: all 0.3s; }
+        .recipe-card .btn:hover { background: var(--accent-2); transform: scale(1.02); }
+        .info-box { background: linear-gradient(135deg, #fff8dc, #ffeaa7); padding: 30px; border-radius: 12px; margin: 40px 0; border-left: 5px solid var(--accent); }
+        .info-box h3 { color: var(--accent-2); margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+        .info-box ul { line-height: 2; color: #555; }
+        .footer { background: var(--accent-2); color: white; text-align: center; padding: 30px 20px; margin-top: 60px; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 20px; }
+            .hero { padding: 40px 20px; }
+            .hero h2 { font-size: 1.8em; }
+            .hero p { font-size: 1em; }
+            .recipes-grid { grid-template-columns: 1fr; gap: 20px; }
+            .recipe-card { padding: 20px; }
+            .section-title { font-size: 1.5em; }
+            .container { padding: 15px; }
+        }
+    </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="container header-content">
-            <div class="header-brand">
+    <header class="header">
+        <div class="container">
+            <div class="logo-text">
+                <img src="fotos/logo.png" alt="Charlotte Logo" onerror="this.style.display='none'">
                 <h1>CHARLOTTE</h1>
-                <p>Centro Educativo</p>
             </div>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Inicio</a>
         </div>
     </header>
 
-    <main class="container">
-        <section class="hero" style="padding: 60px 0; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; margin: 30px 0;">
-            <h1 style="font-size: 2.5em; margin-bottom: 20px;">📖 Recetario de Panadería y Pastelería</h1>
-            <p style="font-size: 1.2em; margin-bottom: 10px;">Año Académico 2024-2025</p>
-            <p style="font-size: 1em; opacity: 0.9;">Material exclusivo para estudiantes de Panadería ECE CHARLOTTE</p>
+    <div class="container">
+        <section class="hero">
+            <h2>📖 Recetario de Panadería y Pastelería</h2>
+            <p>Año Académico 2024-2025</p>
+            <p style="font-size: 1em;">Ver Recetas Completas de Panadería ECE CHARLOTTE</p>
         </section>
 
-        <section style="margin: 40px 0;">
-            <h2 style="color: #8B4513; border-bottom: 3px solid #D2691E; padding-bottom: 10px; margin-bottom: 30px;">Índice de Recetas</h2>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px;">
-                
-                <!-- Sección 1: Panes Básicos -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s;">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">🥖</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Panes Básicos</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Pan Popular</li>
-                        <li style="padding: 5px 0;">• Pan con Relleno</li>
-                        <li style="padding: 5px 0;">• Pan Dulce</li>
-                        <li style="padding: 5px 0;">• Pan de Maíz</li>
-                        <li style="padding: 5px 0;">• Pan Ingerto</li>
-                    </ul>
-                    <a href="recetas-panes-basicos.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
-                <!-- Sección 2: Panes Especiales -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">🍞</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Panes Especiales</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Pan de Chocolate</li>
-                        <li style="padding: 5px 0;">• Pan de Yema</li>
-                        <li style="padding: 5px 0;">• Pan Llorón</li>
-                        <li style="padding: 5px 0;">• Pan de Leche</li>
-                        <li style="padding: 5px 0;">• Pan de Ambato</li>
-                        <li style="padding: 5px 0;">• Hamburguesas y Hot Dogs</li>
-                    </ul>
-                    <a href="recetas-panes-especiales.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
-                <!-- Sección 3: Empanadas y Hojaldre -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">🥐</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Empanadas y Hojaldre</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Empanadas</li>
-                        <li style="padding: 5px 0;">• Empanadas Gourmet</li>
-                        <li style="padding: 5px 0;">• Enrollados y Cachos</li>
-                        <li style="padding: 5px 0;">• Masa de Hojaldre</li>
-                        <li style="padding: 5px 0;">• Pan Reventado</li>
-                    </ul>
-                    <a href="recetas-empanadas-hojaldre.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
-                <!-- Sección 4: Bizcochos y Galletas -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">🍪</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Bizcochos y Galletas</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Bizcocho de Cayambe</li>
-                        <li style="padding: 5px 0;">• Bizcochos de Sal y Dulce</li>
-                        <li style="padding: 5px 0;">• Galletas de Manga</li>
-                        <li style="padding: 5px 0;">• Galletas Decoradas</li>
-                        <li style="padding: 5px 0;">• Alfajores</li>
-                        <li style="padding: 5px 0;">• Moncaibas</li>
-                    </ul>
-                    <a href="recetas-bizcochos-galletas.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
-                <!-- Sección 5: Pastelería -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">🎂</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Pastelería</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Brazo Gitano</li>
-                        <li style="padding: 5px 0;">• Bizcochuelo de Vainilla</li>
-                        <li style="padding: 5px 0;">• Bizcocho de Chocolate</li>
-                        <li style="padding: 5px 0;">• Torta de Zanahoria</li>
-                        <li style="padding: 5px 0;">• Torta de Naranja</li>
-                        <li style="padding: 5px 0;">• Tres Leches</li>
-                    </ul>
-                    <a href="recetas-pasteleria.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
-                <!-- Sección 6: Recetas Especiales -->
-                <div style="background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div style="font-size: 3em; text-align: center; margin-bottom: 15px;">⭐</div>
-                    <h3 style="color: #A0522D; text-align: center; margin-bottom: 15px;">Recetas Especiales</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="padding: 5px 0;">• Guaguas de Pan</li>
-                        <li style="padding: 5px 0;">• Rosca de Reyes / Panetón</li>
-                        <li style="padding: 5px 0;">• Donas</li>
-                        <li style="padding: 5px 0;">• Chocolatería</li>
-                        <li style="padding: 5px 0;">• Royal Icing</li>
-                        <li style="padding: 5px 0;">• Masa Madre</li>
-                    </ul>
-                    <a href="recetas-especiales.html" style="display: block; text-align: center; margin-top: 20px; padding: 12px; background: #D2691E; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">Ver Recetas →</a>
-                </div>
-
+        <h2 class="section-title">Índice de Recetas</h2>
+        
+        <div class="recipes-grid">
+            <!-- Sección 1: Panes Básicos -->
+            <div class="recipe-card">
+                <div class="icon">🥖</div>
+                <h3>Panes Básicos</h3>
+                <ul>
+                    <li>Pan Popular</li>
+                    <li>Pan con Relleno</li>
+                    <li>Pan Dulce</li>
+                    <li>Pan de Maíz</li>
+                    <li>Pan Ingerto</li>
+                </ul>
+                <a href="recetas-panes-basicos.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
             </div>
-        </section>
 
-        <section style="background: #FFF8DC; padding: 30px; border-radius: 10px; margin: 40px 0; border-left: 5px solid #DAA520;">
-            <h3 style="color: #8B4513; margin-bottom: 15px;">📝 Instrucciones de Uso</h3>
-            <ul style="line-height: 1.8;">
+            <!-- Sección 2: Panes Especiales -->
+            <div class="recipe-card">
+                <div class="icon">🍞</div>
+                <h3>Panes Especiales</h3>
+                <ul>
+                    <li>Pan de Chocolate</li>
+                    <li>Pan de Yema</li>
+                    <li>Pan Llorón</li>
+                    <li>Pan de Leche</li>
+                    <li>Pan de Ambato</li>
+                    <li>Hamburguesas y Hot Dogs</li>
+                </ul>
+                <a href="recetas-panes-especiales.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Sección 3: Empanadas y Hojaldre -->
+            <div class="recipe-card">
+                <div class="icon">🥐</div>
+                <h3>Empanadas y Hojaldre</h3>
+                <ul>
+                    <li>Empanadas</li>
+                    <li>Empanadas Gourmet</li>
+                    <li>Enrollados y Cachos</li>
+                    <li>Masa de Hojaldre</li>
+                    <li>Pan Reventado</li>
+                </ul>
+                <a href="recetas-empanadas-hojaldre.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Sección 4: Bizcochos y Galletas -->
+            <div class="recipe-card">
+                <div class="icon">🍪</div>
+                <h3>Bizcochos y Galletas</h3>
+                <ul>
+                    <li>Bizcocho de Cayambe</li>
+                    <li>Bizcochos de Sal y Dulce</li>
+                    <li>Galletas de Manga</li>
+                    <li>Galletas Decoradas</li>
+                    <li>Alfajores</li>
+                    <li>Moncaibas</li>
+                </ul>
+                <a href="recetas-bizcochos-galletas.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Sección 5: Pastelería -->
+            <div class="recipe-card">
+                <div class="icon">🎂</div>
+                <h3>Pastelería</h3>
+                <ul>
+                    <li>Brazo Gitano</li>
+                    <li>Bizcochuelo de Vainilla</li>
+                    <li>Bizcocho de Chocolate</li>
+                    <li>Torta de Zanahoria</li>
+                    <li>Torta de Naranja</li>
+                    <li>Tres Leches</li>
+                </ul>
+                <a href="recetas-pasteleria.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
+            </div>
+
+            <!-- Sección 6: Recetas Especiales -->
+            <div class="recipe-card">
+                <div class="icon">⭐</div>
+                <h3>Recetas Especiales</h3>
+                <ul>
+                    <li>Guaguas de Pan</li>
+                    <li>Rosca de Reyes / Panetón</li>
+                    <li>Donas</li>
+                    <li>Chocolatería</li>
+                    <li>Royal Icing</li>
+                    <li>Masa Madre</li>
+                </ul>
+                <a href="recetas-especiales.html" class="btn">Ver Recetas <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <section class="info-box">
+            <h3><i class="fas fa-info-circle"></i> Instrucciones de Uso</h3>
+            <ul>
                 <li>Haz clic en cada categoría para ver las recetas completas</li>
                 <li>Cada receta incluye ingredientes, procedimiento, tiempos y temperaturas</li>
                 <li>Puedes imprimir las recetas individuales usando el botón de impresión de tu navegador</li>
@@ -129,23 +172,13 @@
                 <li>Consulta los tips y resultados al final de cada receta</li>
             </ul>
         </section>
+    </div>
 
-        <div style="text-align: center; margin: 40px 0;">
-            <a href="panaderia.html" style="display: inline-block; padding: 15px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-size: 1.1em; font-weight: bold;">← Volver al Curso de Panadería</a>
-        </div>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">© 2025 CHARLOTTE · Todos los derechos reservados</div>
+    <footer class="footer">
+        <p>© 2025 ECE CHARLOTTE · Todos los derechos reservados</p>
     </footer>
 
-    <script>
-        function toggleMobileMenu() {
-            const nav = document.getElementById('mainNav');
-            const hamburger = document.querySelector('.hamburger-menu');
-            nav.classList.toggle('active');
-            hamburger.classList.toggle('active');
-        }
-    </script>
+
+
 </body>
 </html>

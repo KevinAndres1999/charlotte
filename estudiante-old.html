@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Estudiante | Charlotte</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background: #f8fafc;
+            margin: 0;
+        }
+        .student-header {
+            background: linear-gradient(135deg, var(--accent-2), var(--accent));
+            color: #fff;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .student-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .student-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: calc(100vh - 80px);
+            gap: 0;
+        }
+        .sidebar {
+            background: #fff;
+            border-right: 1px solid #e8f0fe;
+            padding: 0;
+        }
+        .student-profile {
+            padding: 24px;
+            border-bottom: 2px solid #e8f0fe;
+        }
+        .student-profile h3 {
+            margin: 0 0 16px 0;
+            color: var(--accent);
+            font-size: 18px;
+        }
+        .profile-item {
+            margin-bottom: 12px;
+        }
+        .profile-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .profile-value {
+            color: #0a1628;
+            font-weight: 500;
+        }
+        .nav-menu {
+            padding: 0;
+        }
+        .nav-item {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover {
+            background: #f8fafc;
+            border-left-color: var(--accent);
+        }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(230,57,113,0.1), transparent);
+            border-left-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .nav-item i {
+            font-size: 18px;
+            width: 24px;
+        }
+        .main-content {
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .content-header {
+            margin-bottom: 30px;
+        }
+        .content-header h2 {
+            color: #0a1628;
+            font-size: 28px;
+            margin: 0 0 8px 0;
+        }
+        .content-header p {
+            color: #64748b;
+            margin: 0;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            color: var(--accent);
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .lessons-grid {
+            display: grid;
+            gap: 16px;
+        }
+        .lesson-item {
+            padding: 16px;
+            border: 2px solid #e8f0fe;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .lesson-item:hover {
+            border-color: var(--accent);
+            background: #fef1f7;
+        }
+        .lesson-info h4 {
+            margin: 0 0 4px 0;
+            color: #0a1628;
+        }
+        .lesson-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .lesson-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .video-card {
+            border: 2px solid #e8f0fe;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .video-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+        .video-thumbnail {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, var(--accent-2), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 48px;
+        }
+        .video-info {
+            padding: 16px;
+        }
+        .video-info h4 {
+            margin: 0 0 8px 0;
+            color: #0a1628;
+        }
+        .video-info p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .quiz-card {
+            border: 2px solid #e8f0fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+        .quiz-card:hover {
+            border-color: var(--accent);
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .quiz-header h4 {
+            margin: 0;
+            color: #0a1628;
+        }
+        .quiz-meta {
+            display: flex;
+            gap: 16px;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #d32f5f;
+            transform: translateY(-2px);
+        }
+        .activity-card {
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .activity-card h4 {
+            margin: 0 0 8px 0;
+            color: #0a1628;
+        }
+        .activity-meta {
+            display: flex;
+            gap: 20px;
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-urgent {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-normal {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(230,57,113,0.4);
+            z-index: 1000;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 60px;
+                height: calc(100vh - 60px);
+                width: 280px;
+                transition: left 0.3s;
+                z-index: 999;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                overflow-y: auto;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .student-header h1 {
+                font-size: 18px;
+            }
+            .logout-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            .content-header h2 {
+                font-size: 24px;
+            }
+            .videos-grid {
+                grid-template-columns: 1fr;
+            }
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .quiz-header .btn-primary {
+                width: 100%;
+            }
+            .activity-meta {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .student-header .container {
+                padding: 0 15px;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .card {
+                padding: 16px;
+            }
+            .lesson-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .video-card {
+                margin-bottom: 16px;
+            }
+            .student-profile {
+                padding: 16px;
+            }
+            .nav-item {
+                padding: 14px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="student-header">
+        <div class="container">
+            <h1 id="welcomeName"><i class="fas fa-user-graduate"></i> Portal del Estudiante</h1>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </button>
+        
+            <!-- Sección: Materiales de Estudio -->
+            <div id="materiales" class="content-section">
+                <div class="content-header">
+                    <h2>Materiales de Estudio</h2>
+                    <p>Cuestionarios, evaluaciones y recetarios de tu curso</p>
+                </div>
+
+                <!-- Materiales según el curso del estudiante -->
+                <div id="materialesPanaderia" style="display:none;">
+                    <div class="card">
+                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Panadería</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>📄 Cuestionario de Panadería</h4>
+                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>✅ Cuestionario RESUELTO</h4>
+                                    <p>Respuestas correctas para verificar tu estudio</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Panaderia RESUELTO.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Panadería</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>🎓 Evaluación Oficial</h4>
+                                    <p>Examen del curso de Panadería</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Evaluación Panadería.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Evaluacion Panaderia.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-book"></i> Recetario de Panadería</h3>
+                        <div class="lesson-item">
+                            <div class="lesson-info">
+                                <h4>�� Recetario Completo 2024-2025</h4>
+                                <p>Más de 40 recetas profesionales con instrucciones detalladas</p>
+                            </div>
+                            <a href="recetario-index.html" class="btn-primary" style="text-decoration:none;">Ver Recetario Online →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="materialesBelleza" style="display:none;">
+                    <div class="card">
+                        <h3><i class="fas fa-file-pdf"></i> Cuestionarios - Belleza</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>📄 Cuestionario de Belleza</h4>
+                                    <p>Preguntas de práctica sobre todos los temas del curso</p>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                                    <a href="cuestionarios y evaluaciones/Cuestionario Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                                </div>
+                            </div>
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>✅ Cuestionario RESUELTO</h4>
+                                    <p>Respuestas correctas para verificar tu estudio</p>
+                                </div>
+                                <a href="cuestionarios y evaluaciones/Cuestionario Belleza RESUELTO.pdf" class="btn-primary" download style="background:#dc3545;text-decoration:none;">PDF</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-clipboard-check"></i> Evaluaciones - Belleza</h3>
+                        <div class="lessons-grid">
+                            <div class="lesson-item">
+                                <div class="lesson-info">
+                                    <h4>🎓 Evaluación Oficial</h4>
+                                    <p>Examen del curso de Belleza</p>
+                                </div>
+                                <a href="cuestionarios y evaluaciones/Evaluacion Belleza.docx" class="btn-primary" download style="background:#28a745;text-decoration:none;">DOCX</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+</div>
+    </div>
+
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar con perfil y menú -->
+        <div class="sidebar">
+            <div class="student-profile">
+                <h3><i class="fas fa-user-circle"></i> Mi Perfil</h3>
+                <div id="studentInfo"></div>
+            </div>
+            
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="showSection('clases')">
+                    <i class="fas fa-book-open"></i>
+                    <span>Mis Clases</span>
+                </div>
+                <div class="nav-item" onclick="showSection('videos')">
+                    <i class="fas fa-play-circle"></i>
+                    <span>Videos</span>
+                </div>
+                <div class="nav-item" onclick="showSection('actividades')">
+                    <i class="fas fa-tasks"></i>
+                    <span>Actividades</span>
+                </div>
+                <div class="nav-item" onclick="showSection('cuestionarios')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Cuestionarios</span>
+                </div>
+                                <div class="nav-item" onclick="showSection('materiales')">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Materiales de Estudio</span>
+                </div>
+<div class="nav-item" onclick="window.location.href='recursos.html'">
+                    <i class="fas fa-images"></i>
+                    <span>Galería</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <!-- Sección: Mis Clases -->
+            <div id="clases" class="content-section active">
+                <div class="content-header">
+                    <h2>Mis Clases</h2>
+                    <p>Progreso de tu programa de estudios</p>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-graduation-cap"></i> <span id="programName"></span></h3>
+                    <div class="lessons-grid" id="lessonsGrid">
+                        <!-- Las clases se cargarán dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección: Videos -->
+            <div id="videos" class="content-section">
+                <div class="content-header">
+                    <h2>Videos Educativos</h2>
+                    <p>Material audiovisual de apoyo</p>
+                </div>
+                
+                <div class="videos-grid" id="videosGrid">
+                    <!-- Los videos se cargarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Sección: Actividades -->
+            <div id="actividades" class="content-section">
+                <div class="content-header">
+                    <h2>Actividades</h2>
+                    <p>Tareas y proyectos del curso</p>
+                </div>
+                
+                <div id="activitiesGrid">
+                    <!-- Las actividades se cargarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Sección: Cuestionarios -->
+            <div id="cuestionarios" class="content-section">
+                <div class="content-header">
+                    <h2>Cuestionarios</h2>
+                    <p>Evaluaciones y tests</p>
+                </div>
+                
+                <div id="quizzesGrid">
+                    <!-- Los cuestionarios se cargarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || currentUser.role !== 'student') {
+            window.location.href = 'login.html';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+
+        // Mostrar información del estudiante
+        document.getElementById('welcomeName').innerHTML = `<i class="fas fa-user-graduate"></i> ${currentUser.name}`;
+        
+        document.getElementById('studentInfo').innerHTML = `
+            <div class="profile-item">
+                <span class="profile-label">Nombre</span>
+                <div class="profile-value">${currentUser.name}</div>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">Email</span>
+                <div class="profile-value">${currentUser.email}</div>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">Programa</span>
+                <div class="profile-value">${currentUser.programa}</div>
+            </div>
+            <div class="profile-item">
+                <span class="profile-label">Sede</span>
+                <div class="profile-value">${currentUser.sede}</div>
+            </div>
+        `;
+
+        document.getElementById('programName').textContent = currentUser.programa;
+
+        // Mostrar materiales según el programa del estudiante
+        if (currentUser.programa.toLowerCase().includes('panadería') || currentUser.programa.toLowerCase().includes('panaderia')) {
+            document.getElementById('materialesPanaderia').style.display = 'block';
+            document.getElementById('materialesBelleza').style.display = 'none';
+        } else if (currentUser.programa.toLowerCase().includes('belleza')) {
+            document.getElementById('materialesBelleza').style.display = 'block';
+            document.getElementById('materialesPanaderia').style.display = 'none';
+        }
+
+        // Función para cambiar de sección
+        window.showSection = function(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Quitar active de todos los items del menú
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Marcar el item del menú como activo
+            event.currentTarget.classList.add('active');
+            
+            // Cerrar menú móvil si está abierto
+            if (window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('open');
+            }
+        }
+
+        // Función para toggle del menú móvil
+        window.toggleMobileMenu = function() {
+            document.querySelector('.sidebar').classList.toggle('open');
+        }
+
+        // Cerrar menú al hacer click fuera de él
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(event.target) && !toggleBtn.contains(event.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+
+        // Cargar clases según el programa
+        const lessonsData = {
+            'Belleza y Cosmetología': [
+                { title: 'Introducción a la Cosmetología', duration: '2 horas', status: 'completed' },
+                { title: 'Técnicas de Corte Básico', duration: '3 horas', status: 'completed' },
+                { title: 'Colorimetría Profesional', duration: '4 horas', status: 'pending' },
+                { title: 'Maquillaje Social', duration: '3 horas', status: 'pending' },
+                { title: 'Diseño de Uñas', duration: '2 horas', status: 'pending' },
+                { title: 'Tratamientos Faciales', duration: '3 horas', status: 'pending' }
+            ],
+            'Panadería y Pastelería': [
+                { title: 'Fundamentos de Panadería', duration: '2 horas', status: 'completed' },
+                { title: 'Masas Básicas', duration: '3 horas', status: 'completed' },
+                { title: 'Técnicas de Fermentación', duration: '4 horas', status: 'pending' },
+                { title: 'Decoración con Fondant', duration: '3 horas', status: 'pending' },
+                { title: 'Pasteles Gourmet', duration: '4 horas', status: 'pending' },
+                { title: 'Chocolatería Artesanal', duration: '3 horas', status: 'pending' }
+            ]
+        };
+
+        const lessons = lessonsData[currentUser.programa] || [];
+        const lessonsHTML = lessons.map(lesson => `
+            <div class="lesson-item">
+                <div class="lesson-info">
+                    <h4>${lesson.title}</h4>
+                    <p><i class="fas fa-clock"></i> ${lesson.duration}</p>
+                </div>
+                <span class="lesson-status status-${lesson.status}">
+                    ${lesson.status === 'completed' ? 'Completada' : 'Pendiente'}
+                </span>
+            </div>
+        `).join('');
+        document.getElementById('lessonsGrid').innerHTML = lessonsHTML;
+
+        // Cargar videos
+        const videosData = {
+            'Belleza y Cosmetología': [
+                { title: 'Técnicas de Maquillaje', duration: '15:30' },
+                { title: 'Cuidado del Cabello', duration: '12:45' },
+                { title: 'Manicure Profesional', duration: '18:20' },
+                { title: 'Tratamientos Capilares', duration: '22:10' }
+            ],
+            'Panadería y Pastelería': [
+                { title: 'Masas Hojaldradas', duration: '20:15' },
+                { title: 'Decoración de Pasteles', duration: '25:30' },
+                { title: 'Pan Artesanal', duration: '18:45' },
+                { title: 'Técnicas de Glaseado', duration: '16:20' }
+            ]
+        };
+
+        const videos = videosData[currentUser.programa] || [];
+        const videosHTML = videos.map(video => `
+            <div class="video-card">
+                <div class="video-thumbnail">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="video-info">
+                    <h4>${video.title}</h4>
+                    <p><i class="fas fa-clock"></i> ${video.duration}</p>
+                </div>
+            </div>
+        `).join('');
+        document.getElementById('videosGrid').innerHTML = videosHTML;
+
+        // Cargar actividades
+        const activitiesHTML = `
+            <div class="activity-card">
+                <h4>Práctica de Técnicas Básicas</h4>
+                <p>Realizar un video demostrativo aplicando las técnicas aprendidas en las primeras 3 clases.</p>
+                <div class="activity-meta">
+                    <span><i class="fas fa-calendar"></i> Entrega: 20 Dic 2025</span>
+                    <span class="badge badge-urgent">Urgente</span>
+                </div>
+            </div>
+            <div class="activity-card">
+                <h4>Proyecto Final del Módulo 1</h4>
+                <p>Presentación de portafolio con fotografías de trabajos realizados.</p>
+                <div class="activity-meta">
+                    <span><i class="fas fa-calendar"></i> Entrega: 28 Dic 2025</span>
+                    <span class="badge badge-normal">Normal</span>
+                </div>
+            </div>
+            <div class="activity-card">
+                <h4>Investigación de Tendencias</h4>
+                <p>Documento con análisis de tendencias actuales en tu área de estudio.</p>
+                <div class="activity-meta">
+                    <span><i class="fas fa-calendar"></i> Entrega: 5 Ene 2026</span>
+                    <span class="badge badge-normal">Normal</span>
+                </div>
+            </div>
+        `;
+        document.getElementById('activitiesGrid').innerHTML = activitiesHTML;
+
+        // Cargar cuestionarios
+        const quizzesHTML = `
+            <div class="quiz-card">
+                <div class="quiz-header">
+                    <h4>Evaluación Módulo 1</h4>
+                    <button class="btn-primary">Iniciar Test</button>
+                </div>
+                <div class="quiz-meta">
+                    <span><i class="fas fa-question-circle"></i> 20 preguntas</span>
+                    <span><i class="fas fa-clock"></i> 30 minutos</span>
+                    <span><i class="fas fa-chart-line"></i> 70% mínimo para aprobar</span>
+                </div>
+            </div>
+            <div class="quiz-card">
+                <div class="quiz-header">
+                    <h4>Quiz Rápido: Fundamentos</h4>
+                    <button class="btn-primary">Iniciar Test</button>
+                </div>
+                <div class="quiz-meta">
+                    <span><i class="fas fa-question-circle"></i> 10 preguntas</span>
+                    <span><i class="fas fa-clock"></i> 15 minutos</span>
+                    <span><i class="fas fa-chart-line"></i> 60% mínimo para aprobar</span>
+                </div>
+            </div>
+            <div class="quiz-card">
+                <div class="quiz-header">
+                    <h4>Examen Final</h4>
+                    <button class="btn-primary" disabled style="opacity:0.5;cursor:not-allowed">Próximamente</button>
+                </div>
+                <div class="quiz-meta">
+                    <span><i class="fas fa-question-circle"></i> 50 preguntas</span>
+                    <span><i class="fas fa-clock"></i> 90 minutos</span>
+                    <span><i class="fas fa-chart-line"></i> 80% mínimo para aprobar</span>
+                </div>
+            </div>
+        `;
+        document.getElementById('quizzesGrid').innerHTML = quizzesHTML;
+    </script>
+</body>
+</html>

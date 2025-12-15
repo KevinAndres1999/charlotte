@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Estudiante | Charlotte</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+        .header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { display: flex; align-items: center; gap: 1rem; }
+        .header-logo img { height: 50px; width: auto; }
+        .header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; }
+        .btn-logout:hover { background: rgba(255,255,255,0.3); }
+        .container { display: flex; max-width: 1600px; margin: 0 auto; }
+        .sidebar { width: 280px; background: white; min-height: calc(100vh - 80px); border-right: 1px solid #e8f0fe; }
+        .profile-section { padding: 1.5rem; border-bottom: 2px solid #e8f0fe; background: linear-gradient(135deg, #fef5f9, #fce7f3); }
+        .profile-section h3 { color: #e63971; margin-bottom: 0.5rem; }
+        .program-badge { background: linear-gradient(135deg, #e63971, #0b3460); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: inline-block; margin-top: 0.5rem; }
+        .profile-info { padding: 1.2rem 1.5rem; border-bottom: 1px solid #f1f5f9; }
+        .profile-item { margin-bottom: 0.8rem; }
+        .profile-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
+        .profile-value { color: #0a1628; font-weight: 500; }
+        .nav-menu { padding: 0; }
+        .nav-item { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.8rem; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #334155; }
+        .nav-item:hover { background: #f8fafc; border-left-color: #3b82f6; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); border-left-color: #3b82f6; color: #1e3a8a; font-weight: 600; }
+        .nav-item i { width: 20px; text-align: center; }
+        .main-content { flex: 1; padding: 2rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .page-title { font-size: 2rem; margin-bottom: 0.5rem; color: #0a1628; }
+        .page-subtitle { color: #64748b; margin-bottom: 2rem; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .card h3 { color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .content-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #3b82f6; transition: all 0.3s; }
+        .content-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(59,130,246,0.15); }
+        .content-card h4 { margin-bottom: 0.5rem; color: #0a1628; }
+        .content-card p { color: #64748b; margin: 0.5rem 0; line-height: 1.6; }
+        .meta { display: flex; gap: 1rem; margin-top: 0.8rem; font-size: 0.85rem; color: #94a3b8; }
+        .meta i { margin-right: 0.25rem; }
+        .btn-view { display: inline-block; margin-top: 1rem; padding: 0.6rem 1.2rem; background: linear-gradient(135deg, #3b82f6, #1e3a8a); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s; }
+        .btn-view:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: #cbd5e1; margin-bottom: 1rem; }
+        .empty-state h3 { color: #64748b; margin-bottom: 0.5rem; }
+        .empty-state p { color: #94a3b8; }
+        .video-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s; }
+        .video-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .video-thumbnail { position: relative; padding-top: 56.25%; background: #f1f5f9; }
+        .video-thumbnail iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .video-info { padding: 1rem; }
+        .video-info h4 { margin-bottom: 0.5rem; color: #0a1628; }
+        .menu-toggle { display: none; position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #3b82f6, #1e3a8a); color: white; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 12px rgba(59,130,246,0.4); z-index: 1000; font-size: 1.5rem; border: none; transition: all 0.3s; }
+        .menu-toggle:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(59,130,246,0.6); }
+        .menu-toggle i { display: block; transition: transform 0.3s; }
+        .menu-toggle.open i { transform: rotate(90deg); }
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+        .stat-card h3 { font-size: 2rem; margin: 0.5rem 0; color: #1e3a8a; }
+        .stat-card p { color: #64748b; margin: 0; font-size: 0.9rem; }
+        .stat-card i { font-size: 2rem; color: #3b82f6; opacity: 0.8; }
+        .welcome-banner { background: linear-gradient(135deg, #3b82f6, #1e3a8a); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .welcome-banner h2 { margin: 0 0 0.5rem 0; font-size: 2rem; }
+        .welcome-banner p { margin: 0; opacity: 0.9; }
+        .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .quick-link { background: white; padding: 1.2rem; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+        .quick-link:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(59,130,246,0.15); }
+        .quick-link i { font-size: 2.5rem; color: #3b82f6; margin-bottom: 0.5rem; }
+        .quick-link h4 { margin: 0.5rem 0 0 0; color: #0a1628; font-size: 1rem; }
+        @media (max-width: 768px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; position: fixed; left: -100%; top: 72px; height: calc(100vh - 72px); z-index: 99; transition: left 0.3s; overflow-y: auto; }
+            .sidebar.open { left: 0; }
+            .menu-toggle { display: block; }
+            .main-content { padding: 1rem; }
+            .grid { grid-template-columns: 1fr; }
+            .stat-cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="fotos/logo.png" alt="Charlotte Logo" onerror="this.style.display='none'">
+                <h1><i class="fas fa-user-graduate"></i> <span id="userName">Portal Estudiante</span></h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <button class="menu-toggle" onclick="toggleMenu()" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div class="profile-section">
+                <h3 id="studentName">Estudiante</h3>
+                <span class="program-badge" id="programBadge"></span>
+            </div>
+            <div class="profile-info">
+                <div class="profile-item">
+                    <span class="profile-label">Email</span>
+                    <div class="profile-value" id="userEmail"></div>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Programa</span>
+                    <div class="profile-value" id="userProgram"></div>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Sede</span>
+                    <div class="profile-value" id="userSede"></div>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Contraseña</span>
+                    <button class="btn" id="btnCambiarContrasena" style="background:#3b82f6;color:white;margin-top:6px;">Cambiar contraseña</button>
+                </div>
+            </main>
+            <script>
+            // =================== CAMBIO DE CONTRASEÑA ===================
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('btnCambiarContrasena');
+                if (btn) {
+                    btn.addEventListener('click', async () => {
+                        const nueva = prompt('Ingresa tu nueva contraseña (mínimo 6 caracteres):');
+                        if (!nueva || nueva.length < 6) {
+                            alert('La contraseña debe tener al menos 6 caracteres.');
+                            return;
+                        }
+                        btn.disabled = true;
+                        btn.textContent = 'Actualizando...';
+                        try {
+                            // Buscar el documento del usuario por email
+                            const snapshot = await db.collection('approvedStudents').where('email', '==', currentUser.email).get();
+                            if (snapshot.empty) throw new Error('No se encontró el usuario.');
+                            const docId = snapshot.docs[0].id;
+                            await db.collection('approvedStudents').doc(docId).update({ password: nueva, needsPasswordReset: false });
+                            alert('Contraseña actualizada correctamente.');
+                        } catch (e) {
+                            alert('Error al actualizar la contraseña.');
+                            console.error(e);
+                        }
+                        btn.disabled = false;
+                        btn.textContent = 'Cambiar contraseña';
+                    });
+                }
+            });
+            </script>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
+                <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-play-circle"></i><span>Videos</span></div>
+                <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Actividades</span></div>
+                <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
+                <div class="nav-item" onclick="showSection('materiales')"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="dashboard" class="section active">
+                <div class="welcome-banner">
+                    <h2>¡Bienvenido de nuevo, <span id="welcomeName"></span>!</h2>
+                    <p>Aquí está tu resumen de actividades y recursos disponibles</p>
+                </div>
+
+                <div class="stat-cards">
+                    <div class="stat-card">
+                        <i class="fas fa-book-open"></i>
+                        <h3 id="totalClases">0</h3>
+                        <p>Clases Disponibles</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #10b981;">
+                        <i class="fas fa-play-circle" style="color: #10b981;"></i>
+                        <h3 id="totalVideos">0</h3>
+                        <p>Videos Educativos</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                        <i class="fas fa-tasks" style="color: #f59e0b;"></i>
+                        <h3 id="totalActividades">0</h3>
+                        <p>Actividades</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #8b5cf6;">
+                        <i class="fas fa-folder-open" style="color: #8b5cf6;"></i>
+                        <h3 id="totalMateriales">0</h3>
+                        <p>Materiales</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 1rem; color: #0a1628;">Accesos Rápidos</h3>
+                <div class="quick-links">
+                    <div class="quick-link" onclick="showSection('clases')">
+                        <i class="fas fa-book-open"></i>
+                        <h4>Ver Mis Clases</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('videos')">
+                        <i class="fas fa-play-circle"></i>
+                        <h4>Videos</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('actividades')">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>Actividades</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('materiales')">
+                        <i class="fas fa-folder-open"></i>
+                        <h4>Materiales</h4>
+                    </div>
+                </div>
+            </section>
+
+            <section id="clases" class="section">
+                <h2 class="page-title">Mis Clases</h2>
+                <p class="page-subtitle">Contenido de tus cursos</p>
+                <div id="clasesList"></div>
+            </section>
+
+            <section id="videos" class="section">
+                <h2 class="page-title">Videos Educativos</h2>
+                <p class="page-subtitle">Material audiovisual de apoyo</p>
+                <div id="videosList" class="grid"></div>
+            </section>
+
+            <section id="actividades" class="section">
+                <h2 class="page-title">Actividades</h2>
+                <p class="page-subtitle">Tareas y proyectos del curso</p>
+                <div id="actividadesList" class="grid"></div>
+            </section>
+
+
+            <section id="cuestionarios" class="section">
+                <h2 class="page-title">Cuestionarios</h2>
+                <p class="page-subtitle">Evaluaciones y prácticas</p>
+                <div id="cuestionariosList" class="grid"></div>
+            </section>
+
+            <section id="evaluaciones" class="section">
+                <h2 class="page-title">Evaluaciones</h2>
+                <p class="page-subtitle">Exámenes y pruebas globales</p>
+                <div id="evaluacionesList" class="grid"></div>
+            </section>
+
+<script>
+// =================== EVALUACIONES ===================
+async function loadEvaluaciones() {
+    const container = document.getElementById('evaluacionesList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('evaluaciones').orderBy('fechaRegistro', 'desc').get();
+        const evaluaciones = [];
+        snapshot.forEach(doc => evaluaciones.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(evaluaciones);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay evaluaciones disponibles</h3></div>';
+            return;
+        }
+        const ahora = new Date();
+        container.innerHTML = filtered.map(evaluacion => {
+            const fechaInicio = evaluacion.fechaInicio ? new Date(evaluacion.fechaInicio) : null;
+            const fechaFin = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
+            const activa = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
+            return `
+            <div class="content-card" style="border-top-color: ${activa ? '#3b82f6' : '#94a3b8'};">
+                <h4><i class="fas fa-file-alt"></i> ${evaluacion.titulo}</h4>
+                <p>${evaluacion.cuestionarioNombre || ''}</p>
+                <div class="meta" style="margin: 15px 0;">
+                    <span><i class="fas fa-list"></i> ${evaluacion.numPreguntas || 0} preguntas</span>
+                    <span><i class="fas fa-redo"></i> ${evaluacion.maxIntentos || 1} intentos</span>
+                </div>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
+                    <i class="fas fa-calendar-alt"></i> Desde: ${fechaInicio ? fechaInicio.toLocaleString('es-ES') : '-'} hasta ${fechaFin ? fechaFin.toLocaleString('es-ES') : '-'}
+                    ${!activa ? ' <strong>(FUERA DE FECHA)</strong>' : ''}
+                </p>
+                <button class="btn-view" disabled style="background: #94a3b8; cursor: not-allowed;">
+                    <i class="fas fa-eye"></i> Próximamente
+                </button>
+            </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar evaluaciones:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar evaluaciones</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+// Llamar a loadEvaluaciones cuando se muestre la sección
+const oldShowSection = showSection;
+showSection = function(sectionId) {
+    oldShowSection(sectionId);
+    if (sectionId === 'evaluaciones') loadEvaluaciones();
+}
+</script>
+
+            <section id="materiales" class="section">
+                <h2 class="page-title">Materiales de Estudio</h2>
+                <p class="page-subtitle">Documentos, PDFs y recursos adicionales</p>
+                <div id="materialesList" class="grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script>
+// Exponer funciones globales PRIMERO
+window.showSection = showSection;
+window.toggleMenu = toggleMenu;
+window.logout = logout;
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCBpoxr8yhAfCVqP00b6DKtMA0JWljlMMA",
+    authDomain: "charlotte-babda.firebaseapp.com",
+    projectId: "charlotte-babda",
+    storageBucket: "charlotte-babda.firebasestorage.app",
+    messagingSenderId: "486360806502",
+    appId: "1:486360806502:web:d82fb7f351b8fe4587a9a7"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+if (!currentUser || currentUser.role !== 'student') {
+    window.location.href = 'login.html';
+}
+
+// Limpiar historial para evitar volver a login con botón atrás
+if (window.history && window.history.pushState) {
+    // Reemplazar la entrada actual del historial para que no vuelva a login
+    window.history.replaceState({page: 'estudiante'}, 'Portal Estudiante', 'estudiante.html');
+}
+
+// Interceptar el botón atrás del navegador
+window.addEventListener('popstate', function(event) {
+    // Si el usuario presiona atrás, llevarlo al dashboard
+    const activeSection = sessionStorage.getItem('activeSection');
+    if (activeSection && activeSection !== 'dashboard') {
+        event.preventDefault();
+        showSection('dashboard');
+        // Agregar nueva entrada al historial
+        window.history.pushState({page: 'estudiante', section: 'dashboard'}, 'Dashboard', 'estudiante.html');
+    }
+});
+
+// Restaurar la sección activa al recargar la página
+const savedSection = sessionStorage.getItem('activeSection');
+if (savedSection && savedSection !== 'dashboard') {
+    // Esperar a que el DOM esté listo antes de restaurar la sección
+    window.addEventListener('DOMContentLoaded', () => {
+        showSection(savedSection);
+    });
+} else if (!savedSection) {
+    // Si no hay sección guardada, establecer dashboard por defecto
+    sessionStorage.setItem('activeSection', 'dashboard');
+}
+
+document.getElementById('userName').textContent = currentUser.name;
+document.getElementById('studentName').textContent = currentUser.name;
+document.getElementById('programBadge').textContent = currentUser.programa;
+document.getElementById('userEmail').textContent = currentUser.email;
+document.getElementById('userProgram').textContent = currentUser.programa;
+document.getElementById('userSede').textContent = currentUser.sede;
+document.getElementById('welcomeName').textContent = currentUser.name;
+
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    
+    // Guardar la sección actual en sessionStorage para mantenerla al recargar
+    sessionStorage.setItem('activeSection', sectionId);
+    
+    // Agregar al historial del navegador para control de navegación
+    if (window.history && window.history.pushState) {
+        window.history.pushState({page: 'estudiante', section: sectionId}, sectionId, 'estudiante.html');
+    }
+    
+    // Marcar el nav-item correspondiente como activo
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(sectionId)) {
+            item.classList.add('active');
+        }
+    });
+    
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('menuToggle').classList.remove('open');
+    }
+    if (sectionId !== 'dashboard') loadContent(sectionId);
+}
+
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuToggle');
+    sidebar.classList.toggle('open');
+    menuBtn.classList.toggle('open');
+}
+
+function logout() {
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('activeSection');
+    window.location.href = 'login.html';
+}
+
+async function loadCuestionarios() {
+    const container = document.getElementById('cuestionariosList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('cuestionarios').orderBy('fechaRegistro', 'desc').get();
+        const cuestionarios = [];
+        snapshot.forEach(doc => cuestionarios.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(cuestionarios);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3></div>';
+            return;
+        }
+        const ahora = new Date();
+        container.innerHTML = filtered.map(cuestionario => {
+            const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+            const vencido = fechaLimite && ahora > fechaLimite;
+            // Verificar intentos realizados
+            const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+            const misClave = `${currentUser.email}_${cuestionario.id}`;
+            const misIntentos = respuestas[misClave] || [];
+            const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
+            const puedeResponder = !vencido && intentosRestantes > 0;
+            return `
+            <div class="content-card" style="border-top-color: ${vencido ? '#94a3b8' : '#3b82f6'};">
+                <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
+                <p>${cuestionario.descripcion || ''}</p>
+                <div class="meta" style="margin: 15px 0;">
+                    <span><i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas</span>
+                    <span><i class="fas fa-clock"></i> ${cuestionario.tiempoDisponible || 0} minutos</span>
+                    <span><i class="fas fa-redo"></i> ${intentosRestantes} de ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</span>
+                </div>
+                ${fechaLimite ? `<p style="font-size: 13px; color: ${vencido ? '#ef4444' : '#f59e0b'}; margin-bottom: 10px;">
+                    <i class="fas fa-calendar-alt"></i> Fecha límite: ${fechaLimite.toLocaleString('es-ES')}
+                    ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+                </p>` : ''}
+                ${misIntentos.length > 0 ? `
+                    <div style="background: #e0f2fe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                        <p style="margin: 0; font-size: 13px; color: #0369a1;">
+                            <i class="fas fa-check-circle"></i> Último intento: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente de calificación'}
+                        </p>
+                    </div>
+                ` : ''}
+                <button class="btn-view" onclick="iniciarCuestionario('${cuestionario.id}')" 
+                        ${!puedeResponder ? 'disabled' : ''}
+                        style="background: ${puedeResponder ? '#3b82f6' : '#94a3b8'}; cursor: ${puedeResponder ? 'pointer' : 'not-allowed'};">
+                    <i class="fas fa-play"></i> ${misIntentos.length > 0 ? 'Reintentar' : 'Iniciar'} Cuestionario
+                </button>
+            </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar cuestionarios:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar cuestionarios</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+
+async function loadVideos() {
+    const container = document.getElementById('videosList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('videos').orderBy('fechaCreacion', 'desc').get();
+        const videos = [];
+        snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(videos);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3></div>';
+            return;
+        }
+        function getVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+            return match ? match[1] : null;
+        }
+        container.innerHTML = filtered.map(video => {
+            const videoId = getVideoId(video.url);
+            return `
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        ${videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>` : ''}
+                    </div>
+                    <div class="video-info">
+                        <h4>${video.titulo}</h4>
+                        <p>${video.descripcion || ''}</p>
+                        <div class="meta">
+                            <span><i class="fas fa-calendar"></i> ${video.fecha}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error al cargar videos:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>Error al cargar videos</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+
+async function loadActividades() {
+    const container = document.getElementById('actividadesList');
+    if (!container) return;
+    try {
+        const snapshot = await db.collection('actividades').orderBy('fechaRegistro', 'desc').get();
+        const actividades = [];
+        snapshot.forEach(doc => actividades.push({ id: doc.id, ...doc.data() }));
+        const filtered = filterByProgram(actividades);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3></div>';
+            return;
+        }
+        container.innerHTML = filtered.map(actividad => `
+            <div class="content-card">
+                <h4><i class="fas fa-clipboard-list"></i> ${actividad.titulo}</h4>
+                <p style="white-space: pre-wrap;">${actividad.instrucciones}</p>
+                <div class="meta">
+                    ${actividad.fecha ? `<span><i class="fas fa-calendar-check"></i> ${actividad.fecha}</span>` : ''}
+                    <span><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error al cargar actividades:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>Error al cargar actividades</h3><p>Intenta recargar la página</p></div>';
+    }
+}
+
+function loadCuestionarios() {
+    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    const filtered = filterByProgram(cuestionarios);
+    const container = document.getElementById('cuestionariosList');
+    
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3></div>';
+        return;
+    }
+
+    const ahora = new Date();
+    
+    container.innerHTML = filtered.map(cuestionario => {
+        const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+        const vencido = fechaLimite && ahora > fechaLimite;
+        
+        // Verificar intentos realizados
+        const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+        const misClave = `${currentUser.email}_${cuestionario.id}`;
+        const misIntentos = respuestas[misClave] || [];
+        const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
+        
+        const puedeResponder = !vencido && intentosRestantes > 0;
+        
+        return `
+        <div class="content-card" style="border-top-color: ${vencido ? '#94a3b8' : '#3b82f6'};">
+            <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
+            <p>${cuestionario.descripcion || ''}</p>
+            <div class="meta" style="margin: 15px 0;">
+                <span><i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas</span>
+                <span><i class="fas fa-clock"></i> ${cuestionario.tiempoDisponible || 0} minutos</span>
+                <span><i class="fas fa-redo"></i> ${intentosRestantes} de ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</span>
+            </div>
+            ${fechaLimite ? `<p style="font-size: 13px; color: ${vencido ? '#ef4444' : '#f59e0b'}; margin-bottom: 10px;">
+                <i class="fas fa-calendar-alt"></i> Fecha límite: ${fechaLimite.toLocaleString('es-ES')}
+                ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+            </p>` : ''}
+            
+            ${misIntentos.length > 0 ? `
+                <div style="background: #e0f2fe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                    <p style="margin: 0; font-size: 13px; color: #0369a1;">
+                        <i class="fas fa-check-circle"></i> Último intento: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente de calificación'}
+                    </p>
+                </div>
+            ` : ''}
+            
+            <button class="btn-view" onclick="iniciarCuestionario(${cuestionario.id})" 
+                    ${!puedeResponder ? 'disabled' : ''}
+                    style="background: ${puedeResponder ? '#3b82f6' : '#94a3b8'}; cursor: ${puedeResponder ? 'pointer' : 'not-allowed'};">
+                <i class="fas fa-play"></i> ${misIntentos.length > 0 ? 'Reintentar' : 'Iniciar'} Cuestionario
+            </button>
+        </div>
+        `;
+    }).join('');
+}
+
+window.iniciarCuestionario = function(id) {
+    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    const cuestionario = cuestionarios.find(c => c.id == id);
+    
+    if (!cuestionario) return;
+    
+    // Verificar fecha límite
+    const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+    if (fechaLimite && new Date() > fechaLimite) {
+        alert('⚠️ Este cuestionario ya ha vencido');
+        return;
+    }
+    
+    // Verificar intentos
+    const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+    const misClave = `${currentUser.email}_${cuestionario.id}`;
+    const misIntentos = respuestas[misClave] || [];
+    
+    if (misIntentos.length >= (cuestionario.intentos || 1)) {
+        alert('⚠️ Ya has agotado todos los intentos para este cuestionario');
+        return;
+    }
+    
+    // Mostrar cuestionario en modal
+    mostrarCuestionarioModal(cuestionario);
+}
+
+function mostrarCuestionarioModal(cuestionario) {
+    const modal = document.createElement('div');
+    modal.id = 'modalCuestionario';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; overflow-y: auto; padding: 20px;';
+    
+    const preguntasHTML = cuestionario.preguntas.map((pregunta, index) => {
+        if (pregunta.tipo === 'multiple') {
+            return `
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                    <h4 style="color: #0a1628; margin-bottom: 15px;">${index + 1}. ${pregunta.texto}</h4>
+                    <div style="display: grid; gap: 10px;">
+                        ${pregunta.opciones.map((opcion, i) => `
+                            <label style="display: flex; align-items: center; padding: 12px; background: #f8fafc; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <input type="radio" name="pregunta_${pregunta.id}" value="${i}" required style="margin-right: 10px;">
+                                <span>${opcion}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+                    <h4 style="color: #0a1628; margin-bottom: 15px;">${index + 1}. ${pregunta.texto}</h4>
+                    <textarea name="pregunta_${pregunta.id}" rows="4" placeholder="Escribe tu respuesta aquí..." required
+                              style="width: 100%; padding: 12px; border: 2px solid #e8f0fe; border-radius: 6px; font-size: 14px; font-family: inherit;"></textarea>
+                </div>
+            `;
+        }
+    }).join('');
+    
+    let tiempoRestante = cuestionario.tiempoDisponible * 60; // convertir a segundos
+    let intervaloTiempo;
+    
+    modal.innerHTML = `
+        <div style="max-width: 800px; margin: 0 auto; background: #f8fafc; border-radius: 12px; padding: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #e8f0fe;">
+                <div>
+                    <h2 style="color: #0a1628; margin: 0;">${cuestionario.titulo}</h2>
+                    <p style="color: #64748b; margin: 5px 0 0;">${cuestionario.descripcion}</p>
+                </div>
+                <div style="text-align: right;">
+                    <div id="cronometro" style="font-size: 24px; font-weight: bold; color: #3b82f6;">
+                        <i class="fas fa-clock"></i> <span id="tiempoDisplay">${cuestionario.tiempoDisponible}:00</span>
+                    </div>
+                    <p style="font-size: 12px; color: #64748b; margin: 5px 0 0;">${cuestionario.preguntas.length} preguntas</p>
+                </div>
+            </div>
+            
+            <form id="formCuestionario" onsubmit="enviarRespuestasCuestionario(event, ${cuestionario.id})">
+                ${preguntasHTML}
+                
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; padding: 15px; font-size: 16px;">
+                        <i class="fas fa-check"></i> Enviar Respuestas
+                    </button>
+                    <button type="button" onclick="cerrarCuestionarioModal()" class="btn" style="background: #94a3b8; padding: 15px; font-size: 16px;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Iniciar cronómetro
+    intervaloTiempo = setInterval(() => {
+        tiempoRestante--;
+        const minutos = Math.floor(tiempoRestante / 60);
+        const segundos = tiempoRestante % 60;
+        document.getElementById('tiempoDisplay').textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+        
+        if (tiempoRestante <= 0) {
+            clearInterval(intervaloTiempo);
+            alert('⏰ Se acabó el tiempo');
+            document.getElementById('formCuestionario').dispatchEvent(new Event('submit'));
+        }
+    }, 1000);
+    
+    modal.dataset.intervalo = intervaloTiempo;
+}
+
+window.cerrarCuestionarioModal = function() {
+    const modal = document.getElementById('modalCuestionario');
+    if (modal) {
+        clearInterval(modal.dataset.intervalo);
+        modal.remove();
+    }
+}
+
+window.enviarRespuestasCuestionario = function(event, cuestionarioId) {
+    event.preventDefault();
+    
+    const cuestionarios = JSON.parse(localStorage.getItem('cuestionarios') || '[]');
+    const cuestionario = cuestionarios.find(c => c.id == cuestionarioId);
+    
+    if (!cuestionario) return;
+    
+    const formData = new FormData(event.target);
+    const misRespuestas = [];
+    let correctas = 0;
+    
+    cuestionario.preguntas.forEach(pregunta => {
+        const respuesta = formData.get(`pregunta_${pregunta.id}`);
+        
+        if (pregunta.tipo === 'multiple') {
+            const respuestaNum = parseInt(respuesta);
+            const esCorrecta = respuestaNum === pregunta.respuestaCorrecta;
+            if (esCorrecta) correctas++;
+            
+            misRespuestas.push({
+                preguntaId: pregunta.id,
+                pregunta: pregunta.texto,
+                tipo: 'multiple',
+                respuesta: pregunta.opciones[respuestaNum],
+                correcta: esCorrecta
+            });
+        } else {
+            misRespuestas.push({
+                preguntaId: pregunta.id,
+                pregunta: pregunta.texto,
+                tipo: 'abierta',
+                respuesta: respuesta,
+                correcta: null // Requiere revisión manual
+            });
+        }
+    });
+    
+    // Calcular calificación (solo preguntas de opción múltiple)
+    const preguntasMultiple = cuestionario.preguntas.filter(p => p.tipo === 'multiple').length;
+    const calificacion = preguntasMultiple > 0 ? ((correctas / preguntasMultiple) * 100).toFixed(1) : 'Pendiente';
+    
+    // Guardar respuestas
+    const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+    const misClave = `${currentUser.email}_${cuestionarioId}`;
+    
+    if (!respuestas[misClave]) respuestas[misClave] = [];
+    
+    respuestas[misClave].push({
+        fecha: new Date().toISOString(),
+        respuestas: misRespuestas,
+        calificacion: preguntasMultiple > 0 ? `${correctas}/${preguntasMultiple} (${calificacion}%)` : 'Pendiente de revisión',
+        estudiante: currentUser.name,
+        email: currentUser.email
+    });
+    
+    localStorage.setItem('respuestasCuestionarios', JSON.stringify(respuestas));
+    
+    cerrarCuestionarioModal();
+    
+    if (preguntasMultiple > 0) {
+        alert(`✅ Cuestionario enviado\n\nCalificación: ${calificacion}%\nRespuestas correctas: ${correctas}/${preguntasMultiple}`);
+    } else {
+        alert('✅ Cuestionario enviado exitosamente\n\nTus respuestas están pendientes de revisión por el docente.');
+    }
+    
+    loadCuestionarios();
+}
+
+async function loadMateriales() {
+    const container = document.getElementById('materialesList');
+    const allMaterials = [];
+
+    try {
+        const snapshot = await db.collection('materiales').get();
+        snapshot.forEach(doc => allMaterials.push({ id: doc.id, ...doc.data(), tipo: 'pdf' }));
+    } catch (error) {
+        console.error('Error Firestore:', error);
+    }
+
+    try {
+        const local = JSON.parse(localStorage.getItem('materiales') || '[]');
+        allMaterials.push(...local);
+    } catch (error) {
+        console.error('Error localStorage:', error);
+    }
+
+    const filtered = filterByProgram(allMaterials);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3></div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(m => {
+        if (m.tipo === 'receta') {
+            return `
+                <div class="content-card" style="border-top-color: #f59e0b;">
+                    <h4>${m.titulo}</h4>
+                    <p>${m.descripcion}</p>
+                    <a href="${m.url}" class="btn-view" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <i class="fas fa-utensils"></i> Ver Recetas
+                    </a>
+                </div>
+            `;
+        }
+        if (m.tipo === 'pdf' || m.pdfData) {
+            return `
+                <div class="content-card">
+                    <h4><i class="fas fa-file-pdf" style="color: #dc2626;"></i> ${m.titulo}</h4>
+                    <p>${m.descripcion || ''}</p>
+                    <div class="meta">
+                        <span><i class="fas fa-calendar"></i> ${m.fecha || ''}</span>
+                        ${m.tamano ? `<span><i class="fas fa-file"></i> ${(m.tamano / 1024 / 1024).toFixed(2)} MB</span>` : ''}
+                    </div>
+                    <a href="ver-documento.html?id=${m.id}" target="_blank" class="btn-view">
+                        <i class="fas fa-eye"></i> Ver PDF
+                    </a>
+                </div>
+            `;
+        }
+        return `
+            <div class="content-card">
+                <h4><i class="fas fa-link"></i> ${m.titulo}</h4>
+                <p>${m.descripcion || ''}</p>
+                <div class="meta">
+                    <span><i class="fas fa-calendar"></i> ${m.fecha}</span>
+                </div>
+                <a href="${m.url}" target="_blank" class="btn-view">
+                    <i class="fas fa-external-link-alt"></i> Abrir
+                </a>
+            </div>
+        `;
+    }).join('');
+}
+
+updateDashboard();
+    </script>
+</body>
+</html>

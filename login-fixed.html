@@ -78,6 +78,15 @@
         }
 
         const userData = userDoc.data();
+        const currentUser = {
+          uid: user.uid,
+          email: user.email,
+          name: userData.name || '',
+          role: userData.role,
+          status: userData.status
+        };
+        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
         if(userData.role === 'teacher'){
           if(userData.status === 'approved') { window.location.href = 'admin.html'; return; }
           showMessage('Cuenta docente no aprobada', 'error'); return;

@@ -7,20 +7,6 @@ let confirmCallback = null;
 
 const API_BASE = '/api';
 
-// Mostrar mensaje breve en el área `#message` si existe
-function showMessage(msg, timeout = 4000){
-  const el = document.getElementById('message');
-  if(!el) return;
-  el.textContent = msg;
-  setTimeout(()=>{ el.textContent = ''; }, timeout);
-}
-
-// Helper para errores: loguea y muestra mensaje conciso
-function handleError(err){
-  console.error(err);
-  try{ showMessage(err && err.message ? err.message : String(err)); }catch(e){}
-}
-
 function openModal(){ if(studentModal) studentModal.setAttribute('aria-hidden','false'); }
 function closeModalFn(){ if(studentModal) studentModal.setAttribute('aria-hidden','true'); }
 
