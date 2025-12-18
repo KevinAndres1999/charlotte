@@ -2716,7 +2716,7 @@
                                         <div id="progress-bar" style="background: #3b82f6; height: 8px; border-radius: 10px; width: 0%;"></div>
                                     </div>
                                     <p><strong>Califica cada pregunta abierta individualmente.</strong></p>
-                                    , '${tipo}')" class="form-group-inline">
+                                    <p id="total-calificacion"><strong>Calificación total acumulada:</strong> ${respuesta.calificacionAutomatica || 0}%</p>
                                         ${respuesta.preguntasAbiertas.map((abierta, idx) => ` <form onsubmit="calificarPreguntaAbierta(event, '${respuestaId}', '${tipo}', ${idx})"> 
                                             <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                                 <label for="calif-${idx}">Pregunta ${abierta.indice + 1} (0-100)</label>
@@ -2800,6 +2800,12 @@
                 }
 
                 await docRef.update(updateData);
+
+                // Update total calificación
+                const updatedDoc = await docRef.get();
+                const updatedRespuesta = updatedDoc.data();
+                const total = (updatedRespuesta.calificacionAutomatica || 0) + (updatedRespuesta.calificacionAbiertas || 0);
+                document.getElementById('total-calificacion').innerHTML = `<strong>Calificación total acumulada:</strong> ${total.toFixed(1)}%`;
 
                 if (preguntasAbiertasRestantes.length > 0) {
                     // Update count
