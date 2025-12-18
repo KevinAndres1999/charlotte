@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responder Cuestionario | Charlotte</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
+        
+        .header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { display: flex; align-items: center; gap: 1rem; }
+        .header-logo img { height: 50px; width: auto; }
+        .header h1 { font-size: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .header-actions { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-logout { background: rgba(255,255,255,0.2); color: white; }
+        .btn-logout:hover { background: rgba(255,255,255,0.3); }
+        
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-ring {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            text-align: center;
+            font-weight: 700;
+            color: #48bb78;
+            font-size: 0.9rem;
+        }
+
+        .progress-text small {
+            display: block;
+            font-size: 0.6rem;
+            color: #64748b;
+            margin-top: -2px;
+        }
+
+        .timer-display {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: timerPulse 1s infinite alternate;
+        }
+
+        .timer-display.critical {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            animation: timerPulse 0.5s infinite alternate;
+        }
+
+        @keyframes timerPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+        
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        
+        /* === ESTILOS PARA INTERFAZ DE CUESTIONARIOS PREMIUM === */
+        .cuestionario-detail {
+            max-width: none;
+        }
+
+        .cuestionario-info {
+            margin-bottom: 2rem;
+        }
+
+        .info-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-section h3 i {
+            color: #3b82f6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #0a1628;
+        }
+
+        .status-activa {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-vencida {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .instrucciones-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .respuesta-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .respuesta-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .respuesta-section h3 i {
+            color: #3b82f6;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        .question-card.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-number::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            color: #2d3748;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-weight: 500;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .question-text::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: -10px;
+            font-size: 4rem;
+            color: #e2e8f0;
+            font-family: 'Georgia', serif;
+            line-height: 1;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            transform: translateX(-10px);
+            opacity: 0;
+            animation: slideInLeft 0.5s ease-out forwards;
+        }
+
+        .option:nth-child(1) { animation-delay: 0.1s; }
+        .option:nth-child(2) { animation-delay: 0.2s; }
+        .option:nth-child(3) { animation-delay: 0.3s; }
+        .option:nth-child(4) { animation-delay: 0.4s; }
+        .option:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .option:hover {
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            border-color: #cbd5e0;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.15);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-color: #4299e1;
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .option.selected::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4299e1, #667eea);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .option input[type="radio"] {
+            display: none;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            color: #4a5568;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            pointer-events: auto;
+        }
+
+        .option-circle {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #cbd5e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .option.selected .option-circle {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            border-color: #4299e1;
+            transform: scale(1.1);
+        }
+
+        .option.selected .option-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: checkmark 0.3s ease-out;
+        }
+
+        .option-label span {
+            pointer-events: none;
+        }
+
+        .open-answer {
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .open-answer textarea {
+            width: 100%;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            min-height: 120px;
+            position: relative;
+        }
+
+        .open-answer textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.1), 0 4px 20px rgba(66, 153, 225, 0.15);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .open-answer textarea::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .open-answer::before {
+            content: '💭';
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            font-size: 1.5rem;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .nav-btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .nav-btn.prev {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #64748b;
+            border: 2px solid #cbd5e0;
+        }
+
+        .nav-btn.prev:not(:disabled):hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            transform: translateY(-3px) translateX(-5px);
+            box-shadow: 0 8px 25px rgba(100, 116, 139, 0.3);
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .nav-btn.next:not(:disabled):hover {
+            transform: translateY(-3px) translateX(5px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
+
+        .nav-btn.submit {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .nav-btn.submit:not(:disabled):hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.6);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4), 0 0 0 8px rgba(72, 187, 120, 0.1);
+            }
+        }
+
+        .question-nav {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        .question-dot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border: 3px solid transparent;
+            font-size: 1.1rem;
+        }
+
+        .question-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .question-dot:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .question-dot.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.2);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .question-dot.active::before {
+            width: 20px;
+            height: 20px;
+        }
+
+        .question-dot.answered {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .question-dot.answered::after {
+            content: '✓';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #38a169;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading p {
+            margin-top: 1rem;
+            color: #4a5568;
+            font-size: 1.2rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error i {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 0 1rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .navigation { flex-direction: column; gap: 1rem; }
+            .nav-btn { width: 100%; justify-content: center; }
+            .question-nav { gap: 0.25rem; }
+            .question-dot { width: 35px; height: 35px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="Mesa de trabajo 3.png" alt="Charlotte Logo" onerror="this.style.display='none'">
+                <h1><i class="fas fa-question-circle"></i> Responder Cuestionario</h1>
+            </div>
+            <div class="header-actions">
+                <div class="progress-indicator" id="progressIndicator" style="display: none;">
+                    <div class="progress-ring">
+                        <svg width="60" height="60">
+                            <circle cx="30" cy="30" r="25" stroke="#e2e8f0" stroke-width="4" fill="none"/>
+                            <circle cx="30" cy="30" r="25" stroke="#48bb78" stroke-width="4" fill="none" 
+                                    stroke-dasharray="157" stroke-dashoffset="157" 
+                                    transform="rotate(-90 30 30)" id="progressCircle"/>
+                        </svg>
+                        <div class="progress-text">
+                            <span id="progressPercent">0%</span>
+                            <small>Completado</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="timer-display" id="timerDisplay" style="display: none;">
+                    <i class="fas fa-clock"></i>
+                    <span id="timeLeft">00:00</span>
+                </div>
+                <button class="btn btn-logout" onclick="window.location.href='estudiante.html'">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Cargando cuestionario...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <div id="quizContent" style="display: none;">
+            <div class="cuestionario-detail">
+                <div class="cuestionario-info">
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle"></i> Información del Cuestionario</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Título:</span>
+                                <span class="info-value" id="quizTitle"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Preguntas:</span>
+                                <span class="info-value" id="totalQuestions"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Tiempo:</span>
+                                <span class="info-value" id="timeLimit"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Intentos:</span>
+                                <span class="info-value" id="attemptsLeft"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3><i class="fas fa-clipboard-list"></i> Descripción</h3>
+                        <div class="instrucciones-content" id="quizDescription"></div>
+                    </div>
+                </div>
+
+                <div class="respuesta-section">
+                    <h3><i class="fas fa-edit"></i> Responder Cuestionario</h3>
+                    <div id="questionsContainer">
+                        <!-- Questions will be dynamically added here -->
+                    </div>
+
+                    <div class="question-nav" id="questionNav">
+                        <!-- Question dots will be added here -->
+                    </div>
+
+                    <div class="navigation">
+                        <button class="nav-btn prev" id="prevBtn" onclick="previousQuestion()">
+                            <i class="fas fa-arrow-left"></i>
+                            Anterior
+                        </button>
+                        <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()">
+                            Siguiente
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button class="nav-btn submit" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Respuestas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+// =================== IMPORTS ===================
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { getFirestore, doc, getDoc, addDoc, collection, query, where, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+
+// =================== CONFIGURACIÓN ===================
+const firebaseConfig = {
+    apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
+    authDomain: "charlotte-a0d47.firebaseapp.com",
+    projectId: "charlotte-a0d47",
+    storageBucket: "charlotte-a0d47.firebasestorage.app",
+    messagingSenderId: "971007838036",
+    appId: "1:971007838036:web:381b5c516ba841fef12ac1"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// =================== VARIABLES GLOBALES ===================
+let currentQuiz = null;
+let currentQuestionIndex = 0;
+let answers = [];
+let timer = null;
+let timeLeft = 0;
+let currentUser = null;
+let intentosRealizados = 0;
+
+// =================== INICIALIZACIÓN ===================
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, starting quiz loading...');
+
+    // Verificar autenticación
+    currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    console.log('Current user:', currentUser);
+
+    if (!currentUser || currentUser.role !== 'student') {
+        console.log('Redirecting to login - no valid user');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Obtener ID del cuestionario de la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get('id');
+    console.log('Quiz ID from URL:', quizId);
+
+    if (!quizId) {
+        showError('ID de cuestionario no proporcionado');
+        return;
+    }
+
+    loadQuiz(quizId);
+});
+
+// =================== FUNCIONES PRINCIPALES ===================
+async function loadQuiz(quizId) {
+    try {
+        console.log('Loading quiz with ID:', quizId);
+        console.log('Firebase db object:', db);
+        
+        const docRef = doc(db, 'cuestionarios', quizId);
+        console.log('Created docRef:', docRef);
+        
+        const docSnap = await getDoc(docRef);
+        console.log('Document snapshot:', docSnap);
+        console.log('Document exists:', docSnap.exists());
+        
+        if (!docSnap.exists()) {
+            console.log('Quiz not found');
+            showError('Cuestionario no encontrado');
+            return;
+        }
+
+        currentQuiz = { id: docSnap.id, ...docSnap.data() };
+        console.log('Loaded quiz data:', currentQuiz);
+        
+        // Verificar intentos realizados
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) {
+            showError('Usuario no autenticado');
+            return;
+        }
+        
+        const respuestasQuery = query(
+            collection(db, 'respuestasCuestionarios'), 
+            where('estudianteId', '==', currentUser.email),
+            where('cuestionarioId', '==', quizId)
+        );
+        const respuestasSnapshot = await getDocs(respuestasQuery);
+        const intentosRealizados = respuestasSnapshot.size;
+        console.log('Intentos realizados:', intentosRealizados);
+        
+        // Guardar en variable global
+        window.intentosRealizados = intentosRealizados;
+        
+        // Verificar si puede responder
+        const fechaLimite = currentQuiz.fechaLimite ? new Date(currentQuiz.fechaLimite) : null;
+        const vencido = fechaLimite && new Date() > fechaLimite;
+        const maxIntentos = currentQuiz.numeroIntentos || 1;
+        const intentosAgotados = intentosRealizados >= maxIntentos;
+        
+        if (vencido) {
+            showError('Este cuestionario ha expirado');
+            return;
+        }
+        
+        if (intentosAgotados) {
+            showError(`Ya has completado el número máximo de intentos autorizados (${maxIntentos}). No puedes responder este cuestionario nuevamente.`);
+            return;
+        }
+
+        // Inicializar respuestas
+        answers = new Array(currentQuiz.preguntas.length).fill(null);
+        
+        // Configurar temporizador e indicadores
+        if (currentQuiz.tiempoLimite) {
+            timeLeft = currentQuiz.tiempoLimite * 60; // convertir a segundos
+            startTimer();
+            document.getElementById('timerDisplay').style.display = 'flex';
+        }
+
+        document.getElementById('progressIndicator').style.display = 'flex';
+        
+        console.log('About to call renderQuiz()');
+        renderQuiz();
+        console.log('About to call hideLoading()');
+        hideLoading();
+        console.log('Quiz loading completed successfully - DOM should be updated now');
+        
+    } catch (error) {
+        console.error('Error loading quiz:', error);
+        showError('Error al cargar el cuestionario');
+    }
+}
+
+function renderQuiz() {
+    console.log('=== RENDERING QUIZ ===');
+    console.log('DOM ready state:', document.readyState);
+    console.log('quizContent display:', document.getElementById('quizContent')?.style.display);
+    console.log('Current quiz data:', currentQuiz);
+    console.log('Questions length:', currentQuiz.preguntas ? currentQuiz.preguntas.length : 'undefined');
+    console.log('Tiempo limite:', currentQuiz.tiempoLimite);
+    console.log('Numero intentos:', currentQuiz.numeroIntentos);
+
+    // Verificar que los elementos existen
+    const quizTitleEl = document.getElementById('quizTitle');
+    const quizDescEl = document.getElementById('quizDescription');
+    const totalQuestionsEl = document.getElementById('totalQuestions');
+    const timeLimitEl = document.getElementById('timeLimit');
+    const attemptsLeftEl = document.getElementById('attemptsLeft');
+
+    console.log('Elements found:', {
+        quizTitle: !!quizTitleEl,
+        quizDescription: !!quizDescEl,
+        totalQuestions: !!totalQuestionsEl,
+        timeLimit: !!timeLimitEl,
+        attemptsLeft: !!attemptsLeftEl
+    });
+
+    if (quizTitleEl) {
+        quizTitleEl.textContent = currentQuiz.titulo;
+        console.log('Set quizTitle to:', currentQuiz.titulo);
+    }
+
+    if (quizDescEl) {
+        quizDescEl.textContent = currentQuiz.descripcion || 'Sin descripción';
+        console.log('Set quizDescription to:', currentQuiz.descripcion || 'Sin descripción');
+    }
+
+    if (totalQuestionsEl) {
+        totalQuestionsEl.textContent = currentQuiz.preguntas.length;
+        console.log('Set totalQuestions to:', currentQuiz.preguntas.length);
+    }
+
+    if (timeLimitEl) {
+        timeLimitEl.textContent = (currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite';
+        console.log('Set timeLimit to:', (currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite');
+    }
+
+    if (attemptsLeftEl) {
+        const maxIntentos = currentQuiz.numeroIntentos || 1;
+        const intentoActual = (window.intentosRealizados || 0) + 1;
+        attemptsLeftEl.textContent = `${intentoActual}/${maxIntentos}`;
+        console.log('Set attemptsLeft to:', `${intentoActual}/${maxIntentos}`);
+    }
+
+    console.log('About to call renderQuestions()');
+    renderQuestions();
+    console.log('About to call renderQuestionNav()');
+    renderQuestionNav();
+    console.log('About to call updateNavigation()');
+    updateNavigation();
+    console.log('=== QUIZ RENDERING COMPLETE ===');
+}
+
+function renderQuestions() {
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    currentQuiz.preguntas.forEach((pregunta, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = `question-card ${index === currentQuestionIndex ? 'active' : ''}`;
+        questionCard.id = `question-${index}`;
+
+        let optionsHtml = '';
+        if (pregunta.tipo === 'multiple') {
+            optionsHtml = pregunta.opciones.map((opcion, i) => `
+                <div class="option ${answers[index] === i ? 'selected' : ''}">
+                    <div class="option-label" onclick="selectOption(${index}, ${i})">
+                        <div class="option-circle"></div>
+                        <span>${opcion}</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            optionsHtml = `
+                <div class="open-answer">
+                    <textarea 
+                        placeholder="Escribe tu respuesta aquí..." 
+                        rows="5"
+                        oninput="updateAnswer(${index}, this.value)"
+                    >${answers[index] || ''}</textarea>
+                </div>
+            `;
+        }
+
+        questionCard.innerHTML = `
+            <div class="question-number">Pregunta ${index + 1} de ${currentQuiz.preguntas.length}</div>
+            <div class="question-text">${pregunta.texto}</div>
+            <div class="options">
+                ${optionsHtml}
+            </div>
+        `;
+
+        container.appendChild(questionCard);
+    });
+}
+
+function renderQuestionNav() {
+    const nav = document.getElementById('questionNav');
+    nav.innerHTML = '';
+
+    currentQuiz.preguntas.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.className = `question-dot ${index === currentQuestionIndex ? 'active' : ''} ${answers[index] !== null ? 'answered' : ''}`;
+        dot.textContent = index + 1;
+        dot.onclick = () => goToQuestion(index);
+        nav.appendChild(dot);
+    });
+}
+
+function selectOption(questionIndex, optionIndex) {
+    answers[questionIndex] = optionIndex;
+    renderQuestions();
+    renderQuestionNav();
+    updateNavigation();
+}
+
+function updateAnswer(questionIndex, value) {
+    answers[questionIndex] = value;
+    renderQuestionNav();
+    updateNavigation();
+}
+
+// Global functions for onclick handlers
+window.selectOption = function(questionIndex, optionIndex) {
+    answers[questionIndex] = optionIndex;
+    renderQuestions();
+    renderQuestionNav();
+    updateNavigation();
+};
+
+window.updateAnswer = updateAnswer;
+
+function goToQuestion(index) {
+    currentQuestionIndex = index;
+    renderQuestions();
+    renderQuestionNav();
+    updateNavigation();
+}
+
+window.goToQuestion = goToQuestion;
+
+function previousQuestion() {
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        renderQuestions();
+        renderQuestionNav();
+        updateNavigation();
+    }
+}
+
+window.previousQuestion = previousQuestion;
+
+function nextQuestion() {
+    if (currentQuestionIndex < currentQuiz.preguntas.length - 1) {
+        currentQuestionIndex++;
+        renderQuestions();
+        renderQuestionNav();
+        updateNavigation();
+    }
+}
+
+window.nextQuestion = nextQuestion;
+
+function updateNavigation() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    prevBtn.disabled = currentQuestionIndex === 0;
+    nextBtn.disabled = currentQuestionIndex === currentQuiz.preguntas.length - 1;
+    
+    if (currentQuestionIndex === currentQuiz.preguntas.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-flex';
+    } else {
+        nextBtn.style.display = 'inline-flex';
+        submitBtn.style.display = 'none';
+    }
+
+    // Actualizar progreso
+    updateProgress();
+}
+
+function updateProgress() {
+    const answered = answers.filter(answer => answer !== null).length;
+    const progress = (answered / currentQuiz.preguntas.length) * 100;
+    
+    // Actualizar indicador circular
+    const circle = document.getElementById('progressCircle');
+    const percentText = document.getElementById('progressPercent');
+    
+    if (circle && percentText) {
+        const circumference = 157; // 2 * π * 25
+        const offset = circumference - (progress / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        percentText.textContent = Math.round(progress) + '%';
+    }
+}
+
+window.submitQuiz = async function() {
+    // Verificar que todas las preguntas estén respondidas
+    const unanswered = answers.findIndex(answer => answer === null);
+    if (unanswered !== -1) {
+        alert(`Por favor responde la pregunta ${unanswered + 1} antes de enviar.`);
+        goToQuestion(unanswered);
+        return;
+    }
+
+    if (!confirm('¿Estás seguro de que quieres enviar tus respuestas? No podrás modificarlas después.')) {
+        return;
+    }
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        alert('Usuario no autenticado');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        // Preparar datos para enviar
+        const respuestasData = {
+            estudianteId: currentUser.email,
+            cuestionarioId: currentQuiz.id,
+            respuestas: answers,
+            fechaEnvio: new Date(),
+            tiempoUsado: currentQuiz.tiempoLimite ? (currentQuiz.tiempoLimite * 60 - timeLeft) : null,
+            // Agregar información del cuestionario para referencia
+            cuestionarioInfo: {
+                titulo: currentQuiz.titulo,
+                totalPreguntas: currentQuiz.preguntas.length,
+                tiempoLimite: currentQuiz.tiempoLimite || 0,
+                numeroIntentos: currentQuiz.numeroIntentos || 1
+            }
+        };
+
+        // Calcular calificación automática
+        let correctas = 0;
+        let totalMultiples = 0;
+        let preguntasAbiertas = [];
+        const puntosPorPregunta = 100 / currentQuiz.preguntas.length;
+
+        currentQuiz.preguntas.forEach((pregunta, index) => {
+            if (pregunta.tipo === 'multiple') {
+                totalMultiples++;
+                if (answers[index] === pregunta.respuesta) {
+                    correctas++;
+                }
+            } else if (pregunta.tipo === 'open') {
+                preguntasAbiertas.push({
+                    indice: index,
+                    texto: pregunta.texto,
+                    respuestaEstudiante: answers[index]
+                });
+            }
+        });
+
+        respuestasData.puntosPorPregunta = puntosPorPregunta;
+        respuestasData.calificacionAutomatica = correctas * puntosPorPregunta;
+        respuestasData.calificacionAbiertas = 0;
+        respuestasData.preguntasAbiertas = preguntasAbiertas;
+        respuestasData.calificada = preguntasAbiertas.length === 0;
+        respuestasData.calificacion = respuestasData.calificada ? respuestasData.calificacionAutomatica : null;
+        respuestasData.fechaCalificacion = respuestasData.calificada ? new Date() : null;
+
+        // Eliminar respuestas anteriores del mismo usuario al mismo cuestionario
+        if (currentUser) {
+            const anterioresQuery = query(
+                collection(db, 'respuestasCuestionarios'), 
+                where('estudianteId', '==', currentUser.email)
+            );
+            const anterioresSnapshot = await getDocs(anterioresQuery);
+            const deletePromises = anterioresSnapshot.docs
+                .filter(doc => doc.data().cuestionarioId === currentQuiz.id)
+                .map(doc => deleteDoc(doc.ref));
+            await Promise.all(deletePromises);
+        }
+
+        // Enviar a Firestore
+        const docRef = await addDoc(collection(db, 'respuestasCuestionarios'), respuestasData);
+        console.log('Respuesta guardada exitosamente en Firebase:', docRef.id);
+
+        alert('¡Respuestas enviadas exitosamente!');
+        
+        // Redirigir de vuelta al portal estudiante
+        window.location.href = 'estudiante.html';
+        
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        alert('Error al enviar las respuestas. Inténtalo de nuevo.');
+    }
+}
+
+function startTimer() {
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timeLeftElement = document.getElementById('timeLeft');
+    
+    timer = setInterval(() => {
+        timeLeft--;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            timerDisplay.classList.add('critical');
+            timeLeftElement.textContent = '00:00';
+            alert('¡Tiempo agotado! Tus respuestas serán enviadas automáticamente.');
+            submitQuiz();
+            return;
+        }
+        
+        // Cambiar a crítico cuando quedan menos de 5 minutos
+        if (timeLeft <= 300 && !timerDisplay.classList.contains('critical')) {
+            timerDisplay.classList.add('critical');
+        }
+        
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timeLeftElement.textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+}
+
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'flex';
+    document.getElementById('errorMessage').textContent = message;
+}
+
+function hideLoading() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('quizContent').style.display = 'block';
+}
+
+// =================== UTILIDADES ===================
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Expose functions to global scope
+// Functions are already assigned above
+    </script>
+</body>
+</html></content>
+<parameter name="filePath">c:\workspace\responder-cuestionario.html

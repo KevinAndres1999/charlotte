@@ -209,10 +209,14 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            console.log('Login attempt for email:', email);
+
             try {
                 // Buscar usuario en users por email (tanto estudiantes como admin)
                 const q = query(collection(db, 'users'), where('email', '==', email));
                 const querySnapshot = await getDocs(q);
+
+                console.log('Query snapshot size:', querySnapshot.size);
 
                 if (!querySnapshot.empty) {
                     const userData = querySnapshot.docs[0].data();
@@ -230,6 +234,8 @@
                             telefono: userData.telefono
                         };
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                        console.log('User logged in:', currentUser);
 
                         // Redirigir según el rol
                         if (userData.role === 'admin') {

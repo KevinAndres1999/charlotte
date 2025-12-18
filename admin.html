@@ -7,6 +7,8 @@
     <!-- Actualizado: 11/12/2025 16:38:02 -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -35,11 +37,628 @@
         .page-header p { margin: 0; color: #64748b; font-size: 18px; }
         .upload-card { background: #fff; border-radius: 16px; padding: 24px 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 32px; }
         .upload-card h3 { margin: 0 0 24px 0; color: #1e3a8a; font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #334155; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.3s; font-family: inherit; box-sizing: border-box; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .form-group textarea { resize: vertical; min-height: 120px; }
+        .form-group { margin-bottom: 24px; position: relative; }
+        .form-group label { display: block; margin-bottom: 8px; color: #2d3748; font-weight: 700; font-size: 15px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.1), 0 8px 25px rgba(66, 153, 225, 0.15);
+            background: white;
+            transform: translateY(-2px);
+        }
+        .form-group textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #a0aec0; font-style: italic; }
+
+        /* Estilos premium para la sección de cuestionarios */
+        .quiz-builder-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .quiz-builder-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .quiz-builder-header h3 {
+            font-size: 2.2rem;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .quiz-builder-header p {
+            color: #64748b;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .quiz-builder-header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .quiz-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .quiz-form-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .quiz-form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: #cbd5e0;
+        }
+
+        .quiz-form-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .quiz-form-card h4 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quiz-form-card h4 i {
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .questions-builder {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            border: 2px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        .questions-builder h4 {
+            color: #1a202c;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .questions-builder h4 i {
+            color: #48bb78;
+        }
+
+        .question-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .question-item:hover {
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon.delete {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .btn-icon.delete:hover {
+            background: #feb2b2;
+            transform: scale(1.1);
+        }
+
+        .btn-icon.edit {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+
+        .btn-icon.edit:hover {
+            background: #9ae6b4;
+            transform: scale(1.1);
+        }
+
+        /* Estilos premium para elementos de preguntas */
+        .question-item-premium {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px solid #e2e8f0;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .question-item-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .question-item-premium:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: #cbd5e0;
+        }
+
+        .question-item-premium:hover::before {
+            transform: scaleX(1);
+        }
+
+        .question-header-premium {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .question-type-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .question-type-selector i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .question-type-premium {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            font-weight: 600;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+
+        .question-type-premium:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-remove-question {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #e53e3e;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-remove-question:hover {
+            background: linear-gradient(135deg, #feb2b2, #fc8181);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(229, 62, 62, 0.3);
+        }
+
+        .question-content-premium {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .question-text-container {
+            position: relative;
+        }
+
+        .question-text-premium {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2d3748;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .question-text-premium:focus {
+            outline: none;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+            background: #f0fff4;
+        }
+
+        .question-text-premium::placeholder {
+            color: #a0aec0;
+            font-weight: 400;
+        }
+
+        .multiple-options-premium {
+            display: block;
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid #9ae6b4;
+        }
+
+        .options-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .options-header i {
+            color: #48bb78;
+            font-size: 1.1rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .option-label {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .option-input-premium {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #2d3748;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .option-input-premium:focus {
+            outline: none;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        .correct-answer-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .correct-answer-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .correct-answer-label i {
+            color: #48bb78;
+        }
+
+        .correct-answer-premium {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            font-weight: 600;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .correct-answer-premium:focus {
+            outline: none;
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        .open-options-premium {
+            display: none;
+            background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid #90cdf4;
+        }
+
+        .open-question-notice {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #2b6cb0;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .open-question-notice i {
+            color: #3182ce;
+            font-size: 1.1rem;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .question-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .type-option.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .type-option:hover {
+            border-color: #cbd5e0;
+            transform: translateY(-2px);
+        }
+
+        .options-container {
+            margin-top: 1rem;
+        }
+
+        .option-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .option-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .option-input:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+
+        .remove-option {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            color: #4a5568;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-option:hover {
+            background: #cbd5e0;
+            color: #2d3748;
+        }
+
+        .add-option-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .add-option-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+
+        .submit-section {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 16px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .btn-submit-quiz {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit-quiz::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-submit-quiz:hover::before {
+            left: 100%;
+        }
+
+        .btn-submit-quiz:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit-quiz:active {
+            transform: translateY(-1px);
+        }
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
@@ -68,7 +687,6 @@
         .stat-value { font-size: 32px; font-weight: 700; color: #0a1628; margin: 0; }
         .stat-label { color: #64748b; font-size: 14px; margin: 4px 0 0 0; }
         .mobile-menu-toggle { display: none; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 24px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 98; }
         .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
         .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
@@ -77,7 +695,6 @@
             .dashboard-container { flex-direction: column; }
             .sidebar { position: fixed; left: -100%; top: 60px; width: 250px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); }
             .sidebar.open { left: 0; }
-            .sidebar.open ~ .sidebar-overlay { display: block; }
             .mobile-menu-toggle { display: block; }
             .main-content { padding: 20px 16px; }
             .page-header h2 { font-size: 24px; }
@@ -85,11 +702,63 @@
             .stats-grid { grid-template-columns: 1fr; }
             .content-item { flex-direction: column; align-items: flex-start; gap: 12px; }
             .content-actions { width: 100%; justify-content: flex-end; }
-            .ck-editor__editable { min-height: 250px; }
-            .form-group input, .form-group textarea, .form-group select { font-size: 16px; padding: 12px; }
-            .btn { font-size: 16px; padding: 12px 20px; }
+
+            /* Touch-friendly elements */
+            .btn, button, .nav-item { min-height: 44px; }
+            .nav-item { padding: 12px; font-size: 16px; }
+            .stat-card { padding: 16px; }
+            .upload-form input, .upload-form textarea, .upload-form select { font-size: 16px; }
+
+            /* Better spacing */
+            .admin-header .container { padding: 12px; }
+            .admin-header h1 { font-size: 18px; }
+            .sidebar-header { padding: 16px; }
+            .sidebar-header h3 { font-size: 16px; }
+        }
+
+        @media (max-width: 480px) {
             .sidebar { width: 280px; }
-            .sidebar.open { width: 280px; }
+            .main-content { padding: 16px 12px; }
+            .admin-header h1 { font-size: 16px; }
+            .admin-header h1 i { font-size: 18px; }
+            .page-header h2 { font-size: 20px; }
+            .upload-card { padding: 16px; }
+            .stat-card h3 { font-size: 24px; }
+            .stat-card p { font-size: 14px; }
+
+            /* Stack buttons vertically on small screens */
+            .form-actions { flex-direction: column; }
+            .form-actions button { width: 100%; margin-bottom: 8px; }
+
+            /* Better table display */
+            .admin-table { font-size: 14px; }
+            .admin-table th, .admin-table td { padding: 6px; }
+
+            /* Modal improvements */
+            .modal-content { margin: 10px; padding: 16px; }
+            .entrega-item { padding: 20px 32px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+            .entrega-item:hover { background: #f8fafc; }
+            .entrega-info { flex: 1; }
+            .entrega-info h5 { margin: 0 0 8px 0; color: #1e3a8a; font-size: 16px; }
+            .entrega-meta { display: flex; gap: 16px; font-size: 14px; color: #64748b; }
+            .entrega-meta span { display: flex; align-items: center; gap: 4px; }
+            .entrega-status { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+            .status-pendiente { background: #fef3c7; color: #92400e; }
+            .status-calificada { background: #d1fae5; color: #065f46; }
+            .entrega-actions { display: flex; gap: 8px; }
+            .btn-sm { padding: 8px 16px; font-size: 12px; border-radius: 6px; }
+            .btn-view { background: #3b82f6; color: white; }
+            .btn-calificar { background: #10b981; color: white; }
+            .entrega-detail { margin-bottom: 24px; }
+            .entrega-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+            .estudiante-info { background: #f0f9ff; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+            .estudiante-info h4 { margin: 0 0 8px 0; color: #1e3a8a; }
+            .estudiante-info p { margin: 4px 0; color: #64748b; }
+            .entrega-contenido { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+            .calificacion-section { background: #f8fafc; padding: 20px; border-radius: 8px; }
+            .calificacion-section h4 { margin: 0 0 16px 0; color: #1e3a8a; }
+            .form-group-inline { display: flex; gap: 16px; align-items: end; }
+            .form-group-inline .form-group { flex: 1; margin-bottom: 0; }
         }
     </style>
 </head><body>
@@ -108,22 +777,22 @@
                 <p>Gestión de Contenidos</p>
             </div>
             <div class="nav-menu">
-                <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-section="usuarios"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-star"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Subir Videos</span></div>
                 <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
                 <div class="nav-item" data-section="ver-entregas"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
+                <div class="nav-item" data-section="ver-respuestas"><i class="fas fa-clipboard-list"></i><span>Ver Respuestas</span></div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
             </div>
         </div>
-        <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
         <div class="main-content">
             <!-- Dashboard -->
-            <div id="dashboard" class="content-section active">
+            <div id="dashboard" class="content-section">
                 <div class="stats-grid">
                     <div class="stat-card" onclick="showSection('videos', event)" style="cursor: pointer;">
                         <div class="stat-card-header">
@@ -159,6 +828,15 @@
                                 <p class="stat-label">Materiales Adicionales</p>
                             </div>
                             <div class="stat-card-icon orange"><i class="fas fa-folder-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('ver-entregas', event)" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-entregas">0</h3>
+                                <p class="stat-label">Entregas Recibidas</p>
+                            </div>
+                            <div class="stat-card-icon red"><i class="fas fa-inbox"></i></div>
                         </div>
                     </div>
                 </div>
@@ -213,15 +891,15 @@
                     <div class="content-list-header"><h4>Subir Video</h4></div>
                     <div style="padding: 24px 32px;">
                         <form id="videoForm">
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="videoTitle">Título del Video</label>
                                 <input type="text" id="videoTitle" required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="videoDesc">Descripción</label>
                                 <textarea id="videoDesc"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="videoPrograma">Programa</label>
                                 <select id="videoPrograma" required>
                                     <option value="">Seleccionar programa</option>
@@ -230,7 +908,7 @@
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="videoUrl">URL del Video</label>
                                 <input type="url" id="videoUrl" placeholder="https://youtube.com/..." required>
                             </div>
@@ -250,15 +928,15 @@
                     <div class="content-list-header"><h4>Subir Clase</h4></div>
                     <div style="padding: 24px 32px;">
                         <form id="claseForm">
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="claseTitle">Título de la Clase</label>
                                 <input type="text" id="claseTitle" required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="claseDesc">Descripción</label>
                                 <textarea id="claseDesc"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="clasePrograma">Programa</label>
                                 <select id="clasePrograma" required>
                                     <option value="">Seleccionar programa</option>
@@ -267,7 +945,7 @@
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="claseContent">Contenido</label>
                                 <textarea id="claseContent"></textarea>
                             </div>
@@ -287,15 +965,15 @@
                     <div class="content-list-header"><h4>Subir Actividad</h4></div>
                     <div style="padding: 24px 32px;">
                         <form id="actividadForm">
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="actividadTitle">Título de la Actividad</label>
                                 <input type="text" id="actividadTitle" required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="actividadDesc">Descripción</label>
                                 <textarea id="actividadDesc"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="actividadPrograma">Programa</label>
                                 <select id="actividadPrograma" required>
                                     <option value="">Seleccionar programa</option>
@@ -304,7 +982,7 @@
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="actividadUrl">URL del Archivo (opcional)</label>
                                 <input type="url" id="actividadUrl" placeholder="https://...">
                             </div>
@@ -319,93 +997,292 @@
             </div>
 
             <!-- Ver Entregas -->
-            <div id="ver-entregas" class="content-section">
+            <div id="ver-entregas" class="content-section active">
+                <div class="page-header">
+                    <h2><i class="fas fa-inbox"></i> Entregas de Actividades</h2>
+                    <p>Revisa y califica las entregas de tus estudiantes</p>
+                </div>
+
+                <!-- Filtros y búsqueda -->
+                <div class="upload-card">
+                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o actividad</label>
+                            <input type="text" id="entregasSearch" placeholder="Buscar..." onkeyup="filterEntregas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
+                            <select id="entregasFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                <option value="all">Todas</option>
+                                <option value="pendientes">Pendientes</option>
+                                <option value="calificadas">Calificadas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
+                            <select id="programaFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                <option value="all">Todos</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="panaderia">Panadería</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="stats-grid" style="margin-bottom: 32px;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="total-entregas">0</h3>
+                                <p class="stat-label">Total Entregas</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="pendientes-entregas">0</h3>
+                                <p class="stat-label">Pendientes</p>
+                            </div>
+                            <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="calificadas-entregas">0</h3>
+                                <p class="stat-label">Calificadas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de entregas -->
                 <div class="content-list">
-                    <div class="content-list-header"><h4>Entregas Recientes</h4></div>
-                    <div id="entregas-list" style="padding:24px 32px;"><!-- Entregas will be loaded here --></div>
+                    <div class="content-list-header">
+                        <h4>Entregas Recientes</h4>
+                    </div>
+                    <div id="entregas-list">
+                        <!-- Entregas will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ver Respuestas de Cuestionarios -->
+            <div id="ver-respuestas" class="content-section">
+                <div class="page-header">
+                    <h2><i class="fas fa-clipboard-list"></i> Respuestas de Cuestionarios y Evaluaciones</h2>
+                    <p>Revisa y califica las respuestas de tus estudiantes</p>
+                </div>
+
+                <!-- Filtros y búsqueda -->
+                <div class="upload-card">
+                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 200px;">
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o cuestionario</label>
+                            <input type="text" id="respuestasSearch" placeholder="Buscar..." onkeyup="filterRespuestas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
+                            <select id="respuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                <option value="all">Todas</option>
+                                <option value="pendientes">Pendientes</option>
+                                <option value="calificadas">Calificadas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
+                            <select id="programaRespuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                <option value="all">Todos</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="panaderia">Panadería</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de limpieza -->
+                <div class="upload-card">
+                    <button onclick="limpiarRespuestasHuerfanas()" class="btn btn-secondary" style="width: 100%;">
+                        <i class="fas fa-broom"></i> Limpiar Respuestas Huérfanas
+                    </button>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="stats-grid" style="margin-bottom: 32px;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="total-respuestas">0</h3>
+                                <p class="stat-label">Total Respuestas</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="pendientes-respuestas">0</h3>
+                                <p class="stat-label">Pendientes</p>
+                            </div>
+                            <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="calificadas-respuestas">0</h3>
+                                <p class="stat-label">Calificadas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de respuestas -->
+                <div class="content-list">
+                    <div class="content-list-header">
+                        <h4>Respuestas Recientes</h4>
+                    </div>
+                    <div id="respuestas-list">
+                        <!-- Respuestas will be loaded here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Cuestionarios -->
             <div id="cuestionarios" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Cuestionario</h4></div>
-                    <div style="padding:24px 32px;">
-                        <form id="cuestionarioForm">
-                            <div class="form-group">
-                                <label for="cuestionarioTitle">Título del Cuestionario</label>
-                                <input type="text" id="cuestionarioTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="cuestionarioDesc">Descripción</label>
-                                <textarea id="cuestionarioDesc"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="cuestionarioPrograma">Programa</label>
-                                <select id="cuestionarioPrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Preguntas</label>
-                                <div id="cuestionarioQuestionsContainer">
-                                    <!-- Questions will be added here -->
-                                </div>
-                                <button type="button" class="btn btn-primary" onclick="agregarPreguntaCuestionario()" style="margin-top: 10px;">
-                                    <i class="fas fa-plus"></i> Agregar Pregunta
-                                </button>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Subir Cuestionario</button>
-                        </form>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-question-circle"></i> Constructor de Cuestionarios</h3>
+                        <p>Crea cuestionarios interactivos con preguntas de opción múltiple y abiertas</p>
                     </div>
+
+                    <form id="cuestionarioForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioTitle">Título del Cuestionario</label>
+                                    <input type="text" id="cuestionarioTitle" placeholder="Ej: Evaluación de Técnicas de Belleza" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioDesc">Descripción</label>
+                                    <textarea id="cuestionarioDesc" placeholder="Describe el propósito y contenido del cuestionario..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioPrograma">Programa</label>
+                                    <select id="cuestionarioPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioTiempo">Tiempo Disponible (minutos)</label>
+                                    <input type="number" id="cuestionarioTiempo" placeholder="60" min="1">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioIntentos">Número de Intentos</label>
+                                    <input type="number" id="cuestionarioIntentos" placeholder="1" min="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="questions-builder">
+                            <h4><i class="fas fa-list-ol"></i> Preguntas del Cuestionario</h4>
+                            <div id="cuestionarioQuestionsContainer">
+                                <!-- Questions will be added here -->
+                            </div>
+                            <button type="button" class="btn-submit-quiz" onclick="agregarPreguntaCuestionario()" style="width: auto; margin-top: 1.5rem; padding: 0.75rem 2rem;">
+                                <i class="fas fa-plus"></i> Agregar Nueva Pregunta
+                            </button>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-rocket"></i> Publicar Cuestionario
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Cuestionarios Subidos</h4></div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Cuestionarios Publicados</h3>
+                        <p>Gestiona y administra tus cuestionarios creados</p>
+                    </div>
                     <div id="cuestionariosList"></div>
                 </div>
             </div>
 
             <!-- Evaluaciones -->
             <div id="evaluaciones" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Evaluación</h4></div>
-                    <div style="padding:24px 32px;">
-                        <form id="evaluacionForm">
-                            <div class="form-group">
-                                <label for="evaluacionTitle">Título de la Evaluación</label>
-                                <input type="text" id="evaluacionTitle" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="evaluacionDesc">Descripción</label>
-                                <textarea id="evaluacionDesc"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="evaluacionPrograma">Programa</label>
-                                <select id="evaluacionPrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Preguntas</label>
-                                <div id="evaluacionQuestionsContainer">
-                                    <!-- Questions will be added here -->
-                                </div>
-                                <button type="button" class="btn btn-primary" onclick="agregarPreguntaEvaluacion()" style="margin-top: 10px;">
-                                    <i class="fas fa-plus"></i> Agregar Pregunta
-                                </button>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Subir Evaluación</button>
-                        </form>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-clipboard-check"></i> Constructor de Evaluaciones</h3>
+                        <p>Crea evaluaciones interactivas con preguntas de opción múltiple y abiertas</p>
                     </div>
+
+                    <form id="evaluacionForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionTitle">Título de la Evaluación</label>
+                                    <input type="text" id="evaluacionTitle" placeholder="Ej: Evaluación Final de Técnicas Avanzadas" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionDesc">Descripción</label>
+                                    <textarea id="evaluacionDesc" placeholder="Describe el propósito y contenido de la evaluación..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionPrograma">Programa</label>
+                                    <select id="evaluacionPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="questions-builder">
+                            <h4><i class="fas fa-list-ol"></i> Preguntas de la Evaluación</h4>
+                            <div id="evaluacionQuestionsContainer">
+                                <!-- Questions will be added here -->
+                            </div>
+                            <button type="button" class="btn-submit-quiz" onclick="agregarPreguntaEvaluacion()" style="width: auto; margin-top: 1.5rem; padding: 0.75rem 2rem;">
+                                <i class="fas fa-plus"></i> Agregar Nueva Pregunta
+                            </button>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-rocket"></i> Publicar Evaluación
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Evaluaciones Subidas</h4></div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Evaluaciones Publicadas</h3>
+                        <p>Gestiona y administra tus evaluaciones creadas</p>
+                    </div>
                     <div id="evaluacionesList"></div>
                 </div>
             </div>
@@ -416,15 +1293,15 @@
                     <div class="content-list-header"><h4>Subir Material</h4></div>
                     <div style="padding:24px 32px;">
                         <form id="materialForm">
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="materialTitle">Título del Material</label>
                                 <input type="text" id="materialTitle" required>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="materialDesc">Descripción</label>
                                 <textarea id="materialDesc"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="materialPrograma">Programa</label>
                                 <select id="materialPrograma" required>
                                     <option value="">Seleccionar programa</option>
@@ -433,7 +1310,7 @@
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="materialUrl">URL del Archivo</label>
                                 <input type="url" id="materialUrl" placeholder="https://..." required>
                             </div>
@@ -448,11 +1325,39 @@
             </div>
         </div>
     </div>
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    <script>
+        // Adaptador de subida base64 para imágenes incrustadas
+        class Base64UploadAdapter {
+            constructor(loader) {
+                this.loader = loader;
+            }
 
-        import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
-        import { getFirestore, collection, getDocs, addDoc, deleteDoc, updateDoc, query, orderBy, where, doc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+            upload() {
+                return this.loader.file
+                    .then(file => new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            resolve({
+                                default: reader.result
+                            });
+                        };
+                        reader.onerror = () => {
+                            reject(reader.error);
+                        };
+                        reader.readAsDataURL(file);
+                    }));
+            }
+
+            abort() {
+                // No se puede abortar la lectura de FileReader
+            }
+        }
+
+        function Base64UploadAdapterPlugin(editor) {
+            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                return new Base64UploadAdapter(loader);
+            };
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
@@ -463,12 +1368,12 @@
             appId: "1:971007838036:web:381b5c516ba841fef12ac1"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
         // Verificar autenticación
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        console.log('Current user from session:', currentUser);
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
         } else {
@@ -500,6 +1405,8 @@
             else if (sectionId === 'cuestionarios') loadCuestionariosList();
             else if (sectionId === 'evaluaciones') loadEvaluacionesList();
             else if (sectionId === 'materiales') loadMaterialesList();
+            else if (sectionId === 'ver-entregas') loadEntregas();
+            else if (sectionId === 'ver-respuestas') loadRespuestas();
         }
 
         function toggleMobileMenu() {
@@ -511,19 +1418,14 @@
             window.location.href = 'login.html';
         }
 
-        // Exponer funciones al ámbito global para que los atributos onclick en HTML funcionen
-        window.showSection = showSection;
-        window.toggleMobileMenu = toggleMobileMenu;
-        window.logout = logout;
-
         // Funciones para preguntas
         function collectQuestions(type) {
             const container = document.getElementById(`${type}QuestionsContainer`);
-            const questionDivs = container.querySelectorAll('.question-item');
+            const questionDivs = container.querySelectorAll('.question-item-premium');
             const questions = [];
             questionDivs.forEach(div => {
-                const tipo = div.querySelector('.question-type').value;
-                const texto = div.querySelector('.question-text').value.trim();
+                const tipo = div.querySelector('.question-type-premium').value;
+                const texto = div.querySelector('.question-text-premium').value.trim();
                 if (!texto) return;
                 const question = { texto, tipo };
                 if (tipo === 'multiple') {
@@ -534,7 +1436,7 @@
                     }
                     if (opciones.length !== 4) return;
                     question.opciones = opciones;
-                    question.respuesta = parseInt(div.querySelector('.correct-answer').value);
+                    question.respuesta = parseInt(div.querySelector('.correct-answer-premium').value);
                 }
                 questions.push(question);
             });
@@ -555,46 +1457,76 @@
 
         function createQuestionElement() {
             const div = document.createElement('div');
-            div.className = 'question-item';
-            div.style.cssText = 'border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #f8fafc;';
+            div.className = 'question-item-premium';
             div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <select class="question-type" onchange="toggleQuestionType(this)" style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                        <option value="multiple">Opción Múltiple</option>
-                        <option value="open">Pregunta Abierta</option>
-                    </select>
-                    <button type="button" onclick="removeQuestion(this)" style="background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Eliminar</button>
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <input type="text" class="question-text" placeholder="Escribe la pregunta aquí..." required style="width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                </div>
-                <div class="multiple-options" style="display: block;">
-                    <div style="margin-bottom: 8px; font-weight: bold;">Opciones (4 requeridas):</div>
-                    <input type="text" class="option-0" placeholder="Opción A" style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <input type="text" class="option-1" placeholder="Opción B" style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <input type="text" class="option-2" placeholder="Opción C" style="width: 100%; padding: 6px; margin-bottom: 6px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <input type="text" class="option-3" placeholder="Opción D" style="width: 100%; padding: 6px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 4px;">
-                    <div>
-                        <label>Respuesta correcta:</label>
-                        <select class="correct-answer" style="padding: 6px; border: 1px solid #e2e8f0; border-radius: 4px; margin-left: 8px;">
-                            <option value="0">A</option>
-                            <option value="1">B</option>
-                            <option value="2">C</option>
-                            <option value="3">D</option>
+                <div class="question-header-premium">
+                    <div class="question-type-selector">
+                        <i class="fas fa-question-circle"></i>
+                        <select class="question-type-premium" onchange="toggleQuestionType(this)">
+                            <option value="multiple">Opción Múltiple</option>
+                            <option value="open">Pregunta Abierta</option>
                         </select>
                     </div>
+                    <button type="button" class="btn-remove-question" onclick="removeQuestion(this)">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Eliminar</span>
+                    </button>
                 </div>
-                <div class="open-options" style="display: none;">
-                    <div style="color: #64748b; font-style: italic;">Esta pregunta permitirá respuesta abierta del estudiante.</div>
+                <div class="question-content-premium">
+                    <div class="question-text-container">
+                        <input type="text" class="question-text-premium" placeholder="Escribe la pregunta aquí..." required>
+                    </div>
+                    <div class="multiple-options-premium">
+                        <div class="options-header">
+                            <i class="fas fa-list-ul"></i>
+                            <span>Opciones (4 requeridas):</span>
+                        </div>
+                        <div class="options-grid">
+                            <div class="option-input-group">
+                                <span class="option-label">A</span>
+                                <input type="text" class="option-input-premium option-0" placeholder="Opción A">
+                            </div>
+                            <div class="option-input-group">
+                                <span class="option-label">B</span>
+                                <input type="text" class="option-input-premium option-1" placeholder="Opción B">
+                            </div>
+                            <div class="option-input-group">
+                                <span class="option-label">C</span>
+                                <input type="text" class="option-input-premium option-2" placeholder="Opción C">
+                            </div>
+                            <div class="option-input-group">
+                                <span class="option-label">D</span>
+                                <input type="text" class="option-input-premium option-3" placeholder="Opción D">
+                            </div>
+                        </div>
+                        <div class="correct-answer-section">
+                            <label class="correct-answer-label">
+                                <i class="fas fa-check-circle"></i>
+                                Respuesta correcta:
+                            </label>
+                            <select class="correct-answer-premium">
+                                <option value="0">A</option>
+                                <option value="1">B</option>
+                                <option value="2">C</option>
+                                <option value="3">D</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="open-options-premium">
+                        <div class="open-question-notice">
+                            <i class="fas fa-edit"></i>
+                            <span>Esta pregunta permitirá respuesta abierta del estudiante.</span>
+                        </div>
+                    </div>
                 </div>
             `;
             return div;
         }
 
         function toggleQuestionType(select) {
-            const div = select.closest('.question-item');
-            const multiple = div.querySelector('.multiple-options');
-            const open = div.querySelector('.open-options');
+            const div = select.closest('.question-item-premium');
+            const multiple = div.querySelector('.multiple-options-premium');
+            const open = div.querySelector('.open-options-premium');
             if (select.value === 'multiple') {
                 multiple.style.display = 'block';
                 open.style.display = 'none';
@@ -605,7 +1537,7 @@
         }
 
         function removeQuestion(button) {
-            button.closest('.question-item').remove();
+            button.closest('.question-item-premium').remove();
         }
 
         // Expose functions to global scope
@@ -628,7 +1560,7 @@
                     if (!programa) return alert('Selecciona un programa');
 
                     try {
-                        await addDoc(collection(db, 'content'), {
+                        await db.collection('content').add({
                             titulo: title,
                             descripcion: desc,
                             url: url,
@@ -659,7 +1591,7 @@
                     if (!programa) return alert('Selecciona un programa');
 
                     try {
-                        await addDoc(collection(db, 'classes'), {
+                        await db.collection('classes').add({
                             titulo: title,
                             descripcion: desc,
                             contenido: content,
@@ -691,7 +1623,7 @@
                     if (!programa) return alert('Selecciona un programa');
 
                     try {
-                        await addDoc(collection(db, 'activities'), {
+                        await db.collection('activities').add({
                             titulo: title,
                             instrucciones: desc,
                             archivoUrl: url || null,
@@ -723,7 +1655,7 @@
                     if (!programa) return alert('Selecciona un programa');
 
                     try {
-                        await addDoc(collection(db, 'materials'), {
+                        await db.collection('materials').add({
                             titulo: title,
                             descripcion: desc,
                             pdfData: url,
@@ -751,6 +1683,8 @@
                     const title = document.getElementById('cuestionarioTitle').value;
                     const desc = document.getElementById('cuestionarioDesc').value;
                     const programa = document.getElementById('cuestionarioPrograma').value;
+                    const tiempo = document.getElementById('cuestionarioTiempo').value;
+                    const intentos = document.getElementById('cuestionarioIntentos').value;
 
                     if (!programa) return alert('Selecciona un programa');
 
@@ -758,11 +1692,13 @@
                     if (questions.length === 0) return alert('Agrega al menos una pregunta');
 
                     try {
-                        await addDoc(collection(db, 'cuestionarios'), {
+                        await db.collection('cuestionarios').add({
                             titulo: title,
                             descripcion: desc,
                             preguntas: questions,
                             programa: programa,
+                            tiempoLimite: tiempo ? parseInt(tiempo) : null,
+                            numeroIntentos: intentos ? parseInt(intentos) : 1,
                             fechaRegistro: new Date().toISOString()
                         });
 
@@ -791,7 +1727,7 @@
                     if (questions.length === 0) return alert('Agrega al menos una pregunta');
 
                     try {
-                        await addDoc(collection(db, 'evaluaciones'), {
+                        await db.collection('evaluaciones').add({
                             titulo: title,
                             descripcion: desc,
                             preguntas: questions,
@@ -813,17 +1749,20 @@
         // Dashboard stats
         async function loadDashboardStats() {
             try {
-                const videosSnapshot = await getDocs(collection(db, 'content'));
+                const videosSnapshot = await db.collection('content').get();
                 document.getElementById('stat-videos').textContent = videosSnapshot.size;
 
-                const clasesSnapshot = await getDocs(collection(db, 'classes'));
+                const clasesSnapshot = await db.collection('classes').get();
                 document.getElementById('stat-clases').textContent = clasesSnapshot.size;
 
-                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
+                const actividadesSnapshot = await db.collection('activities').get();
                 document.getElementById('stat-actividades').textContent = actividadesSnapshot.size;
 
-                const materialesSnapshot = await getDocs(collection(db, 'materials'));
+                const materialesSnapshot = await db.collection('materials').get();
                 document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
+
+                const entregasSnapshot = await db.collection('entregas').get();
+                document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -832,7 +1771,7 @@
         // Usuarios pendientes
         async function loadUsuariosPendientes() {
             try {
-                const snapshot = await getDocs(query(collection(db, 'pendingStudents'), orderBy('registeredDate', 'desc')));
+                const snapshot = await db.collection('pendingStudents').orderBy('registeredDate', 'desc').get();
                 const container = document.getElementById('usuarios-pendientes');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay solicitudes pendientes</h5></div></div>';
@@ -866,8 +1805,8 @@
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
             try {
-                const q = query(collection(db, 'users'), where('role', '==', 'student'));
-                const snapshot = await getDocs(q);
+                const q = db.collection('users').where('role', '==', 'student');
+                const snapshot = await q.get();
                 const container = document.getElementById('usuarios-aprobados');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay usuarios aprobados</h5></div></div>';
@@ -909,8 +1848,8 @@
         // Funciones de usuarios
         async function aprobarUsuario(id) {
             try {
-                const docRef = doc(db, 'pendingStudents', id);
-                const docSnap = await getDocs(query(collection(db, 'pendingStudents'), where('__name__', '==', id)));
+                const docRef = db.collection('pendingStudents').doc(id);
+                const docSnap = await db.collection('pendingStudents').where('__name__', '==', id).get();
                 const data = docSnap.docs[0].data();
 
                 // Usar la contraseña registrada por el estudiante
@@ -921,7 +1860,7 @@
                 }
 
                 // Guardar en users con la contraseña original
-                await addDoc(collection(db, 'users'), {
+                await db.collection('users').add({
                     ...data,
                     password: password,
                     role: 'student',
@@ -942,7 +1881,7 @@
 
         async function rechazarUsuario(id) {
             try {
-                await deleteDoc(doc(db, 'pendingStudents', id));
+                await db.collection('pendingStudents').doc(id).delete();
                 loadUsuariosPendientes();
                 alert('Solicitud rechazada');
             } catch (error) {
@@ -954,7 +1893,7 @@
         async function eliminarUsuario(id) {
             if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
             try {
-                await deleteDoc(doc(db, 'users', id));
+                await db.collection('users').doc(id).delete();
                 loadUsuariosAprobados();
                 alert('Usuario eliminado');
             } catch (error) {
@@ -968,7 +1907,7 @@
             if (!newPassword) return;
 
             try {
-                await updateDoc(doc(db, 'users', id), { password: newPassword });
+                await db.collection('users').doc(id).update({ password: newPassword });
                 loadUsuariosAprobados();
                 alert('Contraseña actualizada');
             } catch (error) {
@@ -980,7 +1919,7 @@
         // Funciones para cargar listas de contenido
         async function loadVideosList() {
             try {
-                const snapshot = await getDocs(collection(db, 'content'));
+                const snapshot = await db.collection('content').get();
                 const container = document.getElementById('videosList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos subidos</h5></div></div>';
@@ -1009,7 +1948,7 @@
 
         async function loadClasesList() {
             try {
-                const snapshot = await getDocs(collection(db, 'classes'));
+                const snapshot = await db.collection('classes').get();
                 const container = document.getElementById('clasesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases subidas</h5></div></div>';
@@ -1038,7 +1977,7 @@
 
         async function loadActividadesList() {
             try {
-                const snapshot = await getDocs(collection(db, 'activities'));
+                const snapshot = await db.collection('activities').get();
                 const container = document.getElementById('actividadesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades subidas</h5></div></div>';
@@ -1067,7 +2006,7 @@
 
         async function loadCuestionariosList() {
             try {
-                const snapshot = await getDocs(collection(db, 'cuestionarios'));
+                const snapshot = await db.collection('cuestionarios').get();
                 const container = document.getElementById('cuestionariosList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios subidos</h5></div></div>';
@@ -1096,7 +2035,7 @@
 
         async function loadEvaluacionesList() {
             try {
-                const snapshot = await getDocs(collection(db, 'evaluaciones'));
+                const snapshot = await db.collection('evaluaciones').get();
                 const container = document.getElementById('evaluacionesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay evaluaciones subidas</h5></div></div>';
@@ -1125,7 +2064,7 @@
 
         async function loadMaterialesList() {
             try {
-                const snapshot = await getDocs(collection(db, 'materials'));
+                const snapshot = await db.collection('materials').get();
                 const container = document.getElementById('materialesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay materiales subidos</h5></div></div>';
@@ -1155,7 +2094,22 @@
         async function deleteItem(collectionName, id) {
             if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
             try {
-                await deleteDoc(doc(db, collectionName, id));
+                // Si es cuestionario o evaluación, eliminar respuestas relacionadas
+                if (collectionName === 'cuestionarios') {
+                    const respuestasSnapshot = await db.collection('respuestasCuestionarios').get();
+                    const deletePromises = respuestasSnapshot.docs
+                        .filter(doc => doc.data().cuestionarioId === id)
+                        .map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                } else if (collectionName === 'evaluaciones') {
+                    const respuestasSnapshot = await db.collection('respuestasEvaluaciones').get();
+                    const deletePromises = respuestasSnapshot.docs
+                        .filter(doc => doc.data().evaluacionId === id)
+                        .map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                }
+                
+                await db.collection(collectionName).doc(id).delete();
                 alert('Elemento eliminado');
                 loadDashboardStats(); // Actualizar stats
                 // Recargar la lista actual
@@ -1168,6 +2122,13 @@
                     else if (sectionId === 'cuestionarios') loadCuestionariosList();
                     else if (sectionId === 'evaluaciones') loadEvaluacionesList();
                     else if (sectionId === 'materiales') loadMaterialesList();
+                    else if (sectionId === 'ver-entregas') {
+                        console.log('Seleccionando sección ver-entregas');
+                        loadEntregas();
+                    }
+                    else if (sectionId === 'ver-respuestas') {
+                        loadRespuestas();
+                    }
                 }
             } catch (error) {
                 console.error('Error deleting item:', error);
@@ -1175,11 +2136,252 @@
             }
         }
 
-        // Inicializar CKEditor
+        // =================== FUNCIONES DE ENTREGAS ===================
+        let allEntregas = [];
+
+        async function loadEntregas() {
+            console.log('Iniciando carga de entregas...');
+            try {
+                const snapshot = await db.collection('entregas').get();
+                console.log('Snapshot obtenido:', snapshot);
+                console.log('Número de documentos:', snapshot.size);
+                
+                allEntregas = [];
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    console.log('Entrega encontrada:', doc.id, data);
+                    allEntregas.push({ 
+                        id: doc.id, 
+                        ...data,
+                        titulo: data.titulo || 'Actividad',
+                        programa: data.programa || 'N/A',
+                        nombre: data.nombre || data.estudianteId || 'Estudiante'
+                    });
+                });
+
+                console.log('Entregas procesadas:', allEntregas);
+
+                // Filtrar para mostrar solo la última entrega por actividad y estudiante
+                const entregasMap = new Map();
+                allEntregas.forEach(entrega => {
+                    const key = `${entrega.actividadId}-${entrega.estudianteId}`;
+                    const existing = entregasMap.get(key);
+                    if (!existing || new Date(entrega.fechaEntrega || 0) > new Date(existing.fechaEntrega || 0)) {
+                        entregasMap.set(key, entrega);
+                    }
+                });
+                allEntregas = Array.from(entregasMap.values());
+
+                console.log('Entregas filtradas (últimas):', allEntregas);
+
+                // Ordenar por fecha de entrega (más recientes primero)
+                allEntregas.sort((a, b) => new Date(b.fechaEntrega || 0) - new Date(a.fechaEntrega || 0));
+
+                // Setear filtro por programa del admin
+                // const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                // console.log('currentUser en loadEntregas:', currentUser);
+                // if (currentUser && currentUser.programa) {
+                //     console.log('Seteando filtro a:', currentUser.programa);
+                //     document.getElementById('programaFilter').value = currentUser.programa;
+                // }
+
+                updateEntregasStats();
+                renderEntregas();
+                
+                console.log('Carga de entregas completada');
+            } catch (error) {
+                console.error('Error loading entregas:', error);
+                document.getElementById('entregas-list').innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar entregas: ' + error.message + '</h5></div></div>';
+            }
+        }
+
+        function updateEntregasStats() {
+            const total = allEntregas.length;
+            const pendientes = allEntregas.filter(e => !e.calificada).length;
+            const calificadas = allEntregas.filter(e => e.calificada).length;
+
+            document.getElementById('total-entregas').textContent = total;
+            document.getElementById('pendientes-entregas').textContent = pendientes;
+            document.getElementById('calificadas-entregas').textContent = calificadas;
+        }
+
+        function renderEntregas() {
+            const container = document.getElementById('entregas-list');
+            const searchTerm = document.getElementById('entregasSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('entregasFilter').value;
+            const programaFilter = document.getElementById('programaFilter').value;
+
+            console.log('renderEntregas - programaFilter:', programaFilter, 'allEntregas length:', allEntregas.length);
+
+            let filtered = allEntregas.filter(entrega => {
+                const matchesSearch = !searchTerm ||
+                    entrega.estudianteId.toLowerCase().includes(searchTerm) ||
+                    entrega.titulo?.toLowerCase().includes(searchTerm) ||
+                    entrega.nombre?.toLowerCase().includes(searchTerm);
+
+                const matchesStatus = statusFilter === 'all' ||
+                    (statusFilter === 'pendientes' && !entrega.calificada) ||
+                    (statusFilter === 'calificadas' && entrega.calificada);
+
+                const matchesPrograma = programaFilter === 'all' ||
+                    entrega.programa.toLowerCase() === programaFilter.toLowerCase();
+
+                console.log('Entrega:', entrega.id, 'programa:', entrega.programa, 'matchesPrograma:', matchesPrograma);
+
+                return matchesSearch && matchesStatus && matchesPrograma;
+            });
+
+            console.log('filtered length:', filtered.length);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No se encontraron entregas</h5></div></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(entrega => `
+                <div class="entrega-item">
+                    <div class="entrega-info">
+                        <h5>${entrega.titulo || 'Actividad'}</h5>
+                        <div class="entrega-meta">
+                            <span><i class="fas fa-user"></i> ${entrega.nombre || entrega.estudianteId}</span>
+                            <span><i class="fas fa-calendar"></i> ${new Date(entrega.fechaEntrega).toLocaleDateString('es-ES')}</span>
+                            <span><i class="fas fa-graduation-cap"></i> ${entrega.programa || 'N/A'}</span>
+                            <span class="entrega-status ${entrega.calificada ? 'status-calificada' : 'status-pendiente'}">
+                                ${entrega.calificada ? 'Calificada' : 'Pendiente'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="entrega-actions">
+                        <button class="btn btn-sm btn-view" onclick="viewEntregaDetail('${entrega.id}')">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        ${!entrega.calificada ? `
+                            <button class="btn btn-sm btn-calificar" onclick="viewEntregaDetail('${entrega.id}', true)">
+                                <i class="fas fa-star"></i> Calificar
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterEntregas() {
+            renderEntregas();
+        }
+
+        async function viewEntregaDetail(entregaId, calificar = false) {
+            try {
+                const docRef = db.collection('entregas').doc(entregaId);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const entrega = docSnap.data();
+
+                    // Obtener información de la actividad
+                    const actividadDoc = await db.collection('activities').doc(entrega.actividadId).get();
+                    const actividad = actividadDoc.exists ? actividadDoc.data() : {};
+
+                    document.getElementById('modalTitle').textContent = calificar ? 'Calificar Entrega' : 'Detalle de Entrega';
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="entrega-detail">
+                            <div class="entrega-header">
+                                <div>
+                                    <h3>${actividad.titulo || 'Actividad'}</h3>
+                                    <p style="color: #64748b; margin: 4px 0;">Entregada el ${new Date(entrega.fechaEntrega).toLocaleDateString('es-ES')} a las ${new Date(entrega.fechaEntrega).toLocaleTimeString('es-ES')}</p>
+                                </div>
+                                ${entrega.calificada ? '<span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Calificada</span>' : '<span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Pendiente</span>'}
+                            </div>
+
+                            <div class="estudiante-info">
+                                <h4><i class="fas fa-user"></i> Información del Estudiante</h4>
+                                <p><strong>Nombre:</strong> ${entrega.nombre || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${entrega.estudianteId}</p>
+                                <p><strong>Programa:</strong> ${entrega.programa || 'N/A'}</p>
+                            </div>
+
+                            <div class="entrega-contenido">
+                                <h4><i class="fas fa-file-alt"></i> Contenido de la Entrega</h4>
+                                <div style="margin-top: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                                    ${entrega.entrega}
+                                </div>
+                            </div>
+
+                            ${calificar ? `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificar Entrega</h4>
+                                    <form onsubmit="calificarEntrega(event, '${entregaId}')" class="form-group-inline">
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="calificacion">Calificación (0-100)</label>
+                                            <input type="number" id="calificacion" min="0" max="100" style="width: 100px;">
+                                        </div>
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="comentarios">Comentarios (opcional)</label>
+                                            <textarea id="comentarios" rows="3" style="width: 300px;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Calificación
+                                        </button>
+                                    </form>
+                                </div>
+                            ` : entrega.calificada ? `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificación</h4>
+                                    <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                        <p style="margin: 0; font-size: 24px; font-weight: bold; color: #1e3a8a;">${entrega.calificacion || 'N/A'}/100</p>
+                                        ${entrega.comentarios ? `<p style="margin: 8px 0 0 0; color: #64748b;"><strong>Comentarios:</strong> ${entrega.comentarios}</p>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+
+                    document.getElementById('entregaModal').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading entrega detail:', error);
+                alert('Error al cargar el detalle de la entrega');
+            }
+        }
+
+        async function calificarEntrega(event, entregaId) {
+            event.preventDefault();
+
+            const calificacion = parseInt(document.getElementById('calificacion').value);
+            const comentarios = document.getElementById('comentarios').value.trim();
+
+            if (calificacion < 0 || calificacion > 100) {
+                alert('La calificación debe estar entre 0 y 100');
+                return;
+            }
+
+            try {
+                await db.collection('entregas').doc(entregaId).set({
+                    calificada: true,
+                    nota: calificacion,
+                    comentario: comentarios,
+                    fechaCalificacion: new Date().toISOString()
+                }, { merge: true });
+
+                alert('Calificación guardada exitosamente');
+                closeModal();
+                loadEntregas(); // Recargar la lista
+            } catch (error) {
+                console.error('Error calificando entrega:', error);
+                alert('Error al guardar la calificación');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('entregaModal').style.display = 'none';
+        }
+
+        // Inicializar CKEditor (con adaptador base64 para imágenes)
         let claseEditor;
         ClassicEditor
             .create(document.querySelector('#claseContent'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'underline', 'strikethrough', '|', 'fontColor', 'fontBackgroundColor', '|', 'alignment', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo']
+                toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                extraPlugins: [Base64UploadAdapterPlugin]
             })
             .then(editor => {
                 claseEditor = editor;
@@ -1198,6 +2400,541 @@
         window.resetPassword = resetPassword;
         window.loadUsuariosAprobados = loadUsuariosAprobados;
         window.deleteItem = deleteItem;
+        window.loadEntregas = loadEntregas;
+        window.filterEntregas = filterEntregas;
+        window.viewEntregaDetail = viewEntregaDetail;
+        window.closeModal = closeModal;
+        window.calificarEntrega = calificarEntrega;
+
+        // =================== FUNCIONES DE RESPUESTAS ===================
+        let allRespuestas = [];
+
+        async function loadRespuestas() {
+            console.log('Iniciando carga de respuestas...');
+            try {
+                // Cargar respuestas de cuestionarios
+                const snapshotCuestionarios = await db.collection('respuestasCuestionarios').get();
+                console.log('Snapshot respuestas cuestionarios:', snapshotCuestionarios.size);
+                
+                // Cargar respuestas de evaluaciones
+                const snapshotEvaluaciones = await db.collection('respuestasEvaluaciones').get();
+                console.log('Snapshot respuestas evaluaciones:', snapshotEvaluaciones.size);
+                
+                allRespuestas = [];
+                
+                // Procesar respuestas de cuestionarios
+                for (const doc of snapshotCuestionarios.docs) {
+                    const data = doc.data();
+                    console.log('Respuesta cuestionario encontrada:', doc.id, data);
+                    
+                    let cuestionarioInfo = { titulo: 'Cuestionario', programa: 'N/A', tipo: 'cuestionario' };
+                    try {
+                        const cuestionarioDoc = await db.collection('cuestionarios').doc(data.cuestionarioId).get();
+                        if (cuestionarioDoc.exists) {
+                            const cqData = cuestionarioDoc.data();
+                            cuestionarioInfo = {
+                                titulo: cqData.titulo || 'Cuestionario',
+                                programa: cqData.programa || 'N/A',
+                                tipo: 'cuestionario'
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error obteniendo cuestionario:', error);
+                    }
+                    
+                    allRespuestas.push({ 
+                        id: doc.id, 
+                        ...data,
+                        titulo: cuestionarioInfo.titulo,
+                        programa: cuestionarioInfo.programa,
+                        tipo: cuestionarioInfo.tipo,
+                        nombre: data.nombre || data.estudianteId || 'Estudiante'
+                    });
+                }
+
+                // Procesar respuestas de evaluaciones
+                for (const doc of snapshotEvaluaciones.docs) {
+                    const data = doc.data();
+                    console.log('Respuesta evaluación encontrada:', doc.id, data);
+                    
+                    let evaluacionInfo = { titulo: 'Evaluación', programa: 'N/A', tipo: 'evaluacion' };
+                    try {
+                        const evaluacionDoc = await db.collection('evaluaciones').doc(data.evaluacionId).get();
+                        if (evaluacionDoc.exists) {
+                            const evData = evaluacionDoc.data();
+                            evaluacionInfo = {
+                                titulo: evData.titulo || 'Evaluación',
+                                programa: evData.programa || 'N/A',
+                                tipo: 'evaluacion'
+                            };
+                        }
+                    } catch (error) {
+                        console.error('Error obteniendo evaluación:', error);
+                    }
+                    
+                    allRespuestas.push({ 
+                        id: doc.id, 
+                        ...data,
+                        titulo: evaluacionInfo.titulo,
+                        programa: evaluacionInfo.programa,
+                        tipo: evaluacionInfo.tipo,
+                        nombre: data.nombre || data.estudianteId || 'Estudiante'
+                    });
+                }
+
+                console.log('Respuestas procesadas:', allRespuestas);
+
+                // Ordenar por fecha de respuesta (más recientes primero)
+                allRespuestas.sort((a, b) => new Date(b.fechaRespuesta || 0) - new Date(a.fechaRespuesta || 0));
+
+                updateRespuestasStats();
+                renderRespuestas();
+                
+                console.log('Carga de respuestas completada');
+            } catch (error) {
+                console.error('Error loading respuestas:', error);
+                document.getElementById('respuestas-list').innerHTML = '<div class="content-item"><div class="content-info"><h5>Error al cargar respuestas: ' + error.message + '</h5></div></div>';
+            }
+        }
+
+        function updateRespuestasStats() {
+            const total = allRespuestas.length;
+            const pendientes = allRespuestas.filter(r => !r.calificada).length;
+            const calificadas = allRespuestas.filter(r => r.calificada).length;
+
+            document.getElementById('total-respuestas').textContent = total;
+            document.getElementById('pendientes-respuestas').textContent = pendientes;
+            document.getElementById('calificadas-respuestas').textContent = calificadas;
+        }
+
+        function renderRespuestas() {
+            const container = document.getElementById('respuestas-list');
+            const searchTerm = document.getElementById('respuestasSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('respuestasFilter').value;
+            const programaFilter = document.getElementById('programaRespuestasFilter').value;
+
+            let filtered = allRespuestas.filter(respuesta => {
+                const matchesSearch = !searchTerm ||
+                    respuesta.estudianteId.toLowerCase().includes(searchTerm) ||
+                    respuesta.titulo?.toLowerCase().includes(searchTerm) ||
+                    respuesta.nombre?.toLowerCase().includes(searchTerm);
+
+                const matchesStatus = statusFilter === 'all' ||
+                    (statusFilter === 'pendientes' && !respuesta.calificada) ||
+                    (statusFilter === 'calificadas' && respuesta.calificada);
+
+                const matchesPrograma = programaFilter === 'all' ||
+                    respuesta.programa.toLowerCase() === programaFilter.toLowerCase();
+
+                return matchesSearch && matchesStatus && matchesPrograma;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay respuestas que coincidan con los filtros</h5></div></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(respuesta => `
+                <div class="content-item" onclick="viewRespuestaDetail('${respuesta.id}', '${respuesta.tipo}')" style="cursor: pointer;">
+                    <div class="content-info">
+                        <h5>${respuesta.titulo} <span style="font-size: 12px; color: #64748b;">(${respuesta.tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'})</span></h5>
+                        <p><strong>Estudiante:</strong> ${respuesta.nombre} (${respuesta.estudianteId})</p>
+                        <p><strong>Programa:</strong> ${respuesta.programa}</p>
+                        <p><strong>Fecha:</strong> ${new Date(respuesta.fechaRespuesta).toLocaleString('es-ES')}</p>
+                        <p><strong>Estado:</strong> ${respuesta.calificada ? 'Calificada' : 'Pendiente'}</p>
+                        ${respuesta.calificada ? `<p><strong>Calificación:</strong> ${respuesta.calificacion || 'N/A'}</p>` : ''}
+                    </div>
+                    <div class="content-actions">
+                        ${!respuesta.calificada ? `<button class="btn-icon btn-edit" onclick="event.stopPropagation(); calificarRespuestaDirecta('${respuesta.id}', '${respuesta.tipo}')" title="Calificar"><i class="fas fa-edit"></i></button>` : ''}
+                        <span class="status-badge ${respuesta.calificada ? 'status-completed' : 'status-pending'}">
+                            ${respuesta.calificada ? 'Calificada' : 'Pendiente'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterRespuestas() {
+            renderRespuestas();
+        }
+
+        async function viewRespuestaDetail(respuestaId, tipo) {
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const itemCollection = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const itemIdField = tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId';
+                
+                const docRef = db.collection(collectionName).doc(respuestaId);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const respuesta = docSnap.data();
+
+                    // Obtener info del item
+                    const itemDoc = await db.collection(itemCollection).doc(respuesta[itemIdField]).get();
+                    const item = itemDoc.exists ? itemDoc.data() : {};
+
+                    document.getElementById('modalTitle').textContent = `Detalle de Respuesta - ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}`;
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="entrega-detail">
+                            <div class="entrega-header">
+                                <div>
+                                    <h3>${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}</h3>
+                                    <p style="color: #64748b; margin: 4px 0;">Respondido el ${new Date(respuesta.fechaRespuesta).toLocaleString('es-ES')}</p>
+                                </div>
+                                ${respuesta.calificada ? '<span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Calificada</span>' : '<span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Pendiente</span>'}
+                            </div>
+
+                            <div class="estudiante-info">
+                                <h4><i class="fas fa-user"></i> Información del Estudiante</h4>
+                                <p><strong>Nombre:</strong> ${respuesta.nombre || 'N/A'}</p>
+                                <p><strong>Email:</strong> ${respuesta.estudianteId}</p>
+                                <p><strong>Programa:</strong> ${respuesta.programa || 'N/A'}</p>
+                            </div>
+
+                            <div class="entrega-contenido">
+                                <h4><i class="fas fa-clipboard-list"></i> Respuestas</h4>
+                                ${respuesta.respuestas.map((respuestaTexto, index) => {
+                                    const pregunta = item.preguntas?.[index];
+                                    const tipo = pregunta?.tipo || 'unknown';
+                                    const esAbierta = tipo === 'open';
+                                    const calificadaAutomatica = tipo === 'multiple' ? (respuestaTexto == pregunta.respuesta ? 'Correcta' : 'Incorrecta') : '';
+                                    return `
+                                        <div style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                                            <p><strong>Pregunta ${index + 1} (${tipo}):</strong> ${pregunta?.texto || 'Pregunta'}</p>
+                                            <p><strong>Respuesta:</strong> ${respuestaTexto || 'Sin respuesta'}</p>
+                                            ${tipo === 'multiple' ? `<p><strong>Calificación automática:</strong> ${calificadaAutomatica}</p>` : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            ${respuesta.preguntasAbiertas && respuesta.preguntasAbiertas.length > 0 ? `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificar Preguntas Abiertas</h4>
+                                    <p><strong>Calificación automática (preguntas múltiples):</strong> ${respuesta.calificacionAutomatica || 0}%</p><p><strong>Califica cada pregunta abierta individualmente.</strong></p>
+                                    , '${tipo}')" class="form-group-inline">
+                                        ${respuesta.preguntasAbiertas.map((abierta, idx) => ` <form onsubmit="calificarPreguntaAbierta(event, '${respuestaId}', '${tipo}', ${idx})"> 
+                                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                                <label for="calif-${idx}">Pregunta ${abierta.indice + 1} (0-100)</label>
+                                                <input type="number" id="calif-${idx}" min="0" max="100" style="width: 100px;">
+                                                <p><strong>Pregunta:</strong> ${abierta.texto}</p><p><strong>Respuesta del estudiante:</strong> ${abierta.respuestaEstudiante}</p> <button type="submit" class="btn btn-secondary">Calificar Esta Pregunta</button> </form>
+                                            </div>
+                                        `).join('')}
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="comentariosRespuesta">Comentarios generales (opcional)</label>
+                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Calificaciones
+                                        </button>
+                                    </form>
+                                </div>
+                            ` : respuesta.calificada ? `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificación</h4>
+                                    <p><strong>Nota total:</strong> ${respuesta.calificacion || 'N/A'}%</p>
+                                    <p><strong>Automática:</strong> ${respuesta.calificacionAutomatica || 0}%</p>
+                                    <p><strong>Abiertas:</strong> ${respuesta.calificacionAbiertas || 0}%</p>
+                                    ${respuesta.comentario ? `<p><strong>Comentario:</strong> ${respuesta.comentario}</p>` : ''}
+                                </div>
+                            ` : `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificar Respuesta</h4>
+                                    , '${tipo}')" class="form-group-inline">
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="calificacionRespuesta">Calificación (0-100)</label>
+                                            <input type="number" id="calificacionRespuesta" min="0" max="100" style="width: 100px;">
+                                        </div>
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="comentariosRespuesta">Comentarios (opcional)</label>
+                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Calificación
+                                        </button>
+                                    </form>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading respuesta detail:', error);
+                document.getElementById('modalBody').innerHTML = '<p>Error al cargar la respuesta</p>';
+            }
+        }
+
+        async function calificarRespuestaDirecta(respuestaId, tipo) {
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const itemCollection = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const itemIdField = tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId';
+                
+                const docRef = db.collection(collectionName).doc(respuestaId);
+                const docSnap = await docRef.get();
+
+                if (docSnap.exists) {
+                    const respuesta = docSnap.data();
+
+                    // Obtener info del item
+                    const itemDoc = await db.collection(itemCollection).doc(respuesta[itemIdField]).get();
+                    const item = itemDoc.exists ? itemDoc.data() : {};
+
+                    document.getElementById('modalTitle').textContent = `Calificar Respuesta - ${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}`;
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="entrega-detail">
+                            <div class="entrega-header">
+                                <div>
+                                    <h3>${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}</h3>
+                                    <p style="color: #64748b; margin: 4px 0;">Respondido por ${respuesta.nombre || respuesta.estudianteId} el ${new Date(respuesta.fechaRespuesta).toLocaleString('es-ES')}</p>
+                                </div>
+                            </div>
+
+                            <div class="entrega-contenido">
+                                <h4><i class="fas fa-clipboard-list"></i> Respuestas</h4>
+                                ${respuesta.respuestas.map((respuestaTexto, index) => {
+                                    const pregunta = item.preguntas?.[index];
+                                    const tipoPregunta = pregunta?.tipo || 'unknown';
+                                    const calificadaAutomatica = tipoPregunta === 'multiple' ? (respuestaTexto == pregunta.respuesta ? 'Correcta' : 'Incorrecta') : '';
+                                    return `
+                                        <div style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                                            <p><strong>Pregunta ${index + 1} (${tipoPregunta}):</strong> ${pregunta?.texto || 'Pregunta'}</p>
+                                            <p><strong>Respuesta:</strong> ${respuestaTexto || 'Sin respuesta'}</p>
+                                            ${tipoPregunta === 'multiple' ? `<p><strong>Calificación automática:</strong> ${calificadaAutomatica}</p>` : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            ${respuesta.preguntasAbiertas && respuesta.preguntasAbiertas.length > 0 ? `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificar Preguntas Abiertas</h4>
+                                    <p><strong>Calificación automática (preguntas múltiples):</strong> ${respuesta.calificacionAutomatica || 0}%</p>
+                                    <p id="open-questions-count"><strong>Preguntas abiertas por calificar:</strong> ${respuesta.preguntasAbiertas.length}</p>
+                                    <div style="background: #e2e8f0; border-radius: 10px; height: 8px; margin: 10px 0;">
+                                        <div id="progress-bar" style="background: #3b82f6; height: 8px; border-radius: 10px; width: 0%;"></div>
+                                    </div>
+                                    <p><strong>Califica cada pregunta abierta individualmente.</strong></p>
+                                    , '${tipo}')" class="form-group-inline">
+                                        ${respuesta.preguntasAbiertas.map((abierta, idx) => ` <form onsubmit="calificarPreguntaAbierta(event, '${respuestaId}', '${tipo}', ${idx})"> 
+                                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                                <label for="calif-${idx}">Pregunta ${abierta.indice + 1} (0-100)</label>
+                                                <input type="number" id="calif-${idx}" min="0" max="100" style="width: 100px;">
+                                                <p><strong>Pregunta:</strong> ${abierta.texto}</p><p><strong>Respuesta del estudiante:</strong> ${abierta.respuestaEstudiante}</p> <button type="submit" class="btn btn-secondary">Calificar Esta Pregunta</button> </form>
+                                            </div>
+                                        `).join('')}
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="comentariosRespuesta">Comentarios generales (opcional)</label>
+                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Calificaciones
+                                        </button>
+                                    </form>
+                                </div>
+                            ` : `
+                                <div class="calificacion-section">
+                                    <h4><i class="fas fa-star"></i> Calificar Respuesta</h4>
+                                    , '${tipo}')" class="form-group-inline">
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="calificacionRespuesta">Calificación (0-100)</label>
+                                            <input type="number" id="calificacionRespuesta" min="0" max="100" style="width: 100px;">
+                                        </div>
+                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                            <label for="comentariosRespuesta">Comentarios (opcional)</label>
+                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Calificación
+                                        </button>
+                                    </form>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                    document.getElementById('entregaModal').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading calificar directa:', error);
+                document.getElementById('modalBody').innerHTML = '<p>Error al cargar la respuesta</p>';
+            }
+        }
+
+        async function calificarPreguntaAbierta(event, respuestaId, tipo, idx) {
+            event.preventDefault();
+
+            const calif = parseInt(document.getElementById(`calif-${idx}`).value);
+            if (isNaN(calif) || calif < 0 || calif > 100) {
+                alert('La calificación debe estar entre 0 y 100');
+                return;
+            }
+
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const docRef = db.collection(collectionName).doc(respuestaId);
+                const docSnap = await docRef.get();
+                const respuesta = docSnap.data();
+
+                const puntosPorPregunta = respuesta.puntosPorPregunta || (100 / respuesta.respuestas.length);
+                let calificacionAbiertas = respuesta.calificacionAbiertas || 0;
+                let preguntasAbiertasRestantes = [...respuesta.preguntasAbiertas];
+
+                // Sumar la calificación de esta pregunta
+                calificacionAbiertas += (calif / 100) * puntosPorPregunta;
+
+                // Remover esta pregunta de la lista
+                const abierta = respuesta.preguntasAbiertas[idx];
+                preguntasAbiertasRestantes = preguntasAbiertasRestantes.filter(p => p.indice !== abierta.indice);
+
+                const updateData = {
+                    calificacionAbiertas: calificacionAbiertas,
+                    preguntasAbiertas: preguntasAbiertasRestantes,
+                    comentario: document.getElementById('comentariosRespuesta').value.trim(),
+                    fechaCalificacion: new Date().toISOString()
+                };
+
+                if (preguntasAbiertasRestantes.length === 0) {
+                    updateData.calificada = true;
+                    updateData.calificacion = (respuesta.calificacionAutomatica || 0) + calificacionAbiertas;
+                }
+
+                await docRef.update(updateData);
+
+                if (preguntasAbiertasRestantes.length > 0) {
+                    // Update count
+                    document.getElementById('open-questions-count').innerHTML = `<strong>Preguntas abiertas por calificar:</strong> ${preguntasAbiertasRestantes.length}`;
+                    // Update progress
+                    const total = respuesta.preguntasAbiertas.length;
+                    const progress = ((total - preguntasAbiertasRestantes.length) / total) * 100;
+                    document.getElementById('progress-bar').style.width = `${progress}%`;
+                    // Remove the graded question form
+                    const form = document.getElementById(`calif-${idx}`).closest('form');
+                    form.remove();
+                    alert('Pregunta calificada. Quedan más por calificar.');
+                } else {
+                    alert('Todas las preguntas han sido calificadas.');
+                    closeModal();
+                    loadRespuestas(); // Recargar la lista
+                }
+            } catch (error) {
+                console.error('Error calificando pregunta abierta:', error);
+                alert('Error al guardar la calificación');
+            }
+        }
+
+        async function calificarRespuesta(event, respuestaId, tipo) {
+            event.preventDefault();
+
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const docRef = db.collection(collectionName).doc(respuestaId);
+                const docSnap = await docRef.get();
+                const respuesta = docSnap.data();
+
+                let updateData = {
+                    comentario: document.getElementById('comentariosRespuesta').value.trim(),
+                    fechaCalificacion: new Date().toISOString()
+                };
+
+                if (respuesta.preguntasAbiertas && respuesta.preguntasAbiertas.length > 0) {
+                    // Calificar preguntas abiertas individualmente
+                    let calificacionAbiertas = respuesta.calificacionAbiertas || 0;
+                    let preguntasAbiertasRestantes = [...respuesta.preguntasAbiertas];
+                    const puntosPorPregunta = respuesta.puntosPorPregunta || (100 / respuesta.respuestas.length);
+
+                    respuesta.preguntasAbiertas.forEach((abierta, idx) => {
+                        const calif = parseInt(document.getElementById(`calif-${idx}`).value);
+                        if (!isNaN(calif) && calif >= 0 && calif <= 100) {
+                            calificacionAbiertas += (calif / 100) * puntosPorPregunta;
+                            // Quitar de la lista
+                            preguntasAbiertasRestantes = preguntasAbiertasRestantes.filter(p => p.indice !== abierta.indice);
+                        }
+                    });
+
+                    updateData.calificacionAbiertas = calificacionAbiertas;
+                    updateData.preguntasAbiertas = preguntasAbiertasRestantes;
+
+                    if (preguntasAbiertasRestantes.length === 0) {
+                        updateData.calificada = true;
+                        updateData.calificacion = (respuesta.calificacionAutomatica || 0) + calificacionAbiertas;
+                    }
+                } else {
+                    // Calificación general
+                    const calificacion = parseInt(document.getElementById('calificacionRespuesta').value);
+                    if (calificacion < 0 || calificacion > 100) {
+                        alert('La calificación debe estar entre 0 y 100');
+                        return;
+                    }
+                    updateData.calificada = true;
+                    updateData.calificacion = calificacion;
+                }
+
+                await docRef.update(updateData);
+
+                if (respuesta.preguntasAbiertas && preguntasAbiertasRestantes.length > 0) {
+                    alert('Calificación guardada. Quedan preguntas abiertas por calificar.');
+                    // Recargar el modal con las preguntas restantes
+                    calificarRespuestaDirecta(respuestaId, tipo);
+                } else {
+                    alert('Calificación completada exitosamente');
+                    closeModal();
+                    loadRespuestas(); // Recargar la lista
+                }
+            } catch (error) {
+                console.error('Error calificando respuesta:', error);
+                alert('Error al guardar la calificación');
+            }
+        }
+
+        async function limpiarRespuestasHuerfanas() {
+            if (!confirm('¿Estás seguro de limpiar las respuestas huérfanas? Esto eliminará respuestas de cuestionarios que ya no existen.')) return;
+            
+            try {
+                // Obtener todos los cuestionarios existentes
+                const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                const cuestionariosIds = new Set(cuestionariosSnapshot.docs.map(doc => doc.id));
+                
+                // Obtener todas las respuestas
+                const respuestasSnapshot = await db.collection('respuestasCuestionarios').get();
+                const respuestasHuerfanas = respuestasSnapshot.docs.filter(doc => !cuestionariosIds.has(doc.data().cuestionarioId));
+                
+                if (respuestasHuerfanas.length === 0) {
+                    alert('No hay respuestas huérfanas para limpiar.');
+                    return;
+                }
+                
+                const deletePromises = respuestasHuerfanas.map(doc => doc.ref.delete());
+                await Promise.all(deletePromises);
+                
+                alert(`Eliminadas ${deletePromises.length} respuestas huérfanas exitosamente.`);
+                loadRespuestas(); // Recargar la lista
+            } catch (error) {
+                console.error('Error limpiando respuestas huérfanas:', error);
+                alert('Error al limpiar respuestas huérfanas.');
+            }
+        }
+
+        window.loadRespuestas = loadRespuestas;
+        window.filterRespuestas = filterRespuestas;
+        window.viewRespuestaDetail = viewRespuestaDetail;
+        window.calificarRespuestaDirecta = calificarRespuestaDirecta;
+        window.calificarRespuesta = calificarRespuesta;
+        loadDashboardStats();
+        loadEntregas();
     </script>
+
+    <!-- Modal para ver entregas -->
+    <div id="entregaModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: #fff; margin: 5% auto; padding: 0; border-radius: 12px; width: 90%; max-width: 1000px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <div class="modal-header" style="padding: 20px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="modalTitle" style="margin: 0; color: #1e3a8a;">Detalle de Entrega</h2>
+                <button onclick="closeModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+            </div>
+            <div id="modalBody" style="padding: 30px;">
+                <!-- Contenido del modal se carga aquí -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>

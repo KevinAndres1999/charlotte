@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Estudiante | Charlotte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8fafc; }
@@ -73,7 +74,7 @@
         .btn-primary-modal { background: #3b82f6; color: white; }
         .btn-secondary { background: #6b7280; color: white; }
         .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; cursor: pointer; }
         .stat-card h3 { font-size: 2rem; margin: 0.5rem 0; color: #1e3a8a; }
         .stat-card p { color: #64748b; margin: 0; font-size: 0.9rem; }
         .stat-card i { font-size: 2rem; color: #3b82f6; opacity: 0.8; }
@@ -93,6 +94,810 @@
             .main-content { padding: 1rem; }
             .grid { grid-template-columns: 1fr; }
             .stat-cards { grid-template-columns: 1fr; }
+
+            /* Touch-friendly elements */
+            .btn, .quick-link, .nav-item { min-height: 44px; }
+            .nav-item { padding: 12px; font-size: 16px; }
+            .stat-card { padding: 16px; cursor: pointer; }
+            .quick-link { padding: 16px; }
+
+            /* Better spacing */
+            .header { padding: 12px; }
+            .header h1 { font-size: 18px; }
+            .welcome-banner { padding: 20px; margin-bottom: 20px; }
+            .welcome-banner h2 { font-size: 20px; }
+            .page-title { font-size: 20px; }
+            .content-card { padding: 16px; }
+
+            /* Modal improvements */
+            .modal-content { margin: 10px; max-width: none; }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 12px; }
+            .header h1 { font-size: 16px; }
+            .welcome-banner { padding: 16px; }
+            .welcome-banner h2 { font-size: 18px; }
+            .stat-card h3 { font-size: 24px; }
+            .stat-card p { font-size: 14px; }
+            .quick-links { gap: 12px; }
+            .quick-link h4 { font-size: 14px; }
+
+            /* Better navigation */
+            .nav-item span { display: none; }
+            .nav-item i { font-size: 20px; margin-right: 0; }
+
+            /* Content improvements */
+            .content-card h4 { font-size: 16px; }
+            .content-card p { font-size: 14px; }
+            .meta { font-size: 12px; }
+
+            /* Form elements */
+            input, textarea, select { font-size: 16px; }
+        }
+
+        /* === INTERFAZ DE CLASES MEJORADA === */
+        .classes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .classes-title h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .classes-title h2 i {
+            color: #3b82f6;
+        }
+
+        .classes-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .search-box input {
+            padding: 10px 12px 10px 36px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            border: none;
+            background: white;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: #f8fafc;
+            color: #3b82f6;
+        }
+
+        .view-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .classes-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .filter-tab.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .sort-options select {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #374151;
+            background: white;
+            cursor: pointer;
+        }
+
+        .classes-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #3b82f6;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .clases-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .clases-container.list-view {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .clase-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .clase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .clase-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .clase-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clase-title i {
+            color: #3b82f6;
+        }
+
+        .clase-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .clase-content {
+            padding: 1.5rem;
+        }
+
+        .clase-description {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .clase-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .clase-tag {
+            padding: 4px 8px;
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .clase-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-primary-clase {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-clase:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-clase {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-clase:hover {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .clase-progress {
+            background: #e2e8f0;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .clase-calificacion {
+            margin-top: 1rem;
+        }
+
+        .calificacion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .calificacion-badge i {
+            color: #fbbf24;
+        }
+
+        /* Vista de lista */
+        .clase-card.list-view {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .clase-card.list-view .clase-header {
+            flex: 1;
+            padding: 1rem;
+        }
+
+        .clase-card.list-view .clase-content {
+            flex: 2;
+            padding: 1rem;
+        }
+
+        .clase-card.list-view .clase-actions {
+            flex: 1;
+            justify-content: flex-end;
+            padding: 1rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        /* Estados */
+        .clase-card.completed {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+        }
+
+        .clase-card.completed .clase-title i {
+            color: #10b981;
+        }
+
+        .clase-card.new {
+            border-color: #f59e0b;
+            position: relative;
+        }
+
+        .clase-card.new::before {
+            content: 'NUEVO';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .classes-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .classes-actions {
+                justify-content: space-between;
+            }
+
+            .search-box input {
+                width: 200px;
+            }
+
+            .classes-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-tabs {
+                justify-content: center;
+            }
+
+            .classes-stats {
+                gap: 1rem;
+            }
+
+            .clases-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .clase-card.list-view {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .clase-card.list-view .clase-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .search-box input {
+                width: 150px;
+            }
+
+            .view-toggle {
+                display: none;
+            }
+
+            .filter-tabs {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .filter-tab {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .clase-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .clase-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .btn-primary-clase, .btn-secondary-clase {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <style>
+        /* === ESTILOS PARA MODAL DE ACTIVIDADES PREMIUM === */
+        .actividad-detail {
+            max-width: none;
+        }
+
+        .actividad-info {
+            margin-bottom: 2rem;
+        }
+
+        .info-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-section h3 i {
+            color: #3b82f6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #0a1628;
+        }
+
+        .status-activa {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-vencida {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .instrucciones-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .archivo-adjunto {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 8px;
+            border: 1px solid #f59e0b;
+        }
+
+        .archivo-link {
+            color: #92400e;
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .archivo-link:hover {
+            text-decoration: underline;
+        }
+
+        .entrega-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .entrega-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .entrega-section h3 i {
+            color: #3b82f6;
+        }
+
+        .editor-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .ck-editor__editable {
+            min-height: 300px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .ck.ck-toolbar {
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .entrega-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .entrega-info {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .entrega-info i {
+            margin-right: 0.25rem;
+        }
+
+        .entrega-enviada {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .entrega-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .entrega-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pendiente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-calificada {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .entrega-contenido {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .calificacion-section {
+            background: #fef3c7;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .calificacion-section h4 {
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .calificacion-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nota {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nota-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .nota-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .comentario {
+            margin-top: 0.5rem;
+        }
+
+        .comentario-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .comentario-text {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .entrega-actions {
+                flex-direction: column;
+            }
+
+            .btn-modal {
+                width: 100%;
+            }
+
+            .actividad-detail {
+                padding: 0;
+            }
+
+            .modal-content {
+                margin: 10px;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -187,22 +992,22 @@
                 </div>
 
                 <div class="stat-cards">
-                    <div class="stat-card">
+                    <div class="stat-card" onclick="showSection('clases')">
                         <i class="fas fa-book-open"></i>
                         <h3 id="totalClases">0</h3>
                         <p>Clases Disponibles</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #10b981;">
+                    <div class="stat-card" style="border-left-color: #10b981;" onclick="showSection('videos')">
                         <i class="fas fa-play-circle" style="color: #10b981;"></i>
                         <h3 id="totalVideos">0</h3>
                         <p>Videos Educativos</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #f59e0b;">
+                    <div class="stat-card" style="border-left-color: #f59e0b;" onclick="showSection('actividades')">
                         <i class="fas fa-tasks" style="color: #f59e0b;"></i>
                         <h3 id="totalActividades">0</h3>
                         <p>Actividades</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #8b5cf6;">
+                    <div class="stat-card" style="border-left-color: #8b5cf6;" onclick="showSection('materiales')">
                         <i class="fas fa-folder-open" style="color: #8b5cf6;"></i>
                         <h3 id="totalMateriales">0</h3>
                         <p>Materiales</p>
@@ -231,28 +1036,201 @@
             </section>
 
             <section id="clases" class="section">
-                <h2 class="page-title">Mis Clases</h2>
-                <p class="page-subtitle">Contenido de tus cursos</p>
-                <div id="clasesList"></div>
+                <div class="classes-header">
+                    <div class="classes-title">
+                        <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
+                        <p class="page-subtitle">Explora y estudia tu contenido de cursos</p>
+                    </div>
+                    <div class="classes-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="setViewMode('grid')" title="Vista en cuadrícula">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button class="view-btn" onclick="setViewMode('list')" title="Vista en lista">
+                                <i class="fas fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="classes-filters">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterByCategory('all')">Todas</button>
+                        <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
+                        <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
+                        <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortClases" onchange="sortClases()">
+                            <option value="fecha-desc">Más recientes</option>
+                            <option value="fecha-asc">Más antiguas</option>
+                            <option value="titulo-asc">Título A-Z</option>
+                            <option value="titulo-desc">Título Z-A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="classes-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalClasesCount">0</div>
+                        <div class="stat-label">Clases Totales</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="leidasCount">0</div>
+                        <div class="stat-label">Leídas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="progresoCount">0%</div>
+                        <div class="stat-label">Progreso</div>
+                    </div>
+                </div>
+
+                <div id="clasesContainer" class="clases-container grid-view">
+                    <!-- Las clases se cargarán aquí dinámicamente -->
+                </div>
+
+                <div class="pagination" id="clasesPagination" style="display: none;">
+                    <button class="page-btn" onclick="changePage(-1)" id="prevPage">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                    <div class="page-info">
+                        <span id="currentPage">1</span> de <span id="totalPages">1</span>
+                    </div>
+                    <button class="page-btn" onclick="changePage(1)" id="nextPage">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </section>
 
             <section id="videos" class="section">
-                <h2 class="page-title">Videos Educativos</h2>
-                <p class="page-subtitle">Material audiovisual de apoyo</p>
-                <div id="videosList" class="grid"></div>
+                <div class="classes-header">
+                    <div class="classes-title">
+                        <h2><i class="fas fa-play-circle"></i> Videos Educativos</h2>
+                    </div>
+                    <div class="classes-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="videosSearch" placeholder="Buscar videos..." onkeyup="filterVideos()">
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="setVideosViewMode('grid')">Grid</button>
+                            <button class="view-btn" onclick="setVideosViewMode('list')">List</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="classes-filters">
+                    <div class="filter-tabs">
+                        <div class="filter-tab active" onclick="filterVideosByCategory('all')">Todas</div>
+                        <div class="filter-tab" onclick="filterVideosByCategory('recientes')">Recientes</div>
+                        <div class="filter-tab" onclick="filterVideosByCategory('no-vistas')">No vistas</div>
+                        <div class="filter-tab" onclick="filterVideosByCategory('vistas')">Vistas</div>
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortVideos" onchange="sortVideos()">
+                            <option value="fecha-desc">Más recientes</option>
+                            <option value="fecha-asc">Más antiguos</option>
+                            <option value="titulo-asc">Título A-Z</option>
+                            <option value="titulo-desc">Título Z-A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="classes-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalVideosCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="vistasCount">0</div>
+                        <div class="stat-label">Vistas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="progresoVideosCount">0%</div>
+                        <div class="stat-label">Progreso</div>
+                    </div>
+                </div>
+
+                <div id="videosContainer" class="clases-container grid-view">
+                    <!-- Videos cargados dinámicamente -->
+                </div>
+
+                <div class="pagination" id="videosPagination">
+                    <button class="page-btn" id="prevVideosPage" onclick="changeVideosPage(-1)">Anterior</button>
+                    <div class="page-info">Página <span id="currentVideosPage">1</span> de <span id="totalVideosPages">1</span></div>
+                    <button class="page-btn" id="nextVideosPage" onclick="changeVideosPage(1)">Siguiente</button>
+                </div>
             </section>
 
             <section id="actividades" class="section">
-                <h2 class="page-title">Actividades</h2>
-                <p class="page-subtitle">Tareas y proyectos del curso</p>
-                <div id="actividadesList" class="grid"></div>
+                <div class="classes-header">
+                    <div class="classes-title">
+                        <h2><i class="fas fa-tasks"></i> Actividades</h2>
+                    </div>
+                    <div class="classes-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" onclick="setActividadesViewMode('grid')">Grid</button>
+                            <button class="view-btn" onclick="setActividadesViewMode('list')">List</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="classes-filters">
+                    <div class="filter-tabs">
+                        <div class="filter-tab active" onclick="filterActividadesByCategory('all')">Todas</div>
+                        <div class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</div>
+                        <div class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</div>
+                        <div class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</div>
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortActividades" onchange="sortActividades()">
+                            <option value="fecha-desc">Más recientes</option>
+                            <option value="fecha-asc">Más antiguos</option>
+                            <option value="titulo-asc">Título A-Z</option>
+                            <option value="titulo-desc">Título Z-A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="classes-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalActividadesCount">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="completadasCount">0</div>
+                        <div class="stat-label">Completadas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="progresoActividadesCount">0%</div>
+                        <div class="stat-label">Progreso</div>
+                    </div>
+                </div>
+
+                <div id="actividadesContainer" class="clases-container grid-view">
+                    <!-- Actividades cargadas dinámicamente -->
+                </div>
+
+                <div class="pagination" id="actividadesPagination">
+                    <button class="page-btn" id="prevActividadesPage" onclick="changeActividadesPage(-1)">Anterior</button>
+                    <div class="page-info">Página <span id="currentActividadesPage">1</span> de <span id="totalActividadesPages">1</span></div>
+                    <button class="page-btn" id="nextActividadesPage" onclick="changeActividadesPage(1)">Siguiente</button>
+                </div>
             </section>
 
 
             <section id="cuestionarios" class="section">
                 <h2 class="page-title">Cuestionarios</h2>
                 <p class="page-subtitle">Evaluaciones y prácticas</p>
-                <div id="cuestionariosList" class="grid"></div>
+                <div id="cuestionariosContainer" class="grid"></div>
             </section>
 
             <section id="evaluaciones" class="section">
@@ -285,7 +1263,7 @@
     <script type="module" defer>
 // =================== IMPORTS ===================
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc, updateDoc, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
 // =================== CONFIGURACIÓN ===================
 const firebaseConfig = {
@@ -304,6 +1282,7 @@ const db = getFirestore(app);
 
 // Verificar autenticación
 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+console.log('Current user from session:', currentUser);
 if (!currentUser || currentUser.role !== 'student') {
     window.location.href = 'login.html';
 } else {
@@ -467,130 +1446,224 @@ window.showSection = showSection;
 window.toggleMenu = toggleMenu;
 window.logout = logout;
 
+let allCuestionarios = [];
+
 async function loadCuestionarios() {
-    const container = document.getElementById('cuestionariosList');
+    const container = document.getElementById('cuestionariosContainer');
     if (!container) return;
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    if (!currentUser) return;
+
     try {
         const snapshot = await getDocs(collection(db, 'cuestionarios'));
-        const cuestionarios = [];
-        snapshot.forEach(doc => cuestionarios.push({ id: doc.id, ...doc.data() }));
-        const filtered = filterByProgram(cuestionarios);
-        // Ordenar por fechaRegistro descendente
-        filtered.sort((a, b) => new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0));
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3></div>';
-            return;
+        allCuestionarios = [];
+        snapshot.forEach(doc => {
+            const cuestionario = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            cuestionario.isCompleted = false; // Se actualizará con respuestas
+            cuestionario.progress = 0;
+            allCuestionarios.push(cuestionario);
+        });
+
+        // Cargar estado de respuestas con listener en tiempo real
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (currentUser) {
+            const respuestasQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.email));
+            onSnapshot(respuestasQuery, (snapshot) => {
+                const respuestasMap = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const clave = `${data.estudianteId}_${data.cuestionarioId}`;
+                    if (!respuestasMap[clave]) respuestasMap[clave] = [];
+                    respuestasMap[clave].push(data);
+                });
+                allCuestionarios.forEach(cuestionario => {
+                    const clave = `${currentUser.email}_${cuestionario.id}`;
+                    const misRespuestas = respuestasMap[clave] || [];
+                    cuestionario.intentosRealizados = misRespuestas.length;
+                    if (misRespuestas.length > 0) {
+                        cuestionario.isCompleted = true;
+                        cuestionario.respuestas = misRespuestas;
+                        cuestionario.progress = 100; // Simplificado
+                    } else {
+                        cuestionario.isCompleted = false;
+                        cuestionario.respuestas = null;
+                    }
+                });
+                const filtered = filterByProgram(allCuestionarios);
+                filteredCuestionarios = filtered;
+                sortCuestionarios();
+                updateCuestionariosStats();
+                renderCuestionarios();
+            }, (error) => {
+                console.error('Error listening respuestas:', error);
+            });
         }
-        const ahora = new Date();
-        container.innerHTML = filtered.map(cuestionario => {
-            const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
-            const vencido = fechaLimite && ahora > fechaLimite;
-            // Verificar intentos realizados
-            const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
-            const misClave = `${currentUser.email}_${cuestionario.id}`;
-            const misIntentos = respuestas[misClave] || [];
-            const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
-            const puedeResponder = !vencido && intentosRestantes > 0;
-            return `
-            <div class="content-card" style="border-top-color: ${vencido ? '#94a3b8' : '#3b82f6'};">
-                <h4><i class="fas fa-question-circle"></i> ${cuestionario.titulo}</h4>
-                <p>${cuestionario.descripcion || ''}</p>
-                <div class="meta" style="margin: 15px 0;">
-                    <span><i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas</span>
-                    <span><i class="fas fa-clock"></i> ${cuestionario.tiempoDisponible || 0} minutos</span>
-                    <span><i class="fas fa-redo"></i> ${intentosRestantes} de ${cuestionario.intentos || 1} intento${cuestionario.intentos !== 1 ? 's' : ''}</span>
-                </div>
-                ${fechaLimite ? `<p style="font-size: 13px; color: ${vencido ? '#ef4444' : '#f59e0b'}; margin-bottom: 10px;">
-                    <i class="fas fa-calendar-alt"></i> Fecha límite: ${fechaLimite.toLocaleString('es-ES')}
-                    ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
-                </p>` : ''}
-                ${misIntentos.length > 0 ? `
-                    <div style="background: #e0f2fe; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
-                        <p style="margin: 0; font-size: 13px; color: #0369a1;">
-                            <i class="fas fa-check-circle"></i> Último intento: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente de calificación'}
-                        </p>
-                    </div>
-                ` : ''}
-                <button class="btn-view" onclick="openModal('cuestionario', '${cuestionario.id}')">
-                    <i class="fas fa-play"></i> Responder Cuestionario
-                </button>
-            </div>
-            `;
-        }).join('');
     } catch (error) {
         console.error('Error al cargar cuestionarios:', error);
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar cuestionarios</h3><p>Intenta recargar la página</p></div>';
     }
 }
 
-async function loadVideos() {
-    const container = document.getElementById('videosList');
+function sortCuestionarios() {
+    filteredCuestionarios.sort((a, b) => new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0));
+}
+
+function updateCuestionariosStats() {
+    // Opcional: agregar estadísticas
+}
+
+function renderCuestionarios() {
+    const container = document.getElementById('cuestionariosContainer');
     if (!container) return;
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return;
+
+    const ahora = new Date();
+    container.className = `clases-container ${currentCuestionariosViewMode}-view`;
+
+    container.innerHTML = filteredCuestionarios.map(cuestionario => {
+        const fecha = cuestionario.fechaRegistro ? new Date(cuestionario.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
+        const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+        const vencido = fechaLimite && ahora > fechaLimite;
+        const isNew = cuestionario.fechaRegistro && (new Date() - new Date(cuestionario.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+        const intentosRealizados = cuestionario.intentosRealizados || 0;
+        const maxIntentos = cuestionario.numeroIntentos || 1;
+        const intentosRestantes = maxIntentos - intentosRealizados;
+        const puedeResponder = !vencido && intentosRestantes > 0;
+        const isCompleted = intentosRealizados > 0;
+        const progress = isCompleted ? 100 : 0;
+
+        return `
+        <div class="clase-card ${currentCuestionariosViewMode === 'list' ? 'list-view' : ''} ${isCompleted ? 'completed' : ''} ${vencido ? 'vencido' : ''} ${isNew ? 'new' : ''}" data-id="${cuestionario.id}">
+            <div class="clase-header">
+                <div class="clase-title">
+                    <i class="fas fa-question-circle"></i> ${cuestionario.titulo}
+                </div>
+                <div class="clase-meta">
+                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                    <div class="meta-item"><i class="fas fa-clock"></i> ${cuestionario.tiempoLimite ? `${cuestionario.tiempoLimite} min` : 'Sin límite'}</div>
+                </div>
+            </div>
+            <div class="clase-content">
+                <div class="clase-description">
+                    ${cuestionario.descripcion || 'Sin descripción'}
+                </div>
+                <div class="clase-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-redo"></i> ${intentosRealizados}/${Math.max(cuestionario.numeroIntentos || 1, intentosRealizados)} intentos
+                    </div>
+                </div>
+                ${fechaLimite ? `<div class="clase-deadline ${vencido ? 'expired' : ''}">
+                    <i class="fas fa-calendar-alt"></i> Límite: ${fechaLimite.toLocaleDateString('es-ES')}
+                    ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+                </div>` : ''}
+                <div class="clase-actions">
+                    <button class="btn-primary-clase" onclick="window.location.href='responder-cuestionario.html?id=${cuestionario.id}'" ${!puedeResponder ? 'disabled' : ''}>
+                        <i class="fas fa-play"></i> ${isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
+                    </button>
+                </div>
+                ${cuestionario.respuestas && cuestionario.respuestas.length > 0 ? `
+                <div class="clase-calificacion">
+                    <div class="calificacion-badge">
+                        <i class="fas fa-star"></i> Calificación: ${cuestionario.respuestas[cuestionario.respuestas.length - 1].calificacion || 'Pendiente'}
+                    </div>
+                </div>
+                ` : ''}
+                <div class="clase-progress">
+                    <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    if (filteredCuestionarios.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3><p>No se encontraron cuestionarios que coincidan con tu búsqueda.</p></div>';
+    }
+}
+
+async function loadVideos() {
+    const container = document.getElementById('videosContainer');
+    if (!container) return;
+
     try {
         const snapshot = await getDocs(collection(db, 'content'));
-        const videos = [];
-        snapshot.forEach(doc => videos.push({ id: doc.id, ...doc.data() }));
-        const filtered = filterByProgram(videos);
-        console.log('currentUser.programa:', JSON.parse(sessionStorage.getItem('currentUser') || 'null')?.programa);
-        console.log('videos:', videos);
-        console.log('filtered videos:', filtered);
-        // Ordenar por fechaCreacion descendente
-        filtered.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3></div>';
-            return;
-        }
-        container.innerHTML = filtered.map(video => `
-            <div class="content-card">
-                <h4><i class="fas fa-play-circle"></i> ${video.titulo}</h4>
-                <p>${video.descripcion || ''}</p>
-                <div class="meta">
-                    <span><i class="fas fa-calendar"></i> ${video.fechaCreacion ? new Date(video.fechaCreacion).toLocaleDateString('es-ES') : ''}</span>
-                    <span><i class="fas fa-graduation-cap"></i> ${video.programa}</span>
-                </div>
-                <button class="btn-view" onclick="openModal('video', '${video.id}')">
-                    <i class="fas fa-play"></i> Ver Video
-                </button>
-            </div>
-        `).join('');
+        allVideos = [];
+        snapshot.forEach(doc => {
+            const video = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            video.isWatched = localStorage.getItem(`video-${video.id}-watched`) === 'true';
+            video.lastWatched = localStorage.getItem(`video-${video.id}-lastWatched`);
+            video.progress = parseInt(localStorage.getItem(`video-${video.id}-progress`) || '0');
+            allVideos.push(video);
+        });
+
+        const filtered = filterByProgram(allVideos);
+        filteredVideos = filtered;
+        sortVideos();
+        updateVideosStats();
+        renderVideos();
+
     } catch (error) {
         console.error('Error al cargar videos:', error);
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>Error al cargar videos</h3><p>Intenta recargar la página</p></div>';
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar videos</h3><p>Intenta recargar la página</p></div>';
     }
 }
 
 async function loadActividades() {
-    const container = document.getElementById('actividadesList');
+    const container = document.getElementById('actividadesContainer');
     if (!container) return;
+
     try {
         const snapshot = await getDocs(collection(db, 'activities'));
-        const actividades = [];
-        snapshot.forEach(doc => actividades.push({ id: doc.id, ...doc.data() }));
-        const filtered = filterByProgram(actividades);
-        // Ordenar por fechaRegistro descendente
-        filtered.sort((a, b) => new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0));
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3></div>';
-            return;
+        allActividades = [];
+        snapshot.forEach(doc => {
+            const actividad = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
+            actividad.lastCompleted = localStorage.getItem(`actividad-${actividad.id}-lastCompleted`);
+            actividad.progress = parseInt(localStorage.getItem(`actividad-${actividad.id}-progress`) || '0');
+            allActividades.push(actividad);
+        });
+
+        // Cargar estado de entregas con listener en tiempo real
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (currentUser) {
+            const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', currentUser.email));
+            onSnapshot(entregasQuery, (snapshot) => {
+                const entregasMap = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    entregasMap[data.actividadId] = data;
+                });
+                allActividades.forEach(actividad => {
+                    const entrega = entregasMap[actividad.id];
+                    if (entrega) {
+                        actividad.isCompleted = true;
+                        actividad.entrega = entrega;
+                    } else {
+                        actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
+                        actividad.entrega = null;
+                    }
+                });
+                const filtered = filterByProgram(allActividades);
+                filteredActividades = filtered;
+                sortActividades();
+                updateActividadesStats();
+                renderActividades();
+            }, (error) => {
+                console.error('Error listening entregas:', error);
+            });
         }
-        container.innerHTML = filtered.map(actividad => `
-            <div class="content-card">
-                <h4><i class="fas fa-clipboard-list"></i> ${actividad.titulo}</h4>
-                <p style="white-space: pre-wrap;">${actividad.instrucciones}</p>
-                <div class="meta">
-                    ${actividad.fecha ? `<span><i class="fas fa-calendar-check"></i> ${actividad.fecha}</span>` : ''}
-                    <span><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
-                </div>
-                <button class="btn-view" onclick="openModal('actividad', '${actividad.id}')">
-                    <i class="fas fa-upload"></i> Entregar Actividad
-                </button>
-            </div>
-        `).join('');
+
+        // Filtrado y render se hace en onSnapshot
+
     } catch (error) {
         console.error('Error al cargar actividades:', error);
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>Error al cargar actividades</h3><p>Intenta recargar la página</p></div>';
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar actividades</h3><p>Intenta recargar la página</p></div>';
     }
 }
 
@@ -662,37 +1735,646 @@ async function loadMateriales() {
 }
 
 // =================== CLASES ===================
+// Variables globales para las clases
+let allClases = [];
+let filteredClases = [];
+let currentViewMode = 'grid';
+let currentPage = 1;
+let itemsPerPage = 12;
+let currentFilter = 'all';
+let currentSort = 'fecha-desc';
+
+// =================== CLASES MEJORADAS ===================
 async function loadClases() {
-    const container = document.getElementById('clasesList');
+    const container = document.getElementById('clasesContainer');
     if (!container) return;
+
     try {
         const snapshot = await getDocs(collection(db, 'classes'));
-        const clases = [];
-        snapshot.forEach(doc => clases.push({ id: doc.id, ...doc.data() }));
-        const filtered = filterByProgram(clases);
-        // Ordenar por fechaCreacion descendente
-        filtered.sort((a, b) => new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0));
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3></div>';
-            return;
-        }
-        container.innerHTML = filtered.map(clase => `
-            <div class="content-card">
-                <h4><i class="fas fa-book-open"></i> ${clase.titulo}</h4>
-                <p>${clase.descripcion || ''}</p>
-                <div class="meta">
-                    <span><i class="fas fa-calendar"></i> ${clase.fecha}</span>
-                    <span><i class="fas fa-graduation-cap"></i> ${clase.programa}</span>
-                </div>
-                <button class="btn-view" onclick="openModal('clase', '${clase.id}')">
-                    <i class="fas fa-eye"></i> Ver Clase
-                </button>
-            </div>
-        `).join('');
+        allClases = [];
+        snapshot.forEach(doc => {
+            const clase = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
+            clase.isRead = localStorage.getItem(`clase-${clase.id}-read`) === 'true';
+            clase.lastRead = localStorage.getItem(`clase-${clase.id}-lastRead`);
+            clase.progress = parseInt(localStorage.getItem(`clase-${clase.id}-progress`) || '0');
+            allClases.push(clase);
+        });
+
+        const filtered = filterByProgram(allClases);
+        filteredClases = filtered;
+        sortClases();
+        updateClasesStats();
+        renderClases();
+
     } catch (error) {
         console.error('Error al cargar clases:', error);
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
     }
+}
+
+function updateClasesStats() {
+    const total = filteredClases.length;
+    const leidas = filteredClases.filter(c => c.isRead).length;
+    const progreso = total > 0 ? Math.round((leidas / total) * 100) : 0;
+
+    document.getElementById('totalClasesCount').textContent = total;
+    document.getElementById('leidasCount').textContent = leidas;
+    document.getElementById('progresoCount').textContent = progreso + '%';
+}
+
+function renderClases() {
+    const container = document.getElementById('clasesContainer');
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const clasesToShow = filteredClases.slice(startIndex, endIndex);
+
+    if (clasesToShow.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p>No se encontraron clases que coincidan con tu búsqueda.</p></div>';
+        document.getElementById('clasesPagination').style.display = 'none';
+        return;
+    }
+
+    container.className = `clases-container ${currentViewMode}-view`;
+
+    container.innerHTML = clasesToShow.map(clase => {
+        const fecha = clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha';
+        const isNew = clase.fechaCreacion && (new Date() - new Date(clase.fechaCreacion)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+        const tags = clase.tags ? clase.tags.split(',').map(tag => tag.trim()) : [];
+
+        return `
+            <div class="clase-card ${currentViewMode === 'list' ? 'list-view' : ''} ${clase.isCompleted ? 'completed' : ''} ${isNew ? 'new' : ''}" data-id="${clase.id}">
+                <div class="clase-header">
+                    <h3 class="clase-title">
+                        <i class="fas fa-book-open"></i>
+                        ${clase.titulo}
+                    </h3>
+                    <div class="clase-meta">
+                        <span class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            ${fecha}
+                        </span>
+                        <span class="meta-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            ${clase.programa || 'General'}
+                        </span>
+                        ${clase.duracion ? `<span class="meta-item"><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="clase-content">
+                    <p class="clase-description">${clase.descripcion || 'Sin descripción disponible.'}</p>
+
+                    ${tags.length > 0 ? `
+                        <div class="clase-tags">
+                            ${tags.map(tag => `<span class="clase-tag">${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="clase-progress">
+                        <div class="progress-bar" style="width: ${clase.progress}%"></div>
+                    </div>
+
+                    <div class="clase-actions">
+                        <button class="btn-primary-clase" onclick="openModal('clase', '${clase.id}')">
+                            <i class="fas fa-eye"></i>
+                            ${clase.isRead ? 'Revisar' : 'Leer'}
+                        </button>
+                        <button class="btn-secondary-clase" onclick="toggleClaseCompleted('${clase.id}')">
+                            <i class="fas fa-${clase.isCompleted ? 'check-circle' : 'circle'}"></i>
+                            ${clase.isCompleted ? 'Completada' : 'Marcar como leída'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updatePagination();
+}
+
+function updatePagination() {
+    const totalPages = Math.ceil(filteredClases.length / itemsPerPage);
+    const pagination = document.getElementById('clasesPagination');
+
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+
+    pagination.style.display = 'flex';
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+function changePage(direction) {
+    const totalPages = Math.ceil(filteredClases.length / itemsPerPage);
+    currentPage += direction;
+
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    renderClases();
+}
+
+function setViewMode(mode) {
+    currentViewMode = mode;
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[onclick="setViewMode('${mode}')"]`).classList.add('active');
+    renderClases();
+}
+
+function filterByCategory(category) {
+    currentFilter = category;
+    document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelector(`[onclick="filterByCategory('${category}')"]`).classList.add('active');
+
+    switch (category) {
+        case 'recientes':
+            filteredClases = allClases.filter(clase =>
+                clase.fechaCreacion && (new Date() - new Date(clase.fechaCreacion)) < (30 * 24 * 60 * 60 * 1000)
+            );
+            break;
+        case 'no-leidas':
+            filteredClases = allClases.filter(clase => !clase.isRead);
+            break;
+        case 'completadas':
+            filteredClases = allClases.filter(clase => clase.isCompleted);
+            break;
+        default:
+            filteredClases = [...allClases];
+    }
+
+    // Aplicar filtro de programa
+    filteredClases = filterByProgram(filteredClases);
+    currentPage = 1;
+    sortClases();
+    renderClases();
+}
+
+function filterClases() {
+    const searchTerm = document.getElementById('clasesSearch').value.toLowerCase();
+
+    if (!searchTerm) {
+        filteredClases = [...allClases];
+    } else {
+        filteredClases = allClases.filter(clase =>
+            clase.titulo.toLowerCase().includes(searchTerm) ||
+            (clase.descripcion && clase.descripcion.toLowerCase().includes(searchTerm)) ||
+            (clase.tags && clase.tags.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // Aplicar filtro de programa
+    filteredClases = filterByProgram(filteredClases);
+    currentPage = 1;
+    sortClases();
+    renderClases();
+}
+
+function sortClases() {
+    const sortBy = document.getElementById('sortClases').value;
+
+    filteredClases.sort((a, b) => {
+        switch (sortBy) {
+            case 'fecha-desc':
+                return new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0);
+            case 'fecha-asc':
+                return new Date(a.fechaCreacion || 0) - new Date(b.fechaCreacion || 0);
+            case 'titulo-asc':
+                return a.titulo.localeCompare(b.titulo);
+            case 'titulo-desc':
+                return b.titulo.localeCompare(a.titulo);
+            default:
+                return 0;
+        }
+    });
+
+    renderClases();
+}
+
+function toggleClaseCompleted(claseId) {
+    const clase = allClases.find(c => c.id === claseId);
+    if (!clase) return;
+
+    clase.isCompleted = !clase.isCompleted;
+    clase.isRead = true;
+    clase.progress = clase.isCompleted ? 100 : Math.max(clase.progress, 50);
+
+    // Guardar en localStorage
+    localStorage.setItem(`clase-${claseId}-completed`, clase.isCompleted);
+    localStorage.setItem(`clase-${claseId}-read`, clase.isRead);
+    localStorage.setItem(`clase-${claseId}-progress`, clase.progress);
+    localStorage.setItem(`clase-${claseId}-lastRead`, new Date().toISOString());
+
+    updateClasesStats();
+    renderClases();
+}
+
+// =================== VIDEOS ===================
+// Variables globales para los videos
+let allVideos = [];
+let filteredVideos = [];
+let currentVideosViewMode = 'grid';
+let currentVideosPage = 1;
+let itemsPerVideosPage = 12;
+let currentVideosFilter = 'all';
+let currentVideosSort = 'fecha-desc';
+
+// Funciones para videos
+function updateVideosStats() {
+    const total = filteredVideos.length;
+    const vistas = filteredVideos.filter(v => v.isWatched).length;
+    const progreso = total > 0 ? Math.round((vistas / total) * 100) : 0;
+    document.getElementById('totalVideosCount').textContent = total;
+    document.getElementById('vistasCount').textContent = vistas;
+    document.getElementById('progresoVideosCount').textContent = progreso + '%';
+}
+
+function renderVideos() {
+    const container = document.getElementById('videosContainer');
+    const startIndex = (currentVideosPage - 1) * itemsPerVideosPage;
+    const endIndex = startIndex + itemsPerVideosPage;
+    const videosToShow = filteredVideos.slice(startIndex, endIndex);
+
+    if (videosToShow.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3><p>No se encontraron videos que coincidan con tu búsqueda.</p></div>';
+        document.getElementById('videosPagination').style.display = 'none';
+        return;
+    }
+
+    container.className = `clases-container ${currentVideosViewMode}-view`;
+
+    container.innerHTML = videosToShow.map(video => {
+        const fecha = video.fechaCreacion ? new Date(video.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha';
+        const isNew = video.fechaCreacion && (new Date() - new Date(video.fechaCreacion)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+        const tags = video.tags ? video.tags.split(',').map(tag => tag.trim()) : [];
+
+        return `
+            <div class="clase-card ${currentVideosViewMode === 'list' ? 'list-view' : ''} ${video.isWatched ? 'completed' : ''} ${isNew ? 'new' : ''}" data-id="${video.id}">
+                <div class="clase-header">
+                    <div class="clase-title">
+                        <i class="fas fa-play-circle"></i> ${video.titulo}
+                    </div>
+                    <div class="clase-meta">
+                        <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                        <div class="meta-item"><i class="fas fa-clock"></i> ${video.duracion || 'N/A'}</div>
+                    </div>
+                </div>
+                <div class="clase-content">
+                    <div class="clase-description">
+                        ${video.descripcion || 'Sin descripción'}
+                    </div>
+                    <div class="clase-tags">
+                        ${tags.map(tag => `<span class="clase-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="clase-actions">
+                        <button class="btn-primary-clase" onclick="openModal('video', '${video.id}')">
+                            <i class="fas fa-play"></i> Ver Video
+                        </button>
+                        <button class="btn-secondary-clase" onclick="toggleVideoWatched('${video.id}')">
+                            <i class="fas fa-check"></i> ${video.isWatched ? 'Marcar no visto' : 'Marcar visto'}
+                        </button>
+                    </div>
+                    <div class="clase-progress">
+                        <div class="progress-bar" style="width: ${video.progress}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateVideosPagination();
+}
+
+function updateVideosPagination() {
+    const totalPages = Math.ceil(filteredVideos.length / itemsPerVideosPage);
+    const pagination = document.getElementById('videosPagination');
+
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+
+    pagination.style.display = 'flex';
+    document.getElementById('currentVideosPage').textContent = currentVideosPage;
+    document.getElementById('totalVideosPages').textContent = totalPages;
+    document.getElementById('prevVideosPage').disabled = currentVideosPage === 1;
+    document.getElementById('nextVideosPage').disabled = currentVideosPage === totalPages;
+}
+
+function changeVideosPage(direction) {
+    const totalPages = Math.ceil(filteredVideos.length / itemsPerVideosPage);
+    currentVideosPage += direction;
+    if (currentVideosPage < 1) currentVideosPage = 1;
+    if (currentVideosPage > totalPages) currentVideosPage = totalPages;
+    renderVideos();
+}
+
+function setVideosViewMode(mode) {
+    currentVideosViewMode = mode;
+    document.querySelectorAll('#videos .view-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`#videos [onclick="setVideosViewMode('${mode}')"]`).classList.add('active');
+    renderVideos();
+}
+
+function filterVideosByCategory(category) {
+    currentVideosFilter = category;
+    document.querySelectorAll('#videos .filter-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelector(`#videos [onclick="filterVideosByCategory('${category}')"]`).classList.add('active');
+
+    switch (category) {
+        case 'recientes':
+            filteredVideos = allVideos.filter(video =>
+                video.fechaCreacion && (new Date() - new Date(video.fechaCreacion)) < (30 * 24 * 60 * 60 * 1000) // 30 días
+            );
+            break;
+        case 'no-vistas':
+            filteredVideos = allVideos.filter(video => !video.isWatched);
+            break;
+        case 'vistas':
+            filteredVideos = allVideos.filter(video => video.isWatched);
+            break;
+        default:
+            filteredVideos = [...allVideos];
+    }
+
+    // Aplicar filtro de programa
+    filteredVideos = filterByProgram(filteredVideos);
+    currentVideosPage = 1;
+    sortVideos();
+    renderVideos();
+}
+
+function filterVideos() {
+    const searchTerm = document.getElementById('videosSearch').value.toLowerCase();
+
+    if (!searchTerm) {
+        filteredVideos = [...allVideos];
+    } else {
+        filteredVideos = allVideos.filter(video =>
+            video.titulo.toLowerCase().includes(searchTerm) ||
+            (video.descripcion && video.descripcion.toLowerCase().includes(searchTerm)) ||
+            (video.tags && video.tags.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // Aplicar filtro de programa
+    filteredVideos = filterByProgram(filteredVideos);
+    currentVideosPage = 1;
+    sortVideos();
+    renderVideos();
+}
+
+function sortVideos() {
+    const sortBy = document.getElementById('sortVideos').value;
+
+    filteredVideos.sort((a, b) => {
+        switch (sortBy) {
+            case 'fecha-desc':
+                return new Date(b.fechaCreacion || 0) - new Date(a.fechaCreacion || 0);
+            case 'fecha-asc':
+                return new Date(a.fechaCreacion || 0) - new Date(b.fechaCreacion || 0);
+            case 'titulo-asc':
+                return a.titulo.localeCompare(b.titulo);
+            case 'titulo-desc':
+                return b.titulo.localeCompare(a.titulo);
+            default:
+                return 0;
+        }
+    });
+
+    renderVideos();
+}
+
+function toggleVideoWatched(videoId) {
+    const video = allVideos.find(v => v.id === videoId);
+    if (!video) return;
+
+    video.isWatched = !video.isWatched;
+    video.progress = video.isWatched ? 100 : Math.max(video.progress, 50);
+
+    // Guardar en localStorage
+    localStorage.setItem(`video-${videoId}-watched`, video.isWatched);
+    localStorage.setItem(`video-${videoId}-progress`, video.progress);
+    localStorage.setItem(`video-${videoId}-lastWatched`, new Date().toISOString());
+
+    updateVideosStats();
+    renderVideos();
+}
+
+// =================== ACTIVIDADES ===================
+// Variables globales para las actividades
+let allActividades = [];
+let filteredActividades = [];
+let filteredCuestionarios = [];
+let currentActividadesViewMode = 'grid';
+let currentActividadesPage = 1;
+let itemsPerActividadesPage = 12;
+let currentActividadesFilter = 'all';
+let currentActividadesSort = 'fecha-desc';
+
+// =================== CUESTIONARIOS ===================
+// Variables globales para los cuestionarios
+let currentCuestionariosViewMode = 'grid';
+let currentCuestionariosFilter = 'all';
+let currentCuestionariosSort = 'fecha-desc';
+
+// Variable global para el editor de entregas
+let entregaEditor;
+
+// Funciones para actividades
+function updateActividadesStats() {
+    const total = filteredActividades.length;
+    const completadas = filteredActividades.filter(a => a.isCompleted).length;
+    const progreso = total > 0 ? Math.round((completadas / total) * 100) : 0;
+    document.getElementById('totalActividadesCount').textContent = total;
+    document.getElementById('completadasCount').textContent = completadas;
+    document.getElementById('progresoActividadesCount').textContent = progreso + '%';
+}
+
+function renderActividades() {
+    const container = document.getElementById('actividadesContainer');
+    const startIndex = (currentActividadesPage - 1) * itemsPerActividadesPage;
+    const endIndex = startIndex + itemsPerActividadesPage;
+    const actividadesToShow = filteredActividades.slice(startIndex, endIndex);
+
+    if (actividadesToShow.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3><p>No se encontraron actividades que coincidan con tu búsqueda.</p></div>';
+        document.getElementById('actividadesPagination').style.display = 'none';
+        return;
+    }
+
+    container.className = `clases-container ${currentActividadesViewMode}-view`;
+
+    container.innerHTML = actividadesToShow.map(actividad => {
+        const fecha = actividad.fechaRegistro ? new Date(actividad.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
+        const isNew = actividad.fechaRegistro && (new Date() - new Date(actividad.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+        const tags = actividad.tags ? actividad.tags.split(',').map(tag => tag.trim()) : [];
+
+        return `
+            <div class="clase-card ${currentActividadesViewMode === 'list' ? 'list-view' : ''} ${actividad.isCompleted ? 'completed' : ''} ${isNew ? 'new' : ''}" data-id="${actividad.id}">
+                <div class="clase-header">
+                    <div class="clase-title">
+                        <i class="fas fa-tasks"></i> ${actividad.titulo}
+                    </div>
+                    <div class="clase-meta">
+                        <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                        <div class="meta-item"><i class="fas fa-clock"></i> ${actividad.fechaLimite ? new Date(actividad.fechaLimite).toLocaleDateString('es-ES') : 'Sin límite'}</div>
+                    </div>
+                </div>
+                <div class="clase-content">
+                    <div class="clase-description">
+                        ${actividad.instrucciones || 'Sin instrucciones'}
+                    </div>
+                    <div class="clase-tags">
+                        ${tags.map(tag => `<span class="clase-tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="clase-actions">
+                        <button class="btn-primary-clase" onclick="openModal('actividad', '${actividad.id}')">
+                            <i class="fas fa-upload"></i> ${actividad.isCompleted ? 'Revisar Entrega' : 'Entregar Actividad'}
+                        </button>
+                        <button class="btn-secondary-clase" onclick="toggleActividadCompleted('${actividad.id}')">
+                            <i class="fas fa-check"></i> ${actividad.isCompleted ? 'Marcar pendiente' : 'Marcar completada'}
+                        </button>
+                    </div>
+                    ${actividad.entrega && actividad.entrega.calificada ? `
+                    <div class="clase-calificacion">
+                        <div class="calificacion-badge">
+                            <i class="fas fa-star"></i> Calificación: ${actividad.entrega.nota || 'Pendiente'}
+                            ${actividad.entrega.comentario ? `<br><small>Comentario: ${actividad.entrega.comentario}</small>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                    <div class="clase-progress">
+                        <div class="progress-bar" style="width: ${actividad.progress}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateActividadesPagination();
+}
+
+function updateActividadesPagination() {
+    const totalPages = Math.ceil(filteredActividades.length / itemsPerActividadesPage);
+    const pagination = document.getElementById('actividadesPagination');
+
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+
+    pagination.style.display = 'flex';
+    document.getElementById('currentActividadesPage').textContent = currentActividadesPage;
+    document.getElementById('totalActividadesPages').textContent = totalPages;
+    document.getElementById('prevActividadesPage').disabled = currentActividadesPage === 1;
+    document.getElementById('nextActividadesPage').disabled = currentActividadesPage === totalPages;
+}
+
+function changeActividadesPage(direction) {
+    const totalPages = Math.ceil(filteredActividades.length / itemsPerActividadesPage);
+    currentActividadesPage += direction;
+    if (currentActividadesPage < 1) currentActividadesPage = 1;
+    if (currentActividadesPage > totalPages) currentActividadesPage = totalPages;
+    renderActividades();
+}
+
+function setActividadesViewMode(mode) {
+    currentActividadesViewMode = mode;
+    document.querySelectorAll('#actividades .view-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`#actividades [onclick="setActividadesViewMode('${mode}')"]`).classList.add('active');
+    renderActividades();
+}
+
+function filterActividadesByCategory(category) {
+    currentActividadesFilter = category;
+    document.querySelectorAll('#actividades .filter-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelector(`#actividades [onclick="filterActividadesByCategory('${category}')"]`).classList.add('active');
+
+    switch (category) {
+        case 'recientes':
+            filteredActividades = allActividades.filter(actividad =>
+                actividad.fechaRegistro && (new Date() - new Date(actividad.fechaRegistro)) < (30 * 24 * 60 * 60 * 1000) // 30 días
+            );
+            break;
+        case 'pendientes':
+            filteredActividades = allActividades.filter(actividad => !actividad.isCompleted);
+            break;
+        case 'completadas':
+            filteredActividades = allActividades.filter(actividad => actividad.isCompleted);
+            break;
+        default:
+            filteredActividades = [...allActividades];
+    }
+
+    // Aplicar filtro de programa
+    filteredActividades = filterByProgram(filteredActividades);
+    currentActividadesPage = 1;
+    sortActividades();
+    renderActividades();
+}
+
+function filterActividades() {
+    const searchTerm = document.getElementById('actividadesSearch').value.toLowerCase();
+
+    if (!searchTerm) {
+        filteredActividades = [...allActividades];
+    } else {
+        filteredActividades = allActividades.filter(actividad =>
+            actividad.titulo.toLowerCase().includes(searchTerm) ||
+            (actividad.instrucciones && actividad.instrucciones.toLowerCase().includes(searchTerm)) ||
+            (actividad.tags && actividad.tags.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // Aplicar filtro de programa
+    filteredActividades = filterByProgram(filteredActividades);
+    currentActividadesPage = 1;
+    sortActividades();
+    renderActividades();
+}
+
+function sortActividades() {
+    const sortBy = document.getElementById('sortActividades').value;
+
+    filteredActividades.sort((a, b) => {
+        switch (sortBy) {
+            case 'fecha-desc':
+                return new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0);
+            case 'fecha-asc':
+                return new Date(a.fechaRegistro || 0) - new Date(b.fechaRegistro || 0);
+            case 'titulo-asc':
+                return a.titulo.localeCompare(b.titulo);
+            case 'titulo-desc':
+                return b.titulo.localeCompare(a.titulo);
+            default:
+                return 0;
+        }
+    });
+
+    renderActividades();
+}
+
+function toggleActividadCompleted(actividadId) {
+    const actividad = allActividades.find(a => a.id === actividadId);
+    if (!actividad) return;
+
+    actividad.isCompleted = !actividad.isCompleted;
+    actividad.progress = actividad.isCompleted ? 100 : Math.max(actividad.progress, 50);
+
+    // Guardar en localStorage
+    localStorage.setItem(`actividad-${actividadId}-completed`, actividad.isCompleted);
+    localStorage.setItem(`actividad-${actividadId}-progress`, actividad.progress);
+    localStorage.setItem(`actividad-${actividadId}-lastCompleted`, new Date().toISOString());
+
+    updateActividadesStats();
+    renderActividades();
 }
 
 // =================== EVALUACIONES ===================
@@ -813,17 +2495,251 @@ async function loadActividadDetail(id) {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const actividad = docSnap.data();
-            document.getElementById('modalTitle').textContent = actividad.titulo;
+            document.getElementById('modalTitle').textContent = `Entregar: ${actividad.titulo}`;
             document.getElementById('modalBody').innerHTML = `
-                <p><strong>Descripción:</strong> ${actividad.instrucciones}</p>
-                <p><strong>Programa:</strong> ${actividad.programa}</p>
-                <p><strong>Fecha:</strong> ${actividad.fechaRegistro ? new Date(actividad.fechaRegistro).toLocaleDateString('es-ES') : 'N/A'}</p>
-                ${actividad.archivoUrl ? `<p><strong>Archivo adjunto:</strong> <a href="${actividad.archivoUrl}" target="_blank">Descargar</a></p>` : ''}
-                <div style="margin-top: 20px;">
-                    <textarea id="entregaText" placeholder="Escribe tu entrega aquí..." rows="10" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
-                    <button class="btn-modal btn-primary-modal" onclick="submitEntrega('${id}')">Entregar Actividad</button>
+                <div class="actividad-detail">
+                    <div class="actividad-info">
+                        <div class="info-section">
+                            <h3><i class="fas fa-info-circle"></i> Información de la Actividad</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Programa:</span>
+                                    <span class="info-value">${actividad.programa}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Fecha de publicación:</span>
+                                    <span class="info-value">${actividad.fechaRegistro ? new Date(actividad.fechaRegistro).toLocaleDateString('es-ES') : 'N/A'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Fecha límite:</span>
+                                    <span class="info-value">${actividad.fechaLimite ? new Date(actividad.fechaLimite).toLocaleDateString('es-ES') : 'Sin límite'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Estado:</span>
+                                    <span class="info-value status-${new Date() > new Date(actividad.fechaLimite) ? 'vencida' : 'activa'}">
+                                        ${new Date() > new Date(actividad.fechaLimite) ? 'Vencida' : 'Activa'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h3><i class="fas fa-clipboard-list"></i> Instrucciones</h3>
+                            <div class="instrucciones-content">
+                                ${actividad.instrucciones || 'No hay instrucciones específicas.'}
+                            </div>
+                            ${actividad.archivoUrl ? `
+                                <div class="archivo-adjunto">
+                                    <i class="fas fa-paperclip"></i>
+                                    <a href="${actividad.archivoUrl}" target="_blank" class="archivo-link">
+                                        Descargar archivo adjunto
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="entrega-section">
+                        <h3><i class="fas fa-edit"></i> Tu Entrega</h3>
+                        <div class="editor-container">
+                            <textarea id="entregaEditor" placeholder="Escribe tu entrega aquí..."></textarea>
+                        </div>
+                        <div class="entrega-actions">
+                            <button class="btn-modal btn-secondary" onclick="guardarBorrador('${id}')">
+                                <i class="fas fa-save"></i> Guardar Borrador
+                            </button>
+                            ${!actividad.entrega || !actividad.entrega.calificada ? `
+                            <button class="btn-modal btn-primary-modal" onclick="submitEntrega('${id}')">
+                                <i class="fas fa-paper-plane"></i> Entregar Actividad
+                            </button>
+                            ` : `
+                            <div class="entrega-calificada-msg">
+                                <i class="fas fa-check-circle"></i> Esta actividad ya ha sido calificada y no se puede modificar.
+                            </div>
+                            `}
+                        </div>
+                        <div class="entrega-info">
+                            <small><i class="fas fa-info-circle"></i> Tu entrega se guardará automáticamente como borrador cada 30 segundos</small>
+                        </div>
+                    </div>
+
+                    ${actividad.entrega ? `
+                    <div class="entrega-section">
+                        <h3><i class="fas fa-paper-plane"></i> Entrega Enviada</h3>
+                        <div class="entrega-enviada">
+                            <div class="entrega-meta">
+                                <span><i class="fas fa-calendar"></i> Enviada: ${new Date(actividad.entrega.fechaEntrega).toLocaleDateString('es-ES')}</span>
+                                <span class="entrega-status ${actividad.entrega.calificada ? 'status-calificada' : 'status-pendiente'}">
+                                    ${actividad.entrega.calificada ? 'Calificada' : 'Pendiente de calificación'}
+                                </span>
+                            </div>
+                            <div class="entrega-contenido">
+                                ${actividad.entrega.entrega}
+                            </div>
+                            ${actividad.entrega.calificada ? `
+                            <div class="calificacion-section">
+                                <h4><i class="fas fa-star"></i> Calificación</h4>
+                                <div class="calificacion-info">
+                                    <div class="nota">
+                                        <span class="nota-label">Nota:</span>
+                                        <span class="nota-value">${actividad.entrega.nota || 'Pendiente'}</span>
+                                    </div>
+                                    ${actividad.entrega.comentario ? `
+                                    <div class="comentario">
+                                        <span class="comentario-label">Comentario del profesor:</span>
+                                        <div class="comentario-text">${actividad.entrega.comentario}</div>
+                                    </div>
+                                    ` : `
+                                    <div class="comentario">
+                                        <span class="comentario-label">Comentario del profesor:</span>
+                                        <div class="comentario-text">No hay comentario</div>
+                                    </div>
+                                    `}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
                 </div>
             `;
+            
+            // Clase para subir imágenes como base64 (con compresión)
+            class Base64UploadAdapter {
+                constructor(loader) {
+                    this.loader = loader;
+                }
+
+                async upload() {
+                    return this.loader.file
+                        .then(file => new Promise(async (resolve, reject) => {
+                            // Verificar tamaño del archivo (máximo 5MB antes de compresión)
+                            const maxSize = 5 * 1024 * 1024; // 5MB
+                            if (file.size > maxSize) {
+                                reject(new Error('La imagen es demasiado grande. Máximo 5MB.'));
+                                return;
+                            }
+                            
+                            // Comprimir imagen antes de convertir a base64
+                            const compressedFile = await this.compressImage(file);
+                            
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                resolve({
+                                    default: reader.result
+                                });
+                            };
+                            reader.onerror = () => {
+                                reject(reader.error);
+                            };
+                            reader.readAsDataURL(compressedFile);
+                        }));
+                }
+
+                async compressImage(file) {
+                    return new Promise((resolve) => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const img = new Image();
+                        
+                        img.onload = () => {
+                            // Calcular nuevas dimensiones (máximo 800px de ancho/alto)
+                            const maxSize = 800;
+                            let { width, height } = img;
+                            
+                            if (width > height) {
+                                if (width > maxSize) {
+                                    height = (height * maxSize) / width;
+                                    width = maxSize;
+                                }
+                            } else {
+                                if (height > maxSize) {
+                                    width = (width * maxSize) / height;
+                                    height = maxSize;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Dibujar imagen comprimida
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Convertir a blob con calidad reducida
+                            canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                        };
+                        
+                        img.src = URL.createObjectURL(file);
+                    });
+                }
+
+                abort() {
+                    // No se puede abortar la lectura de FileReader
+                }
+            }
+
+            function Base64UploadAdapterPlugin(editor) {
+                editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                    return new Base64UploadAdapter(loader);
+                };
+            }
+            
+            // Inicializar CKEditor (igual que admin)
+            setTimeout(() => {
+                if (document.getElementById('entregaEditor')) {
+                    ClassicEditor
+                        .create(document.querySelector('#entregaEditor'), {
+                            toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                            extraPlugins: [Base64UploadAdapterPlugin]
+                        })
+                        .then(editor => {
+                            entregaEditor = editor;
+                            
+                            // Método para mostrar advertencia de almacenamiento
+                            editor.showStorageWarning = () => {
+                                const warning = document.createElement('div');
+                                warning.innerHTML = `
+                                    <div style="position: fixed; top: 20px; right: 20px; background: #f59e0b; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px; font-size: 14px;">
+                                        <strong>⚠️ Almacenamiento lleno</strong><br>
+                                        El borrador es muy grande. Considera reducir el número de imágenes o guardar manualmente.
+                                        <button onclick="this.parentElement.remove()" style="margin-top: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cerrar</button>
+                                    </div>
+                                `;
+                                document.body.appendChild(warning);
+                                setTimeout(() => {
+                                    if (warning.parentElement) {
+                                        warning.remove();
+                                    }
+                                }, 10000);
+                            };
+                            
+                            // Cargar borrador guardado
+                            const borrador = localStorage.getItem(`borrador-${id}`);
+                            if (borrador) {
+                                editor.setData(borrador);
+                            }
+                            
+                            // Auto-guardado cada 30 segundos
+                            setInterval(() => {
+                                try {
+                                    const content = editor.getData();
+                                    if (content.trim()) {
+                                        localStorage.setItem(`borrador-${id}`, content);
+                                    }
+                                } catch (error) {
+                                    if (error.name === 'QuotaExceededError') {
+                                        console.warn('Contenido del borrador demasiado grande. Considera reducir imágenes o guardar manualmente.');
+                                        // Mostrar notificación de advertencia
+                                        editor.showStorageWarning();
+                                    }
+                                }
+                            }, 30000);
+                        })
+                        .catch(error => {
+                            console.error('Error inicializando editor:', error);
+                        });
+                }
+            }, 100);
         }
     } catch (error) {
         console.error('Error loading actividad detail:', error);
@@ -838,36 +2754,78 @@ async function loadCuestionarioDetail(id) {
         if (docSnap.exists()) {
             const cuestionario = docSnap.data();
             document.getElementById('modalTitle').textContent = cuestionario.titulo;
-            const preguntasHtml = cuestionario.preguntas.map((pregunta, index) => {
-                if (pregunta.tipo === 'multiple') {
-                    const opciones = pregunta.opciones.map((op, i) => `
-                        <label style="display: block; margin: 5px 0;">
-                            <input type="radio" name="pregunta${index}" value="${i}"> ${op}
-                        </label>
-                    `).join('');
-                    return `
-                        <div style="margin-bottom: 20px;">
-                            <p><strong>${index + 1}. ${pregunta.texto}</strong></p>
-                            ${opciones}
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div style="margin-bottom: 20px;">
-                            <p><strong>${index + 1}. ${pregunta.texto}</strong></p>
-                            <textarea name="pregunta${index}" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
-                        </div>
-                    `;
-                }
-            }).join('');
-            document.getElementById('modalBody').innerHTML = `
+
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const respuestas = JSON.parse(localStorage.getItem('respuestasCuestionarios') || '{}');
+            const misClave = `${currentUser.email}_${id}`;
+            const misIntentos = respuestas[misClave] || [];
+            const intentosRestantes = (cuestionario.intentos || 1) - misIntentos.length;
+            const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+            const vencido = fechaLimite && new Date() > fechaLimite;
+            const puedeResponder = !vencido && intentosRestantes > 0;
+
+            let modalBody = `
                 <p><strong>Descripción:</strong> ${cuestionario.descripcion || 'Sin descripción'}</p>
                 <p><strong>Tiempo disponible:</strong> ${cuestionario.tiempoDisponible || 0} minutos</p>
-                <form id="cuestionarioForm">
-                    ${preguntasHtml}
-                    <button type="button" class="btn-modal btn-primary-modal" onclick="submitCuestionario('${id}')">Enviar Respuestas</button>
-                </form>
+                <p><strong>Intentos restantes:</strong> ${intentosRestantes}</p>
+                ${fechaLimite ? `<p><strong>Fecha límite:</strong> ${fechaLimite.toLocaleString('es-ES')}</p>` : ''}
             `;
+
+            if (misIntentos.length > 0) {
+                modalBody += `
+                    <div class="entrega-section">
+                        <h3><i class="fas fa-check-circle"></i> Respuestas Enviadas</h3>
+                        <p>Has enviado ${misIntentos.length} intento(s). Último: ${misIntentos[misIntentos.length - 1].fecha || 'N/A'}</p>
+                        ${misIntentos[misIntentos.length - 1].calificada ? `
+                            <div class="clase-calificacion">
+                                <div class="calificacion-badge">
+                                    <i class="fas fa-star"></i> Calificación: ${misIntentos[misIntentos.length - 1].calificacion || 'Pendiente'}
+                                    ${misIntentos[misIntentos.length - 1].comentario ? `<br><small>Comentario: ${misIntentos[misIntentos.length - 1].comentario}</small>` : ''}
+                                </div>
+                            </div>
+                        ` : '<p>Calificación pendiente.</p>'}
+                    </div>
+                `;
+            }
+
+            if (puedeResponder) {
+                const preguntasHtml = cuestionario.preguntas.map((pregunta, index) => {
+                    if (pregunta.tipo === 'multiple') {
+                        const opciones = pregunta.opciones.map((op, i) => `
+                            <label style="display: block; margin: 5px 0;">
+                                <input type="radio" name="pregunta${index}" value="${i}"> ${op}
+                            </label>
+                        `).join('');
+                        return `
+                            <div style="margin-bottom: 20px;">
+                                <p><strong>${index + 1}. ${pregunta.texto}</strong></p>
+                                ${opciones}
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div style="margin-bottom: 20px;">
+                                <p><strong>${index + 1}. ${pregunta.texto}</strong></p>
+                                <textarea name="pregunta${index}" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></textarea>
+                            </div>
+                        `;
+                    }
+                }).join('');
+
+                modalBody += `
+                    <div class="entrega-section">
+                        <h3><i class="fas fa-edit"></i> Responder Cuestionario</h3>
+                        <form id="cuestionarioForm">
+                            ${preguntasHtml}
+                            <button type="button" class="btn-modal btn-primary-modal" onclick="submitCuestionario('${id}')">Enviar Respuestas</button>
+                        </form>
+                    </div>
+                `;
+            } else {
+                modalBody += '<p>No puedes responder este cuestionario (sin intentos restantes o vencido).</p>';
+            }
+
+            document.getElementById('modalBody').innerHTML = modalBody;
         }
     } catch (error) {
         console.error('Error loading cuestionario detail:', error);
@@ -899,25 +2857,96 @@ async function loadVideoDetail(id) {
 }
 
 async function submitEntrega(actividadId) {
-    const entrega = document.getElementById('entregaText').value.trim();
+    if (!entregaEditor) {
+        alert('Editor no inicializado');
+        return;
+    }
+    const entrega = entregaEditor.getData().trim();
     if (!entrega) {
         alert('Por favor escribe tu entrega');
         return;
     }
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     try {
-        await addDoc(collection(db, 'entregas'), {
+        // Usar ID compuesto para asegurar unicidad por actividad y estudiante
+        const entregaId = `${actividadId}-${currentUser.email}`;
+        const entregaRef = doc(db, 'entregas', entregaId);
+        
+        // Verificar si ya existe y está calificada
+        const entregaSnap = await getDoc(entregaRef);
+        if (entregaSnap.exists() && entregaSnap.data().calificada) {
+            alert('Esta entrega ya ha sido calificada y no se puede modificar.');
+            return;
+        }
+        
+        await setDoc(entregaRef, {
             actividadId,
             estudianteId: currentUser.email,
+            nombre: currentUser.name,
+            programa: currentUser.programa,
             entrega,
             fechaEntrega: new Date().toISOString(),
-            calificada: false
+            calificada: false // Siempre resetear calificación al actualizar
         });
+        
+        // Limpiar borrador
+        localStorage.removeItem(`borrador-${actividadId}`);
         alert('Entrega enviada exitosamente');
         closeModal();
+        // Recargar actividades para actualizar estado
+        loadActividades();
     } catch (error) {
         console.error('Error submitting entrega:', error);
         alert('Error al enviar la entrega');
+    }
+}
+
+function guardarBorrador(actividadId) {
+    if (!entregaEditor) {
+        alert('Editor no inicializado');
+        return;
+    }
+    const content = entregaEditor.getData();
+    try {
+        if (content.trim()) {
+            localStorage.setItem(`borrador-${actividadId}`, content);
+            // Mostrar notificación de éxito
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; font-weight: 600;">
+                    ✓ Borrador guardado
+                </div>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 2000);
+        }
+    } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+            // Mostrar advertencia de almacenamiento lleno
+            const warning = document.createElement('div');
+            warning.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px; font-size: 14px;">
+                    <strong>💾 Almacenamiento lleno</strong><br>
+                    El borrador es demasiado grande. Intenta:<br>
+                    • Reducir el número de imágenes<br>
+                    • Usar imágenes más pequeñas<br>
+                    • Guardar secciones más cortas
+                    <button onclick="this.parentElement.remove()" style="margin-top: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cerrar</button>
+                </div>
+            `;
+            document.body.appendChild(warning);
+            setTimeout(() => {
+                if (warning.parentElement) {
+                    warning.remove();
+                }
+            }, 15000);
+        } else {
+            alert('Error al guardar borrador: ' + error.message);
+        }
     }
 }
 
@@ -951,6 +2980,19 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 window.submitEntrega = submitEntrega;
 window.submitCuestionario = submitCuestionario;
+window.setViewMode = setViewMode;
+window.filterByCategory = filterByCategory;
+window.changePage = changePage;
+window.toggleClaseCompleted = toggleClaseCompleted;
+window.setVideosViewMode = setVideosViewMode;
+window.filterVideosByCategory = filterVideosByCategory;
+window.changeVideosPage = changeVideosPage;
+window.toggleVideoWatched = toggleVideoWatched;
+window.setActividadesViewMode = setActividadesViewMode;
+window.filterActividadesByCategory = filterActividadesByCategory;
+window.changeActividadesPage = changeActividadesPage;
+window.toggleActividadCompleted = toggleActividadCompleted;
+window.guardarBorrador = guardarBorrador;
 
 updateDashboard();
     </script>

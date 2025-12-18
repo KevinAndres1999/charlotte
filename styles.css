@@ -84,6 +84,126 @@ input[type='text'],input[type='email'],input[type='password'],textarea{width:100
   .programs-grid{grid-template-columns:1fr}
   .features-grid{grid-template-columns:1fr}
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container { padding: 0 12px; }
+  .hero { padding: 40px 0; }
+  .hero h1 { font-size: 28px; line-height: 1.2; }
+  .hero-subtitle { font-size: 16px; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { margin-bottom: 12px; }
+  .hero-stats { flex-direction: column; gap: 16px; }
+  .stat-item { min-width: auto; text-align: center; }
+
+  .features-grid { grid-template-columns: 1fr; gap: 20px; }
+  .feature-card { padding: 24px; text-align: center; }
+  .feature-icon { font-size: 36px; }
+
+  .programs-grid { grid-template-columns: 1fr; }
+  .program-card { margin-bottom: 16px; }
+
+  .cta-content h2 { font-size: 28px; }
+  .cta-buttons { flex-direction: column; }
+  .cta-buttons .btn { margin-bottom: 12px; }
+
+  .course-list { grid-template-columns: 1fr; }
+  .course-card-modern { margin-bottom: 16px; }
+
+  .benefits-grid { grid-template-columns: 1fr; }
+  .benefit-item { padding: 20px; }
+
+  .overview-grid { grid-template-columns: 1fr; gap: 32px; }
+  .overview-content h2 { font-size: 28px; }
+
+  .curriculum-section h2 { font-size: 28px; }
+  .curriculum-grid { grid-template-columns: 1fr; }
+
+  /* Touch-friendly buttons */
+  .btn { min-height: 44px; padding: 12px 20px; font-size: 16px; }
+  a, button { min-height: 44px; }
+
+  /* Better spacing */
+  .section { padding: 24px 0; }
+  h1 { font-size: 28px; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 18px; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 8px; }
+  .hero { padding: 32px 0; }
+  .hero h1 { font-size: 24px; }
+  .hero-subtitle { font-size: 15px; }
+  .hero-stats { padding-top: 20px; }
+
+  .section { padding: 20px 0; }
+  .section-header { margin-bottom: 32px; }
+  .section-header h2 { font-size: 24px; }
+  .section-subtitle { font-size: 16px; }
+
+  .feature-card { padding: 20px; }
+  .program-content { padding: 20px; }
+  .program-content h3 { font-size: 20px; }
+
+  .cta-section { padding: 40px 0; }
+  .cta-content h2 { font-size: 24px; }
+  .cta-content p { font-size: 16px; }
+
+  .course-hero { min-height: 350px; padding: 60px 0; }
+  .course-hero h1 { font-size: 32px; }
+  .hero-lead { font-size: 16px; }
+
+  .overview-content h2 { font-size: 24px; }
+  .overview-content p { font-size: 16px; }
+
+  .stat-box { padding: 20px; }
+  .stat-number { font-size: 32px; }
+
+  /* Better mobile navigation */
+  .main-nav { gap: 8px; }
+  .main-nav a { padding: 6px 8px; font-size: 14px; }
+
+  /* Form improvements */
+  input[type='text'], input[type='email'], input[type='password'], textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@media (max-width: 320px) {
+  .hero h1 { font-size: 20px; }
+  .hero-subtitle { font-size: 14px; }
+  .section-header h2 { font-size: 20px; }
+  .cta-content h2 { font-size: 20px; }
+  .course-hero h1 { font-size: 28px; }
+
+  .btn { padding: 10px 16px; font-size: 15px; }
+  .feature-icon { font-size: 32px; }
+  .benefit-icon { font-size: 36px; }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover { transform: none; }
+  .course-card-modern:hover { transform: none; }
+  .program-card:hover { transform: none; }
+  .feature-card:hover { transform: none; }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn { border: 2px solid; }
+  .card { border: 1px solid #000; }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 /* Small utility */
 .text-center{text-align:center}
 .badge{display:inline-block;padding:6px 10px;border-radius:20px;background:rgba(31,111,178,0.12);color:var(--accent);font-weight:700}
