@@ -127,6 +127,7 @@ function initUI(){
 document.addEventListener('componentsLoaded', ()=>{ try{ initUI(); }catch(e){ console.error('initUI error', e); } });
 
 let confirmRequiredWord = 'CONFIRMAR';
+// Fix: Ensure no duplicate declarations
 
 function showStudentArea(student){
   // Cerrar modal y mostrar panel de estudiante
