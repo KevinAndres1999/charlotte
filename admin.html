@@ -675,9 +675,12 @@
         .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .btn-delete { background: #fee2e2; color: #dc2626; }
         .btn-delete:hover { background: #fecaca; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-bottom: 40px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 40px; }
         .stat-card { background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); transition: all 0.3s; }
+        .evaluation-mode-selector { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .mode-btn { padding: 0.75rem 1.5rem; border: 2px solid #e2e8f0; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600; }
+        .mode-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+        .mode-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
         .stat-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .stat-card-icon.blue { background: #dbeafe; color: #3b82f6; }
@@ -715,6 +718,12 @@
             .sidebar-header { padding: 16px; }
             .sidebar-header h3 { font-size: 16px; }
         }
+
+        .cuestionario-selector-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .cuestionario-selector-card h5 { margin: 0 0 0.5rem 0; color: #1e3a8a; }
+        .cuestionario-selector-card p { margin: 0 0 1rem 0; color: #64748b; }
+        .questions-list { margin-top: 1rem; }
+        .question-item { margin-bottom: 0.5rem; padding: 0.5rem; background: #f8fafc; border-radius: 4px; }
 
         @media (max-width: 480px) {
             .sidebar { width: 280px; }
@@ -777,7 +786,7 @@
                 <p>Gestión de Contenidos</p>
             </div>
             <div class="nav-menu">
-                <div class="nav-item" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-section="usuarios"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-star"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Subir Videos</span></div>
@@ -792,7 +801,7 @@
         </div>
         <div class="main-content">
             <!-- Dashboard -->
-            <div id="dashboard" class="content-section">
+            <div id="dashboard" class="content-section active">
                 <div class="stats-grid">
                     <div class="stat-card" onclick="showSection('videos', event)" style="cursor: pointer;">
                         <div class="stat-card-header">
@@ -837,6 +846,33 @@
                                 <p class="stat-label">Entregas Recibidas</p>
                             </div>
                             <div class="stat-card-icon red"><i class="fas fa-inbox"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('usuarios', event)" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-usuarios">0</h3>
+                                <p class="stat-label">Estudiantes Activos</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('cuestionarios', event)" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-cuestionarios">0</h3>
+                                <p class="stat-label">Cuestionarios</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-question-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('evaluaciones', event)" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-evaluaciones">0</h3>
+                                <p class="stat-label">Evaluaciones</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-clipboard-check"></i></div>
                         </div>
                     </div>
                 </div>
@@ -997,7 +1033,7 @@
             </div>
 
             <!-- Ver Entregas -->
-            <div id="ver-entregas" class="content-section active">
+            <div id="ver-entregas" class="content-section">
                 <div class="page-header">
                     <h2><i class="fas fa-inbox"></i> Entregas de Actividades</h2>
                     <p>Revisa y califica las entregas de tus estudiantes</p>
@@ -1194,6 +1230,14 @@
                                     <label for="cuestionarioIntentos">Número de Intentos</label>
                                     <input type="number" id="cuestionarioIntentos" placeholder="1" min="1" value="1">
                                 </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioFechaInicio">Fecha de Inicio</label>
+                                    <input type="datetime-local" id="cuestionarioFechaInicio" title="Fecha y hora en que los estudiantes podrán acceder al cuestionario">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioFechaFin">Fecha de Fin</label>
+                                    <input type="datetime-local" id="cuestionarioFechaFin" title="Fecha y hora límite para resolver el cuestionario">
+                                </div>
                             </div>
                         </div>
 
@@ -1232,7 +1276,19 @@
                         <p>Crea evaluaciones interactivas con preguntas de opción múltiple y abiertas</p>
                     </div>
 
-                    <form id="evaluacionForm">
+                    <div class="evaluation-mode-selector">
+                        <button type="button" class="mode-btn active" onclick="setEvaluationMode('manual')" id="manualModeBtn">
+                            <i class="fas fa-edit"></i> Crear desde cero
+                        </button>
+                        <button type="button" class="mode-btn" onclick="setEvaluationMode('select')" id="selectModeBtn">
+                            <i class="fas fa-copy"></i> Seleccionar de cuestionarios
+                        </button>
+                        <button type="button" class="mode-btn" onclick="setEvaluationMode('auto')" id="autoModeBtn">
+                            <i class="fas fa-magic"></i> Generar automáticamente
+                        </button>
+                    </div>
+
+                    <form id="evaluacionForm" style="display: block;">
                         <div class="quiz-form-grid">
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-info-circle"></i> Información General</h4>
@@ -1257,10 +1313,22 @@
                                         <option value="Asesoría Técnica">Asesoría Técnica</option>
                                     </select>
                                 </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionTiempo">Tiempo Disponible (minutos)</label>
+                                    <input type="number" id="evaluacionTiempo" placeholder="60" min="1">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionFechaInicio">Fecha de Inicio</label>
+                                    <input type="datetime-local" id="evaluacionFechaInicio" title="Fecha y hora en que los estudiantes podrán acceder a la evaluación">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionFechaFin">Fecha de Fin</label>
+                                    <input type="datetime-local" id="evaluacionFechaFin" title="Fecha y hora límite para resolver la evaluación">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="questions-builder">
+                        <div class="questions-builder" id="manualQuestionsBuilder">
                             <h4><i class="fas fa-list-ol"></i> Preguntas de la Evaluación</h4>
                             <div id="evaluacionQuestionsContainer">
                                 <!-- Questions will be added here -->
@@ -1270,8 +1338,30 @@
                             </button>
                         </div>
 
+                        <div class="questions-builder" id="selectQuestionsBuilder" style="display: none;">
+                            <h4><i class="fas fa-list-ol"></i> Seleccionar Preguntas de Cuestionarios</h4>
+                            <div id="cuestionariosSelector">
+                                <!-- Cuestionarios will be loaded here -->
+                            </div>
+                        </div>
+
+                        <div class="questions-builder" id="autoQuestionsBuilder" style="display: none;">
+                            <h4><i class="fas fa-magic"></i> Generar Evaluación Automática</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="autoCuestionario">Seleccionar Cuestionario</label>
+                                <select id="autoCuestionario" required>
+                                    <option value="">Seleccionar cuestionario</option>
+                                    <!-- Options will be loaded -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="autoNumPreguntas">Número de Preguntas</label>
+                                <input type="number" id="autoNumPreguntas" min="1" placeholder="Ej: 10" required>
+                            </div>
+                        </div>
+
                         <div class="submit-section">
-                            <button type="submit" class="btn-submit-quiz">
+                            <button type="button" class="btn-submit-quiz" onclick="submitEvaluacion()">
                                 <i class="fas fa-rocket"></i> Publicar Evaluación
                             </button>
                         </div>
@@ -1289,37 +1379,75 @@
 
             <!-- Materiales -->
             <div id="materiales" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Material</h4></div>
-                    <div style="padding:24px 32px;">
-                        <form id="materialForm">
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="materialTitle">Título del Material</label>
-                                <input type="text" id="materialTitle" required>
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="materialDesc">Descripción</label>
-                                <textarea id="materialDesc"></textarea>
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="materialPrograma">Programa</label>
-                                <select id="materialPrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="materialUrl">URL del Archivo</label>
-                                <input type="url" id="materialUrl" placeholder="https://..." required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Subir Material</button>
-                        </form>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-folder-plus"></i> Constructor de Materiales</h3>
+                        <p>Sube y gestiona materiales de estudio para tus estudiantes</p>
                     </div>
+
+                    <form id="materialForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información del Material</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialTitle">Título del Material</label>
+                                    <input type="text" id="materialTitle" placeholder="Ej: Recetas Básicas de Panadería" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialDesc">Descripción</label>
+                                    <textarea id="materialDesc" placeholder="Describe el contenido y propósito del material..."></textarea>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialTipo">Tipo de Material</label>
+                                    <select id="materialTipo" required>
+                                        <option value="pdf">📄 PDF</option>
+                                        <option value="docx">📗 Documento Word</option>
+                                        <option value="video">🎥 Video</option>
+                                        <option value="link">🔗 Enlace Externo</option>
+                                        <option value="imagen">🖼️ Imagen</option>
+                                        <option value="otro">📎 Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialPrograma">Programa</label>
+                                    <select id="materialPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialUrl">URL del Archivo</label>
+                                    <input type="url" id="materialUrl" placeholder="https://drive.google.com/... o https://..." required>
+                                    <small style="color: #64748b; display: block; margin-top: 5px;">
+                                        <i class="fas fa-info-circle"></i> Sube el archivo a Google Drive, Dropbox u otro servicio y pega el enlace de descarga directa
+                                    </small>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="materialTamano">Tamaño Aproximado (MB)</label>
+                                    <input type="number" id="materialTamano" placeholder="5.2" step="0.1" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-cloud-upload-alt"></i> Publicar Material
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Materiales Subidos</h4></div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Materiales Publicados</h3>
+                        <p>Gestiona y administra tus materiales subidos</p>
+                    </div>
                     <div id="materialesList"></div>
                 </div>
             </div>
@@ -1370,6 +1498,9 @@
 
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
+        // Variable global para preguntas seleccionadas
+        let selectedQuestions = [];
 
         // Verificar autenticación
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
@@ -1423,33 +1554,75 @@
             const container = document.getElementById(`${type}QuestionsContainer`);
             const questionDivs = container.querySelectorAll('.question-item-premium');
             const questions = [];
-            questionDivs.forEach(div => {
+            const errors = [];
+            let questionIndex = 1;
+            for (let div of questionDivs) {
                 const tipo = div.querySelector('.question-type-premium').value;
                 const texto = div.querySelector('.question-text-premium').value.trim();
-                if (!texto) return;
+                if (!texto) {
+                    errors.push(`Pregunta ${questionIndex}: Falta el texto de la pregunta.`);
+                }
                 const question = { texto, tipo };
                 if (tipo === 'multiple') {
                     const opciones = [];
                     for (let i = 0; i < 4; i++) {
                         const opt = div.querySelector(`.option-${i}`).value.trim();
-                        if (opt) opciones.push(opt);
+                        if (!opt) {
+                            errors.push(`Pregunta ${questionIndex}: Falta la opción ${String.fromCharCode(65 + i)}.`);
+                        } else {
+                            opciones.push(opt);
+                        }
                     }
-                    if (opciones.length !== 4) return;
-                    question.opciones = opciones;
-                    question.respuesta = parseInt(div.querySelector('.correct-answer-premium').value);
+                    if (opciones.length === 4) {
+                        question.opciones = opciones;
+                        question.respuesta = parseInt(div.querySelector('.correct-answer-premium').value);
+                    }
                 }
-                questions.push(question);
-            });
+                if (texto && (tipo !== 'multiple' || question.opciones)) {
+                    questions.push(question);
+                }
+                questionIndex++;
+            }
+            if (errors.length > 0) {
+                alert('Errores encontrados:\n' + errors.join('\n'));
+                return [];
+            }
             return questions;
         }
 
+        function validateAllQuestions(type) {
+            const container = document.getElementById(`${type}QuestionsContainer`);
+            const questionDivs = container.querySelectorAll('.question-item-premium');
+            for (let i = 0; i < questionDivs.length; i++) {
+                const div = questionDivs[i];
+                const tipo = div.querySelector('.question-type-premium').value;
+                const texto = div.querySelector('.question-text-premium').value.trim();
+                if (!texto) {
+                    alert(`Completa el texto de la pregunta ${i + 1} antes de agregar una nueva.`);
+                    return false;
+                }
+                if (tipo === 'multiple') {
+                    for (let j = 0; j < 4; j++) {
+                        const opt = div.querySelector(`.option-${j}`).value.trim();
+                        if (!opt) {
+                            alert(`Completa todas las opciones de la pregunta ${i + 1} antes de agregar una nueva. Falta la opción ${String.fromCharCode(65 + j)}.`);
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
         function agregarPreguntaCuestionario() {
+            if (!validateAllQuestions('cuestionario')) return;
             const container = document.getElementById('cuestionarioQuestionsContainer');
             const questionDiv = createQuestionElement();
             container.appendChild(questionDiv);
         }
 
         function agregarPreguntaEvaluacion() {
+            if (!validateAllQuestions('evaluacion')) return;
             const container = document.getElementById('evaluacionQuestionsContainer');
             const questionDiv = createQuestionElement();
             container.appendChild(questionDiv);
@@ -1649,20 +1822,24 @@
                     const title = document.getElementById('materialTitle').value;
                     const desc = document.getElementById('materialDesc').value;
                     const programa = document.getElementById('materialPrograma').value;
+                    const tipo = document.getElementById('materialTipo').value;
                     const url = document.getElementById('materialUrl').value;
+                    const tamano = document.getElementById('materialTamano').value;
 
+                    if (!title.trim()) return alert('Ingresa un título para el material');
                     if (!url) return alert('Ingresa la URL del archivo');
                     if (!programa) return alert('Selecciona un programa');
+                    if (!tipo) return alert('Selecciona el tipo de material');
 
                     try {
                         await db.collection('materials').add({
                             titulo: title,
                             descripcion: desc,
-                            pdfData: url,
-                            tipo: 'pdf',
+                            url: url,
+                            tipo: tipo,
                             programa: programa,
                             fecha: new Date().toISOString().split('T')[0],
-                            tamano: 0 // No aplicable para URLs
+                            tamano: tamano ? parseFloat(tamano) : 0
                         });
 
                         alert('Material agregado exitosamente');
@@ -1685,6 +1862,14 @@
                     const programa = document.getElementById('cuestionarioPrograma').value;
                     const tiempo = document.getElementById('cuestionarioTiempo').value;
                     const intentos = document.getElementById('cuestionarioIntentos').value;
+                    const fechaInicio = document.getElementById('cuestionarioFechaInicio').value;
+                    const fechaFin = document.getElementById('cuestionarioFechaFin').value;
+
+                    if (!title.trim()) return alert('Ingresa un título para el cuestionario');
+
+                    if (fechaInicio && fechaFin && new Date(fechaInicio) >= new Date(fechaFin)) {
+                        return alert('La fecha de inicio debe ser anterior a la fecha de fin.');
+                    }
 
                     if (!programa) return alert('Selecciona un programa');
 
@@ -1699,6 +1884,8 @@
                             programa: programa,
                             tiempoLimite: tiempo ? parseInt(tiempo) : null,
                             numeroIntentos: intentos ? parseInt(intentos) : 1,
+                            fechaInicio: fechaInicio || null,
+                            fechaFin: fechaFin || null,
                             fechaRegistro: new Date().toISOString()
                         });
 
@@ -1720,11 +1907,35 @@
                     const title = document.getElementById('evaluacionTitle').value;
                     const desc = document.getElementById('evaluacionDesc').value;
                     const programa = document.getElementById('evaluacionPrograma').value;
+                    const tiempo = document.getElementById('evaluacionTiempo').value;
+                    const fechaInicio = document.getElementById('evaluacionFechaInicio').value;
+                    const fechaFin = document.getElementById('evaluacionFechaFin').value;
+
+                    if (!title.trim()) return alert('Ingresa un título para la evaluación');
+
+                    if (fechaInicio && fechaFin && new Date(fechaInicio) >= new Date(fechaFin)) {
+                        return alert('La fecha de inicio debe ser anterior a la fecha de fin.');
+                    }
 
                     if (!programa) return alert('Selecciona un programa');
 
-                    const questions = collectQuestions('evaluacion');
-                    if (questions.length === 0) return alert('Agrega al menos una pregunta');
+                    let questions = [];
+                    if (currentEvaluationMode === 'manual') {
+                        questions = collectQuestions('evaluacion');
+                        if (questions.length === 0) return alert('Agrega al menos una pregunta');
+                    } else if (currentEvaluationMode === 'select') {
+                        questions = await getSelectedQuestions();
+                        if (questions.length === 0) return alert('Selecciona al menos una pregunta de los cuestionarios');
+                    } else if (currentEvaluationMode === 'auto') {
+                        const cuestionarioId = document.getElementById('autoCuestionario').value;
+                        const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
+                        if (!cuestionarioId) return alert('Selecciona un cuestionario');
+                        if (!numPreguntas || numPreguntas < 1) return alert('Ingresa un número válido de preguntas');
+                        questions = await getRandomQuestions(cuestionarioId, numPreguntas);
+                        if (questions.length === 0) return alert('No se pudieron obtener preguntas del cuestionario');
+                    }
+
+                    if (!confirm('¿Estás seguro de que quieres publicar esta evaluación?')) return;
 
                     try {
                         await db.collection('evaluaciones').add({
@@ -1732,14 +1943,21 @@
                             descripcion: desc,
                             preguntas: questions,
                             programa: programa,
+                            tiempoLimite: tiempo ? parseInt(tiempo) : null,
+                            fechaInicio: fechaInicio || null,
+                            fechaFin: fechaFin || null,
                             fechaRegistro: new Date().toISOString()
                         });
 
                         alert('Evaluación subida exitosamente');
                         evaluacionForm.reset();
                         document.getElementById('evaluacionQuestionsContainer').innerHTML = '';
+                        selectedQuestions = []; // Reiniciar selecciones
+                        document.getElementById('autoCuestionario').value = '';
+                        document.getElementById('autoNumPreguntas').value = '';
                         loadDashboardStats();
-                    } catch (error) {
+                    }
+                    catch (error) {
                         console.error('Error:', error);
                         alert('Error al subir evaluación');
                     }
@@ -1763,6 +1981,15 @@
 
                 const entregasSnapshot = await db.collection('entregas').get();
                 document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
+
+                const usuariosSnapshot = await db.collection('users').where('role', '==', 'student').get();
+                document.getElementById('stat-usuarios').textContent = usuariosSnapshot.size;
+
+                const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                document.getElementById('stat-cuestionarios').textContent = cuestionariosSnapshot.size;
+
+                const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                document.getElementById('stat-evaluaciones').textContent = evaluacionesSnapshot.size;
             } catch (error) {
                 console.error('Error loading stats:', error);
             }
@@ -2067,27 +2294,46 @@
                 const snapshot = await db.collection('materials').get();
                 const container = document.getElementById('materialesList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay materiales subidos</h5></div></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales subidos</h3><p>Sube tu primer material usando el constructor arriba</p></div>';
                     return;
                 }
+
+                container.className = 'clases-container grid-view';
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    const tipoIcon = data.tipo === 'pdf' ? '📄' : data.tipo === 'docx' ? '📗' : data.tipo === 'video' ? '🎥' : data.tipo === 'link' ? '🔗' : data.tipo === 'imagen' ? '🖼️' : '📎';
+                    const tamanoText = data.tamano > 0 ? `${data.tamano} MB` : '';
+                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view ${isNew ? 'new' : ''}" data-id="${doc.id}">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    ${tipoIcon} ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                                    ${tamanoText ? `<div class="meta-item"><i class="fas fa-file"></i> ${tamanoText}</div>` : ''}
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'General'}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('materials', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || 'Sin descripción'}
+                                </div>
+                                <div class="clase-actions">
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('materials', '${doc.id}')" title="Eliminar material">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
                 console.error('Error loading materiales:', error);
+                document.getElementById('materialesList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar materiales</h3><p>Intenta recargar la página</p></div>';
             }
         }
 
@@ -2376,7 +2622,163 @@
             document.getElementById('entregaModal').style.display = 'none';
         }
 
-        // Inicializar CKEditor (con adaptador base64 para imágenes)
+        // Función para enviar evaluación con confirmación
+        function submitEvaluacion() {
+            if (confirm('¿Estás seguro de que quieres publicar esta evaluación?')) {
+                document.getElementById('evaluacionForm').requestSubmit();
+            }
+        }
+        let currentEvaluationMode = 'manual';
+        function setEvaluationMode(mode) {
+            currentEvaluationMode = mode;
+            selectedQuestions = []; // Reiniciar selecciones al cambiar modo
+            const manualBtn = document.getElementById('manualModeBtn');
+            const selectBtn = document.getElementById('selectModeBtn');
+            const autoBtn = document.getElementById('autoModeBtn');
+            const manualBuilder = document.getElementById('manualQuestionsBuilder');
+            const selectBuilder = document.getElementById('selectQuestionsBuilder');
+            const autoBuilder = document.getElementById('autoQuestionsBuilder');
+
+            if (mode === 'manual') {
+                manualBtn.classList.add('active');
+                selectBtn.classList.remove('active');
+                autoBtn.classList.remove('active');
+                manualBuilder.style.display = 'block';
+                selectBuilder.style.display = 'none';
+                autoBuilder.style.display = 'none';
+            } else if (mode === 'select') {
+                selectBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+                autoBtn.classList.remove('active');
+                manualBuilder.style.display = 'none';
+                selectBuilder.style.display = 'block';
+                autoBuilder.style.display = 'none';
+                loadCuestionariosForSelection();
+            } else if (mode === 'auto') {
+                autoBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+                selectBtn.classList.remove('active');
+                manualBuilder.style.display = 'none';
+                selectBuilder.style.display = 'none';
+                autoBuilder.style.display = 'block';
+                loadCuestionariosForAuto();
+            }
+        }
+
+        // Función para cargar cuestionarios para selección
+        async function loadCuestionariosForSelection() {
+            const container = document.getElementById('cuestionariosSelector');
+            try {
+                const snapshot = await db.collection('cuestionarios').get();
+                if (snapshot.empty) {
+                    container.innerHTML = '<p>No hay cuestionarios disponibles</p>';
+                    return;
+                }
+
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return `
+                        <div class="cuestionario-selector-card">
+                            <h5>${data.titulo}</h5>
+                            <p>${data.preguntas?.length || 0} preguntas</p>
+                            <button type="button" onclick="toggleCuestionarioQuestions('${doc.id}')" class="btn-secondary">Ver Preguntas</button>
+                            <div id="questions-${doc.id}" class="questions-list" style="display: none;"></div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading cuestionarios:', error);
+                container.innerHTML = '<p>Error al cargar cuestionarios</p>';
+            }
+        }
+
+        // Función para cargar cuestionarios para generación automática
+        async function loadCuestionariosForAuto() {
+            const select = document.getElementById('autoCuestionario');
+            select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
+            try {
+                const snapshot = await db.collection('cuestionarios').get();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = data.titulo + ' (' + (data.preguntas?.length || 0) + ' preguntas)';
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading cuestionarios:', error);
+            }
+        }
+
+        // Función para mostrar/ocultar preguntas de un cuestionario
+        async function toggleCuestionarioQuestions(cuestionarioId) {
+            const questionsDiv = document.getElementById(`questions-${cuestionarioId}`);
+            if (questionsDiv.style.display === 'none') {
+                try {
+                    const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
+                    const data = doc.data();
+                    questionsDiv.innerHTML = data.preguntas.map((q, index) => `
+                        <div class="question-item">
+                            <label>
+                                <input type="checkbox" onchange="toggleQuestionSelection('${cuestionarioId}', ${index})">
+                                ${q.texto}
+                            </label>
+                        </div>
+                    `).join('');
+                    questionsDiv.style.display = 'block';
+                } catch (error) {
+                    console.error('Error loading questions:', error);
+                }
+            } else {
+                questionsDiv.style.display = 'none';
+            }
+        }
+
+        // Función para obtener preguntas seleccionadas
+        async function getSelectedQuestions() {
+            const questions = [];
+            for (const key of selectedQuestions) {
+                const [cuestionarioId, questionIndex] = key.split('-');
+                try {
+                    const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
+                    const data = doc.data();
+                    if (data.preguntas && data.preguntas[questionIndex]) {
+                        questions.push(data.preguntas[questionIndex]);
+                    }
+                } catch (error) {
+                    console.error('Error getting question:', error);
+                }
+            }
+            return questions;
+        }
+
+        // Función para obtener preguntas aleatorias de un cuestionario
+        async function getRandomQuestions(cuestionarioId, num) {
+            try {
+                const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
+                const data = doc.data();
+                const allQuestions = data.preguntas || [];
+                if (allQuestions.length === 0) return [];
+                // Mezclar y seleccionar
+                const shuffled = allQuestions.sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, Math.min(num, allQuestions.length));
+            } catch (error) {
+                console.error('Error getting random questions:', error);
+                return [];
+            }
+        }
+
+        // Función para seleccionar/deseleccionar preguntas
+        function toggleQuestionSelection(cuestionarioId, questionIndex) {
+            const key = `${cuestionarioId}-${questionIndex}`;
+            const index = selectedQuestions.indexOf(key);
+            if (index > -1) {
+                selectedQuestions.splice(index, 1);
+            } else {
+                selectedQuestions.push(key);
+            }
+        }
+
         let claseEditor;
         ClassicEditor
             .create(document.querySelector('#claseContent'), {
@@ -2404,6 +2806,10 @@
         window.filterEntregas = filterEntregas;
         window.viewEntregaDetail = viewEntregaDetail;
         window.closeModal = closeModal;
+        window.setEvaluationMode = setEvaluationMode;
+        window.toggleCuestionarioQuestions = toggleCuestionarioQuestions;
+        window.toggleQuestionSelection = toggleQuestionSelection;
+        window.submitEvaluacion = submitEvaluacion;
         window.calificarEntrega = calificarEntrega;
 
         // =================== FUNCIONES DE RESPUESTAS ===================
@@ -2683,54 +3089,81 @@
 
                     document.getElementById('modalTitle').textContent = `Calificar Respuesta - ${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}`;
                     document.getElementById('modalBody').innerHTML = `
-                        <div class="entrega-detail">
-                            <div class="entrega-header">
-                                <div>
-                                    <h3>${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}</h3>
-                                    <p style="color: #64748b; margin: 4px 0;">Respondido por ${respuesta.nombre || respuesta.estudianteId} el ${new Date(respuesta.fechaRespuesta).toLocaleString('es-ES')}</p>
+                        <div class="entrega-detail" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                            <div class="entrega-header" style="background: linear-gradient(135deg, #0b3460 0%, #e63971 100%); padding: 25px; color: white;">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <i class="fas fa-graduation-cap" style="font-size: 2em;"></i>
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.5em;">${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}</h3>
+                                        <p style="margin: 5px 0 0 0; opacity: 0.9;"><i class="fas fa-user"></i> ${respuesta.nombre || respuesta.estudianteId} | <i class="fas fa-calendar"></i> ${new Date(respuesta.fechaRespuesta).toLocaleString('es-ES')}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="entrega-contenido">
+                            <div class="entrega-contenido" style="padding: 25px; background: white;">
                                 <h4><i class="fas fa-clipboard-list"></i> Respuestas</h4>
                                 ${respuesta.respuestas.map((respuestaTexto, index) => {
                                     const pregunta = item.preguntas?.[index];
                                     const tipoPregunta = pregunta?.tipo || 'unknown';
-                                    const calificadaAutomatica = tipoPregunta === 'multiple' ? (respuestaTexto == pregunta.respuesta ? 'Correcta' : 'Incorrecta') : '';
+                                    const esCorrecta = tipoPregunta === 'multiple' && respuestaTexto == pregunta.respuesta;
+                                    const calificadaAutomatica = tipoPregunta === 'multiple' ? (esCorrecta ? 'Correcta' : 'Incorrecta') : '';
+                                    const cardColor = tipoPregunta === 'multiple' ? (esCorrecta ? 'linear-gradient(135deg, #28a745 0%, #0b3460 100%)' : 'linear-gradient(135deg, #d9534f 0%, #0b3460 100%)') : 'linear-gradient(135deg, #ffc107 0%, #e63971 100%)';
+                                    const icon = tipoPregunta === 'multiple' ? (esCorrecta ? 'fas fa-check-circle' : 'fas fa-times-circle') : 'fas fa-question';
                                     return `
-                                        <div style="margin-bottom: 15px; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                                            <p><strong>Pregunta ${index + 1} (${tipoPregunta}):</strong> ${pregunta?.texto || 'Pregunta'}</p>
-                                            <p><strong>Respuesta:</strong> ${respuestaTexto || 'Sin respuesta'}</p>
-                                            ${tipoPregunta === 'multiple' ? `<p><strong>Calificación automática:</strong> ${calificadaAutomatica}</p>` : ''}
+                                        <div style="margin-bottom: 20px; padding: 20px; background: ${cardColor}; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); color: white;">
+                                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                                <i class="${icon}" style="font-size: 1.5em;"></i>
+                                                <h5 style="margin: 0;">Pregunta ${index + 1} (${tipoPregunta})</h5>
+                                            </div>
+                                            <p style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;"><strong>Pregunta:</strong> ${pregunta?.texto || 'Pregunta'}</p>
+                                            <p style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;"><strong>Respuesta:</strong> ${respuestaTexto || 'Sin respuesta'}</p>
+                                            ${tipoPregunta === 'multiple' ? `<p style="background: rgba(255,255,255,0.3); padding: 8px; border-radius: 5px; display: inline-block;"><strong>Calificación automática:</strong> ${calificadaAutomatica}</p>` : ''}
                                         </div>
                                     `;
                                 }).join('')}
                             </div>
 
                             ${respuesta.preguntasAbiertas && respuesta.preguntasAbiertas.length > 0 ? `
-                                <div class="calificacion-section">
-                                    <h4><i class="fas fa-star"></i> Calificar Preguntas Abiertas</h4>
-                                    <p><strong>Calificación automática (preguntas múltiples):</strong> ${respuesta.calificacionAutomatica || 0}%</p>
-                                    <p id="open-questions-count"><strong>Preguntas abiertas por calificar:</strong> ${respuesta.preguntasAbiertas.length}</p>
-                                    <div style="background: #e2e8f0; border-radius: 10px; height: 8px; margin: 10px 0;">
-                                        <div id="progress-bar" style="background: #3b82f6; height: 8px; border-radius: 10px; width: 0%;"></div>
+                                <div class="calificacion-section" style="background: linear-gradient(135deg, #0b3460 0%, #e63971 100%); color: white; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-top: 20px;">
+                                    <h4 style="margin-bottom: 20px; font-size: 1.5em; text-align: center;"><i class="fas fa-star-half-alt"></i> Calificación Premium de Preguntas Abiertas</h4>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; flex: 1; margin-right: 10px;">
+                                            <p style="margin: 0; font-size: 1.1em;"><i class="fas fa-robot"></i> Automática: <strong>${respuesta.calificacionAutomatica || 0}%</strong></p>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; flex: 1; margin-left: 10px;">
+                                            <p id="open-questions-count" style="margin: 0; font-size: 1.1em;"><i class="fas fa-list-ol"></i> Pendientes: <strong>${respuesta.preguntasAbiertas.length}</strong></p>
+                                        </div>
                                     </div>
-                                    <p><strong>Califica cada pregunta abierta individualmente.</strong></p>
-                                    <p id="total-calificacion"><strong>Calificación total acumulada:</strong> ${respuesta.calificacionAutomatica || 0}%</p>
-                                        ${respuesta.preguntasAbiertas.map((abierta, idx) => ` <form onsubmit="calificarPreguntaAbierta(event, '${respuestaId}', '${tipo}', ${idx})"> 
-                                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                                <label for="calif-${idx}">Pregunta ${abierta.indice + 1} (0-100)</label>
-                                                <input type="number" id="calif-${idx}" min="0" max="100" style="width: 100px;">
-                                                <p><strong>Pregunta:</strong> ${abierta.texto}</p><p><strong>Respuesta del estudiante:</strong> ${abierta.respuestaEstudiante}</p> <button type="submit" class="btn btn-secondary">Calificar Esta Pregunta</button> </form>
+                                    <div style="background: rgba(255,255,255,0.2); border-radius: 15px; height: 12px; margin: 20px 0; overflow: hidden;">
+                                        <div id="progress-bar" style="background: linear-gradient(90deg, #e63971 0%, #0b3460 100%); height: 12px; border-radius: 15px; width: 0%; transition: width 0.5s ease;"></div>
+                                    </div>
+                                    <div style="text-align: center; margin-bottom: 20px;">
+                                        <p id="total-calificacion" style="font-size: 1.3em; margin: 0;"><i class="fas fa-trophy"></i> Total Acumulado: <strong>${respuesta.calificacionAutomatica || 0}%</strong></p>
+                                    </div>
+                                    <p style="text-align: center; margin-bottom: 20px; font-style: italic;">Califica cada pregunta con precisión para una evaluación justa</p>
+                                        ${respuesta.preguntasAbiertas.map((abierta, idx) => ` 
+                                            <div style="background: linear-gradient(135deg, #e63971 0%, #0b3460 100%); border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); transform: translateY(0); transition: transform 0.3s ease;">
+                                                <form onsubmit="calificarPreguntaAbierta(event, '${respuestaId}', '${tipo}', ${abierta.indice})">
+                                                    <h5 style="color: white; margin-bottom: 15px;"><i class="fas fa-question-circle"></i> Pregunta ${abierta.indice + 1}</h5>
+                                                    <p style="background: rgba(11, 52, 96, 0.8); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px;"><strong>Pregunta:</strong> ${abierta.texto}</p>
+                                                    <p style="background: rgba(11, 52, 96, 0.8); color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px;"><strong>Respuesta del estudiante:</strong> ${abierta.respuestaEstudiante}</p>
+                                                    <div style="display: flex; align-items: center; gap: 15px;">
+                                                        <label for="calif-${abierta.indice}" style="color: white; font-weight: bold;">Calificación (0-100):</label>
+                                                        <input type="number" id="calif-${abierta.indice}" min="0" max="100" style="width: 80px; padding: 5px; border-radius: 5px; border: none;" required>
+                                                        <button type="submit" style="background: linear-gradient(45deg, #e63971, #0b3460); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: transform 0.2s;"><i class="fas fa-check"></i> Calificar</button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         `).join('')}
-                                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                            <label for="comentariosRespuesta">Comentarios generales (opcional)</label>
-                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                                            <label for="comentariosRespuesta" style="color: white; font-weight: bold;"><i class="fas fa-comment"></i> Comentarios generales (opcional)</label>
+                                            <textarea id="comentariosRespuesta" rows="3" style="width: 100%; margin-top: 10px; border-radius: 5px; border: none; padding: 10px;" placeholder="Agrega comentarios sobre la evaluación..."></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save"></i> Guardar Calificaciones
-                                        </button>
+                                        <div style="text-align: center;">
+                                            <button type="submit" style="background: linear-gradient(45deg, #0b3460, #e63971); color: white; border: none; padding: 15px 30px; border-radius: 30px; cursor: pointer; font-size: 1.1em; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+                                                <i class="fas fa-save"></i> Guardar Todas las Calificaciones
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             ` : `
@@ -2761,10 +3194,10 @@
             }
         }
 
-        async function calificarPreguntaAbierta(event, respuestaId, tipo, idx) {
+        async function calificarPreguntaAbierta(event, respuestaId, tipo, indice) {
             event.preventDefault();
 
-            const calif = parseInt(document.getElementById(`calif-${idx}`).value);
+            const calif = parseInt(document.getElementById(`calif-${indice}`).value);
             if (isNaN(calif) || calif < 0 || calif > 100) {
                 alert('La calificación debe estar entre 0 y 100');
                 return;
@@ -2775,6 +3208,12 @@
                 const docRef = db.collection(collectionName).doc(respuestaId);
                 const docSnap = await docRef.get();
                 const respuesta = docSnap.data();
+
+                const idx = respuesta.preguntasAbiertas.findIndex(p => p.indice === indice);
+                if (idx === -1) {
+                    alert('Pregunta no encontrada');
+                    return;
+                }
 
                 const puntosPorPregunta = respuesta.puntosPorPregunta || (100 / respuesta.respuestas.length);
                 let calificacionAbiertas = respuesta.calificacionAbiertas || 0;
@@ -2815,7 +3254,7 @@
                     const progress = ((total - preguntasAbiertasRestantes.length) / total) * 100;
                     document.getElementById('progress-bar').style.width = `${progress}%`;
                     // Remove the graded question form
-                    const form = document.getElementById(`calif-${idx}`).closest('form');
+                    const form = document.getElementById(`calif-${indice}`).closest('form');
                     form.remove();
                     alert('Pregunta calificada. Quedan más por calificar.');
                 } else {

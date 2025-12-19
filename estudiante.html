@@ -28,7 +28,7 @@
         .profile-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
         .profile-value { color: #0a1628; font-weight: 500; }
         .nav-menu { padding: 0; }
-        .nav-item { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.8rem; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #334155; }
+        .nav-item { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.8rem; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #0a1628; }
         .nav-item:hover { background: #f8fafc; border-left-color: #3b82f6; }
         .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); border-left-color: #3b82f6; color: #1e3a8a; font-weight: 600; }
         .nav-item i { width: 20px; text-align: center; }
@@ -73,7 +73,7 @@
         .btn-modal { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 5px; }
         .btn-primary-modal { background: #3b82f6; color: white; }
         .btn-secondary { background: #6b7280; color: white; }
-        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; cursor: pointer; }
         .stat-card h3 { font-size: 2rem; margin: 0.5rem 0; color: #1e3a8a; }
         .stat-card p { color: #64748b; margin: 0; font-size: 0.9rem; }
@@ -88,7 +88,7 @@
         .quick-link h4 { margin: 0.5rem 0 0 0; color: #0a1628; font-size: 1rem; }
         @media (max-width: 768px) {
             .container { flex-direction: column; }
-            .sidebar { width: 100%; position: fixed; left: -100%; top: 72px; height: calc(100vh - 72px); z-index: 99; transition: left 0.3s; overflow-y: auto; }
+            .sidebar { width: 280px; position: fixed; left: -100%; top: 72px; height: calc(100vh - 72px); z-index: 99; transition: left 0.3s; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { left: 0; }
             .menu-toggle { display: block; }
             .main-content { padding: 1rem; }
@@ -124,8 +124,6 @@
             .quick-link h4 { font-size: 14px; }
 
             /* Better navigation */
-            .nav-item span { display: none; }
-            .nav-item i { font-size: 20px; margin-right: 0; }
 
             /* Content improvements */
             .content-card h4 { font-size: 16px; }
@@ -980,7 +978,9 @@
                 <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-play-circle"></i><span>Videos</span></div>
                 <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
+                <div class="nav-item" onclick="showSection('evaluaciones')"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" onclick="showSection('materiales')"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
+                <div class="nav-item" onclick="showSection('recursos')"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
             </nav>
         </aside>
 
@@ -1012,6 +1012,16 @@
                         <h3 id="totalMateriales">0</h3>
                         <p>Materiales</p>
                     </div>
+                    <div class="stat-card" style="border-left-color: #ef4444;" onclick="showSection('cuestionarios')">
+                        <i class="fas fa-question-circle" style="color: #ef4444;"></i>
+                        <h3 id="totalCuestionarios">0</h3>
+                        <p>Cuestionarios</p>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #06b6d4;" onclick="showSection('evaluaciones')">
+                        <i class="fas fa-clipboard-check" style="color: #06b6d4;"></i>
+                        <h3 id="totalEvaluaciones">0</h3>
+                        <p>Evaluaciones</p>
+                    </div>
                 </div>
 
                 <h3 style="margin-bottom: 1rem; color: #0a1628;">Accesos Rápidos</h3>
@@ -1031,6 +1041,14 @@
                     <div class="quick-link" onclick="showSection('materiales')">
                         <i class="fas fa-folder-open"></i>
                         <h4>Materiales</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('cuestionarios')">
+                        <i class="fas fa-question-circle"></i>
+                        <h4>Cuestionarios</h4>
+                    </div>
+                    <div class="quick-link" onclick="showSection('evaluaciones')">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h4>Evaluaciones</h4>
                     </div>
                 </div>
             </section>
@@ -1381,6 +1399,16 @@ async function loadDashboardStats() {
         const materialesQuery = query(collection(db, 'materials'), where('programa', '==', currentUser.programa));
         const materialesSnapshot = await getDocs(materialesQuery);
         document.getElementById('totalMateriales').textContent = materialesSnapshot.size;
+
+        // Contar cuestionarios
+        const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
+        const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
+        document.getElementById('totalCuestionarios').textContent = cuestionariosSnapshot.size;
+
+        // Contar evaluaciones
+        const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
+        const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
+        document.getElementById('totalEvaluaciones').textContent = evaluacionesSnapshot.size;
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
@@ -1423,6 +1451,8 @@ function showSection(sectionId) {
         loadMateriales();
     } else if (sectionId === 'clases') {
         loadClases();
+    } else if (sectionId === 'recursos') {
+        window.location.href = 'recursos.html';
     }
 }
 
@@ -1447,6 +1477,7 @@ window.toggleMenu = toggleMenu;
 window.logout = logout;
 
 let allCuestionarios = [];
+let allEvaluaciones = [];
 
 async function loadCuestionarios() {
     const container = document.getElementById('cuestionariosContainer');
@@ -1516,7 +1547,10 @@ function renderCuestionarios() {
     if (!container) return;
 
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    if (!currentUser) return;
+    if (!currentUser) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-times"></i><h3>Acceso requerido</h3><p>Inicia sesión para ver los cuestionarios disponibles.</p></div>';
+        return;
+    }
 
     const ahora = new Date();
     container.className = `clases-container ${currentCuestionariosViewMode}-view`;
@@ -1524,14 +1558,20 @@ function renderCuestionarios() {
     container.innerHTML = filteredCuestionarios.map(cuestionario => {
         const fecha = cuestionario.fechaRegistro ? new Date(cuestionario.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
         const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
+        const fechaInicio = cuestionario.fechaInicio ? new Date(cuestionario.fechaInicio) : null;
+        const fechaFin = cuestionario.fechaFin ? new Date(cuestionario.fechaFin) : null;
+        const ahora = new Date();
         const vencido = fechaLimite && ahora > fechaLimite;
+        const disponible = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
         const isNew = cuestionario.fechaRegistro && (new Date() - new Date(cuestionario.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
         const intentosRealizados = cuestionario.intentosRealizados || 0;
         const maxIntentos = cuestionario.numeroIntentos || 1;
         const intentosRestantes = maxIntentos - intentosRealizados;
-        const puedeResponder = !vencido && intentosRestantes > 0;
+        const puedeResponder = disponible && !vencido && intentosRestantes > 0;
         const isCompleted = intentosRealizados > 0;
         const progress = isCompleted ? 100 : 0;
+
+        const lapsoDisponibilidad = fechaInicio && fechaFin ? `Disponible del ${fechaInicio.toLocaleString('es-ES')} al ${fechaFin.toLocaleString('es-ES')}` : '';
 
         return `
         <div class="clase-card ${currentCuestionariosViewMode === 'list' ? 'list-view' : ''} ${isCompleted ? 'completed' : ''} ${vencido ? 'vencido' : ''} ${isNew ? 'new' : ''}" data-id="${cuestionario.id}">
@@ -1547,6 +1587,7 @@ function renderCuestionarios() {
             <div class="clase-content">
                 <div class="clase-description">
                     ${cuestionario.descripcion || 'Sin descripción'}
+                    ${lapsoDisponibilidad ? `<br><small style="color: #64748b;"><i class="fas fa-calendar-check"></i> ${lapsoDisponibilidad}</small>` : ''}
                 </div>
                 <div class="clase-stats">
                     <div class="stat-item">
@@ -1562,7 +1603,7 @@ function renderCuestionarios() {
                 </div>` : ''}
                 <div class="clase-actions">
                     <button class="btn-primary-clase" onclick="window.location.href='responder-cuestionario.html?id=${cuestionario.id}'" ${!puedeResponder ? 'disabled' : ''}>
-                        <i class="fas fa-play"></i> ${isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
+                        <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
                     </button>
                 </div>
                 ${cuestionario.respuestas && cuestionario.respuestas.length > 0 ? `
@@ -1582,6 +1623,98 @@ function renderCuestionarios() {
 
     if (filteredCuestionarios.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3><p>No se encontraron cuestionarios que coincidan con tu búsqueda.</p></div>';
+    }
+}
+
+function sortEvaluaciones() {
+    filteredEvaluaciones.sort((a, b) => new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0));
+}
+
+function updateEvaluacionesStats() {
+    // Opcional: agregar estadísticas
+}
+
+function renderEvaluaciones() {
+    const container = document.getElementById('evaluacionesList');
+    if (!container) return;
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-times"></i><h3>Acceso requerido</h3><p>Inicia sesión para ver las evaluaciones disponibles.</p></div>';
+        return;
+    }
+
+    const ahora = new Date();
+    container.className = `clases-container ${currentEvaluacionesViewMode || 'grid'}-view`;
+
+    container.innerHTML = filteredEvaluaciones.map(evaluacion => {
+        const fecha = evaluacion.fechaRegistro ? new Date(evaluacion.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
+        const fechaLimite = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
+        const fechaInicio = evaluacion.fechaInicio ? new Date(evaluacion.fechaInicio) : null;
+        const fechaFin = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
+        const ahora = new Date();
+        const vencido = fechaLimite && ahora > fechaLimite;
+        const disponible = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
+        const isNew = evaluacion.fechaRegistro && (new Date() - new Date(evaluacion.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+        const intentosRealizados = evaluacion.intentosRealizados || 0;
+        const maxIntentos = 1; // Evaluaciones solo 1 intento
+        const intentosRestantes = maxIntentos - intentosRealizados;
+        const puedeResponder = disponible && !vencido && intentosRestantes > 0;
+        const isCompleted = intentosRealizados > 0;
+        const progress = isCompleted ? 100 : 0;
+
+        const lapsoDisponibilidad = fechaInicio && fechaFin ? `Disponible del ${fechaInicio.toLocaleString('es-ES')} al ${fechaFin.toLocaleString('es-ES')}` : '';
+
+        return `
+        <div class="clase-card ${currentEvaluacionesViewMode === 'list' ? 'list-view' : ''} ${isCompleted ? 'completed' : ''} ${vencido ? 'vencido' : ''} ${isNew ? 'new' : ''}" data-id="${evaluacion.id}">
+            <div class="clase-header">
+                <div class="clase-title">
+                    <i class="fas fa-clipboard-check"></i> ${evaluacion.titulo}
+                </div>
+                <div class="clase-meta">
+                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                    <div class="meta-item"><i class="fas fa-clock"></i> ${evaluacion.tiempoLimite ? `${evaluacion.tiempoLimite} min` : 'Sin límite'}</div>
+                </div>
+            </div>
+            <div class="clase-content">
+                <div class="clase-description">
+                    ${evaluacion.descripcion || 'Sin descripción'}
+                    ${lapsoDisponibilidad ? `<br><small style="color: #64748b;"><i class="fas fa-calendar-check"></i> ${lapsoDisponibilidad}</small>` : ''}
+                </div>
+                <div class="clase-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-list"></i> ${evaluacion.preguntas?.length || 0} preguntas
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-redo"></i> ${intentosRealizados}/${maxIntentos} intentos
+                    </div>
+                </div>
+                ${fechaLimite ? `<div class="clase-deadline ${vencido ? 'expired' : ''}">
+                    <i class="fas fa-calendar-alt"></i> Límite: ${fechaLimite.toLocaleDateString('es-ES')}
+                    ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
+                </div>` : ''}
+                <div class="clase-actions">
+                    <button class="btn-primary-clase" onclick="window.location.href='responder-evaluacion.html?id=${evaluacion.id}'" ${!puedeResponder ? 'disabled' : ''}>
+                        <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
+                    </button>
+                </div>
+                ${evaluacion.respuestas && evaluacion.respuestas.length > 0 ? `
+                <div class="clase-calificacion">
+                    <div class="calificacion-badge">
+                        <i class="fas fa-star"></i> Calificación: ${evaluacion.respuestas[evaluacion.respuestas.length - 1].calificacion || 'Pendiente'}
+                    </div>
+                </div>
+                ` : ''}
+                <div class="clase-progress">
+                    <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    if (filteredEvaluaciones.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay evaluaciones disponibles</h3><p>No se encontraron evaluaciones que coincidan con tu búsqueda.</p></div>';
     }
 }
 
@@ -1669,69 +1802,88 @@ async function loadActividades() {
 
 async function loadMateriales() {
     const container = document.getElementById('materialesList');
-    const allMaterials = [];
+    if (!container) return;
 
     try {
         const snapshot = await getDocs(collection(db, 'materials'));
-        snapshot.forEach(doc => allMaterials.push({ id: doc.id, ...doc.data(), tipo: 'pdf' }));
+        const allMaterials = [];
+        snapshot.forEach(doc => {
+            const material = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            material.isDownloaded = localStorage.getItem(`material-${material.id}-downloaded`) === 'true';
+            allMaterials.push(material);
+        });
+
+        const filtered = filterByProgram(allMaterials);
+        filteredMateriales = filtered;
+        sortMateriales();
+        updateMaterialesStats();
+        renderMateriales();
     } catch (error) {
-        console.error('Error Firestore:', error);
+        console.error('Error al cargar materiales:', error);
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>Error al cargar materiales</h3><p>Intenta recargar la página</p></div>';
     }
+}
 
-    try {
-        const local = JSON.parse(localStorage.getItem('materiales') || '[]');
-        allMaterials.push(...local);
-    } catch (error) {
-        console.error('Error localStorage:', error);
-    }
+function sortMateriales() {
+    filteredMateriales.sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+}
 
-    const filtered = filterByProgram(allMaterials);
+function updateMaterialesStats() {
+    // Opcional: agregar estadísticas
+}
 
-    if (filtered.length === 0) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3></div>';
+function renderMateriales() {
+    const container = document.getElementById('materialesList');
+    if (!container) return;
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-times"></i><h3>Acceso requerido</h3><p>Inicia sesión para ver los materiales disponibles.</p></div>';
         return;
     }
 
-    container.innerHTML = filtered.map(m => {
-        if (m.tipo === 'receta') {
-            return `
-                <div class="content-card" style="border-top-color: #f59e0b;">
-                    <h4>${m.titulo}</h4>
-                    <p>${m.descripcion}</p>
-                    <a href="${m.url}" class="btn-view" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                        <i class="fas fa-utensils"></i> Ver Recetas
-                    </a>
-                </div>
-            `;
-        }
-        if (m.tipo === 'pdf' || m.pdfData) {
-            return `
-                <div class="content-card">
-                    <h4><i class="fas fa-file-pdf" style="color: #dc2626;"></i> ${m.titulo}</h4>
-                    <p>${m.descripcion || ''}</p>
-                    <div class="meta">
-                        <span><i class="fas fa-calendar"></i> ${m.fecha || ''}</span>
-                        ${m.tamano ? `<span><i class="fas fa-file"></i> ${(m.tamano / 1024 / 1024).toFixed(2)} MB</span>` : ''}
-                    </div>
-                    <a href="${m.pdfData || m.url}" target="_blank" class="btn-view">
-                        <i class="fas fa-eye"></i> Ver PDF
-                    </a>
-                </div>
-            `;
-        }
+    const ahora = new Date();
+    container.className = `clases-container grid-view`;
+
+    container.innerHTML = filteredMateriales.map(material => {
+        const fecha = material.fecha ? new Date(material.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+        const tipoIcon = material.tipo === 'pdf' ? '📄' : material.tipo === 'docx' ? '📗' : material.tipo === 'video' ? '🎥' : material.tipo === 'link' ? '🔗' : material.tipo === 'imagen' ? '🖼️' : '📎';
+        const tamanoText = material.tamano > 0 ? `${material.tamano} MB` : '';
+        const isNew = material.fecha && (new Date() - new Date(material.fecha)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+
         return `
-            <div class="content-card">
-                <h4><i class="fas fa-link"></i> ${m.titulo}</h4>
-                <p>${m.descripcion || ''}</p>
-                <div class="meta">
-                    <span><i class="fas fa-calendar"></i> ${m.fecha}</span>
+        <div class="clase-card grid-view ${isNew ? 'new' : ''}" data-id="${material.id}">
+            <div class="clase-header">
+                <div class="clase-title">
+                    ${tipoIcon} ${material.titulo}
                 </div>
-                <a href="${m.url}" target="_blank" class="btn-view">
-                    <i class="fas fa-external-link-alt"></i> Abrir
-                </a>
+                <div class="clase-meta">
+                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                    ${tamanoText ? `<div class="meta-item"><i class="fas fa-file"></i> ${tamanoText}</div>` : ''}
+                </div>
             </div>
+            <div class="clase-content">
+                <div class="clase-description">
+                    ${material.descripcion || 'Sin descripción'}
+                </div>
+                <div class="clase-actions">
+                    <a href="${material.url}" target="_blank" class="btn-primary-clase" onclick="markAsDownloaded('${material.id}')">
+                        <i class="fas fa-download"></i> Descargar Material
+                    </a>
+                </div>
+            </div>
+        </div>
         `;
     }).join('');
+
+    if (filteredMateriales.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales disponibles</h3><p>No se encontraron materiales que coincidan con tu búsqueda.</p></div>';
+    }
+}
+
+function markAsDownloaded(materialId) {
+    localStorage.setItem(`material-${materialId}-downloaded`, 'true');
 }
 
 // =================== CLASES ===================
@@ -2172,6 +2324,7 @@ function toggleVideoWatched(videoId) {
 let allActividades = [];
 let filteredActividades = [];
 let filteredCuestionarios = [];
+let filteredEvaluaciones = [];
 let currentActividadesViewMode = 'grid';
 let currentActividadesPage = 1;
 let itemsPerActividadesPage = 12;
@@ -2181,6 +2334,7 @@ let currentActividadesSort = 'fecha-desc';
 // =================== CUESTIONARIOS ===================
 // Variables globales para los cuestionarios
 let currentCuestionariosViewMode = 'grid';
+let currentEvaluacionesViewMode = 'grid';
 let currentCuestionariosFilter = 'all';
 let currentCuestionariosSort = 'fecha-desc';
 
@@ -2381,40 +2535,52 @@ function toggleActividadCompleted(actividadId) {
 async function loadEvaluaciones() {
     const container = document.getElementById('evaluacionesList');
     if (!container) return;
+
     try {
         const snapshot = await getDocs(collection(db, 'evaluaciones'));
-        const evaluaciones = [];
-        snapshot.forEach(doc => evaluaciones.push({ id: doc.id, ...doc.data() }));
-        const filtered = filterByProgram(evaluaciones);
-        // Ordenar por fechaRegistro descendente
-        filtered.sort((a, b) => new Date(b.fechaRegistro || 0) - new Date(a.fechaRegistro || 0));
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay evaluaciones disponibles</h3></div>';
-            return;
+        allEvaluaciones = [];
+        snapshot.forEach(doc => {
+            const evaluacion = { id: doc.id, ...doc.data() };
+            // Agregar campos calculados
+            evaluacion.isCompleted = false; // Se actualizará con respuestas
+            evaluacion.progress = 0;
+            allEvaluaciones.push(evaluacion);
+        });
+
+        // Cargar estado de respuestas con listener en tiempo real
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (currentUser) {
+            const respuestasQuery = query(collection(db, 'respuestasEvaluaciones'), where('estudianteId', '==', currentUser.email));
+            onSnapshot(respuestasQuery, (snapshot) => {
+                const respuestasMap = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const clave = `${data.estudianteId}_${data.evaluacionId}`;
+                    if (!respuestasMap[clave]) respuestasMap[clave] = [];
+                    respuestasMap[clave].push(data);
+                });
+                allEvaluaciones.forEach(evaluacion => {
+                    const clave = `${currentUser.email}_${evaluacion.id}`;
+                    const misRespuestas = respuestasMap[clave] || [];
+                    evaluacion.intentosRealizados = misRespuestas.length;
+                    if (misRespuestas.length > 0) {
+                        evaluacion.isCompleted = true;
+                        evaluacion.respuestas = misRespuestas;
+                        evaluacion.progress = 100; // Simplificado
+                    } else {
+                        evaluacion.isCompleted = false;
+                        evaluacion.respuestas = null;
+                    }
+                });
+                const filtered = filterByProgram(allEvaluaciones);
+                filteredEvaluaciones = filtered;
+                sortEvaluaciones();
+                updateEvaluacionesStats();
+                renderEvaluaciones();
+            }, (error) => {
+                console.error('Error listening respuestas evaluaciones:', error);
+            });
         }
-        const ahora = new Date();
-        container.innerHTML = filtered.map(evaluacion => {
-            const fechaInicio = evaluacion.fechaInicio ? new Date(evaluacion.fechaInicio) : null;
-            const fechaFin = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
-            const activa = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
-            return `
-            <div class="content-card" style="border-top-color: ${activa ? '#3b82f6' : '#94a3b8'};">
-                <h4><i class="fas fa-file-alt"></i> ${evaluacion.titulo}</h4>
-                <p>${evaluacion.cuestionarioNombre || ''}</p>
-                <div class="meta" style="margin: 15px 0;">
-                    <span><i class="fas fa-list"></i> ${evaluacion.numPreguntas || 0} preguntas</span>
-                    <span><i class="fas fa-redo"></i> ${evaluacion.maxIntentos || 1} intentos</span>
-                </div>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
-                    <i class="fas fa-calendar-alt"></i> Desde: ${fechaInicio ? fechaInicio.toLocaleString('es-ES') : '-'} hasta ${fechaFin ? fechaFin.toLocaleString('es-ES') : '-'}
-                    ${!activa ? ' <strong>(FUERA DE FECHA)</strong>' : ''}
-                </p>
-                <button class="btn-view" disabled style="background: #94a3b8; cursor: not-allowed;">
-                    <i class="fas fa-eye"></i> Próximamente
-                </button>
-            </div>
-            `;
-        }).join('');
     } catch (error) {
         console.error('Error al cargar evaluaciones:', error);
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>Error al cargar evaluaciones</h3><p>Intenta recargar la página</p></div>';
