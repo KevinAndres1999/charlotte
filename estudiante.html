@@ -1258,8 +1258,29 @@
             </section>
 
             <section id="materiales" class="section">
-                <h2 class="page-title">Materiales de Estudio</h2>
-                <p class="page-subtitle">Documentos, PDFs y recursos adicionales</p>
+                <div class="classes-header">
+                    <div class="classes-title">
+                        <h2 class="page-title"><i class="fas fa-folder-open"></i> Materiales de Estudio</h2>
+                        <p class="page-subtitle">Documentos, PDFs y recursos adicionales</p>
+                    </div>
+                    <div class="classes-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="materialesSearch" placeholder="Buscar materiales..." onkeyup="filterMateriales()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="classes-filters">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterMaterialesByCategory('all')">Todos</button>
+                        <button class="filter-tab" onclick="filterMaterialesByCategory('recientes')">Recientes</button>
+                        <button class="filter-tab" onclick="filterMaterialesByCategory('pdf')">PDFs</button>
+                        <button class="filter-tab" onclick="filterMaterialesByCategory('video')">Videos</button>
+                        <button class="filter-tab" onclick="filterMaterialesByCategory('documento')">Documentos</button>
+                    </div>
+                </div>
+
                 <div id="materialesList" class="grid"></div>
             </section>
         </main>
@@ -1806,15 +1827,15 @@ async function loadMateriales() {
 
     try {
         const snapshot = await getDocs(collection(db, 'materials'));
-        const allMaterials = [];
+        allMateriales = [];
         snapshot.forEach(doc => {
             const material = { id: doc.id, ...doc.data() };
             // Agregar campos calculados
             material.isDownloaded = localStorage.getItem(`material-${material.id}-downloaded`) === 'true';
-            allMaterials.push(material);
+            allMateriales.push(material);
         });
 
-        const filtered = filterByProgram(allMaterials);
+        const filtered = filterByProgram(allMateriales);
         filteredMateriales = filtered;
         sortMateriales();
         updateMaterialesStats();
@@ -1886,6 +1907,51 @@ function markAsDownloaded(materialId) {
     localStorage.setItem(`material-${materialId}-downloaded`, 'true');
 }
 
+// =================== FUNCIONES DE MATERIALES ===================
+function filterMaterialesByCategory(category) {
+    switch (category) {
+        case 'recientes':
+            filteredMateriales = allMateriales.filter(material =>
+                material.fecha && (new Date() - new Date(material.fecha)) < (30 * 24 * 60 * 60 * 1000) // 30 días
+            );
+            break;
+        case 'pdf':
+            filteredMateriales = allMateriales.filter(material => material.tipo === 'pdf');
+            break;
+        case 'video':
+            filteredMateriales = allMateriales.filter(material => material.tipo === 'video');
+            break;
+        case 'documento':
+            filteredMateriales = allMateriales.filter(material => material.tipo === 'docx');
+            break;
+        default:
+            filteredMateriales = [...allMateriales];
+    }
+
+    // Aplicar filtro de programa
+    filteredMateriales = filterByProgram(filteredMateriales);
+    sortMateriales();
+    renderMateriales();
+}
+
+function filterMateriales() {
+    const searchTerm = document.getElementById('materialesSearch')?.value.toLowerCase() || '';
+
+    if (!searchTerm) {
+        filteredMateriales = [...allMateriales];
+    } else {
+        filteredMateriales = allMateriales.filter(material =>
+            material.titulo.toLowerCase().includes(searchTerm) ||
+            (material.descripcion && material.descripcion.toLowerCase().includes(searchTerm))
+        );
+    }
+
+    // Aplicar filtro de programa
+    filteredMateriales = filterByProgram(filteredMateriales);
+    sortMateriales();
+    renderMateriales();
+}
+
 // =================== CLASES ===================
 // Variables globales para las clases
 let allClases = [];
@@ -1895,6 +1961,11 @@ let currentPage = 1;
 let itemsPerPage = 12;
 let currentFilter = 'all';
 let currentSort = 'fecha-desc';
+
+// =================== MATERIALES ===================
+// Variables globales para los materiales
+let allMateriales = [];
+let filteredMateriales = [];
 
 // =================== CLASES MEJORADAS ===================
 async function loadClases() {
@@ -3159,6 +3230,8 @@ window.filterActividadesByCategory = filterActividadesByCategory;
 window.changeActividadesPage = changeActividadesPage;
 window.toggleActividadCompleted = toggleActividadCompleted;
 window.guardarBorrador = guardarBorrador;
+window.filterMaterialesByCategory = filterMaterialesByCategory;
+window.filterMateriales = filterMateriales;
 
 updateDashboard();
     </script>
