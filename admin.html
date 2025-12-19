@@ -811,6 +811,7 @@
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
+                <div class="nav-item" data-section="recursos"><i class="fas fa-star"></i><span>Subir Recursos</span></div>
             </div>
         </div>
         <div class="main-content">
@@ -937,19 +938,22 @@
 
             <!-- Subir Videos -->
             <div id="videos" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Video</h4></div>
-                    <div style="padding: 24px 32px;">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-video"></i> Subir Videos</h3>
+                        <p>Gestiona y sube videos para tus estudiantes</p>
+                    </div>
+                    <div class="form-card">
                         <form id="videoForm">
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="videoTitle">Título del Video</label>
                                 <input type="text" id="videoTitle" required>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="videoDesc">Descripción</label>
                                 <textarea id="videoDesc"></textarea>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="videoPrograma">Programa</label>
                                 <select id="videoPrograma" required>
                                     <option value="">Seleccionar programa</option>
@@ -958,91 +962,115 @@
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="videoUrl">URL del Video</label>
                                 <input type="url" id="videoUrl" placeholder="https://youtube.com/..." required>
                             </div>
                             <button type="submit" class="btn btn-primary">Subir Video</button>
                         </form>
                     </div>
-                </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Videos Subidos</h4></div>
-                    <div id="videosList"></div>
+                    <div class="content-list">
+                        <div class="content-list-header"><h4>Videos Subidos</h4></div>
+                        <div id="videosList" class="grid"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Subir Clases -->
             <div id="clases" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Clase</h4></div>
-                    <div style="padding: 24px 32px;">
+                <div class="quiz-builder-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-book-open"></i> Gestión de Clases</h3>
+                        <p>Sube y administra las clases disponibles para tus estudiantes</p>
+                    </div>
+
+                    <div class="form-card">
+                        <h4><i class="fas fa-plus-circle"></i> Subir Nueva Clase</h4>
                         <form id="claseForm">
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="claseTitle">Título de la Clase</label>
-                                <input type="text" id="claseTitle" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="claseTitle">Título de la Clase</label>
+                                    <input type="text" id="claseTitle" required placeholder="Ingresa el título de la clase">
+                                </div>
+                                <div class="form-group">
+                                    <label for="clasePrograma">Programa</label>
+                                    <select id="clasePrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="claseDesc">Descripción</label>
-                                <textarea id="claseDesc"></textarea>
+                                <textarea id="claseDesc" placeholder="Describe brevemente el contenido de la clase"></textarea>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="clasePrograma">Programa</label>
-                                <select id="clasePrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
+                            <div class="form-group">
+                                <label for="claseContent">Contenido de la Clase</label>
+                                <textarea id="claseContent" placeholder="Ingresa el contenido detallado de la clase"></textarea>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="claseContent">Contenido</label>
-                                <textarea id="claseContent"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Subir Clase</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Subir Clase
+                            </button>
                         </form>
                     </div>
-                </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Clases Subidas</h4></div>
-                    <div id="clasesList"></div>
+
+                    <div class="grid">
+                        <div class="grid-header">
+                            <h4><i class="fas fa-list"></i> Clases Subidas</h4>
+                        </div>
+                        <div id="clasesList" class="clases-container grid-view"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Subir Actividades -->
             <div id="actividades" class="content-section">
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Subir Actividad</h4></div>
-                    <div style="padding: 24px 32px;">
+                <div class="quiz-builder-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-tasks"></i> Gestión de Actividades</h3>
+                        <p>Sube y administra las actividades prácticas para tus estudiantes</p>
+                    </div>
+
+                    <div class="form-card">
+                        <h4><i class="fas fa-plus-circle"></i> Subir Nueva Actividad</h4>
                         <form id="actividadForm">
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="actividadTitle">Título de la Actividad</label>
-                                <input type="text" id="actividadTitle" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="actividadTitle">Título de la Actividad</label>
+                                    <input type="text" id="actividadTitle" required placeholder="Ingresa el título de la actividad">
+                                </div>
+                                <div class="form-group">
+                                    <label for="actividadPrograma">Programa</label>
+                                    <select id="actividadPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="actividadDesc">Descripción</label>
-                                <textarea id="actividadDesc"></textarea>
+                                <textarea id="actividadDesc" placeholder="Describe la actividad y sus objetivos"></textarea>
                             </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="actividadPrograma">Programa</label>
-                                <select id="actividadPrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                            <div class="form-group">
                                 <label for="actividadUrl">URL del Archivo (opcional)</label>
-                                <input type="url" id="actividadUrl" placeholder="https://...">
+                                <input type="url" id="actividadUrl" placeholder="https://..." placeholder="Enlace a material adicional si es necesario">
                             </div>
-                            <button type="submit" class="btn btn-primary">Subir Actividad</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Subir Actividad
+                            </button>
                         </form>
                     </div>
-                </div>
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header"><h4>Actividades Subidas</h4></div>
-                    <div id="actividadesList"></div>
+
+                    <div class="grid">
+                        <div class="grid-header">
+                            <h4><i class="fas fa-list"></i> Actividades Subidas</h4>
+                        </div>
+                        <div id="actividadesList" class="clases-container grid-view"></div>
+                    </div>
                 </div>
             </div>
 
@@ -1469,9 +1497,86 @@
                     <div id="materialesList"></div>
                 </div>
             </div>
-        </div>
-    </div>
-    <script>
+
+            <!-- Recursos -->
+            <div id="recursos" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-star"></i> Constructor de Recursos Premium</h3>
+                        <p>Sube y gestiona recursos premium para tus estudiantes</p>
+                    </div>
+
+                    <form id="recursoForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información del Recurso</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTipo">Tipo de Recurso</label>
+                                    <select id="recursoTipo" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="foto">📸 Foto</option>
+                                        <option value="recurso">📄 Recurso</option>
+                                        <option value="contacto">👤 Contacto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTitle">Título</label>
+                                    <input type="text" id="recursoTitle" placeholder="Ej: Foto de Producto Final" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoDesc">Descripción</label>
+                                    <textarea id="recursoDesc" placeholder="Describe el recurso..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoPrograma">Programa</label>
+                                    <select id="recursoPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoUrl">URL del Archivo</label>
+                                    <input type="text" id="recursoUrl" placeholder="https://..." required>
+                                    <small style="color: #64748b; display: block; margin-top: 5px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Fotos:</strong> Sube a Google Drive o Imgur → Comparte públicamente<br>
+                                        <strong>Recursos:</strong> PDFs, documentos, enlaces<br>
+                                        <strong>Contactos:</strong> Información de contacto o enlaces<br>
+                                        <strong>Importante:</strong> Asegúrate de que sea accesible públicamente
+                                    </small>
+                                </div>
+                                <div class="form-group" id="contactFields" style="display: none; border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTelefono">Teléfono (opcional)</label>
+                                    <input type="tel" id="recursoTelefono" placeholder="+57 300 123 4567">
+                                    <label for="recursoEmail">Email (opcional)</label>
+                                    <input type="email" id="recursoEmail" placeholder="contacto@ejemplo.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-cloud-upload-alt"></i> Publicar Recurso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Recursos Publicados</h3>
+                        <p>Gestiona y administra tus recursos subidos</p>
+                    </div>
+                    <div id="recursosList"></div>
+                </div>
+            </div>
+        <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
             constructor(loader) {
@@ -1509,6 +1614,7 @@
 
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        console.log('Firebase initialized, db:', db);
 
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
@@ -1534,6 +1640,58 @@
                     showSection(section);
                 });
             });
+
+            // Formulario de recursos
+            const recursoForm = document.getElementById('recursoForm');
+            if (recursoForm) {
+                // Mostrar/ocultar campos de contacto
+                document.getElementById('recursoTipo').addEventListener('change', function() {
+                    const contactFields = document.getElementById('contactFields');
+                    contactFields.style.display = this.value === 'contacto' ? 'block' : 'none';
+                });
+
+                recursoForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const tipo = document.getElementById('recursoTipo').value;
+                    const title = document.getElementById('recursoTitle').value;
+                    const desc = document.getElementById('recursoDesc').value;
+                    const programa = document.getElementById('recursoPrograma').value;
+                    const url = document.getElementById('recursoUrl').value;
+                    const telefono = document.getElementById('recursoTelefono').value;
+                    const email = document.getElementById('recursoEmail').value;
+
+                    if (!tipo) return alert('Selecciona el tipo de recurso');
+                    if (!title.trim()) return alert('Ingresa un título para el recurso');
+                    if (!url) return alert('Ingresa la URL del archivo');
+                    if (!programa) return alert('Selecciona un programa');
+
+                    try {
+                        const data = {
+                            titulo: title,
+                            descripcion: desc,
+                            url: url,
+                            programa: programa,
+                            fecha: new Date().toISOString().split('T')[0]
+                        };
+
+                        if (tipo === 'contacto') {
+                            data.telefono = telefono;
+                            data.email = email;
+                        }
+
+                        await db.collection(tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos').add(data);
+
+                        alert('Recurso agregado exitosamente');
+                        recursoForm.reset();
+                        document.getElementById('contactFields').style.display = 'none';
+                        loadDashboardStats();
+                        loadRecursosList();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error al agregar recurso');
+                    }
+                });
+            }
         });
 
         function showSection(sectionId) {
@@ -1541,14 +1699,15 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-            if (sectionId === 'videos') loadVideosList();
-            else if (sectionId === 'clases') loadClasesList();
-            else if (sectionId === 'actividades') loadActividadesList();
-            else if (sectionId === 'cuestionarios') loadCuestionariosList();
-            else if (sectionId === 'evaluaciones') loadEvaluacionesList();
-            else if (sectionId === 'materiales') loadMaterialesList();
-            else if (sectionId === 'ver-entregas') loadEntregas();
-            else if (sectionId === 'ver-respuestas') loadRespuestas();
+            if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
+            else if (sectionId === 'clases') try { loadClasesList(); } catch (e) { console.error('Error loading clases:', e); }
+            else if (sectionId === 'actividades') try { loadActividadesList(); } catch (e) { console.error('Error loading actividades:', e); }
+            else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
+            else if (sectionId === 'evaluaciones') try { loadEvaluacionesList(); } catch (e) { console.error('Error loading evaluaciones:', e); }
+            else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
+            else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
+            else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
+            else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
 
         function toggleMobileMenu() {
@@ -1977,29 +2136,38 @@
 
         // Dashboard stats
         async function loadDashboardStats() {
+            console.log('Loading dashboard stats');
             try {
                 const videosSnapshot = await db.collection('content').get();
+                console.log('Videos snapshot size:', videosSnapshot.size);
                 document.getElementById('stat-videos').textContent = videosSnapshot.size;
 
                 const clasesSnapshot = await db.collection('classes').get();
+                console.log('Clases snapshot size:', clasesSnapshot.size);
                 document.getElementById('stat-clases').textContent = clasesSnapshot.size;
 
                 const actividadesSnapshot = await db.collection('activities').get();
+                console.log('Actividades snapshot size:', actividadesSnapshot.size);
                 document.getElementById('stat-actividades').textContent = actividadesSnapshot.size;
 
                 const materialesSnapshot = await db.collection('materials').get();
+                console.log('Materiales snapshot size:', materialesSnapshot.size);
                 document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
 
                 const entregasSnapshot = await db.collection('entregas').get();
+                console.log('Entregas snapshot size:', entregasSnapshot.size);
                 document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
 
                 const usuariosSnapshot = await db.collection('users').where('role', '==', 'student').get();
+                console.log('Usuarios snapshot size:', usuariosSnapshot.size);
                 document.getElementById('stat-usuarios').textContent = usuariosSnapshot.size;
 
                 const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                console.log('Cuestionarios snapshot size:', cuestionariosSnapshot.size);
                 document.getElementById('stat-cuestionarios').textContent = cuestionariosSnapshot.size;
 
                 const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                console.log('Evaluaciones snapshot size:', evaluacionesSnapshot.size);
                 document.getElementById('stat-evaluaciones').textContent = evaluacionesSnapshot.size;
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -2159,22 +2327,36 @@
             try {
                 const snapshot = await db.collection('content').get();
                 const container = document.getElementById('videosList');
+                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos subidos</h5></div></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-video"></i><h3>No hay videos subidos</h3><p>Sube tu primer video usando el formulario arriba</p></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    📹 ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || 'Sin descripción'}
+                                </div>
+                                <div class="clase-actions">
+                                    <a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver video"><i class="fas fa-play"></i></a>
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2188,22 +2370,36 @@
             try {
                 const snapshot = await db.collection('classes').get();
                 const container = document.getElementById('clasesList');
+                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases subidas</h5></div></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases subidas</h3><p>Sube tu primera clase usando el formulario arriba</p></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    📚 ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || 'Sin descripción'}
+                                </div>
+                                <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver clase"><i class="fas fa-eye"></i></button>
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2217,28 +2413,55 @@
             try {
                 const snapshot = await db.collection('activities').get();
                 const container = document.getElementById('actividadesList');
+                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades subidas</h5></div></div>';
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades subidas</h3><p>Sube tu primera actividad usando el formulario arriba</p></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.instrucciones || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    🎯 ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.instrucciones || 'Sin instrucciones'}
+                                </div>
+                                <div class="clase-actions">
+                                    ${data.url ? `<a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver archivo"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
                 console.error('Error loading actividades:', error);
+            }
+        }
+
+        async function viewClase(claseId) {
+            try {
+                const doc = await db.collection('classes').doc(claseId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    alert(`Clase: ${data.titulo}\n\nDescripción: ${data.descripcion || 'Sin descripción'}\n\nContenido:\n${data.contenido || 'Sin contenido'}\n\nPrograma: ${data.programa}`);
+                }
+            } catch (error) {
+                console.error('Error viewing clase:', error);
+                alert('Error al cargar la clase');
             }
         }
 
@@ -2348,6 +2571,60 @@
             }
         }
 
+        async function loadRecursosList() {
+            try {
+                const [fotosSnap, recursosSnap, contactosSnap] = await Promise.all([
+                    db.collection('fotos').get(),
+                    db.collection('recursos').get(),
+                    db.collection('contactos').get()
+                ]);
+
+                const container = document.getElementById('recursosList');
+                const allRecursos = [];
+
+                fotosSnap.forEach(doc => allRecursos.push({ id: doc.id, ...doc.data(), tipo: 'foto' }));
+                recursosSnap.forEach(doc => allRecursos.push({ id: doc.id, ...doc.data(), tipo: 'recurso' }));
+                contactosSnap.forEach(doc => allRecursos.push({ id: doc.id, ...doc.data(), tipo: 'contacto' }));
+
+                if (allRecursos.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><h3>No hay recursos subidos</h3><p>Sube tu primer recurso usando el constructor arriba</p></div>';
+                } else {
+                    container.innerHTML = allRecursos.map(recurso => {
+                        const tipoIcon = recurso.tipo === 'foto' ? '📸' : recurso.tipo === 'recurso' ? '📄' : '👤';
+                        const fecha = recurso.fecha ? new Date(recurso.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+                        const isNew = recurso.fecha && (new Date() - new Date(recurso.fecha)) < (7 * 24 * 60 * 60 * 1000);
+
+                        return `
+                            <div class="clase-card grid-view ${isNew ? 'new' : ''}" data-id="${recurso.id}">
+                                <div class="clase-header">
+                                    <div class="clase-title">
+                                        ${tipoIcon} ${recurso.titulo}
+                                    </div>
+                                    <div class="clase-meta">
+                                        <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                                        <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${recurso.programa || 'General'}</div>
+                                    </div>
+                                </div>
+                                <div class="clase-content">
+                                    <div class="clase-description">
+                                        ${recurso.descripcion || 'Sin descripción'}
+                                    </div>
+                                    <div class="clase-actions">
+                                        <button class="btn-icon btn-delete" onclick="deleteItem('${recurso.tipo === 'foto' ? 'fotos' : recurso.tipo === 'recurso' ? 'recursos' : 'contactos'}', '${recurso.id}')" title="Eliminar recurso">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading recursos:', error);
+                document.getElementById('recursosList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar recursos</h3><p>Intenta recargar la página</p></div>';
+            }
+        }
+
         async function deleteItem(collectionName, id) {
             if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
             try {
@@ -2379,6 +2656,7 @@
                     else if (sectionId === 'cuestionarios') loadCuestionariosList();
                     else if (sectionId === 'evaluaciones') loadEvaluacionesList();
                     else if (sectionId === 'materiales') loadMaterialesList();
+                    else if (sectionId === 'recursos') loadRecursosList();
                     else if (sectionId === 'ver-entregas') {
                         console.log('Seleccionando sección ver-entregas');
                         loadEntregas();

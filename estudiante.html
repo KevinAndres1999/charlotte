@@ -49,11 +49,11 @@
         .main-content { flex: 1; padding: 2rem; }
         .section { display: none; }
         .section.active { display: block; }
-        .page-title { font-size: 2rem; margin-bottom: 0.5rem; color: #0a1628; }
+        .page-title { font-size: 2rem; margin-bottom: 1.5rem; color: #0a1628; }
         .page-subtitle { color: #64748b; margin-bottom: 2rem; }
         .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .card h3 { color: #1e3a8a; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
         .content-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 3px solid #3b82f6; transition: all 0.3s; }
         .content-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(59,130,246,0.15); }
         .content-card h4 { margin-bottom: 0.5rem; color: #0a1628; }
@@ -243,6 +243,7 @@
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
+            margin-bottom: 30px;
         }
 
         .filter-tab {
@@ -266,6 +267,25 @@
             background: #3b82f6;
             border-color: #3b82f6;
             color: white;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .search-container input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .sort-options select {
@@ -308,7 +328,7 @@
         .clases-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
+            gap: 2rem;
             margin-bottom: 2rem;
         }
 
@@ -1526,6 +1546,11 @@
                         <h3 id="totalMateriales">0</h3>
                         <p>Materiales</p>
                     </div>
+                    <div class="stat-card" style="border-left-color: #10b981;" data-section="recursos">
+                        <i class="fas fa-star" style="color: #10b981;"></i>
+                        <h3 id="totalRecursos">0</h3>
+                        <p>Recursos</p>
+                    </div>
                     <div class="stat-card" style="border-left-color: #ef4444;" data-section="cuestionarios">
                         <i class="fas fa-question-circle" style="color: #ef4444;"></i>
                         <h3 id="totalCuestionarios">0</h3>
@@ -1725,7 +1750,7 @@
                     <div class="sort-options">
                         <select id="sortActividades" onchange="sortActividades()">
                             <option value="fecha-desc">Más recientes</option>
-                            <option value="fecha-asc">Más antiguos</option>
+                            <option value="fecha-asc">Más antiguas</option>
                             <option value="titulo-asc">Título A-Z</option>
                             <option value="titulo-desc">Título Z-A</option>
                         </select>
@@ -1800,54 +1825,18 @@
 
             <!-- =================== RECURSOS PREMIUM =================== -->
             <section id="recursos" class="section">
-                <div class="recursos-header">
-                    <div class="recursos-title">
-                        <h2 class="page-title"><i class="fas fa-gem"></i> Centro de Recursos Premium</h2>
-                        <p class="page-subtitle">Galería de trabajos, recursos exclusivos y contactos profesionales</p>
-                    </div>
-                    <div class="recursos-stats">
-                        <div class="stat-card">
-                            <i class="fas fa-camera"></i>
-                            <div class="stat-info">
-                                <span id="fotosCount" class="stat-number">0</span>
-                                <span class="stat-label">Trabajos</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-link"></i>
-                            <div class="stat-info">
-                                <span id="recursosCount" class="stat-number">0</span>
-                                <span class="stat-label">Recursos</span>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-address-book"></i>
-                            <div class="stat-info">
-                                <span id="contactosCount" class="stat-number">0</span>
-                                <span class="stat-label">Contactos</span>
-                            </div>
-                        </div>
-                    </div>
+                <h2 class="page-title"><i class="fas fa-folder-open"></i> Recursos de Estudio</h2>
+                <div class="search-container">
+                    <input type="text" id="recursosSearch" placeholder="Buscar materiales..." onkeyup="filterRecursos()">
                 </div>
-
-                <!-- Navegación por pestañas -->
-                <div class="recursos-tabs">
-                    <button class="recurso-tab active" onclick="switchRecursoTab('galeria')">
-                        <i class="fas fa-images"></i> Galería de Trabajos
-                    </button>
-                    <button class="recurso-tab" onclick="switchRecursoTab('recursos')">
-                        <i class="fas fa-tools"></i> Recursos Útiles
-                    </button>
-                    <button class="recurso-tab" onclick="switchRecursoTab('contactos')">
-                        <i class="fas fa-user-friends"></i> Contactos Profesionales
-                    </button>
-                    <button class="recurso-tab" onclick="switchRecursoTab('programa')">
-                        <i class="fas fa-info-circle"></i> Sobre el Programa
-                    </button>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterRecursosByCategory('all')">Todos</button>
+                    <button class="filter-tab" onclick="filterRecursosByCategory('recientes')">Recientes</button>
+                    <button class="filter-tab" onclick="filterRecursosByCategory('pdf')">PDFs</button>
+                    <button class="filter-tab" onclick="filterRecursosByCategory('video')">Videos</button>
+                    <button class="filter-tab" onclick="filterRecursosByCategory('documento')">Documentos</button>
                 </div>
-
-                <!-- Contenedor de recursos -->
-                <div id="recursosContainer" class="recursos-content">
+                <div id="recursosList" class="grid">
                     <!-- El contenido se carga dinámicamente -->
                 </div>
             </section>
@@ -1903,8 +1892,7 @@ window.addEventListener('popstate', function(event) {
     const activeSection = sessionStorage.getItem('activeSection');
     if (activeSection && activeSection !== 'dashboard') {
         event.preventDefault();
-        showSection('dashboard');
-        // Agregar nueva entrada al historial
+        showSectionV2('dashboard');
         window.history.pushState({page: 'estudiante', section: 'dashboard'}, 'Dashboard', 'estudiante.html');
     }
 });
@@ -1914,7 +1902,7 @@ const savedSection = sessionStorage.getItem('activeSection');
 if (savedSection && savedSection !== 'dashboard') {
     // Esperar a que el DOM esté listo antes de restaurar la sección
     window.addEventListener('DOMContentLoaded', () => {
-        showSection(savedSection);
+        showSectionV2(savedSection);
     });
 } else if (!savedSection) {
     // Si no hay sección guardada, establecer dashboard por defecto
@@ -1998,10 +1986,23 @@ async function loadDashboardStats() {
     }
 }
 
-function showSection(sectionId) {
+function showSectionV2(sectionId) {
+    if (!sectionId) {
+        console.error('showSection called with null or undefined sectionId');
+        return;
+    }
+    console.log('showSection called with:', sectionId);
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(sectionId).classList.add('active');
+    console.log('About to get element:', sectionId);
+    const section = document.getElementById(sectionId);
+    console.log('Element found:', section);
+    if (section) {
+        section.classList.add('active');
+    } else {
+        console.error('Section not found:', sectionId);
+        return; // Exit if section not found
+    }
     
     // Guardar la sección actual en sessionStorage para mantenerla al recargar
     sessionStorage.setItem('activeSection', sectionId);
@@ -2022,8 +2023,10 @@ function showSection(sectionId) {
     });
     
     if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.remove('open');
-        document.getElementById('menuToggle').classList.remove('open');
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        if (sidebar) sidebar.classList.remove('open');
+        if (menuToggle) menuToggle.classList.remove('open');
     }
     if (sectionId === 'evaluaciones') {
         loadEvaluaciones();
@@ -2042,13 +2045,13 @@ function showSection(sectionId) {
     }
 }
 
-window.showSection = showSection;
+window.showSection = showSectionV2;
 
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menuToggle');
-    sidebar.classList.toggle('open');
-    menuBtn.classList.toggle('open');
+    if (sidebar) sidebar.classList.toggle('open');
+    if (menuBtn) menuBtn.classList.toggle('open');
 }
 
 function logout() {
@@ -2080,7 +2083,7 @@ document.addEventListener('DOMContentLoaded', function() {
             item.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
                 if (typeof showSection === 'function') {
-                    showSection(sectionId);
+                    showSectionV2(sectionId);
                 }
             });
         });
@@ -2090,7 +2093,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
                 if (typeof showSection === 'function') {
-                    showSection(sectionId);
+                    showSectionV2(sectionId);
                 }
             });
         });
@@ -2100,7 +2103,7 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
                 if (typeof showSection === 'function') {
-                    showSection(sectionId);
+                    showSectionV2(sectionId);
                 }
             });
         });
@@ -2116,7 +2119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCuestionarios();
         
         // Mostrar sección inicial (dashboard)
-        showSection('dashboard');
+        showSectionV2('dashboard');
 
     } catch (error) {
         console.error('Error in DOMContentLoaded:', error);
@@ -3161,7 +3164,9 @@ function renderActividades() {
                     <div class="clase-calificacion">
                         <div class="calificacion-badge">
                             <i class="fas fa-star"></i> Calificación: ${actividad.entrega.nota || 'Pendiente'}
-                            ${actividad.entrega.comentario ? `<br><small>Comentario: ${actividad.entrega.comentario}</small>` : ''}
+                            ${actividad.entrega.comentario ? `
+                            <br><small>Comentario: ${actividad.entrega.comentario}</small>
+                            ` : ''}
                         </div>
                     </div>
                     ` : ''}
@@ -3455,14 +3460,7 @@ async function loadActividadDetail(id) {
                             <div class="instrucciones-content">
                                 ${actividad.instrucciones || 'No hay instrucciones específicas.'}
                             </div>
-                            ${actividad.archivoUrl ? `
-                                <div class="archivo-adjunto">
-                                    <i class="fas fa-paperclip"></i>
-                                    <a href="${actividad.archivoUrl}" target="_blank" class="archivo-link">
-                                        Descargar archivo adjunto
-                                    </a>
-                                </div>
-                            ` : ''}
+                            ${actividad.archivoUrl ? '<div class="archivo-adjunto"><i class="fas fa-paperclip"></i><a href="' + actividad.archivoUrl + '" target="_blank" class="archivo-link">Descargar archivo adjunto</a></div>' : ''}
                         </div>
                     </div>
                     
@@ -3475,59 +3473,14 @@ async function loadActividadDetail(id) {
                             <button class="btn-modal btn-secondary" onclick="guardarBorrador('${id}')">
                                 <i class="fas fa-save"></i> Guardar Borrador
                             </button>
-                            ${!actividad.entrega || !actividad.entrega.calificada ? `
-                            <button class="btn-modal btn-primary-modal" onclick="submitEntrega('${id}')">
-                                <i class="fas fa-paper-plane"></i> Entregar Actividad
-                            </button>
-                            ` : `
-                            <div class="entrega-calificada-msg">
-                                <i class="fas fa-check-circle"></i> Esta actividad ya ha sido calificada y no se puede modificar.
-                            </div>
-                            `}
+                            ${!actividad.entrega || !actividad.entrega.calificada ? '<button class="btn-modal btn-primary-modal" onclick="submitEntrega(\'' + id + '\')"><i class="fas fa-paper-plane"></i> Entregar Actividad</button>' : '<div class="entrega-calificada-msg"><i class="fas fa-check-circle"></i> Esta actividad ya ha sido calificada y no se puede modificar.</div>'}
                         </div>
                         <div class="entrega-info">
                             <small><i class="fas fa-info-circle"></i> Tu entrega se guardará automáticamente como borrador cada 30 segundos</small>
                         </div>
                     </div>
 
-                    ${actividad.entrega ? `
-                    <div class="entrega-section">
-                        <h3><i class="fas fa-paper-plane"></i> Entrega Enviada</h3>
-                        <div class="entrega-enviada">
-                            <div class="entrega-meta">
-                                <span><i class="fas fa-calendar"></i> Enviada: ${new Date(actividad.entrega.fechaEntrega).toLocaleDateString('es-ES')}</span>
-                                <span class="entrega-status ${actividad.entrega.calificada ? 'status-calificada' : 'status-pendiente'}">
-                                    ${actividad.entrega.calificada ? 'Calificada' : 'Pendiente de calificación'}
-                                </span>
-                            </div>
-                            <div class="entrega-contenido">
-                                ${actividad.entrega.entrega}
-                            </div>
-                            ${actividad.entrega.calificada ? `
-                            <div class="calificacion-section">
-                                <h4><i class="fas fa-star"></i> Calificación</h4>
-                                <div class="calificacion-info">
-                                    <div class="nota">
-                                        <span class="nota-label">Nota:</span>
-                                        <span class="nota-value">${actividad.entrega.nota || 'Pendiente'}</span>
-                                    </div>
-                                    ${actividad.entrega.comentario ? `
-                                    <div class="comentario">
-                                        <span class="comentario-label">Comentario del profesor:</span>
-                                        <div class="comentario-text">${actividad.entrega.comentario}</div>
-                                    </div>
-                                    ` : `
-                                    <div class="comentario">
-                                        <span class="comentario-label">Comentario del profesor:</span>
-                                        <div class="comentario-text">No hay comentario</div>
-                                    </div>
-                                    `}
-                                </div>
-                            </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                    ` : ''}
+                    ${actividad.entrega ? '<div class="entrega-section"><h3><i class="fas fa-paper-plane"></i> Entrega Enviada</h3><div class="entrega-enviada"><div class="entrega-meta"><span><i class="fas fa-calendar"></i> Enviada: ' + new Date(actividad.entrega.fechaEntrega).toLocaleDateString('es-ES') + '</span><span class="entrega-status ' + (actividad.entrega.calificada ? 'status-calificada' : 'status-pendiente') + '">' + (actividad.entrega.calificada ? 'Calificada' : 'Pendiente de calificación') + '</span></div><div class="entrega-contenido">' + actividad.entrega.entrega + '</div>' + (actividad.entrega.calificada ? '<div class="calificacion-section"><h4><i class="fas fa-star"></i> Calificación</h4><div class="calificacion-info"><div class="nota"><span class="nota-label">Nota:</span><span class="nota-value">' + (actividad.entrega.nota || 'Pendiente') + '</span></div>' + (actividad.entrega.comentario ? '<div class="comentario"><span class="comentario-label">Comentario del profesor:</span><div class="comentario-text">' + actividad.entrega.comentario + '</div></div>' : '<div class="comentario"><span class="comentario-label">Comentario del profesor:</span><div class="comentario-text">No hay comentario</div></div>') + '</div></div>' : '') + '</div></div>' : ''}
                 </div>
             `;
             
@@ -3541,8 +3494,7 @@ async function loadActividadDetail(id) {
                     return this.loader.file
                         .then(file => new Promise(async (resolve, reject) => {
                             // Verificar tamaño del archivo (máximo 5MB antes de compresión)
-                            const maxSize = 5 * 1024 * 1024; // 5MB
-                            if (file.size > maxSize) {
+                            if (file.size > 5 * 1024 * 1024) {
                                 reject(new Error('La imagen es demasiado grande. Máximo 5MB.'));
                                 return;
                             }
@@ -3695,7 +3647,7 @@ async function loadCuestionarioDetail(id) {
                 <p><strong>Descripción:</strong> ${cuestionario.descripcion || 'Sin descripción'}</p>
                 <p><strong>Tiempo disponible:</strong> ${cuestionario.tiempoDisponible || 0} minutos</p>
                 <p><strong>Intentos restantes:</strong> ${intentosRestantes}</p>
-                ${fechaLimite ? `<p><strong>Fecha límite:</strong> ${fechaLimite.toLocaleString('es-ES')}</p>` : ''}
+                ${fechaLimite ? '<p><strong>Fecha límite:</strong> ' + fechaLimite.toLocaleString('es-ES') + '</p>' : ''}
             `;
 
             if (misIntentos.length > 0) {
@@ -4006,17 +3958,11 @@ window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
 
 // =================== FUNCIONES RECURSOS PREMIUM ===================
 let recursosData = { fotos: [], recursos: [], contactos: [] };
+let filteredRecursos = [];
+let currentRecursosCategory = 'all';
 
 async function loadRecursos() {
     try {
-        const container = document.getElementById('recursosContainer');
-        container.innerHTML = `
-            <div class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>Cargando recursos premium...</p>
-            </div>
-        `;
-
         // Cargar datos de las colecciones
         const [fotosSnap, recursosSnap, contactosSnap] = await Promise.all([
             getDocs(collection(db, 'fotos')),
@@ -4024,21 +3970,27 @@ async function loadRecursos() {
             getDocs(collection(db, 'contactos'))
         ]);
 
-        recursosData.fotos = fotosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        recursosData.recursos = recursosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        recursosData.contactos = contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        recursosData.fotos = fotosSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'foto' }));
+        recursosData.recursos = recursosSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'recurso' }));
+        recursosData.contactos = contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'contacto' }));
 
-        // Actualizar contadores
-        document.getElementById('fotosCount').textContent = recursosData.fotos.length;
-        document.getElementById('recursosCount').textContent = recursosData.recursos.length;
-        document.getElementById('contactosCount').textContent = recursosData.contactos.length;
+        // Filtrar por programa
+        recursosData.fotos = filterByProgram(recursosData.fotos);
+        recursosData.recursos = filterByProgram(recursosData.recursos);
+        recursosData.contactos = filterByProgram(recursosData.contactos);
 
-        // Renderizar pestaña por defecto (galería)
-        renderRecursos('galeria');
+        // Inicializar datos filtrados
+        filteredRecursos = [...recursosData.fotos, ...recursosData.recursos, ...recursosData.contactos];
+
+        // Actualizar contador en dashboard
+        document.getElementById('totalRecursos').textContent = filteredRecursos.length;
+
+        // Renderizar
+        renderRecursos();
 
     } catch (error) {
         console.error('Error cargando recursos:', error);
-        document.getElementById('recursosContainer').innerHTML = `
+        document.getElementById('recursosList').innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-exclamation-triangle empty-icon"></i>
                 <h3>Error al cargar recursos</h3>
@@ -4059,27 +4011,85 @@ function switchRecursoTab(tabName) {
     renderRecursos(tabName);
 }
 
-function renderRecursos(tabName) {
-    const container = document.getElementById('recursosContainer');
+function renderRecursos() {
+    const container = document.getElementById('recursosList');
+    if (!container) return;
 
-    switch(tabName) {
-        case 'galeria':
-            renderGaleria(container);
-            break;
-        case 'recursos':
-            renderRecursosList(container);
-            break;
-        case 'contactos':
-            renderContactos(container);
-            break;
-        case 'programa':
-            renderPrograma(container);
-            break;
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-user-times"></i><h3>Acceso requerido</h3><p>Inicia sesión para ver los recursos disponibles.</p></div>';
+        return;
     }
+
+    const ahora = new Date();
+    container.className = `clases-container grid-view`;
+
+    let items = [];
+    if (currentRecursosCategory === 'all') {
+        items = filteredRecursos;
+    } else if (currentRecursosCategory === 'recientes') {
+        items = filteredRecursos.filter(item => item.fecha && (new Date() - new Date(item.fecha)) < (7 * 24 * 60 * 60 * 1000));
+    } else if (currentRecursosCategory === 'pdf') {
+        items = filteredRecursos.filter(item => item.tipo === 'recurso');
+    } else if (currentRecursosCategory === 'video') {
+        items = filteredRecursos.filter(item => item.tipo === 'foto');
+    } else if (currentRecursosCategory === 'documento') {
+        items = filteredRecursos.filter(item => item.tipo === 'contacto');
+    }
+
+    if (items.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-star empty-icon"></i>
+                <h3>No hay recursos disponibles</h3>
+                <p>Los recursos se publicarán próximamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = items.map(item => {
+        const fecha = item.fecha ? new Date(item.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
+        const tipoIcon = item.tipo === 'foto' ? '📸' : item.tipo === 'recurso' ? '📄' : '👤';
+        const isNew = item.fecha && (new Date() - new Date(item.fecha)) < (7 * 24 * 60 * 60 * 1000); // 7 días
+
+        let actions = '';
+        if (item.tipo === 'foto') {
+            actions = `<button class="btn-icon btn-view" onclick="openImageModal('${item.url || item.imagen}', '${item.titulo || 'Foto'}')" title="Ver imagen"><i class="fas fa-eye"></i></button>`;
+        } else if (item.tipo === 'recurso') {
+            actions = `<a href="${item.url}" target="_blank" class="btn-icon btn-download" title="Descargar"><i class="fas fa-download"></i></a>`;
+        } else if (item.tipo === 'contacto') {
+            actions = `<button class="btn-icon btn-contact" onclick="openContactModal('${item.nombre}', '${item.email}', '${item.telefono}', '${item.rol}')" title="Contactar"><i class="fas fa-envelope"></i></button>`;
+        }
+
+        return `
+        <div class="clase-card grid-view ${isNew ? 'new' : ''}" data-id="${item.id}">
+            <div class="clase-header">
+                <div class="clase-title">
+                    ${tipoIcon} ${item.titulo || item.nombre || 'Sin título'}
+                </div>
+                <div class="clase-meta">
+                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                    <div class="meta-item"><i class="fas fa-tag"></i> ${item.programa || 'General'}</div>
+                </div>
+            </div>
+            <div class="clase-content">
+                <div class="clase-description">
+                    ${item.descripcion || item.rol || 'Sin descripción'}
+                </div>
+                <div class="clase-actions">
+                    ${actions}
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
 }
 
+window.renderRecursos = renderRecursos;
+
 function renderGaleria(container) {
-    if (recursosData.fotos.length === 0) {
+    if (filteredRecursosData.fotos.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-images empty-icon"></i>
@@ -4092,7 +4102,7 @@ function renderGaleria(container) {
 
     container.innerHTML = `
         <div class="galeria-grid">
-            ${recursosData.fotos.map(foto => `
+            ${filteredRecursosData.fotos.map(foto => `
                 <div class="galeria-item">
                     <img src="${foto.url || foto.imagen}" alt="${foto.titulo || 'Trabajo estudiante'}" 
                          class="galeria-image" onclick="openImageModal('${foto.url || foto.imagen}', '${foto.titulo || 'Trabajo estudiante'}')">
@@ -4107,7 +4117,7 @@ function renderGaleria(container) {
 }
 
 function renderRecursosList(container) {
-    if (recursosData.recursos.length === 0) {
+    if (filteredRecursosData.recursos.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-tools empty-icon"></i>
@@ -4120,7 +4130,7 @@ function renderRecursosList(container) {
 
     container.innerHTML = `
         <div class="recursos-list">
-            ${recursosData.recursos.map(recurso => `
+            ${filteredRecursosData.recursos.map(recurso => `
                 <div class="recurso-card">
                     <div class="recurso-header">
                         <div class="recurso-icon">
@@ -4140,7 +4150,7 @@ function renderRecursosList(container) {
 }
 
 function renderContactos(container) {
-    if (recursosData.contactos.length === 0) {
+    if (filteredRecursosData.contactos.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-address-book empty-icon"></i>
@@ -4153,7 +4163,7 @@ function renderContactos(container) {
 
     container.innerHTML = `
         <div class="contactos-grid">
-            ${recursosData.contactos.map(contacto => `
+            ${filteredRecursosData.contactos.map(contacto => `
                 <div class="contacto-card">
                     <div class="contacto-avatar">
                         ${contacto.nombre ? contacto.nombre.charAt(0).toUpperCase() : 'C'}
@@ -4237,6 +4247,51 @@ function renderPrograma(container) {
     `;
 }
 
+function filterRecursosByCategory(category) {
+    currentRecursosCategory = category;
+    document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.filter-tab[onclick*="filterRecursosByCategory('${category}')"]`).classList.add('active');
+    renderRecursos();
+}
+
+window.filterRecursosByCategory = filterRecursosByCategory;
+
+function filterRecursos() {
+    const searchTerm = document.getElementById('recursosSearch').value.toLowerCase();
+
+    if (!searchTerm) {
+        filteredRecursos = [...recursosData.fotos, ...recursosData.recursos, ...recursosData.contactos];
+    } else {
+        filteredRecursos = [...recursosData.fotos, ...recursosData.recursos, ...recursosData.contactos].filter(item =>
+            (item.titulo || item.nombre || '').toLowerCase().includes(searchTerm) ||
+            (item.descripcion || item.rol || '').toLowerCase().includes(searchTerm)
+        );
+    }
+
+    renderRecursos();
+}
+
+window.filterRecursos = filterRecursos;
+
+function openContactModal(nombre, email, telefono, rol) {
+    const modal = document.getElementById('detailModal');
+    const modalBody = document.getElementById('modalBody');
+    document.getElementById('modalTitle').textContent = `Contactar a ${nombre}`;
+
+    modalBody.innerHTML = `
+        <div class="contact-info">
+            <p><strong>Nombre:</strong> ${nombre}</p>
+            <p><strong>Rol:</strong> ${rol}</p>
+            ${email ? `<p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>` : ''}
+            ${telefono ? `<p><strong>Teléfono:</strong> <a href="tel:${telefono}">${telefono}</a></p>` : ''}
+        </div>
+    `;
+
+    modal.style.display = 'block';
+}
+
+window.openContactModal = openContactModal;
+
 function openImageModal(imageUrl, title) {
     // Crear modal para imagen ampliada
     const modal = document.createElement('div');
@@ -4269,4 +4324,8 @@ function openImageModal(imageUrl, title) {
 }
 
 updateDashboard();
+
+
+</script>
+</body>
 </html>

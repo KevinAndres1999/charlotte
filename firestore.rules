@@ -35,19 +35,6 @@ service cloud.firestore {
     match /evaluaciones/{document} {
       allow read, write: if true;
     }
-
-    // Nuevas colecciones para recursos premium
-    match /fotos/{document} {
-      allow read, write: if true;
-    }
-
-    match /recursos/{document} {
-      allow read, write: if true;
-    }
-
-    match /contactos/{document} {
-      allow read, write: if true;
-    }
   }
 
   // Allow all for any other documents
