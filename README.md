@@ -1,53 +1,114 @@
-# Proyecto — Sitio Educativo
+# 🎓 Charlotte - Plataforma Educativa
 
-Acciones realizadas: diseño moderno, componentes `header`/`footer`, loader de componentes y optimizaciones visuales.
+Plataforma educativa completa con Firebase backend, interfaces premium y sistema de gestión de contenido.
 
-Cómo aplicar includes automáticamente a todas las páginas HTML (en tu máquina):
+## ✨ Características
 
-1. Asegúrate de tener Node.js instalado.
-2. Desde la carpeta del proyecto ejecuta:
+- **Panel Administrador**: Gestión completa de contenido educativo
+- **Portal Estudiante**: Acceso intuitivo a materiales de estudio
+- **Sistema de Evaluaciones**: Cuestionarios y evaluaciones con calificación automática
+- **Gestión de Materiales**: PDFs, videos, documentos con metadatos
+- **Interfaz Premium**: Diseño moderno con gradientes institucionales
+- **Firebase Integration**: Base de datos en tiempo real
+
+## 🚀 Despliegue en Producción
+
+### Netlify (Recomendado)
+
+La aplicación está configurada para desplegarse automáticamente en Netlify:
+
+1. **Importar proyecto** en [Netlify](https://netlify.com)
+2. **Conectar repositorio**: `KevinAndres1999/charlotte`
+3. **Configuración automática** desde `netlify.toml`
+4. **Deploy automático** en cada push a `main`
+
+📖 **Instrucciones detalladas**: Ver [DEPLOY-NETLIFY.md](DEPLOY-NETLIFY.md)
+
+### Despliegue Local
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar servidor local
+npm start
+# o directamente
+node server.js
+```
+
+## 🛠️ Desarrollo
+
+### Scripts Disponibles
+
+```bash
+# Aplicar includes automáticamente
 node scripts/add_includes.js
-```
 
-Windows (PowerShell) — ejecutar todo en secuencia:
-
-```powershell
-# Ejecuta el script que inserta los includes y renombra/optimiza el logo
+# Windows: ejecutar todo en secuencia
 .\scripts\run_all.ps1
-```
 
-Si quieres solo renombrar el logo (sin Node):
-
-```powershell
+# Solo renombrar logo
 .\scripts\rename_logo.ps1
 ```
 
-Esto añadirá `data-include="header"` justo después de `<body>` y `data-include="footer"` antes de `</body>` en todos los `.html` del directorio.
+### Estructura del Proyecto
 
-Previsualizar (servidor estático):
-
-```bash
-# Python 3
-python -m http.server 3000
-# o con Node.js (si tienes http-server instalado)
-# npx http-server -p 3000
+```
+├── admin.html              # Panel de administración
+├── estudiante.html         # Portal del estudiante
+├── index.html             # Página principal
+├── login.html             # Página de login
+├── styles.css             # Estilos globales
+├── script.js              # Lógica del frontend
+├── server.js              # Servidor Express (desarrollo)
+├── netlify.toml           # Configuración de Netlify
+├── _redirects             # Reglas de redireccionamiento
+├── components/            # Componentes reutilizables
+├── firebase.json          # Configuración de Firebase
+└── firestore.rules        # Reglas de seguridad de Firestore
 ```
 
-Recomendación: renombrar `Mesa de trabajo 3.png` a `logos/intro-logo.png` para evitar espacios en el nombre. Puedes hacerlo manualmente o con PowerShell.
-# Sitio educativo — Demo
+## 📚 Tecnologías
 
-Este pequeño sitio contiene 5 secciones y un acceso para estudiantes.
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **Backend**: Firebase Firestore
+- **Hosting**: Netlify
+- **Autenticación**: Firebase Auth
+- **UI/UX**: Diseño responsive con gradientes premium
 
-Archivos:
-- index.html — página principal
-- styles.css — estilos
-- script.js — comportamiento (modal, login y registro)
+## 🎯 Funcionalidades
 
-Para probar localmente con el servidor que incluye la API y sirve el frontend:
+### Para Administradores
+- ✅ Crear y gestionar clases, videos, actividades
+- ✅ Construir cuestionarios y evaluaciones
+- ✅ Subir materiales con metadatos (tipo, tamaño)
+- ✅ Gestionar estudiantes y calificaciones
+- ✅ Dashboard con estadísticas en tiempo real
 
-1. Instala Node.js (v16+ recomendado).
+### Para Estudiantes
+- ✅ Acceder a contenido por programa
+- ✅ Realizar evaluaciones con tiempo límite
+- ✅ Descargar materiales de estudio
+- ✅ Ver progreso y calificaciones
+- ✅ Interfaz responsive y moderna
+
+## 🔧 Configuración
+
+1. **Firebase Setup**:
+   - Crear proyecto en Firebase Console
+   - Habilitar Firestore y Authentication
+   - Configurar reglas de seguridad
+
+2. **Variables de Entorno** (Netlify):
+   - Configurar credenciales de Firebase en Site Settings
+
+## 📞 Soporte
+
+Para soporte técnico o preguntas sobre el despliegue, revisar la documentación en [DEPLOY-NETLIFY.md](DEPLOY-NETLIFY.md).
+
+---
+
+🚀 **¡Listo para revolucionar la educación!**
 2. Desde la carpeta del proyecto instala dependencias:
 
 ```bash
