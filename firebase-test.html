@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Test | Charlotte</title>
+
+    <!-- Firebase Environment Variables -->
+    <script>
+        // Define environment variables for browser compatibility
+        // These will be replaced by Netlify during build
+        window.FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
+            authDomain: "charlotte-a0d47.firebaseapp.com",
+            projectId: "charlotte-a0d47",
+            storageBucket: "charlotte-a0d47.firebasestorage.app",
+            messagingSenderId: "971007838036",
+            appId: "1:971007838036:web:381b5c516ba841fef12ac1"
+        };
+
+        // Override with environment variables if available (Netlify injects these as global variables)
+        if (typeof FIREBASE_API_KEY !== 'undefined') window.FIREBASE_CONFIG.apiKey = FIREBASE_API_KEY;
+        if (typeof FIREBASE_AUTH_DOMAIN !== 'undefined') window.FIREBASE_CONFIG.authDomain = FIREBASE_AUTH_DOMAIN;
+        if (typeof FIREBASE_PROJECT_ID !== 'undefined') window.FIREBASE_CONFIG.projectId = FIREBASE_PROJECT_ID;
+        if (typeof FIREBASE_STORAGE_BUCKET !== 'undefined') window.FIREBASE_CONFIG.storageBucket = FIREBASE_STORAGE_BUCKET;
+        if (typeof FIREBASE_MESSAGING_SENDER_ID !== 'undefined') window.FIREBASE_CONFIG.messagingSenderId = FIREBASE_MESSAGING_SENDER_ID;
+        if (typeof FIREBASE_APP_ID !== 'undefined') window.FIREBASE_CONFIG.appId = FIREBASE_APP_ID;
+
+        console.log('Firebase config loaded:', window.FIREBASE_CONFIG);
+    </script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        // Initialize Firebase
+        const firebaseConfig = window.FIREBASE_CONFIG;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        console.log("Firebase initialized with config:", firebaseConfig);
+
+        // Test Firestore connection
+        async function testFirestore() {
+            try {
+                console.log('Firebase config being used:', firebaseConfig);
+                const querySnapshot = await getDocs(collection(db, "users"));
+                console.log("Firestore connection successful! Found", querySnapshot.size, "documents in users collection");
+                document.getElementById('result').innerHTML = `
+                    <div style="color: green; padding: 20px; border: 1px solid green; border-radius: 5px;">
+                        <h3>✅ Firebase Connection Successful!</h3>
+                        <p>Project ID: ${firebaseConfig.projectId}</p>
+                        <p>Users collection has ${querySnapshot.size} documents</p>
+                        <p>Firestore rules are working correctly</p>
+                        <p>API Key: ${firebaseConfig.apiKey.substring(0, 20)}...</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Firestore connection failed:", error);
+                document.getElementById('result').innerHTML = `
+                    <div style="color: red; padding: 20px; border: 1px solid red; border-radius: 5px;">
+                        <h3>❌ Firebase Connection Failed</h3>
+                        <p>Error: ${error.message}</p>
+                        <p>Error Code: ${error.code || 'Unknown'}</p>
+                        <p>Check Firebase configuration and Firestore rules</p>
+                        <p>Config used: ${JSON.stringify(firebaseConfig, null, 2)}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Run test when page loads
+        window.addEventListener('load', testFirestore);
+    </script>
+
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        #result { margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Firebase Connection Test</h1>
+        <p>Testing Firebase initialization and Firestore connectivity...</p>
+        <div id="result">
+            <p>Initializing Firebase...</p>
+        </div>
+    </div>
+</body>
+</html>
