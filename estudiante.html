@@ -437,6 +437,20 @@
             color: #475569;
         }
 
+        .material-error {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+
+        .error-hint {
+            color: #dc2626;
+            font-size: 0.75rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
         .btn-disabled {
             background: #f1f5f9 !important;
             color: #94a3b8 !important;
@@ -1929,9 +1943,14 @@ function renderMateriales() {
                             ${material.tipo === 'video' ? 'Ver Video' : material.tipo === 'link' ? 'Abrir Enlace' : 'Descargar Material'}
                         </a>
                     ` : `
-                        <button class="btn-primary-clase btn-disabled" disabled title="URL del material no válida o no disponible">
-                            <i class="fas fa-exclamation-triangle"></i> Material no disponible
-                        </button>
+                        <div class="material-error">
+                            <button class="btn-primary-clase btn-disabled" disabled>
+                                <i class="fas fa-exclamation-triangle"></i> Material no disponible
+                            </button>
+                            <small class="error-hint">
+                                ${!material.url ? 'URL no configurada' : 'URL inválida: ' + (material.url.length > 30 ? material.url.substring(0, 30) + '...' : material.url)}
+                            </small>
+                        </div>
                     `}
                 </div>
             </div>
@@ -1956,10 +1975,44 @@ function markAsDownloaded(materialId) {
 }
 
 function isValidUrl(url) {
-    try {
-        new URL(url);
+    if (!url || typeof url !== 'string') {
+        console.log('URL is null, undefined, or not a string:', url);
+        return false;
+    }
+
+    // Trim whitespace
+    url = url.trim();
+
+    if (url === '') {
+        console.log('URL is empty after trimming');
+        return false;
+    }
+
+    // Check if it's a relative URL (starts with /)
+    if (url.startsWith('/')) {
+        console.log('URL is relative:', url);
         return true;
-    } catch {
+    }
+
+    // Check if it's a protocol-relative URL (starts with //)
+    if (url.startsWith('//')) {
+        console.log('URL is protocol-relative:', url);
+        return true;
+    }
+
+    try {
+        const urlObj = new URL(url);
+
+        // Check if it has a valid protocol
+        if (!['http:', 'https:', 'ftp:', 'mailto:'].includes(urlObj.protocol)) {
+            console.log('URL has invalid protocol:', urlObj.protocol, 'for URL:', url);
+            return false;
+        }
+
+        console.log('URL is valid:', url);
+        return true;
+    } catch (error) {
+        console.log('URL validation failed for:', url, 'Error:', error.message);
         return false;
     }
 }
@@ -3269,6 +3322,84 @@ async function submitCuestionario(cuestionarioId) {
     }
 }
 
+// =================== UTILIDADES PARA VALIDACIÓN DE URLs ===================
+async function validateAndFixMaterialUrls() {
+    try {
+        console.log('🔍 Iniciando validación de URLs de materiales...');
+
+        const materialesQuery = query(collection(db, 'materials'));
+        const materialesSnapshot = await getDocs(materialesQuery);
+
+        let fixedCount = 0;
+        let invalidCount = 0;
+
+        for (const doc of materialesSnapshot.docs) {
+            const material = doc.data();
+            const materialId = doc.id;
+
+            if (material.url) {
+                const isValid = isValidUrl(material.url);
+
+                if (!isValid) {
+                    console.log(`❌ URL inválida en material ${materialId}:`, material.url);
+
+                    // Intentar corregir URLs comunes
+                    let fixedUrl = material.url.trim();
+
+                    // Agregar protocolo si falta
+                    if (!fixedUrl.startsWith('http://') && !fixedUrl.startsWith('https://') && !fixedUrl.startsWith('//')) {
+                        // Si parece una URL de Google Drive
+                        if (fixedUrl.includes('drive.google.com') || fixedUrl.includes('docs.google.com')) {
+                            fixedUrl = 'https://' + fixedUrl;
+                        } else {
+                            console.log(`⚠️ No se puede corregir automáticamente: ${fixedUrl}`);
+                            invalidCount++;
+                            continue;
+                        }
+                    }
+
+                    // Verificar si la URL corregida es válida
+                    if (isValidUrl(fixedUrl)) {
+                        console.log(`✅ Corrigiendo URL de ${material.url} a ${fixedUrl}`);
+
+                        await updateDoc(doc.ref, {
+                            url: fixedUrl,
+                            urlFixed: true,
+                            urlFixedDate: new Date().toISOString()
+                        });
+
+                        fixedCount++;
+                    } else {
+                        console.log(`❌ No se pudo corregir: ${fixedUrl}`);
+                        invalidCount++;
+                    }
+                }
+            } else {
+                console.log(`⚠️ Material ${materialId} no tiene URL configurada`);
+                invalidCount++;
+            }
+        }
+
+        console.log(`📊 Resumen de validación:`);
+        console.log(`✅ URLs corregidas: ${fixedCount}`);
+        console.log(`❌ URLs que necesitan atención manual: ${invalidCount}`);
+
+        if (fixedCount > 0) {
+            alert(`Se corrigieron ${fixedCount} URLs automáticamente. ${invalidCount} URLs necesitan revisión manual.`);
+        } else if (invalidCount > 0) {
+            alert(`${invalidCount} materiales tienen URLs inválidas o faltantes. Revisa la consola para más detalles.`);
+        } else {
+            alert('¡Todas las URLs de materiales son válidas!');
+        }
+
+    } catch (error) {
+        console.error('Error validating material URLs:', error);
+        alert('Error al validar URLs: ' + error.message);
+    }
+}
+
+// Función para ejecutar desde consola: validateAndFixMaterialUrls()
+
 // Exponer funciones globales
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -3291,6 +3422,7 @@ window.filterMaterialesByCategory = filterMaterialesByCategory;
 window.filterMateriales = filterMateriales;
 window.markAsDownloaded = markAsDownloaded;
 window.isValidUrl = isValidUrl;
+window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
 
 updateDashboard();
     </script>
