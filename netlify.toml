@@ -1,28 +1,29 @@
-headersOrigin = "config"
-redirectsOrigin = "config"
-plugins = []
-headers = []
-redirects = []
-
-[functions]
-
-  [functions."*"]
-
 [build]
-publish = "C:\\workspace"
-publishOrigin = "config"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF"
+  publish = "."
+  command = "echo 'No build step required'"
 
-  [build.environment]
+[build.environment]
+  NODE_VERSION = "18"
 
-  [build.processing]
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
 
-    [build.processing.css]
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
-    [build.processing.html]
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
 
-    [build.processing.images]
-
-    [build.processing.js]
-
-  [build.services]
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
