@@ -940,59 +940,84 @@
             <div id="videos" class="content-section">
                 <div class="quiz-builder-section">
                     <div class="quiz-builder-header">
-                        <h3><i class="fas fa-video"></i> Subir Videos</h3>
-                        <p>Gestiona y sube videos para tus estudiantes</p>
+                        <h3><i class="fas fa-video"></i> Gestión de Videos</h3>
+                        <p>Sube y administra videos educativos para tus estudiantes</p>
                     </div>
-                    <div class="form-card">
-                        <form id="videoForm">
-                            <div class="form-group">
-                                <label for="videoTitle">Título del Video</label>
-                                <input type="text" id="videoTitle" required>
+
+                    <form id="videoForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información del Video</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="videoTitle">Título del Video</label>
+                                    <input type="text" id="videoTitle" placeholder="Ej: Técnicas de Corte Avanzado" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="videoDesc">Descripción</label>
+                                    <textarea id="videoDesc" placeholder="Describe el contenido y objetivos del video..."></textarea>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="videoDesc">Descripción</label>
-                                <textarea id="videoDesc"></textarea>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="videoPrograma">Programa</label>
+                                    <select id="videoPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="videoUrl">URL del Video</label>
+                                    <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=..." required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="videoPrograma">Programa</label>
-                                <select id="videoPrograma" required>
-                                    <option value="">Seleccionar programa</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="videoUrl">URL del Video</label>
-                                <input type="url" id="videoUrl" placeholder="https://youtube.com/..." required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Subir Video</button>
-                        </form>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-upload"></i> Subir Video
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Videos Subidos</h3>
+                        <p>Gestiona y administra tus videos publicados</p>
                     </div>
-                    <div class="content-list">
-                        <div class="content-list-header"><h4>Videos Subidos</h4></div>
-                        <div id="videosList" class="grid"></div>
-                    </div>
+                    <div id="videosList"></div>
                 </div>
             </div>
 
             <!-- Subir Clases -->
             <div id="clases" class="content-section">
                 <div class="quiz-builder-section">
-                    <div class="section-header">
+                    <div class="quiz-builder-header">
                         <h3><i class="fas fa-book-open"></i> Gestión de Clases</h3>
                         <p>Sube y administra las clases disponibles para tus estudiantes</p>
                     </div>
 
-                    <div class="form-card">
-                        <h4><i class="fas fa-plus-circle"></i> Subir Nueva Clase</h4>
-                        <form id="claseForm">
-                            <div class="form-row">
-                                <div class="form-group">
+                    <form id="claseForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información de la Clase</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="claseTitle">Título de la Clase</label>
-                                    <input type="text" id="claseTitle" required placeholder="Ingresa el título de la clase">
+                                    <input type="text" id="claseTitle" placeholder="Ej: Introducción a Técnicas de Panadería" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseDesc">Descripción</label>
+                                    <textarea id="claseDesc" placeholder="Describe brevemente el contenido y objetivos de la clase..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="clasePrograma">Programa</label>
                                     <select id="clasePrograma" required>
                                         <option value="">Seleccionar programa</option>
@@ -1001,47 +1026,55 @@
                                         <option value="Asesoría Técnica">Asesoría Técnica</option>
                                     </select>
                                 </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseContent">Contenido de la Clase</label>
+                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..."></textarea>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="claseDesc">Descripción</label>
-                                <textarea id="claseDesc" placeholder="Describe brevemente el contenido de la clase"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="claseContent">Contenido de la Clase</label>
-                                <textarea id="claseContent" placeholder="Ingresa el contenido detallado de la clase"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
                                 <i class="fas fa-upload"></i> Subir Clase
                             </button>
-                        </form>
-                    </div>
-
-                    <div class="grid">
-                        <div class="grid-header">
-                            <h4><i class="fas fa-list"></i> Clases Subidas</h4>
                         </div>
-                        <div id="clasesList" class="clases-container grid-view"></div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Clases Subidas</h3>
+                        <p>Gestiona y administra tus clases publicadas</p>
                     </div>
+                    <div id="clasesList"></div>
                 </div>
             </div>
 
             <!-- Subir Actividades -->
             <div id="actividades" class="content-section">
                 <div class="quiz-builder-section">
-                    <div class="section-header">
+                    <div class="quiz-builder-header">
                         <h3><i class="fas fa-tasks"></i> Gestión de Actividades</h3>
                         <p>Sube y administra las actividades prácticas para tus estudiantes</p>
                     </div>
 
-                    <div class="form-card">
-                        <h4><i class="fas fa-plus-circle"></i> Subir Nueva Actividad</h4>
-                        <form id="actividadForm">
-                            <div class="form-row">
-                                <div class="form-group">
+                    <form id="actividadForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información de la Actividad</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="actividadTitle">Título de la Actividad</label>
-                                    <input type="text" id="actividadTitle" required placeholder="Ingresa el título de la actividad">
+                                    <input type="text" id="actividadTitle" placeholder="Ej: Práctica de Corte en Capas" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadDesc">Descripción e Instrucciones</label>
+                                    <textarea id="actividadDesc" placeholder="Describe detalladamente la actividad, materiales necesarios y pasos a seguir..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="actividadPrograma">Programa</label>
                                     <select id="actividadPrograma" required>
                                         <option value="">Seleccionar programa</option>
@@ -1050,27 +1083,27 @@
                                         <option value="Asesoría Técnica">Asesoría Técnica</option>
                                     </select>
                                 </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadUrl">URL del Archivo (opcional)</label>
+                                    <input type="url" id="actividadUrl" placeholder="https://drive.google.com/..." title="Enlace a material adicional, plantilla o recurso de apoyo">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="actividadDesc">Descripción</label>
-                                <textarea id="actividadDesc" placeholder="Describe la actividad y sus objetivos"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="actividadUrl">URL del Archivo (opcional)</label>
-                                <input type="url" id="actividadUrl" placeholder="https://..." placeholder="Enlace a material adicional si es necesario">
-                            </div>
-                            <button type="submit" class="btn btn-primary">
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
                                 <i class="fas fa-upload"></i> Subir Actividad
                             </button>
-                        </form>
-                    </div>
-
-                    <div class="grid">
-                        <div class="grid-header">
-                            <h4><i class="fas fa-list"></i> Actividades Subidas</h4>
                         </div>
-                        <div id="actividadesList" class="clases-container grid-view"></div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Actividades Subidas</h3>
+                        <p>Gestiona y administra tus actividades publicadas</p>
                     </div>
+                    <div id="actividadesList"></div>
                 </div>
             </div>
 
@@ -2327,36 +2360,25 @@
             try {
                 const snapshot = await db.collection('content').get();
                 const container = document.getElementById('videosList');
-                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-video"></i><h3>No hay videos subidos</h3><p>Sube tu primer video usando el formulario arriba</p></div>';
+                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos subidos</h5></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
-                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
-                            <div class="clase-header">
-                                <div class="clase-title">
-                                    📹 ${data.titulo}
-                                </div>
-                                <div class="clase-meta">
-                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
-                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                </div>
+                        <div class="content-item">
+                            <div class="content-info">
+                                <h5>${data.titulo}</h5>
+                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
                             </div>
-                            <div class="clase-content">
-                                <div class="clase-description">
-                                    ${data.descripcion || 'Sin descripción'}
-                                </div>
-                                <div class="clase-actions">
-                                    <a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver video"><i class="fas fa-play"></i></a>
-                                    <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                            <div class="content-actions">
+                                <a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver video">
+                                    <i class="fas fa-play"></i>
+                                </a>
+                                <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -2370,36 +2392,25 @@
             try {
                 const snapshot = await db.collection('classes').get();
                 const container = document.getElementById('clasesList');
-                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases subidas</h3><p>Sube tu primera clase usando el formulario arriba</p></div>';
+                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases subidas</h5></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
-                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
-                            <div class="clase-header">
-                                <div class="clase-title">
-                                    📚 ${data.titulo}
-                                </div>
-                                <div class="clase-meta">
-                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
-                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                </div>
+                        <div class="content-item">
+                            <div class="content-info">
+                                <h5>${data.titulo}</h5>
+                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
                             </div>
-                            <div class="clase-content">
-                                <div class="clase-description">
-                                    ${data.descripcion || 'Sin descripción'}
-                                </div>
-                                <div class="clase-actions">
-                                    <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver clase"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                            <div class="content-actions">
+                                <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver clase">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
@@ -2413,36 +2424,23 @@
             try {
                 const snapshot = await db.collection('activities').get();
                 const container = document.getElementById('actividadesList');
-                container.className = 'clases-container grid-view';
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades subidas</h3><p>Sube tu primera actividad usando el formulario arriba</p></div>';
+                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades subidas</h5></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
-                    const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000);
                     return `
-                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
-                            <div class="clase-header">
-                                <div class="clase-title">
-                                    🎯 ${data.titulo}
-                                </div>
-                                <div class="clase-meta">
-                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
-                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                </div>
+                        <div class="content-item">
+                            <div class="content-info">
+                                <h5>${data.titulo}</h5>
+                                <p>${data.instrucciones || ''} • Programa: ${data.programa}</p>
                             </div>
-                            <div class="clase-content">
-                                <div class="clase-description">
-                                    ${data.instrucciones || 'Sin instrucciones'}
-                                </div>
-                                <div class="clase-actions">
-                                    ${data.url ? `<a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver archivo"><i class="fas fa-external-link-alt"></i></a>` : ''}
-                                    <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                            <div class="content-actions">
+                                ${data.url ? `<a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver archivo"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                                <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     `;
