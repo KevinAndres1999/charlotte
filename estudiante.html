@@ -423,6 +423,20 @@
             color: #475569;
         }
 
+        .btn-disabled {
+            background: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        .btn-disabled:hover {
+            background: #f1f5f9 !important;
+            color: #94a3b8 !important;
+            transform: none !important;
+        }
+
         .clase-progress {
             background: #e2e8f0;
             height: 4px;
@@ -1889,9 +1903,16 @@ function renderMateriales() {
                     ${material.descripcion || 'Sin descripción'}
                 </div>
                 <div class="clase-actions">
-                    <a href="${material.url}" target="_blank" class="btn-primary-clase" onclick="markAsDownloaded('${material.id}')">
-                        <i class="fas fa-download"></i> Descargar Material
-                    </a>
+                    ${material.url && isValidUrl(material.url) ? `
+                        <a href="${material.url}" target="_blank" class="btn-primary-clase" onclick="markAsDownloaded('${material.id}')" ${material.tipo === 'pdf' || material.tipo === 'docx' || material.tipo === 'video' ? 'rel="noopener noreferrer"' : ''}>
+                            <i class="fas fa-${material.tipo === 'video' ? 'play' : material.tipo === 'link' ? 'external-link-alt' : 'download'}"></i>
+                            ${material.tipo === 'video' ? 'Ver Video' : material.tipo === 'link' ? 'Abrir Enlace' : 'Descargar Material'}
+                        </a>
+                    ` : `
+                        <button class="btn-primary-clase btn-disabled" disabled title="URL del material no válida o no disponible">
+                            <i class="fas fa-exclamation-triangle"></i> Material no disponible
+                        </button>
+                    `}
                 </div>
             </div>
         </div>
@@ -1904,7 +1925,23 @@ function renderMateriales() {
 }
 
 function markAsDownloaded(materialId) {
+    // Marcar como descargado/visto
     localStorage.setItem(`material-${materialId}-downloaded`, 'true');
+
+    // Registrar la fecha de último acceso
+    localStorage.setItem(`material-${materialId}-lastAccess`, new Date().toISOString());
+
+    // Opcional: enviar analytics o tracking
+    console.log(`Material ${materialId} accedido`);
+}
+
+function isValidUrl(url) {
+    try {
+        new URL(url);
+        return true;
+    } catch {
+        return false;
+    }
 }
 
 // =================== FUNCIONES DE MATERIALES ===================
@@ -3233,6 +3270,7 @@ window.guardarBorrador = guardarBorrador;
 window.filterMaterialesByCategory = filterMaterialesByCategory;
 window.filterMateriales = filterMateriales;
 window.markAsDownloaded = markAsDownloaded;
+window.isValidUrl = isValidUrl;
 
 updateDashboard();
     </script>
