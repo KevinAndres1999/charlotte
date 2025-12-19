@@ -10,24 +10,15 @@
 
     <!-- Firebase Environment Variables -->
     <script>
-        // Define environment variables for browser compatibility
-        // These will be replaced by Netlify during build
+        // Firebase configuration - values will be replaced by Netlify during build
         window.FIREBASE_CONFIG = {
-            apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
-            authDomain: "charlotte-a0d47.firebaseapp.com",
-            projectId: "charlotte-a0d47",
-            storageBucket: "charlotte-a0d47.firebasestorage.app",
-            messagingSenderId: "971007838036",
-            appId: "1:971007838036:web:381b5c516ba841fef12ac1"
+            apiKey: "${FIREBASE_API_KEY}",
+            authDomain: "${FIREBASE_AUTH_DOMAIN}",
+            projectId: "${FIREBASE_PROJECT_ID}",
+            storageBucket: "${FIREBASE_STORAGE_BUCKET}",
+            messagingSenderId: "${FIREBASE_MESSAGING_SENDER_ID}",
+            appId: "${FIREBASE_APP_ID}"
         };
-
-        // Override with environment variables if available
-        if (typeof FIREBASE_API_KEY !== 'undefined') window.FIREBASE_CONFIG.apiKey = FIREBASE_API_KEY;
-        if (typeof FIREBASE_AUTH_DOMAIN !== 'undefined') window.FIREBASE_CONFIG.authDomain = FIREBASE_AUTH_DOMAIN;
-        if (typeof FIREBASE_PROJECT_ID !== 'undefined') window.FIREBASE_CONFIG.projectId = FIREBASE_PROJECT_ID;
-        if (typeof FIREBASE_STORAGE_BUCKET !== 'undefined') window.FIREBASE_CONFIG.storageBucket = FIREBASE_STORAGE_BUCKET;
-        if (typeof FIREBASE_MESSAGING_SENDER_ID !== 'undefined') window.FIREBASE_CONFIG.messagingSenderId = FIREBASE_MESSAGING_SENDER_ID;
-        if (typeof FIREBASE_APP_ID !== 'undefined') window.FIREBASE_CONFIG.appId = FIREBASE_APP_ID;
     </script>
     <style>
         :root {
