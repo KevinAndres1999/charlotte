@@ -630,7 +630,6 @@
 
             .clase-card.list-view .clase-actions {
                 justify-content: center;
-            }
         }
 
         @media (max-width: 480px) {
@@ -937,6 +936,479 @@
             .modal-content {
                 margin: 10px;
                 max-width: none;
+            }
+        }
+
+        /* =================== ESTILOS RECURSOS PREMIUM =================== */
+        .recursos-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .recursos-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .recursos-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            opacity: 0.9;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recursos-tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .recurso-tab {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .recurso-tab:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .recurso-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .recursos-content {
+            min-height: 400px;
+        }
+
+        /* Galería */
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .galeria-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .galeria-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .galeria-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .galeria-info {
+            padding: 1.5rem;
+        }
+
+        .galeria-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .galeria-description {
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Recursos */
+        .recursos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .recurso-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+
+        .recurso-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .recurso-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .recurso-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .recurso-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .recurso-description {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .recurso-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .recurso-link:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Contactos */
+        .contactos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .contacto-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .contacto-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .contacto-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .contacto-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .contacto-role {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .contacto-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .contacto-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .contacto-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .contacto-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contacto-btn.primary {
+            background: #10b981;
+            color: white;
+        }
+
+        .contacto-btn.secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .contacto-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Programa */
+        .programa-content {
+            background: white;
+            border-radius: 12px;
+            padding: 3rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .programa-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .programa-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .programa-description {
+            color: #6b7280;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .programa-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* Loading y Empty States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .recursos-header {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .recursos-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .recursos-tabs {
+                flex-direction: column;
+            }
+
+            .recurso-tab {
+                min-width: auto;
+            }
+
+            .galeria-grid, .recursos-list, .contactos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .programa-content {
+                padding: 2rem 1rem;
+            }
+
+            .programa-features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1325,6 +1797,60 @@
 
                 <div id="materialesList" class="grid"></div>
             </section>
+
+            <!-- =================== RECURSOS PREMIUM =================== -->
+            <section id="recursos" class="section">
+                <div class="recursos-header">
+                    <div class="recursos-title">
+                        <h2 class="page-title"><i class="fas fa-gem"></i> Centro de Recursos Premium</h2>
+                        <p class="page-subtitle">Galería de trabajos, recursos exclusivos y contactos profesionales</p>
+                    </div>
+                    <div class="recursos-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-camera"></i>
+                            <div class="stat-info">
+                                <span id="fotosCount" class="stat-number">0</span>
+                                <span class="stat-label">Trabajos</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-link"></i>
+                            <div class="stat-info">
+                                <span id="recursosCount" class="stat-number">0</span>
+                                <span class="stat-label">Recursos</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-address-book"></i>
+                            <div class="stat-info">
+                                <span id="contactosCount" class="stat-number">0</span>
+                                <span class="stat-label">Contactos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navegación por pestañas -->
+                <div class="recursos-tabs">
+                    <button class="recurso-tab active" onclick="switchRecursoTab('galeria')">
+                        <i class="fas fa-images"></i> Galería de Trabajos
+                    </button>
+                    <button class="recurso-tab" onclick="switchRecursoTab('recursos')">
+                        <i class="fas fa-tools"></i> Recursos Útiles
+                    </button>
+                    <button class="recurso-tab" onclick="switchRecursoTab('contactos')">
+                        <i class="fas fa-user-friends"></i> Contactos Profesionales
+                    </button>
+                    <button class="recurso-tab" onclick="switchRecursoTab('programa')">
+                        <i class="fas fa-info-circle"></i> Sobre el Programa
+                    </button>
+                </div>
+
+                <!-- Contenedor de recursos -->
+                <div id="recursosContainer" class="recursos-content">
+                    <!-- El contenido se carga dinámicamente -->
+                </div>
+            </section>
         </main>
     </div>
 
@@ -1508,8 +2034,9 @@ function showSection(sectionId) {
     } else if (sectionId === 'clases') {
         loadClases();
     } else if (sectionId === 'recursos') {
-        window.location.href = 'recursos.html';
+        loadRecursos();
     }
+}
 }
 
 window.showSection = showSection;
@@ -2116,6 +2643,8 @@ function updateClasesStats() {
     document.getElementById('leidasCount').textContent = leidas;
     document.getElementById('progresoCount').textContent = progreso + '%';
 }
+
+// =================== RECURSOS PREMIUM ===================
 
 function renderClases() {
     const container = document.getElementById('clasesContainer');
@@ -3424,7 +3953,270 @@ window.markAsDownloaded = markAsDownloaded;
 window.isValidUrl = isValidUrl;
 window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
 
+// =================== FUNCIONES RECURSOS PREMIUM ===================
+let recursosData = { fotos: [], recursos: [], contactos: [] };
+
+async function loadRecursos() {
+    try {
+        const container = document.getElementById('recursosContainer');
+        container.innerHTML = `
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Cargando recursos premium...</p>
+            </div>
+        `;
+
+        // Cargar datos de las colecciones
+        const [fotosSnap, recursosSnap, contactosSnap] = await Promise.all([
+            getDocs(collection(db, 'fotos')),
+            getDocs(collection(db, 'recursos')),
+            getDocs(collection(db, 'contactos'))
+        ]);
+
+        recursosData.fotos = fotosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        recursosData.recursos = recursosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        recursosData.contactos = contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Actualizar contadores
+        document.getElementById('fotosCount').textContent = recursosData.fotos.length;
+        document.getElementById('recursosCount').textContent = recursosData.recursos.length;
+        document.getElementById('contactosCount').textContent = recursosData.contactos.length;
+
+        // Renderizar pestaña por defecto (galería)
+        renderRecursos('galeria');
+
+    } catch (error) {
+        console.error('Error cargando recursos:', error);
+        document.getElementById('recursosContainer').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle empty-icon"></i>
+                <h3>Error al cargar recursos</h3>
+                <p>Por favor, intenta recargar la página.</p>
+            </div>
+        `;
+    }
+}
+
+function switchRecursoTab(tabName) {
+    // Actualizar pestañas activas
+    document.querySelectorAll('.recurso-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Renderizar contenido
+    renderRecursos(tabName);
+}
+
+function renderRecursos(tabName) {
+    const container = document.getElementById('recursosContainer');
+
+    switch(tabName) {
+        case 'galeria':
+            renderGaleria(container);
+            break;
+        case 'recursos':
+            renderRecursosList(container);
+            break;
+        case 'contactos':
+            renderContactos(container);
+            break;
+        case 'programa':
+            renderPrograma(container);
+            break;
+    }
+}
+
+function renderGaleria(container) {
+    if (recursosData.fotos.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-images empty-icon"></i>
+                <h3>No hay trabajos disponibles</h3>
+                <p>Los trabajos de estudiantes se publicarán próximamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="galeria-grid">
+            ${recursosData.fotos.map(foto => `
+                <div class="galeria-item">
+                    <img src="${foto.url || foto.imagen}" alt="${foto.titulo || 'Trabajo estudiante'}" 
+                         class="galeria-image" onclick="openImageModal('${foto.url || foto.imagen}', '${foto.titulo || 'Trabajo estudiante'}')">
+                    <div class="galeria-info">
+                        <h3 class="galeria-title">${foto.titulo || 'Trabajo sin título'}</h3>
+                        <p class="galeria-description">${foto.descripcion || 'Trabajo realizado por un estudiante del programa.'}</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderRecursosList(container) {
+    if (recursosData.recursos.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-tools empty-icon"></i>
+                <h3>No hay recursos disponibles</h3>
+                <p>Los recursos útiles se publicarán próximamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="recursos-list">
+            ${recursosData.recursos.map(recurso => `
+                <div class="recurso-card">
+                    <div class="recurso-header">
+                        <div class="recurso-icon">
+                            <i class="fas fa-${recurso.icono || 'link'}"></i>
+                        </div>
+                        <h3 class="recurso-title">${recurso.titulo || 'Recurso sin título'}</h3>
+                    </div>
+                    <p class="recurso-description">${recurso.descripcion || 'Descripción no disponible.'}</p>
+                    <a href="${recurso.url}" target="_blank" class="recurso-link">
+                        <i class="fas fa-external-link-alt"></i>
+                        Acceder al recurso
+                    </a>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderContactos(container) {
+    if (recursosData.contactos.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-address-book empty-icon"></i>
+                <h3>No hay contactos disponibles</h3>
+                <p>Los contactos profesionales se publicarán próximamente.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="contactos-grid">
+            ${recursosData.contactos.map(contacto => `
+                <div class="contacto-card">
+                    <div class="contacto-avatar">
+                        ${contacto.nombre ? contacto.nombre.charAt(0).toUpperCase() : 'C'}
+                    </div>
+                    <h3 class="contacto-name">${contacto.nombre || 'Contacto sin nombre'}</h3>
+                    <p class="contacto-role">${contacto.rol || 'Profesional'}</p>
+                    <div class="contacto-info">
+                        ${contacto.email ? `<div class="contacto-item"><i class="fas fa-envelope"></i> ${contacto.email}</div>` : ''}
+                        ${contacto.telefono ? `<div class="contacto-item"><i class="fas fa-phone"></i> ${contacto.telefono}</div>` : ''}
+                        ${contacto.especialidad ? `<div class="contacto-item"><i class="fas fa-star"></i> ${contacto.especialidad}</div>` : ''}
+                    </div>
+                    <div class="contacto-actions">
+                        ${contacto.email ? `<a href="mailto:${contacto.email}" class="contacto-btn primary"><i class="fas fa-envelope"></i> Email</a>` : ''}
+                        ${contacto.telefono ? `<a href="tel:${contacto.telefono}" class="contacto-btn secondary"><i class="fas fa-phone"></i> Llamar</a>` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function renderPrograma(container) {
+    container.innerHTML = `
+        <div class="programa-content">
+            <div class="programa-header">
+                <h2 class="programa-title">Sobre el Programa Charlotte</h2>
+                <p class="programa-description">
+                    El Programa Charlotte es una formación integral en panadería y pastelería profesional, 
+                    diseñada para transformar tu pasión por la repostería en una carrera exitosa. 
+                    Nuestros estudiantes aprenden técnicas tradicionales y modernas, desarrollando 
+                    habilidades culinarias excepcionales y conocimientos empresariales.
+                </p>
+            </div>
+
+            <div class="programa-features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="feature-title">Formación Profesional</h3>
+                    <p class="feature-description">
+                        Aprende de los mejores chefs profesionales con años de experiencia 
+                        en la industria de la panadería y pastelería.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="feature-title">Técnicas Avanzadas</h3>
+                    <p class="feature-description">
+                        Domina técnicas tradicionales y modernas, desde panes artesanales 
+                        hasta pasteles elaborados y decoración profesional.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Comunidad Profesional</h3>
+                    <p class="feature-description">
+                        Únete a una red de profesionales apasionados por la repostería, 
+                        donde podrás compartir conocimientos y experiencias.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3 class="feature-title">Oportunidades Laborales</h3>
+                    <p class="feature-description">
+                        Accede a oportunidades laborales en pastelerías, hoteles, 
+                        restaurantes y emprendimientos propios.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function openImageModal(imageUrl, title) {
+    // Crear modal para imagen ampliada
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        cursor: pointer;
+    `;
+    
+    modal.innerHTML = `
+        <div style="max-width: 90%; max-height: 90%; position: relative;">
+            <img src="${imageUrl}" alt="${title}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 2rem; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    modal.onclick = () => modal.remove();
+    document.body.appendChild(modal);
+}
+
 updateDashboard();
-    </script>
 </body>
 </html>
