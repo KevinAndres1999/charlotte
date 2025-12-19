@@ -126,7 +126,8 @@ function initUI(){
 // Si los componentes se cargan dinámicamente, esperar al evento; si no, inicializar en DOMContentLoaded
 document.addEventListener('componentsLoaded', ()=>{ try{ initUI(); }catch(e){ console.error('initUI error', e); } });
 
-let confirmRequiredWord = 'CONFIRMAR';
+// Variable global para la palabra de confirmación
+var confirmRequiredWord = 'CONFIRMAR';
 // Fix: Ensure no duplicate declarations
 
 function showStudentArea(student){
