@@ -1851,10 +1851,10 @@
                     <!-- El contenido se carga dinámicamente -->
                 </div>
             </section>
-        </main>
-    </div>
-
-    <!-- Modal para detalles -->
+            </main>
+        </div>
+    
+        <!-- Modal para detalles -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1880,16 +1880,16 @@ const db = getFirestore(app);
 // =================== FUNCIONES GLOBALES ===================
 // Definidas más abajo en el archivo
 
-// Verificar autenticación
-const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-console.log('Current user from session:', currentUser);
-if (!currentUser || currentUser.role !== 'student') {
-    window.location.href = 'login.html';
-} else {
-    // Usuario válido, cargar datos
-    loadStudentInfo();
-    loadDashboardStats();
-}
+// Verificar autenticación al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser || currentUser.role !== 'student') {
+        window.location.href = 'login.html';
+    } else {
+        // Usuario válido, cargar datos iniciales
+        updateDashboard();
+    }
+});
 
 // Limpiar historial para evitar volver a login con botón atrás
 if (window.history && window.history.pushState) {
@@ -1959,6 +1959,8 @@ async function loadDashboardStats() {
             document.getElementById('totalVideos').textContent = 0;
             document.getElementById('totalActividades').textContent = 0;
             document.getElementById('totalMateriales').textContent = 0;
+            document.getElementById('totalCuestionarios').textContent = 0;
+            document.getElementById('totalEvaluaciones').textContent = 0;
             return;
         }
 
@@ -2062,8 +2064,6 @@ window.logout = logout;
 // Agregar event listeners después de que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        console.log('DOMContentLoaded - Adding event listeners');
-
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', logout);
@@ -2076,48 +2076,48 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Event listeners para navegación
         const navItems = document.querySelectorAll('.nav-item[data-section]');
-        console.log('Found nav items:', navItems.length);
         navItems.forEach(item => {
             item.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                console.log('Nav item clicked:', sectionId);
                 if (typeof showSection === 'function') {
                     showSection(sectionId);
-                } else {
-                    console.error('showSection function not found');
                 }
             });
         });
 
         const statCards = document.querySelectorAll('.stat-card[data-section]');
-        console.log('Found stat cards:', statCards.length);
         statCards.forEach(card => {
             card.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                console.log('Stat card clicked:', sectionId);
                 if (typeof showSection === 'function') {
                     showSection(sectionId);
-                } else {
-                    console.error('showSection function not found');
                 }
             });
         });
 
         const quickLinks = document.querySelectorAll('.quick-link[data-section]');
-        console.log('Found quick links:', quickLinks.length);
         quickLinks.forEach(link => {
             link.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                console.log('Quick link clicked:', sectionId);
                 if (typeof showSection === 'function') {
                     showSection(sectionId);
-                } else {
-                    console.error('showSection function not found');
                 }
             });
         });
 
-        console.log('showSection function available:', typeof showSection);
+        // Cargar datos iniciales
+        updateDashboard();
+        
+        // Cargar secciones que deberían estar disponibles inicialmente
+        loadClases();
+        loadVideos();
+        loadActividades();
+        loadMateriales();
+        loadCuestionarios();
+        
+        // Mostrar sección inicial (dashboard)
+        showSection('dashboard');
+
     } catch (error) {
         console.error('Error in DOMContentLoaded:', error);
     }
@@ -4269,5 +4269,4 @@ function openImageModal(imageUrl, title) {
 }
 
 updateDashboard();
-</body>
 </html>
