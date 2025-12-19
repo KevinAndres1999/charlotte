@@ -1487,14 +1487,14 @@
             </script>
             </div>
             <nav class="nav-menu">
-                <div class="nav-item active" onclick="showSection('dashboard')"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
-                <div class="nav-item" onclick="showSection('clases')"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
-                <div class="nav-item" onclick="showSection('videos')"><i class="fas fa-play-circle"></i><span>Videos</span></div>
-                <div class="nav-item" onclick="showSection('actividades')"><i class="fas fa-tasks"></i><span>Actividades</span></div>
-                <div class="nav-item" onclick="showSection('cuestionarios')"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
-                <div class="nav-item" onclick="showSection('evaluaciones')"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
-                <div class="nav-item" onclick="showSection('materiales')"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
-                <div class="nav-item" onclick="showSection('recursos')"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
+                <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+                <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
+                <div class="nav-item" data-section="videos"><i class="fas fa-play-circle"></i><span>Videos</span></div>
+                <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
+                <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
+                <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
+                <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
+                <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
             </nav>
         </aside>
 
@@ -1506,32 +1506,32 @@
                 </div>
 
                 <div class="stat-cards">
-                    <div class="stat-card" onclick="showSection('clases')">
+                    <div class="stat-card" data-section="clases">
                         <i class="fas fa-book-open"></i>
                         <h3 id="totalClases">0</h3>
                         <p>Clases Disponibles</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #10b981;" onclick="showSection('videos')">
+                    <div class="stat-card" style="border-left-color: #10b981;" data-section="videos">
                         <i class="fas fa-play-circle" style="color: #10b981;"></i>
                         <h3 id="totalVideos">0</h3>
                         <p>Videos Educativos</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #f59e0b;" onclick="showSection('actividades')">
+                    <div class="stat-card" style="border-left-color: #f59e0b;" data-section="actividades">
                         <i class="fas fa-tasks" style="color: #f59e0b;"></i>
                         <h3 id="totalActividades">0</h3>
                         <p>Actividades</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #8b5cf6;" onclick="showSection('materiales')">
+                    <div class="stat-card" style="border-left-color: #8b5cf6;" data-section="materiales">
                         <i class="fas fa-folder-open" style="color: #8b5cf6;"></i>
                         <h3 id="totalMateriales">0</h3>
                         <p>Materiales</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #ef4444;" onclick="showSection('cuestionarios')">
+                    <div class="stat-card" style="border-left-color: #ef4444;" data-section="cuestionarios">
                         <i class="fas fa-question-circle" style="color: #ef4444;"></i>
                         <h3 id="totalCuestionarios">0</h3>
                         <p>Cuestionarios</p>
                     </div>
-                    <div class="stat-card" style="border-left-color: #06b6d4;" onclick="showSection('evaluaciones')">
+                    <div class="stat-card" style="border-left-color: #06b6d4;" data-section="evaluaciones">
                         <i class="fas fa-clipboard-check" style="color: #06b6d4;"></i>
                         <h3 id="totalEvaluaciones">0</h3>
                         <p>Evaluaciones</p>
@@ -1540,27 +1540,27 @@
 
                 <h3 style="margin-bottom: 1rem; color: #0a1628;">Accesos Rápidos</h3>
                 <div class="quick-links">
-                    <div class="quick-link" onclick="showSection('clases')">
+                    <div class="quick-link" data-section="clases">
                         <i class="fas fa-book-open"></i>
                         <h4>Ver Mis Clases</h4>
                     </div>
-                    <div class="quick-link" onclick="showSection('videos')">
+                    <div class="quick-link" data-section="videos">
                         <i class="fas fa-play-circle"></i>
                         <h4>Videos</h4>
                     </div>
-                    <div class="quick-link" onclick="showSection('actividades')">
+                    <div class="quick-link" data-section="actividades">
                         <i class="fas fa-clipboard-list"></i>
                         <h4>Actividades</h4>
                     </div>
-                    <div class="quick-link" onclick="showSection('materiales')">
+                    <div class="quick-link" data-section="materiales">
                         <i class="fas fa-folder-open"></i>
                         <h4>Materiales</h4>
                     </div>
-                    <div class="quick-link" onclick="showSection('cuestionarios')">
+                    <div class="quick-link" data-section="cuestionarios">
                         <i class="fas fa-question-circle"></i>
                         <h4>Cuestionarios</h4>
                     </div>
-                    <div class="quick-link" onclick="showSection('evaluaciones')">
+                    <div class="quick-link" data-section="evaluaciones">
                         <i class="fas fa-clipboard-check"></i>
                         <h4>Evaluaciones</h4>
                     </div>
@@ -2010,10 +2010,12 @@ function showSection(sectionId) {
     }
     
     // Marcar el nav-item correspondiente como activo
-    const navItems = document.querySelectorAll('.nav-item');
+    const navItems = document.querySelectorAll('.nav-item[data-section]');
     navItems.forEach(item => {
-        if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(sectionId)) {
+        if (item.getAttribute('data-section') === sectionId) {
             item.classList.add('active');
+        } else {
+            item.classList.remove('active');
         }
     });
     
@@ -2068,6 +2070,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (menuToggle) {
         menuToggle.addEventListener('click', toggleMenu);
     }
+
+    // Event listeners para navegación
+    const navItems = document.querySelectorAll('.nav-item[data-section]');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            showSection(sectionId);
+        });
+    });
+
+    const statCards = document.querySelectorAll('.stat-card[data-section]');
+    statCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            showSection(sectionId);
+        });
+    });
+
+    const quickLinks = document.querySelectorAll('.quick-link[data-section]');
+    quickLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            showSection(sectionId);
+        });
+    });
 });
 
 let allCuestionarios = [];
