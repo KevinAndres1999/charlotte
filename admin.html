@@ -1851,9 +1851,72 @@
             <!-- Ver Entregas -->
             <!-- Entregas Viewer -->
             <div id="entregas-viewer" class="content-section">
-                <!-- Grid de Entregas -->
-                <div id="entregasGrid" class="clase-content-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                    <!-- Las entregas se cargarán aquí -->
+                <!-- Panel de Estadísticas -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-inbox"></i> Entregas de Actividades</h3>
+                        <p>Revisa y califica las entregas de tus estudiantes</p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-entregas">0</h3>
+                                    <p class="stat-label">Total Entregas</p>
+                                </div>
+                                <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="pendientes-entregas">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="calificadas-entregas">0</h3>
+                                    <p class="stat-label">Calificadas</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Actividades -->
+                <div id="actividadesGrid" class="quiz-builder-section" style="display: block;">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-tasks"></i> Actividades Disponibles</h3>
+                        <p>Haz clic en una actividad para ver las entregas de estudiantes</p>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Las actividades se cargarán aquí -->
+                    </div>
+                </div>
+
+                <!-- Grid de Entregas de una Actividad -->
+                <div id="entregasGrid" class="quiz-builder-section" style="display: none;">
+                    <div class="quiz-builder-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div>
+                                <h3><i class="fas fa-file-alt"></i> <span id="actividadSeleccionada">Entregas de Actividad</span></h3>
+                                <p>Entregas de estudiantes para esta actividad</p>
+                            </div>
+                            <button class="btn-secondary" onclick="volverAActividades()" style="margin: 0;">
+                                <i class="fas fa-arrow-left"></i> Volver a Actividades
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Las entregas se cargarán aquí -->
+                    </div>
                 </div>
 
                 <!-- Vista de Detalle de Entrega -->
@@ -2047,9 +2110,72 @@
             <!-- Ver Respuestas de Cuestionarios -->
             <!-- Respuestas Viewer -->
             <div id="respuestas-viewer" class="content-section">
-                <!-- Grid de Respuestas -->
-                <div id="respuestasGrid" class="clase-content-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                    <!-- Las respuestas se cargarán aquí -->
+                <!-- Panel de Estadísticas -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-clipboard-list"></i> Respuestas de Cuestionarios y Evaluaciones</h3>
+                        <p>Revisa y califica las respuestas de tus estudiantes</p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-respuestas">0</h3>
+                                    <p class="stat-label">Total Respuestas</p>
+                                </div>
+                                <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="pendientes-respuestas">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="calificadas-respuestas">0</h3>
+                                    <p class="stat-label">Calificadas</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Cuestionarios/Evaluaciones -->
+                <div id="cuestionariosGrid" class="quiz-builder-section" style="display: block;">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-question-circle"></i> Cuestionarios y Evaluaciones</h3>
+                        <p>Haz clic en un cuestionario/evaluación para ver las respuestas de estudiantes</p>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Los cuestionarios/evaluaciones se cargarán aquí -->
+                    </div>
+                </div>
+
+                <!-- Grid de Respuestas de un Cuestionario/Evaluación -->
+                <div id="respuestasGrid" class="quiz-builder-section" style="display: none;">
+                    <div class="quiz-builder-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div>
+                                <h3><i class="fas fa-clipboard-check"></i> <span id="cuestionarioSeleccionado">Respuestas</span></h3>
+                                <p>Respuestas de estudiantes para este cuestionario/evaluación</p>
+                            </div>
+                            <button class="btn-secondary" onclick="volverACuestionarios()" style="margin: 0;">
+                                <i class="fas fa-arrow-left"></i> Volver a Cuestionarios
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Las respuestas se cargarán aquí -->
+                    </div>
                 </div>
 
                 <!-- Vista de Detalle de Respuesta -->
@@ -5202,16 +5328,92 @@
         // Variables globales para entregas-viewer
         let currentEntregaIndex = 0;
         let entregasData = [];
+        let actividadesData = [];
+        let currentActividadId = null;
 
-        // Función para cargar entregas en el grid del entregas-viewer
+        // Función para cargar actividades disponibles
         async function loadEntregas() {
             try {
-                const snapshot = await db.collection('entregas').get();
+                // Cargar actividades disponibles
+                const actividadesSnapshot = await db.collection('activities').get();
+                actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Cargar todas las entregas para estadísticas
+                const entregasSnapshot = await db.collection('entregas').get();
+                const allEntregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Actualizar estadísticas
+                document.getElementById('total-entregas').textContent = allEntregas.length;
+                document.getElementById('pendientes-entregas').textContent = allEntregas.filter(e => !e.calificacion).length;
+                document.getElementById('calificadas-entregas').textContent = allEntregas.filter(e => e.calificacion).length;
+                
+                // Mostrar actividades
+                loadActividades();
+                
+            } catch (error) {
+                console.error('Error loading entregas:', error);
+            }
+        }
+
+        // Función para cargar actividades disponibles
+        async function loadActividades() {
+            try {
+                const container = document.getElementById('actividadesGrid').querySelector('.clase-content-grid');
+                if (actividadesData.length === 0) {
+                    container.innerHTML = '<div class="no-classes">No hay actividades disponibles</div>';
+                    return;
+                }
+                
+                container.innerHTML = actividadesData.map((actividad, index) => `
+                    <div class="clase-card" onclick="loadEntregasDeActividad('${actividad.id}')">
+                        <div class="clase-image">
+                            <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-tasks" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                        <div class="clase-info">
+                            <h3 class="clase-title">${actividad.titulo || 'Actividad'}</h3>
+                            <p class="clase-programa">${actividad.programa || 'Sin programa'}</p>
+                            <div class="clase-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i> ${new Date(actividad.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                            </div>
+                            <div class="clase-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-users"></i> Entregas pendientes
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading actividades:', error);
+            }
+        }
+
+        // Función para cargar entregas de una actividad específica
+        async function loadEntregasDeActividad(actividadId) {
+            try {
+                currentActividadId = actividadId;
+                const actividad = actividadesData.find(a => a.id === actividadId);
+                
+                // Mostrar sección de entregas
+                document.getElementById('actividadesGrid').style.display = 'none';
+                document.getElementById('entregasGrid').style.display = 'block';
+                document.getElementById('entregaDetail').style.display = 'none';
+                
+                // Actualizar título
+                document.getElementById('actividadSeleccionada').textContent = `Entregas: ${actividad.titulo}`;
+                
+                // Cargar entregas de esta actividad
+                const snapshot = await db.collection('entregas').where('actividadId', '==', actividadId).get();
                 entregasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                const container = document.getElementById('entregasGrid');
+                const container = document.getElementById('entregasGrid').querySelector('.clase-content-grid');
                 if (entregasData.length === 0) {
-                    container.innerHTML = '<div class="no-classes">No hay entregas disponibles</div>';
+                    container.innerHTML = '<div class="no-classes">No hay entregas para esta actividad</div>';
                     return;
                 }
                 
@@ -5223,12 +5425,9 @@
                             </div>
                         </div>
                         <div class="clase-info">
-                            <h3 class="clase-title">${entrega.actividadTitulo || 'Actividad'}</h3>
-                            <p class="clase-programa">${entrega.programa || 'Sin programa'}</p>
+                            <h3 class="clase-title">${entrega.estudianteNombre || 'Estudiante'}</h3>
+                            <p class="clase-programa">${actividad.programa || 'Sin programa'}</p>
                             <div class="clase-meta">
-                                <span class="meta-item">
-                                    <i class="fas fa-user"></i> ${entrega.estudianteNombre || 'Estudiante'}
-                                </span>
                                 <span class="meta-item">
                                     <i class="fas fa-calendar"></i> ${new Date(entrega.fechaEntrega || Date.now()).toLocaleDateString('es-ES')}
                                 </span>
@@ -5242,14 +5441,17 @@
                     </div>
                 `).join('');
                 
-                // Actualizar estadísticas
-                document.getElementById('total-entregas').textContent = entregasData.length;
-                document.getElementById('pendientes-entregas').textContent = entregasData.filter(e => !e.calificacion).length;
-                document.getElementById('calificadas-entregas').textContent = entregasData.filter(e => e.calificacion).length;
-                
             } catch (error) {
-                console.error('Error loading entregas:', error);
+                console.error('Error loading entregas de actividad:', error);
             }
+        }
+
+        // Función para volver al grid de actividades
+        function volverAActividades() {
+            document.getElementById('actividadesGrid').style.display = 'block';
+            document.getElementById('entregasGrid').style.display = 'none';
+            document.getElementById('entregaDetail').style.display = 'none';
+            currentActividadId = null;
         }
 
         // Función para cargar detalles de una entrega específica
@@ -5336,8 +5538,15 @@
         }
 
         function backToEntregas() {
-            document.getElementById('entregasGrid').style.display = 'grid';
-            document.getElementById('entregaDetail').style.display = 'none';
+            if (currentActividadId) {
+                // Si estamos en una actividad específica, volver a las entregas de esa actividad
+                document.getElementById('entregasGrid').style.display = 'block';
+                document.getElementById('entregaDetail').style.display = 'none';
+            } else {
+                // Si no hay actividad seleccionada, volver al grid de actividades
+                document.getElementById('actividadesGrid').style.display = 'block';
+                document.getElementById('entregaDetail').style.display = 'none';
+            }
         }
 
         // Función para guardar calificación de entrega
@@ -5388,16 +5597,106 @@
         // Variables globales para respuestas-viewer
         let currentRespuestaIndex = 0;
         let respuestasData = [];
+        let cuestionariosData = [];
+        let currentCuestionarioId = null;
+        let currentTipoRespuesta = null;
 
-        // Función para cargar respuestas en el grid del respuestas-viewer
+        // Función para cargar cuestionarios/evaluaciones disponibles
         async function loadRespuestas() {
             try {
-                const snapshot = await db.collection('respuestas').get();
+                // Cargar cuestionarios
+                const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                const cuestionarios = cuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'cuestionario' }));
+                
+                // Cargar evaluaciones
+                const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'evaluacion' }));
+                
+                cuestionariosData = [...cuestionarios, ...evaluaciones];
+                
+                // Cargar todas las respuestas para estadísticas
+                const respuestasCuestionariosSnapshot = await db.collection('respuestasCuestionarios').get();
+                const respuestasEvaluacionesSnapshot = await db.collection('respuestasEvaluaciones').get();
+                const allRespuestas = [
+                    ...respuestasCuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+                    ...respuestasEvaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                ];
+                
+                // Actualizar estadísticas
+                document.getElementById('total-respuestas').textContent = allRespuestas.length;
+                document.getElementById('pendientes-respuestas').textContent = allRespuestas.filter(r => !r.calificacion).length;
+                document.getElementById('calificadas-respuestas').textContent = allRespuestas.filter(r => r.calificacion).length;
+                
+                // Mostrar cuestionarios/evaluaciones
+                loadCuestionarios();
+                
+            } catch (error) {
+                console.error('Error loading respuestas:', error);
+            }
+        }
+
+        // Función para cargar cuestionarios/evaluaciones disponibles
+        async function loadCuestionarios() {
+            try {
+                const container = document.getElementById('cuestionariosGrid').querySelector('.clase-content-grid');
+                if (cuestionariosData.length === 0) {
+                    container.innerHTML = '<div class="no-classes">No hay cuestionarios o evaluaciones disponibles</div>';
+                    return;
+                }
+                
+                container.innerHTML = cuestionariosData.map((item, index) => `
+                    <div class="clase-card" onclick="loadRespuestasDeCuestionario('${item.id}', '${item.tipo}')">
+                        <div class="clase-image">
+                            <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-${item.tipo === 'cuestionario' ? 'question-circle' : 'clipboard-check'}" style="font-size: 3rem;"></i>
+                            </div>
+                        </div>
+                        <div class="clase-info">
+                            <h3 class="clase-title">${item.titulo || item.nombre || (item.tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}</h3>
+                            <p class="clase-programa">${item.programa || 'Sin programa'}</p>
+                            <div class="clase-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i> ${new Date(item.fechaCreacion || item.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                            </div>
+                            <div class="clase-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-${item.tipo === 'cuestionario' ? 'question-circle' : 'clipboard-check'}"></i> ${item.tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading cuestionarios:', error);
+            }
+        }
+
+        // Función para cargar respuestas de un cuestionario/evaluación específico
+        async function loadRespuestasDeCuestionario(cuestionarioId, tipo) {
+            try {
+                currentCuestionarioId = cuestionarioId;
+                currentTipoRespuesta = tipo;
+                const cuestionario = cuestionariosData.find(c => c.id === cuestionarioId);
+                
+                // Mostrar sección de respuestas
+                document.getElementById('cuestionariosGrid').style.display = 'none';
+                document.getElementById('respuestasGrid').style.display = 'block';
+                document.getElementById('respuestaDetail').style.display = 'none';
+                
+                // Actualizar título
+                const titulo = cuestionario.titulo || cuestionario.nombre || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación');
+                document.getElementById('cuestionarioSeleccionado').textContent = `Respuestas: ${titulo}`;
+                
+                // Cargar respuestas de este cuestionario/evaluación
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionarioId).get();
                 respuestasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                const container = document.getElementById('respuestasGrid');
+                const container = document.getElementById('respuestasGrid').querySelector('.clase-content-grid');
                 if (respuestasData.length === 0) {
-                    container.innerHTML = '<div class="no-classes">No hay respuestas disponibles</div>';
+                    container.innerHTML = '<div class="no-classes">No hay respuestas para este cuestionario/evaluación</div>';
                     return;
                 }
                 
@@ -5409,12 +5708,9 @@
                             </div>
                         </div>
                         <div class="clase-info">
-                            <h3 class="clase-title">${respuesta.cuestionarioTitulo || 'Cuestionario'}</h3>
-                            <p class="clase-programa">${respuesta.programa || 'Sin programa'}</p>
+                            <h3 class="clase-title">${respuesta.estudianteNombre || 'Estudiante'}</h3>
+                            <p class="clase-programa">${cuestionario.programa || 'Sin programa'}</p>
                             <div class="clase-meta">
-                                <span class="meta-item">
-                                    <i class="fas fa-user"></i> ${respuesta.estudianteNombre || 'Estudiante'}
-                                </span>
                                 <span class="meta-item">
                                     <i class="fas fa-calendar"></i> ${new Date(respuesta.fechaRespuesta || Date.now()).toLocaleDateString('es-ES')}
                                 </span>
@@ -5428,20 +5724,25 @@
                     </div>
                 `).join('');
                 
-                // Actualizar estadísticas
-                document.getElementById('total-respuestas').textContent = respuestasData.length;
-                document.getElementById('pendientes-respuestas').textContent = respuestasData.filter(r => !r.calificacion).length;
-                document.getElementById('calificadas-respuestas').textContent = respuestasData.filter(r => r.calificacion).length;
-                
             } catch (error) {
-                console.error('Error loading respuestas:', error);
+                console.error('Error loading respuestas de cuestionario:', error);
             }
+        }
+
+        // Función para volver al grid de cuestionarios
+        function volverACuestionarios() {
+            document.getElementById('cuestionariosGrid').style.display = 'block';
+            document.getElementById('respuestasGrid').style.display = 'none';
+            document.getElementById('respuestaDetail').style.display = 'none';
+            currentCuestionarioId = null;
+            currentTipoRespuesta = null;
         }
 
         // Función para cargar detalles de una respuesta específica
         async function loadRespuestaDetail(respuestaId) {
             try {
-                const doc = await db.collection('respuestas').doc(respuestaId).get();
+                const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const doc = await db.collection(collectionName).doc(respuestaId).get();
                 if (!doc.exists) {
                     console.error('Respuesta no encontrada');
                     return;
@@ -5539,8 +5840,15 @@
         }
 
         function backToRespuestas() {
-            document.getElementById('respuestasGrid').style.display = 'grid';
-            document.getElementById('respuestaDetail').style.display = 'none';
+            if (currentCuestionarioId) {
+                // Si estamos en un cuestionario específico, volver a las respuestas de ese cuestionario
+                document.getElementById('respuestasGrid').style.display = 'block';
+                document.getElementById('respuestaDetail').style.display = 'none';
+            } else {
+                // Si no hay cuestionario seleccionado, volver al grid de cuestionarios
+                document.getElementById('cuestionariosGrid').style.display = 'block';
+                document.getElementById('respuestaDetail').style.display = 'none';
+            }
         }
 
         // Función para guardar calificación de respuesta
@@ -5555,7 +5863,9 @@
             
             try {
                 const respuestaId = respuestasData[currentRespuestaIndex].id;
-                await db.collection('respuestas').doc(respuestaId).update({
+                const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                
+                await db.collection(collectionName).doc(respuestaId).update({
                     calificacion: parseInt(calificacion),
                     comentarios: comentarios,
                     fechaCalificacion: new Date(),
