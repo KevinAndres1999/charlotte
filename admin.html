@@ -5959,21 +5959,32 @@
                 const docSnap = await docRef.get();
                 console.log('docSnap:', docSnap);
                 console.log('docSnap type:', typeof docSnap);
+                console.log('docSnap constructor:', docSnap.constructor?.name);
                 console.log('docSnap methods:', Object.getOwnPropertyNames(docSnap));
+                console.log('docSnap prototype methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(docSnap)));
 
+                // Verificar si es un DocumentSnapshot válido
                 if (!docSnap) {
                     console.error('docSnap is null or undefined');
                     showToast('Error: No se pudo obtener la clase', 'error');
                     return;
                 }
 
-                if (typeof docSnap.exists !== 'function') {
-                    console.error('docSnap.exists is not a function. docSnap:', docSnap);
-                    showToast('Error: Respuesta inválida de Firebase', 'error');
+                // Intentar diferentes formas de verificar si existe
+                let exists = false;
+                if (typeof docSnap.exists === 'function') {
+                    exists = docSnap.exists();
+                } else if (typeof docSnap.exists === 'boolean') {
+                    exists = docSnap.exists;
+                } else if (docSnap._delegate && typeof docSnap._delegate.exists === 'boolean') {
+                    exists = docSnap._delegate.exists;
+                } else {
+                    console.error('Cannot determine if document exists. docSnap:', docSnap);
+                    showToast('Error: No se puede verificar si la clase existe', 'error');
                     return;
                 }
 
-                if (docSnap.exists()) {
+                if (exists) {
                     const clase = docSnap.data();
 
                     // Cargar datos en la interfaz de clase-viewer
