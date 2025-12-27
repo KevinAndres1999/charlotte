@@ -5842,7 +5842,6 @@
         window.calificarRespuesta = calificarRespuesta;
 
         // =================== FUNCIONES PARA CLASE-VIEWER ===================
-        let allClases = [];
 
         async function loadClases() {
             const container = document.getElementById('clasesList');
@@ -5856,8 +5855,8 @@
                     allClases.push(clase);
                 });
 
-                // Guardar allClases en localStorage para navegación
-                localStorage.setItem('allClases', JSON.stringify(allClases));
+                // No guardar en localStorage para evitar límite de quota
+                // localStorage.setItem('allClases', JSON.stringify(allClases));
 
                 renderClasesList();
                 updateClasesStats();
