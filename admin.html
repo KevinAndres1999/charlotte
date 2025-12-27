@@ -3295,6 +3295,12 @@
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
+            // Asegurar que la preview esté oculta inicialmente
+            const preview = document.getElementById('contentPreview');
+            if (preview) {
+                preview.classList.remove('show');
+            }
+
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => {
                 item.addEventListener('click', function() {
@@ -3357,6 +3363,12 @@
         });
 
         function showSection(sectionId) {
+            // Ocultar preview integrada al cambiar de sección
+            const preview = document.getElementById('contentPreview');
+            if (preview) {
+                preview.classList.remove('show');
+            }
+
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
@@ -6787,9 +6799,8 @@
         <div class="preview-header">
             <h2 class="preview-title" id="previewTitle">
                 <i class="fas fa-eye"></i>
-                Vista Previa
+                Contenido
             </h2>
-            <button class="preview-close" onclick="closeContentPreview()">&times;</button>
         </div>
         <div class="preview-content">
             <div class="preview-main" id="previewMain">
