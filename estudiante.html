@@ -4251,7 +4251,10 @@ function filterClases() {
 }
 
 function sortClases() {
-    const sortBy = document.getElementById('sortClases').value;
+    const sortElement = document.getElementById('sortClases');
+    if (!sortElement) return; // Si no existe el elemento, no hacer nada
+    
+    const sortBy = sortElement.value;
 
     filteredClases.sort((a, b) => {
         switch (sortBy) {
@@ -4445,7 +4448,10 @@ function filterVideos() {
 }
 
 function sortVideos() {
-    const sortBy = document.getElementById('sortVideos').value;
+    const sortElement = document.getElementById('sortVideos');
+    if (!sortElement) return; // Si no existe el elemento, no hacer nada
+    
+    const sortBy = sortElement.value;
 
     filteredVideos.sort((a, b) => {
         switch (sortBy) {
@@ -4659,7 +4665,10 @@ function filterActividades() {
 }
 
 function sortActividades() {
-    const sortBy = document.getElementById('sortActividades').value;
+    const sortElement = document.getElementById('sortActividades');
+    if (!sortElement) return; // Si no existe el elemento, no hacer nada
+    
+    const sortBy = sortElement.value;
 
     filteredActividades.sort((a, b) => {
         switch (sortBy) {
