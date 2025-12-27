@@ -5953,9 +5953,15 @@
 
         async function loadClaseDetail(id) {
             try {
+                console.log('Loading clase detail for id:', id);
                 const docRef = db.collection('classes').doc(id);
+                console.log('docRef:', docRef);
                 const docSnap = await docRef.get();
-                if (docSnap.exists()) {
+                console.log('docSnap:', docSnap);
+                console.log('docSnap type:', typeof docSnap);
+                console.log('docSnap methods:', Object.getOwnPropertyNames(docSnap));
+
+                if (docSnap.exists && typeof docSnap.exists === 'function' && docSnap.exists()) {
                     const clase = docSnap.data();
 
                     // Cargar datos en la interfaz de clase-viewer
