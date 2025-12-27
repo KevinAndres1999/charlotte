@@ -779,78 +779,185 @@
             .status-pendiente { background: #fef3c7; color: #92400e; }
             .status-calificada { background: #d1fae5; color: #065f46; }
 
-            /* Preview Modal Styles */
+            /* Preview Modal Styles - Ventana Flotante */
             .modal-overlay {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.7);
+                background: rgba(0, 0, 0, 0.6);
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 z-index: 10000;
-                backdrop-filter: blur(5px);
+                backdrop-filter: blur(8px);
+                animation: fadeIn 0.3s ease-out;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
             }
 
             .modal-content {
-                background: white;
-                border-radius: 16px;
-                width: 90%;
-                max-width: 900px;
+                background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+                border-radius: 20px;
+                width: 95%;
+                max-width: 1000px;
                 max-height: 90vh;
-                overflow-y: auto;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                animation: modalSlideIn 0.3s ease-out;
+                overflow: hidden;
+                box-shadow:
+                    0 25px 50px rgba(0, 0, 0, 0.25),
+                    0 15px 35px rgba(0, 0, 0, 0.15),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                position: relative;
             }
 
-            @keyframes modalSlideIn {
-                from { transform: scale(0.9) translateY(-20px); opacity: 0; }
-                to { transform: scale(1) translateY(0); opacity: 1; }
+            .modal-content::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: scale(0.9) translateY(30px);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
             }
 
             .modal-header {
-                padding: 24px 32px;
-                border-bottom: 2px solid #f1f5f9;
+                padding: 28px 36px;
+                border-bottom: 1px solid rgba(226, 232, 240, 0.5);
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                background: linear-gradient(135deg, #f8fafc, #ffffff);
+                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                position: relative;
+            }
+
+            .modal-header::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 60%;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+                opacity: 0.3;
             }
 
             .modal-header h2 {
                 margin: 0;
                 color: #1e3a8a;
-                font-size: 24px;
+                font-size: 26px;
                 font-weight: 700;
+                letter-spacing: -0.5px;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
 
             .modal-close {
-                background: none;
+                background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
                 border: none;
-                font-size: 32px;
+                font-size: 28px;
                 cursor: pointer;
                 color: #64748b;
-                padding: 0;
-                width: 40px;
-                height: 40px;
+                padding: 8px;
+                width: 44px;
+                height: 44px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                border-radius: 50%;
-                transition: all 0.3s;
+                border-radius: 12px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             }
 
             .modal-close:hover {
-                background: #f1f5f9;
+                background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
                 color: #1e3a8a;
+                transform: scale(1.1) rotate(90deg);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
 
             .modal-body {
-                padding: 32px;
-                max-height: 70vh;
+                padding: 36px;
+                max-height: calc(90vh - 120px);
                 overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+            }
+
+            .modal-body::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .modal-body::-webkit-scrollbar-track {
+                background: #f1f5f9;
+                border-radius: 3px;
+            }
+
+            .modal-body::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 3px;
+            }
+
+            .modal-close:active {
+                transform: scale(0.95);
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            .modal-loading {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 60px;
+                color: #64748b;
+                font-size: 16px;
+            }
+
+            .modal-loading i {
+                animation: spin 1s linear infinite;
+                margin-right: 12px;
+                font-size: 20px;
+            }
+
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            .modal-content-loading {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .modal-content-loading::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+                animation: shimmer 1.5s infinite;
+            }
+
+            @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
             }
 
             .preview-header {
@@ -3976,6 +4083,15 @@
 
         async function viewCuestionario(cuestionarioId) {
             try {
+                // Mostrar indicador de carga
+                document.getElementById('previewModalContent').innerHTML = `
+                    <div class="modal-loading">
+                        <i class="fas fa-spinner"></i>
+                        Cargando cuestionario...
+                    </div>
+                `;
+                document.getElementById('previewModal').style.display = 'flex';
+
                 const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
                 if (doc.exists) {
                     const data = doc.data();
@@ -4035,13 +4151,22 @@
                     document.getElementById('previewModal').style.display = 'flex';
                 }
             } catch (error) {
-                console.error('Error viewing cuestionario:', error);
-                alert('Error al cargar el cuestionario');
+                console.error('Error loading cuestionario:', error);
+                document.getElementById('previewModalContent').innerHTML = '<div class="preview-description">❌ Error al cargar el cuestionario</div>';
             }
         }
 
         async function viewEvaluacion(evaluacionId) {
             try {
+                // Mostrar indicador de carga
+                document.getElementById('previewModalContent').innerHTML = `
+                    <div class="modal-loading">
+                        <i class="fas fa-spinner"></i>
+                        Cargando evaluación...
+                    </div>
+                `;
+                document.getElementById('previewModal').style.display = 'flex';
+
                 const doc = await db.collection('evaluaciones').doc(evaluacionId).get();
                 if (doc.exists) {
                     const data = doc.data();
@@ -4101,15 +4226,41 @@
                     document.getElementById('previewModal').style.display = 'flex';
                 }
             } catch (error) {
-                console.error('Error viewing evaluacion:', error);
-                alert('Error al cargar la evaluación');
+                console.error('Error loading evaluacion:', error);
+                document.getElementById('previewModalContent').innerHTML = '<div class="preview-description">❌ Error al cargar la evaluación</div>';
             }
         }
 
-        // Función para cerrar el modal de preview
+        // Función para cerrar el modal de preview con animación
         function closePreviewModal() {
-            document.getElementById('previewModal').style.display = 'none';
+            const modal = document.getElementById('previewModal');
+            const modalContent = modal.querySelector('.modal-content');
+
+            // Agregar animación de salida
+            modalContent.style.animation = 'slideOut 0.3s ease-in forwards';
+
+            // Ocultar modal después de la animación
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modalContent.style.animation = ''; // Reset animation
+            }, 300);
         }
+
+        // Agregar animación de salida
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from {
+                    transform: scale(1) translateY(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: scale(0.95) translateY(-10px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Cerrar modal al hacer clic fuera de él
         document.addEventListener('click', function(event) {
