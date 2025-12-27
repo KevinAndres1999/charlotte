@@ -778,6 +778,184 @@
             .entrega-status { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
             .status-pendiente { background: #fef3c7; color: #92400e; }
             .status-calificada { background: #d1fae5; color: #065f46; }
+
+            /* Preview Modal Styles */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                backdrop-filter: blur(5px);
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 16px;
+                width: 90%;
+                max-width: 900px;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: modalSlideIn 0.3s ease-out;
+            }
+
+            @keyframes modalSlideIn {
+                from { transform: scale(0.9) translateY(-20px); opacity: 0; }
+                to { transform: scale(1) translateY(0); opacity: 1; }
+            }
+
+            .modal-header {
+                padding: 24px 32px;
+                border-bottom: 2px solid #f1f5f9;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: linear-gradient(135deg, #f8fafc, #ffffff);
+            }
+
+            .modal-header h2 {
+                margin: 0;
+                color: #1e3a8a;
+                font-size: 24px;
+                font-weight: 700;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 32px;
+                cursor: pointer;
+                color: #64748b;
+                padding: 0;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.3s;
+            }
+
+            .modal-close:hover {
+                background: #f1f5f9;
+                color: #1e3a8a;
+            }
+
+            .modal-body {
+                padding: 32px;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+
+            .preview-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 24px;
+                border-radius: 12px;
+                margin-bottom: 24px;
+            }
+
+            .preview-header h3 {
+                margin: 0 0 8px 0;
+                font-size: 20px;
+                font-weight: 600;
+            }
+
+            .preview-meta {
+                display: flex;
+                gap: 16px;
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
+            .preview-description {
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 12px;
+                border-left: 4px solid #3b82f6;
+                margin-bottom: 24px;
+                font-style: italic;
+                color: #475569;
+            }
+
+            .questions-section {
+                margin-top: 24px;
+            }
+
+            .questions-section h4 {
+                color: #1e3a8a;
+                font-size: 18px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .question-item {
+                background: white;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 20px;
+                margin-bottom: 16px;
+                transition: all 0.3s;
+            }
+
+            .question-item:hover {
+                border-color: #3b82f6;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            }
+
+            .question-text {
+                font-weight: 600;
+                color: #1e3a8a;
+                margin-bottom: 12px;
+                font-size: 16px;
+            }
+
+            .question-options {
+                margin-left: 20px;
+            }
+
+            .option-item {
+                padding: 6px 0;
+                color: #475569;
+            }
+
+            .option-correct {
+                color: #059669;
+                font-weight: 600;
+            }
+
+            .option-marker {
+                color: #059669;
+                margin-right: 8px;
+            }
+
+            .question-type {
+                background: #e0f2fe;
+                color: #0277bd;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                display: inline-block;
+                margin-top: 8px;
+            }
+            .entrega-item { padding: 20px 32px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
+            .entrega-item:hover { background: #f8fafc; }
+            .entrega-info { flex: 1; }
+            .entrega-info h5 { margin: 0 0 8px 0; color: #1e3a8a; font-size: 16px; }
+            .entrega-meta { display: flex; gap: 16px; font-size: 14px; color: #64748b; }
+            .entrega-meta span { display: flex; align-items: center; gap: 4px; }
+            .entrega-status { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+            .status-pendiente { background: #fef3c7; color: #92400e; }
+            .status-calificada { background: #d1fae5; color: #065f46; }
             .entrega-actions { display: flex; gap: 8px; }
             .btn-sm { padding: 8px 16px; font-size: 12px; border-radius: 6px; }
             .btn-view { background: #3b82f6; color: white; }
@@ -3801,35 +3979,60 @@
                 const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    let content = `📋 CUESTIONARIO\n`;
-                    content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                    content += `📝 Título: ${data.titulo}\n`;
-                    content += `🏫 Programa: ${data.programa}\n`;
-                    content += `📅 Fecha: ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}\n\n`;
-                    content += `📖 Descripción: ${data.descripcion || 'Sin descripción'}\n\n`;
                     
-                    if (data.preguntas && Array.isArray(data.preguntas)) {
-                        content += `❓ PREGUNTAS (${data.preguntas.length}):\n`;
-                        content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                        data.preguntas.forEach((pregunta, index) => {
-                            content += `${index + 1}. ${pregunta.texto}\n`;
-                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
-                                pregunta.opciones.forEach((opcion, i) => {
-                                    const marker = i === pregunta.respuesta ? ' ✅' : '';
-                                    content += `   ${String.fromCharCode(65 + i)}) ${opcion}${marker}\n`;
-                                });
-                            } else {
-                                content += `   📝 Tipo: ${pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta'}\n`;
-                            }
-                            content += `\n`;
-                        });
-                    } else {
-                        content += '❌ No hay preguntas definidas\n';
+                    // Construir el contenido del modal
+                    let content = `
+                        <div class="preview-header">
+                            <h3>📋 ${data.titulo}</h3>
+                            <div class="preview-meta">
+                                <span>🏫 ${data.programa}</span>
+                                <span>📅 ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
                     }
                     
-                    // Usar console.log para contenido largo y alert para confirmación
-                    console.log('Vista previa del cuestionario:', content);
-                    alert(`Vista previa del cuestionario "${data.titulo}" abierta en la consola.\n\nPresiona F12 → Console para ver el contenido completo.`);
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `
+                            <div class="questions-section">
+                                <h4>❓ Preguntas (${data.preguntas.length})</h4>
+                        `;
+                        
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `
+                                <div class="question-item">
+                                    <div class="question-text">${index + 1}. ${pregunta.texto}</div>
+                            `;
+                            
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                content += '<div class="question-options">';
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const isCorrect = i === pregunta.respuesta;
+                                    const marker = isCorrect ? '<span class="option-marker">✅</span>' : '';
+                                    const className = isCorrect ? 'option-correct' : '';
+                                    content += `<div class="option-item ${className}">${String.fromCharCode(65 + i)}) ${opcion}${marker}</div>`;
+                                });
+                                content += '</div>';
+                            } else {
+                                const tipoTexto = pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta';
+                                content += `<div class="question-type">${tipoTexto}</div>`;
+                            }
+                            
+                            content += '</div>';
+                        });
+                        
+                        content += '</div>';
+                    } else {
+                        content += '<div class="preview-description">❌ No hay preguntas definidas</div>';
+                    }
+                    
+                    // Mostrar el modal
+                    document.getElementById('previewModalTitle').textContent = `Cuestionario: ${data.titulo}`;
+                    document.getElementById('previewModalContent').innerHTML = content;
+                    document.getElementById('previewModal').style.display = 'flex';
                 }
             } catch (error) {
                 console.error('Error viewing cuestionario:', error);
@@ -3842,41 +4045,86 @@
                 const doc = await db.collection('evaluaciones').doc(evaluacionId).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    let content = `📊 EVALUACIÓN\n`;
-                    content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                    content += `📝 Título: ${data.titulo}\n`;
-                    content += `🏫 Programa: ${data.programa}\n`;
-                    content += `📅 Fecha: ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}\n\n`;
-                    content += `📖 Descripción: ${data.descripcion || 'Sin descripción'}\n\n`;
                     
-                    if (data.preguntas && Array.isArray(data.preguntas)) {
-                        content += `❓ PREGUNTAS (${data.preguntas.length}):\n`;
-                        content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-                        data.preguntas.forEach((pregunta, index) => {
-                            content += `${index + 1}. ${pregunta.texto}\n`;
-                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
-                                pregunta.opciones.forEach((opcion, i) => {
-                                    const marker = i === pregunta.respuesta ? ' ✅' : '';
-                                    content += `   ${String.fromCharCode(65 + i)}) ${opcion}${marker}\n`;
-                                });
-                            } else {
-                                content += `   📝 Tipo: ${pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta'}\n`;
-                            }
-                            content += `\n`;
-                        });
-                    } else {
-                        content += '❌ No hay preguntas definidas\n';
+                    // Construir el contenido del modal
+                    let content = `
+                        <div class="preview-header">
+                            <h3>📊 ${data.titulo}</h3>
+                            <div class="preview-meta">
+                                <span>🏫 ${data.programa}</span>
+                                <span>📅 ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
                     }
                     
-                    // Usar console.log para contenido largo y alert para confirmación
-                    console.log('Vista previa de la evaluación:', content);
-                    alert(`Vista previa de la evaluación "${data.titulo}" abierta en la consola.\n\nPresiona F12 → Console para ver el contenido completo.`);
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `
+                            <div class="questions-section">
+                                <h4>❓ Preguntas (${data.preguntas.length})</h4>
+                        `;
+                        
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `
+                                <div class="question-item">
+                                    <div class="question-text">${index + 1}. ${pregunta.texto}</div>
+                            `;
+                            
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                content += '<div class="question-options">';
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const isCorrect = i === pregunta.respuesta;
+                                    const marker = isCorrect ? '<span class="option-marker">✅</span>' : '';
+                                    const className = isCorrect ? 'option-correct' : '';
+                                    content += `<div class="option-item ${className}">${String.fromCharCode(65 + i)}) ${opcion}${marker}</div>`;
+                                });
+                                content += '</div>';
+                            } else {
+                                const tipoTexto = pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta';
+                                content += `<div class="question-type">${tipoTexto}</div>`;
+                            }
+                            
+                            content += '</div>';
+                        });
+                        
+                        content += '</div>';
+                    } else {
+                        content += '<div class="preview-description">❌ No hay preguntas definidas</div>';
+                    }
+                    
+                    // Mostrar el modal
+                    document.getElementById('previewModalTitle').textContent = `Evaluación: ${data.titulo}`;
+                    document.getElementById('previewModalContent').innerHTML = content;
+                    document.getElementById('previewModal').style.display = 'flex';
                 }
             } catch (error) {
                 console.error('Error viewing evaluacion:', error);
                 alert('Error al cargar la evaluación');
             }
         }
+
+        // Función para cerrar el modal de preview
+        function closePreviewModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('previewModal');
+            if (event.target === modal) {
+                closePreviewModal();
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePreviewModal();
+            }
+        });
 
         async function loadCuestionariosList() {
             try {
@@ -6177,5 +6425,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para vista previa de cuestionarios/evaluaciones -->
+    <div id="previewModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="previewModalTitle">Vista Previa</h2>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="previewModalContent">
+                <!-- Contenido se cargará dinámicamente -->
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
