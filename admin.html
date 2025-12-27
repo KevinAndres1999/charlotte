@@ -1577,6 +1577,18 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Botón de limpieza de datos huérfanos -->
+                <div style="margin-top: 40px; padding: 20px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px;">
+                    <h4 style="margin: 0 0 10px 0; color: #92400e;"><i class="fas fa-broom"></i> Mantenimiento del Sistema</h4>
+                    <p style="margin: 0 0 15px 0; color: #92400e; font-size: 14px;">
+                        Si notas inconsistencias en las estadísticas o problemas al cargar datos, puedes limpiar registros huérfanos
+                        (entregas/respuestas de actividades/cuestionarios eliminados).
+                    </p>
+                    <button onclick="limpiarDatosHuerfanos()" class="btn-primary" style="background: #f59e0b; border-color: #f59e0b;">
+                        <i class="fas fa-broom"></i> Limpiar Datos Huérfanos
+                    </button>
+                </div>
             </div>
 
             <!-- Usuarios (aprobaciones) -->
@@ -2988,12 +3000,10 @@
         });
 
         function showSection(sectionId) {
-            console.log('Cambiando a sección:', sectionId);
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
-            console.log('Sección activada:', sectionId);
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') try { loadClasesList(); } catch (e) { console.error('Error loading clases:', e); }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
@@ -3972,19 +3982,30 @@
         async function deleteItem(collectionName, id) {
             if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
             try {
+                // Si es actividad, eliminar entregas relacionadas
+                if (collectionName === 'activities') {
+                    const entregasSnapshot = await db.collection('entregas').get();
+                    const deletePromises = entregasSnapshot.docs
+                        .filter(doc => doc.data().actividadId === id)
+                        .map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    console.log(`Eliminadas ${deletePromises.length} entregas relacionadas con la actividad`);
+                }
                 // Si es cuestionario o evaluación, eliminar respuestas relacionadas
-                if (collectionName === 'cuestionarios') {
+                else if (collectionName === 'cuestionarios') {
                     const respuestasSnapshot = await db.collection('respuestasCuestionarios').get();
                     const deletePromises = respuestasSnapshot.docs
                         .filter(doc => doc.data().cuestionarioId === id)
                         .map(doc => doc.ref.delete());
                     await Promise.all(deletePromises);
+                    console.log(`Eliminadas ${deletePromises.length} respuestas relacionadas con el cuestionario`);
                 } else if (collectionName === 'evaluaciones') {
                     const respuestasSnapshot = await db.collection('respuestasEvaluaciones').get();
                     const deletePromises = respuestasSnapshot.docs
                         .filter(doc => doc.data().evaluacionId === id)
                         .map(doc => doc.ref.delete());
                     await Promise.all(deletePromises);
+                    console.log(`Eliminadas ${deletePromises.length} respuestas relacionadas con la evaluación`);
                 }
                 
                 await db.collection(collectionName).doc(id).delete();
@@ -4015,9 +4036,76 @@
             }
         }
 
-        // =================== FUNCIONES DE ENTREGAS ===================
-        let allEntregas = [];
-        let allPendingUsers = [];
+        // Función para limpiar datos huérfanos
+        async function limpiarDatosHuerfanos() {
+            console.log('Iniciando limpieza de datos huérfanos...');
+            try {
+                let totalEliminados = 0;
+
+                // 1. Limpiar entregas de actividades que ya no existen
+                const entregasSnapshot = await db.collection('entregas').get();
+                const activitiesSnapshot = await db.collection('activities').get();
+                const actividadesIds = new Set(activitiesSnapshot.docs.map(doc => doc.id));
+
+                const entregasHuerfanas = entregasSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return !actividadesIds.has(data.actividadId);
+                });
+
+                if (entregasHuerfanas.length > 0) {
+                    console.log(`Encontradas ${entregasHuerfanas.length} entregas huérfanas`);
+                    const deletePromises = entregasHuerfanas.map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    totalEliminados += entregasHuerfanas.length;
+                }
+
+                // 2. Limpiar respuestas de cuestionarios que ya no existen
+                const respuestasCuestionariosSnapshot = await db.collection('respuestasCuestionarios').get();
+                const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                const cuestionariosIds = new Set(cuestionariosSnapshot.docs.map(doc => doc.id));
+
+                const respuestasCuestionariosHuerfanas = respuestasCuestionariosSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return !cuestionariosIds.has(data.cuestionarioId);
+                });
+
+                if (respuestasCuestionariosHuerfanas.length > 0) {
+                    console.log(`Encontradas ${respuestasCuestionariosHuerfanas.length} respuestas de cuestionarios huérfanas`);
+                    const deletePromises = respuestasCuestionariosHuerfanas.map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    totalEliminados += respuestasCuestionariosHuerfanas.length;
+                }
+
+                // 3. Limpiar respuestas de evaluaciones que ya no existen
+                const respuestasEvaluacionesSnapshot = await db.collection('respuestasEvaluaciones').get();
+                const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                const evaluacionesIds = new Set(evaluacionesSnapshot.docs.map(doc => doc.id));
+
+                const respuestasEvaluacionesHuerfanas = respuestasEvaluacionesSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    return !evaluacionesIds.has(data.evaluacionId || data.cuestionarioId); // Algunos pueden usar evaluacionId
+                });
+
+                if (respuestasEvaluacionesHuerfanas.length > 0) {
+                    console.log(`Encontradas ${respuestasEvaluacionesHuerfanas.length} respuestas de evaluaciones huérfanas`);
+                    const deletePromises = respuestasEvaluacionesHuerfanas.map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    totalEliminados += respuestasEvaluacionesHuerfanas.length;
+                }
+
+                console.log(`Limpieza completada. Total eliminados: ${totalEliminados}`);
+                alert(`Limpieza completada. Se eliminaron ${totalEliminados} registros huérfanos.`);
+
+                // Actualizar estadísticas después de la limpieza
+                await actualizarEstadisticasEntregas();
+                await actualizarEstadisticasRespuestas();
+                loadDashboardStats();
+
+            } catch (error) {
+                console.error('Error limpiando datos huérfanos:', error);
+                alert('Error durante la limpieza de datos');
+            }
+        }
         let allApprovedUsers = [];
 
         async function loadEntregas() {
@@ -5383,22 +5471,22 @@
 
         // Función para cargar actividades disponibles
         async function loadEntregas() {
-            console.log('Iniciando loadEntregas...');
             try {
-                // Cargar actividades disponibles
+                // Cargar actividades disponibles que aún existen
                 const actividadesSnapshot = await db.collection('activities').get();
                 actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log('Actividades cargadas:', actividadesData.length);
                 
                 // Actualizar estadísticas
                 await actualizarEstadisticasEntregas();
                 
                 // Mostrar actividades
                 loadActividades();
-                console.log('loadEntregas completado');
                 
             } catch (error) {
                 console.error('Error loading entregas:', error);
+                // Intentar limpiar datos huérfanos si hay error
+                console.log('Intentando limpiar datos huérfanos...');
+                await limpiarDatosHuerfanos();
             }
         }
 
@@ -5662,7 +5750,6 @@
 
         // Función para cargar cuestionarios/evaluaciones disponibles
         async function loadRespuestas() {
-            console.log('Iniciando loadRespuestas...');
             try {
                 // Cargar cuestionarios
                 const cuestionariosSnapshot = await db.collection('cuestionarios').get();
@@ -5673,17 +5760,18 @@
                 const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'evaluacion' }));
                 
                 cuestionariosData = [...cuestionarios, ...evaluaciones];
-                console.log('Cuestionarios/evaluaciones cargados:', cuestionariosData.length);
                 
                 // Actualizar estadísticas
                 await actualizarEstadisticasRespuestas();
                 
                 // Mostrar cuestionarios/evaluaciones
                 loadCuestionarios();
-                console.log('loadRespuestas completado');
                 
             } catch (error) {
                 console.error('Error loading respuestas:', error);
+                // Intentar limpiar datos huérfanos si hay error
+                console.log('Intentando limpiar datos huérfanos...');
+                await limpiarDatosHuerfanos();
             }
         }
 
