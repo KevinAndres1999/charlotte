@@ -783,6 +783,402 @@
             .form-group-inline { display: flex; gap: 16px; align-items: end; }
             .form-group-inline .form-group { flex: 1; margin-bottom: 0; }
         }
+
+        /* === ESTILOS PARA TARJETAS DE CLASES (igual que estudiante) === */
+        .clase-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .clase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .clase-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .clase-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clase-title i {
+            color: #3b82f6;
+        }
+
+        .clase-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .clase-content {
+            padding: 1.5rem;
+        }
+
+        .clase-description {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .clase-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-primary-clase {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-clase:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-clase {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-clase:hover {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .clase-card.new::before {
+            content: 'NUEVO';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .clase-card.new {
+            border-color: #f59e0b;
+            position: relative;
+        }
+
+        /* === ESTILOS PARA LA NUEVA INTERFAZ DE CLASE-VIEWER === */
+        .clase-viewer-banner {
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .clase-viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .clase-viewer-nav {
+            flex-shrink: 0;
+        }
+
+        .clase-viewer-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .clase-viewer-info h2 {
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .clase-viewer-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .clase-viewer-meta .program-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .clase-viewer-meta .meta-item {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .clase-viewer-actions {
+            flex-shrink: 0;
+        }
+
+        .clase-viewer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .clase-progress-card {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h3 {
+            margin: 0;
+            color: #1e3a8a;
+        }
+
+        .progress-text {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .clase-stats {
+            margin-bottom: 2rem;
+        }
+
+        .clase-content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .clase-description-card,
+        .clase-main-content-card,
+        .clase-tags-card {
+            border-top: 3px solid #3b82f6;
+        }
+
+        .clase-description-content {
+            color: #475569;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .clase-content-viewer {
+            color: #374151;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .clase-content-viewer h1,
+        .clase-content-viewer h2,
+        .clase-content-viewer h3,
+        .clase-content-viewer h4 {
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .clase-content-viewer p {
+            margin-bottom: 1.5rem;
+        }
+
+        .clase-content-viewer ul,
+        .clase-content-viewer ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        .clase-content-viewer li {
+            margin-bottom: 0.5rem;
+        }
+
+        .clase-content-viewer blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .clase-tags-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .clase-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .clase-tips-card {
+            border-top: 3px solid #f59e0b;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .tip-item {
+            background: #fefefe;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tip-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tip-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .tip-item h4 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tip-item p {
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .clase-navigation-card {
+            border-top: 3px solid #10b981;
+        }
+
+        .navigation-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .navigation-indicator {
+            background: #f8fafc;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #374151;
+            text-align: center;
+        }
+
+        .clase-actions-links {
+            margin-top: 1rem;
+        }
+
+        .clase-actions-links .quick-link {
+            background: white;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .clase-actions-links .quick-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .clase-actions-links .quick-link i {
+            color: #3b82f6;
+        }
+
+        .clase-actions-links .quick-link h4 {
+            color: #1e293b;
+            margin: 0.5rem 0 0 0;
+        }
     </style>
 </head><body>
     <header class="admin-header">
@@ -805,6 +1201,7 @@
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-star"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Subir Videos</span></div>
                 <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Subir Clases</span></div>
+                <div class="nav-item" data-section="clase-viewer" style="display: none;"><i class="fas fa-eye"></i><span>Ver Clase</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
                 <div class="nav-item" data-section="ver-entregas"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
                 <div class="nav-item" data-section="ver-respuestas"><i class="fas fa-clipboard-list"></i><span>Ver Respuestas</span></div>
@@ -895,34 +1292,89 @@
 
             <!-- Usuarios (aprobaciones) -->
             <div id="usuarios" class="content-section">
-                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                    <strong><i class="fas fa-exclamation-triangle"></i> Importante sobre contraseñas:</strong>
-                    <p style="margin: 8px 0 0 0; color: #92400e;">
-                        • Nuevas aprobaciones: Los estudiantes mantienen la contraseña que ingresaron al registrarse<br>
-                        • Si un estudiante no puede ingresar: Usa el botón "Restablecer" en Usuarios Aprobados para cambiar su contraseña<br>
-                        • Puedes ver y copiar las contraseñas de todos los usuarios aprobados
-                    </p>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-user-check"></i> Aprobar Usuarios</h3>
+                        <p>Gestiona las solicitudes de registro y administra usuarios aprobados</p>
+                    </div>
+
+                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Importante sobre contraseñas:</strong>
+                        <p style="margin: 8px 0 0 0; color: #92400e;">
+                            • Nuevas aprobaciones: Los estudiantes mantienen la contraseña que ingresaron al registrarse<br>
+                            • Si un estudiante no puede ingresar: Usa el botón "Restablecer" en Usuarios Aprobados para cambiar su contraseña<br>
+                            • Puedes ver y copiar las contraseñas de todos los usuarios aprobados
+                        </p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-pendientes">0</h3>
+                                    <p class="stat-label">Solicitudes Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-aprobados">0</h3>
+                                    <p class="stat-label">Usuarios Aprobados</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros y búsqueda -->
+                    <div class="quiz-form-grid">
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-filter"></i> Filtros y Búsqueda</h4>
+                            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar usuario</label>
+                                    <input type="text" id="usuariosSearch" placeholder="Buscar por nombre o email..." onkeyup="filterUsuarios()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
+                                    <select id="filterProgramaPendientes" onchange="filterUsuarios()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="">Todos</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="content-list">
-                    <div class="content-list-header"><h4>Solicitudes Pendientes</h4></div>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Solicitudes Pendientes</h3>
+                        <p>Usuarios esperando aprobación</p>
+                    </div>
                     <div id="usuarios-pendientes"></div>
                 </div>
 
-                <div class="content-list" style="margin-top: 24px;">
-                    <div class="content-list-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <h4>Usuarios Aprobados</h4>
-                        <div style="display: flex; gap: 10px;">
-                            <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                                <option value="">Todos los programas</option>
-                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                <option value="Belleza Integral">Belleza Integral</option>
-                                <option value="Asesoría Técnica">Asesoría Técnica</option>
-                            </select>
-                            <select id="filterLugar" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                                <option value="">Todos los lugares</option>
-                            </select>
-                        </div>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-users"></i> Usuarios Aprobados</h3>
+                        <p>Gestiona usuarios activos</p>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">Todos los programas</option>
+                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                            <option value="Belleza Integral">Belleza Integral</option>
+                            <option value="Asesoría Técnica">Asesoría Técnica</option>
+                        </select>
+                        <select id="filterLugar" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">Todos los lugares</option>
+                        </select>
                     </div>
                     <div id="usuarios-aprobados"></div>
                 </div>
@@ -989,7 +1441,7 @@
                         <h3><i class="fas fa-list"></i> Videos Subidos</h3>
                         <p>Gestiona y administra tus videos publicados</p>
                     </div>
-                    <div id="videosList"></div>
+                    <div id="videosList" class="grid"></div>
                 </div>
             </div>
 
@@ -1046,7 +1498,7 @@
                         <h3><i class="fas fa-list"></i> Clases Subidas</h3>
                         <p>Gestiona y administra tus clases publicadas</p>
                     </div>
-                    <div id="clasesList"></div>
+                    <div id="clasesList" class="grid"></div>
                 </div>
             </div>
 
@@ -1103,78 +1555,83 @@
                         <h3><i class="fas fa-list"></i> Actividades Subidas</h3>
                         <p>Gestiona y administra tus actividades publicadas</p>
                     </div>
-                    <div id="actividadesList"></div>
+                    <div id="actividadesList" class="grid"></div>
                 </div>
             </div>
 
             <!-- Ver Entregas -->
             <div id="ver-entregas" class="content-section">
-                <div class="page-header">
-                    <h2><i class="fas fa-inbox"></i> Entregas de Actividades</h2>
-                    <p>Revisa y califica las entregas de tus estudiantes</p>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-inbox"></i> Entregas de Actividades</h3>
+                        <p>Revisa y califica las entregas de tus estudiantes</p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-entregas">0</h3>
+                                    <p class="stat-label">Total Entregas</p>
+                                </div>
+                                <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="pendientes-entregas">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="calificadas-entregas">0</h3>
+                                    <p class="stat-label">Calificadas</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros y búsqueda -->
+                    <div class="quiz-form-grid">
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-filter"></i> Filtros y Búsqueda</h4>
+                            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o actividad</label>
+                                    <input type="text" id="entregasSearch" placeholder="Buscar..." onkeyup="filterEntregas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
+                                    <select id="entregasFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="all">Todas</option>
+                                        <option value="pendientes">Pendientes</option>
+                                        <option value="calificadas">Calificadas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
+                                    <select id="programaFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="all">Todos</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Filtros y búsqueda -->
-                <div class="upload-card">
-                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 200px;">
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o actividad</label>
-                            <input type="text" id="entregasSearch" placeholder="Buscar..." onkeyup="filterEntregas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
-                            <select id="entregasFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                <option value="all">Todas</option>
-                                <option value="pendientes">Pendientes</option>
-                                <option value="calificadas">Calificadas</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
-                            <select id="programaFilter" onchange="filterEntregas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                <option value="all">Todos</option>
-                                <option value="Belleza Integral">Belleza Integral</option>
-                                <option value="panaderia">Panadería</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Estadísticas -->
-                <div class="stats-grid" style="margin-bottom: 32px;">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="total-entregas">0</h3>
-                                <p class="stat-label">Total Entregas</p>
-                            </div>
-                            <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="pendientes-entregas">0</h3>
-                                <p class="stat-label">Pendientes</p>
-                            </div>
-                            <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="calificadas-entregas">0</h3>
-                                <p class="stat-label">Calificadas</p>
-                            </div>
-                            <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lista de entregas -->
-                <div class="content-list">
-                    <div class="content-list-header">
-                        <h4>Entregas Recientes</h4>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Lista de Entregas</h3>
+                        <p>Entregas recientes</p>
                     </div>
                     <div id="entregas-list">
                         <!-- Entregas will be loaded here -->
@@ -1184,79 +1641,84 @@
 
             <!-- Ver Respuestas de Cuestionarios -->
             <div id="ver-respuestas" class="content-section">
-                <div class="page-header">
-                    <h2><i class="fas fa-clipboard-list"></i> Respuestas de Cuestionarios y Evaluaciones</h2>
-                    <p>Revisa y califica las respuestas de tus estudiantes</p>
-                </div>
-
-                <!-- Filtros y búsqueda -->
-                <div class="upload-card">
-                    <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                        <div style="flex: 1; min-width: 200px;">
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o cuestionario</label>
-                            <input type="text" id="respuestasSearch" placeholder="Buscar..." onkeyup="filterRespuestas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
-                            <select id="respuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                <option value="all">Todas</option>
-                                <option value="pendientes">Pendientes</option>
-                                <option value="calificadas">Calificadas</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
-                            <select id="programaRespuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                <option value="all">Todos</option>
-                                <option value="Belleza Integral">Belleza Integral</option>
-                                <option value="panaderia">Panadería</option>
-                            </select>
-                        </div>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-clipboard-list"></i> Respuestas de Cuestionarios y Evaluaciones</h3>
+                        <p>Revisa y califica las respuestas de tus estudiantes</p>
                     </div>
-                </div>
 
-                <!-- Botón de limpieza -->
-                <div class="upload-card">
-                    <button onclick="limpiarRespuestasHuerfanas()" class="btn btn-secondary" style="width: 100%;">
-                        <i class="fas fa-broom"></i> Limpiar Respuestas Huérfanas
-                    </button>
-                </div>
-
-                <!-- Estadísticas -->
-                <div class="stats-grid" style="margin-bottom: 32px;">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="total-respuestas">0</h3>
-                                <p class="stat-label">Total Respuestas</p>
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-respuestas">0</h3>
+                                    <p class="stat-label">Total Respuestas</p>
+                                </div>
+                                <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
                             </div>
-                            <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="pendientes-respuestas">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="calificadas-respuestas">0</h3>
+                                    <p class="stat-label">Calificadas</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="pendientes-respuestas">0</h3>
-                                <p class="stat-label">Pendientes</p>
+
+                    <!-- Filtros y búsqueda -->
+                    <div class="quiz-form-grid">
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-filter"></i> Filtros y Búsqueda</h4>
+                            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar estudiante o cuestionario</label>
+                                    <input type="text" id="respuestasSearch" placeholder="Buscar..." onkeyup="filterRespuestas()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Estado</label>
+                                    <select id="respuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="all">Todas</option>
+                                        <option value="pendientes">Pendientes</option>
+                                        <option value="calificadas">Calificadas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
+                                    <select id="programaRespuestasFilter" onchange="filterRespuestas()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="all">Todos</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="calificadas-respuestas">0</h3>
-                                <p class="stat-label">Calificadas</p>
-                            </div>
-                            <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
-                        </div>
+
+                    <!-- Botón de limpieza -->
+                    <div class="submit-section">
+                        <button onclick="limpiarRespuestasHuerfanas()" class="btn btn-secondary">
+                            <i class="fas fa-broom"></i> Limpiar Respuestas Huérfanas
+                        </button>
                     </div>
                 </div>
 
-                <!-- Lista de respuestas -->
-                <div class="content-list">
-                    <div class="content-list-header">
-                        <h4>Respuestas Recientes</h4>
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Lista de Respuestas</h3>
+                        <p>Respuestas recientes</p>
                     </div>
                     <div id="respuestas-list">
                         <!-- Respuestas will be loaded here -->
@@ -1339,7 +1801,7 @@
                         <h3><i class="fas fa-list"></i> Cuestionarios Publicados</h3>
                         <p>Gestiona y administra tus cuestionarios creados</p>
                     </div>
-                    <div id="cuestionariosList"></div>
+                    <div id="cuestionariosList" class="grid"></div>
                 </div>
             </div>
 
@@ -1448,7 +1910,7 @@
                         <h3><i class="fas fa-list"></i> Evaluaciones Publicadas</h3>
                         <p>Gestiona y administra tus evaluaciones creadas</p>
                     </div>
-                    <div id="evaluacionesList"></div>
+                    <div id="evaluacionesList" class="grid"></div>
                 </div>
             </div>
 
@@ -1527,7 +1989,7 @@
                         <h3><i class="fas fa-list"></i> Materiales Publicados</h3>
                         <p>Gestiona y administra tus materiales subidos</p>
                     </div>
-                    <div id="materialesList"></div>
+                    <div id="materialesList" class="grid"></div>
                 </div>
             </div>
 
@@ -1609,6 +2071,164 @@
                     <div id="recursosList"></div>
                 </div>
             </div>
+            <!-- Ver Clase -->
+            <section id="clase-viewer" class="content-section">
+                <div class="welcome-banner clase-viewer-banner">
+                    <div class="clase-viewer-header">
+                        <div class="clase-viewer-nav">
+                            <button class="btn btn-secondary" onclick="showSection('clases')">
+                                <i class="fas fa-arrow-left"></i> Volver a Clases
+                            </button>
+                        </div>
+                        <div class="clase-viewer-info">
+                            <h2 id="clase-viewer-title">Cargando clase...</h2>
+                            <div class="clase-viewer-meta">
+                                <span class="program-badge" id="clase-viewer-programa"></span>
+                                <span class="meta-item" id="clase-viewer-fecha"></span>
+                                <span class="meta-item" id="clase-viewer-duracion"></span>
+                            </div>
+                        </div>
+                        <div class="clase-viewer-actions">
+                            <button class="btn btn-primary" id="clase-viewer-complete-btn">
+                                <i class="fas fa-check"></i> Marcar como Completada
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clase-viewer-content">
+                    <!-- Barra de progreso -->
+                    <div class="card clase-progress-card">
+                        <div class="progress-header">
+                            <h3><i class="fas fa-chart-line"></i> Tu Progreso</h3>
+                            <span class="progress-text" id="clase-viewer-progress">0% completado</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="clase-viewer-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas rápidas -->
+                    <div class="stat-cards clase-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-eye"></i>
+                            <h3 id="clase-viewer-status">En Progreso</h3>
+                            <p>Estado de la Clase</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #10b981;">
+                            <i class="fas fa-clock" style="color: #10b981;"></i>
+                            <h3 id="clase-viewer-time">0 min</h3>
+                            <p>Tiempo de Lectura</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #f59e0b;">
+                            <i class="fas fa-bookmark" style="color: #f59e0b;"></i>
+                            <h3 id="clase-viewer-bookmark">No</h3>
+                            <p>Favorito</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #8b5cf6;">
+                            <i class="fas fa-share-alt" style="color: #8b5cf6;"></i>
+                            <h3>Compartir</h3>
+                            <p>Clase</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenido de la clase -->
+                    <div class="clase-content-grid">
+                        <!-- Descripción -->
+                        <div class="content-card clase-description-card">
+                            <h3><i class="fas fa-info-circle"></i> Descripción</h3>
+                            <div class="clase-description-content" id="clase-viewer-description">
+                                Cargando descripción...
+                            </div>
+                        </div>
+
+                        <!-- Contenido principal -->
+                        <div class="content-card clase-main-content-card">
+                            <h3><i class="fas fa-book-open"></i> Contenido de la Clase</h3>
+                            <div class="clase-content-viewer" id="clase-viewer-content">
+                                Cargando contenido...
+                            </div>
+                        </div>
+
+                        <!-- Tags y etiquetas -->
+                        <div class="content-card clase-tags-card" id="clase-tags-section" style="display: none;">
+                            <h3><i class="fas fa-tags"></i> Etiquetas</h3>
+                            <div class="clase-tags-list" id="clase-viewer-tags"></div>
+                        </div>
+                    </div>
+
+                    <!-- Consejos de lectura -->
+                    <div class="content-card clase-tips-card">
+                        <h3><i class="fas fa-lightbulb"></i> Consejos para Mejorar tu Aprendizaje</h3>
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>Toma Notas</h4>
+                                <p>Anota los conceptos clave mientras lees para mejor retención.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4>Pausa Activa</h4>
+                                <p>Haz pausas cada 25-30 minutos para procesar la información.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-question"></i>
+                                </div>
+                                <h4>Reflexiona</h4>
+                                <p>Después de leer, pregúntate qué aprendiste y cómo aplicarlo.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-share-alt"></i>
+                                </div>
+                                <h4>Comparte</h4>
+                                <p>Comparte lo aprendido con compañeros para reforzar el conocimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navegación entre clases -->
+                    <div class="content-card clase-navigation-card">
+                        <h3><i class="fas fa-route"></i> Navegación</h3>
+                        <div class="navigation-controls">
+                            <button class="btn btn-secondary" id="clase-prev-btn" disabled>
+                                <i class="fas fa-chevron-left"></i> Clase Anterior
+                            </button>
+                            <div class="navigation-indicator">
+                                <span>Clase <span id="clase-current-number">1</span> de <span id="clase-total-number">1</span></span>
+                            </div>
+                            <button class="btn btn-secondary" id="clase-next-btn" disabled>
+                                Clase Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Acciones adicionales -->
+                    <div class="quick-links clase-actions-links">
+                        <div class="quick-link" onclick="printClaseFromViewer()">
+                            <i class="fas fa-print"></i>
+                            <h4>Imprimir Clase</h4>
+                        </div>
+                        <div class="quick-link" onclick="shareClaseFromViewer()">
+                            <i class="fas fa-share-alt"></i>
+                            <h4>Compartir</h4>
+                        </div>
+                        <div class="quick-link" onclick="toggleBookmarkFromViewer()">
+                            <i class="fas fa-bookmark"></i>
+                            <h4 id="bookmark-text">Agregar a Favoritos</h4>
+                        </div>
+                        <div class="quick-link" onclick="downloadClaseFromViewer()">
+                            <i class="fas fa-download"></i>
+                            <h4>Descargar</h4>
+                        </div>
+                    </div>
+                </div>
+            </section>
         <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
@@ -1734,6 +2354,7 @@
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') try { loadClasesList(); } catch (e) { console.error('Error loading clases:', e); }
+            else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'actividades') try { loadActividadesList(); } catch (e) { console.error('Error loading actividades:', e); }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'evaluaciones') try { loadEvaluacionesList(); } catch (e) { console.error('Error loading evaluaciones:', e); }
@@ -2211,31 +2832,9 @@
         async function loadUsuariosPendientes() {
             try {
                 const snapshot = await db.collection('pendingStudents').orderBy('registeredDate', 'desc').get();
-                const container = document.getElementById('usuarios-pendientes');
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay solicitudes pendientes</h5></div></div>';
-                    return;
-                }
-
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.name}</h5>
-                                <p>${data.email} • ${data.programa} • ${data.sede}</p>
-                            </div>
-                            <div class="content-actions">
-                                <button class="btn-icon" onclick="aprobarUsuario('${doc.id}')" title="Aprobar" style="background: #dcfce7; color: #166534;">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" onclick="rechazarUsuario('${doc.id}')" title="Rechazar">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                document.getElementById('total-pendientes').textContent = allPendingUsers.length;
+                renderPendingUsers();
             } catch (error) {
                 console.error('Error loading pending users:', error);
             }
@@ -2246,45 +2845,98 @@
             try {
                 const q = db.collection('users').where('role', '==', 'student');
                 const snapshot = await q.get();
-                const container = document.getElementById('usuarios-aprobados');
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay usuarios aprobados</h5></div></div>';
-                    return;
-                }
-
-                // Ordenar por approvedAt descendente en código
-                const sortedDocs = snapshot.docs.sort((a, b) => {
-                    const aDate = a.data().approvedAt ? new Date(a.data().approvedAt) : new Date(0);
-                    const bDate = b.data().approvedAt ? new Date(b.data().approvedAt) : new Date(0);
-                    return bDate - aDate;
-                });
-
-                container.innerHTML = sortedDocs.map(doc => {
-                    const data = doc.data();
-                    return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.name}</h5>
-                                <p>${data.email} • ${data.programa} • ${data.sede}</p>
-                                <small style="color: #64748b;">Contraseña: ${data.password}</small>
-                            </div>
-                            <div class="content-actions">
-                                <button class="btn-icon" onclick="resetPassword('${doc.id}')" title="Restablecer contraseña" style="background: #fed7aa; color: #9a3412;">
-                                    <i class="fas fa-key"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" onclick="eliminarUsuario('${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                allApprovedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                document.getElementById('total-aprobados').textContent = allApprovedUsers.length;
+                renderApprovedUsers();
             } catch (error) {
                 console.error('Error loading approved users:', error);
             }
         }
 
-        // Funciones de usuarios
+        function renderPendingUsers() {
+            const container = document.getElementById('usuarios-pendientes');
+            const searchTerm = document.getElementById('usuariosSearch').value.toLowerCase();
+            const programaFilter = document.getElementById('filterProgramaPendientes').value;
+
+            let filtered = allPendingUsers.filter(user => {
+                const matchesSearch = !searchTerm ||
+                    user.name.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm);
+                const matchesPrograma = !programaFilter ||
+                    user.programa === programaFilter;
+                return matchesSearch && matchesPrograma;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay solicitudes pendientes</h5></div></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(user => `
+                <div class="content-item">
+                    <div class="content-info">
+                        <h5>${user.name}</h5>
+                        <p>${user.email} • ${user.programa} • ${user.sede}</p>
+                    </div>
+                    <div class="content-actions">
+                        <button class="btn-icon" onclick="aprobarUsuario('${user.id}')" title="Aprobar" style="background: #dcfce7; color: #166534;">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="rechazarUsuario('${user.id}')" title="Rechazar">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderApprovedUsers() {
+            const container = document.getElementById('usuarios-aprobados');
+            const programaFilter = document.getElementById('filterPrograma').value;
+            const lugarFilter = document.getElementById('filterLugar').value;
+
+            let filtered = allApprovedUsers.filter(user => {
+                const matchesPrograma = !programaFilter ||
+                    user.programa === programaFilter;
+                const matchesLugar = !lugarFilter ||
+                    user.sede === lugarFilter;
+                return matchesPrograma && matchesLugar;
+            });
+
+            // Ordenar por approvedAt descendente
+            filtered.sort((a, b) => {
+                const aDate = a.approvedAt ? new Date(a.approvedAt) : new Date(0);
+                const bDate = b.approvedAt ? new Date(b.approvedAt) : new Date(0);
+                return bDate - aDate;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay usuarios aprobados</h5></div></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(user => `
+                <div class="content-item">
+                    <div class="content-info">
+                        <h5>${user.name}</h5>
+                        <p>${user.email} • ${user.programa} • ${user.sede}</p>
+                        <small style="color: #64748b;">Contraseña: ${user.password}</small>
+                    </div>
+                    <div class="content-actions">
+                        <button class="btn-icon" onclick="resetPassword('${user.id}')" title="Restablecer contraseña" style="background: #fed7aa; color: #9a3412;">
+                            <i class="fas fa-key"></i>
+                        </button>
+                        <button class="btn-icon btn-delete" onclick="eliminarUsuario('${user.id}')" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterUsuarios() {
+            renderPendingUsers();
+        }
         async function aprobarUsuario(id) {
             try {
                 const docRef = db.collection('pendingStudents').doc(id);
@@ -2361,24 +3013,32 @@
                 const snapshot = await db.collection('content').get();
                 const container = document.getElementById('videosList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay videos subidos</h5></div></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-play-circle"></i> No hay videos subidos</div></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    <i class="fas fa-play-circle"></i> ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver video">
-                                    <i class="fas fa-play"></i>
-                                </a>
-                                <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || ''}
+                                </div>
+                                <div class="clase-actions">
+                                    <a href="${data.url}" target="_blank" class="btn-primary-clase">Ver Video</a>
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2393,24 +3053,32 @@
                 const snapshot = await db.collection('classes').get();
                 const container = document.getElementById('clasesList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay clases subidas</h5></div></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-chalkboard-teacher"></i> No hay clases subidas</div></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    <i class="fas fa-chalkboard-teacher"></i> ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver clase">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || ''}
+                                </div>
+                                <div class="clase-actions">
+                                    <button class="btn-primary-clase" onclick="viewClase('${doc.id}')">Ver Clase</button>
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2425,22 +3093,32 @@
                 const snapshot = await db.collection('activities').get();
                 const container = document.getElementById('actividadesList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay actividades subidas</h5></div></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-tasks"></i> No hay actividades subidas</div></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.instrucciones || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    <i class="fas fa-tasks"></i> ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                ${data.url ? `<a href="${data.url}" target="_blank" class="btn-icon btn-view" title="Ver archivo"><i class="fas fa-external-link-alt"></i></a>` : ''}
-                                <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.instrucciones || ''}
+                                </div>
+                                <div class="clase-actions">
+                                    ${data.url ? `<a href="${data.url}" target="_blank" class="btn-primary-clase">Ver Archivo</a>` : ''}
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('activities', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2468,21 +3146,31 @@
                 const snapshot = await db.collection('cuestionarios').get();
                 const container = document.getElementById('cuestionariosList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay cuestionarios subidos</h5></div></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-question-circle"></i> No hay cuestionarios subidos</div></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    <i class="fas fa-question-circle"></i> ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('cuestionarios', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || ''}
+                                </div>
+                                <div class="clase-actions">
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('cuestionarios', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2497,21 +3185,31 @@
                 const snapshot = await db.collection('evaluaciones').get();
                 const container = document.getElementById('evaluacionesList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay evaluaciones subidas</h5></div></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-clipboard-check"></i> No hay evaluaciones subidas</div></div></div>';
                     return;
                 }
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
                     return `
-                        <div class="content-item">
-                            <div class="content-info">
-                                <h5>${data.titulo}</h5>
-                                <p>${data.descripcion || ''} • Programa: ${data.programa}</p>
+                        <div class="clase-card grid-view">
+                            <div class="clase-header">
+                                <div class="clase-title">
+                                    <i class="fas fa-clipboard-check"></i> ${data.titulo}
+                                </div>
+                                <div class="clase-meta">
+                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
+                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
                             </div>
-                            <div class="content-actions">
-                                <button class="btn-icon btn-delete" onclick="deleteItem('evaluaciones', '${doc.id}')" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            <div class="clase-content">
+                                <div class="clase-description">
+                                    ${data.descripcion || ''}
+                                </div>
+                                <div class="clase-actions">
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('evaluaciones', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -2526,23 +3224,23 @@
                 const snapshot = await db.collection('materials').get();
                 const container = document.getElementById('materialesList');
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No hay materiales subidos</h3><p>Sube tu primer material usando el constructor arriba</p></div>';
+                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-folder-open"></i> No hay materiales subidos</div></div></div>';
                     return;
                 }
 
-                container.className = 'clases-container grid-view';
+                // container.className = 'clases-container grid-view';
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
-                    const tipoIcon = data.tipo === 'pdf' ? '📄' : data.tipo === 'docx' ? '📗' : data.tipo === 'video' ? '🎥' : data.tipo === 'link' ? '🔗' : data.tipo === 'imagen' ? '🖼️' : '📎';
+                    const tipoIcon = data.tipo === 'pdf' ? 'fas fa-file-pdf' : data.tipo === 'docx' ? 'fas fa-file-word' : data.tipo === 'video' ? 'fas fa-video' : data.tipo === 'link' ? 'fas fa-link' : data.tipo === 'imagen' ? 'fas fa-image' : 'fas fa-file';
                     const tamanoText = data.tamano > 0 ? `${data.tamano} MB` : '';
                     const fecha = data.fecha ? new Date(data.fecha).toLocaleDateString('es-ES') : 'Sin fecha';
                     const isNew = data.fecha && (new Date() - new Date(data.fecha)) < (7 * 24 * 60 * 60 * 1000); // 7 días
 
                     return `
-                        <div class="clase-card grid-view ${isNew ? 'new' : ''}" data-id="${doc.id}">
+                        <div class="clase-card grid-view ${isNew ? 'new' : ''}">
                             <div class="clase-header">
                                 <div class="clase-title">
-                                    ${tipoIcon} ${data.titulo}
+                                    <i class="${tipoIcon}"></i> ${data.titulo}
                                 </div>
                                 <div class="clase-meta">
                                     <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
@@ -2565,7 +3263,7 @@
                 }).join('');
             } catch (error) {
                 console.error('Error loading materiales:', error);
-                document.getElementById('materialesList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar materiales</h3><p>Intenta recargar la página</p></div>';
+                document.getElementById('materialesList').innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-exclamation-triangle"></i> Error al cargar materiales</div></div></div>';
             }
         }
 
@@ -2671,6 +3369,8 @@
 
         // =================== FUNCIONES DE ENTREGAS ===================
         let allEntregas = [];
+        let allPendingUsers = [];
+        let allApprovedUsers = [];
 
         async function loadEntregas() {
             console.log('Iniciando carga de entregas...');
@@ -3652,6 +4352,327 @@
         window.viewRespuestaDetail = viewRespuestaDetail;
         window.calificarRespuestaDirecta = calificarRespuestaDirecta;
         window.calificarRespuesta = calificarRespuesta;
+
+        // =================== FUNCIONES PARA CLASE-VIEWER ===================
+        let allClases = [];
+
+        async function loadClases() {
+            const container = document.getElementById('clasesList');
+            if (!container) return;
+
+            try {
+                const snapshot = await db.collection('classes').get();
+                allClases = [];
+                snapshot.forEach(doc => {
+                    const clase = { id: doc.id, ...doc.data() };
+                    allClases.push(clase);
+                });
+
+                // Guardar allClases en localStorage para navegación
+                localStorage.setItem('allClases', JSON.stringify(allClases));
+
+                renderClasesList();
+                updateClasesStats();
+
+            } catch (error) {
+                console.error('Error al cargar clases:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
+            }
+        }
+
+        function renderClasesList() {
+            const container = document.getElementById('clasesList');
+            if (!container) return;
+
+            container.innerHTML = allClases.map(clase => `
+                <div class="clase-card" data-id="${clase.id}">
+                    <div class="clase-header">
+                        <h3>${clase.titulo}</h3>
+                        <span class="program-badge">${clase.programa}</span>
+                    </div>
+                    <div class="clase-meta">
+                        <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion.toDate()).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
+                        ${clase.duracion ? `<span><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
+                    </div>
+                    <div class="clase-description">
+                        ${clase.descripcion ? clase.descripcion.substring(0, 150) + '...' : 'Sin descripción'}
+                    </div>
+                    <div class="clase-actions">
+                        <button class="btn btn-primary" onclick="loadClaseDetail('${clase.id}')">
+                            <i class="fas fa-eye"></i> Ver Clase
+                        </button>
+                        <button class="btn btn-secondary" onclick="editClase('${clase.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            if (allClases.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p>No se encontraron clases en la base de datos.</p></div>';
+            }
+        }
+
+        async function loadClaseDetail(id) {
+            try {
+                const docRef = db.collection('classes').doc(id);
+                const docSnap = await docRef.get();
+                if (docSnap.exists()) {
+                    const clase = docSnap.data();
+
+                    // Cargar datos en la interfaz de clase-viewer
+                    document.getElementById('clase-viewer-title').textContent = clase.titulo;
+                    document.getElementById('clase-viewer-programa').textContent = clase.programa;
+                    document.getElementById('clase-viewer-fecha').textContent = clase.fechaCreacion ? new Date(clase.fechaCreacion.toDate()).toLocaleDateString('es-ES') : 'N/A';
+                    document.getElementById('clase-viewer-duracion').textContent = clase.duracion || 'N/A';
+
+                    // Actualizar descripción
+                    document.getElementById('clase-viewer-description').innerHTML = clase.descripcion || 'Sin descripción disponible.';
+
+                    // Actualizar contenido
+                    document.getElementById('clase-viewer-content').innerHTML = clase.contenido || 'No hay contenido disponible para esta clase.';
+
+                    // Actualizar progreso (simulado para admin)
+                    document.getElementById('clase-viewer-progress').textContent = '100% completado';
+                    document.getElementById('clase-viewer-progress-bar').style.width = '100%';
+
+                    // Actualizar estado
+                    document.getElementById('clase-viewer-status').textContent = 'Vista por Admin';
+
+                    // Actualizar tiempo (simulado)
+                    document.getElementById('clase-viewer-time').textContent = 'N/A';
+
+                    // Actualizar favorito
+                    document.getElementById('clase-viewer-bookmark').textContent = 'N/A';
+
+                    // Ocultar botón de completar para admin
+                    const completeBtn = document.getElementById('clase-viewer-complete-btn');
+                    completeBtn.style.display = 'none';
+
+                    // Mostrar/ocultar sección de tags
+                    const tagsSection = document.getElementById('clase-tags-section');
+                    const tagsList = document.getElementById('clase-viewer-tags');
+                    if (clase.tags) {
+                        tagsList.innerHTML = clase.tags.split(',').map(tag => `<span class="clase-tag">${tag.trim()}</span>`).join('');
+                        tagsSection.style.display = 'block';
+                    } else {
+                        tagsSection.style.display = 'none';
+                    }
+
+                    // Actualizar navegación
+                    const currentIndex = allClases.findIndex(c => c.id === id);
+                    document.getElementById('clase-current-number').textContent = currentIndex + 1;
+                    document.getElementById('clase-total-number').textContent = allClases.length;
+
+                    // Habilitar/deshabilitar botones de navegación
+                    const prevBtn = document.getElementById('clase-prev-btn');
+                    const nextBtn = document.getElementById('clase-next-btn');
+                    prevBtn.disabled = currentIndex === 0;
+                    nextBtn.disabled = currentIndex === allClases.length - 1;
+
+                    prevBtn.onclick = () => currentIndex > 0 ? loadClaseDetail(allClases[currentIndex - 1].id) : null;
+                    nextBtn.onclick = () => currentIndex < allClases.length - 1 ? loadClaseDetail(allClases[currentIndex + 1].id) : null;
+
+                    // Cambiar a la sección de clase-viewer
+                    showSection('clase-viewer');
+
+                    // Actualizar el menú de navegación para mostrar "Ver Clase"
+                    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                    document.querySelector('.nav-item[data-section="clase-viewer"]').classList.add('active');
+                    document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading clase detail:', error);
+                showToast('Error al cargar la clase. Intenta nuevamente.', 'error');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            // Crear toast temporal
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Animar entrada
+            setTimeout(() => toast.classList.add('show'), 100);
+
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function printClaseFromViewer() {
+            window.print();
+        }
+
+        function shareClaseFromViewer() {
+            const claseTitle = document.getElementById('clase-viewer-title').textContent;
+            const url = window.location.href;
+            const shareText = `Mira esta clase: "${claseTitle}" en la plataforma ECE CHARLOTTE`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: claseTitle,
+                    text: shareText,
+                    url: url
+                });
+            } else {
+                // Fallback para navegadores que no soportan Web Share API
+                const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + url)}`;
+                window.open(shareUrl, '_blank');
+            }
+        }
+
+        function toggleBookmarkFromViewer() {
+            showToast('Función no disponible para administradores', 'info');
+        }
+
+        function downloadClaseFromViewer() {
+            const claseTitle = document.getElementById('clase-viewer-title').textContent;
+            const content = document.getElementById('clase-viewer-content').innerHTML;
+            
+            const blob = new Blob([`
+                <html>
+                <head><title>${claseTitle}</title></head>
+                <body>
+                <h1>${claseTitle}</h1>
+                ${content}
+                </body>
+                </html>
+            `], { type: 'text/html' });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${claseTitle}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Variables globales para clase-viewer
+        let currentClaseIndex = 0;
+        let clasesData = [];
+
+        // Función para cargar clases en el grid del clase-viewer
+        async function loadClases() {
+            try {
+                const snapshot = await db.collection('classes').get();
+                clasesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                const container = document.getElementById('clasesGrid');
+                if (clasesData.length === 0) {
+                    container.innerHTML = '<div class="no-classes">No hay clases disponibles</div>';
+                    return;
+                }
+                
+                container.innerHTML = clasesData.map((clase, index) => `
+                    <div class="clase-card" onclick="loadClaseDetail('${clase.id}')">
+                        <div class="clase-image">
+                            <img src="${clase.imagen || '/api/placeholder/300/200'}" alt="${clase.titulo}" onerror="this.src='/api/placeholder/300/200'">
+                            <div class="clase-overlay">
+                                <div class="clase-play-btn">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clase-info">
+                            <h3 class="clase-title">${clase.titulo}</h3>
+                            <p class="clase-programa">${clase.programa || 'Sin programa'}</p>
+                            <div class="clase-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i> ${new Date(clase.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Actualizar estadísticas
+                document.getElementById('totalClases').textContent = clasesData.length;
+                document.getElementById('clasesCompletadas').textContent = '0'; // Los admins no completan clases
+                
+            } catch (error) {
+                console.error('Error loading clases:', error);
+            }
+        }
+
+        // Función para cargar detalles de una clase específica
+        async function loadClaseDetail(claseId) {
+            try {
+                const doc = await db.collection('classes').doc(claseId).get();
+                if (!doc.exists) {
+                    console.error('Clase no encontrada');
+                    return;
+                }
+                
+                const clase = { id: doc.id, ...doc.data() };
+                currentClaseIndex = clasesData.findIndex(c => c.id === claseId);
+                
+                // Mostrar sección de detalle
+                document.getElementById('clasesGrid').style.display = 'none';
+                document.getElementById('claseDetail').style.display = 'block';
+                
+                // Actualizar banner
+                document.getElementById('claseBannerImage').src = clase.imagen || '/api/placeholder/1200/400';
+                document.getElementById('claseBannerTitle').textContent = clase.titulo;
+                document.getElementById('claseBannerPrograma').textContent = clase.programa || 'Sin programa';
+                
+                // Actualizar contenido
+                document.getElementById('claseDescription').innerHTML = clase.descripcion || 'Sin descripción';
+                document.getElementById('claseContent').innerHTML = clase.contenido || 'Sin contenido';
+                
+                // Actualizar navegación
+                document.getElementById('prevClaseBtn').style.display = currentClaseIndex > 0 ? 'block' : 'none';
+                document.getElementById('nextClaseBtn').style.display = currentClaseIndex < clasesData.length - 1 ? 'block' : 'none';
+                
+                // Actualizar acciones (ocultar botones de estudiante para admin)
+                document.getElementById('claseActions').innerHTML = `
+                    <button class="action-btn" onclick="editClase('${claseId}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="action-btn" onclick="deleteItem('classes', '${claseId}')">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading clase detail:', error);
+            }
+        }
+
+        // Funciones de navegación
+        function nextClase() {
+            if (currentClaseIndex < clasesData.length - 1) {
+                loadClaseDetail(clasesData[currentClaseIndex + 1].id);
+            }
+        }
+
+        function prevClase() {
+            if (currentClaseIndex > 0) {
+                loadClaseDetail(clasesData[currentClaseIndex - 1].id);
+            }
+        }
+
+        function backToClases() {
+            document.getElementById('clasesGrid').style.display = 'grid';
+            document.getElementById('claseDetail').style.display = 'none';
+        }
+
+        // Función para editar clase (placeholder)
+        function editClase(claseId) {
+            // Aquí iría la lógica para editar la clase
+            alert('Función de edición próximamente disponible');
+        }
+
         loadDashboardStats();
         loadEntregas();
     </script>

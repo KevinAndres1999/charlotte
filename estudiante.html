@@ -146,56 +146,308 @@
 
             /* Form elements */
             input, textarea, select { font-size: 16px; }
+
+            /* Clase viewer responsive */
+            .clase-viewer-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.5rem;
+            }
+
+            .clase-viewer-nav,
+            .clase-viewer-actions {
+                align-self: flex-start;
+            }
+
+            .clase-viewer-info h2 {
+                font-size: 1.5rem;
+            }
+
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navigation-indicator {
+                order: -1;
+            }
         }
 
-        /* === INTERFAZ DE CLASES MEJORADA === */
-        .classes-header {
+        /* === ESTILOS PARA LA NUEVA INTERFAZ DE CLASE-VIEWER === */
+        .clase-viewer-banner {
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .clase-viewer-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 2rem;
             gap: 2rem;
             flex-wrap: wrap;
         }
 
-        .classes-title h2 {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
+        .clase-viewer-nav {
+            flex-shrink: 0;
         }
 
-        .classes-title h2 i {
-            color: #3b82f6;
+        .clase-viewer-info {
+            flex: 1;
+            min-width: 300px;
         }
 
-        .classes-actions {
+        .clase-viewer-info h2 {
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .clase-viewer-meta {
             display: flex;
             gap: 1rem;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        .search-box {
-            position: relative;
+        .clase-viewer-meta .program-badge {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .clase-viewer-meta .meta-item {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .clase-viewer-actions {
+            flex-shrink: 0;
+        }
+
+        .clase-viewer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .clase-progress-card {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h3 {
+            margin: 0;
+            color: #1e3a8a;
+        }
+
+        .progress-text {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .clase-stats {
+            margin-bottom: 2rem;
+        }
+
+        .clase-content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .clase-description-card,
+        .clase-main-content-card,
+        .clase-tags-card {
+            border-top: 3px solid #3b82f6;
+        }
+
+        .clase-description-content {
+            color: #475569;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .clase-content-viewer {
+            color: #374151;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .clase-content-viewer h1,
+        .clase-content-viewer h2,
+        .clase-content-viewer h3,
+        .clase-content-viewer h4 {
+            color: #1e293b;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .clase-content-viewer p {
+            margin-bottom: 1.5rem;
+        }
+
+        .clase-content-viewer ul,
+        .clase-content-viewer ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        .clase-content-viewer li {
+            margin-bottom: 0.5rem;
+        }
+
+        .clase-content-viewer blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .clase-tags-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .clase-tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .clase-tips-card {
+            border-top: 3px solid #f59e0b;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .tip-item {
+            background: #fefefe;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tip-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tip-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
         }
 
-        .search-box i {
-            position: absolute;
-            left: 12px;
+        .tip-item h4 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .tip-item p {
             color: #64748b;
-            font-size: 14px;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
-        .search-box input {
-            padding: 10px 12px 10px 36px;
-            border: 2px solid #e2e8f0;
+        .clase-navigation-card {
+            border-top: 3px solid #10b981;
+        }
+
+        .navigation-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .navigation-indicator {
+            background: #f8fafc;
+            padding: 1rem 2rem;
             border-radius: 25px;
-            font-size: 14px;
-            width: 250px;
+            border: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #374151;
+            text-align: center;
+        }
+
+        .clase-actions-links {
+            margin-top: 1rem;
+        }
+
+        .clase-actions-links .quick-link {
+            background: white;
+            border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
+        }
+
+        .clase-actions-links .quick-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            border-color: #3b82f6;
+        }
+
+        .clase-actions-links .quick-link i {
+            color: #3b82f6;
+        }
+
+        .clase-actions-links .quick-link h4 {
+            color: #1e293b;
+            margin: 0.5rem 0 0 0;
         }
 
         .search-box input:focus {
@@ -684,6 +936,946 @@
             .btn-primary-clase, .btn-secondary-clase {
                 width: 100%;
                 justify-content: center;
+            }
+        }
+
+        /* =================== ESTILOS PARA INTERFAZ PREMIUM DE CLASES =================== */
+        .clase-viewer-premium {
+            max-width: none;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hero Section con mejor visibilidad */
+        .clase-hero-section {
+            position: relative;
+            height: 320px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0.95;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+        }
+
+        .hero-content-wrapper {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 3rem;
+            z-index: 2;
+        }
+
+        .clase-progress-hero {
+            position: absolute;
+            top: 2rem;
+            right: 3rem;
+            z-index: 3;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .progress-circle-bg {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 6;
+        }
+
+        .progress-circle-fill {
+            stroke-linecap: round;
+            transform-origin: center;
+            transition: stroke-dashoffset 1s ease;
+            stroke-width: 6;
+        }
+
+        .progress-text-hero {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+
+        .progress-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-label {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .hero-text {
+            flex: 1;
+            color: white;
+            max-width: 70%;
+        }
+
+        .clase-title-premium {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 0 0 1rem 0;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .clase-subtitle {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            opacity: 0.95;
+        }
+
+        .program-badge-hero {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .date-badge {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Primary Actions Section - Estilo tarjetas mejorado */
+        .primary-actions-section {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 2.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .primary-actions-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .btn-primary-clase-main {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            min-width: 250px;
+            justify-content: center;
+        }
+
+        .btn-primary-clase-main:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary-clase-main.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary-clase-main.completed:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .secondary-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-secondary-clase-main {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.875rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-secondary-clase-main:hover {
+            background: white;
+            color: #475569;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary-clase-main i {
+            font-size: 1rem;
+        }
+
+        /* Content Layout */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 600px;
+        }
+
+        .content-sidebar {
+            background: #f8fafc;
+            padding: 2rem;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .content-main {
+            padding: 2rem;
+            background: white;
+        }
+
+        /* Metadata Cards */
+        .metadata-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f1f5f9;
+        }
+
+        .metadata-card h4 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metadata-card h4 i {
+            color: #3b82f6;
+        }
+
+        .metadata-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .metadata-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .metadata-item i {
+            color: #3b82f6;
+            font-size: 1rem;
+            margin-top: 2px;
+        }
+
+        .metadata-item strong {
+            display: block;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .metadata-item span {
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .status-completed {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .status-progress {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        /* Tags Cloud */
+        .tags-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag-premium {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            color: #0369a1;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tag-premium:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(3, 105, 161, 0.2);
+        }
+
+        /* Navigation Buttons - Estilo tarjetas mejorado */
+        .nav-btn-premium {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            min-height: 60px;
+        }
+
+        .nav-btn-premium:hover:not(:disabled) {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        .nav-btn-premium.next:hover {
+            transform: translateX(2px) translateY(-2px);
+        }
+
+        .nav-btn-premium.prev:hover {
+            transform: translateX(-2px) translateY(-2px);
+        }
+
+        .nav-btn-premium:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f8fafc;
+            color: #cbd5e1;
+        }
+
+        .nav-btn-premium span {
+            font-size: 0.9rem;
+        }
+
+        .nav-btn-premium i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-btn-premium:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Navigation Indicator mejorado */
+        .nav-indicator-premium {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            margin: 1rem 0;
+        }
+
+        .current {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #3b82f6;
+            display: block;
+            line-height: 1;
+        }
+
+        .separator {
+            color: #64748b;
+            margin: 0 0.75rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .total {
+            font-size: 1.5rem;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        /* Progress Details */
+        .progress-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .progress-bar-detailed {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill-detailed {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-percent {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .progress-text {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Content Sections mejoradas para mejor visibilidad */
+        .content-section-premium {
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2rem 2rem 1rem 2rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-header h2 {
+            color: #1e293b;
+            font-size: 1.75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .section-header h2 i {
+            color: #3b82f6;
+            font-size: 1.5rem;
+        }
+
+        .section-decoration {
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            margin-left: 1.5rem;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .description-content-premium {
+            background: linear-gradient(135deg, #fefefe, #f8fafc);
+            padding: 2.5rem;
+            line-height: 1.8;
+            color: #374151;
+            font-size: 1.1rem;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .content-viewer-premium {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0 0 16px 16px;
+            line-height: 1.9;
+            color: #374151;
+            min-height: 500px;
+        }
+
+        .content-viewer-premium h1,
+        .content-viewer-premium h2,
+        .content-viewer-premium h3,
+        .content-viewer-premium h4 {
+            color: #1e293b;
+            margin-top: 2.5rem;
+            margin-bottom: 1.25rem;
+            font-weight: 800;
+            line-height: 1.3;
+            letter-spacing: -0.01em;
+        }
+
+        .content-viewer-premium h1 {
+            font-size: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .content-viewer-premium h2 {
+            font-size: 1.75rem;
+        }
+
+        .content-viewer-premium h3 {
+            font-size: 1.5rem;
+        }
+
+        .content-viewer-premium h4 {
+            font-size: 1.25rem;
+        }
+
+        .content-viewer-premium p {
+            margin-bottom: 1.75rem;
+            font-size: 1.1rem;
+        }
+
+        .content-viewer-premium ul,
+        .content-viewer-premium ol {
+            margin-bottom: 2rem;
+            padding-left: 2.5rem;
+        }
+
+        .content-viewer-premium li {
+            margin-bottom: 0.75rem;
+            font-size: 1.05rem;
+        }
+
+        .content-viewer-premium blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 2rem;
+            margin: 2.5rem 0;
+            font-style: italic;
+            color: #64748b;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 2rem 2rem 2rem 2.5rem;
+            border-radius: 0 12px 12px 0;
+            font-size: 1.1rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-content {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-content i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-content h3 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tips Grid */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tip-card {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .tip-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .tip-card h4 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .tip-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Floating Action Button */
+        .fab-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+
+        .fab-main {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .fab-main:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+
+        .fab-label {
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #374151;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .fab-container:hover .fab-label {
+            opacity: 1;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast-success i {
+            color: #10b981;
+        }
+
+        .toast-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-error i {
+            color: #ef4444;
+        }
+
+        .toast-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .toast-info i {
+            color: #3b82f6;
+        }
+
+        /* =================== ESTILOS RESPONSIVE MEJORADOS =================== */
+        @media (max-width: 1024px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .content-sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+                order: 2;
+            }
+
+            .content-main {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .clase-viewer-premium {
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            .clase-hero-section {
+                height: 280px;
+            }
+
+            .hero-content-wrapper {
+                padding: 2rem 1.5rem;
+            }
+
+            .clase-title-premium {
+                font-size: 2.25rem;
+            }
+
+            .primary-actions-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .btn-primary-clase-main {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+                min-width: 220px;
+            }
+
+            .secondary-actions {
+                gap: 0.75rem;
+            }
+
+            .btn-secondary-clase-main {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.95rem;
+                min-width: 120px;
+            }
+
+            .content-layout {
+                padding: 0;
+            }
+
+            .content-sidebar,
+            .content-main {
+                padding: 1.5rem;
+            }
+
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fab-container {
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .fab-main {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+
+            .fab-label {
+                display: none;
+            }
+
+            .section-header {
+                padding: 1.5rem 1.5rem 1rem 1.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .description-content-premium,
+            .content-viewer-premium {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .clase-hero-section {
+                height: 240px;
+            }
+
+            .hero-content-wrapper {
+                padding: 1.5rem 1rem;
+            }
+
+            .clase-title-premium {
+                font-size: 1.75rem;
+                letter-spacing: -0.01em;
+            }
+
+            .clase-subtitle {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .program-badge-hero {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .date-badge {
+                font-size: 0.9rem;
+            }
+
+            .primary-actions-section {
+                padding: 1.5rem 1rem;
+            }
+
+            .primary-actions-container {
+                gap: 1.25rem;
+            }
+
+            .btn-primary-clase-main {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.95rem;
+                min-width: 200px;
+            }
+
+            .secondary-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-secondary-clase-main {
+                width: 100%;
+                justify-content: center;
+                padding: 0.875rem 1rem;
+            }
+
+            .content-sidebar,
+            .content-main {
+                padding: 1rem;
+            }
+
+            .metadata-card {
+                padding: 1.25rem;
+            }
+
+            .section-header {
+                padding: 1.25rem 1rem 0.875rem 1rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .section-decoration {
+                height: 2px;
+                margin-left: 1rem;
+            }
+
+            .description-content-premium,
+            .content-viewer-premium {
+                padding: 1.5rem 1rem;
+                font-size: 1rem;
+            }
+
+            .content-viewer-premium h1 {
+                font-size: 1.5rem;
+            }
+
+            .content-viewer-premium h2 {
+                font-size: 1.25rem;
+            }
+
+            .nav-btn-premium {
+                padding: 1rem;
+                min-height: 50px;
+            }
+
+            .nav-indicator-premium {
+                padding: 1.25rem;
+            }
+
+            .current {
+                font-size: 1.5rem;
+            }
+
+            .total {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -1509,6 +2701,7 @@
             <nav class="nav-menu">
                 <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
+                <div class="nav-item" data-section="clase-viewer" style="display: none;"><i class="fas fa-eye"></i><span>Ver Clase</span></div>
                 <div class="nav-item" data-section="videos"><i class="fas fa-play-circle"></i><span>Videos</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
@@ -1838,6 +3031,165 @@
                 </div>
                 <div id="recursosList" class="grid">
                     <!-- El contenido se carga dinámicamente -->
+                </div>
+            </section>
+
+            <!-- Nueva sección para visor de clases -->
+            <section id="clase-viewer" class="section">
+                <div class="welcome-banner clase-viewer-banner">
+                    <div class="clase-viewer-header">
+                        <div class="clase-viewer-nav">
+                            <button class="btn btn-secondary" onclick="showSection('clases')">
+                                <i class="fas fa-arrow-left"></i> Volver a Clases
+                            </button>
+                        </div>
+                        <div class="clase-viewer-info">
+                            <h2 id="clase-viewer-title">Cargando clase...</h2>
+                            <div class="clase-viewer-meta">
+                                <span class="program-badge" id="clase-viewer-programa"></span>
+                                <span class="meta-item" id="clase-viewer-fecha"></span>
+                                <span class="meta-item" id="clase-viewer-duracion"></span>
+                            </div>
+                        </div>
+                        <div class="clase-viewer-actions">
+                            <button class="btn btn-primary" id="clase-viewer-complete-btn">
+                                <i class="fas fa-check"></i> Marcar como Completada
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clase-viewer-content">
+                    <!-- Barra de progreso -->
+                    <div class="card clase-progress-card">
+                        <div class="progress-header">
+                            <h3><i class="fas fa-chart-line"></i> Tu Progreso</h3>
+                            <span class="progress-text" id="clase-viewer-progress">0% completado</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="clase-viewer-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas rápidas -->
+                    <div class="stat-cards clase-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-eye"></i>
+                            <h3 id="clase-viewer-status">En Progreso</h3>
+                            <p>Estado de la Clase</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #10b981;">
+                            <i class="fas fa-clock" style="color: #10b981;"></i>
+                            <h3 id="clase-viewer-time">0 min</h3>
+                            <p>Tiempo de Lectura</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #f59e0b;">
+                            <i class="fas fa-bookmark" style="color: #f59e0b;"></i>
+                            <h3 id="clase-viewer-bookmark">No</h3>
+                            <p>Favorito</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #8b5cf6;">
+                            <i class="fas fa-share-alt" style="color: #8b5cf6;"></i>
+                            <h3>Compartir</h3>
+                            <p>Clase</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenido de la clase -->
+                    <div class="clase-content-grid">
+                        <!-- Descripción -->
+                        <div class="content-card clase-description-card">
+                            <h3><i class="fas fa-info-circle"></i> Descripción</h3>
+                            <div class="clase-description-content" id="clase-viewer-description">
+                                Cargando descripción...
+                            </div>
+                        </div>
+
+                        <!-- Contenido principal -->
+                        <div class="content-card clase-main-content-card">
+                            <h3><i class="fas fa-book-open"></i> Contenido de la Clase</h3>
+                            <div class="clase-content-viewer" id="clase-viewer-content">
+                                Cargando contenido...
+                            </div>
+                        </div>
+
+                        <!-- Tags y etiquetas -->
+                        <div class="content-card clase-tags-card" id="clase-tags-section" style="display: none;">
+                            <h3><i class="fas fa-tags"></i> Etiquetas</h3>
+                            <div class="clase-tags-list" id="clase-viewer-tags"></div>
+                        </div>
+                    </div>
+
+                    <!-- Consejos de lectura -->
+                    <div class="content-card clase-tips-card">
+                        <h3><i class="fas fa-lightbulb"></i> Consejos para Mejorar tu Aprendizaje</h3>
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>Toma Notas</h4>
+                                <p>Anota los conceptos clave mientras lees para mejor retención.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4>Pausa Activa</h4>
+                                <p>Haz pausas cada 25-30 minutos para procesar la información.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-question"></i>
+                                </div>
+                                <h4>Reflexiona</h4>
+                                <p>Después de leer, pregúntate qué aprendiste y cómo aplicarlo.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-share-alt"></i>
+                                </div>
+                                <h4>Comparte</h4>
+                                <p>Comparte lo aprendido con compañeros para reforzar el conocimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navegación entre clases -->
+                    <div class="content-card clase-navigation-card">
+                        <h3><i class="fas fa-route"></i> Navegación</h3>
+                        <div class="navigation-controls">
+                            <button class="btn btn-secondary" id="clase-prev-btn" disabled>
+                                <i class="fas fa-chevron-left"></i> Clase Anterior
+                            </button>
+                            <div class="navigation-indicator">
+                                <span>Clase <span id="clase-current-number">1</span> de <span id="clase-total-number">1</span></span>
+                            </div>
+                            <button class="btn btn-secondary" id="clase-next-btn" disabled>
+                                Clase Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Acciones adicionales -->
+                    <div class="quick-links clase-actions-links">
+                        <div class="quick-link" onclick="printClaseFromViewer()">
+                            <i class="fas fa-print"></i>
+                            <h4>Imprimir Clase</h4>
+                        </div>
+                        <div class="quick-link" onclick="shareClaseFromViewer()">
+                            <i class="fas fa-share-alt"></i>
+                            <h4>Compartir</h4>
+                        </div>
+                        <div class="quick-link" onclick="toggleBookmarkFromViewer()">
+                            <i class="fas fa-bookmark"></i>
+                            <h4 id="bookmark-text">Agregar a Favoritos</h4>
+                        </div>
+                        <div class="quick-link" onclick="downloadClaseFromViewer()">
+                            <i class="fas fa-download"></i>
+                            <h4>Descargar</h4>
+                        </div>
+                    </div>
                 </div>
             </section>
             </main>
@@ -2678,6 +4030,10 @@ async function loadClases() {
 
         const filtered = filterByProgram(allClases);
         filteredClases = filtered;
+        
+        // Guardar allClases en localStorage para navegación
+        localStorage.setItem('allClases', JSON.stringify(allClases));
+        
         sortClases();
         updateClasesStats();
         renderClases();
@@ -3370,8 +4726,9 @@ function openModal(type, id) {
     const modalBody = document.getElementById('modalBody');
 
     if (type === 'clase') {
-        // Cargar detalle de clase
+        // Cargar detalle de clase usando la nueva interfaz de sección
         loadClaseDetail(id);
+        return; // No mostrar modal para clases
     } else if (type === 'actividad') {
         // Cargar detalle de actividad
         loadActividadDetail(id);
@@ -3404,21 +4761,253 @@ async function loadClaseDetail(id) {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const clase = docSnap.data();
-            document.getElementById('modalTitle').textContent = clase.titulo;
-            document.getElementById('modalBody').innerHTML = `
-                <p><strong>Descripción:</strong> ${clase.descripcion || 'Sin descripción'}</p>
-                <p><strong>Programa:</strong> ${clase.programa}</p>
-                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
-                <div style="margin-top: 20px;">
-                    <strong>Contenido:</strong>
-                    <div>${clase.contenido || 'Sin contenido'}</div>
-                </div>
-            `;
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+
+            // Marcar como leída automáticamente al abrir
+            localStorage.setItem(`clase-${id}-read`, 'true');
+            localStorage.setItem(`clase-${id}-lastRead`, new Date().toISOString());
+
+            // Actualizar progreso si no estaba completada
+            const wasCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
+            if (!wasCompleted) {
+                const currentProgress = parseInt(localStorage.getItem(`clase-${id}-progress`) || '0');
+                const newProgress = Math.min(currentProgress + 25, 90); // Incrementar progreso al leer
+                localStorage.setItem(`clase-${id}-progress`, newProgress);
+            }
+
+            // Cargar datos en la interfaz de clase-viewer
+            document.getElementById('clase-viewer-title').textContent = clase.titulo;
+            document.getElementById('clase-viewer-programa').textContent = clase.programa;
+            document.getElementById('clase-viewer-fecha').textContent = clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A';
+            document.getElementById('clase-viewer-duracion').textContent = clase.duracion || 'N/A';
+
+            // Actualizar descripción
+            document.getElementById('clase-viewer-description').innerHTML = clase.descripcion || 'Sin descripción disponible.';
+
+            // Actualizar contenido
+            document.getElementById('clase-viewer-content').innerHTML = clase.contenido || 'No hay contenido disponible para esta clase.';
+
+            // Actualizar progreso
+            const progress = localStorage.getItem(`clase-${id}-progress`) || '0';
+            document.getElementById('clase-viewer-progress').textContent = progress + '% completado';
+            document.getElementById('clase-viewer-progress-bar').style.width = progress + '%';
+
+            // Actualizar estado
+            const isCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
+            document.getElementById('clase-viewer-status').textContent = isCompleted ? 'Completada' : 'En Progreso';
+
+            // Actualizar tiempo (simulado)
+            const readTime = Math.floor((parseInt(progress) / 100) * 15); // 15 minutos estimados por clase
+            document.getElementById('clase-viewer-time').textContent = readTime + ' min';
+
+            // Actualizar favorito
+            const isBookmarked = localStorage.getItem(`clase-${id}-bookmarked`) === 'true';
+            document.getElementById('clase-viewer-bookmark').textContent = isBookmarked ? 'Sí' : 'No';
+            document.getElementById('bookmark-text').textContent = isBookmarked ? 'Quitar de Favoritos' : 'Agregar a Favoritos';
+
+            // Actualizar botón de completar
+            const completeBtn = document.getElementById('clase-viewer-complete-btn');
+            completeBtn.classList.toggle('completed', isCompleted);
+            completeBtn.innerHTML = `<i class="fas fa-${isCompleted ? 'check-circle' : 'circle'}"></i> ${isCompleted ? 'Clase Completada' : 'Marcar como Completada'}`;
+            completeBtn.onclick = () => toggleClaseCompletedFromViewer(id);
+
+            // Mostrar/ocultar sección de tags
+            const tagsSection = document.getElementById('clase-tags-section');
+            const tagsList = document.getElementById('clase-viewer-tags');
+            if (clase.tags) {
+                tagsList.innerHTML = clase.tags.split(',').map(tag => `<span class="clase-tag">${tag.trim()}</span>`).join('');
+                tagsSection.style.display = 'block';
+            } else {
+                tagsSection.style.display = 'none';
+            }
+
+            // Actualizar navegación
+            const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
+            const currentIndex = allClases.findIndex(c => c.id === id);
+            document.getElementById('clase-current-number').textContent = currentIndex + 1;
+            document.getElementById('clase-total-number').textContent = allClases.length;
+
+            // Habilitar/deshabilitar botones de navegación
+            const prevBtn = document.getElementById('clase-prev-btn');
+            const nextBtn = document.getElementById('clase-next-btn');
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === allClases.length - 1;
+
+            prevBtn.onclick = () => currentIndex > 0 ? loadClaseDetail(allClases[currentIndex - 1].id) : null;
+            nextBtn.onclick = () => currentIndex < allClases.length - 1 ? loadClaseDetail(allClases[currentIndex + 1].id) : null;
+
+            // Cambiar a la sección de clase-viewer
+            showSection('clase-viewer');
+
+            // Actualizar el menú de navegación para mostrar "Ver Clase"
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector('.nav-item[data-section="clase-viewer"]').classList.add('active');
+            document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'block';
+
+            // Recargar la lista de clases para actualizar el estado
+            loadClases();
         }
     } catch (error) {
         console.error('Error loading clase detail:', error);
-        document.getElementById('modalBody').innerHTML = '<p>Error al cargar la clase</p>';
+        showToast('Error al cargar la clase. Intenta nuevamente.', 'error');
     }
+}
+
+// Funciones auxiliares para la interfaz de clases
+function navigateClase(currentId, direction) {
+    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
+    const currentIndex = allClases.findIndex(c => c.id === currentId);
+
+    if (currentIndex === -1) return;
+
+    const newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < allClases.length) {
+        const newClase = allClases[newIndex];
+        loadClaseDetail(newClase.id);
+    }
+}
+
+function getClaseIndex(claseId) {
+    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
+    return allClases.findIndex(c => c.id === claseId);
+}
+
+function toggleClaseCompletedFromModal(id) {
+    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
+    const clase = allClases.find(c => c.id === id);
+    if (!clase) return;
+
+    const isCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
+    const newCompleted = !isCompleted;
+
+    localStorage.setItem(`clase-${id}-completed`, newCompleted);
+    localStorage.setItem(`clase-${id}-progress`, newCompleted ? '100' : '90');
+    localStorage.setItem(`clase-${id}-lastRead`, new Date().toISOString());
+
+    // Recargar la vista para actualizar la interfaz premium
+    loadClaseDetail(id);
+
+    // Mostrar feedback
+    showToast(newCompleted ? '¡Clase completada!' : 'Marcada como en progreso', 'success');
+}
+
+function toggleClaseCompletedFromViewer(id) {
+    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
+    const clase = allClases.find(c => c.id === id);
+    if (!clase) return;
+
+    const isCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
+    const newCompleted = !isCompleted;
+
+    localStorage.setItem(`clase-${id}-completed`, newCompleted);
+    localStorage.setItem(`clase-${id}-progress`, newCompleted ? '100' : '90');
+    localStorage.setItem(`clase-${id}-lastRead`, new Date().toISOString());
+
+    // Actualizar elementos específicos de la interfaz clase-viewer
+    const progress = newCompleted ? '100' : '90';
+    document.getElementById('clase-viewer-progress').textContent = progress + '% completado';
+    document.getElementById('clase-viewer-progress-bar').style.width = progress + '%';
+    document.getElementById('clase-viewer-status').textContent = newCompleted ? 'Completada' : 'En Progreso';
+
+    // Actualizar botón
+    const completeBtn = document.getElementById('clase-viewer-complete-btn');
+    completeBtn.classList.toggle('completed', newCompleted);
+    completeBtn.innerHTML = `<i class="fas fa-${newCompleted ? 'check-circle' : 'circle'}"></i> ${newCompleted ? 'Clase Completada' : 'Marcar como Completada'}`;
+
+    // Recargar la lista de clases para actualizar el estado
+    loadClases();
+
+    // Mostrar feedback
+    showToast(newCompleted ? '¡Clase completada!' : 'Marcada como en progreso', 'success');
+}
+
+function shareClase(id) {
+    const clase = allClases.find(c => c.id === id);
+    if (!clase) return;
+
+    const url = window.location.href;
+    const shareText = `Mira esta clase: "${clase.titulo}" en la plataforma ECE CHARLOTTE`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: clase.titulo,
+            text: shareText,
+            url: url
+        });
+    } else {
+        // Fallback para navegadores que no soportan Web Share API
+        const shareUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + url)}`;
+        window.open(shareUrl, '_blank');
+    }
+}
+
+function printClase(id) {
+    const clase = allClases.find(c => c.id === id);
+    if (!clase) return;
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${clase.titulo} - ECE CHARLOTTE</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #3b82f6; }
+                .meta { color: #64748b; margin-bottom: 20px; }
+                .content { line-height: 1.6; }
+            </style>
+        </head>
+        <body>
+            <h1>${clase.titulo}</h1>
+            <div class="meta">
+                <p><strong>Programa:</strong> ${clase.programa}</p>
+                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
+            </div>
+            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
+            <div class="content">
+                ${clase.contenido || 'Sin contenido'}
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Nuevas funciones auxiliares para la interfaz premium
+function toggleBookmark(claseId) {
+    const isBookmarked = localStorage.getItem(`clase-${claseId}-bookmarked`) === 'true';
+    localStorage.setItem(`clase-${claseId}-bookmarked`, (!isBookmarked).toString());
+
+    // Mostrar feedback visual
+    const bookmarkBtn = document.querySelector('.action-icon.bookmarked');
+    if (bookmarkBtn) {
+        bookmarkBtn.classList.toggle('active', !isBookmarked);
+    }
+
+    showToast(isBookmarked ? 'Removido de favoritos' : 'Agregado a favoritos', 'success');
+}
+
+function showToast(message, type = 'info') {
+    // Crear toast temporal
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Animar entrada
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
 }
 
 async function loadActividadDetail(id) {
@@ -3955,6 +5544,12 @@ window.filterMateriales = filterMateriales;
 window.markAsDownloaded = markAsDownloaded;
 window.isValidUrl = isValidUrl;
 window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
+window.navigateClase = navigateClase;
+window.getClaseIndex = getClaseIndex;
+window.toggleClaseCompletedFromModal = toggleClaseCompletedFromModal;
+window.toggleClaseCompletedFromViewer = toggleClaseCompletedFromViewer;
+window.shareClase = shareClase;
+window.printClase = printClase;
 
 // =================== FUNCIONES RECURSOS PREMIUM ===================
 let recursosData = { fotos: [], recursos: [], contactos: [] };
