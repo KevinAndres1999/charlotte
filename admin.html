@@ -3961,6 +3961,7 @@
         async function loadClasesList() {
             try {
                 const snapshot = await db.collection('classes').get();
+                allClases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 const container = document.getElementById('clasesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-chalkboard-teacher"></i> No hay clases subidas</div></div></div>';
@@ -4051,7 +4052,7 @@
         async function viewClase(claseId) {
             // Asegurarse de que allClases esté cargado
             if (allClases.length === 0) {
-                await loadClases();
+                await loadClasesList();
             }
             loadClaseDetail(claseId);
         }
@@ -6101,120 +6102,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // Variables globales para clase-viewer
-        let currentClaseIndex = 0;
-        let clasesData = [];
 
-        // Función para cargar clases en el grid del clase-viewer
-        async function loadClases() {
-            try {
-                const snapshot = await db.collection('classes').get();
-                clasesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                const container = document.getElementById('clasesGrid');
-                if (clasesData.length === 0) {
-                    container.innerHTML = '<div class="no-classes">No hay clases disponibles</div>';
-                    return;
-                }
-                
-                container.innerHTML = clasesData.map((clase, index) => `
-                    <div class="clase-card" onclick="loadClaseDetail('${clase.id}')">
-                        <div class="clase-image">
-                            <img src="${clase.imagen || '/api/placeholder/300/200'}" alt="${clase.titulo}" onerror="this.src='/api/placeholder/300/200'">
-                            <div class="clase-overlay">
-                                <div class="clase-play-btn">
-                                    <i class="fas fa-play"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="clase-info">
-                            <h3 class="clase-title">${clase.titulo}</h3>
-                            <p class="clase-programa">${clase.programa || 'Sin programa'}</p>
-                            <div class="clase-meta">
-                                <span class="meta-item">
-                                    <i class="fas fa-calendar"></i> ${new Date(clase.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                // Actualizar estadísticas
-                document.getElementById('totalClases').textContent = clasesData.length;
-                document.getElementById('clasesCompletadas').textContent = '0'; // Los admins no completan clases
-                
-            } catch (error) {
-                console.error('Error loading clases:', error);
-            }
-        }
-
-        // Función para cargar detalles de una clase específica
-        async function loadClaseDetail(claseId) {
-            try {
-                const doc = await db.collection('classes').doc(claseId).get();
-                if (!doc.exists) {
-                    console.error('Clase no encontrada');
-                    return;
-                }
-                
-                const clase = { id: doc.id, ...doc.data() };
-                currentClaseIndex = clasesData.findIndex(c => c.id === claseId);
-                
-                // Mostrar sección de detalle
-                document.getElementById('clasesGrid').style.display = 'none';
-                document.getElementById('claseDetail').style.display = 'block';
-                
-                // Actualizar banner
-                document.getElementById('claseBannerImage').src = clase.imagen || '/api/placeholder/1200/400';
-                document.getElementById('claseBannerTitle').textContent = clase.titulo;
-                document.getElementById('claseBannerPrograma').textContent = clase.programa || 'Sin programa';
-                
-                // Actualizar contenido
-                document.getElementById('claseDescription').innerHTML = clase.descripcion || 'Sin descripción';
-                document.getElementById('claseContent').innerHTML = clase.contenido || 'Sin contenido';
-                
-                // Actualizar navegación
-                document.getElementById('prevClaseBtn').style.display = currentClaseIndex > 0 ? 'block' : 'none';
-                document.getElementById('nextClaseBtn').style.display = currentClaseIndex < clasesData.length - 1 ? 'block' : 'none';
-                
-                // Actualizar acciones (ocultar botones de estudiante para admin)
-                document.getElementById('claseActions').innerHTML = `
-                    <button class="action-btn" onclick="editClase('${claseId}')">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="action-btn" onclick="deleteItem('classes', '${claseId}')">
-                        <i class="fas fa-trash"></i> Eliminar
-                    </button>
-                `;
-                
-            } catch (error) {
-                console.error('Error loading clase detail:', error);
-            }
-        }
-
-        // Funciones de navegación
-        function nextClase() {
-            if (currentClaseIndex < clasesData.length - 1) {
-                loadClaseDetail(clasesData[currentClaseIndex + 1].id);
-            }
-        }
-
-        function prevClase() {
-            if (currentClaseIndex > 0) {
-                loadClaseDetail(clasesData[currentClaseIndex - 1].id);
-            }
-        }
-
-        function backToClases() {
-            document.getElementById('clasesGrid').style.display = 'grid';
-            document.getElementById('claseDetail').style.display = 'none';
-        }
-
-        // Función para editar clase (placeholder)
-        function editClase(claseId) {
-            // Aquí iría la lógica para editar la clase
-            alert('Función de edición próximamente disponible');
-        }
 
         // Función para editar clase (placeholder)
         function editClase(claseId) {
