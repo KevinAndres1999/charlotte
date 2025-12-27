@@ -5325,11 +5325,49 @@
             alert('Función de edición próximamente disponible');
         }
 
-        // Variables globales para entregas-viewer
-        let currentEntregaIndex = 0;
-        let entregasData = [];
-        let actividadesData = [];
-        let currentActividadId = null;
+        // Función para actualizar estadísticas de entregas
+        async function actualizarEstadisticasEntregas() {
+            try {
+                const entregasSnapshot = await db.collection('entregas').get();
+                const allEntregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                document.getElementById('total-entregas').textContent = allEntregas.length;
+                document.getElementById('pendientes-entregas').textContent = allEntregas.filter(e => !e.calificacion).length;
+                document.getElementById('calificadas-entregas').textContent = allEntregas.filter(e => e.calificacion).length;
+                
+                console.log('Estadísticas de entregas actualizadas:', {
+                    total: allEntregas.length,
+                    pendientes: allEntregas.filter(e => !e.calificacion).length,
+                    calificadas: allEntregas.filter(e => e.calificacion).length
+                });
+            } catch (error) {
+                console.error('Error updating entregas statistics:', error);
+            }
+        }
+
+        // Función para actualizar estadísticas de respuestas
+        async function actualizarEstadisticasRespuestas() {
+            try {
+                const respuestasCuestionariosSnapshot = await db.collection('respuestasCuestionarios').get();
+                const respuestasEvaluacionesSnapshot = await db.collection('respuestasEvaluaciones').get();
+                const allRespuestas = [
+                    ...respuestasCuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+                    ...respuestasEvaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                ];
+                
+                document.getElementById('total-respuestas').textContent = allRespuestas.length;
+                document.getElementById('pendientes-respuestas').textContent = allRespuestas.filter(r => !r.calificacion).length;
+                document.getElementById('calificadas-respuestas').textContent = allRespuestas.filter(r => r.calificacion).length;
+                
+                console.log('Estadísticas de respuestas actualizadas:', {
+                    total: allRespuestas.length,
+                    pendientes: allRespuestas.filter(r => !r.calificacion).length,
+                    calificadas: allRespuestas.filter(r => r.calificacion).length
+                });
+            } catch (error) {
+                console.error('Error updating respuestas statistics:', error);
+            }
+        }
 
         // Función para cargar actividades disponibles
         async function loadEntregas() {
@@ -5338,14 +5376,8 @@
                 const actividadesSnapshot = await db.collection('activities').get();
                 actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // Cargar todas las entregas para estadísticas
-                const entregasSnapshot = await db.collection('entregas').get();
-                const allEntregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
                 // Actualizar estadísticas
-                document.getElementById('total-entregas').textContent = allEntregas.length;
-                document.getElementById('pendientes-entregas').textContent = allEntregas.filter(e => !e.calificacion).length;
-                document.getElementById('calificadas-entregas').textContent = allEntregas.filter(e => e.calificacion).length;
+                await actualizarEstadisticasEntregas();
                 
                 // Mostrar actividades
                 loadActividades();
@@ -5572,6 +5604,18 @@
                 entregasData[currentEntregaIndex].calificacion = parseInt(calificacion);
                 entregasData[currentEntregaIndex].comentarios = comentarios;
                 
+                // Actualizar estado visual en la lista si estamos en la vista de grid
+                if (document.getElementById('entregasGrid').style.display !== 'none') {
+                    const entregaCard = document.querySelector(`[onclick*="loadEntregaDetail('${entregaId}')"]`);
+                    if (entregaCard) {
+                        const statusElement = entregaCard.querySelector('.meta-item[style*="color"]');
+                        if (statusElement) {
+                            statusElement.style.color = '#10b981';
+                            statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Calificada';
+                        }
+                    }
+                }
+                
                 // Mostrar confirmación
                 document.getElementById('calificacionSection').style.display = 'none';
                 document.getElementById('calificacionGuardada').style.display = 'block';
@@ -5579,7 +5623,7 @@
                 document.getElementById('comentariosMostrados').textContent = comentarios || 'Sin comentarios';
                 
                 // Actualizar estadísticas
-                loadEntregas();
+                actualizarEstadisticasEntregas();
                 
                 alert('Calificación guardada exitosamente');
             } catch (error) {
@@ -5614,18 +5658,8 @@
                 
                 cuestionariosData = [...cuestionarios, ...evaluaciones];
                 
-                // Cargar todas las respuestas para estadísticas
-                const respuestasCuestionariosSnapshot = await db.collection('respuestasCuestionarios').get();
-                const respuestasEvaluacionesSnapshot = await db.collection('respuestasEvaluaciones').get();
-                const allRespuestas = [
-                    ...respuestasCuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-                    ...respuestasEvaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                ];
-                
                 // Actualizar estadísticas
-                document.getElementById('total-respuestas').textContent = allRespuestas.length;
-                document.getElementById('pendientes-respuestas').textContent = allRespuestas.filter(r => !r.calificacion).length;
-                document.getElementById('calificadas-respuestas').textContent = allRespuestas.filter(r => r.calificacion).length;
+                await actualizarEstadisticasRespuestas();
                 
                 // Mostrar cuestionarios/evaluaciones
                 loadCuestionarios();
@@ -5876,6 +5910,18 @@
                 respuestasData[currentRespuestaIndex].calificacion = parseInt(calificacion);
                 respuestasData[currentRespuestaIndex].comentarios = comentarios;
                 
+                // Actualizar estado visual en la lista si estamos en la vista de grid
+                if (document.getElementById('respuestasGrid').style.display !== 'none') {
+                    const respuestaCard = document.querySelector(`[onclick*="loadRespuestaDetail('${respuestaId}')"]`);
+                    if (respuestaCard) {
+                        const statusElement = respuestaCard.querySelector('.meta-item[style*="color"]');
+                        if (statusElement) {
+                            statusElement.style.color = '#8b5cf6';
+                            statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Calificada';
+                        }
+                    }
+                }
+                
                 // Mostrar confirmación
                 document.getElementById('respuestaCalificacionSection').style.display = 'none';
                 document.getElementById('respuestaCalificacionGuardada').style.display = 'block';
@@ -5883,7 +5929,7 @@
                 document.getElementById('respuestaComentariosMostrados').textContent = comentarios || 'Sin comentarios';
                 
                 // Actualizar estadísticas
-                loadRespuestas();
+                actualizarEstadisticasRespuestas();
                 
                 alert('Calificación guardada exitosamente');
             } catch (error) {
