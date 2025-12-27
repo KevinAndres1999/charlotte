@@ -4554,9 +4554,33 @@ let currentCuestionariosFilter = 'all';
 let currentCuestionariosSort = 'fecha-desc';
 
 // Variable global para el editor de entregas
-let entregaEditor;
+async function loadContentFromChunks(claseId) {
+    try {
+        // Obtener todos los chunks para esta clase y ordenarlos en memoria
+        const chunksQuery = query(collection(db, 'class_chunks'), where('claseId', '==', claseId));
+        const chunksSnapshot = await getDocs(chunksQuery);
 
-// Funciones para actividades
+        if (chunksSnapshot.empty) {
+            return null;
+        }
+
+        const chunks = [];
+        chunksSnapshot.forEach(doc => {
+            chunks.push({
+                content: doc.data().content,
+                chunkIndex: doc.data().chunkIndex || 0
+            });
+        });
+
+        // Ordenar los chunks por chunkIndex
+        chunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
+
+        return chunks.map(chunk => chunk.content).join('');
+    } catch (error) {
+        console.error('Error loading content from chunks:', error);
+        return null;
+    }
+}
 function updateActividadesStats() {
     const total = filteredActividades.length;
     const completadas = filteredActividades.filter(a => a.isCompleted).length;
@@ -4910,8 +4934,14 @@ async function loadClaseDetail(id) {
             // Actualizar descripción
             document.getElementById('clase-viewer-description').innerHTML = clase.descripcion || 'Sin descripción disponible.';
 
+            // Cargar contenido (desde chunks si es necesario)
+            let content = clase.contenido;
+            if (clase.hasChunks) {
+                content = await loadContentFromChunks(id);
+            }
+
             // Actualizar contenido
-            document.getElementById('clase-viewer-content').innerHTML = clase.contenido || 'No hay contenido disponible para esta clase.';
+            document.getElementById('clase-viewer-content').innerHTML = content || 'No hay contenido disponible para esta clase.';
 
             // Actualizar progreso
             const progress = localStorage.getItem(`clase-${id}-progress`) || '0';
