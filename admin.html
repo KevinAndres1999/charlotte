@@ -3964,8 +3964,12 @@
             showContentPreview('material', materialId);
         }
 
+        async function viewRecursoPublicado(recursoId, tipo) {
+            showContentPreview('recurso', recursoId, tipo);
+        }
+
         // Función para mostrar vista previa en modal
-        function showContentPreview(type, id) {
+        function showContentPreview(type, id, tipo = null) {
             const modal = document.getElementById('contentPreviewModal');
             const main = document.getElementById('previewMain');
             const sidebar = document.getElementById('previewSidebar');
@@ -3996,7 +4000,9 @@
                     case 'material':
                         loadMaterialPreview(id);
                         break;
-                }
+                    case 'recurso':
+                        loadRecursoPreview(id, tipo);
+                        break;
             }, 300);
         }
 
@@ -4335,6 +4341,70 @@
             }
         }
 
+        // Función para cargar preview de recurso
+        async function loadRecursoPreview(recursoId, tipo) {
+            try {
+                const collectionName = tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos';
+                const doc = await db.collection(collectionName).doc(recursoId).get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
+
+                    const tipoIcon = tipo === 'foto' ? 'fas fa-image' : tipo === 'recurso' ? 'fas fa-file-alt' : 'fas fa-address-card';
+                    const tipoText = tipo === 'foto' ? 'Foto' : tipo === 'recurso' ? 'Recurso' : 'Contacto';
+
+                    title.innerHTML = `<i class="${tipoIcon}"></i> ${tipoText}: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    content += `
+                        <div class="materials-section">
+                            <h4><i class="${tipoIcon}"></i> Información del ${tipoText}</h4>
+                            <div class="material-item">
+                                <div class="material-content">
+                                    <p><strong>Tipo:</strong> ${tipoText} Premium</p>
+                                    <p><strong>Programa:</strong> ${data.programa || 'General'}</p>
+                                    ${data.url ? `<p><strong>URL:</strong> <a href="${data.url}" target="_blank" style="color: #3b82f6;">${data.url}</a></p>` : ''}
+                                    ${tipo === 'contacto' && data.contacto ? `<p><strong>Información de contacto:</strong> ${data.contacto}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'General'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fecha || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="${tipoIcon}"></i> ${tipoText} Premium</div>
+                        </div>
+                        <div class="preview-actions">
+                            ${data.url ? `<a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
+                                <i class="fas fa-external-link-alt"></i> Ver ${tipoText}
+                            </a>` : ''}
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('${collectionName}', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Recurso no encontrado</div>';
+                }
+            } catch (error) {
+                console.error('Error loading recurso preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar el recurso</div>';
+            }
+        }
+
         // Cerrar preview con tecla Escape
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
@@ -4516,6 +4586,9 @@
                                         ${recurso.descripcion || 'Sin descripción'}
                                     </div>
                                     <div class="clase-actions">
+                                        <button class="btn-icon btn-view" onclick="viewRecursoPublicado('${recurso.id}', '${recurso.tipo}')" title="Ver Recurso" style="background: #f59e0b; margin-right: 8px;">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
                                         <button class="btn-icon btn-delete" onclick="deleteItem('${recurso.tipo === 'foto' ? 'fotos' : recurso.tipo === 'recurso' ? 'recursos' : 'contactos'}', '${recurso.id}')" title="Eliminar recurso">
                                             <i class="fas fa-trash"></i>
                                         </button>
