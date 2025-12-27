@@ -2957,7 +2957,6 @@
 
             <section id="clases" class="section">
                 <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
-                <p class="page-subtitle">Explora y estudia tu contenido de cursos</p>
                 <div class="search-container">
                     <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
                 </div>
@@ -2966,36 +2965,6 @@
                     <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
                     <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
                     <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
-                </div>
-                <div class="sort-options">
-                    <select id="sortClases" onchange="sortClases()">
-                        <option value="fecha-desc">Más recientes</option>
-                        <option value="fecha-asc">Más antiguas</option>
-                        <option value="titulo-asc">Título A-Z</option>
-                        <option value="titulo-desc">Título Z-A</option>
-                    </select>
-                </div>
-                <div class="classes-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalClasesCount">0</div>
-                        <div class="stat-label">Clases Totales</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="leidasCount">0</div>
-                        <div class="stat-label">Leídas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="progresoCount">0%</div>
-                        <div class="stat-label">Progreso</div>
-                    </div>
-                </div>
-                <div class="view-toggle">
-                    <button class="view-btn active" onclick="setViewMode('grid')" title="Vista en cuadrícula">
-                        <i class="fas fa-th"></i>
-                    </button>
-                    <button class="view-btn" onclick="setViewMode('list')" title="Vista en lista">
-                        <i class="fas fa-list"></i>
-                    </button>
                 </div>
                 <div id="clasesContainer" class="clases-container grid-view">
                     <!-- Las clases se cargarán aquí dinámicamente -->
@@ -3024,28 +2993,6 @@
                     <button class="filter-tab" onclick="filterVideosByCategory('no-vistas')">No vistas</button>
                     <button class="filter-tab" onclick="filterVideosByCategory('vistas')">Vistas</button>
                 </div>
-                <div class="sort-options">
-                    <select id="sortVideos" onchange="sortVideos()">
-                        <option value="fecha-desc">Más recientes</option>
-                        <option value="fecha-asc">Más antiguos</option>
-                        <option value="titulo-asc">Título A-Z</option>
-                        <option value="titulo-desc">Título Z-A</option>
-                    </select>
-                </div>
-                <div class="classes-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalVideosCount">0</div>
-                        <div class="stat-label">Total</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="vistasCount">0</div>
-                        <div class="stat-label">Vistas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="progresoVideosCount">0%</div>
-                        <div class="stat-label">Progreso</div>
-                    </div>
-                </div>
 
                 <div id="videosContainer" class="clases-container grid-view">
                     <!-- Videos cargados dinámicamente -->
@@ -3068,32 +3015,6 @@
                     <button class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</button>
                     <button class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</button>
                     <button class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</button>
-                </div>
-                <div class="sort-options">
-                    <select id="sortActividades" onchange="sortActividades()">
-                        <option value="fecha-desc">Más recientes</option>
-                        <option value="fecha-asc">Más antiguas</option>
-                        <option value="titulo-asc">Título A-Z</option>
-                        <option value="titulo-desc">Título Z-A</option>
-                    </select>
-                </div>
-                <div class="classes-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalActividadesCount">0</div>
-                        <div class="stat-label">Total</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="completadasCount">0</div>
-                        <div class="stat-label">Completadas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="progresoActividadesCount">0%</div>
-                        <div class="stat-label">Progreso</div>
-                    </div>
-                </div>
-                <div class="view-toggle">
-                    <button class="view-btn active" onclick="setActividadesViewMode('grid')">Grid</button>
-                    <button class="view-btn" onclick="setActividadesViewMode('list')">List</button>
                 </div>
                 <div id="actividadesContainer" class="clases-container grid-view">
                     <!-- Actividades cargadas dinámicamente -->
