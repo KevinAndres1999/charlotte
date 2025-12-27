@@ -276,6 +276,232 @@
             transition: width 0.3s ease;
         }
 
+        /* Paneles de Progreso */
+        .progress-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .progress-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .progress-panel.general {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .progress-panel.general .progress-header {
+            color: white;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .progress-panel.general .progress-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-panel:not(.general) .progress-icon {
+            background: #f3f4f6;
+        }
+
+        .progress-info h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .progress-panel.general .progress-info h3 {
+            color: white;
+        }
+
+        .progress-info p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .progress-panel.general .progress-info p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-percentage {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .progress-panel.general .progress-percentage {
+            color: white;
+        }
+
+        .progress-count {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .progress-panel.general .progress-count {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-panel.general .progress-bar-container {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+        }
+
+        .progress-fill.progress-excellent {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .progress-fill.progress-good {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+        }
+
+        .progress-fill.progress-medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .progress-fill.progress-low {
+            background: linear-gradient(90deg, #f97316, #ea580c);
+        }
+
+        .progress-fill.progress-very-low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+
+        .progress-panel.general .progress-fill {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), white);
+        }
+
+        /* Panel de Progreso de Sección */
+        .section-progress-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .section-progress-panel .progress-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-progress-panel .progress-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .section-progress-panel .progress-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .section-progress-panel .progress-info p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .section-progress-panel .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-progress-panel .progress-percentage {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .section-progress-panel .progress-count {
+            font-size: 0.95rem;
+            color: #6b7280;
+        }
+
+        .section-progress-panel .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .section-progress-panel .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
         .clase-stats {
             margin-bottom: 2rem;
         }
@@ -2888,6 +3114,130 @@
                     <p>Aquí está tu resumen de actividades y recursos disponibles</p>
                 </div>
 
+                <!-- Paneles de Progreso -->
+                <div class="progress-panels">
+                    <!-- Progreso General -->
+                    <div class="progress-panel general">
+                        <div class="progress-header">
+                            <div class="progress-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Progreso General</h3>
+                                <p>Tu avance en todo el programa</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-general-text">0%</div>
+                            <div class="progress-count" id="progress-general-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-general-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso en Clases -->
+                    <div class="progress-panel">
+                        <div class="progress-header">
+                            <div class="progress-icon" style="color: #3b82f6;">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Clases</h3>
+                                <p>Leídas y completadas</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-clases-text">0%</div>
+                            <div class="progress-count" id="progress-clases-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-clases-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso en Videos -->
+                    <div class="progress-panel">
+                        <div class="progress-header">
+                            <div class="progress-icon" style="color: #10b981;">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Videos</h3>
+                                <p>Vistos y completados</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-videos-text">0%</div>
+                            <div class="progress-count" id="progress-videos-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-videos-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso en Actividades -->
+                    <div class="progress-panel">
+                        <div class="progress-header">
+                            <div class="progress-icon" style="color: #f59e0b;">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Actividades</h3>
+                                <p>Completadas y entregadas</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-actividades-text">0%</div>
+                            <div class="progress-count" id="progress-actividades-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-actividades-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso en Cuestionarios -->
+                    <div class="progress-panel">
+                        <div class="progress-header">
+                            <div class="progress-icon" style="color: #ef4444;">
+                                <i class="fas fa-question-circle"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Cuestionarios</h3>
+                                <p>Respondidos y calificados</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-cuestionarios-text">0%</div>
+                            <div class="progress-count" id="progress-cuestionarios-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-cuestionarios-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Progreso en Evaluaciones -->
+                    <div class="progress-panel">
+                        <div class="progress-header">
+                            <div class="progress-icon" style="color: #8b5cf6;">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="progress-info">
+                                <h3>Evaluaciones</h3>
+                                <p>Completadas y calificadas</p>
+                            </div>
+                        </div>
+                        <div class="progress-stats">
+                            <div class="progress-percentage" id="progress-evaluaciones-text">0%</div>
+                            <div class="progress-count" id="progress-evaluaciones-count">0/0</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" id="progress-evaluaciones-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Generales -->
                 <div class="stat-cards">
                     <div class="stat-card" data-section="clases">
                         <i class="fas fa-book-open"></i>
@@ -2957,6 +3307,27 @@
 
             <section id="clases" class="section">
                 <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
+
+                <!-- Panel de Progreso de Clases -->
+                <div class="section-progress-panel">
+                    <div class="progress-header">
+                        <div class="progress-icon" style="color: #3b82f6; background: #eff6ff;">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="progress-info">
+                            <h3>Tu Progreso en Clases</h3>
+                            <p>Clases leídas y completadas</p>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-percentage" id="totalClasesCount">0</div>
+                        <div class="progress-count"><span id="leidasCount">0</span> leídas de <span id="totalClasesCount">0</span> totales</div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" id="progresoCount" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
                 <div class="search-container">
                     <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
                 </div>
@@ -2984,6 +3355,27 @@
 
             <section id="videos" class="section">
                 <h2 class="page-title"><i class="fas fa-play-circle"></i> Videos Educativos</h2>
+
+                <!-- Panel de Progreso de Videos -->
+                <div class="section-progress-panel">
+                    <div class="progress-header">
+                        <div class="progress-icon" style="color: #10b981; background: #ecfdf5;">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="progress-info">
+                            <h3>Tu Progreso en Videos</h3>
+                            <p>Videos vistos y completados</p>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-percentage" id="totalVideosCount">0</div>
+                        <div class="progress-count"><span id="vistasCount">0</span> vistos de <span id="totalVideosCount">0</span> totales</div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" id="progresoVideosCount" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
                 <div class="search-container">
                     <input type="text" id="videosSearch" placeholder="Buscar videos..." onkeyup="filterVideos()">
                 </div>
@@ -3007,6 +3399,27 @@
 
             <section id="actividades" class="section">
                 <h2 class="page-title"><i class="fas fa-tasks"></i> Actividades</h2>
+
+                <!-- Panel de Progreso de Actividades -->
+                <div class="section-progress-panel">
+                    <div class="progress-header">
+                        <div class="progress-icon" style="color: #f59e0b; background: #fffbeb;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="progress-info">
+                            <h3>Tu Progreso en Actividades</h3>
+                            <p>Actividades completadas y entregadas</p>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="progress-percentage" id="totalActividadesCount">0</div>
+                        <div class="progress-count"><span id="completadasCount">0</span> completadas de <span id="totalActividadesCount">0</span> totales</div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill" id="progresoActividadesCount" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
                 <div class="search-container">
                     <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
                 </div>
@@ -4595,6 +5008,110 @@ function updateActividadesStats() {
     if (progresoElement) progresoElement.textContent = progreso + '%';
 }
 
+// Función para calcular y mostrar progreso general del estudiante
+async function calculateOverallProgress() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return;
+
+    try {
+        // Calcular progreso en clases
+        const clasesQuery = query(collection(db, 'classes'), where('programa', '==', currentUser.programa));
+        const clasesSnapshot = await getDocs(clasesQuery);
+        const totalClases = clasesSnapshot.size;
+        const clasesLeidas = clasesSnapshot.docs.filter(doc => {
+            const claseId = doc.id;
+            return localStorage.getItem(`clase-${claseId}-read`) === 'true';
+        }).length;
+        const progresoClases = totalClases > 0 ? Math.round((clasesLeidas / totalClases) * 100) : 0;
+
+        // Calcular progreso en videos
+        const videosQuery = query(collection(db, 'content'), where('programa', '==', currentUser.programa));
+        const videosSnapshot = await getDocs(videosQuery);
+        const totalVideos = videosSnapshot.size;
+        const videosVistos = videosSnapshot.docs.filter(doc => {
+            const videoId = doc.id;
+            return localStorage.getItem(`video-${videoId}-watched`) === 'true';
+        }).length;
+        const progresoVideos = totalVideos > 0 ? Math.round((videosVistos / totalVideos) * 100) : 0;
+
+        // Calcular progreso en actividades
+        const actividadesQuery = query(collection(db, 'activities'), where('programa', '==', currentUser.programa));
+        const actividadesSnapshot = await getDocs(actividadesQuery);
+        const totalActividades = actividadesSnapshot.size;
+        const actividadesCompletadas = actividadesSnapshot.docs.filter(doc => {
+            const actividadId = doc.id;
+            return localStorage.getItem(`actividad-${actividadId}-completed`) === 'true';
+        }).length;
+        const progresoActividades = totalActividades > 0 ? Math.round((actividadesCompletadas / totalActividades) * 100) : 0;
+
+        // Calcular progreso en cuestionarios (completados)
+        const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
+        const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
+        const totalCuestionarios = cuestionariosSnapshot.size;
+        const cuestionariosCompletados = cuestionariosSnapshot.docs.filter(doc => {
+            const cuestionarioId = doc.id;
+            return localStorage.getItem(`cuestionario-${cuestionarioId}-completed`) === 'true';
+        }).length;
+        const progresoCuestionarios = totalCuestionarios > 0 ? Math.round((cuestionariosCompletados / totalCuestionarios) * 100) : 0;
+
+        // Calcular progreso en evaluaciones (completadas)
+        const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
+        const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
+        const totalEvaluaciones = evaluacionesSnapshot.size;
+        const evaluacionesCompletadas = evaluacionesSnapshot.docs.filter(doc => {
+            const evaluacionId = doc.id;
+            return localStorage.getItem(`evaluacion-${evaluacionId}-completed`) === 'true';
+        }).length;
+        const progresoEvaluaciones = totalEvaluaciones > 0 ? Math.round((evaluacionesCompletadas / totalEvaluaciones) * 100) : 0;
+
+        // Calcular progreso general ponderado
+        const totalItems = totalClases + totalVideos + totalActividades + totalCuestionarios + totalEvaluaciones;
+        if (totalItems === 0) {
+            updateProgressPanel('general', 0, 0, 0);
+            return;
+        }
+
+        const totalCompletados = clasesLeidas + videosVistos + actividadesCompletadas + cuestionariosCompletados + evaluacionesCompletadas;
+        const progresoGeneral = Math.round((totalCompletados / totalItems) * 100);
+
+        // Actualizar panel general
+        updateProgressPanel('general', progresoGeneral, totalCompletados, totalItems);
+
+        // Actualizar paneles específicos
+        updateProgressPanel('clases', progresoClases, clasesLeidas, totalClases);
+        updateProgressPanel('videos', progresoVideos, videosVistos, totalVideos);
+        updateProgressPanel('actividades', progresoActividades, actividadesCompletadas, totalActividades);
+        updateProgressPanel('cuestionarios', progresoCuestionarios, cuestionariosCompletados, totalCuestionarios);
+        updateProgressPanel('evaluaciones', progresoEvaluaciones, evaluacionesCompletadas, totalEvaluaciones);
+
+    } catch (error) {
+        console.error('Error calculando progreso general:', error);
+    }
+}
+
+// Función para actualizar un panel de progreso específico
+function updateProgressPanel(area, porcentaje, completados, total) {
+    const progressBar = document.getElementById(`progress-${area}-bar`);
+    const progressText = document.getElementById(`progress-${area}-text`);
+    const progressCount = document.getElementById(`progress-${area}-count`);
+
+    if (progressBar) {
+        progressBar.style.width = porcentaje + '%';
+        progressBar.className = `progress-fill ${getProgressColor(porcentaje)}`;
+    }
+    if (progressText) progressText.textContent = porcentaje + '%';
+    if (progressCount) progressCount.textContent = `${completados}/${total}`;
+}
+
+// Función para determinar el color del progreso
+function getProgressColor(porcentaje) {
+    if (porcentaje >= 80) return 'progress-excellent';
+    if (porcentaje >= 60) return 'progress-good';
+    if (porcentaje >= 40) return 'progress-medium';
+    if (porcentaje >= 20) return 'progress-low';
+    return 'progress-very-low';
+}
+
 function renderActividades() {
     const container = document.getElementById('actividadesContainer');
     const startIndex = (currentActividadesPage - 1) * itemsPerActividadesPage;
@@ -4851,6 +5368,7 @@ function updateDashboard() {
     if (currentUser && currentUser.role === 'student') {
         loadStudentInfo();
         loadDashboardStats();
+        calculateOverallProgress();
         loadEvaluaciones();
     }
 }
