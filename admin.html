@@ -2988,10 +2988,12 @@
         });
 
         function showSection(sectionId) {
+            console.log('Cambiando a sección:', sectionId);
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            console.log('Sección activada:', sectionId);
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') try { loadClasesList(); } catch (e) { console.error('Error loading clases:', e); }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
@@ -5328,12 +5330,17 @@
         // Función para actualizar estadísticas de entregas
         async function actualizarEstadisticasEntregas() {
             try {
+                console.log('Actualizando estadísticas de entregas...');
                 const entregasSnapshot = await db.collection('entregas').get();
                 const allEntregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                document.getElementById('total-entregas').textContent = allEntregas.length;
-                document.getElementById('pendientes-entregas').textContent = allEntregas.filter(e => !e.calificacion).length;
-                document.getElementById('calificadas-entregas').textContent = allEntregas.filter(e => e.calificacion).length;
+                const totalElement = document.getElementById('total-entregas');
+                const pendientesElement = document.getElementById('pendientes-entregas');
+                const calificadasElement = document.getElementById('calificadas-entregas');
+                
+                if (totalElement) totalElement.textContent = allEntregas.length;
+                if (pendientesElement) pendientesElement.textContent = allEntregas.filter(e => !e.calificacion).length;
+                if (calificadasElement) calificadasElement.textContent = allEntregas.filter(e => e.calificacion).length;
                 
                 console.log('Estadísticas de entregas actualizadas:', {
                     total: allEntregas.length,
@@ -5348,6 +5355,7 @@
         // Función para actualizar estadísticas de respuestas
         async function actualizarEstadisticasRespuestas() {
             try {
+                console.log('Actualizando estadísticas de respuestas...');
                 const respuestasCuestionariosSnapshot = await db.collection('respuestasCuestionarios').get();
                 const respuestasEvaluacionesSnapshot = await db.collection('respuestasEvaluaciones').get();
                 const allRespuestas = [
@@ -5355,9 +5363,13 @@
                     ...respuestasEvaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
                 ];
                 
-                document.getElementById('total-respuestas').textContent = allRespuestas.length;
-                document.getElementById('pendientes-respuestas').textContent = allRespuestas.filter(r => !r.calificacion).length;
-                document.getElementById('calificadas-respuestas').textContent = allRespuestas.filter(r => r.calificacion).length;
+                const totalElement = document.getElementById('total-respuestas');
+                const pendientesElement = document.getElementById('pendientes-respuestas');
+                const calificadasElement = document.getElementById('calificadas-respuestas');
+                
+                if (totalElement) totalElement.textContent = allRespuestas.length;
+                if (pendientesElement) pendientesElement.textContent = allRespuestas.filter(r => !r.calificacion).length;
+                if (calificadasElement) calificadasElement.textContent = allRespuestas.filter(r => r.calificacion).length;
                 
                 console.log('Estadísticas de respuestas actualizadas:', {
                     total: allRespuestas.length,
@@ -5371,16 +5383,19 @@
 
         // Función para cargar actividades disponibles
         async function loadEntregas() {
+            console.log('Iniciando loadEntregas...');
             try {
                 // Cargar actividades disponibles
                 const actividadesSnapshot = await db.collection('activities').get();
                 actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Actividades cargadas:', actividadesData.length);
                 
                 // Actualizar estadísticas
                 await actualizarEstadisticasEntregas();
                 
                 // Mostrar actividades
                 loadActividades();
+                console.log('loadEntregas completado');
                 
             } catch (error) {
                 console.error('Error loading entregas:', error);
@@ -5647,6 +5662,7 @@
 
         // Función para cargar cuestionarios/evaluaciones disponibles
         async function loadRespuestas() {
+            console.log('Iniciando loadRespuestas...');
             try {
                 // Cargar cuestionarios
                 const cuestionariosSnapshot = await db.collection('cuestionarios').get();
@@ -5657,12 +5673,14 @@
                 const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'evaluacion' }));
                 
                 cuestionariosData = [...cuestionarios, ...evaluaciones];
+                console.log('Cuestionarios/evaluaciones cargados:', cuestionariosData.length);
                 
                 // Actualizar estadísticas
                 await actualizarEstadisticasRespuestas();
                 
                 // Mostrar cuestionarios/evaluaciones
                 loadCuestionarios();
+                console.log('loadRespuestas completado');
                 
             } catch (error) {
                 console.error('Error loading respuestas:', error);
