@@ -3960,6 +3960,10 @@
             showContentPreview('material', materialId);
         }
 
+        async function viewMaterialPublicado(materialId) {
+            showContentPreview('material', materialId);
+        }
+
         // Función para mostrar vista previa en modal
         function showContentPreview(type, id) {
             const modal = document.getElementById('contentPreviewModal');
@@ -4268,6 +4272,69 @@
             }
         }
 
+        // Función para cargar preview de material
+        async function loadMaterialPreview(materialId) {
+            try {
+                const doc = await db.collection('materials').doc(materialId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
+
+                    const tipoIcon = data.tipo === 'pdf' ? 'fas fa-file-pdf' : data.tipo === 'docx' ? 'fas fa-file-word' : data.tipo === 'video' ? 'fas fa-video' : data.tipo === 'link' ? 'fas fa-link' : data.tipo === 'imagen' ? 'fas fa-image' : 'fas fa-file';
+                    const tipoText = data.tipo === 'pdf' ? 'Documento PDF' : data.tipo === 'docx' ? 'Documento Word' : data.tipo === 'video' ? 'Video' : data.tipo === 'link' ? 'Enlace externo' : data.tipo === 'imagen' ? 'Imagen' : 'Archivo';
+
+                    title.innerHTML = `<i class="${tipoIcon}"></i> Material: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    content += `
+                        <div class="materials-section">
+                            <h4><i class="fas fa-file-alt"></i> Información del Material</h4>
+                            <div class="material-item">
+                                <div class="material-content">
+                                    <p><strong>Tipo:</strong> ${tipoText}</p>
+                                    <p><strong>Programa:</strong> ${data.programa || 'General'}</p>
+                                    ${data.tamano > 0 ? `<p><strong>Tamaño:</strong> ${data.tamano} MB</p>` : ''}
+                                    ${data.url ? `<p><strong>URL:</strong> <a href="${data.url}" target="_blank" style="color: #3b82f6;">${data.url}</a></p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'General'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fecha || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="${tipoIcon}"></i> ${tipoText}</div>
+                            ${data.tamano > 0 ? `<div class="meta-item"><i class="fas fa-weight"></i> ${data.tamano} MB</div>` : ''}
+                        </div>
+                        <div class="preview-actions">
+                            ${data.url ? `<a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
+                                <i class="fas fa-external-link-alt"></i> Ver/Descargar
+                            </a>` : ''}
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('materials', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Material no encontrado</div>';
+                }
+            } catch (error) {
+                console.error('Error loading material preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar el material</div>';
+            }
+        }
+
         // Cerrar preview con tecla Escape
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
@@ -4393,6 +4460,9 @@
                                     ${data.descripcion || 'Sin descripción'}
                                 </div>
                                 <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewMaterialPublicado('${doc.id}')" title="Ver Material" style="background: #8b5cf6; margin-right: 8px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('materials', '${doc.id}')" title="Eliminar material">
                                         <i class="fas fa-trash"></i>
                                     </button>
