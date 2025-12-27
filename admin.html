@@ -3016,6 +3016,91 @@
                     </div>
                 </div>
             </section>
+        </style>
+        <style>
+            /* Estilos para el contenido de clases en el modal */
+            .class-content-section {
+                margin-top: 24px;
+            }
+
+            .class-content-section h4 {
+                color: #1e3a8a;
+                font-size: 18px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .class-content-display {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                line-height: 1.6;
+                color: #374151;
+            }
+
+            .class-content-display h1,
+            .class-content-display h2,
+            .class-content-display h3,
+            .class-content-display h4,
+            .class-content-display h5,
+            .class-content-display h6 {
+                color: #1e3a8a;
+                margin-top: 1.5em;
+                margin-bottom: 0.5em;
+            }
+
+            .class-content-display p {
+                margin-bottom: 1em;
+            }
+
+            .class-content-display ul,
+            .class-content-display ol {
+                margin-bottom: 1em;
+                padding-left: 2em;
+            }
+
+            .class-content-display li {
+                margin-bottom: 0.5em;
+            }
+
+            .class-content-display blockquote {
+                border-left: 4px solid #3b82f6;
+                padding-left: 16px;
+                margin: 16px 0;
+                font-style: italic;
+                color: #64748b;
+            }
+
+            .class-content-display img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                margin: 16px 0;
+            }
+
+            .class-content-display table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+            }
+
+            .class-content-display th,
+            .class-content-display td {
+                border: 1px solid #e2e8f0;
+                padding: 8px 12px;
+                text-align: left;
+            }
+
+            .class-content-display th {
+                background: #f8fafc;
+                font-weight: 600;
+                color: #1e3a8a;
+            }
+        </style>
         <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
@@ -3886,7 +3971,6 @@
                                     <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver Clase" style="background: #8b5cf6; margin-right: 8px;">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn-primary-clase" onclick="viewClase('${doc.id}')">Ver Clase</button>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -4240,13 +4324,26 @@
                         content += `<div class="preview-description">${data.descripcion}</div>`;
                     }
 
+                    // Mostrar el contenido HTML de la clase si existe
+                    if (data.content) {
+                        content += `
+                            <div class="class-content-section">
+                                <h4><i class="fas fa-book-open"></i> Contenido de la Clase</h4>
+                                <div class="class-content-display">
+                                    ${data.content}
+                                </div>
+                            </div>
+                        `;
+                    }
+
                     content += `
                         <div class="materials-section">
-                            <h4><i class="fas fa-book"></i> Contenido de la Clase</h4>
+                            <h4><i class="fas fa-info-circle"></i> Información de la Clase</h4>
                             <div class="material-item">
                                 <div class="material-content">
                                     <p><strong>Tipo:</strong> Clase teórica</p>
                                     <p><strong>Programa:</strong> ${data.programa || 'No especificado'}</p>
+                                    <p><strong>Fecha de creación:</strong> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</p>
                                 </div>
                             </div>
                         </div>
@@ -4259,11 +4356,12 @@
                         <div class="preview-meta">
                             <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'Sin programa'}</div>
                             <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
-                            <div class="meta-item"><i class="fas fa-chalkboard-teacher"></i> Clase</div>
+                            <div class="meta-item"><i class="fas fa-chalkboard-teacher"></i> Clase Teórica</div>
+                            ${data.content ? '<div class="meta-item"><i class="fas fa-file-alt"></i> Con contenido</div>' : '<div class="meta-item"><i class="fas fa-exclamation-triangle"></i> Sin contenido</div>'}
                         </div>
                         <div class="preview-actions">
-                            <button class="btn-preview btn-preview-primary" onclick="alert('Función de ver clase próximamente disponible')">
-                                <i class="fas fa-eye"></i> Ver Clase
+                            <button class="btn-preview btn-preview-primary" onclick="alert('La clase se puede visualizar completamente en el área de contenido arriba. El contenido HTML se muestra tal como fue creado con el editor.')" title="El contenido se muestra arriba">
+                                <i class="fas fa-eye"></i> Contenido Visible
                             </button>
                             <button class="btn-preview btn-preview-danger" onclick="deleteItem('classes', '${doc.id}')">
                                 <i class="fas fa-trash"></i> Eliminar
