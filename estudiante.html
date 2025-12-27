@@ -4201,9 +4201,6 @@ async function loadClases() {
         const filtered = filterByProgram(allClases);
         filteredClases = filtered;
         
-        // Guardar allClases en localStorage para navegación
-        localStorage.setItem('allClases', JSON.stringify(allClases));
-        
         sortClases();
         updateClasesStats();
         renderClases();
@@ -4992,7 +4989,6 @@ async function loadClaseDetail(id) {
             }
 
             // Actualizar navegación
-            const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
             const currentIndex = allClases.findIndex(c => c.id === id);
             document.getElementById('clase-current-number').textContent = currentIndex + 1;
             document.getElementById('clase-total-number').textContent = allClases.length;
@@ -5025,7 +5021,6 @@ async function loadClaseDetail(id) {
 
 // Funciones auxiliares para la interfaz de clases
 function navigateClase(currentId, direction) {
-    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
     const currentIndex = allClases.findIndex(c => c.id === currentId);
 
     if (currentIndex === -1) return;
@@ -5038,12 +5033,10 @@ function navigateClase(currentId, direction) {
 }
 
 function getClaseIndex(claseId) {
-    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
     return allClases.findIndex(c => c.id === claseId);
 }
 
 function toggleClaseCompletedFromModal(id) {
-    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
     const clase = allClases.find(c => c.id === id);
     if (!clase) return;
 
@@ -5062,7 +5055,6 @@ function toggleClaseCompletedFromModal(id) {
 }
 
 function toggleClaseCompletedFromViewer(id) {
-    const allClases = JSON.parse(localStorage.getItem('allClases') || '[]');
     const clase = allClases.find(c => c.id === id);
     if (!clase) return;
 
