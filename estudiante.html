@@ -2956,44 +2956,25 @@
             </section>
 
             <section id="clases" class="section">
-                <div class="classes-header">
-                    <div class="classes-title">
-                        <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
-                        <p class="page-subtitle">Explora y estudia tu contenido de cursos</p>
-                    </div>
-                    <div class="classes-actions">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
-                        </div>
-                        <div class="view-toggle">
-                            <button class="view-btn active" onclick="setViewMode('grid')" title="Vista en cuadrícula">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button class="view-btn" onclick="setViewMode('list')" title="Vista en lista">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
+                <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
+                <p class="page-subtitle">Explora y estudia tu contenido de cursos</p>
+                <div class="search-container">
+                    <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
                 </div>
-
-                <div class="classes-filters">
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" onclick="filterByCategory('all')">Todas</button>
-                        <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
-                        <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
-                        <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
-                    </div>
-                    <div class="sort-options">
-                        <select id="sortClases" onchange="sortClases()">
-                            <option value="fecha-desc">Más recientes</option>
-                            <option value="fecha-asc">Más antiguas</option>
-                            <option value="titulo-asc">Título A-Z</option>
-                            <option value="titulo-desc">Título Z-A</option>
-                        </select>
-                    </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterByCategory('all')">Todas</button>
+                    <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
+                    <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
+                    <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
                 </div>
-
+                <div class="sort-options">
+                    <select id="sortClases" onchange="sortClases()">
+                        <option value="fecha-desc">Más recientes</option>
+                        <option value="fecha-asc">Más antiguas</option>
+                        <option value="titulo-asc">Título A-Z</option>
+                        <option value="titulo-desc">Título Z-A</option>
+                    </select>
+                </div>
                 <div class="classes-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="totalClasesCount">0</div>
@@ -3008,11 +2989,17 @@
                         <div class="stat-label">Progreso</div>
                     </div>
                 </div>
-
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setViewMode('grid')" title="Vista en cuadrícula">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" onclick="setViewMode('list')" title="Vista en lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
                 <div id="clasesContainer" class="clases-container grid-view">
                     <!-- Las clases se cargarán aquí dinámicamente -->
                 </div>
-
                 <div class="pagination" id="clasesPagination" style="display: none;">
                     <button class="page-btn" onclick="changePage(-1)" id="prevPage">
                         <i class="fas fa-chevron-left"></i> Anterior
@@ -3027,39 +3014,24 @@
             </section>
 
             <section id="videos" class="section">
-                <div class="classes-header">
-                    <div class="classes-title">
-                        <h2><i class="fas fa-play-circle"></i> Videos Educativos</h2>
-                    </div>
-                    <div class="classes-actions">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="videosSearch" placeholder="Buscar videos..." onkeyup="filterVideos()">
-                        </div>
-                        <div class="view-toggle">
-                            <button class="view-btn active" onclick="setVideosViewMode('grid')">Grid</button>
-                            <button class="view-btn" onclick="setVideosViewMode('list')">List</button>
-                        </div>
-                    </div>
+                <h2 class="page-title"><i class="fas fa-play-circle"></i> Videos Educativos</h2>
+                <div class="search-container">
+                    <input type="text" id="videosSearch" placeholder="Buscar videos..." onkeyup="filterVideos()">
                 </div>
-
-                <div class="classes-filters">
-                    <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterVideosByCategory('all')">Todas</div>
-                        <div class="filter-tab" onclick="filterVideosByCategory('recientes')">Recientes</div>
-                        <div class="filter-tab" onclick="filterVideosByCategory('no-vistas')">No vistas</div>
-                        <div class="filter-tab" onclick="filterVideosByCategory('vistas')">Vistas</div>
-                    </div>
-                    <div class="sort-options">
-                        <select id="sortVideos" onchange="sortVideos()">
-                            <option value="fecha-desc">Más recientes</option>
-                            <option value="fecha-asc">Más antiguos</option>
-                            <option value="titulo-asc">Título A-Z</option>
-                            <option value="titulo-desc">Título Z-A</option>
-                        </select>
-                    </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterVideosByCategory('all')">Todas</button>
+                    <button class="filter-tab" onclick="filterVideosByCategory('recientes')">Recientes</button>
+                    <button class="filter-tab" onclick="filterVideosByCategory('no-vistas')">No vistas</button>
+                    <button class="filter-tab" onclick="filterVideosByCategory('vistas')">Vistas</button>
                 </div>
-
+                <div class="sort-options">
+                    <select id="sortVideos" onchange="sortVideos()">
+                        <option value="fecha-desc">Más recientes</option>
+                        <option value="fecha-asc">Más antiguos</option>
+                        <option value="titulo-asc">Título A-Z</option>
+                        <option value="titulo-desc">Título Z-A</option>
+                    </select>
+                </div>
                 <div class="classes-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="totalVideosCount">0</div>
@@ -3087,39 +3059,24 @@
             </section>
 
             <section id="actividades" class="section">
-                <div class="classes-header">
-                    <div class="classes-title">
-                        <h2><i class="fas fa-tasks"></i> Actividades</h2>
-                    </div>
-                    <div class="classes-actions">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
-                        </div>
-                        <div class="view-toggle">
-                            <button class="view-btn active" onclick="setActividadesViewMode('grid')">Grid</button>
-                            <button class="view-btn" onclick="setActividadesViewMode('list')">List</button>
-                        </div>
-                    </div>
+                <h2 class="page-title"><i class="fas fa-tasks"></i> Actividades</h2>
+                <div class="search-container">
+                    <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
                 </div>
-
-                <div class="classes-filters">
-                    <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterActividadesByCategory('all')">Todas</div>
-                        <div class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</div>
-                        <div class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</div>
-                        <div class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</div>
-                    </div>
-                    <div class="sort-options">
-                        <select id="sortActividades" onchange="sortActividades()">
-                            <option value="fecha-desc">Más recientes</option>
-                            <option value="fecha-asc">Más antiguas</option>
-                            <option value="titulo-asc">Título A-Z</option>
-                            <option value="titulo-desc">Título Z-A</option>
-                        </select>
-                    </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterActividadesByCategory('all')">Todas</button>
+                    <button class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</button>
+                    <button class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</button>
+                    <button class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</button>
                 </div>
-
+                <div class="sort-options">
+                    <select id="sortActividades" onchange="sortActividades()">
+                        <option value="fecha-desc">Más recientes</option>
+                        <option value="fecha-asc">Más antiguas</option>
+                        <option value="titulo-asc">Título A-Z</option>
+                        <option value="titulo-desc">Título Z-A</option>
+                    </select>
+                </div>
                 <div class="classes-stats">
                     <div class="stat-item">
                         <div class="stat-number" id="totalActividadesCount">0</div>
@@ -3134,7 +3091,10 @@
                         <div class="stat-label">Progreso</div>
                     </div>
                 </div>
-
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setActividadesViewMode('grid')">Grid</button>
+                    <button class="view-btn" onclick="setActividadesViewMode('list')">List</button>
+                </div>
                 <div id="actividadesContainer" class="clases-container grid-view">
                     <!-- Actividades cargadas dinámicamente -->
                 </div>
@@ -3160,29 +3120,18 @@
             </section>
 
             <section id="materiales" class="section">
-                <div class="classes-header">
-                    <div class="classes-title">
-                        <h2 class="page-title"><i class="fas fa-folder-open"></i> Materiales de Estudio</h2>
-                        <p class="page-subtitle">Documentos, PDFs y recursos adicionales</p>
-                    </div>
-                    <div class="classes-actions">
-                        <div class="search-box">
-                            <i class="fas fa-search"></i>
-                            <input type="text" id="materialesSearch" placeholder="Buscar materiales..." onkeyup="filterMateriales()">
-                        </div>
-                    </div>
+                <h2 class="page-title"><i class="fas fa-folder-open"></i> Materiales de Estudio</h2>
+                <p class="page-subtitle">Documentos, PDFs y recursos adicionales</p>
+                <div class="search-container">
+                    <input type="text" id="materialesSearch" placeholder="Buscar materiales..." onkeyup="filterMateriales()">
                 </div>
-
-                <div class="classes-filters">
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" onclick="filterMaterialesByCategory('all')">Todos</button>
-                        <button class="filter-tab" onclick="filterMaterialesByCategory('recientes')">Recientes</button>
-                        <button class="filter-tab" onclick="filterMaterialesByCategory('pdf')">PDFs</button>
-                        <button class="filter-tab" onclick="filterMaterialesByCategory('video')">Videos</button>
-                        <button class="filter-tab" onclick="filterMaterialesByCategory('documento')">Documentos</button>
-                    </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterMaterialesByCategory('all')">Todos</button>
+                    <button class="filter-tab" onclick="filterMaterialesByCategory('recientes')">Recientes</button>
+                    <button class="filter-tab" onclick="filterMaterialesByCategory('pdf')">PDFs</button>
+                    <button class="filter-tab" onclick="filterMaterialesByCategory('video')">Videos</button>
+                    <button class="filter-tab" onclick="filterMaterialesByCategory('documento')">Documentos</button>
                 </div>
-
                 <div id="materialesList" class="grid"></div>
             </section>
 
