@@ -3475,21 +3475,37 @@
                     if (!programa) return alert('Selecciona un programa');
 
                     try {
-                        await db.collection('classes').add({
+                        // Crear el documento principal de la clase
+                        const claseRef = await db.collection('classes').add({
                             titulo: title,
                             descripcion: desc,
-                            contenido: content,
                             programa: programa,
-                            fechaCreacion: new Date().toISOString()
+                            fechaCreacion: new Date().toISOString(),
+                            hasChunks: false // Por defecto, asumimos que no necesita chunks
                         });
+
+                        // Verificar el tamaño del contenido
+                        const contentSize = new Blob([content]).size;
+                        const MAX_SIZE = 900000; // ~900KB para dejar margen
+
+                        if (contentSize > MAX_SIZE) {
+                            // Dividir contenido en chunks
+                            await saveContentInChunks(claseRef.id, content);
+                            // Actualizar el documento principal para indicar que tiene chunks
+                            await claseRef.update({ hasChunks: true });
+                        } else {
+                            // Guardar contenido directamente
+                            await claseRef.update({ contenido: content });
+                        }
 
                         alert('Clase subida exitosamente');
                         claseForm.reset();
                         claseEditor.setData('');
                         loadDashboardStats();
+                        loadClasesList(); // Recargar la lista de clases
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('Error al subir clase');
+                        alert('Error al subir clase: ' + error.message);
                     }
                 });
             }
@@ -4033,7 +4049,11 @@
         }
 
         async function viewClase(claseId) {
-            showContentPreview('clase', claseId);
+            // Asegurarse de que allClases esté cargado
+            if (allClases.length === 0) {
+                await loadClases();
+            }
+            loadClaseDetail(claseId);
         }
 
         async function viewEvaluacion(evaluacionId) {
@@ -4706,6 +4726,13 @@
         async function deleteItem(collectionName, id) {
             if (!confirm('¿Estás seguro de eliminar este elemento?')) return;
             try {
+                // Si es clase, eliminar chunks relacionados
+                if (collectionName === 'classes') {
+                    const chunksSnapshot = await db.collection('class_chunks').where('claseId', '==', id).get();
+                    const deletePromises = chunksSnapshot.docs.map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    console.log(`Eliminados ${deletePromises.length} chunks relacionados con la clase`);
+                }
                 // Si es actividad, eliminar entregas relacionadas
                 if (collectionName === 'activities') {
                     const entregasSnapshot = await db.collection('entregas').get();
@@ -5851,7 +5878,7 @@
                         <span class="program-badge">${clase.programa}</span>
                     </div>
                     <div class="clase-meta">
-                        <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion.toDate()).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
+                        <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
                         ${clase.duracion ? `<span><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
                     </div>
                     <div class="clase-description">
@@ -5873,6 +5900,56 @@
             }
         }
 
+        // Funciones auxiliares para manejar contenido grande
+        async function saveContentInChunks(claseId, content) {
+            const MAX_CHUNK_SIZE = 800000; // ~800KB por chunk
+            const chunks = [];
+            let start = 0;
+
+            while (start < content.length) {
+                const end = Math.min(start + MAX_CHUNK_SIZE, content.length);
+                const chunk = content.substring(start, end);
+                chunks.push(chunk);
+                start = end;
+            }
+
+            // Guardar cada chunk
+            const chunkPromises = chunks.map((chunk, index) => {
+                return db.collection('class_chunks').add({
+                    claseId: claseId,
+                    chunkIndex: index,
+                    content: chunk,
+                    totalChunks: chunks.length,
+                    fechaCreacion: new Date().toISOString()
+                });
+            });
+
+            await Promise.all(chunkPromises);
+        }
+
+        async function loadContentFromChunks(claseId) {
+            try {
+                const chunksSnapshot = await db.collection('class_chunks')
+                    .where('claseId', '==', claseId)
+                    .orderBy('chunkIndex')
+                    .get();
+
+                if (chunksSnapshot.empty) {
+                    return null;
+                }
+
+                const chunks = [];
+                chunksSnapshot.forEach(doc => {
+                    chunks.push(doc.data().content);
+                });
+
+                return chunks.join('');
+            } catch (error) {
+                console.error('Error loading content from chunks:', error);
+                return null;
+            }
+        }
+
         async function loadClaseDetail(id) {
             try {
                 const docRef = db.collection('classes').doc(id);
@@ -5883,14 +5960,20 @@
                     // Cargar datos en la interfaz de clase-viewer
                     document.getElementById('clase-viewer-title').textContent = clase.titulo;
                     document.getElementById('clase-viewer-programa').textContent = clase.programa;
-                    document.getElementById('clase-viewer-fecha').textContent = clase.fechaCreacion ? new Date(clase.fechaCreacion.toDate()).toLocaleDateString('es-ES') : 'N/A';
+                    document.getElementById('clase-viewer-fecha').textContent = clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A';
                     document.getElementById('clase-viewer-duracion').textContent = clase.duracion || 'N/A';
 
                     // Actualizar descripción
                     document.getElementById('clase-viewer-description').innerHTML = clase.descripcion || 'Sin descripción disponible.';
 
+                    // Cargar contenido (desde chunks si es necesario)
+                    let content = clase.contenido;
+                    if (clase.hasChunks) {
+                        content = await loadContentFromChunks(id);
+                    }
+
                     // Actualizar contenido
-                    document.getElementById('clase-viewer-content').innerHTML = clase.contenido || 'No hay contenido disponible para esta clase.';
+                    document.getElementById('clase-viewer-content').innerHTML = content || 'No hay contenido disponible para esta clase.';
 
                     // Actualizar progreso (simulado para admin)
                     document.getElementById('clase-viewer-progress').textContent = '100% completado';
