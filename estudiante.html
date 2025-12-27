@@ -3454,8 +3454,14 @@ function filterByProgram(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
     console.log('Filtering for programa:', currentUser.programa);
-    items.forEach(item => console.log('Item programa:', item.programa));
-    return items.filter(item => item.programa === currentUser.programa);
+    console.log('All items:', items.map(item => ({ id: item.id, programa: item.programa })));
+    const filtered = items.filter(item => {
+        const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
+        const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
+        return itemPrograma === userPrograma;
+    });
+    console.log('Filtered items:', filtered.map(item => ({ id: item.id, programa: item.programa })));
+    return filtered;
 }
 
 async function loadDashboardStats() {
