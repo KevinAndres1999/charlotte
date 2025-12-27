@@ -4996,18 +4996,18 @@ async function loadClaseDetail(id) {
             }
 
             // Actualizar navegación
-            const currentIndex = allClases.findIndex(c => c.id === id);
+            const currentIndex = filteredClases.findIndex(c => c.id === id);
             document.getElementById('clase-current-number').textContent = currentIndex + 1;
-            document.getElementById('clase-total-number').textContent = allClases.length;
+            document.getElementById('clase-total-number').textContent = filteredClases.length;
 
             // Habilitar/deshabilitar botones de navegación
             const prevBtn = document.getElementById('clase-prev-btn');
             const nextBtn = document.getElementById('clase-next-btn');
             prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === allClases.length - 1;
+            nextBtn.disabled = currentIndex === filteredClases.length - 1;
 
-            prevBtn.onclick = () => currentIndex > 0 ? loadClaseDetail(allClases[currentIndex - 1].id) : null;
-            nextBtn.onclick = () => currentIndex < allClases.length - 1 ? loadClaseDetail(allClases[currentIndex + 1].id) : null;
+            prevBtn.onclick = () => currentIndex > 0 ? loadClaseDetail(filteredClases[currentIndex - 1].id) : null;
+            nextBtn.onclick = () => currentIndex < filteredClases.length - 1 ? loadClaseDetail(filteredClases[currentIndex + 1].id) : null;
 
             // Cambiar a la sección de clase-viewer
             showSection('clase-viewer');
@@ -5028,13 +5028,13 @@ async function loadClaseDetail(id) {
 
 // Funciones auxiliares para la interfaz de clases
 function navigateClase(currentId, direction) {
-    const currentIndex = allClases.findIndex(c => c.id === currentId);
+    const currentIndex = filteredClases.findIndex(c => c.id === currentId);
 
     if (currentIndex === -1) return;
 
     const newIndex = currentIndex + direction;
-    if (newIndex >= 0 && newIndex < allClases.length) {
-        const newClase = allClases[newIndex];
+    if (newIndex >= 0 && newIndex < filteredClases.length) {
+        const newClase = filteredClases[newIndex];
         loadClaseDetail(newClase.id);
     }
 }
