@@ -6099,9 +6099,9 @@
 
         async function loadContentFromChunks(claseId) {
             try {
+                // Obtener todos los chunks para esta clase y ordenarlos en memoria
                 const chunksSnapshot = await db.collection('class_chunks')
                     .where('claseId', '==', claseId)
-                    .orderBy('chunkIndex')
                     .get();
 
                 if (chunksSnapshot.empty) {
@@ -6110,10 +6110,16 @@
 
                 const chunks = [];
                 chunksSnapshot.forEach(doc => {
-                    chunks.push(doc.data().content);
+                    chunks.push({
+                        content: doc.data().content,
+                        chunkIndex: doc.data().chunkIndex || 0
+                    });
                 });
 
-                return chunks.join('');
+                // Ordenar los chunks por chunkIndex
+                chunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
+
+                return chunks.map(chunk => chunk.content).join('');
             } catch (error) {
                 console.error('Error loading content from chunks:', error);
                 return null;
