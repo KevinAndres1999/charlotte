@@ -3458,7 +3458,8 @@ function filterByProgram(items) {
     const filtered = items.filter(item => {
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
-        return itemPrograma === userPrograma;
+        // Solo mostrar items que tienen programa asignado y coinciden con el usuario
+        return itemPrograma && itemPrograma === userPrograma;
     });
     console.log('Filtered items:', filtered.map(item => ({ id: item.id, programa: item.programa })));
     return filtered;
