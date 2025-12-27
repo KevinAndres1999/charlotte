@@ -263,6 +263,16 @@
             transform: scale(1.1);
         }
 
+        .btn-icon.btn-view {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .btn-icon.btn-view:hover {
+            background: #bfdbfe;
+            transform: scale(1.1);
+        }
+
         /* Estilos premium para elementos de preguntas */
         .question-item-premium {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -3786,16 +3796,85 @@
             }
         }
 
-        async function viewClase(claseId) {
+        async function viewCuestionario(cuestionarioId) {
             try {
-                const doc = await db.collection('classes').doc(claseId).get();
+                const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    alert(`Clase: ${data.titulo}\n\nDescripción: ${data.descripcion || 'Sin descripción'}\n\nContenido:\n${data.contenido || 'Sin contenido'}\n\nPrograma: ${data.programa}`);
+                    let content = `📋 CUESTIONARIO\n`;
+                    content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                    content += `📝 Título: ${data.titulo}\n`;
+                    content += `🏫 Programa: ${data.programa}\n`;
+                    content += `📅 Fecha: ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}\n\n`;
+                    content += `📖 Descripción: ${data.descripcion || 'Sin descripción'}\n\n`;
+                    
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `❓ PREGUNTAS (${data.preguntas.length}):\n`;
+                        content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `${index + 1}. ${pregunta.texto}\n`;
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const marker = i === pregunta.respuesta ? ' ✅' : '';
+                                    content += `   ${String.fromCharCode(65 + i)}) ${opcion}${marker}\n`;
+                                });
+                            } else {
+                                content += `   📝 Tipo: ${pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta'}\n`;
+                            }
+                            content += `\n`;
+                        });
+                    } else {
+                        content += '❌ No hay preguntas definidas\n';
+                    }
+                    
+                    // Usar console.log para contenido largo y alert para confirmación
+                    console.log('Vista previa del cuestionario:', content);
+                    alert(`Vista previa del cuestionario "${data.titulo}" abierta en la consola.\n\nPresiona F12 → Console para ver el contenido completo.`);
                 }
             } catch (error) {
-                console.error('Error viewing clase:', error);
-                alert('Error al cargar la clase');
+                console.error('Error viewing cuestionario:', error);
+                alert('Error al cargar el cuestionario');
+            }
+        }
+
+        async function viewEvaluacion(evaluacionId) {
+            try {
+                const doc = await db.collection('evaluaciones').doc(evaluacionId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    let content = `📊 EVALUACIÓN\n`;
+                    content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                    content += `📝 Título: ${data.titulo}\n`;
+                    content += `🏫 Programa: ${data.programa}\n`;
+                    content += `📅 Fecha: ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}\n\n`;
+                    content += `📖 Descripción: ${data.descripcion || 'Sin descripción'}\n\n`;
+                    
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `❓ PREGUNTAS (${data.preguntas.length}):\n`;
+                        content += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `${index + 1}. ${pregunta.texto}\n`;
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const marker = i === pregunta.respuesta ? ' ✅' : '';
+                                    content += `   ${String.fromCharCode(65 + i)}) ${opcion}${marker}\n`;
+                                });
+                            } else {
+                                content += `   📝 Tipo: ${pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta'}\n`;
+                            }
+                            content += `\n`;
+                        });
+                    } else {
+                        content += '❌ No hay preguntas definidas\n';
+                    }
+                    
+                    // Usar console.log para contenido largo y alert para confirmación
+                    console.log('Vista previa de la evaluación:', content);
+                    alert(`Vista previa de la evaluación "${data.titulo}" abierta en la consola.\n\nPresiona F12 → Console para ver el contenido completo.`);
+                }
+            } catch (error) {
+                console.error('Error viewing evaluacion:', error);
+                alert('Error al cargar la evaluación');
             }
         }
 
@@ -3825,6 +3904,9 @@
                                     ${data.descripcion || ''}
                                 </div>
                                 <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewCuestionario('${doc.id}')" title="Ver Cuestionario" style="background: #3b82f6; margin-right: 8px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('cuestionarios', '${doc.id}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -3864,6 +3946,9 @@
                                     ${data.descripcion || ''}
                                 </div>
                                 <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewEvaluacion('${doc.id}')" title="Ver Evaluación" style="background: #8b5cf6; margin-right: 8px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('evaluaciones', '${doc.id}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
