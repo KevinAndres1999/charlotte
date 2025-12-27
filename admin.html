@@ -779,173 +779,226 @@
             .status-pendiente { background: #fef3c7; color: #92400e; }
             .status-calificada { background: #d1fae5; color: #065f46; }
 
-            /* Preview Modal Styles - Ventana Flotante */
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.6);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 10001;
-                backdrop-filter: blur(8px);
-                animation: fadeIn 0.3s ease-out;
-            }
-
-            /* Prevenir scroll del body cuando modal está abierto */
-            body.modal-open {
-                overflow: hidden;
-                position: fixed;
-                width: 100%;
-                height: 100%;
-            }
-
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-
-            .modal-content {
-                background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-                border-radius: 20px;
-                width: 95%;
-                max-width: 1000px;
-                max-height: 90vh;
-                overflow: hidden;
-                box-shadow:
-                    0 25px 50px rgba(0, 0, 0, 0.25),
-                    0 15px 35px rgba(0, 0, 0, 0.15),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-                animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Content Preview Interface */
+            .content-preview {
+                display: none;
+                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                border-radius: 16px;
+                padding: 32px;
+                margin-top: 32px;
+                border: 2px solid #e2e8f0;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
                 position: relative;
-                margin: 20px; /* Añadir margen para móviles */
             }
 
-            .modal-content::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            .content-preview.show {
+                display: block;
+                animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
-            @keyframes slideUp {
+            @keyframes slideDown {
                 from {
-                    transform: scale(0.9) translateY(30px);
                     opacity: 0;
+                    transform: translateY(-20px);
                 }
                 to {
-                    transform: scale(1) translateY(0);
                     opacity: 1;
+                    transform: translateY(0);
                 }
             }
 
-            .modal-header {
-                padding: 28px 36px;
-                border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            .preview-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-                position: relative;
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                border-bottom: 2px solid #e2e8f0;
             }
 
-            .modal-header::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 60%;
-                height: 1px;
-                background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-                opacity: 0.3;
-            }
-
-            .modal-header h2 {
-                margin: 0;
-                color: #1e3a8a;
-                font-size: 26px;
+            .preview-title {
+                font-size: 24px;
                 font-weight: 700;
-                letter-spacing: -0.5px;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+                color: #1e3a8a;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 12px;
             }
 
-            .modal-close {
+            .preview-close {
                 background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
                 border: none;
-                font-size: 28px;
+                font-size: 24px;
                 cursor: pointer;
                 color: #64748b;
-                padding: 8px;
-                width: 44px;
-                height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 12px;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                padding: 8px 12px;
+                border-radius: 8px;
+                transition: all 0.3s;
             }
 
-            .modal-close:hover {
+            .preview-close:hover {
                 background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
                 color: #1e3a8a;
-                transform: scale(1.1) rotate(90deg);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transform: scale(1.1);
             }
 
-            .modal-body {
-                padding: 36px;
-                max-height: calc(90vh - 120px);
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #cbd5e1 #f1f5f9;
+            .preview-content {
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                gap: 32px;
+                align-items: start;
             }
 
-            .modal-body::-webkit-scrollbar {
-                width: 6px;
+            .preview-main {
+                background: white;
+                border-radius: 12px;
+                padding: 24px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
 
-            .modal-body::-webkit-scrollbar-track {
-                background: #f1f5f9;
-                border-radius: 3px;
+            .preview-sidebar {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                position: sticky;
+                top: 20px;
             }
 
-            .modal-body::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 3px;
-            }
-
-            .modal-close:active {
-                transform: scale(0.95);
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            }
-
-            .modal-loading {
+            .preview-meta {
                 display: flex;
-                justify-content: center;
+                flex-direction: column;
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .meta-item {
+                display: flex;
                 align-items: center;
-                padding: 60px;
+                gap: 8px;
+                font-size: 14px;
                 color: #64748b;
-                font-size: 16px;
             }
 
-            .modal-loading i {
-                animation: spin 1s linear infinite;
-                margin-right: 12px;
-                font-size: 20px;
+            .meta-item i {
+                color: #3b82f6;
+                width: 16px;
             }
 
-            @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
+            .preview-description {
+                background: #f8fafc;
+                padding: 20px;
+                border-radius: 12px;
+                border-left: 4px solid #3b82f6;
+                margin-bottom: 24px;
+                font-style: italic;
+                color: #475569;
+            }
+
+            .preview-actions {
+                display: flex;
+                gap: 12px;
+                margin-top: 24px;
+            }
+
+            .btn-preview {
+                padding: 12px 20px;
+                border: none;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn-preview-primary {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                color: white;
+            }
+
+            .btn-preview-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            }
+
+            .btn-preview-danger {
+                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                color: white;
+            }
+
+            .btn-preview-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+            }
+
+            .questions-section, .materials-section {
+                margin-top: 24px;
+            }
+
+            .questions-section h4, .materials-section h4 {
+                color: #1e3a8a;
+                font-size: 18px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .question-item, .material-item {
+                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 12px;
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s;
+            }
+
+            .question-item:hover, .material-item:hover {
+                transform: translateX(4px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .question-text {
+                font-weight: 600;
+                color: #1e3a8a;
+                margin-bottom: 8px;
+            }
+
+            .question-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .option-item {
+                background: white;
+                padding: 6px 12px;
+                border-radius: 6px;
+                border: 1px solid #e2e8f0;
+                font-size: 14px;
+            }
+
+            .option-correct {
+                background: #dcfce7;
+                border-color: #16a34a;
+                color: #166534;
+            }
+
+            .option-marker {
+                color: #16a34a;
+                font-weight: bold;
+            }
+
+            .question-type {
+                font-style: italic;
+                color: #64748b;
+                font-size: 14px;
             }
 
             .modal-content-loading {
@@ -3996,6 +4049,9 @@
                                     ${data.descripcion || ''}
                                 </div>
                                 <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewVideo('${doc.id}')" title="Ver Video" style="background: #10b981; margin-right: 8px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <a href="${data.url}" target="_blank" class="btn-primary-clase">Ver Video</a>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('content', '${doc.id}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
@@ -4036,6 +4092,9 @@
                                     ${data.descripcion || ''}
                                 </div>
                                 <div class="clase-actions">
+                                    <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver Clase" style="background: #8b5cf6; margin-right: 8px;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                     <button class="btn-primary-clase" onclick="viewClase('${doc.id}')">Ver Clase</button>
                                     <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
@@ -4091,82 +4150,16 @@
         }
 
         async function viewCuestionario(cuestionarioId) {
-            try {
-                // Mostrar indicador de carga
-                document.getElementById('previewModalContent').innerHTML = `
-                    <div class="modal-loading">
-                        <i class="fas fa-spinner"></i>
-                        Cargando cuestionario...
-                    </div>
-                `;
-                document.body.classList.add('modal-open');
-                document.getElementById('previewModal').style.display = 'flex';
-
-                const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    
-                    // Construir el contenido del modal
-                    let content = `
-                        <div class="preview-header">
-                            <h3>📋 ${data.titulo}</h3>
-                            <div class="preview-meta">
-                                <span>🏫 ${data.programa}</span>
-                                <span>📅 ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</span>
-                            </div>
-                        </div>
-                    `;
-                    
-                    if (data.descripcion) {
-                        content += `<div class="preview-description">${data.descripcion}</div>`;
-                    }
-                    
-                    if (data.preguntas && Array.isArray(data.preguntas)) {
-                        content += `
-                            <div class="questions-section">
-                                <h4>❓ Preguntas (${data.preguntas.length})</h4>
-                        `;
-                        
-                        data.preguntas.forEach((pregunta, index) => {
-                            content += `
-                                <div class="question-item">
-                                    <div class="question-text">${index + 1}. ${pregunta.texto}</div>
-                            `;
-                            
-                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
-                                content += '<div class="question-options">';
-                                pregunta.opciones.forEach((opcion, i) => {
-                                    const isCorrect = i === pregunta.respuesta;
-                                    const marker = isCorrect ? '<span class="option-marker">✅</span>' : '';
-                                    const className = isCorrect ? 'option-correct' : '';
-                                    content += `<div class="option-item ${className}">${String.fromCharCode(65 + i)}) ${opcion}${marker}</div>`;
-                                });
-                                content += '</div>';
-                            } else {
-                                const tipoTexto = pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta';
-                                content += `<div class="question-type">${tipoTexto}</div>`;
-                            }
-                            
-                            content += '</div>';
-                        });
-                        
-                        content += '</div>';
-                    } else {
-                        content += '<div class="preview-description">❌ No hay preguntas definidas</div>';
-                    }
-                    
-                    // Mostrar el modal
-                    document.getElementById('previewModalTitle').textContent = `Cuestionario: ${data.titulo}`;
-                    document.getElementById('previewModalContent').innerHTML = content;
-                    document.getElementById('previewModal').style.display = 'flex';
-                }
-            } catch (error) {
-                console.error('Error loading cuestionario:', error);
-                document.getElementById('previewModalContent').innerHTML = '<div class="preview-description">❌ Error al cargar el cuestionario</div>';
-            }
+            showContentPreview('cuestionario', cuestionarioId);
         }
 
-        async function viewEvaluacion(evaluacionId) {
+        async function viewVideo(videoId) {
+            showContentPreview('video', videoId);
+        }
+
+        async function viewClase(claseId) {
+            showContentPreview('clase', claseId);
+        }
             try {
                 // Mostrar indicador de carga
                 document.getElementById('previewModalContent').innerHTML = `
@@ -4242,50 +4235,324 @@
             }
         }
 
-        // Función para cerrar el modal de preview con animación
-        function closePreviewModal() {
-            const modal = document.getElementById('previewModal');
-            const modalContent = modal.querySelector('.modal-content');
+        // Función para mostrar vista previa integrada
+        function showContentPreview(type, id) {
+            const preview = document.getElementById('contentPreview');
+            const main = document.getElementById('previewMain');
+            const sidebar = document.getElementById('previewSidebar');
+            const title = document.getElementById('previewTitle');
 
-            // Agregar animación de salida
-            modalContent.style.animation = 'slideOut 0.3s ease-in forwards';
+            // Ocultar cualquier preview anterior
+            preview.classList.remove('show');
 
-            // Ocultar modal después de la animación
+            // Mostrar loading
+            main.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b;"><i class="fas fa-spinner fa-spin"></i><br>Cargando contenido...</div>';
+            sidebar.innerHTML = '';
+
+            // Cargar contenido según el tipo
             setTimeout(() => {
-                modal.style.display = 'none';
-                modalContent.style.animation = ''; // Reset animation
-                document.body.classList.remove('modal-open'); // Permitir scroll del body
+                switch(type) {
+                    case 'cuestionario':
+                        loadCuestionarioPreview(id);
+                        break;
+                    case 'evaluacion':
+                        loadEvaluacionPreview(id);
+                        break;
+                    case 'video':
+                        loadVideoPreview(id);
+                        break;
+                    case 'clase':
+                        loadClasePreview(id);
+                        break;
+                    case 'material':
+                        loadMaterialPreview(id);
+                        break;
+                }
             }, 300);
+
+            // Mostrar preview con animación
+            setTimeout(() => {
+                preview.classList.add('show');
+                preview.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
 
-        // Agregar animación de salida
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideOut {
-                from {
-                    transform: scale(1) translateY(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: scale(0.95) translateY(-10px);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        // Función para cerrar vista previa integrada
+        function closeContentPreview() {
+            const preview = document.getElementById('contentPreview');
+            preview.classList.remove('show');
+        }
 
-        // Cerrar modal al hacer clic fuera de él
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('previewModal');
-            if (event.target === modal) {
-                closePreviewModal();
-            }
-        });
+        // Función para cargar preview de cuestionario
+        async function loadCuestionarioPreview(cuestionarioId) {
+            try {
+                const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
 
-        // Cerrar modal con tecla Escape
+                    title.innerHTML = `<i class="fas fa-question-circle"></i> Cuestionario: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `
+                            <div class="questions-section">
+                                <h4><i class="fas fa-list"></i> Preguntas (${data.preguntas.length})</h4>
+                        `;
+
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `
+                                <div class="question-item">
+                                    <div class="question-text">${index + 1}. ${pregunta.texto}</div>
+                            `;
+
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                content += '<div class="question-options">';
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const isCorrect = i === pregunta.respuesta;
+                                    const marker = isCorrect ? '<span class="option-marker">✅</span>' : '';
+                                    const className = isCorrect ? 'option-correct' : '';
+                                    content += `<div class="option-item ${className}">${String.fromCharCode(65 + i)}) ${opcion}${marker}</div>`;
+                                });
+                                content += '</div>';
+                            } else {
+                                const tipoTexto = pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta';
+                                content += `<div class="question-type">${tipoTexto}</div>`;
+                            }
+
+                            content += '</div>';
+                        });
+
+                        content += '</div>';
+                    } else {
+                        content += '<div class="preview-description">❌ No hay preguntas definidas</div>';
+                    }
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'Sin programa'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="fas fa-question"></i> ${data.preguntas ? data.preguntas.length : 0} preguntas</div>
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('cuestionarios', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Cuestionario no encontrado</div>';
+                }
+            } catch (error) {
+                console.error('Error loading cuestionario preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar el cuestionario</div>';
+            }
+        }
+
+        // Función para cargar preview de evaluación
+        async function loadEvaluacionPreview(evaluacionId) {
+            try {
+                const doc = await db.collection('evaluaciones').doc(evaluacionId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
+
+                    title.innerHTML = `<i class="fas fa-clipboard-check"></i> Evaluación: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    if (data.preguntas && Array.isArray(data.preguntas)) {
+                        content += `
+                            <div class="questions-section">
+                                <h4><i class="fas fa-list"></i> Preguntas (${data.preguntas.length})</h4>
+                        `;
+
+                        data.preguntas.forEach((pregunta, index) => {
+                            content += `
+                                <div class="question-item">
+                                    <div class="question-text">${index + 1}. ${pregunta.texto}</div>
+                            `;
+
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones) {
+                                content += '<div class="question-options">';
+                                pregunta.opciones.forEach((opcion, i) => {
+                                    const isCorrect = i === pregunta.respuesta;
+                                    const marker = isCorrect ? '<span class="option-marker">✅</span>' : '';
+                                    const className = isCorrect ? 'option-correct' : '';
+                                    content += `<div class="option-item ${className}">${String.fromCharCode(65 + i)}) ${opcion}${marker}</div>`;
+                                });
+                                content += '</div>';
+                            } else {
+                                const tipoTexto = pregunta.tipo === 'verdadero-falso' ? 'Verdadero/Falso' : 'Respuesta abierta';
+                                content += `<div class="question-type">${tipoTexto}</div>`;
+                            }
+
+                            content += '</div>';
+                        });
+
+                        content += '</div>';
+                    } else {
+                        content += '<div class="preview-description">❌ No hay preguntas definidas</div>';
+                    }
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'Sin programa'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="fas fa-question"></i> ${data.preguntas ? data.preguntas.length : 0} preguntas</div>
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('evaluaciones', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Evaluación no encontrada</div>';
+                }
+            } catch (error) {
+                console.error('Error loading evaluacion preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar la evaluación</div>';
+            }
+        }
+
+        // Función para cargar preview de video
+        async function loadVideoPreview(videoId) {
+            try {
+                const doc = await db.collection('content').doc(videoId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
+
+                    title.innerHTML = `<i class="fas fa-play-circle"></i> Video: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    content += `
+                        <div class="materials-section">
+                            <h4><i class="fas fa-video"></i> Contenido del Video</h4>
+                            <div class="material-item">
+                                <div class="material-content">
+                                    <p><strong>URL del video:</strong> <a href="${data.url}" target="_blank">${data.url}</a></p>
+                                    <p><strong>Tipo:</strong> Video educativo</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'Sin programa'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="fas fa-video"></i> Video</div>
+                        </div>
+                        <div class="preview-actions">
+                            <a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
+                                <i class="fas fa-external-link-alt"></i> Ver Video
+                            </a>
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('content', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Video no encontrado</div>';
+                }
+            } catch (error) {
+                console.error('Error loading video preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar el video</div>';
+            }
+        }
+
+        // Función para cargar preview de clase
+        async function loadClasePreview(claseId) {
+            try {
+                const doc = await db.collection('classes').doc(claseId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const title = document.getElementById('previewTitle');
+                    const main = document.getElementById('previewMain');
+                    const sidebar = document.getElementById('previewSidebar');
+
+                    title.innerHTML = `<i class="fas fa-chalkboard-teacher"></i> Clase: ${data.titulo}`;
+
+                    // Contenido principal
+                    let content = '';
+                    if (data.descripcion) {
+                        content += `<div class="preview-description">${data.descripcion}</div>`;
+                    }
+
+                    content += `
+                        <div class="materials-section">
+                            <h4><i class="fas fa-book"></i> Contenido de la Clase</h4>
+                            <div class="material-item">
+                                <div class="material-content">
+                                    <p><strong>Tipo:</strong> Clase teórica</p>
+                                    <p><strong>Programa:</strong> ${data.programa || 'No especificado'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    main.innerHTML = content;
+
+                    // Sidebar con información y acciones
+                    sidebar.innerHTML = `
+                        <div class="preview-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa || 'Sin programa'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
+                            <div class="meta-item"><i class="fas fa-chalkboard-teacher"></i> Clase</div>
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn-preview btn-preview-primary" onclick="alert('Función de ver clase próximamente disponible')">
+                                <i class="fas fa-eye"></i> Ver Clase
+                            </button>
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('classes', '${doc.id}')">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Clase no encontrada</div>';
+                }
+            } catch (error) {
+                console.error('Error loading clase preview:', error);
+                document.getElementById('previewMain').innerHTML = '<div class="preview-description">❌ Error al cargar la clase</div>';
+            }
+        }
+
+        // Cerrar preview con tecla Escape
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                closePreviewModal();
+                closeContentPreview();
             }
         });
 
@@ -6589,15 +6856,21 @@
         </div>
     </div>
 
-    <!-- Modal para vista previa de cuestionarios/evaluaciones -->
-    <div id="previewModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="previewModalTitle">Vista Previa</h2>
-                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+    <!-- Interfaz de vista previa integrada -->
+    <div id="contentPreview" class="content-preview">
+        <div class="preview-header">
+            <h2 class="preview-title" id="previewTitle">
+                <i class="fas fa-eye"></i>
+                Vista Previa
+            </h2>
+            <button class="preview-close" onclick="closeContentPreview()">&times;</button>
+        </div>
+        <div class="preview-content">
+            <div class="preview-main" id="previewMain">
+                <!-- Contenido principal se carga aquí -->
             </div>
-            <div class="modal-body" id="previewModalContent">
-                <!-- Contenido se cargará dinámicamente -->
+            <div class="preview-sidebar" id="previewSidebar">
+                <!-- Información adicional y acciones -->
             </div>
         </div>
     </div>
