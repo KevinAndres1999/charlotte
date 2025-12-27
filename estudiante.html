@@ -3311,13 +3311,21 @@ function loadStudentInfo() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
 
-    document.getElementById('userName').textContent = currentUser.name;
-    document.getElementById('studentName').textContent = currentUser.name;
-    document.getElementById('programBadge').textContent = currentUser.programa;
-    document.getElementById('userEmail').textContent = currentUser.email;
-    document.getElementById('userProgram').textContent = currentUser.programa;
-    document.getElementById('userSede').textContent = currentUser.sede;
-    document.getElementById('welcomeName').textContent = currentUser.name;
+    const userNameEl = document.getElementById('userName');
+    const studentNameEl = document.getElementById('studentName');
+    const programBadgeEl = document.getElementById('programBadge');
+    const userEmailEl = document.getElementById('userEmail');
+    const userProgramEl = document.getElementById('userProgram');
+    const userSedeEl = document.getElementById('userSede');
+    const welcomeNameEl = document.getElementById('welcomeName');
+    
+    if (userNameEl) userNameEl.textContent = currentUser.name;
+    if (studentNameEl) studentNameEl.textContent = currentUser.name;
+    if (programBadgeEl) programBadgeEl.textContent = currentUser.programa;
+    if (userEmailEl) userEmailEl.textContent = currentUser.email;
+    if (userProgramEl) userProgramEl.textContent = currentUser.programa;
+    if (userSedeEl) userSedeEl.textContent = currentUser.sede;
+    if (welcomeNameEl) welcomeNameEl.textContent = currentUser.name;
 }
 
 function filterByProgram(items) {
@@ -3339,44 +3347,57 @@ async function loadDashboardStats() {
     try {
         if (!currentUser.programa) {
             // Si no tiene programa asignado, mostrar 0
-            document.getElementById('totalClases').textContent = 0;
-            document.getElementById('totalVideos').textContent = 0;
-            document.getElementById('totalActividades').textContent = 0;
-            document.getElementById('totalMateriales').textContent = 0;
-            document.getElementById('totalCuestionarios').textContent = 0;
-            document.getElementById('totalEvaluaciones').textContent = 0;
+            const totalClasesEl = document.getElementById('totalClases');
+            const totalVideosEl = document.getElementById('totalVideos');
+            const totalActividadesEl = document.getElementById('totalActividades');
+            const totalMaterialesEl = document.getElementById('totalMateriales');
+            const totalCuestionariosEl = document.getElementById('totalCuestionarios');
+            const totalEvaluacionesEl = document.getElementById('totalEvaluaciones');
+            
+            if (totalClasesEl) totalClasesEl.textContent = 0;
+            if (totalVideosEl) totalVideosEl.textContent = 0;
+            if (totalActividadesEl) totalActividadesEl.textContent = 0;
+            if (totalMaterialesEl) totalMaterialesEl.textContent = 0;
+            if (totalCuestionariosEl) totalCuestionariosEl.textContent = 0;
+            if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = 0;
             return;
         }
 
         // Contar clases
         const clasesQuery = query(collection(db, 'classes'), where('programa', '==', currentUser.programa));
         const clasesSnapshot = await getDocs(clasesQuery);
-        document.getElementById('totalClases').textContent = clasesSnapshot.size;
+        const totalClasesEl = document.getElementById('totalClases');
+        if (totalClasesEl) totalClasesEl.textContent = clasesSnapshot.size;
 
         // Contar videos
         const videosQuery = query(collection(db, 'content'), where('programa', '==', currentUser.programa));
         const videosSnapshot = await getDocs(videosQuery);
-        document.getElementById('totalVideos').textContent = videosSnapshot.size;
+        const totalVideosEl = document.getElementById('totalVideos');
+        if (totalVideosEl) totalVideosEl.textContent = videosSnapshot.size;
 
         // Contar actividades
         const actividadesQuery = query(collection(db, 'activities'), where('programa', '==', currentUser.programa));
         const actividadesSnapshot = await getDocs(actividadesQuery);
-        document.getElementById('totalActividades').textContent = actividadesSnapshot.size;
+        const totalActividadesEl = document.getElementById('totalActividades');
+        if (totalActividadesEl) totalActividadesEl.textContent = actividadesSnapshot.size;
 
         // Contar materiales (PDFs y otros)
         const materialesQuery = query(collection(db, 'materials'), where('programa', '==', currentUser.programa));
         const materialesSnapshot = await getDocs(materialesQuery);
-        document.getElementById('totalMateriales').textContent = materialesSnapshot.size;
+        const totalMaterialesEl = document.getElementById('totalMateriales');
+        if (totalMaterialesEl) totalMaterialesEl.textContent = materialesSnapshot.size;
 
         // Contar cuestionarios
         const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
         const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
-        document.getElementById('totalCuestionarios').textContent = cuestionariosSnapshot.size;
+        const totalCuestionariosEl = document.getElementById('totalCuestionarios');
+        if (totalCuestionariosEl) totalCuestionariosEl.textContent = cuestionariosSnapshot.size;
 
         // Contar evaluaciones
         const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
         const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
-        document.getElementById('totalEvaluaciones').textContent = evaluacionesSnapshot.size;
+        const totalEvaluacionesEl = document.getElementById('totalEvaluaciones');
+        if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = evaluacionesSnapshot.size;
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
@@ -4090,9 +4111,13 @@ function updateClasesStats() {
     const leidas = filteredClases.filter(c => c.isRead).length;
     const progreso = total > 0 ? Math.round((leidas / total) * 100) : 0;
 
-    document.getElementById('totalClasesCount').textContent = total;
-    document.getElementById('leidasCount').textContent = leidas;
-    document.getElementById('progresoCount').textContent = progreso + '%';
+    const totalElement = document.getElementById('totalClasesCount');
+    const leidasElement = document.getElementById('leidasCount');
+    const progresoElement = document.getElementById('progresoCount');
+    
+    if (totalElement) totalElement.textContent = total;
+    if (leidasElement) leidasElement.textContent = leidas;
+    if (progresoElement) progresoElement.textContent = progreso + '%';
 }
 
 // =================== RECURSOS PREMIUM ===================
@@ -4105,7 +4130,8 @@ function renderClases() {
 
     if (clasesToShow.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p>No se encontraron clases que coincidan con tu búsqueda.</p></div>';
-        document.getElementById('clasesPagination').style.display = 'none';
+        const paginationEl = document.getElementById('clasesPagination');
+        if (paginationEl) paginationEl.style.display = 'none';
         return;
     }
 
@@ -4171,17 +4197,24 @@ function updatePagination() {
     const totalPages = Math.ceil(filteredClases.length / itemsPerPage);
     const pagination = document.getElementById('clasesPagination');
 
+    if (!pagination) return;
+
     if (totalPages <= 1) {
         pagination.style.display = 'none';
         return;
     }
 
     pagination.style.display = 'flex';
-    document.getElementById('currentPage').textContent = currentPage;
-    document.getElementById('totalPages').textContent = totalPages;
-
-    document.getElementById('prevPage').disabled = currentPage === 1;
-    document.getElementById('nextPage').disabled = currentPage === totalPages;
+    
+    const currentPageEl = document.getElementById('currentPage');
+    const totalPagesEl = document.getElementById('totalPages');
+    const prevPageEl = document.getElementById('prevPage');
+    const nextPageEl = document.getElementById('nextPage');
+    
+    if (currentPageEl) currentPageEl.textContent = currentPage;
+    if (totalPagesEl) totalPagesEl.textContent = totalPages;
+    if (prevPageEl) prevPageEl.disabled = currentPage === 1;
+    if (nextPageEl) nextPageEl.disabled = currentPage === totalPages;
 }
 
 function changePage(direction) {
@@ -4307,9 +4340,14 @@ function updateVideosStats() {
     const total = filteredVideos.length;
     const vistas = filteredVideos.filter(v => v.isWatched).length;
     const progreso = total > 0 ? Math.round((vistas / total) * 100) : 0;
-    document.getElementById('totalVideosCount').textContent = total;
-    document.getElementById('vistasCount').textContent = vistas;
-    document.getElementById('progresoVideosCount').textContent = progreso + '%';
+    
+    const totalElement = document.getElementById('totalVideosCount');
+    const vistasElement = document.getElementById('vistasCount');
+    const progresoElement = document.getElementById('progresoVideosCount');
+    
+    if (totalElement) totalElement.textContent = total;
+    if (vistasElement) vistasElement.textContent = vistas;
+    if (progresoElement) progresoElement.textContent = progreso + '%';
 }
 
 function renderVideos() {
@@ -4320,7 +4358,8 @@ function renderVideos() {
 
     if (videosToShow.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-play-circle"></i><h3>No hay videos disponibles</h3><p>No se encontraron videos que coincidan con tu búsqueda.</p></div>';
-        document.getElementById('videosPagination').style.display = 'none';
+        const paginationEl = document.getElementById('videosPagination');
+        if (paginationEl) paginationEl.style.display = 'none';
         return;
     }
 
@@ -4372,16 +4411,24 @@ function updateVideosPagination() {
     const totalPages = Math.ceil(filteredVideos.length / itemsPerVideosPage);
     const pagination = document.getElementById('videosPagination');
 
+    if (!pagination) return;
+
     if (totalPages <= 1) {
         pagination.style.display = 'none';
         return;
     }
 
     pagination.style.display = 'flex';
-    document.getElementById('currentVideosPage').textContent = currentVideosPage;
-    document.getElementById('totalVideosPages').textContent = totalPages;
-    document.getElementById('prevVideosPage').disabled = currentVideosPage === 1;
-    document.getElementById('nextVideosPage').disabled = currentVideosPage === totalPages;
+    
+    const currentPageEl = document.getElementById('currentVideosPage');
+    const totalPagesEl = document.getElementById('totalVideosPages');
+    const prevPageEl = document.getElementById('prevVideosPage');
+    const nextPageEl = document.getElementById('nextVideosPage');
+    
+    if (currentPageEl) currentPageEl.textContent = currentVideosPage;
+    if (totalPagesEl) totalPagesEl.textContent = totalPages;
+    if (prevPageEl) prevPageEl.disabled = currentVideosPage === 1;
+    if (nextPageEl) nextPageEl.disabled = currentVideosPage === totalPages;
 }
 
 function changeVideosPage(direction) {
@@ -4514,9 +4561,14 @@ function updateActividadesStats() {
     const total = filteredActividades.length;
     const completadas = filteredActividades.filter(a => a.isCompleted).length;
     const progreso = total > 0 ? Math.round((completadas / total) * 100) : 0;
-    document.getElementById('totalActividadesCount').textContent = total;
-    document.getElementById('completadasCount').textContent = completadas;
-    document.getElementById('progresoActividadesCount').textContent = progreso + '%';
+    
+    const totalElement = document.getElementById('totalActividadesCount');
+    const completadasElement = document.getElementById('completadasCount');
+    const progresoElement = document.getElementById('progresoActividadesCount');
+    
+    if (totalElement) totalElement.textContent = total;
+    if (completadasElement) completadasElement.textContent = completadas;
+    if (progresoElement) progresoElement.textContent = progreso + '%';
 }
 
 function renderActividades() {
@@ -4527,7 +4579,8 @@ function renderActividades() {
 
     if (actividadesToShow.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No hay actividades disponibles</h3><p>No se encontraron actividades que coincidan con tu búsqueda.</p></div>';
-        document.getElementById('actividadesPagination').style.display = 'none';
+        const paginationEl = document.getElementById('actividadesPagination');
+        if (paginationEl) paginationEl.style.display = 'none';
         return;
     }
 
@@ -4589,16 +4642,24 @@ function updateActividadesPagination() {
     const totalPages = Math.ceil(filteredActividades.length / itemsPerActividadesPage);
     const pagination = document.getElementById('actividadesPagination');
 
+    if (!pagination) return;
+
     if (totalPages <= 1) {
         pagination.style.display = 'none';
         return;
     }
 
     pagination.style.display = 'flex';
-    document.getElementById('currentActividadesPage').textContent = currentActividadesPage;
-    document.getElementById('totalActividadesPages').textContent = totalPages;
-    document.getElementById('prevActividadesPage').disabled = currentActividadesPage === 1;
-    document.getElementById('nextActividadesPage').disabled = currentActividadesPage === totalPages;
+    
+    const currentPageEl = document.getElementById('currentActividadesPage');
+    const totalPagesEl = document.getElementById('totalActividadesPages');
+    const prevPageEl = document.getElementById('prevActividadesPage');
+    const nextPageEl = document.getElementById('nextActividadesPage');
+    
+    if (currentPageEl) currentPageEl.textContent = currentActividadesPage;
+    if (totalPagesEl) totalPagesEl.textContent = totalPages;
+    if (prevPageEl) prevPageEl.disabled = currentActividadesPage === 1;
+    if (nextPageEl) nextPageEl.disabled = currentActividadesPage === totalPages;
 }
 
 function changeActividadesPage(direction) {
