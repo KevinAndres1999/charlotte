@@ -3453,15 +3453,12 @@ function loadStudentInfo() {
 function filterByProgram(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
-    console.log('Filtering for programa:', currentUser.programa);
-    console.log('All items:', items.map(item => ({ id: item.id, programa: item.programa })));
     const filtered = items.filter(item => {
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
         // Solo mostrar items que tienen programa asignado y coinciden con el usuario
         return itemPrograma && itemPrograma === userPrograma;
     });
-    console.log('Filtered items:', filtered.map(item => ({ id: item.id, programa: item.programa })));
     return filtered;
 }
 
@@ -4341,22 +4338,20 @@ function filterByCategory(category) {
 
     switch (category) {
         case 'recientes':
-            filteredClases = allClases.filter(clase =>
+            filteredClases = filteredClases.filter(clase =>
                 clase.fechaCreacion && (new Date() - new Date(clase.fechaCreacion)) < (30 * 24 * 60 * 60 * 1000)
             );
             break;
         case 'no-leidas':
-            filteredClases = allClases.filter(clase => !clase.isRead);
+            filteredClases = filteredClases.filter(clase => !clase.isRead);
             break;
         case 'completadas':
-            filteredClases = allClases.filter(clase => clase.isCompleted);
+            filteredClases = filteredClases.filter(clase => clase.isCompleted);
             break;
         default:
-            filteredClases = [...allClases];
+            // Ya está filtrado por programa desde loadClases
+            break;
     }
-
-    // Aplicar filtro de programa
-    filteredClases = filterByProgram(filteredClases);
     currentPage = 1;
     sortClases();
     renderClases();
@@ -4365,10 +4360,13 @@ function filterByCategory(category) {
 function filterClases() {
     const searchTerm = document.getElementById('clasesSearch').value.toLowerCase();
 
+    // Guardar referencia a las clases filtradas por programa antes de aplicar búsqueda
+    const programFilteredClases = [...filteredClases];
+
     if (!searchTerm) {
-        filteredClases = [...allClases];
+        filteredClases = [...programFilteredClases];
     } else {
-        filteredClases = allClases.filter(clase =>
+        filteredClases = programFilteredClases.filter(clase =>
             clase.titulo.toLowerCase().includes(searchTerm) ||
             (clase.descripcion && clase.descripcion.toLowerCase().includes(searchTerm)) ||
             (clase.tags && clase.tags.toLowerCase().includes(searchTerm))
@@ -4937,6 +4935,20 @@ async function loadClaseDetail(id) {
             const clase = docSnap.data();
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
 
+            // Validar que la clase pertenezca al programa del usuario
+            if (!currentUser || !clase.programa) {
+                showToast('Acceso denegado: clase no disponible para tu programa', 'error');
+                return;
+            }
+            
+            const itemPrograma = (clase.programa || '').toString().toLowerCase().trim();
+            const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
+            
+            if (!itemPrograma || itemPrograma !== userPrograma) {
+                showToast('Acceso denegado: esta clase no pertenece a tu programa', 'error');
+                return;
+            }
+
             // Marcar como leída automáticamente al abrir
             localStorage.setItem(`clase-${id}-read`, 'true');
             localStorage.setItem(`clase-${id}-lastRead`, new Date().toISOString());
@@ -5040,12 +5052,15 @@ function navigateClase(currentId, direction) {
 }
 
 function getClaseIndex(claseId) {
-    return allClases.findIndex(c => c.id === claseId);
+    return filteredClases.findIndex(c => c.id === claseId);
 }
 
 function toggleClaseCompletedFromModal(id) {
-    const clase = allClases.find(c => c.id === id);
-    if (!clase) return;
+    const clase = filteredClases.find(c => c.id === id);
+    if (!clase) {
+        showToast('Clase no encontrada o no disponible para tu programa', 'error');
+        return;
+    }
 
     const isCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
     const newCompleted = !isCompleted;
@@ -5062,8 +5077,11 @@ function toggleClaseCompletedFromModal(id) {
 }
 
 function toggleClaseCompletedFromViewer(id) {
-    const clase = allClases.find(c => c.id === id);
-    if (!clase) return;
+    const clase = filteredClases.find(c => c.id === id);
+    if (!clase) {
+        showToast('Clase no encontrada o no disponible para tu programa', 'error');
+        return;
+    }
 
     const isCompleted = localStorage.getItem(`clase-${id}-completed`) === 'true';
     const newCompleted = !isCompleted;
@@ -5091,8 +5109,11 @@ function toggleClaseCompletedFromViewer(id) {
 }
 
 function shareClase(id) {
-    const clase = allClases.find(c => c.id === id);
-    if (!clase) return;
+    const clase = filteredClases.find(c => c.id === id);
+    if (!clase) {
+        showToast('Clase no encontrada o no disponible para tu programa', 'error');
+        return;
+    }
 
     const url = window.location.href;
     const shareText = `Mira esta clase: "${clase.titulo}" en la plataforma ECE CHARLOTTE`;
@@ -5111,8 +5132,11 @@ function shareClase(id) {
 }
 
 function printClase(id) {
-    const clase = allClases.find(c => c.id === id);
-    if (!clase) return;
+    const clase = filteredClases.find(c => c.id === id);
+    if (!clase) {
+        showToast('Clase no encontrada o no disponible para tu programa', 'error');
+        return;
+    }
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
