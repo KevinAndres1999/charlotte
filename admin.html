@@ -2694,7 +2694,17 @@
                         <p>Crea cuestionarios interactivos con preguntas de opción múltiple y abiertas</p>
                     </div>
 
-                    <form id="cuestionarioForm">
+                    <div class="evaluation-mode-selector">
+                        <button type="button" class="mode-btn active" onclick="setCuestionarioMode('manual')" id="cuestionarioManualModeBtn">
+                            <i class="fas fa-edit"></i> Crear desde cero
+                        </button>
+                        <button type="button" class="mode-btn" onclick="setCuestionarioMode('auto')" id="cuestionarioAutoModeBtn">
+                            <i class="fas fa-magic"></i> Generar automáticamente
+                        </button>
+                    </div>
+
+                    <!-- Modo Manual -->
+                    <form id="cuestionarioForm" style="display: block;">
                         <div class="quiz-form-grid">
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-info-circle"></i> Información General</h4>
@@ -2754,6 +2764,75 @@
                             </button>
                         </div>
                     </form>
+
+                    <!-- Modo Automático -->
+                    <div id="cuestionarioAutoMode" style="display: none;">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioTitle">Título del Cuestionario</label>
+                                    <input type="text" id="autoCuestionarioTitle" placeholder="Ej: Evaluación de Técnicas de Belleza" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioDesc">Descripción</label>
+                                    <textarea id="autoCuestionarioDesc" placeholder="Describe el propósito y contenido del cuestionario..."></textarea>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioPrograma">Programa</label>
+                                    <select id="autoCuestionarioPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración de Generación</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoNumPreguntas">Número de Preguntas a Generar</label>
+                                    <input type="number" id="autoNumPreguntas" placeholder="10" min="1" max="50" value="10">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioTiempo">Tiempo Disponible (minutos)</label>
+                                    <input type="number" id="autoCuestionarioTiempo" placeholder="60" min="1" value="60">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioIntentos">Número de Intentos</label>
+                                    <input type="number" id="autoCuestionarioIntentos" placeholder="1" min="1" value="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card" style="margin-top: 20px;">
+                            <h4><i class="fas fa-file-alt"></i> Contenido para Generar Preguntas</h4>
+                            <div class="form-group">
+                                <label for="autoContentText">Pega aquí todo el texto del que quieres generar preguntas</label>
+                                <textarea id="autoContentText" placeholder="Pega aquí el contenido completo (artículos, apuntes, teoría, etc.) del que se generarán las preguntas automáticamente..." style="min-height: 300px; resize: vertical;"></textarea>
+                            </div>
+                            <div class="form-actions" style="margin-top: 15px;">
+                                <button type="button" class="btn-submit-quiz" onclick="generarPreguntasAutomaticas()" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    <i class="fas fa-magic"></i> Generar Preguntas Automáticamente
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview de preguntas generadas -->
+                        <div id="autoQuestionsPreview" style="display: none; margin-top: 30px;">
+                            <h4><i class="fas fa-eye"></i> Preguntas Generadas - Revisa y Edita</h4>
+                            <div id="autoQuestionsContainer"></div>
+                            <div class="form-actions" style="margin-top: 20px;">
+                                <button type="button" class="btn-secondary" onclick="regenerarPreguntas()" style="margin-right: 10px;">
+                                    <i class="fas fa-redo"></i> Regenerar Preguntas
+                                </button>
+                                <button type="button" class="btn-submit-quiz" onclick="publicarCuestionarioAuto()">
+                                    <i class="fas fa-rocket"></i> Publicar Cuestionario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="quiz-builder-section">
@@ -5448,6 +5527,26 @@
             }
         }
 
+        // Función para cambiar modo en cuestionarios
+        function setCuestionarioMode(mode) {
+            const manualBtn = document.getElementById('cuestionarioManualModeBtn');
+            const autoBtn = document.getElementById('cuestionarioAutoModeBtn');
+            const manualForm = document.getElementById('cuestionarioForm');
+            const autoMode = document.getElementById('cuestionarioAutoMode');
+
+            if (mode === 'manual') {
+                manualBtn.classList.add('active');
+                autoBtn.classList.remove('active');
+                manualForm.style.display = 'block';
+                autoMode.style.display = 'none';
+            } else if (mode === 'auto') {
+                autoBtn.classList.add('active');
+                manualBtn.classList.remove('active');
+                manualForm.style.display = 'none';
+                autoMode.style.display = 'block';
+            }
+        }
+
         // Función para cargar cuestionarios para selección
         async function loadCuestionariosForSelection() {
             const container = document.getElementById('cuestionariosSelector');
@@ -5591,10 +5690,309 @@
         window.viewEntregaDetail = viewEntregaDetail;
         window.closeModal = closeModal;
         window.setEvaluationMode = setEvaluationMode;
+        window.setCuestionarioMode = setCuestionarioMode;
         window.toggleCuestionarioQuestions = toggleCuestionarioQuestions;
         window.toggleQuestionSelection = toggleQuestionSelection;
         window.submitEvaluacion = submitEvaluacion;
         window.calificarEntrega = calificarEntrega;
+        window.generarPreguntasAutomaticas = generarPreguntasAutomaticas;
+        window.regenerarPreguntas = regenerarPreguntas;
+        window.publicarCuestionarioAuto = publicarCuestionarioAuto;
+        window.cambiarRespuestaCorrecta = cambiarRespuestaCorrecta;
+        window.editarPregunta = editarPregunta;
+        window.eliminarPreguntaAuto = eliminarPreguntaAuto;
+
+        // =================== FUNCIONES DE GENERACIÓN AUTOMÁTICA ===================
+
+        // Función para generar preguntas automáticamente
+        function generarPreguntasAutomaticas() {
+            const contentText = document.getElementById('autoContentText').value.trim();
+            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value) || 10;
+
+            if (!contentText) {
+                alert('Por favor, pega el contenido del que quieres generar preguntas.');
+                return;
+            }
+
+            if (contentText.length < 100) {
+                alert('El contenido es muy corto. Necesitas al menos 100 caracteres para generar preguntas de calidad.');
+                return;
+            }
+
+            // Mostrar loading
+            const generateBtn = document.querySelector('#cuestionarioAutoMode button[onclick="generarPreguntasAutomaticas()"]');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas...';
+            generateBtn.disabled = true;
+
+            try {
+                // Generar preguntas basadas en el contenido
+                const preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
+
+                // Mostrar preview de preguntas
+                mostrarPreviewPreguntas(preguntasGeneradas);
+
+                // Restaurar botón
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+
+            } catch (error) {
+                console.error('Error generando preguntas:', error);
+                alert('Error al generar preguntas: ' + error.message);
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Función para generar preguntas desde texto
+        function generarPreguntasDesdeTexto(texto, numPreguntas) {
+            const oraciones = texto.split(/[.!?]+/).filter(s => s.trim().length > 10);
+            const palabras = texto.toLowerCase().match(/\b\w{4,}\b/g) || [];
+            const conceptos = [...new Set(palabras)].filter(palabra =>
+                !['para', 'con', 'por', 'que', 'los', 'las', 'del', 'una', 'este', 'esta', 'esto', 'como', 'pero', 'sobre', 'entre', 'desde', 'hasta', 'durante'].includes(palabra)
+            );
+
+            const preguntas = [];
+
+            // Generar preguntas basadas en oraciones
+            for (let i = 0; i < Math.min(numPreguntas, oraciones.length); i++) {
+                const oracion = oraciones[i].trim();
+                if (oracion.length < 20) continue;
+
+                const pregunta = generarPreguntaDesdeOracion(oracion, conceptos);
+                if (pregunta) {
+                    preguntas.push(pregunta);
+                }
+            }
+
+            // Si no tenemos suficientes preguntas, generar algunas adicionales
+            while (preguntas.length < numPreguntas && conceptos.length > 3) {
+                const concepto = conceptos[Math.floor(Math.random() * conceptos.length)];
+                const pregunta = generarPreguntaConcepto(concepto, texto);
+                if (pregunta) {
+                    preguntas.push(pregunta);
+                }
+            }
+
+            return preguntas.slice(0, numPreguntas);
+        }
+
+        // Función para generar pregunta desde una oración
+        function generarPreguntaDesdeOracion(oracion, conceptos) {
+            // Encontrar conceptos en la oración
+            const conceptosEnOracion = conceptos.filter(concepto =>
+                oracion.toLowerCase().includes(concepto)
+            );
+
+            if (conceptosEnOracion.length === 0) return null;
+
+            const conceptoPrincipal = conceptosEnOracion[0];
+
+            // Crear pregunta reemplazando el concepto con un blank
+            const preguntaTexto = oracion.replace(new RegExp(conceptoPrincipal, 'gi'), '_____');
+
+            // Generar opciones de respuesta
+            const opcionesCorrectas = [conceptoPrincipal];
+            const otrasOpciones = conceptos
+                .filter(c => c !== conceptoPrincipal)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3);
+
+            const opciones = [...opcionesCorrectas, ...otrasOpciones].sort(() => Math.random() - 0.5);
+
+            return {
+                pregunta: `¿Cuál es el término correcto? ${preguntaTexto}`,
+                opciones: opciones,
+                correcta: opciones.indexOf(conceptoPrincipal),
+                explicacion: `La respuesta correcta es "${conceptoPrincipal}" basado en el contexto proporcionado.`
+            };
+        }
+
+        // Función para generar pregunta sobre un concepto
+        function generarPreguntaConcepto(concepto, texto) {
+            const tiposPregunta = [
+                `¿Qué significa "${concepto}" en el contexto?`,
+                `¿Cuál es la definición de "${concepto}"?`,
+                `¿Qué representa "${concepto}"?`,
+                `¿Cuál es la función de "${concepto}"?`
+            ];
+
+            const pregunta = tiposPregunta[Math.floor(Math.random() * tiposPregunta.length)];
+
+            // Generar opciones aleatorias
+            const otrasOpciones = ['No aplica', 'Sin definir', 'Otro concepto', 'No especificado'];
+            const opciones = [concepto, ...otrasOpciones.slice(0, 3)].sort(() => Math.random() - 0.5);
+
+            return {
+                pregunta: pregunta,
+                opciones: opciones,
+                correcta: opciones.indexOf(concepto),
+                explicacion: `Según el contenido proporcionado, "${concepto}" es un concepto importante.`
+            };
+        }
+
+        // Función para mostrar preview de preguntas generadas
+        function mostrarPreviewPreguntas(preguntas) {
+            const container = document.getElementById('autoQuestionsContainer');
+            const preview = document.getElementById('autoQuestionsPreview');
+
+            container.innerHTML = preguntas.map((pregunta, index) => `
+                <div class="question-item" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                    <h5>Pregunta ${index + 1}</h5>
+                    <p><strong>${pregunta.pregunta}</strong></p>
+
+                    <div class="opciones-container">
+                        ${pregunta.opciones.map((opcion, opcionIndex) => `
+                            <div class="opcion-item" style="margin: 5px 0;">
+                                <label style="display: flex; align-items: center;">
+                                    <input type="radio"
+                                           name="pregunta-${index}"
+                                           value="${opcionIndex}"
+                                           ${opcionIndex === pregunta.correcta ? 'checked' : ''}
+                                           onchange="cambiarRespuestaCorrecta(${index}, ${opcionIndex})">
+                                    ${String.fromCharCode(65 + opcionIndex)}) ${opcion}
+                                    ${opcionIndex === pregunta.correcta ? '<span style="color: green; margin-left: 10px;"><i class="fas fa-check"></i> Correcta</span>' : ''}
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="explicacion-container" style="margin-top: 10px;">
+                        <label>Explicación:</label>
+                        <textarea class="explicacion-textarea" data-pregunta-index="${index}" style="width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${pregunta.explicacion}</textarea>
+                    </div>
+
+                    <div class="question-actions" style="margin-top: 10px;">
+                        <button type="button" class="btn-secondary" onclick="editarPregunta(${index})" style="font-size: 12px; padding: 5px 10px;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button type="button" class="btn-delete" onclick="eliminarPreguntaAuto(${index})" style="font-size: 12px; padding: 5px 10px;">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Guardar preguntas generadas globalmente
+            window.preguntasGeneradas = preguntas;
+
+            preview.style.display = 'block';
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función para cambiar respuesta correcta
+        function cambiarRespuestaCorrecta(preguntaIndex, opcionIndex) {
+            if (window.preguntasGeneradas && window.preguntasGeneradas[preguntaIndex]) {
+                window.preguntasGeneradas[preguntaIndex].correcta = opcionIndex;
+
+                // Actualizar visual
+                const opciones = document.querySelectorAll(`input[name="pregunta-${preguntaIndex}"]`);
+                opciones.forEach((opcion, index) => {
+                    const label = opcion.parentElement;
+                    const checkIcon = label.querySelector('.fa-check');
+                    if (checkIcon) checkIcon.remove();
+
+                    if (index === opcionIndex) {
+                        label.innerHTML += '<span style="color: green; margin-left: 10px;"><i class="fas fa-check"></i> Correcta</span>';
+                    }
+                });
+            }
+        }
+
+        // Función para editar pregunta
+        function editarPregunta(index) {
+            const pregunta = window.preguntasGeneradas[index];
+            const nuevaPregunta = prompt('Editar pregunta:', pregunta.pregunta);
+            if (nuevaPregunta && nuevaPregunta.trim()) {
+                pregunta.pregunta = nuevaPregunta.trim();
+                mostrarPreviewPreguntas(window.preguntasGeneradas);
+            }
+        }
+
+        // Función para eliminar pregunta
+        function eliminarPreguntaAuto(index) {
+            if (confirm('¿Estás seguro de eliminar esta pregunta?')) {
+                window.preguntasGeneradas.splice(index, 1);
+                mostrarPreviewPreguntas(window.preguntasGeneradas);
+            }
+        }
+
+        // Función para regenerar preguntas
+        function regenerarPreguntas() {
+            const contentText = document.getElementById('autoContentText').value.trim();
+            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value) || 10;
+
+            if (!contentText) {
+                alert('No hay contenido para regenerar preguntas.');
+                return;
+            }
+
+            generarPreguntasAutomaticas();
+        }
+
+        // Función para publicar cuestionario generado automáticamente
+        async function publicarCuestionarioAuto() {
+            const title = document.getElementById('autoCuestionarioTitle').value.trim();
+            const desc = document.getElementById('autoCuestionarioDesc').value.trim();
+            const programa = document.getElementById('autoCuestionarioPrograma').value;
+            const tiempo = parseInt(document.getElementById('autoCuestionarioTiempo').value) || 60;
+            const intentos = parseInt(document.getElementById('autoCuestionarioIntentos').value) || 1;
+
+            if (!title || !programa) {
+                alert('Por favor, completa el título y selecciona un programa.');
+                return;
+            }
+
+            if (!window.preguntasGeneradas || window.preguntasGeneradas.length === 0) {
+                alert('No hay preguntas generadas. Genera preguntas primero.');
+                return;
+            }
+
+            // Actualizar explicaciones desde los textareas
+            document.querySelectorAll('.explicacion-textarea').forEach((textarea, index) => {
+                if (window.preguntasGeneradas[index]) {
+                    window.preguntasGeneradas[index].explicacion = textarea.value.trim();
+                }
+            });
+
+            try {
+                const cuestionarioData = {
+                    titulo: title,
+                    descripcion: desc,
+                    programa: programa,
+                    tiempoLimite: tiempo,
+                    intentosMaximos: intentos,
+                    preguntas: window.preguntasGeneradas.map(p => ({
+                        pregunta: p.pregunta,
+                        opciones: p.opciones,
+                        correcta: p.correcta,
+                        explicacion: p.explicacion,
+                        tipo: 'multiple'
+                    })),
+                    fechaCreacion: new Date().toISOString(),
+                    estado: 'activo',
+                    tipo: 'cuestionario'
+                };
+
+                await db.collection('cuestionarios').add(cuestionarioData);
+
+                alert('¡Cuestionario publicado exitosamente!');
+                loadCuestionarios();
+                loadDashboardStats();
+
+                // Limpiar formulario
+                document.getElementById('autoCuestionarioTitle').value = '';
+                document.getElementById('autoCuestionarioDesc').value = '';
+                document.getElementById('autoCuestionarioPrograma').value = '';
+                document.getElementById('autoContentText').value = '';
+                document.getElementById('autoQuestionsPreview').style.display = 'none';
+                window.preguntasGeneradas = [];
+
+            } catch (error) {
+                console.error('Error publicando cuestionario:', error);
+                alert('Error al publicar cuestionario: ' + error.message);
+            }
+        }
 
         // =================== FUNCIONES DE RESPUESTAS ===================
         let allRespuestas = [];
