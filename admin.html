@@ -1978,6 +1978,9 @@
                             <option value="Belleza Integral">Belleza Integral</option>
                             <option value="Asesoría Técnica">Asesoría Técnica</option>
                         </select>
+                        <button onclick="limpiarDuplicados()" class="btn-secondary" style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;" title="Eliminar usuarios duplicados">
+                            <i class="fas fa-broom"></i> Limpiar Duplicados
+                        </button>
                         <select id="filterLugar" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             <option value="">Todos los lugares</option>
                         </select>
@@ -3925,7 +3928,18 @@
             try {
                 const q = db.collection('users').where('role', '==', 'student');
                 const snapshot = await q.get();
-                allApprovedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Filtrar duplicados basados en email, manteniendo el más reciente
+                const uniqueUsers = {};
+                users.forEach(user => {
+                    const email = user.email;
+                    if (!uniqueUsers[email] || new Date(user.approvedAt || 0) > new Date(uniqueUsers[email].approvedAt || 0)) {
+                        uniqueUsers[email] = user;
+                    }
+                });
+
+                allApprovedUsers = Object.values(uniqueUsers);
                 document.getElementById('total-aprobados').textContent = allApprovedUsers.length;
                 renderApprovedUsers();
             } catch (error) {
@@ -4033,6 +4047,22 @@
                 const data = docSnap.data();
                 console.log('Datos del usuario a aprobar:', data);
 
+                // Verificar si el usuario ya existe en la colección users
+                console.log('Verificando si el usuario ya existe...');
+                const existingUserQuery = await db.collection('users')
+                    .where('email', '==', data.email)
+                    .where('role', '==', 'student')
+                    .get();
+
+                if (!existingUserQuery.empty) {
+                    console.log('Usuario ya existe, eliminando de pendientes sin crear duplicado');
+                    await docRef.delete();
+                    loadUsuariosPendientes();
+                    loadUsuariosAprobados();
+                    alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
+                    return;
+                }
+
                 // Usar la contraseña registrada por el estudiante
                 const password = data.password;
                 if (!password || password.length < 6) {
@@ -4099,6 +4129,59 @@
             } catch (error) {
                 console.error('Error deleting user:', error);
                 alert('Error al eliminar usuario');
+            }
+        }
+
+        // Función para limpiar usuarios duplicados
+        async function limpiarDuplicados() {
+            if (!confirm('¿Estás seguro de limpiar usuarios duplicados? Esta acción eliminará registros duplicados basados en email.')) return;
+
+            try {
+                console.log('Iniciando limpieza de duplicados...');
+                const snapshot = await db.collection('users').where('role', '==', 'student').get();
+                const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Agrupar por email
+                const usersByEmail = {};
+                users.forEach(user => {
+                    const email = user.email;
+                    if (!usersByEmail[email]) {
+                        usersByEmail[email] = [];
+                    }
+                    usersByEmail[email].push(user);
+                });
+
+                let duplicatesRemoved = 0;
+
+                // Para cada grupo de usuarios con el mismo email
+                for (const email in usersByEmail) {
+                    const userGroup = usersByEmail[email];
+                    if (userGroup.length > 1) {
+                        console.log(`Encontrados ${userGroup.length} duplicados para ${email}`);
+
+                        // Ordenar por fecha de aprobación (más reciente primero)
+                        userGroup.sort((a, b) => {
+                            const dateA = new Date(a.approvedAt || 0);
+                            const dateB = new Date(b.approvedAt || 0);
+                            return dateB - dateA; // Más reciente primero
+                        });
+
+                        // Mantener el primero (más reciente) y eliminar los demás
+                        for (let i = 1; i < userGroup.length; i++) {
+                            console.log(`Eliminando duplicado: ${userGroup[i].id}`);
+                            await db.collection('users').doc(userGroup[i].id).delete();
+                            duplicatesRemoved++;
+                        }
+                    }
+                }
+
+                console.log(`Limpieza completada. Se eliminaron ${duplicatesRemoved} duplicados.`);
+                loadUsuariosAprobados();
+                alert(`Limpieza completada. Se eliminaron ${duplicatesRemoved} usuarios duplicados.`);
+
+            } catch (error) {
+                console.error('Error limpiando duplicados:', error);
+                alert('Error al limpiar duplicados: ' + error.message);
             }
         }
 
@@ -5476,6 +5559,7 @@
         window.aprobarUsuario = aprobarUsuario;
         window.rechazarUsuario = rechazarUsuario;
         window.eliminarUsuario = eliminarUsuario;
+        window.limpiarDuplicados = limpiarDuplicados;
         window.resetPassword = resetPassword;
         window.loadUsuariosAprobados = loadUsuariosAprobados;
         window.deleteItem = deleteItem;
