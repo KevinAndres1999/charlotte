@@ -2790,6 +2790,32 @@
                             </div>
 
                             <div class="quiz-form-card">
+                                <h4><i class="fas fa-robot"></i> Configuración de IA</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="openaiApiKey">API Key de OpenAI</label>
+                                    <input type="password" id="openaiApiKey" placeholder="sk-..." title="Ingresa tu API key de OpenAI para generar preguntas con IA">
+                                    <small style="color: #666; font-size: 12px;">Obtén tu API key en <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></small>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="openaiModel">Modelo de IA</label>
+                                    <select id="openaiModel">
+                                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Recomendado - Más económico)</option>
+                                        <option value="gpt-4">GPT-4 (Más preciso pero más costoso)</option>
+                                        <option value="gpt-4-turbo">GPT-4 Turbo (Balance óptimo)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>
+                                        <input type="checkbox" id="useFallback" checked> Usar algoritmo básico si falla la IA
+                                    </label>
+                                    <br><br>
+                                    <button type="button" class="btn-secondary" onclick="testOpenAIConnection()" style="font-size: 12px; padding: 5px 10px;">
+                                        <i class="fas fa-plug"></i> Probar conexión con OpenAI
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
                                 <h4><i class="fas fa-cogs"></i> Configuración de Generación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="autoNumPreguntas">Número de Preguntas a Generar</label>
@@ -5705,9 +5731,11 @@
         // =================== FUNCIONES DE GENERACIÓN AUTOMÁTICA ===================
 
         // Función para generar preguntas automáticamente
-        function generarPreguntasAutomaticas() {
+        async function generarPreguntasAutomaticas() {
             const contentText = document.getElementById('autoContentText').value.trim();
             const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value) || 10;
+            const apiKey = document.getElementById('openaiApiKey').value.trim();
+            const useFallback = document.getElementById('useFallback').checked;
 
             if (!contentText) {
                 alert('Por favor, pega el contenido del que quieres generar preguntas.');
@@ -5722,12 +5750,33 @@
             // Mostrar loading
             const generateBtn = document.querySelector('#cuestionarioAutoMode button[onclick="generarPreguntasAutomaticas()"]');
             const originalText = generateBtn.innerHTML;
-            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas...';
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas con IA...';
             generateBtn.disabled = true;
 
             try {
-                // Generar preguntas basadas en el contenido
-                const preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
+                let preguntasGeneradas;
+
+                // Intentar generar con IA si hay API key
+                if (apiKey) {
+                    console.log('Intentando generar preguntas con IA...');
+                    try {
+                        preguntasGeneradas = await generarPreguntasConIA(contentText, numPreguntas, apiKey);
+                        console.log('Preguntas generadas con IA:', preguntasGeneradas.length);
+                    } catch (aiError) {
+                        console.error('Error con IA:', aiError);
+                        if (useFallback) {
+                            console.log('Usando algoritmo básico como fallback...');
+                            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas (fallback)...';
+                            preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
+                        } else {
+                            throw new Error('Error con IA: ' + aiError.message + '. Activa el fallback o verifica tu API key.');
+                        }
+                    }
+                } else {
+                    console.log('No hay API key, usando algoritmo básico...');
+                    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas...';
+                    preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
+                }
 
                 // Mostrar preview de preguntas
                 mostrarPreviewPreguntas(preguntasGeneradas);
@@ -5991,6 +6040,153 @@
             } catch (error) {
                 console.error('Error publicando cuestionario:', error);
                 alert('Error al publicar cuestionario: ' + error.message);
+            }
+        }
+
+        // Función de prueba para validar la integración con IA
+        async function testOpenAIConnection() {
+            const apiKey = document.getElementById('openaiApiKey').value.trim();
+            const model = document.getElementById('openaiModel').value;
+
+            if (!apiKey) {
+                alert('Por favor, ingresa tu API key de OpenAI primero.');
+                return;
+            }
+
+            try {
+                console.log('Probando conexión con OpenAI...');
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: 'Responde solo con "OK" si puedes leerme.'
+                            }
+                        ],
+                        max_tokens: 10
+                    })
+                });
+
+                if (response.ok) {
+                    alert('¡Conexión exitosa con OpenAI! La API key es válida.');
+                } else {
+                    const error = await response.json();
+                    alert('Error de conexión: ' + error.error?.message || 'Error desconocido');
+                }
+
+            } catch (error) {
+                console.error('Error probando conexión:', error);
+                alert('Error al probar la conexión: ' + error.message);
+            }
+        }
+            const model = document.getElementById('openaiModel').value || 'gpt-3.5-turbo';
+
+            // Preparar el prompt para la IA
+            const prompt = `Analiza el siguiente contenido y genera ${numPreguntas} preguntas de opción múltiple (con 4 opciones cada una, donde solo una es correcta). Cada pregunta debe ser educativa, relevante para el contenido, y las opciones deben ser plausibles pero solo una correcta.
+
+Contenido a analizar:
+${texto}
+
+Instrucciones:
+1. Genera exactamente ${numPreguntas} preguntas
+2. Cada pregunta debe tener 4 opciones (A, B, C, D)
+3. Solo una opción debe ser correcta
+4. Incluye una breve explicación para cada respuesta correcta
+5. Las preguntas deben cubrir conceptos importantes del contenido
+6. Las opciones incorrectas deben ser plausibles pero claramente incorrectas
+
+Formato de respuesta (JSON válido):
+[
+  {
+    "pregunta": "¿Cuál es el concepto principal?",
+    "opciones": ["Opción A", "Opción B", "Opción C", "Opción D"],
+    "correcta": 0,
+    "explicacion": "Explicación breve de por qué esta es la respuesta correcta"
+  }
+]
+
+Responde solo con el JSON, sin texto adicional:`;
+
+            try {
+                console.log('Enviando solicitud a OpenAI API...');
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ],
+                        max_tokens: 4000,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Error de API: ${response.status} - ${errorData.error?.message || 'Error desconocido'}`);
+                }
+
+                const data = await response.json();
+                console.log('Respuesta de OpenAI:', data);
+
+                if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                    throw new Error('Respuesta inválida de la API de OpenAI');
+                }
+
+                const content = data.choices[0].message.content.trim();
+                console.log('Contenido de respuesta:', content);
+
+                // Intentar parsear el JSON
+                let preguntas;
+                try {
+                    // Limpiar el contenido si tiene markdown
+                    const cleanContent = content.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+                    preguntas = JSON.parse(cleanContent);
+                } catch (parseError) {
+                    console.error('Error parseando JSON:', parseError);
+                    console.log('Contenido que falló:', content);
+                    throw new Error('La respuesta de la IA no tiene el formato JSON esperado');
+                }
+
+                // Validar estructura de las preguntas
+                if (!Array.isArray(preguntas)) {
+                    throw new Error('La respuesta no es un array de preguntas');
+                }
+
+                const preguntasValidadas = preguntas.map((p, index) => {
+                    if (!p.pregunta || !Array.isArray(p.opciones) || p.opciones.length !== 4 || typeof p.correcta !== 'number' || !p.explicacion) {
+                        throw new Error(`Pregunta ${index + 1} tiene estructura inválida`);
+                    }
+
+                    return {
+                        pregunta: p.pregunta,
+                        opciones: p.opciones,
+                        correcta: p.correcta,
+                        explicacion: p.explicacion
+                    };
+                });
+
+                console.log(`Generadas ${preguntasValidadas.length} preguntas con IA`);
+                return preguntasValidadas;
+
+            } catch (error) {
+                console.error('Error en generarPreguntasConIA:', error);
+                throw error;
             }
         }
 
