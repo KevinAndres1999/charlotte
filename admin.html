@@ -3893,8 +3893,31 @@
                 // Si hay un elemento para mostrar respuestas en el dashboard, actualizarlo aquí
 
                 const usuariosSnapshot = await db.collection('users').where('role', '==', 'student').get();
-                console.log('Usuarios snapshot size:', usuariosSnapshot.size);
-                document.getElementById('stat-usuarios').textContent = usuariosSnapshot.size;
+                console.log('Usuarios snapshot size (raw):', usuariosSnapshot.size);
+                
+                // Filtrar usuarios activos y eliminar duplicados por email
+                let activeUsers = usuariosSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(user => user.status === 'active');
+                
+                console.log('Usuarios por status:', {
+                    total: usuariosSnapshot.size,
+                    active: activeUsers.length,
+                    inactive: usuariosSnapshot.size - activeUsers.length
+                });
+                
+                // Eliminar duplicados basados en email, manteniendo el más reciente
+                const uniqueUsers = {};
+                activeUsers.forEach(user => {
+                    const email = user.email;
+                    if (!uniqueUsers[email] || new Date(user.approvedAt || 0) > new Date(uniqueUsers[email].approvedAt || 0)) {
+                        uniqueUsers[email] = user;
+                    }
+                });
+                
+                const finalUserCount = Object.keys(uniqueUsers).length;
+                console.log('Usuarios activos únicos:', finalUserCount);
+                document.getElementById('stat-usuarios').textContent = finalUserCount;
 
                 const cuestionariosSnapshot = await db.collection('cuestionarios').get();
                 console.log('Cuestionarios snapshot size:', cuestionariosSnapshot.size);
