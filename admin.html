@@ -4037,7 +4037,7 @@
                     approvedBy: currentUser ? currentUser.uid : 'admin'
                 });
 
-                await deleteDoc(docRef);
+                await docRef.delete();
                 loadUsuariosPendientes();
                 loadUsuariosAprobados();
                 alert('Usuario aprobado exitosamente');
