@@ -2795,7 +2795,8 @@
                                     <label for="openaiApiKey">API Key de Together AI (Gratuita)</label>
                                     <input type="password" id="openaiApiKey" placeholder="Tu API key gratuita" title="API key gratuita de Together AI">
                                     <small style="color: #666; font-size: 12px;">
-                                        <i class="fas fa-info-circle"></i> Obtén tu API key gratuita en <a href="https://api.together.xyz" target="_blank">api.together.xyz</a> (sin tarjeta de crédito)
+                                        <i class="fas fa-info-circle"></i> Obtén tu API key gratuita en <a href="https://api.together.xyz" target="_blank">api.together.xyz</a> (sin tarjeta de crédito).<br>
+                                        <strong>Nota:</strong> Asegúrate de copiar la API key completa que comienza con un prefijo específico.
                                     </small>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -5755,7 +5756,7 @@
                 let preguntasGeneradas;
 
                 // Intentar generar con IA si hay API key
-                if (apiKey) {
+                if (apiKey && apiKey.length >= 10) {
                     console.log('Intentando generar preguntas con IA...');
                     try {
                         preguntasGeneradas = await generarPreguntasConIA(contentText, numPreguntas, apiKey);
@@ -5771,7 +5772,7 @@
                         }
                     }
                 } else {
-                    console.log('No hay API key, usando algoritmo básico...');
+                    console.log('No hay API key válida, usando algoritmo básico...');
                     generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas...';
                     preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
                 }
@@ -6050,6 +6051,11 @@
                 return;
             }
 
+            if (apiKey.length < 10) {
+                alert('La API key parece ser demasiado corta. Asegúrate de copiar la API key completa de Together AI.');
+                return;
+            }
+
             try {
                 console.log('Probando conexión con Together AI (gratuito)...');
 
@@ -6074,18 +6080,29 @@
                 if (response.ok) {
                     alert('¡Conexión exitosa con IA gratuita! El servicio está funcionando correctamente.');
                 } else {
-                    const error = await response.json();
-                    alert('Error de conexión: ' + (error.error?.message || 'Error desconocido') + '\n\nAsegúrate de que tu API key de Together AI sea correcta.');
+                    const error = await response.json().catch(() => ({}));
+                    if (response.status === 401) {
+                        alert('❌ API key inválida. Verifica que:\n\n1. Copiaste la API key completa de Together AI\n2. La API key no tiene espacios extra\n3. La API key es de Together AI (no de otro servicio)\n\nObtén tu API key en: https://api.together.xyz');
+                    } else if (response.status === 429) {
+                        alert('⚠️ Límite de uso excedido. Espera un momento antes de intentar nuevamente.');
+                    } else {
+                        alert('Error de conexión: ' + (error.error?.message || 'Error desconocido') + '\n\nCódigo: ' + response.status);
+                    }
                 }
 
             } catch (error) {
                 console.error('Error probando conexión:', error);
-                alert('Error al probar la conexión: ' + error.message + '\n\nVerifica tu conexión a internet y tu API key.');
+                alert('Error al probar la conexión: ' + error.message + '\n\nVerifica tu conexión a internet.');
             }
         }
 
         // Función para generar preguntas con IA usando Together AI (GRATUITO)
         async function generarPreguntasConIA(texto, numPreguntas, apiKey) {
+            // Validar API key
+            if (!apiKey || apiKey.length < 10) {
+                throw new Error('API key inválida. Obtén una API key válida de Together AI.');
+            }
+
             // Usar Together AI (gratuito con límites generosos)
             const model = 'mistralai/Mistral-7B-Instruct-v0.1'; // Modelo gratuito disponible
 
@@ -6120,7 +6137,16 @@ Formato requerido:
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Error de API: ${response.status}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 401) {
+                        throw new Error('API key inválida o expirada. Verifica tu API key de Together AI.');
+                    } else if (response.status === 429) {
+                        throw new Error('Límite de uso excedido. Espera un momento o usa el algoritmo básico.');
+                    } else if (response.status === 400) {
+                        throw new Error('Solicitud inválida. Revisa el formato de tu API key.');
+                    } else {
+                        throw new Error(`Error de API: ${response.status} - ${errorData.error?.message || 'Error desconocido'}`);
+                    }
                 }
 
                 const data = await response.json();
