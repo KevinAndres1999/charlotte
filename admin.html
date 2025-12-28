@@ -3908,8 +3908,11 @@
         // Usuarios pendientes
         async function loadUsuariosPendientes() {
             try {
+                console.log('Cargando usuarios pendientes...');
                 const snapshot = await db.collection('pendingStudents').orderBy('registeredDate', 'desc').get();
+                console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
                 allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Usuarios pendientes cargados:', allPendingUsers.length);
                 document.getElementById('total-pendientes').textContent = allPendingUsers.length;
                 renderPendingUsers();
             } catch (error) {
@@ -4016,9 +4019,19 @@
         }
         async function aprobarUsuario(id) {
             try {
+                console.log('Aprobando usuario con ID:', id);
                 const docRef = db.collection('pendingStudents').doc(id);
-                const docSnap = await db.collection('pendingStudents').where('__name__', '==', id).get();
-                const data = docSnap.docs[0].data();
+
+                // Verificar que el documento existe antes de intentar obtenerlo
+                const docSnap = await docRef.get();
+                if (!docSnap.exists) {
+                    console.error('Documento no encontrado en pendingStudents:', id);
+                    alert('Error: Usuario no encontrado en solicitudes pendientes');
+                    return;
+                }
+
+                const data = docSnap.data();
+                console.log('Datos del usuario a aprobar:', data);
 
                 // Usar la contraseña registrada por el estudiante
                 const password = data.password;
@@ -4028,6 +4041,7 @@
                 }
 
                 // Guardar en users con la contraseña original
+                console.log('Guardando usuario en colección users...');
                 await db.collection('users').add({
                     ...data,
                     password: password,
@@ -4037,24 +4051,42 @@
                     approvedBy: currentUser ? currentUser.uid : 'admin'
                 });
 
+                // Eliminar de pendingStudents
+                console.log('Eliminando usuario de pendingStudents...');
                 await docRef.delete();
+
+                console.log('Usuario aprobado exitosamente, recargando listas...');
                 loadUsuariosPendientes();
                 loadUsuariosAprobados();
                 alert('Usuario aprobado exitosamente');
             } catch (error) {
                 console.error('Error approving user:', error);
-                alert('Error al aprobar usuario');
+                alert('Error al aprobar usuario: ' + error.message);
             }
         }
 
         async function rechazarUsuario(id) {
             try {
-                await db.collection('pendingStudents').doc(id).delete();
+                console.log('Rechazando usuario con ID:', id);
+                const docRef = db.collection('pendingStudents').doc(id);
+
+                // Verificar que el documento existe
+                const docSnap = await docRef.get();
+                if (!docSnap.exists) {
+                    console.error('Documento no encontrado en pendingStudents para rechazar:', id);
+                    alert('Error: Usuario no encontrado en solicitudes pendientes');
+                    return;
+                }
+
+                console.log('Eliminando usuario rechazado de pendingStudents...');
+                await docRef.delete();
+
+                console.log('Usuario rechazado exitosamente, recargando lista...');
                 loadUsuariosPendientes();
                 alert('Solicitud rechazada');
             } catch (error) {
                 console.error('Error rejecting user:', error);
-                alert('Error al rechazar solicitud');
+                alert('Error al rechazar solicitud: ' + error.message);
             }
         }
 
