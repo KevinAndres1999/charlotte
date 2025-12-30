@@ -5835,6 +5835,12 @@
                 }
 
                 // Mostrar preview de preguntas
+                console.log('📋 Mostrando preview de preguntas generadas:', preguntasGeneradas);
+                console.log('📊 Número de preguntas:', preguntasGeneradas.length);
+                if (preguntasGeneradas.length > 0) {
+                    console.log('🔍 Primera pregunta:', preguntasGeneradas[0]);
+                    console.log('🔍 Propiedades de primera pregunta:', Object.keys(preguntasGeneradas[0]));
+                }
                 mostrarPreviewPreguntas(preguntasGeneradas);
 
                 // Restaurar botón
@@ -5938,33 +5944,59 @@
 
         // Función para mostrar preview de preguntas generadas
         function mostrarPreviewPreguntas(preguntas) {
+            console.log('🎯 mostrarPreviewPreguntas recibió:', preguntas);
+            console.log('📊 Número de preguntas recibidas:', preguntas ? preguntas.length : 'undefined');
+
             const container = document.getElementById('autoQuestionsContainer');
             const preview = document.getElementById('autoQuestionsPreview');
 
-            container.innerHTML = preguntas.map((pregunta, index) => `
-                <div class="question-item" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+            if (!preguntas || !Array.isArray(preguntas) || preguntas.length === 0) {
+                console.error('❌ No se recibieron preguntas válidas para mostrar');
+                container.innerHTML = '<p style="color: red;">Error: No se pudieron generar preguntas válidas.</p>';
+                return;
+            }
+
+            container.innerHTML = preguntas.map((pregunta, index) => {
+                console.log(`🔍 Procesando pregunta ${index + 1}:`, pregunta);
+
+                // Verificar que la pregunta tenga todas las propiedades necesarias
+                if (!pregunta.pregunta || !pregunta.opciones || typeof pregunta.correcta !== 'number') {
+                    console.error(`❌ Pregunta ${index + 1} tiene propiedades faltantes:`, {
+                        pregunta: pregunta.pregunta,
+                        opciones: pregunta.opciones,
+                        correcta: pregunta.correcta,
+                        explicacion: pregunta.explicacion
+                    });
+                }
+
+                let opcionesHTML = '';
+                if (pregunta.opciones && Array.isArray(pregunta.opciones)) {
+                    opcionesHTML = pregunta.opciones.map((opcion, opcionIndex) => {
+                        const isChecked = opcionIndex === pregunta.correcta ? 'checked' : '';
+                        const checkMark = opcionIndex === pregunta.correcta ? '<span style="color: green; margin-left: 10px;"><i class="fas fa-check"></i> Correcta</span>' : '';
+                        return `<div class="opcion-item" style="margin: 5px 0;">
+                            <label style="display: flex; align-items: center;">
+                                <input type="radio" name="pregunta-${index}" value="${opcionIndex}" ${isChecked} onchange="cambiarRespuestaCorrecta(${index}, ${opcionIndex})">
+                                ${String.fromCharCode(65 + opcionIndex)}) ${opcion || `Opción ${opcionIndex + 1}`}
+                                ${checkMark}
+                            </label>
+                        </div>`;
+                    }).join('');
+                } else {
+                    opcionesHTML = '<p style="color: red;">Error: Opciones no disponibles</p>';
+                }
+
+                return `<div class="question-item" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
                     <h5>Pregunta ${index + 1}</h5>
-                    <p><strong>${pregunta.pregunta}</strong></p>
+                    <p><strong>${pregunta.pregunta || 'Pregunta sin texto'}</strong></p>
 
                     <div class="opciones-container">
-                        ${pregunta.opciones.map((opcion, opcionIndex) => `
-                            <div class="opcion-item" style="margin: 5px 0;">
-                                <label style="display: flex; align-items: center;">
-                                    <input type="radio"
-                                           name="pregunta-${index}"
-                                           value="${opcionIndex}"
-                                           ${opcionIndex === pregunta.correcta ? 'checked' : ''}
-                                           onchange="cambiarRespuestaCorrecta(${index}, ${opcionIndex})">
-                                    ${String.fromCharCode(65 + opcionIndex)}) ${opcion}
-                                    ${opcionIndex === pregunta.correcta ? '<span style="color: green; margin-left: 10px;"><i class="fas fa-check"></i> Correcta</span>' : ''}
-                                </label>
-                            </div>
-                        `).join('')}
+                        ${opcionesHTML}
                     </div>
 
                     <div class="explicacion-container" style="margin-top: 10px;">
                         <label>Explicación:</label>
-                        <textarea class="explicacion-textarea" data-pregunta-index="${index}" style="width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${pregunta.explicacion}</textarea>
+                        <textarea class="explicacion-textarea" data-pregunta-index="${index}" style="width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${pregunta.explicacion || 'Sin explicación'}</textarea>
                     </div>
 
                     <div class="question-actions" style="margin-top: 10px;">
@@ -5975,8 +6007,8 @@
                             <i class="fas fa-trash"></i> Eliminar
                         </button>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             // Guardar preguntas generadas globalmente
             window.preguntasGeneradas = preguntas;
