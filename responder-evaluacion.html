@@ -720,6 +720,11 @@
                         <h3><i class="fas fa-clipboard-list"></i> Descripción</h3>
                         <div class="instrucciones-content" id="quizDescription"></div>
                     </div>
+
+                    <div class="info-section" id="anuncioSection" style="display: none;">
+                        <h3><i class="fas fa-bullhorn"></i> Anuncio del Examen Práctico</h3>
+                        <div class="instrucciones-content" id="quizAnuncio" style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404;"></div>
+                    </div>
                 </div>
 
                 <div class="respuesta-section">
@@ -857,14 +862,19 @@ async function loadQuiz(quizId) {
         // Inicializar respuestas
         answers = new Array(currentQuiz.preguntas.length).fill(null);
         
-        // Configurar temporizador e indicadores
-        if (currentQuiz.tiempoLimite) {
+        // Verificar si es evaluación de anuncio (sin preguntas reales)
+        const isAnuncioEvaluation = currentQuiz.preguntas && currentQuiz.preguntas.length === 1 && currentQuiz.preguntas[0].tipo === 'info';
+        
+        // Configurar temporizador e indicadores (solo si no es anuncio)
+        if (!isAnuncioEvaluation && currentQuiz.tiempoLimite) {
             timeLeft = currentQuiz.tiempoLimite * 60; // convertir a segundos
             startTimer();
             document.getElementById('timerDisplay').style.display = 'flex';
         }
 
-        document.getElementById('progressIndicator').style.display = 'flex';
+        if (!isAnuncioEvaluation) {
+            document.getElementById('progressIndicator').style.display = 'flex';
+        }
         
         console.log('About to call renderQuiz()');
         renderQuiz();
@@ -912,14 +922,27 @@ function renderQuiz() {
         console.log('Set quizDescription to:', currentQuiz.descripcion || 'Sin descripción');
     }
 
+    // Mostrar anuncio si existe
+    const anuncioSection = document.getElementById('anuncioSection');
+    const anuncioText = document.getElementById('quizAnuncio');
+    if (currentQuiz.anuncio && currentQuiz.anuncio.trim()) {
+        anuncioText.textContent = currentQuiz.anuncio;
+        anuncioSection.style.display = 'block';
+    } else {
+        anuncioSection.style.display = 'none';
+    }
+
+    // Verificar si es evaluación de anuncio
+    const isAnuncioEvaluation = currentQuiz.preguntas && currentQuiz.preguntas.length === 1 && currentQuiz.preguntas[0].tipo === 'info';
+
     if (totalQuestionsEl) {
-        totalQuestionsEl.textContent = currentQuiz.preguntas.length;
-        console.log('Set totalQuestions to:', currentQuiz.preguntas.length);
+        totalQuestionsEl.textContent = isAnuncioEvaluation ? '1 (Información)' : currentQuiz.preguntas.length;
+        console.log('Set totalQuestions to:', isAnuncioEvaluation ? '1 (Información)' : currentQuiz.preguntas.length);
     }
 
     if (timeLimitEl) {
-        timeLimitEl.textContent = (currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite';
-        console.log('Set timeLimit to:', (currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite');
+        timeLimitEl.textContent = isAnuncioEvaluation ? 'Sin límite (Información)' : ((currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite');
+        console.log('Set timeLimit to:', isAnuncioEvaluation ? 'Sin límite (Información)' : ((currentQuiz.tiempoLimite && currentQuiz.tiempoLimite > 0) ? `${currentQuiz.tiempoLimite} min` : 'Sin límite'));
     }
 
     if (attemptsLeftEl) {
@@ -948,7 +971,21 @@ function renderQuestions() {
         questionCard.id = `question-${index}`;
 
         let optionsHtml = '';
-        if (pregunta.tipo === 'multiple') {
+        if (pregunta.tipo === 'info') {
+            // Mostrar información del examen práctico
+            optionsHtml = `
+                <div class="info-practico" style="background: #e8f4fd; border: 2px solid #b3d9ff; border-radius: 12px; padding: 2rem; text-align: center;">
+                    <i class="fas fa-bullhorn" style="font-size: 3rem; color: #2c5aa0; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #2c5aa0; margin-bottom: 1rem;">Información del Examen Práctico</h3>
+                    <div style="background: white; border-radius: 8px; padding: 1.5rem; text-align: left; white-space: pre-wrap; line-height: 1.6;">
+                        ${pregunta.texto}
+                    </div>
+                    <div style="margin-top: 2rem; padding: 1rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724;">
+                        <i class="fas fa-check-circle"></i> <strong>Esta evaluación es solo informativa.</strong> No contiene preguntas para responder.
+                    </div>
+                </div>
+            `;
+        } else if (pregunta.tipo === 'multiple') {
             optionsHtml = pregunta.opciones.map((opcion, i) => `
                 <div class="option ${answers[index] === i ? 'selected' : ''}">
                     <div class="option-label" onclick="selectOption(${index}, ${i})">
@@ -1053,6 +1090,18 @@ function updateNavigation() {
     const nextBtn = document.getElementById('nextBtn');
     const submitBtn = document.getElementById('submitBtn');
 
+    // Verificar si es evaluación de anuncio
+    const isAnuncioEvaluation = currentQuiz.preguntas && currentQuiz.preguntas.length === 1 && currentQuiz.preguntas[0].tipo === 'info';
+
+    if (isAnuncioEvaluation) {
+        // Para evaluaciones de anuncio, mostrar solo el botón de enviar
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-flex';
+        submitBtn.textContent = 'He leído la información';
+        return;
+    }
+
     prevBtn.disabled = currentQuestionIndex === 0;
     nextBtn.disabled = currentQuestionIndex === currentQuiz.preguntas.length - 1;
     
@@ -1069,8 +1118,12 @@ function updateNavigation() {
 }
 
 function updateProgress() {
-    const answered = answers.filter(answer => answer !== null).length;
-    const progress = (answered / currentQuiz.preguntas.length) * 100;
+    // Verificar si es evaluación de anuncio
+    const isAnuncioEvaluation = currentQuiz.preguntas && currentQuiz.preguntas.length === 1 && currentQuiz.preguntas[0].tipo === 'info';
+    
+    const answered = isAnuncioEvaluation ? 1 : answers.filter(answer => answer !== null).length;
+    const total = currentQuiz.preguntas.length;
+    const progress = (answered / total) * 100;
     
     // Actualizar indicador circular
     const circle = document.getElementById('progressCircle');
@@ -1085,15 +1138,24 @@ function updateProgress() {
 }
 
 window.submitQuiz = async function() {
-    // Verificar que todas las preguntas estén respondidas
-    const unanswered = answers.findIndex(answer => answer === null);
-    if (unanswered !== -1) {
-        alert(`Por favor responde la pregunta ${unanswered + 1} antes de enviar.`);
-        goToQuestion(unanswered);
-        return;
+    // Verificar si es evaluación de anuncio
+    const isAnuncioEvaluation = currentQuiz.preguntas && currentQuiz.preguntas.length === 1 && currentQuiz.preguntas[0].tipo === 'info';
+    
+    if (!isAnuncioEvaluation) {
+        // Verificar que todas las preguntas estén respondidas
+        const unanswered = answers.findIndex(answer => answer === null);
+        if (unanswered !== -1) {
+            alert(`Por favor responde la pregunta ${unanswered + 1} antes de enviar.`);
+            goToQuestion(unanswered);
+            return;
+        }
     }
 
-    if (!confirm('¿Estás seguro de que quieres enviar tus respuestas? No podrás modificarlas después.')) {
+    const confirmMessage = isAnuncioEvaluation ? 
+        '¿Has leído la información del examen práctico? Al confirmar, marcarás esta evaluación como completada.' :
+        '¿Estás seguro de que quieres enviar tus respuestas? No podrás modificarlas después.';
+    
+    if (!confirm(confirmMessage)) {
         return;
     }
 
@@ -1125,30 +1187,41 @@ window.submitQuiz = async function() {
         let correctas = 0;
         let totalMultiples = 0;
         let preguntasAbiertas = [];
-        const puntosPorPregunta = 100 / currentQuiz.preguntas.length;
+        const puntosPorPregunta = isAnuncioEvaluation ? 100 : (100 / currentQuiz.preguntas.length);
 
-        currentQuiz.preguntas.forEach((pregunta, index) => {
-            if (pregunta.tipo === 'multiple') {
-                totalMultiples++;
-                if (answers[index] === pregunta.respuesta) {
-                    correctas++;
+        if (isAnuncioEvaluation) {
+            // Para evaluaciones de anuncio, calificación automática de 100%
+            respuestasData.puntosPorPregunta = 100;
+            respuestasData.calificacionAutomatica = 100;
+            respuestasData.calificacionAbiertas = 0;
+            respuestasData.preguntasAbiertas = [];
+            respuestasData.calificada = true;
+            respuestasData.calificacion = 100;
+            respuestasData.fechaCalificacion = new Date();
+        } else {
+            currentQuiz.preguntas.forEach((pregunta, index) => {
+                if (pregunta.tipo === 'multiple') {
+                    totalMultiples++;
+                    if (answers[index] === pregunta.respuesta) {
+                        correctas++;
+                    }
+                } else if (pregunta.tipo === 'open') {
+                    preguntasAbiertas.push({
+                        indice: index,
+                        texto: pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido',
+                        respuestaEstudiante: answers[index]
+                    });
                 }
-            } else if (pregunta.tipo === 'open') {
-                preguntasAbiertas.push({
-                    indice: index,
-                    texto: pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido',
-                    respuestaEstudiante: answers[index]
-                });
-            }
-        });
+            });
 
-        respuestasData.puntosPorPregunta = puntosPorPregunta;
-        respuestasData.calificacionAutomatica = correctas * puntosPorPregunta;
-        respuestasData.calificacionAbiertas = 0;
-        respuestasData.preguntasAbiertas = preguntasAbiertas;
-        respuestasData.calificada = preguntasAbiertas.length === 0;
-        respuestasData.calificacion = respuestasData.calificada ? respuestasData.calificacionAutomatica : null;
-        respuestasData.fechaCalificacion = respuestasData.calificada ? new Date() : null;
+            respuestasData.puntosPorPregunta = puntosPorPregunta;
+            respuestasData.calificacionAutomatica = correctas * puntosPorPregunta;
+            respuestasData.calificacionAbiertas = 0;
+            respuestasData.preguntasAbiertas = preguntasAbiertas;
+            respuestasData.calificada = preguntasAbiertas.length === 0;
+            respuestasData.calificacion = respuestasData.calificada ? respuestasData.calificacionAutomatica : null;
+            respuestasData.fechaCalificacion = respuestasData.calificada ? new Date() : null;
+        }
 
         // Eliminar respuestas anteriores del mismo usuario a la misma evaluación
         if (currentUser) {
