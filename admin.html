@@ -4263,6 +4263,18 @@
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
+            // Restaurar la sección activa al recargar la página
+            const savedSection = sessionStorage.getItem('activeSection');
+            if (savedSection && savedSection !== 'dashboard') {
+                // Esperar un poco para que el DOM esté completamente listo
+                setTimeout(() => {
+                    showSection(savedSection);
+                }, 100);
+            } else if (!savedSection) {
+                // Si no hay sección guardada, establecer dashboard por defecto
+                sessionStorage.setItem('activeSection', 'dashboard');
+            }
+
             // Configurar cierre del modal al hacer clic fuera
             const modal = document.getElementById('contentPreviewModal');
             if (modal) {
@@ -4335,6 +4347,9 @@
         });
 
         function showSection(sectionId) {
+            // Guardar la sección activa en sessionStorage
+            sessionStorage.setItem('activeSection', sectionId);
+
             // Cerrar modal de preview al cambiar de sección
             closeContentPreview();
 
