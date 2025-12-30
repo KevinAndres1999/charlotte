@@ -6235,7 +6235,7 @@ FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido y COMPLETO, sin 
     "pregunta": "¿Cuál es el concepto principal explicado en el texto?",
     "opciones": ["Opción correcta", "Opción incorrecta 1", "Opción incorrecta 2", "Opción incorrecta 3"],
     "correcta": 0,
-    "explicacion": "La opción correcta es la que mejor representa el concepto explicado porque..."
+    "explicacion": "La opción correcta es [repite exactamente el texto de la opción correcta] porque [explicación detallada de por qué es correcta]"
   }
 ]
 
@@ -6246,6 +6246,8 @@ REGLAS ESTRICTAS:
 - Cada objeto debe tener exactamente 4 propiedades: pregunta, opciones, correcta, explicacion
 - opciones debe ser un array de exactamente 4 strings
 - correcta debe ser un número entero entre 0 y 3
+- En explicacion: SIEMPRE REPITE EXACTAMENTE el texto completo de la opción correcta y explica por qué es correcta
+- NUNCA uses frases como "la primera", "la segunda", "la opción A", "la opción B" - siempre repite el texto de la opción
 - No uses caracteres de escape innecesarios
 - Asegúrate de que todas las comillas estén correctamente escapadas
 - NO cortes la respuesta - proporciona el JSON completo`;
