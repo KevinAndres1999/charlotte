@@ -5824,26 +5824,14 @@
             try {
                 let preguntasGeneradas;
 
-                // Intentar generar con IA si hay API key
+                // Generar preguntas con IA (obligatorio)
                 if (apiKey && apiKey.length >= 10) {
-                    console.log('Intentando generar preguntas con IA...');
-                    try {
-                        preguntasGeneradas = await generarPreguntasConIA(contentText, numPreguntas, apiKey);
-                        console.log('Preguntas generadas con IA:', preguntasGeneradas.length);
-                    } catch (aiError) {
-                        console.error('Error con IA:', aiError);
-                        if (useFallback) {
-                            console.log('Usando algoritmo básico como fallback...');
-                            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas (fallback)...';
-                            preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
-                        } else {
-                            throw new Error('Error con IA: ' + aiError.message + '. Activa el fallback o verifica tu API key.');
-                        }
-                    }
+                    console.log('Generando preguntas con IA...');
+                    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas con IA gratuita...';
+                    preguntasGeneradas = await generarPreguntasConIA(contentText, numPreguntas, apiKey);
+                    console.log('Preguntas generadas con IA:', preguntasGeneradas.length);
                 } else {
-                    console.log('No hay API key válida, usando algoritmo básico...');
-                    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas...';
-                    preguntasGeneradas = generarPreguntasDesdeTexto(contentText, numPreguntas);
+                    throw new Error('Se requiere una API key válida de OpenRouter para generar preguntas. Obtén una gratuita en https://openrouter.ai/keys');
                 }
 
                 // Mostrar preview de preguntas
@@ -6204,11 +6192,12 @@ INSTRUCCIONES CRÍTICAS:
 2. Cada pregunta debe ser clara, educativa y tener una sola respuesta correcta
 3. Las opciones incorrectas deben ser plausibles pero claramente incorrectas
 4. Proporciona una explicación breve pero clara de por qué la respuesta es correcta
+5. IMPORTANTE: Genera TODAS las preguntas solicitadas (${numPreguntas})
 
 CONTENIDO PARA ANALIZAR:
 ${texto.substring(0, 1200)}
 
-FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido, sin texto adicional):
+FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido y COMPLETO, sin texto adicional):
 [
   {
     "pregunta": "¿Cuál es el concepto principal explicado en el texto?",
@@ -6219,13 +6208,15 @@ FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido, sin texto adici
 ]
 
 REGLAS ESTRICTAS:
-- Responde SOLO con JSON válido, sin comillas invertidas, sin markdown, sin texto explicativo
-- El JSON debe comenzar con [ y terminar con ]
+- Responde SOLO con JSON válido y COMPLETO, sin comillas invertidas, sin markdown, sin texto explicativo
+- El JSON debe comenzar con [ y terminar con ] - ASEGÚRATE DE CERRAR TODOS LOS CORCHETES
+- Genera EXACTAMENTE ${numPreguntas} preguntas (ni más ni menos)
 - Cada objeto debe tener exactamente 4 propiedades: pregunta, opciones, correcta, explicacion
 - opciones debe ser un array de exactamente 4 strings
 - correcta debe ser un número entero entre 0 y 3
 - No uses caracteres de escape innecesarios
-- Asegúrate de que todas las comillas estén correctamente escapadas`;
+- Asegúrate de que todas las comillas estén correctamente escapadas
+- NO cortes la respuesta - proporciona el JSON completo`;
 
             try {
                 console.log('Enviando solicitud a OpenRouter (gratuito)...');
@@ -6243,14 +6234,14 @@ REGLAS ESTRICTAS:
                         messages: [
                             {
                                 role: 'system',
-                                content: 'Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido, sin texto adicional.'
+                                content: 'Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido y completo, sin texto adicional. Nunca cortes las respuestas.'
                             },
                             {
                                 role: 'user',
                                 content: prompt
                             }
                         ],
-                        max_tokens: 2000,
+                        max_tokens: 4000,
                         temperature: 0.7
                     })
                 });
@@ -6262,11 +6253,11 @@ REGLAS ESTRICTAS:
                     } else if (response.status === 403) {
                         throw new Error('Acceso denegado. Verifica que tu token tenga permisos.');
                     } else if (response.status === 429) {
-                        throw new Error('Límite de uso excedido. Espera un momento o usa el algoritmo básico.');
+                        throw new Error('Límite de uso excedido. Espera un momento antes de intentar nuevamente.');
                     } else if (response.status === 402) {
                         throw new Error('Créditos insuficientes. OpenRouter requiere créditos para algunos modelos.');
                     } else if (response.status === 503) {
-                        throw new Error('Servicio no disponible temporalmente. Intenta más tarde o usa el algoritmo básico.');
+                        throw new Error('Servicio no disponible temporalmente. Intenta más tarde.');
                     } else {
                         throw new Error(`Error de OpenRouter (${response.status}): ${errorData.error?.message || 'Error desconocido'}`);
                     }
@@ -6288,9 +6279,8 @@ REGLAS ESTRICTAS:
                 // Intentar extraer JSON de la respuesta con mejor manejo de errores
                 let preguntas;
                 try {
-                    // Función para limpiar y extraer JSON con mejor manejo
+                    // Función mejorada para limpiar y extraer JSON
                     function extractJSON(text) {
-                        // Remover texto antes del primer '[' o '{'
                         let cleanedText = text.trim();
 
                         // Buscar el inicio de un array JSON
@@ -6358,9 +6348,39 @@ REGLAS ESTRICTAS:
                         return cleanedText;
                     }
 
+                    // Función para intentar completar JSON incompleto
+                    function tryCompleteJSON(text) {
+                        // Si parece estar cortado, intentar agregar el cierre
+                        if (text.includes('[') && !text.includes(']')) {
+                            // Contar brackets abiertos
+                            let openBrackets = (text.match(/\[/g) || []).length;
+                            let closeBrackets = (text.match(/\]/g) || []).length;
+                            let openBraces = (text.match(/\{/g) || []).length;
+                            let closeBraces = (text.match(/\}/g) || []).length;
+
+                            // Agregar cierres faltantes
+                            while (closeBrackets < openBrackets) {
+                                text += ']';
+                                closeBrackets++;
+                            }
+                            while (closeBraces < openBraces) {
+                                text += '}';
+                                closeBraces++;
+                            }
+                        }
+                        return text;
+                    }
+
                     // Intentar extraer y parsear JSON
-                    const jsonText = extractJSON(generatedText);
-                    console.log('JSON extraído:', jsonText);
+                    let jsonText = extractJSON(generatedText);
+                    console.log('JSON extraído inicialmente:', jsonText);
+
+                    // Si parece incompleto, intentar completarlo
+                    if (jsonText && !jsonText.trim().endsWith(']') && !jsonText.trim().endsWith('}')) {
+                        console.log('JSON parece incompleto, intentando completarlo...');
+                        jsonText = tryCompleteJSON(jsonText);
+                        console.log('JSON completado:', jsonText);
+                    }
 
                     preguntas = JSON.parse(jsonText);
 
@@ -6378,13 +6398,6 @@ REGLAS ESTRICTAS:
                     console.error('❌ Error parseando JSON de OpenRouter:', parseError);
                     console.log('📄 Texto recibido de la IA:', generatedText);
                     console.log('🔍 Longitud del texto:', generatedText.length);
-
-                    // Mostrar más información de debug
-                    if (generatedText.includes('[') && generatedText.includes(']')) {
-                        console.log('✅ El texto contiene corchetes, intentando extracción manual...');
-                    } else {
-                        console.log('❌ El texto no contiene corchetes JSON válidos');
-                    }
 
                     // Intentar una extracción más agresiva del JSON
                     try {
@@ -6405,11 +6418,31 @@ REGLAS ESTRICTAS:
                                 }
                             }
                         } else {
-                            throw new Error('No se encontraron corchetes JSON válidos en la respuesta');
+                            // Intentar buscar cualquier estructura JSON que pueda estar presente
+                            const jsonMatches = generatedText.match(/\[[\s\S]*\]/g);
+                            if (jsonMatches && jsonMatches.length > 0) {
+                                console.log('🔍 Encontrados posibles JSON:', jsonMatches.length);
+                                for (const match of jsonMatches) {
+                                    try {
+                                        preguntas = JSON.parse(match);
+                                        if (Array.isArray(preguntas)) {
+                                            console.log('✅ JSON válido encontrado en matches');
+                                            break;
+                                        }
+                                    } catch (e) {
+                                        continue;
+                                    }
+                                }
+                                if (!preguntas) {
+                                    throw new Error('No se encontraron estructuras JSON válidas');
+                                }
+                            } else {
+                                throw new Error('No se encontraron corchetes JSON válidos en la respuesta');
+                            }
                         }
                     } catch (extractionError) {
                         console.error('❌ Falló la extracción manual:', extractionError);
-                        throw new Error(`La IA no generó JSON válido. Respuesta recibida: ${generatedText.substring(0, 200)}...`);
+                        throw new Error(`La IA no generó JSON válido. Respuesta recibida: ${generatedText.substring(0, 300)}... Verifica tu API key de OpenRouter.`);
                     }
                 }
 
