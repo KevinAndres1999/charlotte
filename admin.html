@@ -6279,30 +6279,50 @@ REGLAS ESTRICTAS:
                 // Intentar extraer JSON de la respuesta con mejor manejo de errores
                 let preguntas;
                 try {
-                    // Función mejorada para limpiar y extraer JSON
-                    function extractJSON(text) {
+                    // Función mejorada para extraer JSON válido de cualquier texto
+                    function extractValidJSON(text) {
+                        console.log('🔍 Buscando JSON válido en texto de longitud:', text.length);
+
+                        // Método 1: Buscar el JSON array más grande posible usando regex
+                        const arrayRegex = /\[[\s\S]*?\]/g;
+                        const matches = text.match(arrayRegex);
+
+                        if (matches && matches.length > 0) {
+                            console.log(`📋 Encontrados ${matches.length} posibles arrays JSON`);
+
+                            // Probar cada match, empezando por el más largo
+                            const sortedMatches = matches.sort((a, b) => b.length - a.length);
+
+                            for (const match of sortedMatches) {
+                                try {
+                                    console.log(`🔍 Probando JSON de longitud ${match.length}`);
+                                    const parsed = JSON.parse(match);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                        console.log('✅ JSON array válido encontrado con', parsed.length, 'elementos');
+                                        return parsed;
+                                    }
+                                } catch (e) {
+                                    console.log('❌ JSON inválido, probando siguiente...');
+                                    continue;
+                                }
+                            }
+                        }
+
+                        // Método 2: Si no funciona, intentar extraer manualmente
+                        console.log('🔧 Intentando extracción manual...');
                         let cleanedText = text.trim();
 
-                        // Buscar el inicio de un array JSON
-                        const arrayStart = cleanedText.indexOf('[');
-                        const objectStart = cleanedText.indexOf('{');
-
-                        let startIndex = -1;
-                        if (arrayStart !== -1 && (objectStart === -1 || arrayStart < objectStart)) {
-                            startIndex = arrayStart;
-                        } else if (objectStart !== -1) {
-                            startIndex = objectStart;
+                        // Remover cualquier texto antes del primer '['
+                        const firstBracket = cleanedText.indexOf('[');
+                        if (firstBracket !== -1) {
+                            cleanedText = cleanedText.substring(firstBracket);
                         }
 
-                        if (startIndex !== -1) {
-                            cleanedText = cleanedText.substring(startIndex);
-                        }
-
-                        // Encontrar el final correspondiente
-                        let braceCount = 0;
+                        // Contar brackets para encontrar el cierre correcto
+                        let openBrackets = 0;
                         let inString = false;
                         let escapeNext = false;
-                        let endIndex = -1;
+                        let endPos = -1;
 
                         for (let i = 0; i < cleanedText.length; i++) {
                             const char = cleanedText[i];
@@ -6323,70 +6343,70 @@ REGLAS ESTRICTAS:
                             }
 
                             if (!inString) {
-                                if (char === '[' || char === '{') {
-                                    braceCount++;
-                                } else if (char === ']' || char === '}') {
-                                    braceCount--;
-                                    if (braceCount === 0) {
-                                        endIndex = i + 1;
+                                if (char === '[') {
+                                    openBrackets++;
+                                } else if (char === ']') {
+                                    openBrackets--;
+                                    if (openBrackets === 0) {
+                                        endPos = i + 1;
                                         break;
                                     }
                                 }
                             }
                         }
 
-                        if (endIndex !== -1) {
-                            return cleanedText.substring(0, endIndex);
-                        }
-
-                        // Si no encontramos un final válido, intentar encontrar el último ] o }
-                        const lastBracket = Math.max(cleanedText.lastIndexOf(']'), cleanedText.lastIndexOf('}'));
-                        if (lastBracket !== -1) {
-                            return cleanedText.substring(0, lastBracket + 1);
-                        }
-
-                        return cleanedText;
-                    }
-
-                    // Función para intentar completar JSON incompleto
-                    function tryCompleteJSON(text) {
-                        // Si parece estar cortado, intentar agregar el cierre
-                        if (text.includes('[') && !text.includes(']')) {
-                            // Contar brackets abiertos
-                            let openBrackets = (text.match(/\[/g) || []).length;
-                            let closeBrackets = (text.match(/\]/g) || []).length;
-                            let openBraces = (text.match(/\{/g) || []).length;
-                            let closeBraces = (text.match(/\}/g) || []).length;
-
-                            // Agregar cierres faltantes
-                            while (closeBrackets < openBrackets) {
-                                text += ']';
-                                closeBrackets++;
-                            }
-                            while (closeBraces < openBraces) {
-                                text += '}';
-                                closeBraces++;
+                        if (endPos !== -1) {
+                            const jsonCandidate = cleanedText.substring(0, endPos);
+                            console.log('🔧 JSON candidato extraído manualmente, longitud:', jsonCandidate.length);
+                            try {
+                                const parsed = JSON.parse(jsonCandidate);
+                                if (Array.isArray(parsed)) {
+                                    console.log('✅ JSON válido extraído manualmente');
+                                    return parsed;
+                                }
+                            } catch (e) {
+                                console.log('❌ Extracción manual falló:', e.message);
                             }
                         }
-                        return text;
+
+                        // Método 3: Buscar objetos JSON individuales si el array está corrupto
+                        console.log('🔍 Buscando objetos JSON individuales...');
+                        const objectRegex = /\{[^{}]*\}/g;
+                        const objectMatches = text.match(objectRegex);
+
+                        if (objectMatches && objectMatches.length > 0) {
+                            console.log(`📋 Encontrados ${objectMatches.length} objetos JSON posibles`);
+                            const validObjects = [];
+
+                            for (const objStr of objectMatches) {
+                                try {
+                                    const obj = JSON.parse(objStr);
+                                    if (obj.pregunta && obj.opciones && Array.isArray(obj.opciones)) {
+                                        validObjects.push(obj);
+                                    }
+                                } catch (e) {
+                                    continue;
+                                }
+                            }
+
+                            if (validObjects.length > 0) {
+                                console.log(`✅ Encontrados ${validObjects.length} objetos válidos`);
+                                return validObjects;
+                            }
+                        }
+
+                        return null;
                     }
 
-                    // Intentar extraer y parsear JSON
-                    let jsonText = extractJSON(generatedText);
-                    console.log('JSON extraído inicialmente:', jsonText);
+                    // Intentar extraer JSON usando la nueva función
+                    preguntas = extractValidJSON(generatedText);
 
-                    // Si parece incompleto, intentar completarlo
-                    if (jsonText && !jsonText.trim().endsWith(']') && !jsonText.trim().endsWith('}')) {
-                        console.log('JSON parece incompleto, intentando completarlo...');
-                        jsonText = tryCompleteJSON(jsonText);
-                        console.log('JSON completado:', jsonText);
+                    if (!preguntas) {
+                        throw new Error('No se pudo extraer ningún JSON válido de la respuesta');
                     }
-
-                    preguntas = JSON.parse(jsonText);
 
                     // Asegurar que sea un array
                     if (!Array.isArray(preguntas)) {
-                        // Si es un objeto con una propiedad que contiene el array
                         if (typeof preguntas === 'object' && preguntas.preguntas) {
                             preguntas = preguntas.preguntas;
                         } else {
@@ -6394,54 +6414,24 @@ REGLAS ESTRICTAS:
                         }
                     }
 
+                    console.log(`✅ JSON parseado exitosamente: ${preguntas.length} preguntas`);
+
                 } catch (parseError) {
                     console.error('❌ Error parseando JSON de OpenRouter:', parseError);
-                    console.log('📄 Texto recibido de la IA:', generatedText);
+                    console.log('📄 Texto recibido de la IA:', generatedText.substring(0, 500));
                     console.log('🔍 Longitud del texto:', generatedText.length);
 
-                    // Intentar una extracción más agresiva del JSON
+                    // Último intento: buscar cualquier cosa que parezca JSON
                     try {
-                        // Buscar el primer '[' y el último ']'
-                        const startBracket = generatedText.indexOf('[');
-                        const lastBracket = generatedText.lastIndexOf(']');
-
-                        if (startBracket !== -1 && lastBracket !== -1 && lastBracket > startBracket) {
-                            const potentialJson = generatedText.substring(startBracket, lastBracket + 1);
-                            console.log('🔧 Intentando parsear JSON extraído manualmente:', potentialJson);
-                            preguntas = JSON.parse(potentialJson);
-
-                            if (!Array.isArray(preguntas)) {
-                                if (typeof preguntas === 'object' && preguntas.preguntas) {
-                                    preguntas = preguntas.preguntas;
-                                } else {
-                                    throw new Error('El JSON extraído no contiene un array válido');
-                                }
-                            }
+                        const emergencyExtract = extractValidJSON(generatedText);
+                        if (emergencyExtract) {
+                            preguntas = emergencyExtract;
+                            console.log('🚨 JSON extraído en modo emergencia');
                         } else {
-                            // Intentar buscar cualquier estructura JSON que pueda estar presente
-                            const jsonMatches = generatedText.match(/\[[\s\S]*\]/g);
-                            if (jsonMatches && jsonMatches.length > 0) {
-                                console.log('🔍 Encontrados posibles JSON:', jsonMatches.length);
-                                for (const match of jsonMatches) {
-                                    try {
-                                        preguntas = JSON.parse(match);
-                                        if (Array.isArray(preguntas)) {
-                                            console.log('✅ JSON válido encontrado en matches');
-                                            break;
-                                        }
-                                    } catch (e) {
-                                        continue;
-                                    }
-                                }
-                                if (!preguntas) {
-                                    throw new Error('No se encontraron estructuras JSON válidas');
-                                }
-                            } else {
-                                throw new Error('No se encontraron corchetes JSON válidos en la respuesta');
-                            }
+                            throw new Error('Extracción de emergencia falló');
                         }
                     } catch (extractionError) {
-                        console.error('❌ Falló la extracción manual:', extractionError);
+                        console.error('❌ Falló la extracción de emergencia:', extractionError);
                         throw new Error(`La IA no generó JSON válido. Respuesta recibida: ${generatedText.substring(0, 300)}... Verifica tu API key de OpenRouter.`);
                     }
                 }
