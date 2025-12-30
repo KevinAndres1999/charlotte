@@ -3492,39 +3492,206 @@
                 </div>
             </div>
 
-            <!-- Modal de Preview de Evaluación -->
+            <!-- Modal de Preview de Evaluación Mejorado -->
             <div id="evaluacionPreviewModal" class="modal" style="display: none;">
-                <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
-                    <div class="modal-header">
-                        <h2><i class="fas fa-eye"></i> Vista Previa de Evaluación</h2>
-                        <button onclick="closeEvaluacionPreview()" class="close-btn">&times;</button>
+                <div class="modal-content" style="max-width: 1200px; max-height: 95vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="modal-header" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.2); padding: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: linear-gradient(45deg, #4CAF50, #45a049); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div>
+                                <h2 style="margin: 0; color: #2d3748; font-size: 1.8rem;">Vista Previa de Evaluación</h2>
+                                <p style="margin: 0; color: #718096; font-size: 1rem;">Revisa todos los detalles antes de publicar</p>
+                            </div>
+                        </div>
+                        <button onclick="closeEvaluacionPreview()" class="close-btn" style="background: rgba(255,255,255,0.9); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; color: #4a5568;">&times;</button>
                     </div>
-                    <div class="modal-body">
-                        <div class="evaluacion-preview-info" style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
-                            <h3 id="previewEvaluacionTitle"></h3>
-                            <p id="previewEvaluacionDesc"></p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                                <div><strong>Programa:</strong> <span id="previewPrograma"></span></div>
-                                <div><strong>Tiempo límite:</strong> <span id="previewTiempo"></span></div>
-                                <div><strong>Preguntas:</strong> <span id="previewNumPreguntas"></span></div>
+
+                    <div class="modal-body" style="padding: 0;">
+                        <!-- Navegación por pestañas -->
+                        <div class="preview-tabs" style="background: rgba(255,255,255,0.95); padding: 0 2rem; border-bottom: 1px solid rgba(255,255,255,0.3);">
+                            <div style="display: flex; gap: 0;">
+                                <button onclick="switchPreviewTab('overview')" id="tab-overview" class="preview-tab active" style="padding: 1rem 2rem; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #4a5568; border-bottom: 3px solid #4CAF50; transition: all 0.3s;">
+                                    <i class="fas fa-chart-line"></i> Resumen Ejecutivo
+                                </button>
+                                <button onclick="switchPreviewTab('student')" id="tab-student" class="preview-tab" style="padding: 1rem 2rem; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #718096; border-bottom: 3px solid transparent; transition: all 0.3s;">
+                                    <i class="fas fa-user-graduate"></i> Vista Estudiante
+                                </button>
+                                <button onclick="switchPreviewTab('questions')" id="tab-questions" class="preview-tab" style="padding: 1rem 2rem; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #718096; border-bottom: 3px solid transparent; transition: all 0.3s;">
+                                    <i class="fas fa-list-check"></i> Análisis de Preguntas
+                                </button>
+                                <button onclick="switchPreviewTab('quality')" id="tab-quality" class="preview-tab" style="padding: 1rem 2rem; border: none; background: transparent; cursor: pointer; font-weight: 600; color: #718096; border-bottom: 3px solid transparent; transition: all 0.3s;">
+                                    <i class="fas fa-award"></i> Calidad & Validaciones
+                                </button>
                             </div>
                         </div>
 
-                        <div class="evaluacion-preview-questions">
-                            <h3>Preguntas de la Evaluación</h3>
-                            <div id="previewQuestionsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;"></div>
+                        <!-- Contenido de las pestañas -->
+                        <div id="preview-content" style="background: rgba(255,255,255,0.98); min-height: 600px;">
+                            <!-- Pestaña de Resumen Ejecutivo -->
+                            <div id="tab-content-overview" class="tab-content active">
+                                <div style="padding: 2rem;">
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                                        <!-- Información Principal -->
+                                        <div class="info-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                            <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-info-circle" style="color: #4CAF50;"></i>
+                                                Información General
+                                            </h3>
+                                            <h1 id="previewEvaluacionTitle" style="color: #1a202c; margin: 1rem 0; font-size: 2rem;"></h1>
+                                            <p id="previewEvaluacionDesc" style="color: #718096; font-size: 1.1rem; line-height: 1.6;"></p>
+
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                                                <div class="stat-item" style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i></div>
+                                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;" id="previewPrograma"></div>
+                                                    <div style="color: #718096; font-size: 0.9rem;">Programa</div>
+                                                </div>
+                                                <div class="stat-item" style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                                                    <div style="font-size: 2rem; color: #2196F3; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i></div>
+                                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;" id="previewTiempo">Sin límite</div>
+                                                    <div style="color: #718096; font-size: 0.9rem;">Tiempo límite</div>
+                                                </div>
+                                                <div class="stat-item" style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                                                    <div style="font-size: 2rem; color: #FF9800; margin-bottom: 0.5rem;"><i class="fas fa-question-circle"></i></div>
+                                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;" id="previewNumPreguntas"></div>
+                                                    <div style="color: #718096; font-size: 0.9rem;">Total preguntas</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Estadísticas Rápidas -->
+                                        <div class="stats-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                            <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-chart-bar" style="color: #2196F3;"></i>
+                                                Estadísticas
+                                            </h3>
+
+                                            <div id="evaluacionStats" style="margin-top: 1.5rem;">
+                                                <!-- Las estadísticas se cargarán aquí -->
+                                            </div>
+
+                                            <div style="margin-top: 2rem; padding: 1rem; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                                                <div style="display: flex; align-items: center; gap: 0.5rem; color: #2e7d32; font-weight: 600;">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    Evaluación lista para publicar
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Fechas de Disponibilidad -->
+                                    <div class="dates-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                        <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-calendar-alt" style="color: #FF9800;"></i>
+                                            Disponibilidad
+                                        </h3>
+                                        <div id="availabilityInfo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                            <!-- La información de fechas se cargará aquí -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Vista Estudiante -->
+                            <div id="tab-content-student" class="tab-content">
+                                <div style="padding: 2rem;">
+                                    <div style="background: #f8f9fa; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
+                                        <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-eye" style="color: #9c27b0;"></i>
+                                            Vista Previa para Estudiantes
+                                        </h3>
+                                        <p style="color: #718096; margin-bottom: 1.5rem;">Así es como verán la evaluación tus estudiantes</p>
+                                    </div>
+
+                                    <div class="student-preview" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); overflow: hidden;">
+                                        <!-- Header de la evaluación como la verían los estudiantes -->
+                                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem;">
+                                            <h2 id="studentTitle" style="margin: 0; font-size: 1.8rem;"></h2>
+                                            <p id="studentDesc" style="margin: 0.5rem 0; opacity: 0.9;"></p>
+                                            <div style="display: flex; gap: 2rem; margin-top: 1rem; font-size: 0.9rem;">
+                                                <span><i class="fas fa-graduation-cap"></i> <span id="studentPrograma"></span></span>
+                                                <span><i class="fas fa-clock"></i> <span id="studentTiempo"></span></span>
+                                                <span><i class="fas fa-question-circle"></i> <span id="studentNumPreguntas"></span> preguntas</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Primera pregunta como ejemplo -->
+                                        <div style="padding: 2rem;">
+                                            <div id="sampleQuestion" style="background: #f8f9fa; border-radius: 8px; padding: 1.5rem;">
+                                                <!-- Una pregunta de ejemplo se mostrará aquí -->
+                                            </div>
+                                            <div style="text-align: center; margin-top: 2rem; color: #718096;">
+                                                <em>... y <span id="remainingQuestions"></span> preguntas más</em>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Análisis de Preguntas -->
+                            <div id="tab-content-questions" class="tab-content">
+                                <div style="padding: 2rem;">
+                                    <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                        <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-search" style="color: #ff5722;"></i>
+                                            Análisis Detallado de Preguntas
+                                        </h3>
+
+                                        <div id="questionsAnalysis" style="margin-top: 2rem;">
+                                            <!-- El análisis detallado se cargará aquí -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña Calidad & Validaciones -->
+                            <div id="tab-content-quality" class="tab-content">
+                                <div style="padding: 2rem;">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                        <!-- Validaciones -->
+                                        <div class="quality-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                            <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                                                Validaciones
+                                            </h3>
+                                            <div id="validationsList" style="margin-top: 1.5rem; space-y: 1rem;">
+                                                <!-- Las validaciones se cargarán aquí -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Recomendaciones -->
+                                        <div class="quality-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                                            <h3 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                                                <i class="fas fa-lightbulb" style="color: #FF9800;"></i>
+                                                Recomendaciones
+                                            </h3>
+                                            <div id="recommendationsList" style="margin-top: 1.5rem;">
+                                                <!-- Las recomendaciones se cargarán aquí -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="evaluacion-preview-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
-                            <button type="button" class="btn-secondary" onclick="editEvaluacionPreview()">
-                                <i class="fas fa-edit"></i> Editar Preguntas
-                            </button>
-                            <button type="button" class="btn-primary" onclick="publishEvaluacionPreview()">
-                                <i class="fas fa-rocket"></i> Publicar Evaluación
-                            </button>
-                            <button type="button" class="btn-secondary" onclick="closeEvaluacionPreview()">
-                                <i class="fas fa-times"></i> Cancelar
-                            </button>
+                        <!-- Acciones del Modal -->
+                        <div class="modal-actions" style="background: rgba(255,255,255,0.95); padding: 2rem; border-top: 1px solid rgba(255,255,255,0.3); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" class="btn-secondary" onclick="editEvaluacionPreview()" style="padding: 0.75rem 1.5rem; border: 2px solid #e2e8f0; background: white; color: #4a5568; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                    <i class="fas fa-edit"></i> Editar Evaluación
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="closeEvaluacionPreview()" style="padding: 0.75rem 1.5rem; border: 2px solid #e2e8f0; background: white; color: #4a5568; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" class="btn-primary" onclick="publishEvaluacionPreview()" style="padding: 0.75rem 2rem; border: none; background: linear-gradient(45deg, #4CAF50, #45a049); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s; box-shadow: 0 4px 6px rgba(76, 175, 80, 0.3);">
+                                    <i class="fas fa-rocket"></i> Publicar Evaluación
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -9119,43 +9286,443 @@ REGLAS ESTRICTAS:
 
         let evaluacionPreviewData = null;
 
-        // Función para mostrar preview de evaluación
+        // Función para mostrar preview de evaluación mejorado
         function showEvaluacionPreview(evaluacionData) {
             evaluacionPreviewData = evaluacionData;
 
-            // Llenar información básica
+            // Información básica
             document.getElementById('previewEvaluacionTitle').textContent = evaluacionData.titulo;
+            document.getElementById('studentTitle').textContent = evaluacionData.titulo;
             document.getElementById('previewEvaluacionDesc').textContent = evaluacionData.descripcion || 'Sin descripción';
+            document.getElementById('studentDesc').textContent = evaluacionData.descripcion || 'Sin descripción';
             document.getElementById('previewPrograma').textContent = evaluacionData.programa;
+            document.getElementById('studentPrograma').textContent = evaluacionData.programa;
             document.getElementById('previewTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} minutos` : 'Sin límite';
+            document.getElementById('studentTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} min` : 'Sin límite';
             document.getElementById('previewNumPreguntas').textContent = evaluacionData.preguntas.length;
+            document.getElementById('studentNumPreguntas').textContent = evaluacionData.preguntas.length;
+            document.getElementById('remainingQuestions').textContent = Math.max(0, evaluacionData.preguntas.length - 1);
 
-            // Mostrar preguntas
-            const questionsContainer = document.getElementById('previewQuestionsList');
-            questionsContainer.innerHTML = evaluacionData.preguntas.map((pregunta, index) => `
-                <div class="question-preview-item" style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white;">
-                    <div class="question-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <strong>Pregunta ${index + 1}</strong>
-                        <span class="question-type" style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
-                            ${pregunta.tipo === 'open' ? 'Abierta' : 'Opción Múltiple'}
-                        </span>
-                    </div>
-                    <div class="question-text" style="margin-bottom: 0.5rem; font-weight: 500;">
-                        ${pregunta.texto || 'Pregunta sin texto'}
-                    </div>
-                    <div class="question-options">
-                        ${pregunta.tipo === 'open' ?
-                            '<em style="color: #64748b;">Pregunta de respuesta abierta</em>' :
-                            (pregunta.opciones && pregunta.opciones.length > 0 ?
-                                pregunta.opciones.map(op => `<div style="margin: 0.25rem 0;">• ${op}</div>`).join('') :
-                                '<em style="color: #64748b;">Sin opciones definidas</em>')
-                        }
-                    </div>
-                </div>
-            `).join('');
+            // Generar estadísticas detalladas
+            generateEvaluationStats(evaluacionData);
+
+            // Información de disponibilidad
+            generateAvailabilityInfo(evaluacionData);
+
+            // Vista previa de estudiante con primera pregunta
+            generateStudentPreview(evaluacionData);
+
+            // Análisis detallado de preguntas
+            generateQuestionsAnalysis(evaluacionData);
+
+            // Validaciones y recomendaciones
+            generateValidationsAndRecommendations(evaluacionData);
+
+            // Mostrar primera pestaña
+            switchPreviewTab('overview');
 
             // Mostrar modal
             document.getElementById('evaluacionPreviewModal').style.display = 'block';
+        }
+
+        // Función para cambiar entre pestañas
+        function switchPreviewTab(tabName) {
+            // Ocultar todas las pestañas
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remover clase active de todos los botones
+            const tabButtons = document.querySelectorAll('.preview-tab');
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = '#718096';
+                btn.style.borderBottomColor = 'transparent';
+            });
+
+            // Mostrar pestaña seleccionada
+            document.getElementById(`tab-content-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).style.color = '#4a5568';
+            document.getElementById(`tab-${tabName}`).style.borderBottomColor = '#4CAF50';
+        }
+
+        // Función para generar estadísticas de la evaluación
+        function generateEvaluationStats(data) {
+            const statsContainer = document.getElementById('evaluacionStats');
+            const preguntas = data.preguntas;
+
+            // Contar tipos de preguntas
+            const tipos = preguntas.reduce((acc, p) => {
+                const tipo = p.tipo === 'open' ? 'Abiertas' : 'Opción Múltiple';
+                acc[tipo] = (acc[tipo] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Calcular dificultad estimada (basada en longitud de opciones)
+            const dificultad = preguntas.reduce((acc, p) => {
+                if (p.tipo === 'open') return acc + 3; // Preguntas abiertas son más difíciles
+                return acc + Math.min(p.opciones?.length || 2, 5);
+            }, 0) / preguntas.length;
+
+            const dificultadTexto = dificultad < 2.5 ? 'Fácil' : dificultad < 3.5 ? 'Media' : 'Difícil';
+            const dificultadColor = dificultad < 2.5 ? '#4CAF50' : dificultad < 3.5 ? '#FF9800' : '#f44336';
+
+            // Tiempo estimado por pregunta
+            const tiempoPorPregunta = data.tiempoLimite ? Math.round(data.tiempoLimite / preguntas.length) : 2;
+
+            statsContainer.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    <div class="stat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #2d3748;">Tipos de Preguntas</div>
+                            <div style="color: #718096; font-size: 0.9rem;">
+                                ${Object.entries(tipos).map(([tipo, count]) => `${count} ${tipo.toLowerCase()}`).join(', ')}
+                            </div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #2196F3;"><i class="fas fa-question-circle"></i></div>
+                    </div>
+
+                    <div class="stat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #2d3748;">Dificultad Estimada</div>
+                            <div style="color: ${dificultadColor}; font-size: 0.9rem; font-weight: 600;">${dificultadTexto}</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: ${dificultadColor};">
+                            ${dificultad < 2.5 ? '🟢' : dificultad < 3.5 ? '🟡' : '🔴'}
+                        </div>
+                    </div>
+
+                    <div class="stat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #2d3748;">Tiempo por Pregunta</div>
+                            <div style="color: #718096; font-size: 0.9rem;">${tiempoPorPregunta} minutos promedio</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #FF9800;"><i class="fas fa-clock"></i></div>
+                    </div>
+
+                    <div class="stat-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #2d3748;">Calidad General</div>
+                            <div style="color: #4CAF50; font-size: 0.9rem; font-weight: 600;">Excelente</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: #4CAF50;"><i class="fas fa-star"></i></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para generar información de disponibilidad
+        function generateAvailabilityInfo(data) {
+            const container = document.getElementById('availabilityInfo');
+
+            const formatDate = (dateString) => {
+                if (!dateString) return null;
+                const date = new Date(dateString);
+                return date.toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            };
+
+            const fechaInicio = formatDate(data.fechaInicio);
+            const fechaFin = formatDate(data.fechaFin);
+            const ahora = new Date();
+
+            let status = 'Disponible inmediatamente';
+            let statusColor = '#4CAF50';
+            let statusIcon = 'fas fa-check-circle';
+
+            if (fechaInicio && new Date(data.fechaInicio) > ahora) {
+                status = 'Programada para el futuro';
+                statusColor = '#FF9800';
+                statusIcon = 'fas fa-clock';
+            } else if (fechaFin && new Date(data.fechaFin) < ahora) {
+                status = 'Ya no disponible';
+                statusColor = '#f44336';
+                statusIcon = 'fas fa-times-circle';
+            }
+
+            container.innerHTML = `
+                <div style="padding: 1.5rem; background: #f8f9fa; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="${statusIcon}" style="color: ${statusColor}; font-size: 1.2rem;"></i>
+                        <span style="font-weight: 600; color: #2d3748;">Estado de Disponibilidad</span>
+                    </div>
+                    <div style="color: ${statusColor}; font-weight: 600; margin-bottom: 1rem;">${status}</div>
+
+                    ${fechaInicio ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #2d3748;">Inicio:</strong>
+                            <span style="color: #718096;">${fechaInicio}</span>
+                        </div>
+                    ` : ''}
+
+                    ${fechaFin ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: #2d3748;">Fin:</strong>
+                            <span style="color: #718096;">${fechaFin}</span>
+                        </div>
+                    ` : ''}
+
+                    ${!fechaInicio && !fechaFin ? `
+                        <div style="color: #718096; font-style: italic;">
+                            Sin restricciones de fecha - disponible en cualquier momento
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div style="padding: 1.5rem; background: #e3f2fd; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="fas fa-users" style="color: #2196F3; font-size: 1.2rem;"></i>
+                        <span style="font-weight: 600; color: #2d3748;">Acceso para Estudiantes</span>
+                    </div>
+                    <div style="color: #718096;">
+                        Todos los estudiantes del programa <strong>${data.programa}</strong> podrán acceder a esta evaluación según las fechas configuradas.
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función para generar vista previa de estudiante
+        function generateStudentPreview(data) {
+            const container = document.getElementById('sampleQuestion');
+
+            if (data.preguntas.length === 0) {
+                container.innerHTML = '<p style="color: #718096; text-align: center;">No hay preguntas en esta evaluación</p>';
+                return;
+            }
+
+            const primeraPregunta = data.preguntas[0];
+
+            container.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong style="color: #2d3748; font-size: 1.1rem;">Pregunta 1</strong>
+                        <span style="background: #e2e8f0; color: #4a5568; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                            ${primeraPregunta.tipo === 'open' ? 'Respuesta Abierta' : 'Opción Múltiple'}
+                        </span>
+                    </div>
+                    <div style="font-weight: 500; color: #1a202c; margin-bottom: 1rem; font-size: 1rem;">
+                        ${primeraPregunta.texto || 'Pregunta sin texto'}
+                    </div>
+                </div>
+
+                ${primeraPregunta.tipo === 'open' ?
+                    `<textarea placeholder="Escribe tu respuesta aquí..." style="width: 100%; padding: 1rem; border: 2px solid #e2e8f0; border-radius: 8px; font-family: inherit; resize: vertical; min-height: 100px;" readonly></textarea>` :
+                    primeraPregunta.opciones && primeraPregunta.opciones.length > 0 ?
+                        primeraPregunta.opciones.map((opcion, index) => `
+                            <label style="display: block; margin-bottom: 0.5rem; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; cursor: not-allowed; background: white;">
+                                <input type="radio" name="sampleQuestion" value="${index}" disabled style="margin-right: 0.5rem;">
+                                ${opcion}
+                            </label>
+                        `).join('') :
+                        '<p style="color: #718096; font-style: italic;">Sin opciones definidas</p>'
+                }
+            `;
+        }
+
+        // Función para generar análisis detallado de preguntas
+        function generateQuestionsAnalysis(data) {
+            const container = document.getElementById('questionsAnalysis');
+            const preguntas = data.preguntas;
+
+            let analysisHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-chart-pie" style="color: #2196F3;"></i>
+                            Distribución por Tipo
+                        </h4>
+                        <div style="margin-top: 1rem;">
+                            ${(() => {
+                                const tipos = preguntas.reduce((acc, p) => {
+                                    const tipo = p.tipo === 'open' ? 'Abiertas' : 'Múltiple';
+                                    acc[tipo] = (acc[tipo] || 0) + 1;
+                                    return acc;
+                                }, {});
+
+                                return Object.entries(tipos).map(([tipo, count]) => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span>${tipo}</span>
+                                        <span style="font-weight: 600;">${count}</span>
+                                    </div>
+                                    <div style="background: #e2e8f0; height: 8px; border-radius: 4px; margin-bottom: 1rem;">
+                                        <div style="background: #2196F3; height: 100%; border-radius: 4px; width: ${(count / preguntas.length) * 100}%"></div>
+                                    </div>
+                                `).join('');
+                            })()}
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+                        <h4 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-text-width" style="color: #FF9800;"></i>
+                            Longitud de Preguntas
+                        </h4>
+                        <div style="margin-top: 1rem;">
+                            ${(() => {
+                                const longitudes = preguntas.map(p => (p.texto || '').length);
+                                const avgLength = Math.round(longitudes.reduce((a, b) => a + b, 0) / longitudes.length);
+                                const maxLength = Math.max(...longitudes);
+                                const minLength = Math.min(...longitudes);
+
+                                return `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span>Longitud promedio</span>
+                                        <span style="font-weight: 600;">${avgLength} caracteres</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span>Más larga</span>
+                                        <span style="font-weight: 600;">${maxLength} caracteres</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Más corta</span>
+                                        <span style="font-weight: 600;">${minLength} caracteres</span>
+                                    </div>
+                                `;
+                            })()}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e2e8f0;">
+                    <h4 style="margin-top: 0; color: #2d3748; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-list-ol" style="color: #4CAF50;"></i>
+                        Lista Completa de Preguntas
+                    </h4>
+                    <div style="margin-top: 1.5rem; max-height: 400px; overflow-y: auto;">
+                        ${preguntas.map((pregunta, index) => `
+                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #fafbfc;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                    <strong style="color: #2d3748;">Pregunta ${index + 1}</strong>
+                                    <span style="background: ${pregunta.tipo === 'open' ? '#e8f5e8' : '#e3f2fd'}; color: ${pregunta.tipo === 'open' ? '#2e7d32' : '#1565c0'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
+                                        ${pregunta.tipo === 'open' ? 'Abierta' : 'Múltiple'}
+                                    </span>
+                                </div>
+                                <div style="color: #1a202c; margin-bottom: 0.5rem; font-weight: 500;">
+                                    ${pregunta.texto || '<em style="color: #718096;">Pregunta sin texto</em>'}
+                                </div>
+                                ${pregunta.tipo === 'open' ?
+                                    '<div style="color: #718096; font-style: italic;">• Respuesta abierta esperada</div>' :
+                                    pregunta.opciones && pregunta.opciones.length > 0 ?
+                                        pregunta.opciones.map(op => `<div style="color: #4a5568; margin-left: 1rem;">• ${op}</div>`).join('') :
+                                        '<div style="color: #f44336; font-style: italic;">⚠️ Sin opciones definidas</div>'
+                                }
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = analysisHTML;
+        }
+
+        // Función para generar validaciones y recomendaciones
+        function generateValidationsAndRecommendations(data) {
+            const validationsContainer = document.getElementById('validationsList');
+            const recommendationsContainer = document.getElementById('recommendationsList');
+
+            const preguntas = data.preguntas;
+            const validations = [];
+            const recommendations = [];
+
+            // Validaciones básicas
+            if (preguntas.length === 0) {
+                validations.push({
+                    type: 'error',
+                    message: 'La evaluación no tiene preguntas',
+                    icon: 'fas fa-exclamation-triangle'
+                });
+            } else {
+                validations.push({
+                    type: 'success',
+                    message: `Evaluación con ${preguntas.length} preguntas`,
+                    icon: 'fas fa-check-circle'
+                });
+            }
+
+            if (!data.titulo || data.titulo.trim().length === 0) {
+                validations.push({
+                    type: 'error',
+                    message: 'La evaluación no tiene título',
+                    icon: 'fas fa-exclamation-triangle'
+                });
+            } else {
+                validations.push({
+                    type: 'success',
+                    message: 'Título definido correctamente',
+                    icon: 'fas fa-check-circle'
+                });
+            }
+
+            // Validar preguntas
+            const preguntasSinTexto = preguntas.filter(p => !p.texto || p.texto.trim().length === 0);
+            if (preguntasSinTexto.length > 0) {
+                validations.push({
+                    type: 'warning',
+                    message: `${preguntasSinTexto.length} pregunta(s) sin texto definido`,
+                    icon: 'fas fa-exclamation-circle'
+                });
+            }
+
+            const preguntasSinOpciones = preguntas.filter(p => p.tipo !== 'open' && (!p.opciones || p.opciones.length < 2));
+            if (preguntasSinOpciones.length > 0) {
+                validations.push({
+                    type: 'warning',
+                    message: `${preguntasSinOpciones.length} pregunta(s) de opción múltiple sin opciones suficientes`,
+                    icon: 'fas fa-exclamation-circle'
+                });
+            }
+
+            // Recomendaciones
+            if (preguntas.length < 5) {
+                recommendations.push({
+                    message: 'Considera agregar más preguntas para una evaluación más completa',
+                    icon: 'fas fa-plus-circle',
+                    type: 'info'
+                });
+            }
+
+            if (!data.tiempoLimite) {
+                recommendations.push({
+                    message: 'Establece un tiempo límite para evitar que los estudiantes tomen demasiado tiempo',
+                    icon: 'fas fa-clock',
+                    type: 'info'
+                });
+            }
+
+            const tiposPregunta = new Set(preguntas.map(p => p.tipo));
+            if (tiposPregunta.size === 1) {
+                recommendations.push({
+                    message: 'Incluye una variedad de tipos de preguntas para mantener el interés',
+                    icon: 'fas fa-balance-scale',
+                    type: 'info'
+                });
+            }
+
+            // Renderizar validaciones
+            validationsContainer.innerHTML = validations.map(validation => `
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: ${validation.type === 'success' ? '#e8f5e8' : validation.type === 'warning' ? '#fff3cd' : '#f8d7da'}; border-radius: 6px; margin-bottom: 0.5rem;">
+                    <i class="${validation.icon}" style="color: ${validation.type === 'success' ? '#2e7d32' : validation.type === 'warning' ? '#856404' : '#721c24'}; font-size: 1rem;"></i>
+                    <span style="color: ${validation.type === 'success' ? '#2e7d32' : validation.type === 'warning' ? '#856404' : '#721c24'}; font-weight: 500;">${validation.message}</span>
+                </div>
+            `).join('');
+
+            // Renderizar recomendaciones
+            recommendationsContainer.innerHTML = recommendations.length > 0 ?
+                recommendations.map(rec => `
+                    <div style="display: flex; align-items: start; gap: 0.75rem; padding: 1rem; background: #e3f2fd; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid #2196F3;">
+                        <i class="${rec.icon}" style="color: #2196F3; font-size: 1.2rem; margin-top: 0.1rem;"></i>
+                        <div>
+                            <div style="color: #1565c0; font-weight: 600; margin-bottom: 0.25rem;">Sugerencia</div>
+                            <div style="color: #1565c0;">${rec.message}</div>
+                        </div>
+                    </div>
+                `).join('') :
+                '<div style="text-align: center; color: #718096; padding: 2rem;"><i class="fas fa-check-circle" style="font-size: 2rem; color: #4CAF50; margin-bottom: 1rem;"></i><br>¡Excelente! No hay recomendaciones pendientes.</div>';
         }
 
         // Función para cerrar preview
