@@ -7883,15 +7883,30 @@ REGLAS ESTRICTAS:
                 
                 // Actualizar contenido
                 document.getElementById('respuestaCuestionarioInfo').innerHTML = `
-                    <strong>Cuestionario:</strong> ${respuesta.cuestionarioTitulo || 'Sin título'}<br>
-                    <strong>Descripción:</strong> ${respuesta.cuestionarioDescripcion || 'Sin descripción'}<br>
-                    <strong>Tipo:</strong> ${respuesta.tipo || 'General'}<br>
-                    <strong>Programa:</strong> ${respuesta.programa || 'Sin programa'}
+                    <strong>Cuestionario:</strong> ${respuesta.cuestionarioInfo?.titulo || 'Sin título'}<br>
+                    <strong>Descripción:</strong> ${respuesta.cuestionarioInfo?.descripcion || 'Sin descripción'}<br>
+                    <strong>Tipo:</strong> Cuestionario<br>
+                    <strong>Programa:</strong> ${respuesta.cuestionarioInfo?.programa || 'Sin programa'}
                 `;
                 
                 // Mostrar respuestas del estudiante
                 let respuestasHTML = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
-                if (respuesta.respuestas && Array.isArray(respuesta.respuestas)) {
+                if (respuesta.preguntasDetalladas && Array.isArray(respuesta.preguntasDetalladas)) {
+                    respuesta.preguntasDetalladas.forEach((pregunta, index) => {
+                        const respuestaTexto = pregunta.tipo === 'multiple' && pregunta.opciones && pregunta.opciones.length > 0 ?
+                            (pregunta.opciones[pregunta.respuestaEstudiante] || 'Sin respuesta') :
+                            (pregunta.respuestaEstudiante || 'Sin respuesta');
+                            
+                        respuestasHTML += `
+                            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem;">
+                                <strong>Pregunta ${index + 1}:</strong> ${pregunta.pregunta || 'Sin pregunta'}<br>
+                                <strong>Respuesta:</strong> ${respuestaTexto}<br>
+                                ${pregunta.correcta !== null ? `<strong>¿Correcta?:</strong> ${pregunta.correcta ? '✅ Sí' : '❌ No'}` : ''}
+                            </div>
+                        `;
+                    });
+                } else if (respuesta.respuestas && Array.isArray(respuesta.respuestas)) {
+                    // Fallback para respuestas antiguas
                     respuesta.respuestas.forEach((resp, index) => {
                         respuestasHTML += `
                             <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem;">
