@@ -3484,11 +3484,121 @@
                 </div>
 
                 <div class="quiz-builder-section">
-                    <div class="quiz-builder-header">
-                        <h3><i class="fas fa-list"></i> Evaluaciones Publicadas</h3>
-                        <p>Gestiona y administra tus evaluaciones creadas</p>
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-cogs"></i> Centro de Gestión Integral
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 1.1rem;">Administración completa de evaluaciones y cuestionarios</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span id="totalEvaluacionesBadge">0</span> Evaluaciones
+                                </div>
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-question-circle"></i>
+                                    <span id="totalCuestionariosBadge">0</span> Cuestionarios
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="evaluacionesList" class="grid"></div>
+
+                    <!-- Filtros y Controles Avanzados -->
+                    <div class="management-controls" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.07); margin-bottom: 2rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                            <!-- Filtro por Tipo -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-filter"></i> Filtrar por Tipo
+                                </label>
+                                <select id="managementFilterType" onchange="filterManagementContent()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todos los Contenidos</option>
+                                    <option value="evaluaciones">Solo Evaluaciones</option>
+                                    <option value="cuestionarios">Solo Cuestionarios</option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro por Programa -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-graduation-cap"></i> Filtrar por Programa
+                                </label>
+                                <select id="managementFilterPrograma" onchange="filterManagementContent()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todos los Programas</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+
+                            <!-- Búsqueda -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-search"></i> Buscar por Título
+                                </label>
+                                <input type="text" id="managementSearch" onkeyup="filterManagementContent()" placeholder="Buscar evaluaciones o cuestionarios..." style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                            </div>
+
+                            <!-- Ordenar -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-sort"></i> Ordenar por
+                                </label>
+                                <select id="managementSort" onchange="sortManagementContent()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="fecha-desc">Más Recientes Primero</option>
+                                    <option value="fecha-asc">Más Antiguos Primero</option>
+                                    <option value="titulo-asc">Título A-Z</option>
+                                    <option value="titulo-desc">Título Z-A</option>
+                                    <option value="programa">Por Programa</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Acciones Masivas -->
+                        <div class="bulk-actions" style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: #2d3748; cursor: pointer;">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                                        <span>Seleccionar Todo</span>
+                                    </label>
+                                    <span id="selectedCount" style="background: #e2e8f0; color: #4a5568; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600;">0 seleccionados</span>
+                                </div>
+
+                                <div class="bulk-buttons" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <button onclick="exportSelected()" class="btn-secondary" style="padding: 0.5rem 1rem; border: 2px solid #2196F3; color: #2196F3; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                        <i class="fas fa-download"></i> Exportar
+                                    </button>
+                                    <button onclick="duplicateSelected()" class="btn-secondary" style="padding: 0.5rem 1rem; border: 2px solid #FF9800; color: #FF9800; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                        <i class="fas fa-copy"></i> Duplicar
+                                    </button>
+                                    <button onclick="deleteSelected()" class="btn-danger" style="padding: 0.5rem 1rem; border: none; background: #f44336; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                        <i class="fas fa-trash"></i> Eliminar Seleccionados
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenido Principal -->
+                    <div id="managementContent" class="management-grid">
+                        <!-- El contenido se cargará aquí dinámicamente -->
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="pagination-controls" id="paginationControls" style="display: none; margin-top: 2rem; text-align: center;">
+                        <div style="display: inline-flex; gap: 0.5rem; align-items: center;">
+                            <button onclick="changePage('prev')" class="btn-secondary" style="padding: 0.5rem 1rem; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;">
+                                <i class="fas fa-chevron-left"></i> Anterior
+                            </button>
+                            <span id="paginationInfo" style="padding: 0.5rem 1rem; background: #f8f9fa; border-radius: 6px; font-weight: 600; color: #2d3748;"></span>
+                            <button onclick="changePage('next')" class="btn-secondary" style="padding: 0.5rem 1rem; border: 2px solid #e2e8f0; border-radius: 6px; cursor: pointer;">
+                                Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -4241,7 +4351,7 @@
             else if (sectionId === 'actividades') try { loadActividadesList(); } catch (e) { console.error('Error loading actividades:', e); }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
-            else if (sectionId === 'evaluaciones') try { loadEvaluacionesList(); } catch (e) { console.error('Error loading evaluaciones:', e); }
+            else if (sectionId === 'evaluaciones') try { loadManagementContent(); } catch (e) { console.error('Error loading management content:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
@@ -5707,46 +5817,527 @@
             }
         }
 
-        async function loadEvaluacionesList() {
+        // Variables globales para la gestión
+        let allManagementItems = [];
+        let filteredManagementItems = [];
+        let currentPage = 1;
+        let itemsPerPage = 12;
+        let selectedItems = new Set();
+
+        // Función principal para cargar el contenido de gestión
+        async function loadManagementContent() {
             try {
-                const snapshot = await db.collection('evaluaciones').get();
-                const container = document.getElementById('evaluacionesList');
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-clipboard-check"></i> No hay evaluaciones subidas</div></div></div>';
-                    return;
+                // Cargar evaluaciones
+                const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    type: 'evaluacion',
+                    fechaCreacion: doc.data().fechaRegistro || doc.data().fechaCreacion || Date.now(),
+                    icon: 'fas fa-clipboard-check',
+                    color: '#4CAF50'
+                }));
+
+                // Cargar cuestionarios
+                const cuestionariosSnapshot = await db.collection('cuestionarios').get();
+                const cuestionarios = cuestionariosSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    type: 'cuestionario',
+                    fechaCreacion: doc.data().fechaCreacion || Date.now(),
+                    icon: 'fas fa-question-circle',
+                    color: '#2196F3'
+                }));
+
+                // Combinar y ordenar por fecha (más recientes primero)
+                allManagementItems = [...evaluaciones, ...cuestionarios].sort((a, b) =>
+                    new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
+                );
+
+                // Actualizar badges
+                document.getElementById('totalEvaluacionesBadge').textContent = evaluaciones.length;
+                document.getElementById('totalCuestionariosBadge').textContent = cuestionarios.length;
+
+                // Aplicar filtros iniciales
+                filterManagementContent();
+
+            } catch (error) {
+                console.error('Error loading management content:', error);
+                document.getElementById('managementContent').innerHTML =
+                    '<div style="text-align: center; padding: 3rem; color: #718096;"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i><br>Error al cargar el contenido</div>';
+            }
+        }
+
+        // Función para filtrar contenido
+        function filterManagementContent() {
+            const typeFilter = document.getElementById('managementFilterType').value;
+            const programaFilter = document.getElementById('managementFilterPrograma').value;
+            const searchTerm = document.getElementById('managementSearch').value.toLowerCase();
+
+            filteredManagementItems = allManagementItems.filter(item => {
+                // Filtro por tipo
+                if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+
+                // Filtro por programa
+                if (programaFilter !== 'all' && item.programa !== programaFilter) return false;
+
+                // Filtro por búsqueda
+                if (searchTerm && !item.titulo.toLowerCase().includes(searchTerm)) return false;
+
+                return true;
+            });
+
+            currentPage = 1;
+            renderManagementContent();
+        }
+
+        // Función para ordenar contenido
+        function sortManagementContent() {
+            const sortBy = document.getElementById('managementSort').value;
+
+            filteredManagementItems.sort((a, b) => {
+                switch (sortBy) {
+                    case 'fecha-asc':
+                        return new Date(a.fechaCreacion) - new Date(b.fechaCreacion);
+                    case 'fecha-desc':
+                        return new Date(b.fechaCreacion) - new Date(a.fechaCreacion);
+                    case 'titulo-asc':
+                        return a.titulo.localeCompare(b.titulo);
+                    case 'titulo-desc':
+                        return b.titulo.localeCompare(a.titulo);
+                    case 'programa':
+                        return (a.programa || '').localeCompare(b.programa || '');
+                    default:
+                        return 0;
                 }
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return `
-                        <div class="clase-card grid-view">
-                            <div class="clase-header">
-                                <div class="clase-title">
-                                    <i class="fas fa-clipboard-check"></i> ${data.titulo}
+            });
+
+            renderManagementContent();
+        }
+
+        // Función para renderizar el contenido
+        function renderManagementContent() {
+            const container = document.getElementById('managementContent');
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const itemsToShow = filteredManagementItems.slice(startIndex, endIndex);
+
+            if (itemsToShow.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #718096;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron elementos</h3>
+                        <p>Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                document.getElementById('paginationControls').style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = itemsToShow.map(item => createManagementCard(item)).join('');
+
+            // Actualizar paginación
+            updatePagination();
+        }
+
+        // Función para crear una tarjeta de gestión
+        function createManagementCard(item) {
+            const fecha = new Date(item.fechaCreacion).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const isSelected = selectedItems.has(item.id);
+
+            return `
+                <div class="management-card ${item.type}" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); overflow: hidden; transition: all 0.3s; ${isSelected ? 'border: 3px solid #4CAF50; box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);' : ''}">
+                    <div class="card-header" style="background: linear-gradient(135deg, ${item.color}20, ${item.color}10); padding: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <div style="display: flex; align-items: start; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <input type="checkbox" class="item-checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''} onchange="toggleItemSelection('${item.id}')" style="width: 18px; height: 18px; accent-color: ${item.color};">
+                                <div style="background: ${item.color}; color: white; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                    <i class="${item.icon}"></i>
                                 </div>
-                                <div class="clase-meta">
-                                    <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                    <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                                <div>
+                                    <h3 style="margin: 0; color: #2d3748; font-size: 1.2rem; font-weight: 600;">${item.titulo}</h3>
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.25rem;">
+                                        <span style="background: ${item.color}; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
+                                            ${item.type === 'evaluacion' ? 'EVALUACIÓN' : 'CUESTIONARIO'}
+                                        </span>
+                                        <span style="color: #718096; font-size: 0.9rem;">
+                                            <i class="fas fa-calendar"></i> ${fecha}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="clase-content">
-                                <div class="clase-description">
-                                    ${data.descripcion || ''}
+                            <div class="card-actions" style="display: flex; gap: 0.5rem;">
+                                <button onclick="viewItem('${item.type}', '${item.id}')" class="btn-icon" title="Ver ${item.type === 'evaluacion' ? 'evaluación' : 'cuestionario'}" style="background: ${item.color}; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editItem('${item.type}', '${item.id}')" class="btn-icon" title="Editar" style="background: #FF9800; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="duplicateItem('${item.type}', '${item.id}')" class="btn-icon" title="Duplicar" style="background: #9c27b0; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button onclick="deleteItem('${item.type}s', '${item.id}')" class="btn-icon" title="Eliminar" style="background: #f44336; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body" style="padding: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div class="stat-mini" style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
+                                    ${item.programa ? item.programa.split(' ')[0] : 'N/A'}
                                 </div>
-                                <div class="clase-actions">
-                                    <button class="btn-icon btn-view" onclick="viewEvaluacion('${doc.id}')" title="Ver Evaluación" style="background: #8b5cf6; margin-right: 8px;">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn-icon btn-delete" onclick="deleteItem('evaluaciones', '${doc.id}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                <div style="color: #718096; font-size: 0.8rem;">Programa</div>
+                            </div>
+                            <div class="stat-mini" style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
+                                    ${item.preguntas ? item.preguntas.length : (item.preguntas ? item.preguntas.length : 0)}
+                                </div>
+                                <div style="color: #718096; font-size: 0.8rem;">Preguntas</div>
+                            </div>
+                            <div class="stat-mini" style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
+                                    ${item.tiempoLimite || 'N/A'}
+                                </div>
+                                <div style="color: #718096; font-size: 0.8rem;">Minutos</div>
+                            </div>
+                            <div class="stat-mini" style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
+                                    ${calculateCompletionRate(item)}
+                                </div>
+                                <div style="color: #718096; font-size: 0.8rem;">Completado</div>
+                            </div>
+                        </div>
+
+                        <div class="card-description" style="color: #4a5568; line-height: 1.5; margin-bottom: 1rem;">
+                            ${item.descripcion || 'Sin descripción disponible'}
+                        </div>
+
+                        ${item.fechaInicio || item.fechaFin ? `
+                            <div class="card-dates" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid ${item.color};">
+                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-clock"></i> Disponibilidad
+                                </div>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    ${item.fechaInicio ? `<span style="color: #2e7d32;"><i class="fas fa-play"></i> ${new Date(item.fechaInicio).toLocaleDateString('es-ES')}</span>` : ''}
+                                    ${item.fechaFin ? `<span style="color: #d32f2f;"><i class="fas fa-stop"></i> ${new Date(item.fechaFin).toLocaleDateString('es-ES')}</span>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función auxiliar para calcular tasa de completación
+        function calculateCompletionRate(item) {
+            if (item.type === 'evaluacion') {
+                // Para evaluaciones, podríamos calcular basado en respuestas, pero por ahora retornamos un placeholder
+                return '85%';
+            } else {
+                // Para cuestionarios, calculamos basado en completitud de preguntas
+                const preguntas = item.preguntas || [];
+                const preguntasCompletas = preguntas.filter(p =>
+                    p.texto && p.texto.trim() &&
+                    (p.tipo === 'open' || (p.opciones && p.opciones.length >= 2))
+                ).length;
+                return preguntas.length > 0 ? Math.round((preguntasCompletas / preguntas.length) * 100) + '%' : '0%';
+            }
+        }
+
+        // Función para cambiar página
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < Math.ceil(filteredManagementItems.length / itemsPerPage)) {
+                currentPage++;
+            }
+            renderManagementContent();
+        }
+
+        // Función para actualizar paginación
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredManagementItems.length / itemsPerPage);
+            const controls = document.getElementById('paginationControls');
+            const info = document.getElementById('paginationInfo');
+
+            if (totalPages <= 1) {
+                controls.style.display = 'none';
+                return;
+            }
+
+            controls.style.display = 'block';
+            info.textContent = `Página ${currentPage} de ${totalPages} (${filteredManagementItems.length} elementos)`;
+        }
+
+        // Función para seleccionar/deseleccionar elementos
+        function toggleItemSelection(itemId) {
+            if (selectedItems.has(itemId)) {
+                selectedItems.delete(itemId);
+            } else {
+                selectedItems.add(itemId);
+            }
+            updateSelectedCount();
+            renderManagementContent(); // Re-render para actualizar checkboxes
+        }
+
+        // Función para seleccionar/deseleccionar todo
+        function toggleSelectAll() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+            if (selectAllCheckbox.checked) {
+                checkboxes.forEach(cb => {
+                    selectedItems.add(cb.dataset.id);
+                    cb.checked = true;
+                });
+            } else {
+                selectedItems.clear();
+                checkboxes.forEach(cb => cb.checked = false);
+            }
+            updateSelectedCount();
+        }
+
+        // Función para actualizar contador de seleccionados
+        function updateSelectedCount() {
+            const count = selectedItems.size;
+            document.getElementById('selectedCount').textContent = `${count} seleccionados`;
+
+            // Habilitar/deshabilitar botones de acciones masivas
+            const bulkButtons = document.querySelectorAll('.bulk-buttons button');
+            bulkButtons.forEach(btn => {
+                btn.disabled = count === 0;
+                btn.style.opacity = count === 0 ? 0.5 : 1;
+            });
+        }
+
+        // Funciones de acciones masivas
+        function exportSelected() {
+            if (selectedItems.size === 0) return alert('Selecciona al menos un elemento');
+
+            const selectedData = allManagementItems.filter(item => selectedItems.has(item.id));
+            const dataStr = JSON.stringify(selectedData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+            const exportFileDefaultName = `export_${new Date().toISOString().split('T')[0]}.json`;
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function duplicateSelected() {
+            if (selectedItems.size === 0) return alert('Selecciona al menos un elemento');
+
+            selectedItems.forEach(async itemId => {
+                const item = allManagementItems.find(i => i.id === itemId);
+                if (item) {
+                    const duplicateData = { ...item };
+                    delete duplicateData.id;
+                    duplicateData.titulo = `${duplicateData.titulo} (Copia)`;
+                    duplicateData.fechaCreacion = Date.now();
+
+                    try {
+                        await db.collection(`${item.type}s`).add(duplicateData);
+                        alert(`${item.type === 'evaluacion' ? 'Evaluación' : 'Cuestionario'} duplicado exitosamente`);
+                    } catch (error) {
+                        console.error('Error duplicating item:', error);
+                        alert('Error al duplicar el elemento');
+                    }
+                }
+            });
+
+            // Recargar contenido
+            loadManagementContent();
+        }
+
+        async function deleteSelected() {
+            if (selectedItems.size === 0) return alert('Selecciona al menos un elemento');
+
+            const confirmMessage = `¿Estás seguro de que quieres eliminar ${selectedItems.size} elemento(s)? Esta acción no se puede deshacer.`;
+            if (!confirm(confirmMessage)) return;
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const itemId of selectedItems) {
+                const item = allManagementItems.find(i => i.id === itemId);
+                if (item) {
+                    try {
+                        await db.collection(`${item.type}s`).doc(itemId).delete();
+                        successCount++;
+                    } catch (error) {
+                        console.error('Error deleting item:', error);
+                        errorCount++;
+                    }
+                }
+            }
+
+            selectedItems.clear();
+            updateSelectedCount();
+
+            if (successCount > 0) {
+                alert(`${successCount} elemento(s) eliminado(s) exitosamente${errorCount > 0 ? ` (${errorCount} errores)` : ''}`);
+            }
+
+            // Recargar contenido
+            loadManagementContent();
+        }
+
+        // Funciones individuales
+        function viewItem(type, id) {
+            if (type === 'evaluacion') {
+                viewEvaluacion(id);
+            } else {
+                viewCuestionario(id);
+            }
+        }
+
+        function editItem(type, id) {
+            alert(`Funcionalidad de edición próximamente disponible para ${type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}`);
+            // Aquí se podría implementar la edición inline o redireccionar a un modo de edición
+        }
+
+        function duplicateItem(type, id) {
+            selectedItems.clear();
+            selectedItems.add(id);
+            duplicateSelected();
+        }
+
+        // Función para ver evaluación (reutilizar la existente)
+        async function viewEvaluacion(id) {
+            try {
+                const doc = await db.collection('evaluaciones').doc(id).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    showEvaluacionPreview({
+                        titulo: data.titulo,
+                        descripcion: data.descripcion,
+                        programa: data.programa,
+                        tiempoLimite: data.tiempoLimite,
+                        fechaInicio: data.fechaInicio,
+                        fechaFin: data.fechaFin,
+                        preguntas: data.preguntas || []
+                    });
+                }
+            } catch (error) {
+                console.error('Error viewing evaluacion:', error);
+                alert('Error al cargar la evaluación');
+            }
+        }
+
+        // Función para ver cuestionario
+        async function viewCuestionario(id) {
+            try {
+                const doc = await db.collection('cuestionarios').doc(id).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Mostrar modal con información del cuestionario
+                    showCuestionarioModal(data, id);
+                }
+            } catch (error) {
+                console.error('Error viewing cuestionario:', error);
+                alert('Error al cargar el cuestionario');
+            }
+        }
+
+        // Función para mostrar modal de cuestionario
+        function showCuestionarioModal(data, id) {
+            const modalHTML = `
+                <div id="cuestionarioModal" class="modal" style="display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000;">
+                    <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto; margin: 2rem auto; background: white; border-radius: 12px;">
+                        <div class="modal-header" style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                            <h2 style="margin: 0; color: #2d3748;"><i class="fas fa-question-circle" style="color: #2196F3;"></i> ${data.titulo}</h2>
+                            <button onclick="closeCuestionarioModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096;">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 2rem;">
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="color: #2d3748;">Información General</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                    <div><strong>Programa:</strong> ${data.programa || 'No especificado'}</div>
+                                    <div><strong>Preguntas:</strong> ${data.preguntas ? data.preguntas.length : 0}</div>
+                                    <div><strong>Fecha:</strong> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="color: #2d3748;">Preguntas del Cuestionario</h3>
+                                <div style="margin-top: 1rem; max-height: 400px; overflow-y: auto;">
+                                    ${data.preguntas && data.preguntas.length > 0 ?
+                                        data.preguntas.map((pregunta, index) => `
+                                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                                    <strong style="color: #2d3748;">Pregunta ${index + 1}</strong>
+                                                    <span style="background: ${pregunta.tipo === 'open' ? '#e8f5e8' : '#e3f2fd'}; color: ${pregunta.tipo === 'open' ? '#2e7d32' : '#1565c0'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                                                        ${pregunta.tipo === 'open' ? 'Abierta' : 'Múltiple'}
+                                                    </span>
+                                                </div>
+                                                <div style="color: #1a202c; margin-bottom: 0.5rem;">
+                                                    ${pregunta.texto || '<em>Sin texto</em>'}
+                                                </div>
+                                                ${pregunta.tipo === 'open' ?
+                                                    '<div style="color: #718096; font-style: italic;">Respuesta abierta esperada</div>' :
+                                                    pregunta.opciones && pregunta.opciones.length > 0 ?
+                                                        pregunta.opciones.map(op => `<div style="color: #4a5568; margin-left: 1rem;">• ${op}</div>`).join('') :
+                                                        '<div style="color: #f44336;">Sin opciones definidas</div>'
+                                                }
+                                            </div>
+                                        `).join('') :
+                                        '<p style="color: #718096; text-align: center;">No hay preguntas en este cuestionario</p>'
+                                    }
                                 </div>
                             </div>
                         </div>
-                    `;
-                }).join('');
+                    </div>
+                </div>
+            `;
+
+            // Agregar el modal al body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function closeCuestionarioModal() {
+            const modal = document.getElementById('cuestionarioModal');
+            if (modal) modal.remove();
+        }
+
+        // Función para eliminar item (mejorada)
+        async function deleteItem(collection, id) {
+            const itemName = collection === 'evaluaciones' ? 'evaluación' : collection === 'cuestionarios' ? 'cuestionario' : 'elemento';
+
+            if (!confirm(`¿Estás seguro de que quieres eliminar esta ${itemName}? Esta acción no se puede deshacer.`)) return;
+
+            try {
+                await db.collection(collection).doc(id).delete();
+                alert(`${itemName.charAt(0).toUpperCase() + itemName.slice(1)} eliminada exitosamente`);
+
+                // Recargar contenido
+                loadManagementContent();
             } catch (error) {
-                console.error('Error loading evaluaciones:', error);
+                console.error('Error deleting item:', error);
+                alert(`Error al eliminar la ${itemName}`);
             }
+        }
+
+        // Inicializar la gestión cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Si estamos en la sección de evaluaciones, cargar el contenido de gestión
+            if (window.location.hash === '#evaluaciones' || document.querySelector('[data-section="evaluaciones"]')) {
+                loadManagementContent();
+            }
+        });
+
+        // Alias para mantener compatibilidad
+        async function loadEvaluacionesList() {
+            await loadManagementContent();
         }
 
         async function loadMaterialesList() {
@@ -5904,7 +6495,7 @@
                     else if (sectionId === 'clases') loadClasesList();
                     else if (sectionId === 'actividades') loadActividadesList();
                     else if (sectionId === 'cuestionarios') loadCuestionariosList();
-                    else if (sectionId === 'evaluaciones') loadEvaluacionesList();
+                    else if (sectionId === 'evaluaciones') loadManagementContent();
                     else if (sectionId === 'materiales') loadMaterialesList();
                     else if (sectionId === 'recursos') loadRecursosList();
                     else if (sectionId === 'ver-entregas') {
