@@ -1231,3 +1231,198 @@ body{background:var(--bg);color:#111}
     }
 }
 
+/* Dashboard-style Management Cards */
+.management-card .card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.management-card .card-title i {
+  color: #4CAF50;
+  font-size: 1.1em;
+}
+
+.management-card .card-description {
+  color: #718096;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.management-card .card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #a0aec0;
+}
+
+.management-card .card-meta .type-badge {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.management-card .card-meta .date-info {
+  font-weight: 500;
+}
+
+.management-card .card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.management-card .stat-item {
+  text-align: center;
+  padding: 0.75rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.management-card .stat-item .stat-number {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.management-card .stat-item .stat-label {
+  font-size: 0.8rem;
+  color: #718096;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.management-card .card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.management-card .card-actions .left-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.management-card .card-actions .right-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.management-card .btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+  background: #f7fafc;
+  color: #4a5568;
+}
+
+.management-card .btn-icon:hover {
+  background: #4CAF50;
+  color: white;
+  transform: scale(1.05);
+}
+
+.management-card .btn-icon.danger:hover {
+  background: #f44336;
+  color: white;
+}
+
+.management-card .btn-icon.secondary:hover {
+  background: #718096;
+  color: white;
+}
+
+/* Selection checkbox styling */
+.management-card .selection-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.management-card .item-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #4CAF50;
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+/* Status indicators */
+.status-published {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.status-draft {
+  color: #ffc107;
+  font-weight: 600;
+}
+
+.status-archived {
+  color: #6c757d;
+  font-weight: 600;
+}
+
+/* Enhanced hover effects */
+.management-card:hover .card-title i {
+  transform: scale(1.1);
+  transition: transform 0.3s;
+}
+
+.management-card:hover .type-badge {
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+/* Loading states */
+.management-card.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.management-card.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+

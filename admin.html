@@ -3766,7 +3766,7 @@
                                                 <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
                                                 Validaciones
                                             </h3>
-                                            <div id="validationsList" style="margin-top: 1.5rem; space-y: 1rem;">
+                                            <div id="validationsList" style="margin-top: 1.5rem;">
                                                 <!-- Las validaciones se cargarán aquí -->
                                             </div>
                                         </div>
@@ -5951,86 +5951,40 @@
             const isSelected = selectedItems.has(item.id);
 
             return `
-                <div class="management-card ${item.type}" style="background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); overflow: hidden; transition: all 0.3s; ${isSelected ? 'border: 3px solid #4CAF50; box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);' : ''}">
-                    <div class="card-header" style="background: linear-gradient(135deg, ${item.color}20, ${item.color}10); padding: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.05);">
-                        <div style="display: flex; align-items: start; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <input type="checkbox" class="item-checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''} onchange="toggleItemSelection('${item.id}')" style="width: 18px; height: 18px; accent-color: ${item.color};">
-                                <div style="background: ${item.color}; color: white; width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                                    <i class="${item.icon}"></i>
-                                </div>
-                                <div>
-                                    <h3 style="margin: 0; color: #2d3748; font-size: 1.2rem; font-weight: 600;">${item.titulo}</h3>
-                                    <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.25rem;">
-                                        <span style="background: ${item.color}; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-                                            ${item.type === 'evaluacion' ? 'EVALUACIÓN' : 'CUESTIONARIO'}
-                                        </span>
-                                        <span style="color: #718096; font-size: 0.9rem;">
-                                            <i class="fas fa-calendar"></i> ${fecha}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-actions" style="display: flex; gap: 0.5rem;">
-                                <button onclick="viewItem('${item.type}', '${item.id}')" class="btn-icon" title="Ver ${item.type === 'evaluacion' ? 'evaluación' : 'cuestionario'}" style="background: ${item.color}; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button onclick="editItem('${item.type}', '${item.id}')" class="btn-icon" title="Editar" style="background: #FF9800; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="duplicateItem('${item.type}', '${item.id}')" class="btn-icon" title="Duplicar" style="background: #9c27b0; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <button onclick="deleteItem('${item.type}s', '${item.id}')" class="btn-icon" title="Eliminar" style="background: #f44336; color: white; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
+                <div class="clase-card grid-view ${item.type}" style="${isSelected ? 'border: 3px solid #4CAF50; box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);' : ''}">
+                    <div class="clase-header">
+                        <div class="clase-title">
+                            <input type="checkbox" class="item-checkbox" data-id="${item.id}" ${isSelected ? 'checked' : ''} onchange="toggleItemSelection('${item.id}')" style="margin-right: 10px; width: 16px; height: 16px; accent-color: ${item.color};">
+                            <i class="${item.icon}" style="color: ${item.color}; margin-right: 8px;"></i> ${item.titulo}
+                            <span style="background: ${item.color}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-left: 8px;">
+                                ${item.type === 'evaluacion' ? 'EVALUACIÓN' : 'CUESTIONARIO'}
+                            </span>
+                        </div>
+                        <div class="clase-meta">
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${item.programa || 'Sin programa'}</div>
+                            <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
+                            <div class="meta-item"><i class="fas fa-question-circle"></i> ${item.preguntas ? item.preguntas.length : 0} preguntas</div>
+                            ${item.tiempoLimite ? `<div class="meta-item"><i class="fas fa-clock"></i> ${item.tiempoLimite} min</div>` : ''}
                         </div>
                     </div>
-
-                    <div class="card-body" style="padding: 1.5rem;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-                            <div class="stat-mini" style="text-align: center;">
-                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
-                                    ${item.programa ? item.programa.split(' ')[0] : 'N/A'}
-                                </div>
-                                <div style="color: #718096; font-size: 0.8rem;">Programa</div>
-                            </div>
-                            <div class="stat-mini" style="text-align: center;">
-                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
-                                    ${item.preguntas ? item.preguntas.length : (item.preguntas ? item.preguntas.length : 0)}
-                                </div>
-                                <div style="color: #718096; font-size: 0.8rem;">Preguntas</div>
-                            </div>
-                            <div class="stat-mini" style="text-align: center;">
-                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
-                                    ${item.tiempoLimite || 'N/A'}
-                                </div>
-                                <div style="color: #718096; font-size: 0.8rem;">Minutos</div>
-                            </div>
-                            <div class="stat-mini" style="text-align: center;">
-                                <div style="font-size: 1.5rem; font-weight: bold; color: ${item.color};">
-                                    ${calculateCompletionRate(item)}
-                                </div>
-                                <div style="color: #718096; font-size: 0.8rem;">Completado</div>
-                            </div>
-                        </div>
-
-                        <div class="card-description" style="color: #4a5568; line-height: 1.5; margin-bottom: 1rem;">
+                    <div class="clase-content">
+                        <div class="clase-description">
                             ${item.descripcion || 'Sin descripción disponible'}
                         </div>
-
-                        ${item.fechaInicio || item.fechaFin ? `
-                            <div class="card-dates" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid ${item.color};">
-                                <div style="font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
-                                    <i class="fas fa-clock"></i> Disponibilidad
-                                </div>
-                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                    ${item.fechaInicio ? `<span style="color: #2e7d32;"><i class="fas fa-play"></i> ${new Date(item.fechaInicio).toLocaleDateString('es-ES')}</span>` : ''}
-                                    ${item.fechaFin ? `<span style="color: #d32f2f;"><i class="fas fa-stop"></i> ${new Date(item.fechaFin).toLocaleDateString('es-ES')}</span>` : ''}
-                                </div>
-                            </div>
-                        ` : ''}
+                        <div class="clase-actions">
+                            <button class="btn-icon btn-view" onclick="viewItem('${item.type}', '${item.id}')" title="Ver ${item.type === 'evaluacion' ? 'evaluación' : 'cuestionario'}" style="background: ${item.color};">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon btn-edit" onclick="editItem('${item.type}', '${item.id}')" title="Editar" style="background: #FF9800;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon btn-duplicate" onclick="duplicateItem('${item.type}', '${item.id}')" title="Duplicar" style="background: #9c27b0;">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon btn-delete" onclick="deleteItem('${item.type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}', '${item.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
