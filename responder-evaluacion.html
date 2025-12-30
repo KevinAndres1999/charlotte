@@ -971,7 +971,7 @@ function renderQuestions() {
 
         questionCard.innerHTML = `
             <div class="question-number">Pregunta ${index + 1} de ${currentQuiz.preguntas.length}</div>
-            <div class="question-text">${pregunta.texto}</div>
+            <div class="question-text">${pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido'}</div>
             <div class="options">
                 ${optionsHtml}
             </div>
@@ -1136,7 +1136,7 @@ window.submitQuiz = async function() {
             } else if (pregunta.tipo === 'open') {
                 preguntasAbiertas.push({
                     indice: index,
-                    texto: pregunta.texto,
+                    texto: pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido',
                     respuestaEstudiante: answers[index]
                 });
             }

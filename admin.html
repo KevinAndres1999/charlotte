@@ -1773,6 +1773,417 @@
             font-size: 0.85rem;
             margin: 0;
         }
+
+        /* === ESTILOS PARA GESTIÓN DE CUESTIONARIOS === */
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .cuestionarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .cuestionario-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+
+        .cuestionario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .cuestionario-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .cuestionario-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cuestionario-title i {
+            color: #3b82f6;
+        }
+
+        .tipo-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-cuestionario {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-evaluacion {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .cuestionario-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .cuestionario-content {
+            padding: 1.5rem;
+        }
+
+        .cuestionario-description {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .cuestionario-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cuestionario-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-primary-cuestionario {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary-cuestionario:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary-cuestionario {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-secondary-cuestionario:hover {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .cuestionario-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-activo {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactivo {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-borrador {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .cuestionario-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .cuestionario-modal-content {
+            background-color: #fff;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 95%;
+            max-width: 1000px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .cuestionario-modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        }
+
+        .cuestionario-modal-title {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 1.5rem;
+        }
+
+        .cuestionario-modal-body {
+            padding: 2rem;
+        }
+
+        .cuestionario-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .cuestionario-detail-main {
+            flex: 1;
+        }
+
+        .cuestionario-detail-sidebar {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .cuestionario-detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .cuestionario-detail-section h4 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .cuestionario-detail-section h4 i {
+            color: #3b82f6;
+        }
+
+        .question-preview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-number {
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .question-type-badge {
+            background: #e0f2fe;
+            color: #0277bd;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-options {
+            margin-left: 1rem;
+        }
+
+        .option-item {
+            padding: 0.25rem 0;
+            color: #475569;
+        }
+
+        .option-correct {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .option-marker {
+            color: #059669;
+            margin-right: 0.5rem;
+        }
+
+        .cuestionario-detail-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .cuestionario-detail-actions button {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Responsive para gestión de cuestionarios */
+        @media (max-width: 768px) {
+            .cuestionarios-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cuestionario-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .cuestionario-actions {
+                flex-direction: column;
+            }
+
+            .cuestionario-actions button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .cuestionario-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cuestionario-detail-sidebar {
+                order: -1;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     </style>
 </head><body>
     <header class="admin-header">
@@ -1799,6 +2210,7 @@
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Subir Actividades</span></div>
                 <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
                 <div class="nav-item" data-section="respuestas-viewer"><i class="fas fa-clipboard-list"></i><span>Ver Respuestas</span></div>
+                <div class="nav-item" data-section="cuestionarios-manager"><i class="fas fa-tasks"></i><span>Gestión Cuestionarios</span></div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
@@ -2821,8 +3233,8 @@
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-cogs"></i> Configuración de Generación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="autoNumPreguntas">Número de Preguntas a Generar</label>
-                                    <input type="number" id="autoNumPreguntas" placeholder="10" min="1" max="50" value="10">
+                                    <label for="cuestionarioAutoNumPreguntas">Número de Preguntas a Generar</label>
+                                    <input type="number" id="cuestionarioAutoNumPreguntas" placeholder="10" min="1" max="50" value="10">
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="autoCuestionarioTiempo">Tiempo Disponible (minutos)</label>
@@ -2864,12 +3276,110 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- Gestión de Cuestionarios -->
+            <div id="cuestionarios-manager" class="content-section">
+                <div class="page-header">
+                    <h2><i class="fas fa-tasks"></i> Gestión de Cuestionarios y Evaluaciones</h2>
+                    <p>Interfaz completa para administrar, visualizar y gestionar todos tus cuestionarios y evaluaciones</p>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
                 <div class="quiz-builder-section">
                     <div class="quiz-builder-header">
-                        <h3><i class="fas fa-list"></i> Cuestionarios Publicados</h3>
-                        <p>Gestiona y administra tus cuestionarios creados</p>
+                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
                     </div>
-                    <div id="cuestionariosList" class="grid"></div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="filterPrograma">Programa:</label>
+                            <select id="filterPrograma">
+                                <option value="">Todos los programas</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstado">Estado:</label>
+                            <select id="filterEstado">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchCuestionario">Buscar:</label>
+                            <input type="text" id="searchCuestionario" placeholder="Buscar por título o descripción...">
+                        </div>
+                        <div class="filter-group">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosCuestionarios()">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosCuestionarios()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="totalCuestionarios">0</h4>
+                            <p>Total Items</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="cuestionariosActivos">0</h4>
+                            <p>Activos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="totalRespuestas">0</h4>
+                            <p>Total Respuestas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h4 id="promedioCalificaciones">0%</h4>
+                            <p>Promedio General</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Cuestionarios -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Cuestionarios y Evaluaciones Disponibles</h3>
+                        <div class="header-actions">
+                            <button type="button" class="btn-secondary" onclick="exportarCuestionarios()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button type="button" class="btn-primary" onclick="recargarCuestionarios()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="cuestionariosManagerGrid" class="cuestionarios-grid">
+                        <!-- Los cuestionarios se cargarán aquí -->
+                    </div>
                 </div>
             </div>
 
@@ -2967,7 +3477,7 @@
 
                         <div class="submit-section">
                             <button type="button" class="btn-submit-quiz" onclick="submitEvaluacion()">
-                                <i class="fas fa-rocket"></i> Publicar Evaluación
+                                <i class="fas fa-arrow-right"></i> Siguiente
                             </button>
                         </div>
                     </form>
@@ -2979,6 +3489,44 @@
                         <p>Gestiona y administra tus evaluaciones creadas</p>
                     </div>
                     <div id="evaluacionesList" class="grid"></div>
+                </div>
+            </div>
+
+            <!-- Modal de Preview de Evaluación -->
+            <div id="evaluacionPreviewModal" class="modal" style="display: none;">
+                <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-eye"></i> Vista Previa de Evaluación</h2>
+                        <button onclick="closeEvaluacionPreview()" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="evaluacion-preview-info" style="margin-bottom: 2rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                            <h3 id="previewEvaluacionTitle"></h3>
+                            <p id="previewEvaluacionDesc"></p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                                <div><strong>Programa:</strong> <span id="previewPrograma"></span></div>
+                                <div><strong>Tiempo límite:</strong> <span id="previewTiempo"></span></div>
+                                <div><strong>Preguntas:</strong> <span id="previewNumPreguntas"></span></div>
+                            </div>
+                        </div>
+
+                        <div class="evaluacion-preview-questions">
+                            <h3>Preguntas de la Evaluación</h3>
+                            <div id="previewQuestionsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;"></div>
+                        </div>
+
+                        <div class="evaluacion-preview-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" class="btn-secondary" onclick="editEvaluacionPreview()">
+                                <i class="fas fa-edit"></i> Editar Preguntas
+                            </button>
+                            <button type="button" class="btn-primary" onclick="publishEvaluacionPreview()">
+                                <i class="fas fa-rocket"></i> Publicar Evaluación
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="closeEvaluacionPreview()">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -3525,6 +4073,7 @@
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
             else if (sectionId === 'actividades') try { loadActividadesList(); } catch (e) { console.error('Error loading actividades:', e); }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
+            else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
             else if (sectionId === 'evaluaciones') try { loadEvaluacionesList(); } catch (e) { console.error('Error loading evaluaciones:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
@@ -3938,37 +4487,36 @@
                         const cuestionarioId = document.getElementById('autoCuestionario').value;
                         const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
                         if (!cuestionarioId) return alert('Selecciona un cuestionario');
-                        if (!numPreguntas || numPreguntas < 1) return alert('Ingresa un número válido de preguntas');
+                        if (!numPreguntas || numPreguntas < 1) return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
+
+                        // Verificar que no se pidan más preguntas de las disponibles
+                        const cuestionarioDoc = await db.collection('cuestionarios').doc(cuestionarioId).get();
+                        const cuestionarioData = cuestionarioDoc.data();
+                        const preguntasDisponibles = cuestionarioData.preguntas ? cuestionarioData.preguntas.length : 0;
+
+                        if (numPreguntas > preguntasDisponibles) {
+                            return alert(`El cuestionario solo tiene ${preguntasDisponibles} preguntas. No puedes solicitar ${numPreguntas}.`);
+                        }
+
                         questions = await getRandomQuestions(cuestionarioId, numPreguntas);
+                        console.log(`Preguntas obtenidas: ${questions.length} de ${numPreguntas} solicitadas (${preguntasDisponibles} disponibles)`);
+
                         if (questions.length === 0) return alert('No se pudieron obtener preguntas del cuestionario');
+                        if (questions.length !== numPreguntas) {
+                            console.warn(`Se solicitaron ${numPreguntas} preguntas pero se obtuvieron ${questions.length}`);
+                        }
                     }
 
-                    if (!confirm('¿Estás seguro de que quieres publicar esta evaluación?')) return;
-
-                    try {
-                        await db.collection('evaluaciones').add({
-                            titulo: title,
-                            descripcion: desc,
-                            preguntas: questions,
-                            programa: programa,
-                            tiempoLimite: tiempo ? parseInt(tiempo) : null,
-                            fechaInicio: fechaInicio || null,
-                            fechaFin: fechaFin || null,
-                            fechaRegistro: new Date().toISOString()
-                        });
-
-                        alert('Evaluación subida exitosamente');
-                        evaluacionForm.reset();
-                        document.getElementById('evaluacionQuestionsContainer').innerHTML = '';
-                        selectedQuestions = []; // Reiniciar selecciones
-                        document.getElementById('autoCuestionario').value = '';
-                        document.getElementById('autoNumPreguntas').value = '';
-                        loadDashboardStats();
-                    }
-                    catch (error) {
-                        console.error('Error:', error);
-                        alert('Error al subir evaluación');
-                    }
+                    // Mostrar preview de la evaluación antes de publicar
+                    showEvaluacionPreview({
+                        titulo: title,
+                        descripcion: desc,
+                        programa: programa,
+                        tiempoLimite: tiempo ? parseInt(tiempo) : null,
+                        fechaInicio: fechaInicio || null,
+                        fechaFin: fechaFin || null,
+                        preguntas: questions
+                    });
                 });
             }        });
 
@@ -4950,8 +5498,10 @@
 
         async function loadCuestionariosList() {
             try {
-                const snapshot = await db.collection('cuestionarios').get();
                 const container = document.getElementById('cuestionariosList');
+                if (!container) return; // Contenedor eliminado, no hacer nada
+                
+                const snapshot = await db.collection('cuestionarios').get();
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-question-circle"></i> No hay cuestionarios subidos</div></div></div>';
                     return;
@@ -5606,15 +6156,28 @@
         // Función para cargar cuestionarios para generación automática
         async function loadCuestionariosForAuto() {
             const select = document.getElementById('autoCuestionario');
+            const numInput = document.getElementById('autoNumPreguntas');
             select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
             try {
                 const snapshot = await db.collection('cuestionarios').get();
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    const numPreguntas = data.preguntas ? data.preguntas.length : 0;
                     const option = document.createElement('option');
                     option.value = doc.id;
-                    option.textContent = data.titulo + ' (' + (data.preguntas?.length || 0) + ' preguntas)';
+                    option.textContent = data.titulo + ' (' + numPreguntas + ' preguntas)';
+                    option.dataset.numPreguntas = numPreguntas;
                     select.appendChild(option);
+                });
+
+                // Actualizar máximo cuando cambie la selección
+                select.addEventListener('change', function() {
+                    const selectedOption = select.options[select.selectedIndex];
+                    const maxPreguntas = selectedOption.dataset.numPreguntas || 50;
+                    numInput.max = maxPreguntas;
+                    if (parseInt(numInput.value) > maxPreguntas) {
+                        numInput.value = maxPreguntas;
+                    }
                 });
             } catch (error) {
                 console.error('Error loading cuestionarios:', error);
@@ -5666,13 +6229,40 @@
         // Función para obtener preguntas aleatorias de un cuestionario
         async function getRandomQuestions(cuestionarioId, num) {
             try {
+                console.log(`Obteniendo ${num} preguntas aleatorias del cuestionario ${cuestionarioId}`);
                 const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
                 const data = doc.data();
                 const allQuestions = data.preguntas || [];
-                if (allQuestions.length === 0) return [];
+
+                console.log(`Cuestionario tiene ${allQuestions.length} preguntas totales`);
+
+                // Filtrar solo preguntas que tengan texto válido
+                const validQuestions = allQuestions.filter(q => q && (q.texto || q.pregunta) && (q.texto || q.pregunta).trim());
+
+                console.log(`${validQuestions.length} preguntas válidas encontradas`);
+
+                if (validQuestions.length === 0) {
+                    console.log('No hay preguntas válidas');
+                    return [];
+                }
+
+                // Asegurar que todas las preguntas tengan la propiedad 'texto'
+                const normalizedQuestions = validQuestions.map(q => ({
+                    texto: q.texto || q.pregunta || 'Pregunta sin texto',
+                    opciones: q.opciones || [],
+                    tipo: q.tipo || 'multiple',
+                    correcta: q.correcta || null
+                }));
+
+                console.log(`Normalizando ${normalizedQuestions.length} preguntas`);
+
                 // Mezclar y seleccionar
-                const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-                return shuffled.slice(0, Math.min(num, allQuestions.length));
+                const shuffled = normalizedQuestions.sort(() => 0.5 - Math.random());
+                const selected = shuffled.slice(0, Math.min(num, normalizedQuestions.length));
+
+                console.log(`Seleccionando ${selected.length} preguntas de ${normalizedQuestions.length} disponibles`);
+
+                return selected;
             } catch (error) {
                 console.error('Error getting random questions:', error);
                 return [];
@@ -8058,6 +8648,552 @@ REGLAS ESTRICTAS:
 
         function contactarEstudianteRespuesta() {
             alert('Función próximamente disponible');
+        }
+
+        // Funciones placeholder para acciones rápidas de respuestas
+        function marcarRespuestaComoRevisada() {
+            alert('Función próximamente disponible');
+        }
+
+        function descargarRespuestas() {
+            alert('Función próximamente disponible');
+        }
+
+        function contactarEstudianteRespuesta() {
+            alert('Función próximamente disponible');
+        }
+
+        // === FUNCIONES PARA GESTIÓN DE CUESTIONARIOS ===
+
+        let cuestionariosManagerData = [];
+        let currentCuestionarioManagerFilter = {
+            programa: '',
+            estado: '',
+            search: ''
+        };
+
+        // Función para cargar cuestionarios en el manager
+        async function loadCuestionariosManager() {
+            try {
+                console.log('Cargando cuestionarios para gestión...');
+                const snapshot = await db.collection('cuestionarios').get();
+                cuestionariosManagerData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    tipo: 'cuestionario'
+                }));
+
+                // También cargar evaluaciones
+                const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                const evaluacionesData = evaluacionesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    tipo: 'evaluacion'
+                }));
+
+                cuestionariosManagerData = [...cuestionariosManagerData, ...evaluacionesData];
+
+                console.log(`Cargados ${cuestionariosManagerData.length} cuestionarios/evaluaciones`);
+                aplicarFiltrosCuestionarios();
+                actualizarEstadisticasCuestionarios();
+
+            } catch (error) {
+                console.error('Error loading cuestionarios manager:', error);
+                document.getElementById('cuestionariosManagerGrid').innerHTML = '<p>Error al cargar los cuestionarios</p>';
+            }
+        }
+
+        // Función para aplicar filtros
+        function aplicarFiltrosCuestionarios() {
+            const programa = document.getElementById('filterPrograma').value;
+            const estado = document.getElementById('filterEstado').value;
+            const search = document.getElementById('searchCuestionario').value.toLowerCase();
+
+            currentCuestionarioManagerFilter = { programa, estado, search };
+
+            let filteredData = cuestionariosManagerData.filter(cuestionario => {
+                const matchPrograma = !programa || cuestionario.programa === programa;
+                const matchEstado = !estado || getCuestionarioEstado(cuestionario) === estado;
+                const matchSearch = !search ||
+                    cuestionario.titulo?.toLowerCase().includes(search) ||
+                    cuestionario.descripcion?.toLowerCase().includes(search);
+
+                return matchPrograma && matchEstado && matchSearch;
+            });
+
+            renderCuestionariosGrid(filteredData);
+        }
+
+        // Función para limpiar filtros
+        function limpiarFiltrosCuestionarios() {
+            document.getElementById('filterPrograma').value = '';
+            document.getElementById('filterEstado').value = '';
+            document.getElementById('searchCuestionario').value = '';
+            currentCuestionarioManagerFilter = { programa: '', estado: '', search: '' };
+            renderCuestionariosGrid(cuestionariosManagerData);
+        }
+
+        // Función para obtener el estado de un cuestionario
+        function getCuestionarioEstado(cuestionario) {
+            const ahora = new Date();
+            const fechaInicio = cuestionario.fechaInicio ? new Date(cuestionario.fechaInicio) : null;
+            const fechaFin = cuestionario.fechaFin ? new Date(cuestionario.fechaFin) : null;
+
+            if (!fechaInicio && !fechaFin) return 'activo';
+            if (fechaFin && ahora > fechaFin) return 'inactivo';
+            if (fechaInicio && ahora < fechaInicio) return 'borrador';
+            return 'activo';
+        }
+
+        // Función para renderizar el grid de cuestionarios
+        function renderCuestionariosGrid(data) {
+            const container = document.getElementById('cuestionariosManagerGrid');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron cuestionarios o evaluaciones</h3>
+                        <p>Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(cuestionario => {
+                const estado = getCuestionarioEstado(cuestionario);
+                const estadoClass = `status-${estado}`;
+                const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                // Calcular estadísticas
+                const stats = calcularEstadisticasCuestionario(cuestionario);
+
+                return `
+                    <div class="cuestionario-card">
+                        <div class="cuestionario-header">
+                            <div class="cuestionario-title">
+                                <i class="fas fa-${cuestionario.tipo === 'cuestionario' ? 'file-alt' : 'clipboard-check'}"></i>
+                                ${cuestionario.titulo || 'Sin título'}
+                                <span class="tipo-badge ${cuestionario.tipo === 'cuestionario' ? 'badge-cuestionario' : 'badge-evaluacion'}">
+                                    ${cuestionario.tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}
+                                </span>
+                            </div>
+                            <div class="cuestionario-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(cuestionario.fechaCreacion || cuestionario.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                                <span class="cuestionario-status ${estadoClass}">${estadoText}</span>
+                            </div>
+                        </div>
+                        <div class="cuestionario-content">
+                            <div class="cuestionario-description">
+                                ${cuestionario.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${cuestionario.preguntas?.length || 0}</div>
+                                    <div class="stat-label">Preguntas</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.totalRespuestas}</div>
+                                    <div class="stat-label">Respuestas</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.promedioCalificaciones}%</div>
+                                    <div class="stat-label">Promedio</div>
+                                </div>
+                            </div>
+                            <div class="cuestionario-actions">
+                                <button type="button" class="btn-primary-cuestionario" onclick="verDetalleCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
+                                    <i class="fas fa-eye"></i> Ver Detalles
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="editarCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="duplicarCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
+                                    <i class="fas fa-copy"></i> Duplicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Función para calcular estadísticas de un cuestionario
+        async function calcularEstadisticasCuestionario(cuestionario) {
+            try {
+                const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionario.id).get();
+                const respuestas = snapshot.docs.map(doc => doc.data());
+
+                const totalRespuestas = respuestas.length;
+                const calificaciones = respuestas.filter(r => r.calificacion).map(r => r.calificacion);
+                const promedioCalificaciones = calificaciones.length > 0 ?
+                    Math.round(calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) : 0;
+
+                return {
+                    totalRespuestas,
+                    promedioCalificaciones
+                };
+            } catch (error) {
+                console.error('Error calculating cuestionario stats:', error);
+                return { totalRespuestas: 0, promedioCalificaciones: 0 };
+            }
+        }
+
+        // Función para actualizar estadísticas generales
+        async function actualizarEstadisticasCuestionarios() {
+            try {
+                const total = cuestionariosManagerData.length;
+                const activos = cuestionariosManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
+
+                // Calcular total de respuestas
+                let totalRespuestas = 0;
+                let sumaCalificaciones = 0;
+                let countCalificaciones = 0;
+
+                for (const cuestionario of cuestionariosManagerData) {
+                    const stats = await calcularEstadisticasCuestionario(cuestionario);
+                    totalRespuestas += stats.totalRespuestas;
+                    if (stats.promedioCalificaciones > 0) {
+                        sumaCalificaciones += stats.promedioCalificaciones;
+                        countCalificaciones++;
+                    }
+                }
+
+                const promedioGeneral = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
+
+                document.getElementById('totalCuestionarios').textContent = total;
+                document.getElementById('cuestionariosActivos').textContent = activos;
+                document.getElementById('totalRespuestas').textContent = totalRespuestas;
+                document.getElementById('promedioCalificaciones').textContent = `${promedioGeneral}%`;
+
+            } catch (error) {
+                console.error('Error updating cuestionarios statistics:', error);
+            }
+        }
+
+        // Función para ver detalle de cuestionario
+        async function verDetalleCuestionario(cuestionarioId, tipo) {
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const doc = await db.collection(collectionName).doc(cuestionarioId).get();
+
+                if (!doc.exists) {
+                    alert('Cuestionario no encontrado');
+                    return;
+                }
+
+                const cuestionario = { id: doc.id, ...doc.data() };
+
+                // Crear modal de detalle
+                const modal = document.createElement('div');
+                modal.className = 'cuestionario-modal';
+                modal.id = 'cuestionarioDetailModal';
+                modal.innerHTML = `
+                    <div class="cuestionario-modal-content">
+                        <div class="cuestionario-modal-header">
+                            <h2 class="cuestionario-modal-title">
+                                <i class="fas fa-${tipo === 'cuestionario' ? 'file-alt' : 'clipboard-check'}"></i>
+                                ${cuestionario.titulo || 'Sin título'}
+                            </h2>
+                            <button onclick="closeCuestionarioModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        </div>
+                        <div class="cuestionario-modal-body">
+                            <div class="cuestionario-detail-grid">
+                                <div class="cuestionario-detail-main">
+                                    <div class="cuestionario-detail-section">
+                                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                        <p><strong>Descripción:</strong> ${cuestionario.descripcion || 'Sin descripción'}</p>
+                                        <p><strong>Programa:</strong> ${cuestionario.programa || 'Sin programa'}</p>
+                                        <p><strong>Tipo:</strong> ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}</p>
+                                        <p><strong>Tiempo límite:</strong> ${cuestionario.tiempo || cuestionario.tiempoDisponible || 'Sin límite'} minutos</p>
+                                        <p><strong>Número de intentos:</strong> ${cuestionario.intentos || cuestionario.numeroIntentos || 'Ilimitados'}</p>
+                                        ${cuestionario.fechaInicio ? `<p><strong>Fecha de inicio:</strong> ${new Date(cuestionario.fechaInicio).toLocaleString('es-ES')}</p>` : ''}
+                                        ${cuestionario.fechaFin ? `<p><strong>Fecha de fin:</strong> ${new Date(cuestionario.fechaFin).toLocaleString('es-ES')}</p>` : ''}
+                                    </div>
+
+                                    <div class="cuestionario-detail-section">
+                                        <h4><i class="fas fa-list-ol"></i> Preguntas (${cuestionario.preguntas?.length || 0})</h4>
+                                        <div id="cuestionarioQuestionsPreview">
+                                            ${renderQuestionsPreview(cuestionario.preguntas || [])}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cuestionario-detail-sidebar">
+                                    <div class="cuestionario-detail-section">
+                                        <h4><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+                                        <div id="cuestionarioStatsDetail">
+                                            <p>Cargando estadísticas...</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="cuestionario-detail-actions">
+                                        <button type="button" class="btn-primary-cuestionario" onclick="editarCuestionario('${cuestionarioId}', '${tipo}')">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="duplicarCuestionario('${cuestionarioId}', '${tipo}')">
+                                            <i class="fas fa-copy"></i> Duplicar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="verRespuestasCuestionario('${cuestionarioId}', '${tipo}')">
+                                            <i class="fas fa-users"></i> Ver Respuestas
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="exportarCuestionario('${cuestionarioId}', '${tipo}')">
+                                            <i class="fas fa-download"></i> Exportar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="eliminarCuestionario('${cuestionarioId}', '${tipo}')" style="background: #fee2e2; color: #dc2626; border-color: #dc2626;">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                modal.style.display = 'block';
+
+                // Cargar estadísticas
+                cargarEstadisticasDetalle(cuestionarioId, tipo);
+
+            } catch (error) {
+                console.error('Error loading cuestionario detail:', error);
+                alert('Error al cargar los detalles del cuestionario');
+            }
+        }
+
+        // Función para renderizar preview de preguntas
+        function renderQuestionsPreview(preguntas) {
+            if (!preguntas || preguntas.length === 0) {
+                return '<p>No hay preguntas configuradas</p>';
+            }
+
+            return preguntas.map((pregunta, index) => `
+                <div class="question-preview">
+                    <div class="question-preview-header">
+                        <span class="question-number">${index + 1}</span>
+                        <span class="question-type-badge">${pregunta.tipo === 'multiple' ? 'Opción Múltiple' : 'Abierta'}</span>
+                    </div>
+                    <div class="question-text">${pregunta.pregunta || pregunta.texto || 'Sin pregunta'}</div>
+                    ${pregunta.tipo === 'multiple' && pregunta.opciones ? `
+                        <div class="question-options">
+                            ${pregunta.opciones.map((opcion, i) => `
+                                <div class="option-item ${i === pregunta.correcta ? 'option-correct' : ''}">
+                                    ${i === pregunta.correcta ? '<span class="option-marker">✓</span>' : ''}
+                                    ${opcion}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Función para cargar estadísticas en el detalle
+        async function cargarEstadisticasDetalle(cuestionarioId, tipo) {
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionarioId).get();
+                const respuestas = snapshot.docs.map(doc => doc.data());
+
+                const totalRespuestas = respuestas.length;
+                const calificaciones = respuestas.filter(r => r.calificacion).map(r => r.calificacion);
+                const promedio = calificaciones.length > 0 ?
+                    (calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length).toFixed(1) : 0;
+
+                const statsContainer = document.getElementById('cuestionarioStatsDetail');
+                statsContainer.innerHTML = `
+                    <p><strong>Total de respuestas:</strong> ${totalRespuestas}</p>
+                    <p><strong>Calificaciones completadas:</strong> ${calificaciones.length}</p>
+                    <p><strong>Promedio general:</strong> ${promedio}%</p>
+                    <p><strong>Respuestas pendientes:</strong> ${totalRespuestas - calificaciones.length}</p>
+                `;
+            } catch (error) {
+                console.error('Error loading detail stats:', error);
+                document.getElementById('cuestionarioStatsDetail').innerHTML = '<p>Error al cargar estadísticas</p>';
+            }
+        }
+
+        // Función para cerrar modal de cuestionario
+        function closeCuestionarioModal() {
+            const modal = document.getElementById('cuestionarioDetailModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Función para editar cuestionario
+        function editarCuestionario(cuestionarioId, tipo) {
+            // Cambiar a la sección correspondiente y cargar el cuestionario para edición
+            if (tipo === 'cuestionario') {
+                switchSection('cuestionarios');
+                // Aquí se podría implementar la carga del cuestionario para edición
+                alert('Función de edición próximamente disponible. Por ahora, edita desde la sección "Subir Cuestionarios".');
+            } else {
+                switchSection('evaluaciones');
+                alert('Función de edición próximamente disponible. Por ahora, edita desde la sección "Evaluaciones".');
+            }
+            closeCuestionarioModal();
+        }
+
+        // Función para duplicar cuestionario
+        async function duplicarCuestionario(cuestionarioId, tipo) {
+            if (!confirm('¿Estás seguro de que quieres duplicar este cuestionario?')) return;
+
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const doc = await db.collection(collectionName).doc(cuestionarioId).get();
+                const cuestionario = doc.data();
+
+                const nuevoCuestionario = {
+                    ...cuestionario,
+                    titulo: `${cuestionario.titulo} (Copia)`,
+                    fechaCreacion: new Date(),
+                    fechaSubida: new Date()
+                };
+
+                delete nuevoCuestionario.id; // Remover el ID original
+
+                await db.collection(collectionName).add(nuevoCuestionario);
+
+                alert('Cuestionario duplicado exitosamente');
+                closeCuestionarioModal();
+                loadCuestionariosManager(); // Recargar la lista
+
+            } catch (error) {
+                console.error('Error duplicating cuestionario:', error);
+                alert('Error al duplicar el cuestionario');
+            }
+        }
+
+        // Función para ver respuestas de un cuestionario
+        function verRespuestasCuestionario(cuestionarioId, tipo) {
+            // Cambiar a la sección de respuestas y filtrar por este cuestionario
+            switchSection('respuestas-viewer');
+            // Aquí se podría implementar el filtro automático
+            closeCuestionarioModal();
+        }
+
+        // Función para exportar cuestionario
+        function exportarCuestionario(cuestionarioId, tipo) {
+            alert('Función de exportación próximamente disponible');
+            closeCuestionarioModal();
+        }
+
+        // Función para eliminar cuestionario
+        async function eliminarCuestionario(cuestionarioId, tipo) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este cuestionario? Esta acción no se puede deshacer.')) return;
+
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                await db.collection(collectionName).doc(cuestionarioId).delete();
+
+                alert('Cuestionario eliminado exitosamente');
+                closeCuestionarioModal();
+                loadCuestionariosManager(); // Recargar la lista
+
+            } catch (error) {
+                console.error('Error deleting cuestionario:', error);
+                alert('Error al eliminar el cuestionario');
+            }
+        }
+
+        // Función para exportar todos los cuestionarios
+        function exportarCuestionarios() {
+            alert('Función de exportación próximamente disponible');
+        }
+
+        // Función para recargar cuestionarios
+        function recargarCuestionarios() {
+            loadCuestionariosManager();
+        }
+
+        // ===== FUNCIONES PARA PREVIEW DE EVALUACIÓN =====
+
+        let evaluacionPreviewData = null;
+
+        // Función para mostrar preview de evaluación
+        function showEvaluacionPreview(evaluacionData) {
+            evaluacionPreviewData = evaluacionData;
+
+            // Llenar información básica
+            document.getElementById('previewEvaluacionTitle').textContent = evaluacionData.titulo;
+            document.getElementById('previewEvaluacionDesc').textContent = evaluacionData.descripcion || 'Sin descripción';
+            document.getElementById('previewPrograma').textContent = evaluacionData.programa;
+            document.getElementById('previewTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} minutos` : 'Sin límite';
+            document.getElementById('previewNumPreguntas').textContent = evaluacionData.preguntas.length;
+
+            // Mostrar preguntas
+            const questionsContainer = document.getElementById('previewQuestionsList');
+            questionsContainer.innerHTML = evaluacionData.preguntas.map((pregunta, index) => `
+                <div class="question-preview-item" style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; background: white;">
+                    <div class="question-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>Pregunta ${index + 1}</strong>
+                        <span class="question-type" style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                            ${pregunta.tipo === 'open' ? 'Abierta' : 'Opción Múltiple'}
+                        </span>
+                    </div>
+                    <div class="question-text" style="margin-bottom: 0.5rem; font-weight: 500;">
+                        ${pregunta.texto || 'Pregunta sin texto'}
+                    </div>
+                    <div class="question-options">
+                        ${pregunta.tipo === 'open' ?
+                            '<em style="color: #64748b;">Pregunta de respuesta abierta</em>' :
+                            (pregunta.opciones && pregunta.opciones.length > 0 ?
+                                pregunta.opciones.map(op => `<div style="margin: 0.25rem 0;">• ${op}</div>`).join('') :
+                                '<em style="color: #64748b;">Sin opciones definidas</em>')
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            // Mostrar modal
+            document.getElementById('evaluacionPreviewModal').style.display = 'block';
+        }
+
+        // Función para cerrar preview
+        function closeEvaluacionPreview() {
+            document.getElementById('evaluacionPreviewModal').style.display = 'none';
+            evaluacionPreviewData = null;
+        }
+
+        // Función para editar preview (volver al formulario)
+        function editEvaluacionPreview() {
+            closeEvaluacionPreview();
+            // El formulario ya tiene los datos, solo cerrar el preview
+        }
+
+        // Función para publicar la evaluación desde el preview
+        async function publishEvaluacionPreview() {
+            if (!evaluacionPreviewData) return;
+
+            if (!confirm('¿Estás seguro de que quieres publicar esta evaluación?')) return;
+
+            try {
+                await db.collection('evaluaciones').add({
+                    ...evaluacionPreviewData,
+                    fechaRegistro: new Date().toISOString()
+                });
+
+                alert('Evaluación publicada exitosamente');
+                closeEvaluacionPreview();
+
+                // Limpiar formulario
+                document.getElementById('evaluacionForm').reset();
+                document.getElementById('evaluacionQuestionsContainer').innerHTML = '';
+                selectedQuestions = [];
+                document.getElementById('autoCuestionario').value = '';
+                document.getElementById('autoNumPreguntas').value = '';
+
+                loadDashboardStats();
+            } catch (error) {
+                console.error('Error al publicar evaluación:', error);
+                alert('Error al publicar la evaluación');
+            }
         }
 
         loadDashboardStats();
