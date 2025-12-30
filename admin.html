@@ -5128,10 +5128,13 @@
                 <div class="content-item">
                     <div class="content-info">
                         <h5>${user.name}</h5>
-                        <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}</p>
+                        <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}${user.horario ? ` • ${user.horario}` : ''}</p>
                         <small style="color: #64748b;">Contraseña: ${user.password}</small>
                     </div>
                     <div class="content-actions">
+                        <button class="btn-icon" onclick="editarHorarioUsuarioAprobado('${user.id}')" title="Editar Horario" style="background: #dbeafe; color: #1e40af;">
+                            <i class="fas fa-clock"></i>
+                        </button>
                         <button class="btn-icon" onclick="resetPassword('${user.id}')" title="Restablecer contraseña" style="background: #fed7aa; color: #9a3412;">
                             <i class="fas fa-key"></i>
                         </button>
@@ -5283,6 +5286,86 @@
 
                 // Recargar la lista de usuarios pendientes
                 loadUsuariosPendientes();
+
+                alert('Horario actualizado exitosamente');
+            } catch (error) {
+                console.error('Error saving horario:', error);
+                alert('Error al guardar horario: ' + error.message);
+            }
+        }
+
+        async function editarHorarioUsuarioAprobado(userId) {
+            try {
+                const docRef = db.collection('users').doc(userId);
+                const docSnap = await docRef.get();
+
+                if (!docSnap.exists) {
+                    alert('Usuario no encontrado');
+                    return;
+                }
+
+                const userData = docSnap.data();
+
+                // Mostrar modal para editar horario
+                const modalHtml = `
+                    <div id="horarioModalAprobado" class="modal" style="display: block;">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h2>Editar Horario - Usuario Aprobado</h2>
+                                <span class="close" onclick="document.getElementById('horarioModalAprobado').style.display='none'">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Estudiante:</strong> ${userData.name}</p>
+                                <p><strong>Email:</strong> ${userData.email}</p>
+                                <p><strong>Programa:</strong> ${userData.programa}</p>
+                                <p><strong>Sede:</strong> ${userData.sede}</p>
+                                <p><strong>Horario actual:</strong> ${userData.horario || 'No asignado'}</p>
+
+                                <div class="form-group" style="margin: 20px 0;">
+                                    <label for="userHorarioEditAprobado"><strong>Nuevo Horario:</strong></label>
+                                    <select id="userHorarioEditAprobado" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina" ${userData.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
+                                        <option value="Sábado Vespertina" ${userData.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
+                                        <option value="Domingo Matutina" ${userData.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="text-align: right; padding: 20px; border-top: 1px solid #eee;">
+                                <button onclick="document.getElementById('horarioModalAprobado').style.display='none'" style="margin-right: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                                <button onclick="guardarHorarioUsuarioAprobado('${userId}')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar Horario</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Agregar el modal al body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error editing user horario:', error);
+                alert('Error al editar horario: ' + error.message);
+            }
+        }
+
+        async function guardarHorarioUsuarioAprobado(userId) {
+            const nuevoHorario = document.getElementById('userHorarioEditAprobado').value;
+
+            if (!nuevoHorario) {
+                alert('Por favor selecciona un horario');
+                return;
+            }
+
+            try {
+                await db.collection('users').doc(userId).update({
+                    horario: nuevoHorario
+                });
+
+                // Cerrar modal
+                document.getElementById('horarioModalAprobado').remove();
+
+                // Recargar la lista de usuarios aprobados
+                loadUsuariosAprobados();
 
                 alert('Horario actualizado exitosamente');
             } catch (error) {
