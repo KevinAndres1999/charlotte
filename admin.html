@@ -2790,16 +2790,16 @@
                             </div>
 
                             <div class="quiz-form-card">
-                                <h4><i class="fas fa-robot"></i> Configuración de IA Gratuita (xAI Grok)</h4>
+                                <h4><i class="fas fa-robot"></i> Configuración de IA Gratuita (OpenRouter)</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px; background-color: #f0f9ff;">
-                                    <label for="openaiApiKey">API Key de xAI (100% Gratuita)</label>
-                                    <input type="password" id="openaiApiKey" placeholder="xai-..." title="API key gratuita de xAI (comienza con xai-)" style="background-color: white;">
+                                    <label for="openaiApiKey">API Key de OpenRouter (100% Gratuita)</label>
+                                    <input type="password" id="openaiApiKey" placeholder="sk-or-v1-..." title="API key gratuita de OpenRouter (comienza con sk-or-v1-)" style="background-color: white;">
                                     <small style="color: #2563eb; font-size: 12px; font-weight: 600;">
                                         <i class="fas fa-key"></i> <strong>¿No tienes API key?</strong><br>
-                                        1. Ve a <a href="https://console.x.ai/" target="_blank" style="color: #2563eb; text-decoration: underline;">console.x.ai</a><br>
+                                        1. Ve a <a href="https://openrouter.ai/keys" target="_blank" style="color: #2563eb; text-decoration: underline;">openrouter.ai/keys</a><br>
                                         2. Crea una cuenta gratuita<br>
                                         3. Crea una nueva API key<br>
-                                        4. Copia la API key (comienza con xai-)<br>
+                                        4. Copia la API key (comienza con sk-or-v1-)<br>
                                         5. Pégala aquí y prueba la conexión
                                     </small>
                                 </div>
@@ -2809,7 +2809,7 @@
                                     </label>
                                     <br><br>
                                     <div style="background: #e8f4fd; padding: 8px; border-radius: 4px; font-size: 12px; color: #2c5282;">
-                                        <i class="fas fa-info-circle"></i> <strong>xAI Grok es 100% Gratuito:</strong> Usa el modelo Grok-4 con límites generosos. No requiere tarjeta de crédito. Si la IA falla, automáticamente usa el algoritmo básico inteligente.
+                                        <i class="fas fa-info-circle"></i> <strong>OpenRouter es 100% Gratuito:</strong> Usa modelos como Llama 3.2 con límites generosos. No requiere tarjeta de crédito. Si la IA falla, automáticamente usa el algoritmo básico inteligente.
                                     </div>
                                     <br>
                                     <button type="button" class="btn-secondary" onclick="testOpenAIConnection()" style="font-size: 12px; padding: 5px 10px;">
@@ -6111,18 +6111,18 @@
             }
         }
 
-        // Función de prueba para validar la conexión con xAI (GRATUITO)
+        // Función de prueba para validar la conexión con OpenRouter (GRATUITO)
         async function testOpenAIConnection() {
             const apiKey = document.getElementById('openaiApiKey').value.trim();
 
             if (!apiKey) {
-                alert('Por favor, ingresa tu API key gratuita de xAI. Obtén una en https://console.x.ai/');
+                alert('Por favor, ingresa tu API key gratuita de OpenRouter. Obtén una en https://openrouter.ai/keys');
                 document.getElementById('openaiApiKey').focus();
                 return;
             }
 
-            if (!apiKey.startsWith('xai-')) {
-                alert('La API key debe comenzar con "xai-". Verifica que sea una key válida de xAI.');
+            if (!apiKey.startsWith('sk-or-v1-')) {
+                alert('La API key debe comenzar con "sk-or-v1-". Verifica que sea una key válida de OpenRouter.');
                 return;
             }
 
@@ -6132,16 +6132,18 @@
             testBtn.disabled = true;
 
             try {
-                console.log('Probando conexión con xAI...');
+                console.log('Probando conexión con OpenRouter...');
 
-                const response = await fetch('https://api.x.ai/v1/chat/completions', {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'grok-4-0709',
+                        model: 'meta-llama/llama-3.2-3b-instruct',
                         messages: [
                             {
                                 role: 'user',
@@ -6155,7 +6157,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data && data.choices && data.choices[0]?.message?.content) {
-                        alert('✅ ¡Conexión exitosa! Tu API key de xAI es válida y puedes generar preguntas con IA gratuita.');
+                        alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes generar preguntas con IA gratuita.');
                         console.log('Test exitoso:', data);
                         testBtn.innerHTML = originalText;
                         testBtn.disabled = false;
@@ -6163,7 +6165,7 @@
                         throw new Error('Respuesta inválida del servidor');
                     }
                 } else if (response.status === 401) {
-                    throw new Error('Token inválido. Verifica tu token de xAI.');
+                    throw new Error('Token inválido. Verifica tu token de OpenRouter.');
                 } else if (response.status === 403) {
                     throw new Error('Acceso denegado. Verifica que tu token tenga permisos.');
                 } else if (response.status === 429) {
@@ -6177,21 +6179,21 @@
 
             } catch (error) {
                 console.error('Error probando conexión:', error);
-                alert('❌ Error de conexión: ' + error.message + '\n\nSolución:\n1. Ve a https://console.x.ai/\n2. Crea una cuenta gratuita\n3. Crea una API key\n4. Copia la key (comienza con xai-)\n5. Pégala en el campo de arriba');
+                alert('❌ Error de conexión: ' + error.message + '\n\nSolución:\n1. Ve a https://openrouter.ai/keys\n2. Crea una cuenta gratuita\n3. Crea una API key\n4. Copia la key (comienza con sk-or-v1-)\n5. Pégalo en el campo de arriba');
                 testBtn.innerHTML = originalText;
                 testBtn.disabled = false;
             }
         }
 
-        // Función para generar preguntas con IA usando xAI Grok (GRATUITO)
+        // Función para generar preguntas con IA usando OpenRouter (GRATUITO)
         async function generarPreguntasConIA(texto, numPreguntas, apiKey) {
             // Validar API key
             if (!apiKey || apiKey.length < 20) {
-                throw new Error('Token demasiado corto. Debe comenzar con "xai-" y tener al menos 20 caracteres.');
+                throw new Error('Token demasiado corto. Debe comenzar con "sk-or-v1-" y tener al menos 20 caracteres.');
             }
 
-            if (!apiKey.startsWith('xai-')) {
-                throw new Error('Token inválido. Debe comenzar con "xai-". Obtén un token gratuito en https://console.x.ai/');
+            if (!apiKey.startsWith('sk-or-v1-')) {
+                throw new Error('Token inválido. Debe comenzar con "sk-or-v1-". Obtén un token gratuito en https://openrouter.ai/keys');
             }
 
             // Preparar el prompt para Hugging Face
@@ -6219,16 +6221,18 @@ FORMATO REQUERIDO (JSON válido):
 IMPORTANTE: Responde SOLO con el JSON válido, sin texto adicional.`;
 
             try {
-                console.log('Enviando solicitud a xAI Grok (gratuito)...');
+                console.log('Enviando solicitud a OpenRouter (gratuito)...');
 
-                const response = await fetch('https://api.x.ai/v1/chat/completions', {
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'grok-4-0709',
+                        model: 'meta-llama/llama-3.2-3b-instruct',
                         messages: [
                             {
                                 role: 'system',
@@ -6247,27 +6251,29 @@ IMPORTANTE: Responde SOLO con el JSON válido, sin texto adicional.`;
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     if (response.status === 401) {
-                        throw new Error('Token inválido. Verifica tu token de xAI.');
+                        throw new Error('Token inválido. Verifica tu token de OpenRouter.');
                     } else if (response.status === 403) {
                         throw new Error('Acceso denegado. Verifica que tu token tenga permisos.');
                     } else if (response.status === 429) {
                         throw new Error('Límite de uso excedido. Espera un momento o usa el algoritmo básico.');
+                    } else if (response.status === 402) {
+                        throw new Error('Créditos insuficientes. OpenRouter requiere créditos para algunos modelos.');
                     } else if (response.status === 503) {
                         throw new Error('Servicio no disponible temporalmente. Intenta más tarde o usa el algoritmo básico.');
                     } else {
-                        throw new Error(`Error de xAI (${response.status}): ${errorData.error || 'Error desconocido'}`);
+                        throw new Error(`Error de OpenRouter (${response.status}): ${errorData.error?.message || 'Error desconocido'}`);
                     }
                 }
 
                 const data = await response.json();
-                console.log('Respuesta de xAI Grok:', data);
+                console.log('Respuesta de OpenRouter:', data);
 
-                // Procesar la respuesta de xAI (formato OpenAI)
+                // Procesar la respuesta de OpenRouter (formato OpenAI)
                 let generatedText = '';
                 if (data.choices && data.choices[0]?.message?.content) {
                     generatedText = data.choices[0].message.content;
                 } else {
-                    throw new Error('Respuesta inválida de xAI Grok');
+                    throw new Error('Respuesta inválida de OpenRouter');
                 }
 
                 console.log('Texto generado:', generatedText);
@@ -6314,7 +6320,7 @@ IMPORTANTE: Responde SOLO con el JSON válido, sin texto adicional.`;
                     };
                 });
 
-                console.log(`Generadas ${preguntasValidadas.length} preguntas con xAI Grok gratuita`);
+                console.log(`Generadas ${preguntasValidadas.length} preguntas con OpenRouter gratuita`);
                 return preguntasValidadas;
 
             } catch (error) {
