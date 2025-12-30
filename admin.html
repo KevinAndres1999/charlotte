@@ -2365,6 +2365,23 @@
                                         <option value="Asesoría Técnica">Asesoría Técnica</option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Sede</label>
+                                    <select id="filterSedePendientes" onchange="filterUsuarios()" style="width: 120px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="">Todas</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Horario</label>
+                                    <select id="filterHorarioPendientes" onchange="filterUsuarios()" style="width: 140px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                                        <option value="">Todos</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2383,12 +2400,23 @@
                         <h3><i class="fas fa-users"></i> Usuarios Aprobados</h3>
                         <p style="color: white;">Gestiona usuarios activos</p>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
                         <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
                             <option value="">Todos los programas</option>
                             <option value="Panadería y Pastelería">Panadería y Pastelería</option>
                             <option value="Belleza Integral">Belleza Integral</option>
                             <option value="Asesoría Técnica">Asesoría Técnica</option>
+                        </select>
+                        <select id="filterSedeAprobados" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">Todas las sedes</option>
+                            <option value="Carapungo">Carapungo</option>
+                            <option value="Sangolquí">Sangolquí</option>
+                        </select>
+                        <select id="filterHorarioAprobados" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            <option value="">Todos los horarios</option>
+                            <option value="Sábado Matutina">Sábado Matutina</option>
+                            <option value="Sábado Vespertina">Sábado Vespertina</option>
+                            <option value="Domingo Matutina">Domingo Matutina</option>
                         </select>
                         <button onclick="limpiarDuplicados()" class="btn-secondary" style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;" title="Eliminar usuarios duplicados">
                             <i class="fas fa-broom"></i> Limpiar Duplicados
@@ -3142,6 +3170,23 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioSede">Sede</label>
+                                    <select id="cuestionarioSede" required>
+                                        <option value="">Seleccionar sede</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="cuestionarioHorario">Horario</label>
+                                    <select id="cuestionarioHorario" required>
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="cuestionarioTiempo">Tiempo Disponible (minutos)</label>
                                     <input type="number" id="cuestionarioTiempo" placeholder="60" min="1">
                                 </div>
@@ -3197,6 +3242,23 @@
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
                                         <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioSede">Sede</label>
+                                    <select id="autoCuestionarioSede" required>
+                                        <option value="">Seleccionar sede</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioHorario">Horario</label>
+                                    <select id="autoCuestionarioHorario" required>
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
                                     </select>
                                 </div>
                             </div>
@@ -3318,6 +3380,23 @@
                                 <option value="Belleza Integral">Belleza Integral</option>
                                 <option value="Panadería y Pastelería">Panadería y Pastelería</option>
                                 <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSedeCuestionarios">Sede:</label>
+                            <select id="filterSedeCuestionarios">
+                                <option value="">Todas las sedes</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHorarioCuestionarios">Horario:</label>
+                            <select id="filterHorarioCuestionarios">
+                                <option value="">Todos los horarios</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
                             </select>
                         </div>
                         <div class="filter-group">
@@ -3449,6 +3528,23 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionSede">Sede</label>
+                                    <select id="evaluacionSede" required>
+                                        <option value="">Seleccionar sede</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionHorario">Horario</label>
+                                    <select id="evaluacionHorario" required>
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="evaluacionTiempo">Tiempo Disponible (minutos)</label>
                                     <input type="number" id="evaluacionTiempo" placeholder="60" min="1">
                                 </div>
@@ -3529,6 +3625,31 @@
                                     <option value="Belleza Integral">Belleza Integral</option>
                                     <option value="Panadería y Pastelería">Panadería y Pastelería</option>
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro por Sede -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-map-marker-alt"></i> Filtrar por Sede
+                                </label>
+                                <select id="managementFilterSede" onchange="filterManagementContent()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todas las Sedes</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+
+                            <!-- Filtro por Horario -->
+                            <div class="filter-group">
+                                <label style="display: block; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                                    <i class="fas fa-clock"></i> Filtrar por Horario
+                                </label>
+                                <select id="managementFilterHorario" onchange="filterManagementContent()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todos los Horarios</option>
+                                    <option value="Sábado Matutina">Sábado Matutina</option>
+                                    <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                    <option value="Domingo Matutina">Domingo Matutina</option>
                                 </select>
                             </div>
 
@@ -4708,6 +4829,8 @@
                     const title = document.getElementById('cuestionarioTitle').value;
                     const desc = document.getElementById('cuestionarioDesc').value;
                     const programa = document.getElementById('cuestionarioPrograma').value;
+                    const sede = document.getElementById('cuestionarioSede').value;
+                    const horario = document.getElementById('cuestionarioHorario').value;
                     const tiempo = document.getElementById('cuestionarioTiempo').value;
                     const intentos = document.getElementById('cuestionarioIntentos').value;
                     const fechaInicio = document.getElementById('cuestionarioFechaInicio').value;
@@ -4720,6 +4843,8 @@
                     }
 
                     if (!programa) return alert('Selecciona un programa');
+                    if (!sede) return alert('Selecciona una sede');
+                    if (!horario) return alert('Selecciona un horario');
 
                     const questions = collectQuestions('cuestionario');
                     if (questions.length === 0) return alert('Agrega al menos una pregunta');
@@ -4730,6 +4855,8 @@
                             descripcion: desc,
                             preguntas: questions,
                             programa: programa,
+                            sede: sede,
+                            horario: horario,
                             tiempoLimite: tiempo ? parseInt(tiempo) : null,
                             numeroIntentos: intentos ? parseInt(intentos) : 1,
                             fechaInicio: fechaInicio || null,
@@ -4755,6 +4882,8 @@
                     const title = document.getElementById('evaluacionTitle').value;
                     const desc = document.getElementById('evaluacionDesc').value;
                     const programa = document.getElementById('evaluacionPrograma').value;
+                    const sede = document.getElementById('evaluacionSede').value;
+                    const horario = document.getElementById('evaluacionHorario').value;
                     const tiempo = document.getElementById('evaluacionTiempo').value;
                     const fechaInicio = document.getElementById('evaluacionFechaInicio').value;
                     const fechaFin = document.getElementById('evaluacionFechaFin').value;
@@ -4766,6 +4895,8 @@
                     }
 
                     if (!programa) return alert('Selecciona un programa');
+                    if (!sede) return alert('Selecciona una sede');
+                    if (!horario) return alert('Selecciona un horario');
 
                     let questions = [];
                     if (currentEvaluationMode === 'manual') {
@@ -4803,6 +4934,8 @@
                         titulo: title,
                         descripcion: desc,
                         programa: programa,
+                        sede: sede,
+                        horario: horario,
                         tiempoLimite: tiempo ? parseInt(tiempo) : null,
                         fechaInicio: fechaInicio || null,
                         fechaFin: fechaFin || null,
@@ -4921,6 +5054,8 @@
             const container = document.getElementById('usuarios-pendientes');
             const searchTerm = document.getElementById('usuariosSearch').value.toLowerCase();
             const programaFilter = document.getElementById('filterProgramaPendientes').value;
+            const sedeFilter = document.getElementById('filterSedePendientes').value;
+            const horarioFilter = document.getElementById('filterHorarioPendientes').value;
 
             let filtered = allPendingUsers.filter(user => {
                 const matchesSearch = !searchTerm ||
@@ -4928,7 +5063,11 @@
                     user.email.toLowerCase().includes(searchTerm);
                 const matchesPrograma = !programaFilter ||
                     user.programa === programaFilter;
-                return matchesSearch && matchesPrograma;
+                const matchesSede = !sedeFilter ||
+                    user.sede === sedeFilter;
+                const matchesHorario = !horarioFilter ||
+                    user.horario === horarioFilter;
+                return matchesSearch && matchesPrograma && matchesSede && matchesHorario;
             });
 
             if (filtered.length === 0) {
@@ -4957,14 +5096,17 @@
         function renderApprovedUsers() {
             const container = document.getElementById('usuarios-aprobados');
             const programaFilter = document.getElementById('filterPrograma').value;
-            const lugarFilter = document.getElementById('filterLugar').value;
+            const sedeFilter = document.getElementById('filterSedeAprobados').value;
+            const horarioFilter = document.getElementById('filterHorarioAprobados').value;
 
             let filtered = allApprovedUsers.filter(user => {
                 const matchesPrograma = !programaFilter ||
                     user.programa === programaFilter;
-                const matchesLugar = !lugarFilter ||
-                    user.sede === lugarFilter;
-                return matchesPrograma && matchesLugar;
+                const matchesSede = !sedeFilter ||
+                    user.sede === sedeFilter;
+                const matchesHorario = !horarioFilter ||
+                    user.horario === horarioFilter;
+                return matchesPrograma && matchesSede && matchesHorario;
             });
 
             // Ordenar por approvedAt descendente
@@ -5017,19 +5159,88 @@
                 const data = docSnap.data();
                 console.log('Datos del usuario a aprobar:', data);
 
+                // Mostrar modal para seleccionar sede y horario
+                const modalHtml = `
+                    <div id="approvalModal" class="modal" style="display: block;">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h2>Aprobar Usuario</h2>
+                                <span class="close" onclick="document.getElementById('approvalModal').style.display='none'">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Estudiante:</strong> ${data.name}</p>
+                                <p><strong>Email:</strong> ${data.email}</p>
+                                <p><strong>Programa solicitado:</strong> ${data.programa}</p>
+
+                                <div class="form-group" style="margin: 20px 0;">
+                                    <label for="userSede"><strong>Seleccionar Sede:</strong></label>
+                                    <select id="userSede" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option value="">Seleccionar sede</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group" style="margin: 20px 0;">
+                                    <label for="userHorario"><strong>Seleccionar Horario:</strong></label>
+                                    <select id="userHorario" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="text-align: right; padding: 20px; border-top: 1px solid #eee;">
+                                <button onclick="document.getElementById('approvalModal').style.display='none'" style="margin-right: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                                <button onclick="confirmarAprobacion('${id}')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Aprobar Usuario</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Agregar el modal al body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error approving user:', error);
+                alert('Error al aprobar usuario: ' + error.message);
+            }
+        }
+
+        async function confirmarAprobacion(id) {
+            const sede = document.getElementById('userSede').value;
+            const horario = document.getElementById('userHorario').value;
+
+            if (!sede || !horario) {
+                alert('Por favor selecciona tanto la sede como el horario');
+                return;
+            }
+
+            try {
+                console.log('Confirmando aprobación de usuario con ID:', id);
+                const docRef = db.collection('pendingStudents').doc(id);
+
+                const docSnap = await docRef.get();
+                if (!docSnap.exists) {
+                    alert('Error: Usuario no encontrado');
+                    return;
+                }
+
+                const data = docSnap.data();
+
                 // Verificar si el usuario ya existe en la colección users
-                console.log('Verificando si el usuario ya existe...');
                 const existingUserQuery = await db.collection('users')
                     .where('email', '==', data.email)
                     .where('role', '==', 'student')
                     .get();
 
                 if (!existingUserQuery.empty) {
-                    console.log('Usuario ya existe, eliminando de pendientes sin crear duplicado');
                     await docRef.delete();
                     loadUsuariosPendientes();
                     loadUsuariosAprobados();
                     alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
+                    document.getElementById('approvalModal').remove();
                     return;
                 }
 
@@ -5040,10 +5251,11 @@
                     return;
                 }
 
-                // Guardar en users con la contraseña original
-                console.log('Guardando usuario en colección users...');
+                // Guardar en users con sede y horario seleccionados
                 await db.collection('users').add({
                     ...data,
+                    sede: sede,
+                    horario: horario,
                     password: password,
                     role: 'student',
                     status: 'active',
@@ -5052,15 +5264,16 @@
                 });
 
                 // Eliminar de pendingStudents
-                console.log('Eliminando usuario de pendingStudents...');
                 await docRef.delete();
 
-                console.log('Usuario aprobado exitosamente, recargando listas...');
+                // Cerrar modal y recargar listas
+                document.getElementById('approvalModal').remove();
                 loadUsuariosPendientes();
                 loadUsuariosAprobados();
                 alert('Usuario aprobado exitosamente');
+
             } catch (error) {
-                console.error('Error approving user:', error);
+                console.error('Error confirming approval:', error);
                 alert('Error al aprobar usuario: ' + error.message);
             }
         }
@@ -5886,6 +6099,8 @@
         function filterManagementContent() {
             const typeFilter = document.getElementById('managementFilterType').value;
             const programaFilter = document.getElementById('managementFilterPrograma').value;
+            const sedeFilter = document.getElementById('managementFilterSede').value;
+            const horarioFilter = document.getElementById('managementFilterHorario').value;
             const searchTerm = document.getElementById('managementSearch').value.toLowerCase();
 
             filteredManagementItems = allManagementItems.filter(item => {
@@ -5894,6 +6109,12 @@
 
                 // Filtro por programa
                 if (programaFilter !== 'all' && item.programa !== programaFilter) return false;
+
+                // Filtro por sede
+                if (sedeFilter !== 'all' && item.sede !== sedeFilter) return false;
+
+                // Filtro por horario
+                if (horarioFilter !== 'all' && item.horario !== horarioFilter) return false;
 
                 // Filtro por búsqueda
                 if (searchTerm && !item.titulo.toLowerCase().includes(searchTerm)) return false;
@@ -7391,11 +7612,18 @@
             const title = document.getElementById('autoCuestionarioTitle').value.trim();
             const desc = document.getElementById('autoCuestionarioDesc').value.trim();
             const programa = document.getElementById('autoCuestionarioPrograma').value;
+            const sede = document.getElementById('autoCuestionarioSede').value;
+            const horario = document.getElementById('autoCuestionarioHorario').value;
             const tiempo = parseInt(document.getElementById('autoCuestionarioTiempo').value) || 60;
             const intentos = parseInt(document.getElementById('autoCuestionarioIntentos').value) || 1;
 
             if (!title || !programa) {
                 alert('Por favor, completa el título y selecciona un programa.');
+                return;
+            }
+
+            if (!sede || !horario) {
+                alert('Por favor, selecciona una sede y un horario.');
                 return;
             }
 
@@ -7416,6 +7644,8 @@
                     titulo: title,
                     descripcion: desc,
                     programa: programa,
+                    sede: sede,
+                    horario: horario,
                     tiempoLimite: tiempo,
                     intentosMaximos: intentos,
                     preguntas: window.preguntasGeneradas.map(p => ({
@@ -9435,13 +9665,17 @@ REGLAS ESTRICTAS:
         // Función para aplicar filtros
         function aplicarFiltrosCuestionarios() {
             const programa = document.getElementById('filterProgramaCuestionarios').value;
+            const sede = document.getElementById('filterSedeCuestionarios').value;
+            const horario = document.getElementById('filterHorarioCuestionarios').value;
             const estado = document.getElementById('filterEstado').value;
             const search = document.getElementById('searchCuestionario').value.toLowerCase();
 
-            currentCuestionarioManagerFilter = { programa, estado, search };
+            currentCuestionarioManagerFilter = { programa, sede, horario, estado, search };
 
             let filteredData = cuestionariosManagerData.filter(cuestionario => {
                 const matchPrograma = !programa || cuestionario.programa === programa;
+                const matchSede = !sede || cuestionario.sede === sede;
+                const matchHorario = !horario || cuestionario.horario === horario;
                 const matchEstado = !estado || getCuestionarioEstado(cuestionario) === estado;
                 const matchSearch = !search ||
                     cuestionario.titulo?.toLowerCase().includes(search) ||
@@ -9456,9 +9690,11 @@ REGLAS ESTRICTAS:
         // Función para limpiar filtros
         function limpiarFiltrosCuestionarios() {
             document.getElementById('filterProgramaCuestionarios').value = '';
+            document.getElementById('filterSedeCuestionarios').value = '';
+            document.getElementById('filterHorarioCuestionarios').value = '';
             document.getElementById('filterEstado').value = '';
             document.getElementById('searchCuestionario').value = '';
-            currentCuestionarioManagerFilter = { programa: '', estado: '', search: '' };
+            currentCuestionarioManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
             renderCuestionariosGrid(cuestionariosManagerData);
         }
 
