@@ -6199,7 +6199,7 @@
             // Preparar el prompt para OpenRouter
             const prompt = `Analiza el siguiente contenido educativo y genera exactamente ${numPreguntas} preguntas de opción múltiple de alta calidad.
 
-INSTRUCCIONES IMPORTANTES:
+INSTRUCCIONES CRÍTICAS:
 1. Lee cuidadosamente el contenido y identifica los conceptos clave
 2. Cada pregunta debe ser clara, educativa y tener una sola respuesta correcta
 3. Las opciones incorrectas deben ser plausibles pero claramente incorrectas
@@ -6208,7 +6208,7 @@ INSTRUCCIONES IMPORTANTES:
 CONTENIDO PARA ANALIZAR:
 ${texto.substring(0, 1200)}
 
-FORMATO JSON REQUERIDO (SOLO responde con el JSON, nada más):
+FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido, sin texto adicional):
 [
   {
     "pregunta": "¿Cuál es el concepto principal explicado en el texto?",
@@ -6218,12 +6218,14 @@ FORMATO JSON REQUERIDO (SOLO responde con el JSON, nada más):
   }
 ]
 
-IMPORTANTE:
-- Responde ÚNICAMENTE con el JSON válido
-- Asegúrate de que el JSON esté bien formado
-- No agregues texto adicional antes o después del JSON
-- Cada pregunta debe tener exactamente 4 opciones
-- El campo "correcta" debe ser un número (0-3) indicando el índice de la respuesta correcta`;
+REGLAS ESTRICTAS:
+- Responde SOLO con JSON válido, sin comillas invertidas, sin markdown, sin texto explicativo
+- El JSON debe comenzar con [ y terminar con ]
+- Cada objeto debe tener exactamente 4 propiedades: pregunta, opciones, correcta, explicacion
+- opciones debe ser un array de exactamente 4 strings
+- correcta debe ser un número entero entre 0 y 3
+- No uses caracteres de escape innecesarios
+- Asegúrate de que todas las comillas estén correctamente escapadas`;
 
             try {
                 console.log('Enviando solicitud a OpenRouter (gratuito)...');
@@ -6286,7 +6288,7 @@ IMPORTANTE:
                 // Intentar extraer JSON de la respuesta con mejor manejo de errores
                 let preguntas;
                 try {
-                    // Función para limpiar y extraer JSON
+                    // Función para limpiar y extraer JSON con mejor manejo
                     function extractJSON(text) {
                         // Remover texto antes del primer '[' o '{'
                         let cleanedText = text.trim();
@@ -6347,6 +6349,12 @@ IMPORTANTE:
                             return cleanedText.substring(0, endIndex);
                         }
 
+                        // Si no encontramos un final válido, intentar encontrar el último ] o }
+                        const lastBracket = Math.max(cleanedText.lastIndexOf(']'), cleanedText.lastIndexOf('}'));
+                        if (lastBracket !== -1) {
+                            return cleanedText.substring(0, lastBracket + 1);
+                        }
+
                         return cleanedText;
                     }
 
@@ -6378,9 +6386,31 @@ IMPORTANTE:
                         console.log('❌ El texto no contiene corchetes JSON válidos');
                     }
 
-                    // Fallback: generar preguntas con algoritmo básico
-                    console.log('🔄 Usando algoritmo básico como fallback...');
-                    preguntas = generarPreguntasDesdeTexto(texto, numPreguntas);
+                    // Intentar una extracción más agresiva del JSON
+                    try {
+                        // Buscar el primer '[' y el último ']'
+                        const startBracket = generatedText.indexOf('[');
+                        const lastBracket = generatedText.lastIndexOf(']');
+
+                        if (startBracket !== -1 && lastBracket !== -1 && lastBracket > startBracket) {
+                            const potentialJson = generatedText.substring(startBracket, lastBracket + 1);
+                            console.log('🔧 Intentando parsear JSON extraído manualmente:', potentialJson);
+                            preguntas = JSON.parse(potentialJson);
+
+                            if (!Array.isArray(preguntas)) {
+                                if (typeof preguntas === 'object' && preguntas.preguntas) {
+                                    preguntas = preguntas.preguntas;
+                                } else {
+                                    throw new Error('El JSON extraído no contiene un array válido');
+                                }
+                            }
+                        } else {
+                            throw new Error('No se encontraron corchetes JSON válidos en la respuesta');
+                        }
+                    } catch (extractionError) {
+                        console.error('❌ Falló la extracción manual:', extractionError);
+                        throw new Error(`La IA no generó JSON válido. Respuesta recibida: ${generatedText.substring(0, 200)}...`);
+                    }
                 }
 
                 // Validar y formatear preguntas
@@ -6413,9 +6443,7 @@ IMPORTANTE:
 
             } catch (error) {
                 console.error('Error en generarPreguntasConIA:', error);
-                console.log('Usando algoritmo básico como fallback...');
-                // Fallback completo: usar algoritmo básico
-                return generarPreguntasDesdeTexto(texto, numPreguntas);
+                throw new Error(`Error generando preguntas con IA: ${error.message}`);
             }
         }
 
