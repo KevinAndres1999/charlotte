@@ -6196,27 +6196,34 @@
                 throw new Error('Token inválido. Debe comenzar con "sk-or-v1-". Obtén un token gratuito en https://openrouter.ai/keys');
             }
 
-            // Preparar el prompt para Hugging Face
-            const prompt = `Analiza el siguiente contenido educativo y genera ${numPreguntas} preguntas de opción múltiple de alta calidad. Cada pregunta debe ser educativa, desafiante pero justa, y las opciones deben ser plausibles pero solo una correcta.
+            // Preparar el prompt para OpenRouter
+            const prompt = `Analiza el siguiente contenido educativo y genera exactamente ${numPreguntas} preguntas de opción múltiple de alta calidad.
 
-INSTRUCCIONES PARA RAZONAMIENTO:
-1. Primero, identifica los conceptos clave y temas principales del contenido
-2. Para cada pregunta, piensa en qué nivel de dificultad sería apropiado
-3. Asegúrate de que las opciones incorrectas sean "distractores" realistas
-4. Incluye una explicación clara de por qué la respuesta es correcta
+INSTRUCCIONES IMPORTANTES:
+1. Lee cuidadosamente el contenido y identifica los conceptos clave
+2. Cada pregunta debe ser clara, educativa y tener una sola respuesta correcta
+3. Las opciones incorrectas deben ser plausibles pero claramente incorrectas
+4. Proporciona una explicación breve pero clara de por qué la respuesta es correcta
 
-CONTENIDO A ANALIZAR:
+CONTENIDO PARA ANALIZAR:
 ${texto.substring(0, 1200)}
 
-FORMATO REQUERIDO (JSON válido):
+FORMATO JSON REQUERIDO (SOLO responde con el JSON, nada más):
 [
   {
-    "pregunta": "¿Pregunta clara y educativa?",
-    "opciones": ["A) Opción correcta", "B) Distractor realista 1", "C) Distractor realista 2", "D) Distractor realista 3"],
+    "pregunta": "¿Cuál es el concepto principal explicado en el texto?",
+    "opciones": ["Opción correcta", "Opción incorrecta 1", "Opción incorrecta 2", "Opción incorrecta 3"],
     "correcta": 0,
-    "explicacion": "Explicación detallada de por qué esta es la respuesta correcta y por qué las otras están equivocadas."
+    "explicacion": "La opción correcta es la que mejor representa el concepto explicado porque..."
   }
 ]
+
+IMPORTANTE:
+- Responde ÚNICAMENTE con el JSON válido
+- Asegúrate de que el JSON esté bien formado
+- No agregues texto adicional antes o después del JSON
+- Cada pregunta debe tener exactamente 4 opciones
+- El campo "correcta" debe ser un número (0-3) indicando el índice de la respuesta correcta`;
 
 IMPORTANTE: Responde SOLO con el JSON válido, sin texto adicional.`;
 
@@ -6278,20 +6285,103 @@ IMPORTANTE: Responde SOLO con el JSON válido, sin texto adicional.`;
 
                 console.log('Texto generado:', generatedText);
 
-                // Intentar extraer JSON de la respuesta
+                // Intentar extraer JSON de la respuesta con mejor manejo de errores
                 let preguntas;
                 try {
-                    // Buscar JSON en la respuesta (el modelo puede agregar texto extra)
-                    const jsonMatch = generatedText.match(/\[[\s\S]*\]/);
-                    if (jsonMatch) {
-                        preguntas = JSON.parse(jsonMatch[0]);
-                    } else {
-                        // Si no hay JSON, intentar parsear todo el texto
-                        preguntas = JSON.parse(generatedText.trim());
+                    // Función para limpiar y extraer JSON
+                    function extractJSON(text) {
+                        // Remover texto antes del primer '[' o '{'
+                        let cleanedText = text.trim();
+
+                        // Buscar el inicio de un array JSON
+                        const arrayStart = cleanedText.indexOf('[');
+                        const objectStart = cleanedText.indexOf('{');
+
+                        let startIndex = -1;
+                        if (arrayStart !== -1 && (objectStart === -1 || arrayStart < objectStart)) {
+                            startIndex = arrayStart;
+                        } else if (objectStart !== -1) {
+                            startIndex = objectStart;
+                        }
+
+                        if (startIndex !== -1) {
+                            cleanedText = cleanedText.substring(startIndex);
+                        }
+
+                        // Encontrar el final correspondiente
+                        let braceCount = 0;
+                        let inString = false;
+                        let escapeNext = false;
+                        let endIndex = -1;
+
+                        for (let i = 0; i < cleanedText.length; i++) {
+                            const char = cleanedText[i];
+
+                            if (escapeNext) {
+                                escapeNext = false;
+                                continue;
+                            }
+
+                            if (char === '\\') {
+                                escapeNext = true;
+                                continue;
+                            }
+
+                            if (char === '"') {
+                                inString = !inString;
+                                continue;
+                            }
+
+                            if (!inString) {
+                                if (char === '[' || char === '{') {
+                                    braceCount++;
+                                } else if (char === ']' || char === '}') {
+                                    braceCount--;
+                                    if (braceCount === 0) {
+                                        endIndex = i + 1;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (endIndex !== -1) {
+                            return cleanedText.substring(0, endIndex);
+                        }
+
+                        return cleanedText;
                     }
+
+                    // Intentar extraer y parsear JSON
+                    const jsonText = extractJSON(generatedText);
+                    console.log('JSON extraído:', jsonText);
+
+                    preguntas = JSON.parse(jsonText);
+
+                    // Asegurar que sea un array
+                    if (!Array.isArray(preguntas)) {
+                        // Si es un objeto con una propiedad que contiene el array
+                        if (typeof preguntas === 'object' && preguntas.preguntas) {
+                            preguntas = preguntas.preguntas;
+                        } else {
+                            throw new Error('La respuesta no contiene un array de preguntas válido');
+                        }
+                    }
+
                 } catch (parseError) {
-                    console.log('Error parseando JSON, usando algoritmo básico:', parseError);
+                    console.error('❌ Error parseando JSON de OpenRouter:', parseError);
+                    console.log('📄 Texto recibido de la IA:', generatedText);
+                    console.log('🔍 Longitud del texto:', generatedText.length);
+
+                    // Mostrar más información de debug
+                    if (generatedText.includes('[') && generatedText.includes(']')) {
+                        console.log('✅ El texto contiene corchetes, intentando extracción manual...');
+                    } else {
+                        console.log('❌ El texto no contiene corchetes JSON válidos');
+                    }
+
                     // Fallback: generar preguntas con algoritmo básico
+                    console.log('🔄 Usando algoritmo básico como fallback...');
                     preguntas = generarPreguntasDesdeTexto(texto, numPreguntas);
                 }
 
