@@ -3312,8 +3312,8 @@
                     </div>
                     <div class="filters-grid">
                         <div class="filter-group">
-                            <label for="filterPrograma">Programa:</label>
-                            <select id="filterPrograma">
+                            <label for="filterProgramaCuestionarios">Programa:</label>
+                            <select id="filterProgramaCuestionarios">
                                 <option value="">Todos los programas</option>
                                 <option value="Belleza Integral">Belleza Integral</option>
                                 <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -8072,8 +8072,8 @@ REGLAS ESTRICTAS:
                                             <input type="number" id="calificacionRespuesta" min="0" max="100" style="width: 100px;">
                                         </div>
                                         <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                            <label for="comentariosRespuesta">Comentarios (opcional)</label>
-                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                            <label for="comentariosRespuestaDetalle">Comentarios (opcional)</label>
+                                            <textarea id="comentariosRespuestaDetalle" rows="3" style="width: 300px;"></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-save"></i> Guardar Calificación
@@ -8175,8 +8175,8 @@ REGLAS ESTRICTAS:
                                             </div>
                                         `).join('')}
                                         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                                            <label for="comentariosRespuesta" style="color: white; font-weight: bold;"><i class="fas fa-comment"></i> Comentarios generales (opcional)</label>
-                                            <textarea id="comentariosRespuesta" rows="3" style="width: 100%; margin-top: 10px; border-radius: 5px; border: none; padding: 10px;" placeholder="Agrega comentarios sobre la evaluación..."></textarea>
+                                            <label for="comentariosRespuestaAbiertas" style="color: white; font-weight: bold;"><i class="fas fa-comment"></i> Comentarios generales (opcional)</label>
+                                            <textarea id="comentariosRespuestaAbiertas" rows="3" style="width: 100%; margin-top: 10px; border-radius: 5px; border: none; padding: 10px;" placeholder="Agrega comentarios sobre la evaluación..."></textarea>
                                         </div>
                                         <div style="text-align: center;">
                                             <button type="submit" style="background: linear-gradient(45deg, #0b3460, #e63971); color: white; border: none; padding: 15px 30px; border-radius: 30px; cursor: pointer; font-size: 1.1em; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
@@ -8190,12 +8190,12 @@ REGLAS ESTRICTAS:
                                     <h4><i class="fas fa-star"></i> Calificar Respuesta</h4>
                                     , '${tipo}')" class="form-group-inline">
                                         <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                            <label for="calificacionRespuesta">Calificación (0-100)</label>
-                                            <input type="number" id="calificacionRespuesta" min="0" max="100" style="width: 100px;">
+                                            <label for="calificacionRespuestaDirecta">Calificación (0-100)</label>
+                                            <input type="number" id="calificacionRespuestaDirecta" min="0" max="100" style="width: 100px;">
                                         </div>
                                         <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                            <label for="comentariosRespuesta">Comentarios (opcional)</label>
-                                            <textarea id="comentariosRespuesta" rows="3" style="width: 300px;"></textarea>
+                                            <label for="comentariosRespuestaDirecta">Comentarios (opcional)</label>
+                                            <textarea id="comentariosRespuestaDirecta" rows="3" style="width: 300px;"></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-save"></i> Guardar Calificación
@@ -8248,7 +8248,7 @@ REGLAS ESTRICTAS:
                 const updateData = {
                     calificacionAbiertas: calificacionAbiertas,
                     preguntasAbiertas: preguntasAbiertasRestantes,
-                    comentario: document.getElementById('comentariosRespuesta').value.trim(),
+                    comentario: document.getElementById('comentariosRespuestaDirecta').value.trim(),
                     fechaCalificacion: new Date().toISOString()
                 };
 
@@ -8297,7 +8297,7 @@ REGLAS ESTRICTAS:
                 const respuesta = docSnap.data();
 
                 let updateData = {
-                    comentario: document.getElementById('comentariosRespuesta').value.trim(),
+                    comentario: document.getElementById('comentariosRespuestaDirecta').value.trim(),
                     fechaCalificacion: new Date().toISOString()
                 };
 
@@ -8325,7 +8325,7 @@ REGLAS ESTRICTAS:
                     }
                 } else {
                     // Calificación general
-                    const calificacion = parseInt(document.getElementById('calificacionRespuesta').value);
+                    const calificacion = parseInt(document.getElementById('calificacionRespuestaDirecta').value);
                     if (calificacion < 0 || calificacion > 100) {
                         alert('La calificación debe estar entre 0 y 100');
                         return;
@@ -9419,7 +9419,7 @@ REGLAS ESTRICTAS:
 
         // Función para aplicar filtros
         function aplicarFiltrosCuestionarios() {
-            const programa = document.getElementById('filterPrograma').value;
+            const programa = document.getElementById('filterProgramaCuestionarios').value;
             const estado = document.getElementById('filterEstado').value;
             const search = document.getElementById('searchCuestionario').value.toLowerCase();
 
@@ -9440,7 +9440,7 @@ REGLAS ESTRICTAS:
 
         // Función para limpiar filtros
         function limpiarFiltrosCuestionarios() {
-            document.getElementById('filterPrograma').value = '';
+            document.getElementById('filterProgramaCuestionarios').value = '';
             document.getElementById('filterEstado').value = '';
             document.getElementById('searchCuestionario').value = '';
             currentCuestionarioManagerFilter = { programa: '', estado: '', search: '' };
