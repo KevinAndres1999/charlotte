@@ -6322,21 +6322,44 @@ REGLAS ESTRICTAS:
                         if (matches && matches.length > 0) {
                             console.log(`📋 Encontrados ${matches.length} posibles arrays JSON`);
 
-                            // Probar cada match, empezando por el más largo
-                            const sortedMatches = matches.sort((a, b) => b.length - a.length);
+                            // Filtrar y validar matches, priorizando por número de elementos
+                            const validArrays = [];
 
-                            for (const match of sortedMatches) {
+                            for (const match of matches) {
                                 try {
-                                    console.log(`🔍 Probando JSON de longitud ${match.length}`);
                                     const parsed = JSON.parse(match);
                                     if (Array.isArray(parsed) && parsed.length > 0) {
-                                        console.log('✅ JSON array válido encontrado con', parsed.length, 'elementos');
-                                        return parsed;
+                                        // Verificar que cada elemento tenga la estructura correcta
+                                        const validElements = parsed.filter(item =>
+                                            item &&
+                                            typeof item === 'object' &&
+                                            item.pregunta &&
+                                            Array.isArray(item.opciones) &&
+                                            item.opciones.length >= 2 &&
+                                            typeof item.correcta === 'number'
+                                        );
+
+                                        if (validElements.length > 0) {
+                                            validArrays.push({
+                                                json: parsed,
+                                                length: parsed.length,
+                                                textLength: match.length,
+                                                validElements: validElements.length
+                                            });
+                                            console.log(`✅ Array JSON válido encontrado: ${parsed.length} elementos (${validElements.length} válidos)`);
+                                        }
                                     }
                                 } catch (e) {
-                                    console.log('❌ JSON inválido, probando siguiente...');
-                                    continue;
+                                    // Ignorar matches inválidos
                                 }
+                            }
+
+                            if (validArrays.length > 0) {
+                                // Ordenar por número de elementos válidos (descendente)
+                                validArrays.sort((a, b) => b.validElements - a.validElements);
+
+                                console.log(`🎯 Seleccionando array con ${validArrays[0].validElements} elementos válidos`);
+                                return validArrays[0].json;
                             }
                         }
 
