@@ -971,7 +971,7 @@ function renderQuestions() {
 
         questionCard.innerHTML = `
             <div class="question-number">Pregunta ${index + 1} de ${currentQuiz.preguntas.length}</div>
-            <div class="question-text">${pregunta.texto}</div>
+            <div class="question-text">${pregunta.pregunta || pregunta.texto}</div>
             <div class="options">
                 ${optionsHtml}
             </div>
@@ -1130,7 +1130,7 @@ window.submitQuiz = async function() {
         currentQuiz.preguntas.forEach((pregunta, index) => {
             if (pregunta.tipo === 'multiple') {
                 totalMultiples++;
-                if (answers[index] === pregunta.respuesta) {
+                if (answers[index] === (pregunta.correcta !== undefined ? pregunta.correcta : pregunta.respuesta)) {
                     correctas++;
                 }
             } else if (pregunta.tipo === 'open') {

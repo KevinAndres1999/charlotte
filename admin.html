@@ -3550,11 +3550,11 @@
             let questionIndex = 1;
             for (let div of questionDivs) {
                 const tipo = div.querySelector('.question-type-premium').value;
-                const texto = div.querySelector('.question-text-premium').value.trim();
-                if (!texto) {
+                const pregunta = div.querySelector('.question-text-premium').value.trim();
+                if (!pregunta) {
                     errors.push(`Pregunta ${questionIndex}: Falta el texto de la pregunta.`);
                 }
-                const question = { texto, tipo };
+                const question = { pregunta, tipo };
                 if (tipo === 'multiple') {
                     const opciones = [];
                     for (let i = 0; i < 4; i++) {
@@ -3567,10 +3567,10 @@
                     }
                     if (opciones.length === 4) {
                         question.opciones = opciones;
-                        question.respuesta = parseInt(div.querySelector('.correct-answer-premium').value);
+                        question.correcta = parseInt(div.querySelector('.correct-answer-premium').value);
                     }
                 }
-                if (texto && (tipo !== 'multiple' || question.opciones)) {
+                if (pregunta && (tipo !== 'multiple' || question.opciones)) {
                     questions.push(question);
                 }
                 questionIndex++;
@@ -3588,8 +3588,8 @@
             for (let i = 0; i < questionDivs.length; i++) {
                 const div = questionDivs[i];
                 const tipo = div.querySelector('.question-type-premium').value;
-                const texto = div.querySelector('.question-text-premium').value.trim();
-                if (!texto) {
+                const pregunta = div.querySelector('.question-text-premium').value.trim();
+                if (!pregunta) {
                     alert(`Completa el texto de la pregunta ${i + 1} antes de agregar una nueva.`);
                     return false;
                 }
