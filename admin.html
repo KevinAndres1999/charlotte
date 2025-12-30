@@ -6138,10 +6138,12 @@
 
                 container.innerHTML = snapshot.docs.map(doc => {
                     const data = doc.data();
+                    console.log('Cuestionario data:', data); // Debug log
                     return `
                         <div class="cuestionario-selector-card">
                             <h5>${data.titulo}</h5>
                             <p>${data.preguntas?.length || 0} preguntas</p>
+                            ${data.email ? `<p><small>Creado por: ${data.email}</small></p>` : ''}
                             <button type="button" onclick="toggleCuestionarioQuestions('${doc.id}')" class="btn-secondary">Ver Preguntas</button>
                             <div id="questions-${doc.id}" class="questions-list" style="display: none;"></div>
                         </div>
@@ -6191,11 +6193,12 @@
                 try {
                     const doc = await db.collection('cuestionarios').doc(cuestionarioId).get();
                     const data = doc.data();
+                    console.log('Preguntas del cuestionario:', data.preguntas); // Debug log
                     questionsDiv.innerHTML = data.preguntas.map((q, index) => `
                         <div class="question-item">
                             <label>
                                 <input type="checkbox" onchange="toggleQuestionSelection('${cuestionarioId}', ${index})">
-                                ${q.texto}
+                                ${q.texto || q.pregunta || `Pregunta ${index + 1} (sin texto)`}
                             </label>
                         </div>
                     `).join('');
@@ -6248,7 +6251,7 @@
 
                 // Asegurar que todas las preguntas tengan la propiedad 'texto'
                 const normalizedQuestions = validQuestions.map(q => ({
-                    texto: q.texto || q.pregunta || 'Pregunta sin texto',
+                    texto: q.texto || q.pregunta || `Pregunta sin texto (${validQuestions.indexOf(q) + 1})`,
                     opciones: q.opciones || [],
                     tipo: q.tipo || 'multiple',
                     correcta: q.correcta || null
