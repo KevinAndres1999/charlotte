@@ -3295,8 +3295,8 @@
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-cogs"></i> Configuración de Generación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="cuestionarioAutoNumPreguntas">Número de Preguntas a Generar</label>
-                                    <input type="number" id="cuestionarioAutoNumPreguntas" placeholder="10" min="1" max="50" value="10">
+                                    <label for="autoNumPreguntas">Número de Preguntas a Generar</label>
+                                    <input type="number" id="autoNumPreguntas" placeholder="10" min="1" max="50" value="10">
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="autoCuestionarioTiempo">Tiempo Disponible (minutos)</label>
@@ -3586,8 +3586,8 @@
                                 </select>
                             </div>
                             <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="autoNumPreguntas">Número de Preguntas</label>
-                                <input type="number" id="autoNumPreguntas" min="1" placeholder="Ej: 10">
+                                <label for="cuestionarioAutoNumPreguntas">Número de Preguntas</label>
+                                <input type="number" id="cuestionarioAutoNumPreguntas" min="1" placeholder="Ej: 10">
                             </div>
                         </div>
 
@@ -4907,7 +4907,7 @@
                         if (questions.length === 0) return alert('Selecciona al menos una pregunta de los cuestionarios');
                     } else if (currentEvaluationMode === 'auto') {
                         const cuestionarioId = document.getElementById('autoCuestionario').value;
-                        const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
+                        const numPreguntas = parseInt(document.getElementById('cuestionarioAutoNumPreguntas').value);
                         if (!cuestionarioId) return alert('Selecciona un cuestionario');
                         if (!numPreguntas || numPreguntas < 1) return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
 
@@ -7271,7 +7271,7 @@
         // Función para cargar cuestionarios para generación automática
         async function loadCuestionariosForAuto() {
             const select = document.getElementById('autoCuestionario');
-            const numInput = document.getElementById('autoNumPreguntas');
+            const numInput = document.getElementById('cuestionarioAutoNumPreguntas');
             select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
             try {
                 const snapshot = await db.collection('cuestionarios').get();
@@ -7507,7 +7507,7 @@
         }
         async function generarPreguntasAutomaticas() {
             const contentText = document.getElementById('autoContentText').value.trim();
-            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
+            const numPreguntas = parseInt(document.getElementById('cuestionarioAutoNumPreguntas').value);
             const apiKey = document.getElementById('openaiApiKey').value.trim();
             const useFallback = document.getElementById('useFallback').checked;
 
@@ -7763,7 +7763,7 @@
         // Función para regenerar preguntas
         function regenerarPreguntas() {
             const contentText = document.getElementById('autoContentText').value.trim();
-            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value) || 10;
+            const numPreguntas = parseInt(document.getElementById('cuestionarioAutoNumPreguntas').value) || 10;
 
             if (!contentText) {
                 alert('No hay contenido para regenerar preguntas.');
@@ -10810,7 +10810,7 @@ REGLAS ESTRICTAS:
                 document.getElementById('evaluacionQuestionsContainer').innerHTML = '';
                 selectedQuestions = [];
                 document.getElementById('autoCuestionario').value = '';
-                document.getElementById('autoNumPreguntas').value = '';
+                document.getElementById('cuestionarioAutoNumPreguntas').value = '';
 
                 loadDashboardStats();
             } catch (error) {
