@@ -7768,7 +7768,12 @@
         // Función para regenerar preguntas
         function regenerarPreguntas() {
             const contentText = document.getElementById('autoContentText').value.trim();
-            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value) || 10;
+            const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
+
+            if (isNaN(numPreguntas) || numPreguntas < 1) {
+                alert('Por favor, ingresa un número válido de preguntas (mínimo 1).');
+                return;
+            }
 
             if (!contentText) {
                 alert('No hay contenido para regenerar preguntas.');
@@ -7974,6 +7979,7 @@ REGLAS ESTRICTAS:
 - Asegúrate de que todas las comillas estén correctamente escapadas
 - NO cortes la respuesta - proporciona el JSON completo`;
 
+            console.log('Número de preguntas solicitado:', numPreguntas);
             console.log('Prompt enviado a la IA:', prompt);
 
             try {
