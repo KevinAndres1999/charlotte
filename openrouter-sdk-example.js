@@ -6,7 +6,7 @@
 //   const client = new OpenRouter({ apiKey: apiKey });
 //   
 //   const response = await client.callModel({
-//     model: 'meta-llama/llama-3.2-3b-instruct',
+//     model: 'xiaomi/MiMo-V2-Flash',
 //     messages: [
 //       {
 //         role: 'system',
