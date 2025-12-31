@@ -7969,6 +7969,8 @@ REGLAS ESTRICTAS:
 - Asegúrate de que todas las comillas estén correctamente escapadas
 - NO cortes la respuesta - proporciona el JSON completo`;
 
+            console.log('Prompt enviado a la IA:', prompt);
+
             try {
                 console.log('Enviando solicitud a OpenRouter (gratuito)...');
 
@@ -8232,6 +8234,8 @@ REGLAS ESTRICTAS:
 - No uses caracteres de escape innecesarios
 - Asegúrate de que todas las comillas estén correctamente escapadas
 - NO cortes la respuesta - proporciona el JSON completo`;
+
+                        console.log('Prompt adicional enviado a la IA:', promptAdicional);
 
                         try {
                             const responseAdicional = await fetch('https://openrouter.ai/api/v1/chat/completions', {
