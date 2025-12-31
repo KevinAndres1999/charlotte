@@ -2418,11 +2418,6 @@
                             <option value="Sábado Vespertina">Sábado Vespertina</option>
                             <option value="Domingo Matutina">Domingo Matutina</option>
                         </select>
-                        <select id="filterPagosAprobados" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">Todos los estados de pago</option>
-                            <option value="al_dia">Al día en pagos</option>
-                            <option value="adeuda">Adeuda pagos</option>
-                        </select>
                         <button onclick="limpiarDuplicados()" class="btn-secondary" style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;" title="Eliminar usuarios duplicados">
                             <i class="fas fa-broom"></i> Limpiar Duplicados
                         </button>
@@ -3505,9 +3500,6 @@
                         <button type="button" class="mode-btn" onclick="setEvaluationMode('auto')" id="autoModeBtn">
                             <i class="fas fa-magic"></i> Generar automáticamente
                         </button>
-                        <button type="button" class="mode-btn" onclick="setEvaluationMode('anuncio')" id="anuncioModeBtn">
-                            <i class="fas fa-bullhorn"></i> Anuncio de Evaluación Práctica
-                        </button>
                     </div>
 
                     <form id="evaluacionForm" style="display: block;">
@@ -3544,21 +3536,13 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Horarios (selecciona los que aplican)</label>
-                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="evaluacionHorario" value="Sábado Matutina">
-                                            Sábado Matutina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="evaluacionHorario" value="Sábado Vespertina">
-                                            Sábado Vespertina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="evaluacionHorario" value="Domingo Matutina">
-                                            Domingo Matutina
-                                        </label>
-                                    </div>
+                                    <label for="evaluacionHorario">Horario</label>
+                                    <select id="evaluacionHorario" required>
+                                        <option value="">Seleccionar horario</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="evaluacionTiempo">Tiempo Disponible (minutos)</label>
@@ -3604,26 +3588,6 @@
                             <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="autoNumPreguntas">Número de Preguntas</label>
                                 <input type="number" id="autoNumPreguntas" min="1" placeholder="Ej: 10">
-                            </div>
-                        </div>
-
-                        <div class="questions-builder" id="anuncioQuestionsBuilder" style="display: none;">
-                            <h4><i class="fas fa-bullhorn"></i> Información del Examen Práctico</h4>
-                            <div class="info-notice" style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-                                <i class="fas fa-info-circle" style="color: #856404; margin-right: 0.5rem;"></i>
-                                <strong style="color: #856404;">Nota:</strong> Esta evaluación solo contendrá información sobre el examen práctico. No se incluirán preguntas.
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="anuncioPractico">Descripción del Examen Práctico</label>
-                                <textarea id="anuncioPractico" rows="8" placeholder="Describe detalladamente en qué consiste el examen práctico, qué deben preparar los estudiantes, qué materiales necesitan, qué habilidades se evaluarán, etc."></textarea>
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="anuncioFecha">Fecha del Examen Práctico</label>
-                                <input type="datetime-local" id="anuncioFecha" title="Fecha y hora del examen práctico">
-                            </div>
-                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                <label for="anuncioLugar">Lugar del Examen</label>
-                                <input type="text" id="anuncioLugar" placeholder="Ej: Escuela Charlotte - Carapungo">
                             </div>
                         </div>
 
@@ -3807,16 +3771,12 @@
                                             </h3>
                                             <h1 id="previewEvaluacionTitle" style="color: #1a202c; margin: 1rem 0; font-size: 2rem;"></h1>
                                             <p id="previewEvaluacionDesc" style="color: #718096; font-size: 1.1rem; line-height: 1.6;"></p>
-                                            <div id="previewEvaluacionAnuncio" style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: none;">
-                                                <h4 style="margin: 0 0 0.5rem 0; color: #856404;"><i class="fas fa-bullhorn"></i> Anuncio del Examen Práctico</h4>
-                                                <p id="previewAnuncioText" style="margin: 0; color: #856404; line-height: 1.5;"></p>
-                                            </div>
 
                                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
                                                 <div class="stat-item" style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px;">
-                                                    <div style="font-size: 2rem; color: #FF9800; margin-bottom: 0.5rem;"><i class="fas fa-calendar-alt"></i></div>
-                                                    <div style="font-size: 1.2rem; font-weight: bold; color: #2d3748;" id="previewHorarios"></div>
-                                                    <div style="color: #718096; font-size: 0.9rem;">Horarios</div>
+                                                    <div style="font-size: 2rem; color: #4CAF50; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i></div>
+                                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;" id="previewPrograma"></div>
+                                                    <div style="color: #718096; font-size: 0.9rem;">Programa</div>
                                                 </div>
                                                 <div class="stat-item" style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 8px;">
                                                     <div style="font-size: 2rem; color: #2196F3; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i></div>
@@ -4367,7 +4327,7 @@
                 color: #1e3a8a;
             }
         </style>
-    <script>
+        <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
             constructor(loader) {
@@ -4923,11 +4883,7 @@
                     const desc = document.getElementById('evaluacionDesc').value;
                     const programa = document.getElementById('evaluacionPrograma').value;
                     const sede = document.getElementById('evaluacionSede').value;
-                    
-                    // Obtener horarios seleccionados
-                    const horarioCheckboxes = document.querySelectorAll('input[name="evaluacionHorario"]:checked');
-                    const horarios = Array.from(horarioCheckboxes).map(cb => cb.value);
-                    
+                    const horario = document.getElementById('evaluacionHorario').value;
                     const tiempo = document.getElementById('evaluacionTiempo').value;
                     const fechaInicio = document.getElementById('evaluacionFechaInicio').value;
                     const fechaFin = document.getElementById('evaluacionFechaFin').value;
@@ -4940,7 +4896,7 @@
 
                     if (!programa) return alert('Selecciona un programa');
                     if (!sede) return alert('Selecciona una sede');
-                    if (horarios.length === 0) return alert('Selecciona al menos un horario');
+                    if (!horario) return alert('Selecciona un horario');
 
                     let questions = [];
                     if (currentEvaluationMode === 'manual') {
@@ -4971,88 +4927,22 @@
                         if (questions.length !== numPreguntas) {
                             console.warn(`Se solicitaron ${numPreguntas} preguntas pero se obtuvieron ${questions.length}`);
                         }
-                    } else if (currentEvaluationMode === 'anuncio') {
-                        // Para modo anuncio, no hay preguntas, solo información del examen práctico
-                        const anuncioPractico = document.getElementById('anuncioPractico').value;
-                        const anuncioFecha = document.getElementById('anuncioFecha').value;
-                        const anuncioLugar = document.getElementById('anuncioLugar').value;
-
-                        if (!anuncioPractico.trim()) return alert('Describe el examen práctico');
-                        if (!anuncioFecha) return alert('Especifica la fecha del examen práctico');
-                        if (!anuncioLugar.trim()) return alert('Especifica el lugar del examen');
-
-                        // Crear una evaluación especial sin preguntas
-                        questions = [{
-                            tipo: 'info',
-                            texto: `EXAMEN PRÁCTICO\n\nFecha: ${new Date(anuncioFecha).toLocaleString('es-ES')}\nLugar: ${anuncioLugar}\n\n${anuncioPractico}`,
-                            opciones: []
-                        }];
-                    }
-
-                    // Para modo anuncio, publicar directamente sin preview
-                    if (currentEvaluationMode === 'anuncio') {
-                        if (!confirm('¿Estás seguro de que quieres publicar este anuncio de evaluación práctica?')) return;
-
-                        try {
-                            await db.collection('evaluaciones').add({
-                                titulo: title,
-                                descripcion: desc,
-                                programa: programa,
-                                sede: sede,
-                                horario: horarios,
-                                tiempoLimite: null, // Sin límite de tiempo para anuncios
-                                fechaInicio: fechaInicio || null,
-                                fechaFin: fechaFin || null,
-                                preguntas: questions,
-                                modo: currentEvaluationMode,
-                                anuncioPractico: document.getElementById('anuncioPractico').value,
-                                anuncioFecha: document.getElementById('anuncioFecha').value,
-                                anuncioLugar: document.getElementById('anuncioLugar').value,
-                                fechaRegistro: new Date().toISOString()
-                            });
-
-                            alert('Anuncio de evaluación práctica publicado exitosamente');
-                            
-                            // Limpiar formulario
-                            document.getElementById('evaluacionForm').reset();
-                            document.getElementById('evaluacionQuestionsContainer').innerHTML = '';
-                            selectedQuestions = [];
-                            document.getElementById('autoCuestionario').value = '';
-                            document.getElementById('autoNumPreguntas').value = '';
-                            
-                            loadDashboardStats();
-                        } catch (error) {
-                            console.error('Error al publicar anuncio:', error);
-                            alert('Error al publicar el anuncio');
-                        }
-                        return;
                     }
 
                     // Mostrar preview de la evaluación antes de publicar
-                    let previewData = {
+                    showEvaluacionPreview({
                         titulo: title,
                         descripcion: desc,
                         programa: programa,
                         sede: sede,
-                        horario: horarios, // Ahora es un array
+                        horario: horario,
                         tiempoLimite: tiempo ? parseInt(tiempo) : null,
                         fechaInicio: fechaInicio || null,
                         fechaFin: fechaFin || null,
-                        preguntas: questions,
-                        modo: currentEvaluationMode
-                    };
-
-                    // Agregar datos específicos del modo anuncio
-                    if (currentEvaluationMode === 'anuncio') {
-                        const anuncioPractico = document.getElementById('anuncioPractico').value;
-                        const anuncioFecha = document.getElementById('anuncioFecha').value;
-                        const anuncioLugar = document.getElementById('anuncioLugar').value;
-                        previewData.anuncioPractico = anuncioPractico;
-                        previewData.anuncioFecha = anuncioFecha;
-                        previewData.anuncioLugar = anuncioLugar;
-                    }
-
-                    showEvaluacionPreview(previewData);
+                        preguntas: questions
+                    });
+                });
+            }        });
 
         // Dashboard stats
         async function loadDashboardStats() {
@@ -5211,7 +5101,6 @@
             const programaFilter = document.getElementById('filterPrograma').value;
             const sedeFilter = document.getElementById('filterSedeAprobados').value;
             const horarioFilter = document.getElementById('filterHorarioAprobados').value;
-            const pagosFilter = document.getElementById('filterPagosAprobados').value;
 
             let filtered = allApprovedUsers.filter(user => {
                 const matchesPrograma = !programaFilter ||
@@ -5220,9 +5109,7 @@
                     user.sede === sedeFilter;
                 const matchesHorario = !horarioFilter ||
                     user.horario === horarioFilter;
-                const matchesPagos = !pagosFilter ||
-                    user.estadoPagos === pagosFilter;
-                return matchesPrograma && matchesSede && matchesHorario && matchesPagos;
+                return matchesPrograma && matchesSede && matchesHorario;
             });
 
             // Ordenar por approvedAt descendente
@@ -5240,16 +5127,13 @@
             container.innerHTML = filtered.map(user => `
                 <div class="content-item">
                     <div class="content-info">
-                        <h5>${user.name} ${user.estadoPagos === 'al_dia' ? '<span style="color: #10b981; font-size: 12px;"><i class="fas fa-check-circle"></i> Al día</span>' : user.estadoPagos === 'adeuda' ? '<span style="color: #ef4444; font-size: 12px;"><i class="fas fa-exclamation-triangle"></i> Adeuda</span>' : '<span style="color: #f59e0b; font-size: 12px;"><i class="fas fa-question-circle"></i> Pendiente</span>'}</h5>
+                        <h5>${user.name}</h5>
                         <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}${user.horario ? ` • ${user.horario}` : ''}</p>
                         <small style="color: #64748b;">Contraseña: ${user.password}</small>
                     </div>
                     <div class="content-actions">
                         <button class="btn-icon" onclick="editarHorarioUsuarioAprobado('${user.id}')" title="Editar Horario" style="background: #dbeafe; color: #1e40af;">
                             <i class="fas fa-clock"></i>
-                        </button>
-                        <button class="btn-icon" onclick="cambiarEstadoPagos('${user.id}')" title="Cambiar Estado de Pagos" style="background: ${user.estadoPagos === 'al_dia' ? '#dcfce7' : '#fee2e2'}; color: ${user.estadoPagos === 'al_dia' ? '#166534' : '#991b1b'};">
-                            <i class="fas fa-dollar-sign"></i>
                         </button>
                         <button class="btn-icon" onclick="resetPassword('${user.id}')" title="Restablecer contraseña" style="background: #fed7aa; color: #9a3412;">
                             <i class="fas fa-key"></i>
@@ -5490,33 +5374,6 @@
             }
         }
 
-        async function cambiarEstadoPagos(userId) {
-            try {
-                const docRef = db.collection('users').doc(userId);
-                const docSnap = await docRef.get();
-
-                if (!docSnap.exists) {
-                    alert('Usuario no encontrado');
-                    return;
-                }
-
-                const userData = docSnap.data();
-                const nuevoEstado = userData.estadoPagos === 'al_dia' ? 'adeuda' : 'al_dia';
-
-                await docRef.update({
-                    estadoPagos: nuevoEstado
-                });
-
-                // Recargar la lista de usuarios aprobados
-                loadUsuariosAprobados();
-
-                alert(`Estado de pagos actualizado a: ${nuevoEstado === 'al_dia' ? 'Al día' : 'Adeuda'}`);
-            } catch (error) {
-                console.error('Error cambiando estado de pagos:', error);
-                alert('Error al cambiar estado de pagos: ' + error.message);
-            }
-        }
-
         async function confirmarAprobacion(id) {
             const sede = document.getElementById('userSede').value;
             const horario = document.getElementById('userHorario').value;
@@ -5565,7 +5422,6 @@
                     ...data,
                     sede: sede,
                     horario: horario,
-                    estadoPagos: 'al_dia', // Estado por defecto: al día en pagos
                     password: password,
                     role: 'student',
                     status: 'active',
@@ -7333,55 +7189,33 @@
             const manualBtn = document.getElementById('manualModeBtn');
             const selectBtn = document.getElementById('selectModeBtn');
             const autoBtn = document.getElementById('autoModeBtn');
-            const anuncioBtn = document.getElementById('anuncioModeBtn');
             const manualBuilder = document.getElementById('manualQuestionsBuilder');
             const selectBuilder = document.getElementById('selectQuestionsBuilder');
             const autoBuilder = document.getElementById('autoQuestionsBuilder');
-            const anuncioBuilder = document.getElementById('anuncioQuestionsBuilder');
-            const submitBtn = document.querySelector('.btn-submit-quiz');
 
             if (mode === 'manual') {
                 manualBtn.classList.add('active');
                 selectBtn.classList.remove('active');
                 autoBtn.classList.remove('active');
-                anuncioBtn.classList.remove('active');
                 manualBuilder.style.display = 'block';
                 selectBuilder.style.display = 'none';
                 autoBuilder.style.display = 'none';
-                anuncioBuilder.style.display = 'none';
-                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Siguiente';
             } else if (mode === 'select') {
                 selectBtn.classList.add('active');
                 manualBtn.classList.remove('active');
                 autoBtn.classList.remove('active');
-                anuncioBtn.classList.remove('active');
                 manualBuilder.style.display = 'none';
                 selectBuilder.style.display = 'block';
                 autoBuilder.style.display = 'none';
-                anuncioBuilder.style.display = 'none';
-                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Siguiente';
                 loadCuestionariosForSelection();
             } else if (mode === 'auto') {
                 autoBtn.classList.add('active');
                 manualBtn.classList.remove('active');
                 selectBtn.classList.remove('active');
-                anuncioBtn.classList.remove('active');
                 manualBuilder.style.display = 'none';
                 selectBuilder.style.display = 'none';
                 autoBuilder.style.display = 'block';
-                anuncioBuilder.style.display = 'none';
-                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Siguiente';
                 loadCuestionariosForAuto();
-            } else if (mode === 'anuncio') {
-                anuncioBtn.classList.add('active');
-                manualBtn.classList.remove('active');
-                selectBtn.classList.remove('active');
-                autoBtn.classList.remove('active');
-                manualBuilder.style.display = 'none';
-                selectBuilder.style.display = 'none';
-                autoBuilder.style.display = 'none';
-                anuncioBuilder.style.display = 'block';
-                if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-upload"></i> Publicar';
             }
         }
 
@@ -10422,55 +10256,13 @@ REGLAS ESTRICTAS:
             document.getElementById('studentTitle').textContent = evaluacionData.titulo;
             document.getElementById('previewEvaluacionDesc').textContent = evaluacionData.descripcion || 'Sin descripción';
             document.getElementById('studentDesc').textContent = evaluacionData.descripcion || 'Sin descripción';
-            
-            // Mostrar anuncio si existe
-            const anuncioElement = document.getElementById('previewEvaluacionAnuncio');
-            const anuncioText = document.getElementById('previewAnuncioText');
-            if (evaluacionData.anuncio && evaluacionData.anuncio.trim()) {
-                anuncioText.textContent = evaluacionData.anuncio;
-                anuncioElement.style.display = 'block';
-            } else {
-                anuncioElement.style.display = 'none';
-            }
-            
             document.getElementById('previewPrograma').textContent = evaluacionData.programa;
             document.getElementById('studentPrograma').textContent = evaluacionData.programa;
-            
-            // Mostrar horarios
-            const horariosDisplay = Array.isArray(evaluacionData.horario) ? evaluacionData.horario.join(', ') : evaluacionData.horario;
-            document.getElementById('previewHorarios').textContent = horariosDisplay;
-            
-            // Manejar caso especial de evaluaciones de anuncio
-            if (evaluacionData.modo === 'anuncio') {
-                document.getElementById('previewTiempo').textContent = 'Sin límite (Información)';
-                document.getElementById('studentTiempo').textContent = 'Sin límite';
-                document.getElementById('previewNumPreguntas').textContent = '1 (Información)';
-                document.getElementById('studentNumPreguntas').textContent = '1';
-                document.getElementById('remainingQuestions').textContent = '0';
-                
-                // Mostrar información del examen práctico en el preview
-                if (evaluacionData.anuncioPractico) {
-                    const infoPractico = document.createElement('div');
-                    infoPractico.style.cssText = 'background: #e8f4fd; border: 1px solid #b3d9ff; border-radius: 8px; padding: 1rem; margin: 1rem 0;';
-                    infoPractico.innerHTML = `
-                        <h4 style="margin: 0 0 0.5rem 0; color: #2c5aa0;"><i class="fas fa-bullhorn"></i> Información del Examen Práctico</h4>
-                        <p style="margin: 0.5rem 0;"><strong>Fecha:</strong> ${new Date(evaluacionData.anuncioFecha).toLocaleString('es-ES')}</p>
-                        <p style="margin: 0.5rem 0;"><strong>Lugar:</strong> ${evaluacionData.anuncioLugar}</p>
-                        <p style="margin: 0.5rem 0;"><strong>Descripción:</strong></p>
-                        <p style="margin: 0.5rem 0; white-space: pre-wrap;">${evaluacionData.anuncioPractico}</p>
-                    `;
-                    
-                    // Insertar después del título
-                    const titleElement = document.getElementById('previewEvaluacionTitle');
-                    titleElement.parentNode.insertBefore(infoPractico, titleElement.nextSibling);
-                }
-            } else {
-                document.getElementById('previewTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} minutos` : 'Sin límite';
-                document.getElementById('studentTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} min` : 'Sin límite';
-                document.getElementById('previewNumPreguntas').textContent = evaluacionData.preguntas.length;
-                document.getElementById('studentNumPreguntas').textContent = evaluacionData.preguntas.length;
-                document.getElementById('remainingQuestions').textContent = Math.max(0, evaluacionData.preguntas.length - 1);
-            }
+            document.getElementById('previewTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} minutos` : 'Sin límite';
+            document.getElementById('studentTiempo').textContent = evaluacionData.tiempoLimite ? `${evaluacionData.tiempoLimite} min` : 'Sin límite';
+            document.getElementById('previewNumPreguntas').textContent = evaluacionData.preguntas.length;
+            document.getElementById('studentNumPreguntas').textContent = evaluacionData.preguntas.length;
+            document.getElementById('remainingQuestions').textContent = Math.max(0, evaluacionData.preguntas.length - 1);
 
             // Generar estadísticas detalladas
             generateEvaluationStats(evaluacionData);
