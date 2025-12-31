@@ -3587,7 +3587,7 @@
                             </div>
                             <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                 <label for="cuestionarioAutoNumPreguntas">Número de Preguntas</label>
-                                <input type="number" id="cuestionarioAutoNumPreguntas" min="1" placeholder="Ej: 10">
+                                <input type="number" id="cuestionarioAutoNumPreguntas" min="1" placeholder="Ej: 10" value="10">
                             </div>
                         </div>
 
@@ -7510,6 +7510,11 @@
             const numPreguntas = parseInt(document.getElementById('cuestionarioAutoNumPreguntas').value);
             const apiKey = document.getElementById('openaiApiKey').value.trim();
             const useFallback = document.getElementById('useFallback').checked;
+
+            if (isNaN(numPreguntas) || numPreguntas < 1) {
+                alert('Por favor, ingresa un número válido de preguntas (mínimo 1).');
+                return;
+            }
 
             if (!contentText) {
                 alert('Por favor, pega el contenido del que quieres generar preguntas.');
