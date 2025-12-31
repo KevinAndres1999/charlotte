@@ -7470,7 +7470,7 @@
                         'X-Title': 'Cursos Charlotte'
                     },
                     body: JSON.stringify({
-                        model: 'microsoft/wizardlm-2-8x22b:free',
+                        model: 'xiaomi/mimo-v2-flash:free',
                         messages: [
                             {
                                 role: 'user',
@@ -7878,7 +7878,7 @@
                         'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'microsoft/wizardlm-2-8x22b:free',
+                        model: 'xiaomi/mimo-v2-flash:free',
                         messages: [
                             {
                                 role: 'user',
@@ -7981,7 +7981,7 @@ REGLAS ESTRICTAS:
                         'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'microsoft/wizardlm-2-8x22b:free',
+                        model: 'xiaomi/mimo-v2-flash:free',
                         messages: [
                             {
                                 role: 'system',
@@ -8195,7 +8195,89 @@ REGLAS ESTRICTAS:
                         preguntas = preguntas.slice(0, numPreguntas);
                         console.log(`🔧 Truncando preguntas: generadas más de ${numPreguntas}, usando las primeras ${numPreguntas}`);
                     } else if (preguntas.length < numPreguntas) {
-                        console.warn(`⚠️ Generadas solo ${preguntas.length} preguntas en lugar de las ${numPreguntas} solicitadas`);
+                        console.warn(`⚠️ Generadas solo ${preguntas.length} preguntas, solicitando ${numPreguntas - preguntas.length} adicionales...`);
+                        
+                        // Solicitar las preguntas faltantes
+                        const faltantes = numPreguntas - preguntas.length;
+                        const promptAdicional = `Genera exactamente ${faltantes} preguntas de opción múltiple adicionales basadas en el mismo contenido educativo.
+
+INSTRUCCIONES CRÍTICAS:
+1. Lee el contenido y crea preguntas que complementen las anteriores
+2. Cada pregunta debe ser clara, educativa y tener una sola respuesta correcta
+3. Las opciones incorrectas deben ser plausibles pero claramente incorrectas
+4. Proporciona una explicación breve pero clara de por qué la respuesta es correcta
+
+CONTENIDO PARA ANALIZAR:
+${texto.substring(0, 1200)}
+
+FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido y COMPLETO, sin texto adicional):
+[
+  {
+    "pregunta": "¿Cuál es el concepto principal explicado en el texto?",
+    "opciones": ["Opción correcta", "Opción incorrecta 1", "Opción incorrecta 2", "Opción incorrecta 3"],
+    "correcta": 0,
+    "explicacion": "La opción correcta es [repite exactamente el texto de la opción correcta] porque [explicación detallada de por qué es correcta]"
+  }
+]
+
+REGLAS ESTRICTAS:
+- Responde SOLO con JSON válido y COMPLETO, sin comillas invertidas, sin markdown, sin texto explicativo
+- El JSON debe comenzar con [ y terminar con ] - ASEGÚRATE DE CERRAR TODOS LOS CORCHETES
+- Genera EXACTAMENTE ${faltantes} preguntas (ni más ni menos)
+- Cada objeto debe tener exactamente 4 propiedades: pregunta, opciones, correcta, explicacion
+- opciones debe ser un array de exactamente 4 strings
+- correcta debe ser un número entero entre 0 y 3
+- En explicacion: SIEMPRE REPITE EXACTAMENTE el texto completo de la opción correcta y explica por qué es correcta
+- NUNCA uses frases como "la primera", "la segunda", "la opción A", "la opción B" - siempre repite el texto de la opción
+- No uses caracteres de escape innecesarios
+- Asegúrate de que todas las comillas estén correctamente escapadas
+- NO cortes la respuesta - proporciona el JSON completo`;
+
+                        try {
+                            const responseAdicional = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': `Bearer ${apiKey}`,
+                                    'Content-Type': 'application/json',
+                                    'HTTP-Referer': window.location.origin,
+                                    'X-Title': 'Charlotte Educational Platform'
+                                },
+                                body: JSON.stringify({
+                                    model: 'xiaomi/mimo-v2-flash:free',
+                                    messages: [
+                                        {
+                                            role: 'system',
+                                            content: 'Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido y completo, sin texto adicional. Nunca cortes las respuestas.'
+                                        },
+                                        {
+                                            role: 'user',
+                                            content: promptAdicional
+                                        }
+                                    ],
+                                    max_tokens: 3000,
+                                    temperature: 0.3
+                                })
+                            });
+
+                            if (responseAdicional.ok) {
+                                const dataAdicional = await responseAdicional.json();
+                                let generatedTextAdicional = '';
+                                if (dataAdicional.choices && dataAdicional.choices[0]?.message?.content) {
+                                    generatedTextAdicional = dataAdicional.choices[0].message.content;
+                                }
+
+                                const preguntasAdicionales = extractValidJSON(generatedTextAdicional);
+                                if (preguntasAdicionales && Array.isArray(preguntasAdicionales)) {
+                                    if (preguntasAdicionales.length > faltantes) {
+                                        preguntasAdicionales.splice(faltantes);
+                                    }
+                                    preguntas = preguntas.concat(preguntasAdicionales);
+                                    console.log(`✅ Agregadas ${preguntasAdicionales.length} preguntas adicionales. Total: ${preguntas.length}`);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error solicitando preguntas adicionales:', error);
+                        }
                     }
 
                 } catch (parseError) {
