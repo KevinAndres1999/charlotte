@@ -7934,6 +7934,8 @@
             // Preparar el prompt para OpenRouter
             const prompt = `Analiza el siguiente contenido educativo y genera exactamente ${numPreguntas} preguntas de opción múltiple de alta calidad.
 
+IMPORTANTE: Debes generar EXACTAMENTE ${numPreguntas} preguntas. Si generas más o menos, será un error. Cuenta las preguntas al final para asegurarte.
+
 INSTRUCCIONES CRÍTICAS:
 1. Lee cuidadosamente el contenido y identifica los conceptos clave
 2. Cada pregunta debe ser clara, educativa y tener una sola respuesta correcta
@@ -8187,6 +8189,14 @@ REGLAS ESTRICTAS:
                     }
 
                     console.log(`✅ JSON parseado exitosamente: ${preguntas.length} preguntas`);
+
+                    // Validar y ajustar el número de preguntas
+                    if (preguntas.length > numPreguntas) {
+                        preguntas = preguntas.slice(0, numPreguntas);
+                        console.log(`🔧 Truncando preguntas: generadas más de ${numPreguntas}, usando las primeras ${numPreguntas}`);
+                    } else if (preguntas.length < numPreguntas) {
+                        console.warn(`⚠️ Generadas solo ${preguntas.length} preguntas en lugar de las ${numPreguntas} solicitadas`);
+                    }
 
                 } catch (parseError) {
                     console.error('❌ Error parseando JSON de OpenRouter:', parseError);
