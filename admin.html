@@ -8332,10 +8332,15 @@ REGLAS ESTRICTAS:
                     }
                     opciones = opciones.slice(0, 4);
 
+                    // Desordenar opciones para que la correcta no siempre esté en la primera posición
+                    const opcionesDesordenadas = [...opciones];
+                    opcionesDesordenadas.sort(() => Math.random() - 0.5);
+                    const nuevaCorrecta = opcionesDesordenadas.indexOf(opciones[correcta]);
+
                     return {
                         pregunta: p.pregunta || `Pregunta ${index + 1} sobre el contenido`,
-                        opciones: opciones,
-                        correcta: Math.min(correcta, 3), // Asegurar que no exceda el índice
+                        opciones: opcionesDesordenadas,
+                        correcta: nuevaCorrecta,
                         explicacion: p.explicacion || 'Respuesta basada en el contenido proporcionado.'
                     };
                 });
