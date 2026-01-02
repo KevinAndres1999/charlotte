@@ -3338,14 +3338,14 @@ function filterByUserAccess(items) {
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
         if (!itemPrograma || itemPrograma !== userPrograma) return false;
 
-        // Filtrar por sede (si el item tiene sedes definidas)
-        if (item.sedes && item.sedes.length > 0) {
+        // Filtrar por sede (solo si el item tiene sedes definidas)
+        if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
             if (!userSede || !item.sedes.includes(userSede)) return false;
         }
 
-        // Filtrar por horario (si el item tiene horarios definidos)
-        if (item.horarios && item.horarios.length > 0) {
+        // Filtrar por horario (solo si el item tiene horarios definidos)
+        if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
             const userHorario = (currentUser.horario || '').toString().trim();
             if (!userHorario || !item.horarios.includes(userHorario)) return false;
         }
@@ -6101,5 +6101,6 @@ updateDashboard();
 
 
 </script>
+
 </body>
 </html>
