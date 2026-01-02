@@ -3332,7 +3332,12 @@ function filterByUserAccess(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
 
-    console.log('Filtrando', items.length, 'items para usuario:', currentUser.programa, currentUser.sede, currentUser.horario);
+    console.log('Filtrando', items.length, 'items para usuario:', {
+        programa: currentUser.programa,
+        sede: currentUser.sede,
+        horario: currentUser.horario,
+        email: currentUser.email
+    });
 
     const filtered = items.filter(item => {
         console.log('Evaluando item:', item.titulo, 'programa:', item.programa, 'sedes:', item.sedes, 'horarios:', item.horarios);
