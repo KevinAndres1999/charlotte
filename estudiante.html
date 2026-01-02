@@ -4130,7 +4130,6 @@ async function loadClases() {
         allClases = [];
         snapshot.forEach(doc => {
             const clase = { id: doc.id, ...doc.data() };
-            console.log('Clase cargada:', clase.titulo, 'sedes:', clase.sedes, 'horarios:', clase.horarios);
             // Agregar campos calculados
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
             clase.isRead = localStorage.getItem(`clase-${clase.id}-read`) === 'true';
