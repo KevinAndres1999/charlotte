@@ -3332,27 +3332,49 @@ function filterByUserAccess(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
 
+    console.log('Filtrando', items.length, 'items para usuario:', currentUser.programa, currentUser.sede, currentUser.horario);
+
     const filtered = items.filter(item => {
+        console.log('Evaluando item:', item.titulo, 'programa:', item.programa, 'sedes:', item.sedes, 'horarios:', item.horarios);
+
         // Filtrar por programa
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
-        if (!itemPrograma || itemPrograma !== userPrograma) return false;
+        console.log('Comparando programas:', itemPrograma, 'vs', userPrograma);
+        if (!itemPrograma || itemPrograma !== userPrograma) {
+            console.log('❌ Rechazado por programa');
+            return false;
+        }
 
         // Filtrar por sede (solo si el item tiene sedes definidas)
         if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
-            if (!userSede || !item.sedes.includes(userSede)) return false;
+            console.log('Comparando sedes:', item.sedes, 'vs', userSede, 'includes:', item.sedes.includes(userSede));
+            if (!userSede || !item.sedes.includes(userSede)) {
+                console.log('❌ Rechazado por sede');
+                return false;
+            }
+        } else {
+            console.log('✅ Sin filtro de sede (sedes no definidas)');
         }
 
         // Filtrar por horario (solo si el item tiene horarios definidos)
         if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
             const userHorario = (currentUser.horario || '').toString().trim();
-            if (!userHorario || !item.horarios.includes(userHorario)) return false;
+            console.log('Comparando horarios:', item.horarios, 'vs', userHorario, 'includes:', item.horarios.includes(userHorario));
+            if (!userHorario || !item.horarios.includes(userHorario)) {
+                console.log('❌ Rechazado por horario');
+                return false;
+            }
+        } else {
+            console.log('✅ Sin filtro de horario (horarios no definidos)');
         }
 
+        console.log('✅ Item aprobado');
         return true;
     });
 
+    console.log('Resultado del filtro:', filtered.length, 'items pasaron');
     return filtered;
 }
 
@@ -4101,6 +4123,7 @@ async function loadClases() {
         allClases = [];
         snapshot.forEach(doc => {
             const clase = { id: doc.id, ...doc.data() };
+            console.log('Clase cargada:', clase.titulo, 'sedes:', clase.sedes, 'horarios:', clase.horarios);
             // Agregar campos calculados
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
             clase.isRead = localStorage.getItem(`clase-${clase.id}-read`) === 'true';
@@ -4109,7 +4132,11 @@ async function loadClases() {
             allClases.push(clase);
         });
 
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        console.log('Usuario actual:', currentUser);
+
         const filtered = filterByUserAccess(allClases);
+        console.log('Clases después del filtro:', filtered.length, 'de', allClases.length);
         filteredClases = filtered;
         
         sortClases();
