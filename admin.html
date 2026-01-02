@@ -4601,7 +4601,13 @@
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
-            else if (sectionId === 'clases') try { loadClasesList(); } catch (e) { console.error('Error loading clases:', e); }
+            else if (sectionId === 'clases') {
+                try {
+                    loadClasesList();
+                    // Inicializar editor de clases cuando se muestre la sección
+                    setTimeout(() => initializeClaseEditor(), 100);
+                } catch (e) { console.error('Error loading clases:', e); }
+            }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
@@ -4843,7 +4849,7 @@
                     const title = document.getElementById('claseTitle').value;
                     const desc = document.getElementById('claseDesc').value;
                     const programa = document.getElementById('clasePrograma').value;
-                    const content = claseEditor.getData();
+                    const content = claseEditor ? claseEditor.getData() : document.getElementById('claseContent').value;
                     
                     // Recoger horarios seleccionados
                     const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="claseHorarios"]:checked')).map(cb => cb.value);
@@ -4882,7 +4888,9 @@
 
                         alert('Clase subida exitosamente');
                         claseForm.reset();
-                        claseEditor.setData('');
+                        if (claseEditor) {
+                            claseEditor.setData('');
+                        }
                         loadDashboardStats();
                         loadClasesList(); // Recargar la lista de clases
                     } catch (error) {
@@ -7582,19 +7590,33 @@
         }
 
         let claseEditor;
-        ClassicEditor
-            .create(document.querySelector('#claseContent'), {
-                toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
-                extraPlugins: [Base64UploadAdapterPlugin]
-            })
-            .then(editor => {
-                claseEditor = editor;
-            })
-            .catch(error => {
-                console.error(error);
-            });
+
+        // Función para inicializar el editor de clases
+        function initializeClaseEditor() {
+            if (claseEditor) return; // Ya está inicializado
+
+            const claseContentElement = document.querySelector('#claseContent');
+            if (!claseContentElement) {
+                console.error('Elemento #claseContent no encontrado');
+                return;
+            }
+
+            ClassicEditor
+                .create(claseContentElement, {
+                    toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                    extraPlugins: [Base64UploadAdapterPlugin]
+                })
+                .then(editor => {
+                    claseEditor = editor;
+                    console.log('Editor de clases inicializado correctamente');
+                })
+                .catch(error => {
+                    console.error('Error inicializando editor de clases:', error);
+                });
+        }
 
         // Exponer funciones globales
+        window.initializeClaseEditor = initializeClaseEditor;
         window.showSection = showSection;
         window.toggleMobileMenu = toggleMobileMenu;
         window.logout = logout;
