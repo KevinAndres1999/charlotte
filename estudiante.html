@@ -3349,25 +3349,27 @@ function filterByUserAccess(items) {
         // Filtrar por sede (solo si el item tiene sedes definidas)
         if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
-            console.log('Comparando sedes:', item.sedes, 'vs', userSede, 'includes:', item.sedes.includes(userSede));
+            console.log('Comparando sedes - Item sedes:', JSON.stringify(item.sedes), 'User sede:', JSON.stringify(userSede));
+            console.log('User sede existe:', !!userSede, 'User sede en array:', item.sedes.includes(userSede));
             if (!userSede || !item.sedes.includes(userSede)) {
                 console.log('❌ Rechazado por sede');
                 return false;
             }
         } else {
-            console.log('✅ Sin filtro de sede (sedes no definidas)');
+            console.log('✅ Sin filtro de sede (sedes no definidas o vacías)');
         }
 
         // Filtrar por horario (solo si el item tiene horarios definidos)
         if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
             const userHorario = (currentUser.horario || '').toString().trim();
-            console.log('Comparando horarios:', item.horarios, 'vs', userHorario, 'includes:', item.horarios.includes(userHorario));
+            console.log('Comparando horarios - Item horarios:', JSON.stringify(item.horarios), 'User horario:', JSON.stringify(userHorario));
+            console.log('User horario existe:', !!userHorario, 'User horario en array:', item.horarios.includes(userHorario));
             if (!userHorario || !item.horarios.includes(userHorario)) {
                 console.log('❌ Rechazado por horario');
                 return false;
             }
         } else {
-            console.log('✅ Sin filtro de horario (horarios no definidos)');
+            console.log('✅ Sin filtro de horario (horarios no definidos o vacíos)');
         }
 
         console.log('✅ Item aprobado');
