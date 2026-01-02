@@ -3328,15 +3328,31 @@ function loadStudentInfo() {
     if (welcomeNameEl) welcomeNameEl.textContent = currentUser.name;
 }
 
-function filterByProgram(items) {
+function filterByUserAccess(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
+
     const filtered = items.filter(item => {
+        // Filtrar por programa
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
-        // Solo mostrar items que tienen programa asignado y coinciden con el usuario
-        return itemPrograma && itemPrograma === userPrograma;
+        if (!itemPrograma || itemPrograma !== userPrograma) return false;
+
+        // Filtrar por sede (si el item tiene sedes definidas)
+        if (item.sedes && item.sedes.length > 0) {
+            const userSede = (currentUser.sede || '').toString().trim();
+            if (!userSede || !item.sedes.includes(userSede)) return false;
+        }
+
+        // Filtrar por horario (si el item tiene horarios definidos)
+        if (item.horarios && item.horarios.length > 0) {
+            const userHorario = (currentUser.horario || '').toString().trim();
+            if (!userHorario || !item.horarios.includes(userHorario)) return false;
+        }
+
+        return true;
     });
+
     return filtered;
 }
 
@@ -3586,7 +3602,7 @@ async function loadCuestionarios() {
                         cuestionario.respuestas = null;
                     }
                 });
-                const filtered = filterByProgram(allCuestionarios);
+        const filtered = filterByUserAccess(allCuestionarios);
                 filteredCuestionarios = filtered;
                 sortCuestionarios();
                 updateCuestionariosStats();
@@ -3801,7 +3817,7 @@ async function loadVideos() {
             allVideos.push(video);
         });
 
-        const filtered = filterByProgram(allVideos);
+        const filtered = filterByUserAccess(allVideos);
         filteredVideos = filtered;
         sortVideos();
         updateVideosStats();
@@ -3849,7 +3865,7 @@ async function loadActividades() {
                         actividad.entrega = null;
                     }
                 });
-                const filtered = filterByProgram(allActividades);
+                const filtered = filterByUserAccess(allActividades);
                 filteredActividades = filtered;
                 sortActividades();
                 updateActividadesStats();
@@ -3881,7 +3897,7 @@ async function loadMateriales() {
             allMateriales.push(material);
         });
 
-        const filtered = filterByProgram(allMateriales);
+        const filtered = filterByUserAccess(allMateriales);
         filteredMateriales = filtered;
         sortMateriales();
         updateMaterialesStats();
@@ -4037,7 +4053,7 @@ function filterMaterialesByCategory(category) {
     }
 
     // Aplicar filtro de programa
-    filteredMateriales = filterByProgram(filteredMateriales);
+    filteredMateriales = filterByUserAccess(filteredMateriales);
     sortMateriales();
     renderMateriales();
 }
@@ -4055,7 +4071,7 @@ function filterMateriales() {
     }
 
     // Aplicar filtro de programa
-    filteredMateriales = filterByProgram(filteredMateriales);
+    filteredMateriales = filterByUserAccess(filteredMateriales);
     sortMateriales();
     renderMateriales();
 }
@@ -4093,7 +4109,7 @@ async function loadClases() {
             allClases.push(clase);
         });
 
-        const filtered = filterByProgram(allClases);
+        const filtered = filterByUserAccess(allClases);
         filteredClases = filtered;
         
         sortClases();
@@ -4277,7 +4293,7 @@ function filterClases() {
     }
 
     // Aplicar filtro de programa
-    filteredClases = filterByProgram(filteredClases);
+    filteredClases = filterByUserAccess(filteredClases);
     currentPage = 1;
     sortClases();
     renderClases();
@@ -4468,7 +4484,7 @@ function filterVideosByCategory(category) {
     }
 
     // Aplicar filtro de programa
-    filteredVideos = filterByProgram(filteredVideos);
+    filteredVideos = filterByUserAccess(filteredVideos);
     currentVideosPage = 1;
     sortVideos();
     renderVideos();
@@ -4488,7 +4504,7 @@ function filterVideos() {
     }
 
     // Aplicar filtro de programa
-    filteredVideos = filterByProgram(filteredVideos);
+    filteredVideos = filterByUserAccess(filteredVideos);
     currentVideosPage = 1;
     sortVideos();
     renderVideos();
@@ -4723,7 +4739,7 @@ function filterActividadesByCategory(category) {
     }
 
     // Aplicar filtro de programa
-    filteredActividades = filterByProgram(filteredActividades);
+    filteredActividades = filterByUserAccess(filteredActividades);
     currentActividadesPage = 1;
     sortActividades();
     renderActividades();
@@ -4743,7 +4759,7 @@ function filterActividades() {
     }
 
     // Aplicar filtro de programa
-    filteredActividades = filterByProgram(filteredActividades);
+    filteredActividades = filterByUserAccess(filteredActividades);
     currentActividadesPage = 1;
     sortActividades();
     renderActividades();
@@ -4830,7 +4846,7 @@ async function loadEvaluaciones() {
                         evaluacion.respuestas = null;
                     }
                 });
-                const filtered = filterByProgram(allEvaluaciones);
+                const filtered = filterByUserAccess(allEvaluaciones);
                 filteredEvaluaciones = filtered;
                 sortEvaluaciones();
                 updateEvaluacionesStats();
@@ -5733,9 +5749,9 @@ async function loadRecursos() {
         recursosData.contactos = contactosSnap.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'contacto' }));
 
         // Filtrar por programa
-        recursosData.fotos = filterByProgram(recursosData.fotos);
-        recursosData.recursos = filterByProgram(recursosData.recursos);
-        recursosData.contactos = filterByProgram(recursosData.contactos);
+        recursosData.fotos = filterByUserAccess(recursosData.fotos);
+        recursosData.recursos = filterByUserAccess(recursosData.recursos);
+        recursosData.contactos = filterByUserAccess(recursosData.contactos);
 
         // Inicializar datos filtrados
         filteredRecursos = [...recursosData.fotos, ...recursosData.recursos, ...recursosData.contactos];
