@@ -3408,41 +3408,104 @@ async function loadDashboardStats() {
             return;
         }
 
-        // Contar clases
+        // Función helper para filtrar items por sede y horario
+        function shouldIncludeItem(itemData) {
+            // Verificar sede
+            if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
+                if (!itemData.sedes.includes(currentUser.sede)) return false;
+            }
+            
+            // Verificar horario
+            if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
+                if (!itemData.horarios.includes(currentUser.horario)) return false;
+            }
+            
+            return true;
+        }
+
+        // Contar clases con filtro de sede y horario
         const clasesQuery = query(collection(db, 'classes'), where('programa', '==', currentUser.programa));
         const clasesSnapshot = await getDocs(clasesQuery);
+        
+        let filteredClasesCount = 0;
+        clasesSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredClasesCount++;
+            }
+        });
+        
         const totalClasesEl = document.getElementById('totalClases');
-        if (totalClasesEl) totalClasesEl.textContent = clasesSnapshot.size;
+        if (totalClasesEl) totalClasesEl.textContent = filteredClasesCount;
 
-        // Contar videos
+        // Contar videos con filtro
         const videosQuery = query(collection(db, 'content'), where('programa', '==', currentUser.programa));
         const videosSnapshot = await getDocs(videosQuery);
+        
+        let filteredVideosCount = 0;
+        videosSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredVideosCount++;
+            }
+        });
+        
         const totalVideosEl = document.getElementById('totalVideos');
-        if (totalVideosEl) totalVideosEl.textContent = videosSnapshot.size;
+        if (totalVideosEl) totalVideosEl.textContent = filteredVideosCount;
 
-        // Contar actividades
+        // Contar actividades con filtro
         const actividadesQuery = query(collection(db, 'activities'), where('programa', '==', currentUser.programa));
         const actividadesSnapshot = await getDocs(actividadesQuery);
+        
+        let filteredActividadesCount = 0;
+        actividadesSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredActividadesCount++;
+            }
+        });
+        
         const totalActividadesEl = document.getElementById('totalActividades');
-        if (totalActividadesEl) totalActividadesEl.textContent = actividadesSnapshot.size;
+        if (totalActividadesEl) totalActividadesEl.textContent = filteredActividadesCount;
 
-        // Contar materiales (PDFs y otros)
+        // Contar materiales con filtro
         const materialesQuery = query(collection(db, 'materials'), where('programa', '==', currentUser.programa));
         const materialesSnapshot = await getDocs(materialesQuery);
+        
+        let filteredMaterialesCount = 0;
+        materialesSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredMaterialesCount++;
+            }
+        });
+        
         const totalMaterialesEl = document.getElementById('totalMateriales');
-        if (totalMaterialesEl) totalMaterialesEl.textContent = materialesSnapshot.size;
+        if (totalMaterialesEl) totalMaterialesEl.textContent = filteredMaterialesCount;
 
-        // Contar cuestionarios
+        // Contar cuestionarios con filtro
         const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
         const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
+        
+        let filteredCuestionariosCount = 0;
+        cuestionariosSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredCuestionariosCount++;
+            }
+        });
+        
         const totalCuestionariosEl = document.getElementById('totalCuestionarios');
-        if (totalCuestionariosEl) totalCuestionariosEl.textContent = cuestionariosSnapshot.size;
+        if (totalCuestionariosEl) totalCuestionariosEl.textContent = filteredCuestionariosCount;
 
-        // Contar evaluaciones
+        // Contar evaluaciones con filtro
         const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
         const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
+        
+        let filteredEvaluacionesCount = 0;
+        evaluacionesSnapshot.forEach(doc => {
+            if (shouldIncludeItem(doc.data())) {
+                filteredEvaluacionesCount++;
+            }
+        });
+        
         const totalEvaluacionesEl = document.getElementById('totalEvaluaciones');
-        if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = evaluacionesSnapshot.size;
+        if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = filteredEvaluacionesCount;
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
