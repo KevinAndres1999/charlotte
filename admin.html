@@ -2595,7 +2595,8 @@
                                 <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="claseContent">Contenido Detallado</label>
-                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical;"></textarea>
+                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                                    <button type="button" onclick="initializeClaseEditor()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Inicializar Editor</button>
                                 </div>
                             </div>
                         </div>
@@ -4605,7 +4606,17 @@
                 try {
                     loadClasesList();
                     // Inicializar editor de clases cuando se muestre la sección
-                    setTimeout(() => initializeClaseEditor(), 100);
+                    setTimeout(() => {
+                        console.log('Verificando si la sección de clases está activa...');
+                        const claseSection = document.getElementById('clases');
+                        if (claseSection && claseSection.classList.contains('active')) {
+                            console.log('Sección activa, inicializando editor...');
+                            initializeClaseEditor();
+                        } else {
+                            console.log('Sección no activa aún, esperando más...');
+                            setTimeout(() => initializeClaseEditor(), 500);
+                        }
+                    }, 100);
                 } catch (e) { console.error('Error loading clases:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
@@ -7593,13 +7604,30 @@
 
         // Función para inicializar el editor de clases
         function initializeClaseEditor() {
-            if (claseEditor) return; // Ya está inicializado
+            console.log('Intentando inicializar editor de clases...');
+            if (claseEditor) {
+                console.log('Editor ya inicializado');
+                return; // Ya está inicializado
+            }
+
+            // Verificar si CKEditor está disponible
+            if (typeof ClassicEditor === 'undefined') {
+                console.error('CKEditor no está cargado aún, esperando...');
+                setTimeout(() => initializeClaseEditor(), 200);
+                return;
+            }
 
             const claseContentElement = document.querySelector('#claseContent');
+            console.log('Elemento #claseContent encontrado:', claseContentElement);
+
             if (!claseContentElement) {
                 console.error('Elemento #claseContent no encontrado');
                 return;
             }
+
+            // Verificar si el elemento es visible
+            const rect = claseContentElement.getBoundingClientRect();
+            console.log('Elemento visible:', rect.width > 0 && rect.height > 0);
 
             ClassicEditor
                 .create(claseContentElement, {
