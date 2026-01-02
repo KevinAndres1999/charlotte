@@ -2590,7 +2590,7 @@
                             </div>
                         </div>
 
-                        <div class="content-section" style="margin-top: 20px; margin-bottom: 20px;">
+                        <div class="form-content-section" style="margin-top: 20px; margin-bottom: 20px;">
                             <div class="quiz-form-card" style="width: 100%;">
                                 <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
@@ -4606,17 +4606,7 @@
                 try {
                     loadClasesList();
                     // Inicializar editor de clases cuando se muestre la sección
-                    setTimeout(() => {
-                        console.log('Verificando si la sección de clases está activa...');
-                        const claseSection = document.getElementById('clases');
-                        if (claseSection && claseSection.classList.contains('active')) {
-                            console.log('Sección activa, inicializando editor...');
-                            initializeClaseEditor();
-                        } else {
-                            console.log('Sección no activa aún, esperando más...');
-                            setTimeout(() => initializeClaseEditor(), 500);
-                        }
-                    }, 100);
+                    setTimeout(() => initializeClaseEditor(), 100);
                 } catch (e) { console.error('Error loading clases:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
@@ -7624,10 +7614,6 @@
                 console.error('Elemento #claseContent no encontrado');
                 return;
             }
-
-            // Verificar si el elemento es visible
-            const rect = claseContentElement.getBoundingClientRect();
-            console.log('Elemento visible:', rect.width > 0 && rect.height > 0);
 
             ClassicEditor
                 .create(claseContentElement, {
