@@ -7607,7 +7607,7 @@
 
                     // Obtener información de la actividad
                     const actividadDoc = await db.collection('activities').doc(entrega.actividadId).get();
-                    const actividad = actividadDoc.exists ? actividadDoc.data() : {};
+                    const actividad = actividadDoc.exists ? actividadDoc.data() : { titulo: `Actividad ID: ${entrega.actividadId} (no encontrada)`, instrucciones: 'No se pudo cargar la información de la actividad' };
 
                     document.getElementById('modalTitle').textContent = calificar ? 'Calificar Entrega' : 'Detalle de Entrega';
                     document.getElementById('modalBody').innerHTML = `
@@ -7615,6 +7615,7 @@
                             <div class="entrega-header">
                                 <div>
                                     <h3>${actividad.titulo || 'Actividad'}</h3>
+                                    <p style="color: #64748b; margin: 4px 0;">ID Actividad: ${entrega.actividadId}</p>
                                     <p style="color: #64748b; margin: 4px 0;">Entregada el ${new Date(entrega.fechaEntrega).toLocaleDateString('es-ES')} a las ${new Date(entrega.fechaEntrega).toLocaleTimeString('es-ES')}</p>
                                 </div>
                                 ${entrega.calificada ? '<span style="background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Calificada</span>' : '<span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Pendiente</span>'}
@@ -7655,8 +7656,8 @@
                                 <div class="calificacion-section">
                                     <h4><i class="fas fa-star"></i> Calificación</h4>
                                     <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                        <p style="margin: 0; font-size: 24px; font-weight: bold; color: #1e3a8a;">${entrega.calificacion || 'N/A'}/100</p>
-                                        ${entrega.comentarios ? `<p style="margin: 8px 0 0 0; color: #64748b;"><strong>Comentarios:</strong> ${entrega.comentarios}</p>` : ''}
+                                        <p style="margin: 0; font-size: 24px; font-weight: bold; color: #1e3a8a;">${entrega.nota || 'N/A'}/100</p>
+                                        ${entrega.comentario ? `<p style="margin: 8px 0 0 0; color: #64748b;"><strong>Comentarios:</strong> ${entrega.comentario}</p>` : ''}
                                     </div>
                                 </div>
                             ` : ''}
@@ -7700,39 +7701,44 @@
                     fechaCalificacion: new Date().toISOString()
                 }, { merge: true });
 
-                // Actualizar automáticamente el módulo 3 (Pastelería) con la calificación de actividades
+                // Actualizar automáticamente el módulo correspondiente con la calificación de actividades
                 if (estudianteId) {
-                    // Convertir calificación de 0-100 a escala de 0-5 para actividades
-                    const califActividades = (calificacion / 100) * 5;
+                    // Obtener el módulo de la actividad
+                    const actividadDoc = await db.collection('activities').doc(entrega.actividadId).get();
+                    if (actividadDoc.exists) {
+                        const actividad = actividadDoc.data();
+                        const moduloKey = `modulo${actividad.modulo}`;
 
-                    const moduloKey = 'modulo3';
+                        // Convertir calificación de 0-100 a escala de 0-5 para actividades
+                        const califActividades = (calificacion / 100) * 5;
 
-                    // Buscar si ya existe una calificación para este módulo y estudiante
-                    const existingSnapshot = await db.collection('calificaciones_modulos')
-                        .where('estudianteId', '==', estudianteId)
-                        .where('modulo', '==', moduloKey)
-                        .limit(1)
-                        .get();
+                        // Buscar si ya existe una calificación para este módulo y estudiante
+                        const existingSnapshot = await db.collection('calificaciones_modulos')
+                            .where('estudianteId', '==', estudianteId)
+                            .where('modulo', '==', moduloKey)
+                            .limit(1)
+                            .get();
 
-                    const califData = {
-                        estudianteId: estudianteId,
-                        modulo: moduloKey,
-                        actividades: califActividades,
-                        fechaActualizacion: new Date().toISOString(),
-                        actualizadoPor: sessionStorage.getItem('userId') || 'admin'
-                    };
+                        const califData = {
+                            estudianteId: estudianteId,
+                            modulo: moduloKey,
+                            actividades: califActividades,
+                            fechaActualizacion: new Date().toISOString(),
+                            actualizadoPor: sessionStorage.getItem('userId') || 'admin'
+                        };
 
-                    if (!existingSnapshot.empty) {
-                        // Actualizar existente (merge con otros valores existentes)
-                        const docId = existingSnapshot.docs[0].id;
-                        const existingData = existingSnapshot.docs[0].data();
-                        await db.collection('calificaciones_modulos').doc(docId).update({
-                            ...existingData,
-                            ...califData
-                        });
-                    } else {
-                        // Crear nueva
-                        await db.collection('calificaciones_modulos').add(califData);
+                        if (!existingSnapshot.empty) {
+                            // Actualizar existente (merge con otros valores existentes)
+                            const docId = existingSnapshot.docs[0].id;
+                            const existingData = existingSnapshot.docs[0].data();
+                            await db.collection('calificaciones_modulos').doc(docId).update({
+                                ...existingData,
+                                ...califData
+                            });
+                        } else {
+                            // Crear nueva
+                            await db.collection('calificaciones_modulos').add(califData);
+                        }
                     }
                 }
 
