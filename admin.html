@@ -7516,12 +7516,58 @@
             }
 
             try {
+                // Obtener la entrega para saber el estudianteId
+                const entregaDoc = await db.collection('entregas').doc(entregaId).get();
+                if (!entregaDoc.exists) {
+                    alert('Error: Entrega no encontrada');
+                    return;
+                }
+                const entrega = { id: entregaDoc.id, ...entregaDoc.data() };
+                const estudianteId = entrega.estudianteId;
+
+                // Guardar calificación en la entrega
                 await db.collection('entregas').doc(entregaId).set({
                     calificada: true,
                     nota: calificacion,
                     comentario: comentarios,
                     fechaCalificacion: new Date().toISOString()
                 }, { merge: true });
+
+                // Actualizar automáticamente el módulo 3 (Pastelería) con la calificación de actividades
+                if (estudianteId) {
+                    // Convertir calificación de 0-100 a escala de 0-0.5 para actividades
+                    const califActividades = (calificacion / 100) * 0.5;
+
+                    const moduloKey = 'modulo3';
+
+                    // Buscar si ya existe una calificación para este módulo y estudiante
+                    const existingSnapshot = await db.collection('calificaciones_modulos')
+                        .where('estudianteId', '==', estudianteId)
+                        .where('modulo', '==', moduloKey)
+                        .limit(1)
+                        .get();
+
+                    const califData = {
+                        estudianteId: estudianteId,
+                        modulo: moduloKey,
+                        actividades: califActividades,
+                        fechaActualizacion: new Date().toISOString(),
+                        actualizadoPor: sessionStorage.getItem('userId') || 'admin'
+                    };
+
+                    if (!existingSnapshot.empty) {
+                        // Actualizar existente (merge con otros valores existentes)
+                        const docId = existingSnapshot.docs[0].id;
+                        const existingData = existingSnapshot.docs[0].data();
+                        await db.collection('calificaciones_modulos').doc(docId).update({
+                            ...existingData,
+                            ...califData
+                        });
+                    } else {
+                        // Crear nueva
+                        await db.collection('calificaciones_modulos').add(califData);
+                    }
+                }
 
                 alert('Calificación guardada exitosamente');
                 closeModal();
