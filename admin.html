@@ -11346,7 +11346,7 @@ REGLAS ESTRICTAS:
                 // Cargar calificaciones específicas por módulo si existen
                 const modulosCalificaciones = {};
                 for (const estudianteInfo of estudiantesFiltrados) {
-                    const estudianteId = estudianteInfo.id;
+                    const estudianteId = estudianteInfo.data.email || estudianteInfo.id;
                     modulosCalificaciones[estudianteId] = {};
 
                     // Intentar cargar calificaciones específicas por módulo
@@ -11408,7 +11408,7 @@ REGLAS ESTRICTAS:
 
                 for (const estudianteInfo of estudiantesFiltrados) {
                     const estudiante = estudianteInfo.data;
-                    const estudianteId = estudianteInfo.id;
+                    const estudianteId = estudiante.email || estudianteInfo.id;
 
                     // Obtener calificaciones específicas por módulo si existen
                     const modulosCalif = modulosCalificaciones[estudianteId] || {};
