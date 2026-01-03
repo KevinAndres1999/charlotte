@@ -3845,6 +3845,17 @@ window.addEventListener('popstate', function(event) {
     if (event.state && event.state.section) {
         // Ir a la sección guardada en el estado
         showSectionV2(event.state.section);
+        
+        // Si es la sección de clases y hay un módulo específico, cargarlo
+        if (event.state.section === 'clases' && event.state.modulo !== undefined) {
+            if (event.state.modulo === null) {
+                // Mostrar selector de módulos
+                window.loadClases();
+            } else {
+                // Cargar el módulo específico
+                window.loadClases(event.state.modulo);
+            }
+        }
     } else {
         // Por defecto, ir al dashboard
         showSectionV2('dashboard');
@@ -4789,10 +4800,8 @@ function isValidUrl(url) {
 }
 
 function volverAModulos() {
-    document.getElementById('modulosSelector').style.display = 'block';
-    document.getElementById('clasesContent').style.display = 'none';
-    const tituloElement = document.querySelector('#clases .page-title');
-    tituloElement.innerHTML = '<i class="fas fa-book-open"></i> Mis Clases';
+    // Usar history.back() para ir al estado anterior (selector de módulos)
+    window.history.back();
 }
 
 function showModulosSelectorActividades() {
@@ -4973,6 +4982,9 @@ async function loadClasesByModulo(selectedModulo) {
         document.getElementById('modulosSelector').style.display = 'none';
         document.getElementById('clasesContent').style.display = 'block';
         
+        // Push history state for the selected module
+        window.history.pushState({page: 'estudiante', section: 'clases', modulo: selectedModulo}, `${getModuloName(selectedModulo)} - Mis Clases`, 'estudiante.html');
+        
         // Actualizar título
         const tituloElement = document.querySelector('#clases .page-title');
         tituloElement.innerHTML = `<i class="fas fa-book-open"></i> ${getModuloName(selectedModulo)} - Mis Clases`;
@@ -4988,6 +5000,9 @@ async function loadClasesByModulo(selectedModulo) {
 }
 
 function showModulosSelectorEstudiante() {
+    // Push history state for module selector
+    window.history.pushState({page: 'estudiante', section: 'clases', modulo: null}, 'Mis Clases', 'estudiante.html');
+    
     const container = document.getElementById('modulosSelector');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
