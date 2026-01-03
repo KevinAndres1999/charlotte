@@ -376,6 +376,93 @@
             min-width: 120px;
         }
 
+        /* === ESTILOS PARA SELECTOR DE MÓDULOS === */
+        .modulos-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .modulo-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modulo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .modulo-card.modulo2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .modulo-card.modulo3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .modulo-card.modulo4 {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .modulo-card i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .modulo-card h4 {
+            margin: 0.5rem 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modulo-card p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .modulo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .modulo-header h4 {
+            color: #1e3a8a;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
         /* === ESTILOS PARA CALIFICACIONES === */
         .grades-container {
             display: grid;
@@ -3256,28 +3343,38 @@
 
             <section id="clases" class="section">
                 <h2 class="page-title"><i class="fas fa-book-open"></i> Mis Clases</h2>
-                <div class="search-container">
-                    <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
+                <div id="modulosSelector" class="modulos-selector">
+                    <!-- Los módulos se cargarán aquí dinámicamente -->
                 </div>
-                <div class="filter-tabs">
-                    <button class="filter-tab active" onclick="filterByCategory('all')">Todas</button>
-                    <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
-                    <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
-                    <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
-                </div>
-                <div id="clasesContainer" class="clases-container grid-view">
-                    <!-- Las clases se cargarán aquí dinámicamente -->
-                </div>
-                <div class="pagination" id="clasesPagination" style="display: none;">
-                    <button class="page-btn" onclick="changePage(-1)" id="prevPage">
-                        <i class="fas fa-chevron-left"></i> Anterior
-                    </button>
-                    <div class="page-info">
-                        <span id="currentPage">1</span> de <span id="totalPages">1</span>
+                <div id="clasesContent" style="display: none;">
+                    <div class="modulo-header" style="margin-bottom: 2rem;">
+                        <button onclick="volverAModulos()" class="btn-secondary" style="margin-bottom: 1rem;">
+                            <i class="fas fa-arrow-left"></i> Volver a módulos
+                        </button>
                     </div>
-                    <button class="page-btn" onclick="changePage(1)" id="nextPage">
-                        Siguiente <i class="fas fa-chevron-right"></i>
-                    </button>
+                    <div class="search-container">
+                        <input type="text" id="clasesSearch" placeholder="Buscar clases..." onkeyup="filterClases()">
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterByCategory('all')">Todas</button>
+                        <button class="filter-tab" onclick="filterByCategory('recientes')">Recientes</button>
+                        <button class="filter-tab" onclick="filterByCategory('no-leidas')">No Leídas</button>
+                        <button class="filter-tab" onclick="filterByCategory('completadas')">Completadas</button>
+                    </div>
+                    <div id="clasesContainer" class="clases-container grid-view">
+                        <!-- Las clases se cargarán aquí dinámicamente -->
+                    </div>
+                    <div class="pagination" id="clasesPagination" style="display: none;">
+                        <button class="page-btn" onclick="changePage(-1)" id="prevPage">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+                        <div class="page-info">
+                            <span id="currentPage">1</span> de <span id="totalPages">1</span>
+                        </div>
+                        <button class="page-btn" onclick="changePage(1)" id="nextPage">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -3306,31 +3403,40 @@
 
             <section id="actividades" class="section">
                 <h2 class="page-title"><i class="fas fa-tasks"></i> Actividades</h2>
-                <div class="search-container">
-                    <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
+                <div id="modulosSelectorActividades" class="modulos-selector">
+                    <!-- Los módulos se cargarán aquí dinámicamente -->
                 </div>
-                <div class="filter-tabs">
-                    <button class="filter-tab active" onclick="filterActividadesByCategory('all')">Todas</button>
-                    <button class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</button>
-                    <button class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</button>
-                    <button class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</button>
-                </div>
-                <div class="filter-options" style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-                    <div class="filter-group">
-                        <label for="actividadDificultadFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Dificultad:</label>
-                        <select id="actividadDificultadFilter" onchange="filterActividades()">
-                            <option value="all">Todas</option>
-                            <option value="principiante">Principiante</option>
-                            <option value="intermedio">Intermedio</option>
-                            <option value="avanzado">Avanzado</option>
-                        </select>
+                <div id="actividadesContent" style="display: none;">
+                    <div class="modulo-header" style="margin-bottom: 2rem;">
+                        <button onclick="volverAModulosActividades()" class="btn-secondary" style="margin-bottom: 1rem;">
+                            <i class="fas fa-arrow-left"></i> Volver a módulos
+                        </button>
                     </div>
-                    <div class="filter-group">
-                        <label for="actividadTiempoFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Tiempo:</label>
-                        <select id="actividadTiempoFilter" onchange="filterActividades()">
-                            <option value="all">Todos</option>
-                            <option value="30">Menos de 30 min</option>
-                            <option value="60">30-60 min</option>
+                    <div class="search-container">
+                        <input type="text" id="actividadesSearch" placeholder="Buscar actividades..." onkeyup="filterActividades()">
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterActividadesByCategory('all')">Todas</button>
+                        <button class="filter-tab" onclick="filterActividadesByCategory('recientes')">Recientes</button>
+                        <button class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</button>
+                        <button class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</button>
+                    </div>
+                    <div class="filter-options" style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <div class="filter-group">
+                            <label for="actividadDificultadFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Dificultad:</label>
+                            <select id="actividadDificultadFilter" onchange="filterActividades()">
+                                <option value="all">Todas</option>
+                                <option value="principiante">Principiante</option>
+                                <option value="intermedio">Intermedio</option>
+                                <option value="avanzado">Avanzado</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="actividadTiempoFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Tiempo:</label>
+                            <select id="actividadTiempoFilter" onchange="filterActividades()">
+                                <option value="all">Todos</option>
+                                <option value="30">Menos de 30 min</option>
+                                <option value="60">30-60 min</option>
                             <option value="120">1-2 horas</option>
                             <option value="240">Más de 2 horas</option>
                         </select>
@@ -4440,7 +4546,26 @@ async function loadVideos() {
     }
 }
 
-async function loadActividades() {
+async function loadActividades(selectedModulo = null) {
+    try {
+        // Si no hay módulo seleccionado, mostrar selector de módulos
+        if (!selectedModulo) {
+            showModulosSelectorActividades();
+            return;
+        }
+
+        // Cargar actividades y filtrar por módulo
+        loadActividadesContent(selectedModulo);
+    } catch (error) {
+        console.error('Error al cargar actividades:', error);
+        const container = document.getElementById('actividadesContainer');
+        if (container) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar actividades</h3><p>Intenta recargar la página</p></div>';
+        }
+    }
+}
+
+async function loadActividadesContent(selectedModulo) {
     const container = document.getElementById('actividadesContainer');
     if (!container) return;
 
@@ -4476,8 +4601,21 @@ async function loadActividades() {
                         actividad.entrega = null;
                     }
                 });
-                const filtered = filterByUserAccess(allActividades);
-                filteredActividades = filtered;
+                
+                // Filtrar por acceso del usuario y por módulo
+                const filteredByAccess = filterByUserAccess(allActividades);
+                const filteredByModulo = filteredByAccess.filter(actividad => actividad.modulo === selectedModulo);
+                
+                filteredActividades = filteredByModulo;
+                
+                // Mostrar contenido de actividades
+                document.getElementById('modulosSelectorActividades').style.display = 'none';
+                document.getElementById('actividadesContent').style.display = 'block';
+                
+                // Actualizar título
+                const tituloElement = document.querySelector('#actividades .page-title');
+                tituloElement.innerHTML = `<i class="fas fa-tasks"></i> ${getModuloName(selectedModulo)} - Actividades`;
+                
                 sortActividades();
                 updateActividadesStats();
                 renderActividades();
@@ -4485,8 +4623,6 @@ async function loadActividades() {
                 console.error('Error listening entregas:', error);
             });
         }
-
-        // Filtrado y render se hace en onSnapshot
 
     } catch (error) {
         console.error('Error al cargar actividades:', error);
@@ -4642,6 +4778,106 @@ function isValidUrl(url) {
     }
 }
 
+function showModulosSelectorEstudiante() {
+    const container = document.getElementById('modulosSelector');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
+                <div class="modulo-card" onclick="loadClases('modulo1')">
+                    <i class="fas fa-bread-slice"></i>
+                    <h4>Módulo 1</h4>
+                    <p>Panadería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo2" onclick="loadClases('modulo2')">
+                    <i class="fas fa-cookie-bite"></i>
+                    <h4>Módulo 2</h4>
+                    <p>Galletaría</p>
+                </div>
+                <div class="modulo-card modulo-card modulo3" onclick="loadClases('modulo3')">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h4>Módulo 3</h4>
+                    <p>Pastelería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo4" onclick="loadClases('modulo4')">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Módulo 4</h4>
+                    <p>Repostería</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Agregar estilos hover
+    const cards = container.querySelectorAll('.modulo-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+    });
+}
+
+function volverAModulos() {
+    document.getElementById('modulosSelector').style.display = 'block';
+    document.getElementById('clasesContent').style.display = 'none';
+    const tituloElement = document.querySelector('#clases .page-title');
+    tituloElement.innerHTML = '<i class="fas fa-book-open"></i> Mis Clases';
+}
+
+function showModulosSelectorActividades() {
+    const container = document.getElementById('modulosSelectorActividades');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
+                <div class="modulo-card" onclick="loadActividades('modulo1')">
+                    <i class="fas fa-bread-slice"></i>
+                    <h4>Módulo 1</h4>
+                    <p>Panadería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo2" onclick="loadActividades('modulo2')">
+                    <i class="fas fa-cookie-bite"></i>
+                    <h4>Módulo 2</h4>
+                    <p>Galletaría</p>
+                </div>
+                <div class="modulo-card modulo-card modulo3" onclick="loadActividades('modulo3')">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h4>Módulo 3</h4>
+                    <p>Pastelería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo4" onclick="loadActividades('modulo4')">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Módulo 4</h4>
+                    <p>Repostería</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Agregar estilos hover
+    const cards = container.querySelectorAll('.modulo-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+    });
+}
+
+function volverAModulosActividades() {
+    document.getElementById('modulosSelectorActividades').style.display = 'block';
+    document.getElementById('actividadesContent').style.display = 'none';
+    const tituloElement = document.querySelector('#actividades .page-title');
+    tituloElement.innerHTML = '<i class="fas fa-tasks"></i> Actividades';
+}
+
+function getModuloName(moduloKey) {
+    const modulos = {
+        'modulo1': 'Módulo 1: Panadería',
+        'modulo2': 'Módulo 2: Galletaría', 
+        'modulo3': 'Módulo 3: Pastelería',
+        'modulo4': 'Módulo 4: Repostería'
+    };
+    return modulos[moduloKey] || moduloKey;
+}
+
 // =================== FUNCIONES DE MATERIALES ===================
 function filterMaterialesByCategory(category) {
     switch (category) {
@@ -4703,11 +4939,18 @@ let allMateriales = [];
 let filteredMateriales = [];
 
 // =================== CLASES MEJORADAS ===================
-async function loadClases() {
-    const container = document.getElementById('clasesContainer');
-    if (!container) return;
-
+async function loadClases(selectedModulo = null) {
     try {
+        // Si no hay módulo seleccionado, mostrar selector de módulos
+        if (!selectedModulo) {
+            showModulosSelectorEstudiante();
+            return;
+        }
+
+        // Cargar clases y filtrar por módulo
+        const container = document.getElementById('clasesContainer');
+        if (!container) return;
+
         const snapshot = await getDocs(collection(db, 'classes'));
         allClases = [];
         snapshot.forEach(doc => {
@@ -4723,9 +4966,22 @@ async function loadClases() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         console.log('Usuario actual:', currentUser);
 
-        const filtered = filterByUserAccess(allClases);
-        console.log('Clases después del filtro:', filtered.length, 'de', allClases.length);
-        filteredClases = filtered;
+        // Filtrar por acceso del usuario
+        const filteredByAccess = filterByUserAccess(allClases);
+        
+        // Filtrar por módulo seleccionado
+        const filteredByModulo = filteredByAccess.filter(clase => clase.modulo === selectedModulo);
+        
+        console.log('Clases después del filtro:', filteredByModulo.length, 'de', allClases.length);
+        filteredClases = filteredByModulo;
+        
+        // Mostrar contenido de clases
+        document.getElementById('modulosSelector').style.display = 'none';
+        document.getElementById('clasesContent').style.display = 'block';
+        
+        // Actualizar título
+        const tituloElement = document.querySelector('#clases .page-title');
+        tituloElement.innerHTML = `<i class="fas fa-book-open"></i> ${getModuloName(selectedModulo)} - Mis Clases`;
         
         sortClases();
         updateClasesStats();
@@ -4733,7 +4989,10 @@ async function loadClases() {
 
     } catch (error) {
         console.error('Error al cargar clases:', error);
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
+        const container = document.getElementById('clasesContainer');
+        if (container) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error al cargar clases</h3><p>Intenta recargar la página</p></div>';
+        }
     }
 }
 
