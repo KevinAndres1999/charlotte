@@ -7713,11 +7713,9 @@
                         const califActividades = (calificacion / 100) * 5;
 
                         // Buscar si ya existe una calificación para este módulo y estudiante
-                        const existingSnapshot = await db.collection('calificaciones_modulos')
-                            .where('estudianteId', '==', estudianteId)
-                            .where('modulo', '==', moduloKey)
-                            .limit(1)
-                            .get();
+                        const califDocId = `${estudianteId}_${moduloKey}`;
+                        const califDocRef = db.collection('calificaciones_modulos').doc(califDocId);
+                        const califDocSnap = await califDocRef.get();
 
                         const califData = {
                             estudianteId: estudianteId,
@@ -7727,17 +7725,16 @@
                             actualizadoPor: sessionStorage.getItem('userId') || 'admin'
                         };
 
-                        if (!existingSnapshot.empty) {
+                        if (califDocSnap.exists) {
                             // Actualizar existente (merge con otros valores existentes)
-                            const docId = existingSnapshot.docs[0].id;
-                            const existingData = existingSnapshot.docs[0].data();
-                            await db.collection('calificaciones_modulos').doc(docId).update({
+                            const existingData = califDocSnap.data();
+                            await califDocRef.update({
                                 ...existingData,
                                 ...califData
                             });
                         } else {
                             // Crear nueva
-                            await db.collection('calificaciones_modulos').add(califData);
+                            await califDocRef.set(califData);
                         }
                     }
                 }

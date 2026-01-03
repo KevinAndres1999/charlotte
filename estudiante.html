@@ -6799,18 +6799,28 @@ async function loadCalificaciones() {
 
 async function loadIndividualActivities(email) {
     try {
-        const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', email), where('calificada', '==', true));
+        // Obtener todas las entregas del estudiante y filtrar en cliente para evitar problemas con índices
+        const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', email));
         const entregasSnapshot = await getDocs(entregasQuery);
+
+        // Filtrar entregas calificadas en el cliente
+        const entregasCalificadas = [];
+        entregasSnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.calificada) {
+                entregasCalificadas.push(data);
+            }
+        });
 
         const container = document.getElementById('actividadesIndividuales');
         if (!container) return;
 
-        if (entregasSnapshot.empty) {
+        if (entregasCalificadas.length === 0) {
             container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No tienes actividades calificadas aún.</p>';
             return;
         }
 
-        console.log('Entregas calificadas encontradas:', entregasSnapshot.size);
+        console.log('Entregas calificadas encontradas:', entregasCalificadas.length);
 
         let html = `
             <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 2rem;">
@@ -6831,16 +6841,15 @@ async function loadIndividualActivities(email) {
                         <tbody>
         `;
 
-        entregasSnapshot.forEach(doc => {
-            const actividad = doc.data();
-            const notaEscala = (actividad.nota / 100) * 5;
+        entregasCalificadas.forEach(entrega => {
+            const notaEscala = (entrega.nota / 100) * 5;
             html += `
                             <tr>
-                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${actividad.titulo || actividad.actividadId}</td>
-                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${actividad.nota}/100</td>
+                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${entrega.titulo || entrega.actividadTitulo || 'Actividad'}</td>
+                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${entrega.nota}/100</td>
                                 <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${notaEscala.toFixed(1)}/5</td>
-                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${actividad.comentario || '-'}</td>
-                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${actividad.fechaCalificacion ? new Date(actividad.fechaCalificacion).toLocaleDateString() : '-'}</td>
+                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${entrega.comentario || '-'}</td>
+                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${entrega.fechaCalificacion ? new Date(entrega.fechaCalificacion).toLocaleDateString() : '-'}</td>
                             </tr>
             `;
         });
