@@ -6520,6 +6520,10 @@ async function submitEntrega(actividadId) {
     }
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     try {
+        // Obtener información de la actividad
+        const actividadDoc = await getDoc(doc(db, 'activities', actividadId));
+        const actividadData = actividadDoc.exists ? actividadDoc.data() : {};
+
         // Usar ID compuesto para asegurar unicidad por actividad y estudiante
         const entregaId = `${actividadId}-${currentUser.email}`;
         const entregaRef = doc(db, 'entregas', entregaId);
@@ -6538,7 +6542,14 @@ async function submitEntrega(actividadId) {
             programa: currentUser.programa,
             entrega,
             fechaEntrega: new Date().toISOString(),
-            calificada: false // Siempre resetear calificación al actualizar
+            calificada: false, // Siempre resetear calificación al actualizar
+            // Información de la actividad
+            actividadTitulo: actividadData.titulo || 'Sin título',
+            actividadDescripcion: actividadData.instrucciones || 'Sin descripción',
+            tipo: actividadData.tipo || 'General',
+            modulo: actividadData.modulo || null,
+            dificultad: actividadData.dificultad || null,
+            tiempoEstimado: actividadData.tiempoEstimado || null
         });
         
         // Limpiar borrador

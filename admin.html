@@ -10087,14 +10087,14 @@ REGLAS ESTRICTAS:
                 document.getElementById('entregaBannerFecha').textContent = new Date(entrega.fechaEntrega || Date.now()).toLocaleDateString('es-ES');
                 
                 // Actualizar estadísticas
-                const estado = entrega.calificacion ? 'Calificada' : 'Pendiente';
-                const estadoIcon = entrega.calificacion ? 'check-circle' : 'clock';
-                const estadoColor = entrega.calificacion ? '#10b981' : '#fbbf24';
+                const estado = entrega.nota ? 'Calificada' : 'Pendiente';
+                const estadoIcon = entrega.nota ? 'check-circle' : 'clock';
+                const estadoColor = entrega.nota ? '#10b981' : '#fbbf24';
                 
                 document.getElementById('entregaEstado').textContent = estado;
                 document.getElementById('entregaEstadoIcon').style.background = estadoColor;
                 document.getElementById('entregaEstadoIcon').innerHTML = `<i class="fas fa-${estadoIcon}"></i>`;
-                document.getElementById('entregaCalificacion').textContent = entrega.calificacion || '-';
+                document.getElementById('entregaCalificacion').textContent = entrega.nota || '-';
                 document.getElementById('entregaIntentos').textContent = entrega.intentos || '1';
                 
                 // Actualizar contenido
@@ -10117,11 +10117,11 @@ REGLAS ESTRICTAS:
                 document.getElementById('entregaIndicator').textContent = `Entrega ${currentEntregaIndex + 1} de ${entregasData.length}`;
                 
                 // Mostrar calificación existente si hay
-                if (entrega.calificacion) {
+                if (entrega.nota) {
                     document.getElementById('calificacionSection').style.display = 'none';
                     document.getElementById('calificacionGuardada').style.display = 'block';
-                    document.getElementById('calificacionMostrada').textContent = `Calificación: ${entrega.calificacion}/100`;
-                    document.getElementById('comentariosMostrados').textContent = entrega.comentarios || 'Sin comentarios';
+                    document.getElementById('calificacionMostrada').textContent = `Calificación: ${entrega.nota}/100`;
+                    document.getElementById('comentariosMostrados').textContent = entrega.comentario || 'Sin comentarios';
                 } else {
                     document.getElementById('calificacionSection').style.display = 'block';
                     document.getElementById('calificacionGuardada').style.display = 'none';
@@ -10172,15 +10172,15 @@ REGLAS ESTRICTAS:
             try {
                 const entregaId = entregasData[currentEntregaIndex].id;
                 await db.collection('entregas').doc(entregaId).update({
-                    calificacion: parseInt(calificacion),
-                    comentarios: comentarios,
+                    nota: parseInt(calificacion),
+                    comentario: comentarios,
                     fechaCalificacion: new Date(),
                     calificada: true
                 });
                 
                 // Actualizar datos locales
-                entregasData[currentEntregaIndex].calificacion = parseInt(calificacion);
-                entregasData[currentEntregaIndex].comentarios = comentarios;
+                entregasData[currentEntregaIndex].nota = parseInt(calificacion);
+                entregasData[currentEntregaIndex].comentario = comentarios;
                 
                 // Actualizar estado visual en la lista si estamos en la vista de grid
                 if (document.getElementById('entregasGrid').style.display !== 'none') {
@@ -10201,6 +10201,11 @@ REGLAS ESTRICTAS:
                 document.getElementById('comentariosMostrados').textContent = comentarios || 'Sin comentarios';
                 
                 // Actualizar estadísticas
+                document.getElementById('entregaEstado').textContent = 'Calificada';
+                document.getElementById('entregaEstadoIcon').style.background = '#10b981';
+                document.getElementById('entregaEstadoIcon').innerHTML = '<i class="fas fa-check-circle"></i>';
+                document.getElementById('entregaCalificacion').textContent = calificacion;
+                
                 actualizarEstadisticasEntregas();
                 
                 alert('Calificación guardada exitosamente');
