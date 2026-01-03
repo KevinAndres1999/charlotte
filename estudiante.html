@@ -100,6 +100,20 @@
         .quick-link:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(59,130,246,0.15); }
         .quick-link i { font-size: 2.5rem; color: #3b82f6; margin-bottom: 0.5rem; }
         .quick-link h4 { margin: 0.5rem 0 0 0; color: #0a1628; font-size: 1rem; }
+
+        /* Progress Cards Styles */
+        .progress-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .progress-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #3b82f6; display: flex; align-items: center; gap: 1rem; }
+        .progress-circle { width: 80px; height: 80px; position: relative; }
+        .progress-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .progress-circle circle { fill: none; stroke-width: 8; }
+        .progress-bg { stroke: #e5e7eb; }
+        .progress-fill { stroke: #3b82f6; stroke-linecap: round; transition: stroke-dasharray 0.3s ease; }
+        .progress-text { text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.9rem; font-weight: 600; color: #1e3a8a; }
+        .progress-info { flex: 1; }
+        .progress-info h4 { margin: 0 0 0.5rem 0; color: #0a1628; font-size: 1.1rem; }
+        .progress-info p { margin: 0; color: #64748b; font-size: 0.9rem; }
+
         @media (max-width: 768px) {
             .container { flex-direction: column; }
             .sidebar { width: 280px; position: fixed; left: -100%; top: 72px; height: calc(100vh - 72px); z-index: 99; transition: left 0.3s; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
@@ -284,6 +298,236 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
+        }
+
+        /* === ESTILOS PARA ACTIVIDADES MEJORADAS === */
+        .clase-objetivos {
+            background: #f0f9ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .clase-objetivos strong {
+            color: #1e3a8a;
+        }
+
+        .clase-materiales {
+            background: #fef3c7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .clase-materiales strong {
+            color: #92400e;
+        }
+
+        .clase-archivo {
+            background: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .clase-archivo a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .clase-archivo a:hover {
+            text-decoration: underline;
+        }
+
+        .dificultad-success {
+            color: #059669 !important;
+        }
+
+        .dificultad-warning {
+            color: #d97706 !important;
+        }
+
+        .dificultad-danger {
+            color: #dc2626 !important;
+        }
+
+        .filter-options {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group select {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+
+        /* === ESTILOS PARA CALIFICACIONES === */
+        .grades-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grade-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-top: 4px solid #3b82f6;
+        }
+
+        .grade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .grade-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .grade-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .grade-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .grade-item:last-child {
+            border-bottom: none;
+        }
+
+        .grade-label {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .grade-value {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .grade-comment {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid #64748b;
+        }
+
+        .grade-comment h4 {
+            margin: 0 0 0.5rem 0;
+            color: #374151;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .grade-comment p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .total-grade-card {
+            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            color: white;
+            border-top: 4px solid #1e3a8a;
+        }
+
+        .total-grade-card .grade-title {
+            color: white;
+        }
+
+        .total-grade-card .grade-score {
+            color: white;
+        }
+
+        .total-grade-card .grade-label {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .total-grade-card .grade-value {
+            color: white;
+        }
+
+        .admin-grade-input {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-grade-input input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .admin-grade-input button {
+            padding: 0.5rem 1rem;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .admin-grade-input button:hover {
+            background: #059669;
+        }
+
+        .grade-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .grade-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .grade-status.graded {
+            background: #d1fae5;
+            color: #065f46;
         }
 
         .clase-description-card,
@@ -2876,6 +3120,7 @@
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
+                <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
                 <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
             </nav>
@@ -2926,31 +3171,85 @@
                     </div>
                 </div>
 
-                <h3 style="margin-bottom: 1rem; color: #0a1628;">Accesos Rápidos</h3>
-                <div class="quick-links">
-                    <div class="quick-link" data-section="clases">
-                        <i class="fas fa-book-open"></i>
-                        <h4>Ver Mis Clases</h4>
+                <h3 style="margin-bottom: 1rem; color: #0a1628;">Progreso de Aprendizaje</h3>
+                <div class="progress-cards">
+                    <div class="progress-card" style="border-left-color: #3b82f6;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressClasesFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressClasesPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Clases</h4>
+                            <p id="progressClasesText">Cargando...</p>
+                        </div>
                     </div>
-                    <div class="quick-link" data-section="videos">
-                        <i class="fas fa-play-circle"></i>
-                        <h4>Videos</h4>
+                    <div class="progress-card" style="border-left-color: #10b981;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressVideosFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressVideosPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Videos</h4>
+                            <p id="progressVideosText">Cargando...</p>
+                        </div>
                     </div>
-                    <div class="quick-link" data-section="actividades">
-                        <i class="fas fa-clipboard-list"></i>
-                        <h4>Actividades</h4>
+                    <div class="progress-card" style="border-left-color: #f59e0b;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressActividadesFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressActividadesPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Actividades</h4>
+                            <p id="progressActividadesText">Cargando...</p>
+                        </div>
                     </div>
-                    <div class="quick-link" data-section="materiales">
-                        <i class="fas fa-folder-open"></i>
-                        <h4>Materiales</h4>
+                    <div class="progress-card" style="border-left-color: #8b5cf6;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressMaterialesFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressMaterialesPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Materiales</h4>
+                            <p id="progressMaterialesText">Cargando...</p>
+                        </div>
                     </div>
-                    <div class="quick-link" data-section="cuestionarios">
-                        <i class="fas fa-question-circle"></i>
-                        <h4>Cuestionarios</h4>
+                    <div class="progress-card" style="border-left-color: #ef4444;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressCuestionariosFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressCuestionariosPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Cuestionarios</h4>
+                            <p id="progressCuestionariosText">Cargando...</p>
+                        </div>
                     </div>
-                    <div class="quick-link" data-section="evaluaciones">
-                        <i class="fas fa-clipboard-check"></i>
-                        <h4>Evaluaciones</h4>
+                    <div class="progress-card" style="border-left-color: #06b6d4;">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressEvaluacionesFill"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressEvaluacionesPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Evaluaciones</h4>
+                            <p id="progressEvaluacionesText">Cargando...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -3016,6 +3315,38 @@
                     <button class="filter-tab" onclick="filterActividadesByCategory('pendientes')">Pendientes</button>
                     <button class="filter-tab" onclick="filterActividadesByCategory('completadas')">Completadas</button>
                 </div>
+                <div class="filter-options" style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <div class="filter-group">
+                        <label for="actividadDificultadFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Dificultad:</label>
+                        <select id="actividadDificultadFilter" onchange="filterActividades()">
+                            <option value="all">Todas</option>
+                            <option value="principiante">Principiante</option>
+                            <option value="intermedio">Intermedio</option>
+                            <option value="avanzado">Avanzado</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="actividadTiempoFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Tiempo:</label>
+                        <select id="actividadTiempoFilter" onchange="filterActividades()">
+                            <option value="all">Todos</option>
+                            <option value="30">Menos de 30 min</option>
+                            <option value="60">30-60 min</option>
+                            <option value="120">1-2 horas</option>
+                            <option value="240">Más de 2 horas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="actividadOrdenFilter" style="font-size: 0.9rem; color: #64748b; margin-right: 0.5rem;">Ordenar por:</label>
+                        <select id="actividadOrdenFilter" onchange="sortActividades()">
+                            <option value="fecha-desc">Más recientes</option>
+                            <option value="fecha-asc">Más antiguos</option>
+                            <option value="titulo-asc">Título A-Z</option>
+                            <option value="titulo-desc">Título Z-A</option>
+                            <option value="tiempo-asc">Tiempo (menor a mayor)</option>
+                            <option value="tiempo-desc">Tiempo (mayor a menor)</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="actividadesContainer" class="clases-container grid-view">
                     <!-- Actividades cargadas dinámicamente -->
                 </div>
@@ -3038,6 +3369,83 @@
                 <h2 class="page-title">Evaluaciones</h2>
                 <p class="page-subtitle">Exámenes y pruebas globales</p>
                 <div id="evaluacionesList" class="grid"></div>
+            </section>
+
+            <section id="calificaciones" class="section">
+                <h2 class="page-title"><i class="fas fa-graduation-cap"></i> Calificaciones</h2>
+                <p class="page-subtitle">Revisa tus calificaciones y progreso académico</p>
+
+                <div class="grades-container">
+                    <!-- Calificaciones de Actividades -->
+                    <div class="grade-card">
+                        <div class="grade-header">
+                            <h3 class="grade-title">Actividades Prácticas</h3>
+                            <div class="grade-score" id="actividadesTotalScore">0.0</div>
+                        </div>
+                        <div class="grade-details" id="actividadesGradesList">
+                            <!-- Las calificaciones de actividades se cargarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Calificaciones de Evaluaciones -->
+                    <div class="grade-card">
+                        <div class="grade-header">
+                            <h3 class="grade-title">Evaluaciones Teóricas</h3>
+                            <div class="grade-score" id="evaluacionesTotalScore">0.0</div>
+                        </div>
+                        <div class="grade-details" id="evaluacionesGradesList">
+                            <!-- Las calificaciones de evaluaciones se cargarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Evaluación Práctica -->
+                    <div class="grade-card">
+                        <div class="grade-header">
+                            <h3 class="grade-title">Evaluación Práctica Final</h3>
+                            <div class="grade-score" id="practicaScore">0.0</div>
+                        </div>
+                        <div class="grade-details">
+                            <div class="grade-item">
+                                <span class="grade-label">Estado</span>
+                                <span class="grade-status pending" id="practicaStatus">Pendiente</span>
+                            </div>
+                            <div class="grade-item">
+                                <span class="grade-label">Valor</span>
+                                <span class="grade-value">8 puntos</span>
+                            </div>
+                        </div>
+                        <div class="grade-comment" id="practicaComment" style="display: none;">
+                            <h4>Comentarios del Instructor</h4>
+                            <p id="practicaCommentText"></p>
+                        </div>
+                    </div>
+
+                    <!-- Calificación Total -->
+                    <div class="grade-card total-grade-card">
+                        <div class="grade-header">
+                            <h3 class="grade-title">Calificación Final</h3>
+                            <div class="grade-score" id="totalScore">0.0</div>
+                        </div>
+                        <div class="grade-details">
+                            <div class="grade-item">
+                                <span class="grade-label">Actividades (0.5 pts c/u)</span>
+                                <span class="grade-value" id="actividadesPonderado">0.0</span>
+                            </div>
+                            <div class="grade-item">
+                                <span class="grade-label">Evaluaciones (2 pts)</span>
+                                <span class="grade-value" id="evaluacionesPonderado">0.0</span>
+                            </div>
+                            <div class="grade-item">
+                                <span class="grade-label">Evaluación Práctica (8 pts)</span>
+                                <span class="grade-value" id="practicaPonderado">0.0</span>
+                            </div>
+                            <div class="grade-item" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 1rem; margin-top: 0.5rem;">
+                                <span class="grade-label" style="font-weight: 700;">Total Ponderado</span>
+                                <span class="grade-value" id="totalPonderado">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section id="materiales" class="section">
@@ -3392,20 +3800,20 @@ async function loadDashboardStats() {
     try {
         if (!currentUser.programa) {
             // Si no tiene programa asignado, mostrar 0
-            const totalClasesEl = document.getElementById('totalClases');
-            const totalVideosEl = document.getElementById('totalVideos');
-            const totalActividadesEl = document.getElementById('totalActividades');
-            const totalMaterialesEl = document.getElementById('totalMateriales');
-            const totalCuestionariosEl = document.getElementById('totalCuestionarios');
-            const totalEvaluacionesEl = document.getElementById('totalEvaluaciones');
-            
-            if (totalClasesEl) totalClasesEl.textContent = 0;
-            if (totalVideosEl) totalVideosEl.textContent = 0;
-            if (totalActividadesEl) totalActividadesEl.textContent = 0;
-            if (totalMaterialesEl) totalMaterialesEl.textContent = 0;
-            if (totalCuestionariosEl) totalCuestionariosEl.textContent = 0;
-            if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = 0;
+            const elements = ['totalClases', 'totalVideos', 'totalActividades', 'totalMateriales', 'totalCuestionarios', 'totalEvaluaciones',
+                            'progressClasesPercent', 'progressVideosPercent', 'progressActividadesPercent', 'progressMaterialesPercent', 'progressCuestionariosPercent', 'progressEvaluacionesPercent',
+                            'progressClasesText', 'progressVideosText', 'progressActividadesText', 'progressMaterialesText', 'progressCuestionariosText', 'progressEvaluacionesText'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = id.startsWith('progress') && id.endsWith('Percent') ? '0%' : (id.startsWith('progress') && id.endsWith('Text') ? 'No hay contenido disponible' : '0');
+            });
             return;
+        }
+
+        // Obtener completados desde localStorage (usando el sistema existente)
+        function isCompleted(type, id) {
+            const suffix = type === 'video' ? 'watched' : 'completed';
+            return localStorage.getItem(`${type}-${id}-${suffix}`) === 'true';
         }
 
         // Función helper para filtrar items por sede y horario
@@ -3423,89 +3831,150 @@ async function loadDashboardStats() {
             return true;
         }
 
+        // Función helper para actualizar progreso
+        function updateProgress(type, total, completed, totalEl, percentEl, textEl, fillEl) {
+            if (totalEl) totalEl.textContent = total;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            if (percentEl) percentEl.textContent = `${percent}%`;
+            if (textEl) textEl.textContent = total > 0 ? `Hay ${total} ${type.toLowerCase()}, has completado ${completed}` : `No hay ${type.toLowerCase()} disponibles`;
+            
+            // Actualizar círculo de progreso
+            const circumference = 2 * Math.PI * 30; // r=30
+            const dashArray = `${(completed / Math.max(total, 1)) * circumference}, ${circumference}`;
+            if (fillEl) fillEl.style.strokeDasharray = dashArray;
+        }
+
         // Contar clases con filtro de sede y horario
         const clasesQuery = query(collection(db, 'classes'), where('programa', '==', currentUser.programa));
         const clasesSnapshot = await getDocs(clasesQuery);
         
         let filteredClasesCount = 0;
+        let completedClasesCount = 0;
         clasesSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredClasesCount++;
+                if (isCompleted('clase', doc.id)) {
+                    completedClasesCount++;
+                }
             }
         });
         
-        const totalClasesEl = document.getElementById('totalClases');
-        if (totalClasesEl) totalClasesEl.textContent = filteredClasesCount;
+        updateProgress('Clases', filteredClasesCount, completedClasesCount, 
+                      document.getElementById('totalClases'), 
+                      document.getElementById('progressClasesPercent'), 
+                      document.getElementById('progressClasesText'), 
+                      document.getElementById('progressClasesFill'));
 
         // Contar videos con filtro
         const videosQuery = query(collection(db, 'content'), where('programa', '==', currentUser.programa));
         const videosSnapshot = await getDocs(videosQuery);
         
         let filteredVideosCount = 0;
+        let completedVideosCount = 0;
         videosSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredVideosCount++;
+                if (isCompleted('video', doc.id)) {
+                    completedVideosCount++;
+                }
             }
         });
         
-        const totalVideosEl = document.getElementById('totalVideos');
-        if (totalVideosEl) totalVideosEl.textContent = filteredVideosCount;
+        updateProgress('Videos', filteredVideosCount, completedVideosCount, 
+                      document.getElementById('totalVideos'), 
+                      document.getElementById('progressVideosPercent'), 
+                      document.getElementById('progressVideosText'), 
+                      document.getElementById('progressVideosFill'));
 
         // Contar actividades con filtro
         const actividadesQuery = query(collection(db, 'activities'), where('programa', '==', currentUser.programa));
         const actividadesSnapshot = await getDocs(actividadesQuery);
         
         let filteredActividadesCount = 0;
+        let completedActividadesCount = 0;
         actividadesSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredActividadesCount++;
+                if (isCompleted('actividad', doc.id)) {
+                    completedActividadesCount++;
+                }
             }
         });
         
-        const totalActividadesEl = document.getElementById('totalActividades');
-        if (totalActividadesEl) totalActividadesEl.textContent = filteredActividadesCount;
+        updateProgress('Actividades', filteredActividadesCount, completedActividadesCount, 
+                      document.getElementById('totalActividades'), 
+                      document.getElementById('progressActividadesPercent'), 
+                      document.getElementById('progressActividadesText'), 
+                      document.getElementById('progressActividadesFill'));
 
         // Contar materiales con filtro
         const materialesQuery = query(collection(db, 'materials'), where('programa', '==', currentUser.programa));
         const materialesSnapshot = await getDocs(materialesQuery);
         
         let filteredMaterialesCount = 0;
+        let completedMaterialesCount = 0;
         materialesSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredMaterialesCount++;
+                if (isCompleted('material', doc.id)) {
+                    completedMaterialesCount++;
+                }
             }
         });
         
-        const totalMaterialesEl = document.getElementById('totalMateriales');
-        if (totalMaterialesEl) totalMaterialesEl.textContent = filteredMaterialesCount;
+        updateProgress('Materiales', filteredMaterialesCount, completedMaterialesCount, 
+                      document.getElementById('totalMateriales'), 
+                      document.getElementById('progressMaterialesPercent'), 
+                      document.getElementById('progressMaterialesText'), 
+                      document.getElementById('progressMaterialesFill'));
 
         // Contar cuestionarios con filtro
         const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
         const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
         
         let filteredCuestionariosCount = 0;
+        let completedCuestionariosCount = 0;
         cuestionariosSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredCuestionariosCount++;
+                if (isCompleted('cuestionario', doc.id)) {
+                    completedCuestionariosCount++;
+                }
             }
         });
         
-        const totalCuestionariosEl = document.getElementById('totalCuestionarios');
-        if (totalCuestionariosEl) totalCuestionariosEl.textContent = filteredCuestionariosCount;
+        updateProgress('Cuestionarios', filteredCuestionariosCount, completedCuestionariosCount, 
+                      document.getElementById('totalCuestionarios'), 
+                      document.getElementById('progressCuestionariosPercent'), 
+                      document.getElementById('progressCuestionariosText'), 
+                      document.getElementById('progressCuestionariosFill'));
 
         // Contar evaluaciones con filtro
         const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
         const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
         
         let filteredEvaluacionesCount = 0;
+        let completedEvaluacionesCount = 0;
         evaluacionesSnapshot.forEach(doc => {
-            if (shouldIncludeItem(doc.data())) {
+            const data = doc.data();
+            if (shouldIncludeItem(data)) {
                 filteredEvaluacionesCount++;
+                if (isCompleted('evaluacion', doc.id)) {
+                    completedEvaluacionesCount++;
+                }
             }
         });
         
-        const totalEvaluacionesEl = document.getElementById('totalEvaluaciones');
-        if (totalEvaluacionesEl) totalEvaluacionesEl.textContent = filteredEvaluacionesCount;
+        updateProgress('Evaluaciones', filteredEvaluacionesCount, completedEvaluacionesCount, 
+                      document.getElementById('totalEvaluaciones'), 
+                      document.getElementById('progressEvaluacionesPercent'), 
+                      document.getElementById('progressEvaluacionesText'), 
+                      document.getElementById('progressEvaluacionesFill'));
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
@@ -3565,6 +4034,8 @@ function showSectionV2(sectionId) {
         loadMateriales();
     } else if (sectionId === 'clases') {
         loadClases();
+    } else if (sectionId === 'calificaciones') {
+        loadCalificaciones();
     } else if (sectionId === 'recursos') {
         loadRecursos();
     }
@@ -4666,6 +5137,7 @@ let currentCuestionariosFilter = 'all';
 let currentCuestionariosSort = 'fecha-desc';
 
 // Variable global para el editor de entregas
+let entregaEditor;
 async function loadContentFromChunks(claseId) {
     try {
         // Obtener todos los chunks para esta clase y ordenarlos en memoria
@@ -4725,7 +5197,9 @@ function renderActividades() {
     container.innerHTML = actividadesToShow.map(actividad => {
         const fecha = actividad.fechaRegistro ? new Date(actividad.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
         const isNew = actividad.fechaRegistro && (new Date() - new Date(actividad.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
-        const tags = actividad.tags ? actividad.tags.split(',').map(tag => tag.trim()) : [];
+        const dificultadClass = actividad.dificultad === 'principiante' ? 'success' : actividad.dificultad === 'avanzado' ? 'danger' : 'warning';
+        const dificultadIcon = actividad.dificultad === 'principiante' ? 'fa-seedling' : actividad.dificultad === 'avanzado' ? 'fa-fire' : 'fa-balance-scale';
+        const tiempoText = actividad.tiempoEstimado ? `${actividad.tiempoEstimado} min` : 'Sin especificar';
 
         return `
             <div class="clase-card ${currentActividadesViewMode === 'list' ? 'list-view' : ''} ${actividad.isCompleted ? 'completed' : ''} ${isNew ? 'new' : ''}" data-id="${actividad.id}">
@@ -4735,16 +5209,17 @@ function renderActividades() {
                     </div>
                     <div class="clase-meta">
                         <div class="meta-item"><i class="fas fa-calendar"></i> ${fecha}</div>
-                        <div class="meta-item"><i class="fas fa-clock"></i> ${actividad.fechaLimite ? new Date(actividad.fechaLimite).toLocaleDateString('es-ES') : 'Sin límite'}</div>
+                        <div class="meta-item"><i class="fas fa-clock"></i> ${tiempoText}</div>
+                        <div class="meta-item dificultad-${dificultadClass}"><i class="fas ${dificultadIcon}"></i> ${actividad.dificultad || 'Intermedio'}</div>
                     </div>
                 </div>
                 <div class="clase-content">
+                    ${actividad.objetivos ? `<div class="clase-objetivos"><strong>Objetivos:</strong> ${actividad.objetivos}</div>` : ''}
                     <div class="clase-description">
-                        ${actividad.instrucciones || 'Sin instrucciones'}
+                        ${actividad.instrucciones || 'Sin instrucciones detalladas'}
                     </div>
-                    <div class="clase-tags">
-                        ${tags.map(tag => `<span class="clase-tag">${tag}</span>`).join('')}
-                    </div>
+                    ${actividad.materiales ? `<div class="clase-materiales"><strong>Materiales:</strong> ${actividad.materiales}</div>` : ''}
+                    ${actividad.archivoUrl ? `<div class="clase-archivo"><i class="fas fa-link"></i> <a href="${actividad.archivoUrl}" target="_blank">Recursos adicionales</a></div>` : ''}
                     <div class="clase-actions">
                         <button class="btn-primary-clase" onclick="openModal('actividad', '${actividad.id}')">
                             <i class="fas fa-upload"></i> ${actividad.isCompleted ? 'Revisar Entrega' : 'Entregar Actividad'}
@@ -4843,16 +5318,42 @@ function filterActividadesByCategory(category) {
 
 function filterActividades() {
     const searchTerm = document.getElementById('actividadesSearch').value.toLowerCase();
+    const dificultadFilter = document.getElementById('actividadDificultadFilter').value;
+    const tiempoFilter = document.getElementById('actividadTiempoFilter').value;
 
-    if (!searchTerm) {
-        filteredActividades = [...allActividades];
-    } else {
-        filteredActividades = allActividades.filter(actividad =>
+    filteredActividades = allActividades.filter(actividad => {
+        // Filtro de búsqueda
+        const matchesSearch = !searchTerm ||
             actividad.titulo.toLowerCase().includes(searchTerm) ||
             (actividad.instrucciones && actividad.instrucciones.toLowerCase().includes(searchTerm)) ||
-            (actividad.tags && actividad.tags.toLowerCase().includes(searchTerm))
-        );
-    }
+            (actividad.objetivos && actividad.objetivos.toLowerCase().includes(searchTerm)) ||
+            (actividad.materiales && actividad.materiales.toLowerCase().includes(searchTerm));
+
+        // Filtro de dificultad
+        const matchesDificultad = dificultadFilter === 'all' || actividad.dificultad === dificultadFilter;
+
+        // Filtro de tiempo
+        let matchesTiempo = true;
+        if (tiempoFilter !== 'all' && actividad.tiempoEstimado) {
+            const tiempo = actividad.tiempoEstimado;
+            switch (tiempoFilter) {
+                case '30':
+                    matchesTiempo = tiempo < 30;
+                    break;
+                case '60':
+                    matchesTiempo = tiempo >= 30 && tiempo <= 60;
+                    break;
+                case '120':
+                    matchesTiempo = tiempo > 60 && tiempo <= 120;
+                    break;
+                case '240':
+                    matchesTiempo = tiempo > 120;
+                    break;
+            }
+        }
+
+        return matchesSearch && matchesDificultad && matchesTiempo;
+    });
 
     // Aplicar filtro de programa
     filteredActividades = filterByUserAccess(filteredActividades);
@@ -4862,8 +5363,8 @@ function filterActividades() {
 }
 
 function sortActividades() {
-    const sortElement = document.getElementById('sortActividades');
-    if (!sortElement) return; // Si no existe el elemento, no hacer nada
+    const sortElement = document.getElementById('actividadOrdenFilter');
+    if (!sortElement) return;
     
     const sortBy = sortElement.value;
 
@@ -4877,6 +5378,10 @@ function sortActividades() {
                 return a.titulo.localeCompare(b.titulo);
             case 'titulo-desc':
                 return b.titulo.localeCompare(a.titulo);
+            case 'tiempo-asc':
+                return (a.tiempoEstimado || 0) - (b.tiempoEstimado || 0);
+            case 'tiempo-desc':
+                return (b.tiempoEstimado || 0) - (a.tiempoEstimado || 0);
             default:
                 return 0;
         }
@@ -5825,6 +6330,216 @@ window.toggleClaseCompletedFromModal = toggleClaseCompletedFromModal;
 window.toggleClaseCompletedFromViewer = toggleClaseCompletedFromViewer;
 window.shareClase = shareClase;
 window.printClase = printClase;
+
+// =================== FUNCIONES CALIFICACIONES ===================
+async function loadCalificaciones() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return;
+
+    try {
+        // Cargar calificaciones de actividades
+        await loadActividadesGrades(currentUser.email);
+        
+        // Cargar calificaciones de evaluaciones
+        await loadEvaluacionesGrades(currentUser.email);
+        
+        // Cargar calificación de evaluación práctica
+        await loadPracticaGrade(currentUser.email);
+        
+        // Calcular totales
+        calculateTotalGrade();
+        
+    } catch (error) {
+        console.error('Error cargando calificaciones:', error);
+    }
+}
+
+async function loadActividadesGrades(email) {
+    try {
+        const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', email));
+        const entregasSnapshot = await getDocs(entregasQuery);
+        
+        const actividadesGrades = [];
+        let totalScore = 0;
+        let gradedCount = 0;
+        
+        entregasSnapshot.forEach(doc => {
+            const entrega = doc.data();
+            if (entrega.tipo === 'actividad' && entrega.calificada) {
+                actividadesGrades.push({
+                    titulo: entrega.titulo || 'Actividad',
+                    nota: entrega.nota || 0,
+                    comentario: entrega.comentario || '',
+                    fecha: entrega.fechaCalificacion || entrega.fecha
+                });
+                totalScore += parseFloat(entrega.nota || 0);
+                gradedCount++;
+            }
+        });
+        
+        // Mostrar calificaciones de actividades
+        const container = document.getElementById('actividadesGradesList');
+        if (container) {
+            if (actividadesGrades.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; font-style: italic;">No hay actividades calificadas aún</p>';
+            } else {
+                container.innerHTML = actividadesGrades.map(grade => `
+                    <div class="grade-item">
+                        <span class="grade-label">${grade.titulo}</span>
+                        <span class="grade-value">${grade.nota}/10</span>
+                    </div>
+                    ${grade.comentario ? `
+                    <div class="grade-comment">
+                        <h4>Comentarios</h4>
+                        <p>${grade.comentario}</p>
+                    </div>
+                    ` : ''}
+                `).join('');
+            }
+        }
+        
+        // Calcular promedio de actividades
+        const avgScore = gradedCount > 0 ? (totalScore / gradedCount).toFixed(1) : '0.0';
+        const totalElement = document.getElementById('actividadesTotalScore');
+        if (totalElement) totalElement.textContent = avgScore;
+        
+        return { totalScore: parseFloat(avgScore), count: gradedCount };
+        
+    } catch (error) {
+        console.error('Error cargando calificaciones de actividades:', error);
+        return { totalScore: 0, count: 0 };
+    }
+}
+
+async function loadEvaluacionesGrades(email) {
+    try {
+        const resultadosQuery = query(collection(db, 'resultados_evaluaciones'), where('estudianteId', '==', email));
+        const resultadosSnapshot = await getDocs(resultadosQuery);
+        
+        const evaluacionesGrades = [];
+        let totalScore = 0;
+        let gradedCount = 0;
+        
+        resultadosSnapshot.forEach(doc => {
+            const resultado = doc.data();
+            if (resultado.calificada) {
+                evaluacionesGrades.push({
+                    titulo: resultado.titulo || 'Evaluación',
+                    nota: resultado.nota || 0,
+                    comentario: resultado.comentario || '',
+                    fecha: resultado.fechaCalificacion || resultado.fecha
+                });
+                totalScore += parseFloat(resultado.nota || 0);
+                gradedCount++;
+            }
+        });
+        
+        // Mostrar calificaciones de evaluaciones
+        const container = document.getElementById('evaluacionesGradesList');
+        if (container) {
+            if (evaluacionesGrades.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; font-style: italic;">No hay evaluaciones calificadas aún</p>';
+            } else {
+                container.innerHTML = evaluacionesGrades.map(grade => `
+                    <div class="grade-item">
+                        <span class="grade-label">${grade.titulo}</span>
+                        <span class="grade-value">${grade.nota}/10</span>
+                    </div>
+                    ${grade.comentario ? `
+                    <div class="grade-comment">
+                        <h4>Comentarios</h4>
+                        <p>${grade.comentario}</p>
+                    </div>
+                    ` : ''}
+                `).join('');
+            }
+        }
+        
+        // Calcular promedio de evaluaciones
+        const avgScore = gradedCount > 0 ? (totalScore / gradedCount).toFixed(1) : '0.0';
+        const totalElement = document.getElementById('evaluacionesTotalScore');
+        if (totalElement) totalElement.textContent = avgScore;
+        
+        return { totalScore: parseFloat(avgScore), count: gradedCount };
+        
+    } catch (error) {
+        console.error('Error cargando calificaciones de evaluaciones:', error);
+        return { totalScore: 0, count: 0 };
+    }
+}
+
+async function loadPracticaGrade(email) {
+    try {
+        const practicaQuery = query(collection(db, 'evaluaciones_practicas'), where('estudianteId', '==', email));
+        const practicaSnapshot = await getDocs(practicaQuery);
+        
+        if (!practicaSnapshot.empty) {
+            const practica = practicaSnapshot.docs[0].data();
+            
+            const scoreElement = document.getElementById('practicaScore');
+            const statusElement = document.getElementById('practicaStatus');
+            const commentElement = document.getElementById('practicaComment');
+            const commentTextElement = document.getElementById('practicaCommentText');
+            
+            if (practica.calificada) {
+                if (scoreElement) scoreElement.textContent = (practica.nota || 0).toFixed(1);
+                if (statusElement) {
+                    statusElement.textContent = 'Calificada';
+                    statusElement.className = 'grade-status graded';
+                }
+                if (practica.comentario && commentTextElement) {
+                    commentTextElement.textContent = practica.comentario;
+                    if (commentElement) commentElement.style.display = 'block';
+                }
+                return { score: parseFloat(practica.nota || 0), calificada: true };
+            } else {
+                if (scoreElement) scoreElement.textContent = '0.0';
+                if (statusElement) {
+                    statusElement.textContent = 'Pendiente';
+                    statusElement.className = 'grade-status pending';
+                }
+                return { score: 0, calificada: false };
+            }
+        } else {
+            // No hay evaluación práctica registrada
+            return { score: 0, calificada: false };
+        }
+        
+    } catch (error) {
+        console.error('Error cargando calificación práctica:', error);
+        return { score: 0, calificada: false };
+    }
+}
+
+function calculateTotalGrade() {
+    // Obtener valores actuales
+    const actividadesScore = parseFloat(document.getElementById('actividadesTotalScore').textContent || '0');
+    const evaluacionesScore = parseFloat(document.getElementById('evaluacionesTotalScore').textContent || '0');
+    const practicaScore = parseFloat(document.getElementById('practicaScore').textContent || '0');
+    
+    // Calcular ponderaciones según el sistema requerido
+    // Actividades: 0.5 puntos cada una (máximo por actividad)
+    // Evaluaciones: 2 puntos en total
+    // Evaluación práctica: 8 puntos
+    
+    // Para simplificar, asumimos que hay actividades y evaluaciones que contribuyen
+    // En un sistema real, esto debería basarse en el número real de actividades/evaluaciones
+    
+    // Por ahora, calculamos un promedio simple y aplicamos las ponderaciones
+    const actividadesPonderado = actividadesScore * 0.5; // 0.5 pts por actividad (promedio)
+    const evaluacionesPonderado = evaluacionesScore * 2.0; // 2 pts en total
+    const practicaPonderado = practicaScore; // Ya está en escala de 8 puntos
+    
+    const totalPonderado = actividadesPonderado + evaluacionesPonderado + practicaPonderado;
+    const totalScore = totalPonderado; // El total ya está en la escala correcta
+    
+    // Actualizar elementos
+    document.getElementById('actividadesPonderado').textContent = actividadesPonderado.toFixed(1);
+    document.getElementById('evaluacionesPonderado').textContent = evaluacionesPonderado.toFixed(1);
+    document.getElementById('practicaPonderado').textContent = practicaPonderado.toFixed(1);
+    document.getElementById('totalPonderado').textContent = totalPonderado.toFixed(1);
+    document.getElementById('totalScore').textContent = totalScore.toFixed(1);
+}
 
 // =================== FUNCIONES RECURSOS PREMIUM ===================
 let recursosData = { fotos: [], recursos: [], contactos: [] };

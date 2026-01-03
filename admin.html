@@ -2213,6 +2213,7 @@
                 <div class="nav-item" data-section="cuestionarios-manager"><i class="fas fa-tasks"></i><span>Gestión Cuestionarios</span></div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Subir Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
+                <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-star"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Subir Materiales</span></div>
                 <div class="nav-item" data-section="recursos"><i class="fas fa-star"></i><span>Subir Recursos</span></div>
             </div>
@@ -2629,21 +2630,33 @@
                     <form id="actividadForm">
                         <div class="quiz-form-grid">
                             <div class="quiz-form-card">
-                                <h4><i class="fas fa-info-circle"></i> Información de la Actividad</h4>
+                                <h4><i class="fas fa-info-circle"></i> Información Básica</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="actividadTitle">Título de la Actividad</label>
+                                    <label for="actividadTitle">Título de la Actividad *</label>
                                     <input type="text" id="actividadTitle" placeholder="Ej: Práctica de Corte en Capas" required>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="actividadDesc">Descripción e Instrucciones</label>
-                                    <textarea id="actividadDesc" placeholder="Describe detalladamente la actividad, materiales necesarios y pasos a seguir..."></textarea>
+                                    <label for="actividadObjetivos">Objetivos de Aprendizaje</label>
+                                    <textarea id="actividadObjetivos" placeholder="¿Qué aprenderán los estudiantes con esta actividad?" rows="3"></textarea>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadDificultad">Nivel de Dificultad</label>
+                                    <select id="actividadDificultad">
+                                        <option value="principiante">Principiante</option>
+                                        <option value="intermedio">Intermedio</option>
+                                        <option value="avanzado">Avanzado</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadTiempo">Tiempo Estimado (minutos)</label>
+                                    <input type="number" id="actividadTiempo" placeholder="60" min="1">
                                 </div>
                             </div>
 
                             <div class="quiz-form-card">
-                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <h4><i class="fas fa-cogs"></i> Configuración y Asignación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="actividadPrograma">Programa</label>
+                                    <label for="actividadPrograma">Programa *</label>
                                     <select id="actividadPrograma" required>
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
@@ -2652,15 +2665,63 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="actividadUrl">URL del Archivo (opcional)</label>
-                                    <input type="url" id="actividadUrl" placeholder="https://drive.google.com/..." title="Enlace a material adicional, plantilla o recurso de apoyo">
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
                                 </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card" style="margin-top: 20px;">
+                            <h4><i class="fas fa-tools"></i> Materiales y Recursos</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadMateriales">Materiales Necesarios</label>
+                                <textarea id="actividadMateriales" placeholder="Lista los materiales, herramientas y equipos necesarios..." rows="4"></textarea>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadUrl">Enlaces y Recursos Adicionales</label>
+                                <input type="url" id="actividadUrl" placeholder="https://drive.google.com/..." title="Enlace a material adicional, plantilla o recurso de apoyo">
+                                <small style="color: #666; display: block; margin-top: 5px;">Puedes agregar múltiples enlaces separados por comas</small>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card" style="margin-top: 20px;">
+                            <h4><i class="fas fa-edit"></i> Instrucciones Detalladas</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadDesc">Descripción e Instrucciones *</label>
+                                <div id="actividadDescEditor"></div>
+                                <textarea id="actividadDesc" style="display: none;"></textarea>
                             </div>
                         </div>
 
                         <div class="submit-section">
                             <button type="submit" class="btn-submit-quiz">
-                                <i class="fas fa-upload"></i> Subir Actividad
+                                <i class="fas fa-upload"></i> Crear Actividad
                             </button>
                         </div>
                     </form>
@@ -4020,6 +4081,53 @@
                 </div>
             </div>
 
+            <!-- Calificaciones -->
+            <div id="evaluacion-practica" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-star"></i> Gestión de Calificaciones</h3>
+                        <p style="color: white;">Administra las calificaciones de actividades, evaluaciones y evaluación práctica</p>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="calificaciones-filters" style="background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="form-group">
+                                <label for="califPrograma">Programa</label>
+                                <select id="califPrograma" onchange="filterCalificaciones()">
+                                    <option value="">Todos los programas</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="califSede">Sede</label>
+                                <select id="califSede" onchange="filterCalificaciones()">
+                                    <option value="">Todas las sedes</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="califHorario">Horario</label>
+                                <select id="califHorario" onchange="filterCalificaciones()">
+                                    <option value="">Todos los horarios</option>
+                                    <option value="Sábado Matutina">Sábado Matutina</option>
+                                    <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                    <option value="Domingo Matutina">Domingo Matutina</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de estudiantes -->
+                    <div id="calificacionesList" class="calificaciones-list">
+                        <!-- Los estudiantes se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Materiales -->
             <div id="materiales" class="content-section">
                 <div class="quiz-builder-section">
@@ -4612,10 +4720,17 @@
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
-            else if (sectionId === 'actividades') try { loadActividadesList(); } catch (e) { console.error('Error loading actividades:', e); }
+            else if (sectionId === 'actividades') {
+                try { 
+                    loadActividadesList(); 
+                    // Inicializar editor de actividades cuando se muestre la sección
+                    setTimeout(() => initializeActividadEditor(), 100);
+                } catch (e) { console.error('Error loading actividades:', e); }
+            }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
             else if (sectionId === 'evaluaciones') try { loadManagementContent(); } catch (e) { console.error('Error loading management content:', e); }
+            else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
@@ -4906,28 +5021,60 @@
             if (actividadForm) {
                 actividadForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    
+                    // Obtener valores de los campos
                     const title = document.getElementById('actividadTitle').value;
-                    const desc = document.getElementById('actividadDesc').value;
+                    const objetivos = document.getElementById('actividadObjetivos').value;
+                    const dificultad = document.getElementById('actividadDificultad').value;
+                    const tiempo = document.getElementById('actividadTiempo').value;
                     const programa = document.getElementById('actividadPrograma').value;
+                    const materiales = document.getElementById('actividadMateriales').value;
                     const url = document.getElementById('actividadUrl').value;
+                    const desc = document.getElementById('actividadDesc').value;
+                    
+                    // Obtener sedes y horarios seleccionados de checkboxes
+                    const sedesCheckboxes = document.querySelectorAll('input[name="actividadSedes"]:checked');
+                    const sedes = Array.from(sedesCheckboxes).map(cb => cb.value);
+                    
+                    const horariosCheckboxes = document.querySelectorAll('input[name="actividadHorarios"]:checked');
+                    const horarios = Array.from(horariosCheckboxes).map(cb => cb.value);
 
                     if (!programa) return alert('Selecciona un programa');
+                    if (!title.trim()) return alert('Ingresa un título para la actividad');
 
                     try {
                         await db.collection('activities').add({
                             titulo: title,
+                            objetivos: objetivos || null,
+                            dificultad: dificultad || 'intermedio',
+                            tiempoEstimado: tiempo ? parseInt(tiempo) : null,
                             instrucciones: desc,
+                            materiales: materiales || null,
                             archivoUrl: url || null,
                             programa: programa,
-                            fechaRegistro: new Date().toISOString()
+                            sedes: sedes.length > 0 ? sedes : null,
+                            horarios: horarios.length > 0 ? horarios : null,
+                            fechaRegistro: new Date().toISOString(),
+                            tipo: 'actividad'
                         });
 
-                        alert('Actividad agregada exitosamente');
+                        alert('Actividad creada exitosamente');
                         actividadForm.reset();
+                        
+                        // Limpiar selecciones de checkboxes
+                        document.querySelectorAll('input[name="actividadSedes"]').forEach(cb => cb.checked = false);
+                        document.querySelectorAll('input[name="actividadHorarios"]').forEach(cb => cb.checked = false);
+                        
+                        // Resetear editor
+                        if (actividadEditor) {
+                            actividadEditor.setData('');
+                        }
+                        
                         loadDashboardStats();
+                        loadActividadesList();
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('Error al agregar actividad');
+                        alert('Error al crear actividad');
                     }
                 });
             }
@@ -7629,8 +7776,45 @@
                 });
         }
 
+        function initializeActividadEditor() {
+            // Verificar si CKEditor está disponible
+            if (typeof ClassicEditor === 'undefined') {
+                console.error('CKEditor no está cargado aún para actividades, esperando...');
+                setTimeout(() => initializeActividadEditor(), 200);
+                return;
+            }
+
+            const actividadDescElement = document.querySelector('#actividadDescEditor');
+            console.log('Elemento #actividadDescEditor encontrado:', actividadDescElement);
+
+            if (!actividadDescElement) {
+                console.error('Elemento #actividadDescEditor no encontrado');
+                return;
+            }
+
+            ClassicEditor
+                .create(actividadDescElement, {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                    extraPlugins: [Base64UploadAdapterPlugin],
+                    placeholder: 'Describe detalladamente la actividad, incluye pasos, consejos y cualquier información relevante para los estudiantes...'
+                })
+                .then(editor => {
+                    actividadEditor = editor;
+                    console.log('Editor de actividades inicializado correctamente');
+                    
+                    // Sincronizar con textarea oculta
+                    editor.model.document.on('change:data', () => {
+                        document.getElementById('actividadDesc').value = editor.getData();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error inicializando editor de actividades:', error);
+                });
+        }
+
         // Exponer funciones globales
         window.initializeClaseEditor = initializeClaseEditor;
+        window.initializeActividadEditor = initializeActividadEditor;
         window.showSection = showSection;
         window.toggleMobileMenu = toggleMobileMenu;
         window.logout = logout;
@@ -11058,6 +11242,234 @@ REGLAS ESTRICTAS:
                 console.error('Error al publicar evaluación:', error);
                 alert('Error al publicar la evaluación');
             }
+        }
+
+        // Funciones para Gestión de Calificaciones
+        async function loadCalificacionesList() {
+            const container = document.getElementById('calificacionesList');
+            container.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Cargando estudiantes...</div>';
+
+            try {
+                // Obtener estudiantes aprobados
+                let query = db.collection('users').where('estado', '==', 'aprobado');
+
+                const programa = document.getElementById('califPrograma').value;
+                const sede = document.getElementById('califSede').value;
+                const horario = document.getElementById('califHorario').value;
+
+                if (programa) query = query.where('programa', '==', programa);
+                if (sede) query = query.where('sede', '==', sede);
+                if (horario) query = query.where('horario', '==', horario);
+
+                const estudiantesSnapshot = await query.orderBy('apellido').get();
+
+                if (estudiantesSnapshot.empty) {
+                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">No hay estudiantes con los filtros seleccionados</div>';
+                    return;
+                }
+
+                let html = `
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="background: #f8f9fa; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
+                            <h4 style="margin: 0; color: #1e3a8a;"><i class="fas fa-users"></i> Calificaciones de Estudiantes</h4>
+                        </div>
+                        <div style="padding: 0;">
+                `;
+
+                for (const estudianteDoc of estudiantesSnapshot.docs) {
+                    const estudiante = estudianteDoc.data();
+
+                    // Calcular calificación de actividades (automática)
+                    const actividadesGrade = await calculateActividadesGrade(estudianteDoc.id);
+
+                    // Calcular calificación de evaluaciones (automática)
+                    const evaluacionesGrade = await calculateEvaluacionesGrade(estudianteDoc.id);
+
+                    // Obtener calificación de evaluación práctica (manual)
+                    const practicaGrade = await getPracticaGrade(estudianteDoc.id);
+
+                    // Calcular total
+                    const totalGrade = calculateTotalGrade(actividadesGrade, evaluacionesGrade, practicaGrade);
+
+                    html += `
+                        <div class="estudiante-calif-item" style="border-bottom: 1px solid #f0f0f0; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <h5 style="margin: 0 0 0.5rem 0; color: #1e3a8a;">${estudiante.nombre} ${estudiante.apellido}</h5>
+                                <p style="margin: 0; color: #666; font-size: 0.9rem;">${estudiante.programa} - ${estudiante.sede} - ${estudiante.horario}</p>
+                            </div>
+                            <div style="display: flex; gap: 2rem; align-items: center;">
+                                <div class="grade-input-group">
+                                    <label style="font-size: 0.8rem; color: #666; display: block;">Actividades</label>
+                                    <input type="number" class="grade-input actividades-grade" data-estudiante-id="${estudianteDoc.id}"
+                                           value="${actividadesGrade.toFixed(1)}" min="0" max="0.5" step="0.1" readonly
+                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center; background: #f8f9fa;">
+                                </div>
+                                <div class="grade-input-group">
+                                    <label style="font-size: 0.8rem; color: #666; display: block;">Evaluaciones</label>
+                                    <input type="number" class="grade-input evaluaciones-grade" data-estudiante-id="${estudianteDoc.id}"
+                                           value="${evaluacionesGrade.toFixed(1)}" min="0" max="2" step="0.1" readonly
+                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center; background: #f8f9fa;">
+                                </div>
+                                <div class="grade-input-group">
+                                    <label style="font-size: 0.8rem; color: #666; display: block;">Práctica</label>
+                                    <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteDoc.id}"
+                                           value="${practicaGrade.toFixed(1)}" min="0" max="8" step="0.1"
+                                           onchange="updatePracticaGrade('${estudianteDoc.id}', this.value)"
+                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                                </div>
+                                <div class="grade-input-group">
+                                    <label style="font-size: 0.8rem; color: #666; display: block;">Total</label>
+                                    <input type="number" class="grade-input total-grade" value="${totalGrade.toFixed(1)}" readonly
+                                           style="width: 60px; padding: 0.5rem; border: 1px solid #4CAF50; border-radius: 4px; text-align: center; background: #e8f5e8; font-weight: bold; color: #2e7d32;">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                        </div>
+                    </div>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading calificaciones list:', error);
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc3545;">Error al cargar calificaciones</div>';
+            }
+        }
+
+        async function calculateActividadesGrade(estudianteId) {
+            try {
+                const entregasSnapshot = await db.collection('entregas')
+                    .where('estudianteId', '==', estudianteId)
+                    .where('calificada', '==', true)
+                    .get();
+
+                if (entregasSnapshot.empty) return 0;
+
+                let totalScore = 0;
+                let count = 0;
+
+                entregasSnapshot.forEach(doc => {
+                    const entrega = doc.data();
+                    if (entrega.calificacion && entrega.calificacion.nota) {
+                        totalScore += entrega.calificacion.nota;
+                        count++;
+                    }
+                });
+
+                if (count === 0) return 0;
+
+                // Promedio de actividades (máximo 0.5 puntos)
+                const average = totalScore / count;
+                return Math.min(average * 0.5 / 10, 0.5); // Escalar a máximo 0.5
+            } catch (error) {
+                console.error('Error calculating actividades grade:', error);
+                return 0;
+            }
+        }
+
+        async function calculateEvaluacionesGrade(estudianteId) {
+            try {
+                const evaluacionesSnapshot = await db.collection('resultados_evaluaciones')
+                    .where('estudianteId', '==', estudianteId)
+                    .get();
+
+                if (evaluacionesSnapshot.empty) return 0;
+
+                let totalScore = 0;
+                let count = 0;
+
+                evaluacionesSnapshot.forEach(doc => {
+                    const resultado = doc.data();
+                    if (resultado.notaFinal) {
+                        totalScore += resultado.notaFinal;
+                        count++;
+                    }
+                });
+
+                if (count === 0) return 0;
+
+                // Promedio de evaluaciones (máximo 2 puntos)
+                const average = totalScore / count;
+                return Math.min(average * 2 / 10, 2); // Escalar a máximo 2
+            } catch (error) {
+                console.error('Error calculating evaluaciones grade:', error);
+                return 0;
+            }
+        }
+
+        async function getPracticaGrade(estudianteId) {
+            try {
+                const practicaSnapshot = await db.collection('calificaciones_practicas')
+                    .where('estudianteId', '==', estudianteId)
+                    .limit(1)
+                    .get();
+
+                if (!practicaSnapshot.empty) {
+                    const calif = practicaSnapshot.docs[0].data();
+                    return calif.nota || 0;
+                }
+
+                return 0;
+            } catch (error) {
+                console.error('Error getting practica grade:', error);
+                return 0;
+            }
+        }
+
+        function calculateTotalGrade(actividades, evaluaciones, practica) {
+            return actividades + evaluaciones + practica;
+        }
+
+        async function updatePracticaGrade(estudianteId, nota) {
+            try {
+                const notaNum = parseFloat(nota);
+                if (isNaN(notaNum) || notaNum < 0 || notaNum > 8) {
+                    alert('La nota debe estar entre 0 y 8');
+                    return;
+                }
+
+                // Buscar si ya existe una calificación
+                const existingSnapshot = await db.collection('calificaciones_practicas')
+                    .where('estudianteId', '==', estudianteId)
+                    .limit(1)
+                    .get();
+
+                if (!existingSnapshot.empty) {
+                    // Actualizar existente
+                    await existingSnapshot.docs[0].ref.update({
+                        nota: notaNum,
+                        fechaActualizacion: new Date().toISOString(),
+                        actualizadoPor: sessionStorage.getItem('userId')
+                    });
+                } else {
+                    // Crear nueva
+                    await db.collection('calificaciones_practicas').add({
+                        estudianteId: estudianteId,
+                        nota: notaNum,
+                        fechaCreacion: new Date().toISOString(),
+                        creadoPor: sessionStorage.getItem('userId')
+                    });
+                }
+
+                // Actualizar el total en la interfaz
+                const row = document.querySelector(`.practica-grade[data-estudiante-id="${estudianteId}"]`).closest('.estudiante-calif-item');
+                const actividadesGrade = parseFloat(row.querySelector('.actividades-grade').value);
+                const evaluacionesGrade = parseFloat(row.querySelector('.evaluaciones-grade').value);
+                const totalInput = row.querySelector('.total-grade');
+                totalInput.value = (actividadesGrade + evaluacionesGrade + notaNum).toFixed(1);
+
+                alert('Calificación actualizada exitosamente');
+            } catch (error) {
+                console.error('Error updating practica grade:', error);
+                alert('Error al actualizar calificación: ' + error.message);
+            }
+        }
+
+        function filterCalificaciones() {
+            loadCalificacionesList();
         }
 
         loadDashboardStats();
