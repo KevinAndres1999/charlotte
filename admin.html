@@ -7286,25 +7286,41 @@
         async function loadEntregas() {
             console.log('Iniciando carga de entregas...');
             try {
-                const snapshot = await db.collection('entregas').get();
-                console.log('Snapshot obtenido:', snapshot);
-                console.log('Número de documentos:', snapshot.size);
-                
+                // Obtener todas las entregas
+                const entregasSnapshot = await db.collection('entregas').get();
+                console.log('Entregas snapshot obtenido:', entregasSnapshot.size);
+
+                // Obtener todos los usuarios para resolver nombres
+                const usuariosSnapshot = await db.collection('users').get();
+                console.log('Usuarios snapshot obtenido:', usuariosSnapshot.size);
+
+                // Crear mapa de usuarios por email
+                const usuariosMap = {};
+                usuariosSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    usuariosMap[userData.email] = userData.name || userData.email;
+                });
+
                 allEntregas = [];
-                
-                snapshot.forEach(doc => {
+
+                entregasSnapshot.forEach(doc => {
                     const data = doc.data();
                     console.log('Entrega encontrada:', doc.id, data);
-                    allEntregas.push({ 
-                        id: doc.id, 
+
+                    // Resolver nombre desde el mapa de usuarios
+                    const estudianteEmail = data.estudianteId;
+                    const nombreEstudiante = usuariosMap[estudianteEmail] || data.nombre || estudianteEmail || 'Estudiante';
+
+                    allEntregas.push({
+                        id: doc.id,
                         ...data,
                         titulo: data.titulo || 'Actividad',
                         programa: data.programa || 'N/A',
-                        nombre: data.nombre || data.estudianteId || 'Estudiante'
+                        nombre: nombreEstudiante
                     });
                 });
 
-                console.log('Entregas procesadas:', allEntregas);
+                console.log('Entregas procesadas con nombres:', allEntregas);
 
                 // Filtrar para mostrar solo la última entrega por actividad y estudiante
                 const entregasMap = new Map();
