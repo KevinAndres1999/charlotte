@@ -11256,10 +11256,9 @@ REGLAS ESTRICTAS:
                 // Obtener estudiantes aprobados (consulta simple para evitar problemas de índices)
                 const estudiantesSnapshot = await db.collection('users')
                     .where('estado', '==', 'aprobado')
-                    .orderBy('apellido')
                     .get();
 
-                // Aplicar filtros en el cliente
+                // Aplicar filtros en el cliente y ordenar por apellido
                 const programa = document.getElementById('califPrograma').value;
                 const sede = document.getElementById('califSede').value;
                 const horario = document.getElementById('califHorario').value;
@@ -11276,6 +11275,13 @@ REGLAS ESTRICTAS:
                     if (incluir) {
                         estudiantesFiltrados.push({ id: doc.id, data: estudiante });
                     }
+                });
+
+                // Ordenar por apellido en el cliente
+                estudiantesFiltrados.sort((a, b) => {
+                    const apellidoA = a.data.apellido || '';
+                    const apellidoB = b.data.apellido || '';
+                    return apellidoA.localeCompare(apellidoB);
                 });
 
                 if (estudiantesFiltrados.length === 0) {
