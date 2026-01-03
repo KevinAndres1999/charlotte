@@ -4181,7 +4181,7 @@ function showSectionV2(sectionId) {
     } else if (sectionId === 'videos') {
         loadVideos();
     } else if (sectionId === 'actividades') {
-        loadActividades();
+        window.loadActividades();
     } else if (sectionId === 'cuestionarios') {
         loadCuestionarios();
     } else if (sectionId === 'materiales') {
@@ -4271,7 +4271,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cargar secciones que deberían estar disponibles inicialmente
         window.loadClases();
         loadVideos();
-        loadActividades();
+        window.loadActividades();
         loadMateriales();
         loadCuestionarios();
         
@@ -4572,6 +4572,9 @@ async function loadActividades(selectedModulo = null) {
     }
 }
 
+// Asignar función al objeto window para acceso global
+window.loadActividades = loadActividades;
+
 async function loadActividadesContent(selectedModulo) {
     const container = document.getElementById('actividadesContainer');
     if (!container) return;
@@ -4798,22 +4801,22 @@ function showModulosSelectorActividades() {
         <div style="text-align: center; padding: 2rem;">
             <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                <div class="modulo-card" onclick="loadActividades('modulo1')">
+                <div class="modulo-card" data-modulo="modulo1">
                     <i class="fas fa-bread-slice"></i>
                     <h4>Módulo 1</h4>
                     <p>Panadería</p>
                 </div>
-                <div class="modulo-card modulo-card modulo2" onclick="loadActividades('modulo2')">
+                <div class="modulo-card modulo-card modulo2" data-modulo="modulo2">
                     <i class="fas fa-cookie-bite"></i>
                     <h4>Módulo 2</h4>
                     <p>Galletaría</p>
                 </div>
-                <div class="modulo-card modulo-card modulo3" onclick="loadActividades('modulo3')">
+                <div class="modulo-card modulo-card modulo3" data-modulo="modulo3">
                     <i class="fas fa-birthday-cake"></i>
                     <h4>Módulo 3</h4>
                     <p>Pastelería</p>
                 </div>
-                <div class="modulo-card modulo-card modulo4" onclick="loadActividades('modulo4')">
+                <div class="modulo-card modulo-card modulo4" data-modulo="modulo4">
                     <i class="fas fa-utensils"></i>
                     <h4>Módulo 4</h4>
                     <p>Repostería</p>
@@ -4822,9 +4825,13 @@ function showModulosSelectorActividades() {
         </div>
     `;
     
-    // Agregar estilos hover
+    // Agregar event listeners para los clics
     const cards = container.querySelectorAll('.modulo-card');
     cards.forEach(card => {
+        card.addEventListener('click', () => {
+            const modulo = card.getAttribute('data-modulo');
+            window.loadActividades(modulo);
+        });
         card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
         card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
     });
@@ -6478,7 +6485,7 @@ async function submitEntrega(actividadId) {
         alert('Entrega enviada exitosamente');
         closeModal();
         // Recargar actividades para actualizar estado
-        loadActividades();
+        window.loadActividades();
     } catch (error) {
         console.error('Error submitting entrega:', error);
         alert('Error al enviar la entrega');
