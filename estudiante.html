@@ -3464,28 +3464,6 @@
                         </div>
                     </div>
 
-                    <!-- Evaluación Práctica -->
-                    <div class="grade-card">
-                        <div class="grade-header">
-                            <h3 class="grade-title">Evaluación Práctica Final</h3>
-                            <div class="grade-score" id="practicaScore">0.0</div>
-                        </div>
-                        <div class="grade-details">
-                            <div class="grade-item">
-                                <span class="grade-label">Estado</span>
-                                <span class="grade-status pending" id="practicaStatus">Pendiente</span>
-                            </div>
-                            <div class="grade-item">
-                                <span class="grade-label">Valor</span>
-                                <span class="grade-value">8 puntos</span>
-                            </div>
-                        </div>
-                        <div class="grade-comment" id="practicaComment" style="display: none;">
-                            <h4>Comentarios del Instructor</h4>
-                            <p id="practicaCommentText"></p>
-                        </div>
-                    </div>
-
                     <!-- Calificación Total -->
                     <div class="grade-card total-grade-card">
                         <div class="grade-header">
@@ -6444,22 +6422,6 @@ async function loadCalificaciones() {
         const promedioFinal = totalFinal / 4;
         document.getElementById('totalScore').textContent = promedioFinal.toFixed(1);
         document.getElementById('totalPonderado').textContent = promedioFinal.toFixed(1);
-
-        // También cargar datos de práctica para mostrar comentarios si existen
-        const practicaQuery = query(collection(db, 'calificaciones_practicas'), where('estudianteId', '==', currentUser.email));
-        const practicaSnapshot = await getDocs(practicaQuery);
-
-        if (!practicaSnapshot.empty) {
-            const practica = practicaSnapshot.docs[0].data();
-            document.getElementById('practicaScore').textContent = (practica.nota || 0).toFixed(1);
-            document.getElementById('practicaStatus').textContent = 'Calificada';
-            document.getElementById('practicaStatus').className = 'grade-status graded';
-
-            if (practica.comentario) {
-                document.getElementById('practicaCommentText').textContent = practica.comentario;
-                document.getElementById('practicaComment').style.display = 'block';
-            }
-        }
 
     } catch (error) {
         console.error('Error cargando calificaciones:', error);
