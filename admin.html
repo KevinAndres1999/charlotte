@@ -9821,6 +9821,21 @@ REGLAS ESTRICTAS:
                 const entrega = { id: doc.id, ...doc.data() };
                 currentEntregaIndex = entregasData.findIndex(e => e.id === entregaId);
                 
+                // Obtener nombre del estudiante desde la colección de usuarios
+                let nombreEstudiante = 'Estudiante';
+                if (entrega.estudianteId) {
+                    try {
+                        const userQuery = await db.collection('users').where('email', '==', entrega.estudianteId).limit(1).get();
+                        if (!userQuery.empty) {
+                            const userData = userQuery.docs[0].data();
+                            nombreEstudiante = userData.name || entrega.estudianteId;
+                        }
+                    } catch (error) {
+                        console.error('Error obteniendo nombre del estudiante:', error);
+                        nombreEstudiante = entrega.estudianteId || 'Estudiante';
+                    }
+                }
+                
                 // Mostrar sección de detalle
                 document.getElementById('entregasGrid').style.display = 'none';
                 document.getElementById('entregaDetail').style.display = 'block';
@@ -9828,7 +9843,7 @@ REGLAS ESTRICTAS:
                 // Actualizar banner
                 document.getElementById('entregaBannerTitle').textContent = `Entrega: ${entrega.actividadTitulo || 'Actividad'}`;
                 document.getElementById('entregaBannerPrograma').textContent = entrega.programa || 'Sin programa';
-                document.getElementById('entregaBannerEstudiante').textContent = entrega.estudianteNombre || 'Estudiante';
+                document.getElementById('entregaBannerEstudiante').textContent = nombreEstudiante;
                 document.getElementById('entregaBannerFecha').textContent = new Date(entrega.fechaEntrega || Date.now()).toLocaleDateString('es-ES');
                 
                 // Actualizar estadísticas
