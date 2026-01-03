@@ -7789,8 +7789,8 @@
                         const actividad = actividadDoc.data();
                         const moduloKey = `modulo${actividad.modulo}`;
 
-                        // Convertir calificación de 0-100 a escala de 0-5 para actividades
-                        const califActividades = (calificacion / 100) * 5;
+                        // Convertir calificación de 0-100 a escala de 0-0.5 para actividades (valor máximo por actividad)
+                        const califActividades = (calificacion / 100) * 0.5;
 
                         // Buscar si ya existe una calificación para este módulo y estudiante
                         const califDocId = `${estudianteId}_${moduloKey}`;
@@ -11733,25 +11733,22 @@ REGLAS ESTRICTAS:
                     practicasMap[estudianteId] = practica;
                 });
 
-                // Cargar calificaciones específicas por módulo si existen
+                // Cargar TODAS las calificaciones específicas por módulo de una vez (optimización)
                 const modulosCalificaciones = {};
-                for (const estudianteInfo of estudiantesFiltrados) {
-                    const estudianteId = estudianteInfo.data.email || estudianteInfo.id;
-                    modulosCalificaciones[estudianteId] = {};
+                try {
+                    const allModulosSnapshot = await db.collection('calificaciones_modulos').get();
+                    console.log('Total calificaciones por módulo cargadas:', allModulosSnapshot.size);
 
-                    // Intentar cargar calificaciones específicas por módulo
-                    try {
-                        const modulosSnapshot = await db.collection('calificaciones_modulos')
-                            .where('estudianteId', '==', estudianteId)
-                            .get();
-
-                        modulosSnapshot.forEach(doc => {
-                            const calif = doc.data();
-                            modulosCalificaciones[estudianteId][calif.modulo] = calif;
-                        });
-                    } catch (error) {
-                        console.log('No hay calificaciones específicas para módulos:', error);
-                    }
+                    allModulosSnapshot.forEach(doc => {
+                        const calif = doc.data();
+                        const estudianteId = calif.estudianteId;
+                        if (!modulosCalificaciones[estudianteId]) {
+                            modulosCalificaciones[estudianteId] = {};
+                        }
+                        modulosCalificaciones[estudianteId][calif.modulo] = calif;
+                    });
+                } catch (error) {
+                    console.log('Error cargando calificaciones por módulo:', error);
                 }
 
                 let html = `
