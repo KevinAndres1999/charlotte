@@ -1570,6 +1570,86 @@
             font-size: 1.1rem;
         }
 
+        .actividad-info-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .actividad-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .actividad-title i {
+            color: #3b82f6;
+            font-size: 1.2rem;
+        }
+
+        .actividad-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .actividad-meta .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .actividad-meta .meta-item i {
+            color: #3b82f6;
+            font-size: 0.8rem;
+        }
+
+        .actividad-description,
+        .actividad-objetivos,
+        .actividad-materiales {
+            margin-bottom: 1.2rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .actividad-description h4,
+        .actividad-objetivos h4,
+        .actividad-materiales h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1e3a8a;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .actividad-description h4 i,
+        .actividad-objetivos h4 i,
+        .actividad-materiales h4 i {
+            color: #3b82f6;
+            font-size: 0.9rem;
+        }
+
+        .actividad-description p,
+        .actividad-objetivos p,
+        .actividad-materiales p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+
         .entregas-content-viewer {
             color: #374151;
             line-height: 1.8;
@@ -10096,10 +10176,35 @@ REGLAS ESTRICTAS:
                 
                 // Actualizar contenido
                 document.getElementById('entregaActividadInfo').innerHTML = `
-                    <strong>Actividad:</strong> ${entrega.actividadTitulo || 'Sin título'}<br>
-                    <strong>Descripción:</strong> ${entrega.actividadDescripcion || 'Sin descripción'}<br>
-                    <strong>Tipo:</strong> ${entrega.tipo || 'General'}<br>
-                    <strong>Programa:</strong> ${entrega.programa || 'Sin programa'}
+                    <div class="actividad-info-header">
+                        <div class="actividad-title">
+                            <i class="fas fa-tasks"></i> ${entrega.actividadTitulo || 'Sin título'}
+                        </div>
+                        <div class="actividad-meta">
+                            <div class="meta-item"><i class="fas fa-tag"></i> ${entrega.tipo || 'General'}</div>
+                            <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${entrega.programa || 'Sin programa'}</div>
+                            ${entrega.dificultad ? `<div class="meta-item"><i class="fas fa-chart-line"></i> ${entrega.dificultad}</div>` : ''}
+                            ${entrega.tiempoEstimado ? `<div class="meta-item"><i class="fas fa-clock"></i> ${entrega.tiempoEstimado} min</div>` : ''}
+                        </div>
+                    </div>
+                    ${entrega.actividadDescripcion ? `
+                    <div class="actividad-description">
+                        <h4><i class="fas fa-info-circle"></i> Descripción</h4>
+                        <p>${entrega.actividadDescripcion}</p>
+                    </div>
+                    ` : ''}
+                    ${entrega.objetivos ? `
+                    <div class="actividad-objetivos">
+                        <h4><i class="fas fa-bullseye"></i> Objetivos</h4>
+                        <p>${entrega.objetivos}</p>
+                    </div>
+                    ` : ''}
+                    ${entrega.materiales ? `
+                    <div class="actividad-materiales">
+                        <h4><i class="fas fa-tools"></i> Materiales</h4>
+                        <p>${entrega.materiales}</p>
+                    </div>
+                    ` : ''}
                 `;
                 
                 document.getElementById('entregaContenido').innerHTML = entrega.contenido || 'Sin contenido entregado';
