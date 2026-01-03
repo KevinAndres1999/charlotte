@@ -4827,7 +4827,12 @@ function isValidUrl(url) {
 }
 
 function volverAModulos() {
-    // Mostrar el selector de módulos directamente
+    // Mostrar el selector de módulos
+    document.getElementById('modulosSelector').style.display = 'block';
+    document.getElementById('clasesContent').style.display = 'none';
+    const tituloElement = document.querySelector('#clases .page-title');
+    tituloElement.innerHTML = '<i class="fas fa-book-open"></i> Mis Clases';
+    // Llamar a loadClases para asegurar que se cargue el selector
     loadClases();
 }
 
@@ -4874,7 +4879,12 @@ function showModulosSelectorActividades() {
 }
 
 function volverAModulosActividades() {
-    // Mostrar el selector de módulos directamente
+    // Mostrar el selector de módulos
+    document.getElementById('modulosSelectorActividades').style.display = 'block';
+    document.getElementById('actividadesContent').style.display = 'none';
+    const tituloElement = document.querySelector('#actividades .page-title');
+    tituloElement.innerHTML = '<i class="fas fa-tasks"></i> Actividades';
+    // Llamar a loadActividades para asegurar que se cargue el selector
     loadActividades();
 }
 
