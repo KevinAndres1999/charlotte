@@ -4175,8 +4175,12 @@ function showSectionV2(sectionId) {
     sessionStorage.setItem('activeSection', sectionId);
     
     // Agregar al historial del navegador para control de navegación
-    if (window.history && window.history.pushState && sectionId !== 'clases' && sectionId !== 'actividades') {
-        window.history.pushState({page: 'estudiante', section: sectionId}, sectionId, 'estudiante.html');
+    if (window.history && window.history.pushState) {
+        if (sectionId === 'clases' || sectionId === 'actividades') {
+            window.history.pushState({page: 'estudiante', section: sectionId, modulo: null}, sectionId, 'estudiante.html');
+        } else {
+            window.history.pushState({page: 'estudiante', section: sectionId}, sectionId, 'estudiante.html');
+        }
     }
     
     // Marcar el nav-item correspondiente como activo
@@ -4828,9 +4832,6 @@ function volverAModulos() {
 }
 
 function showModulosSelectorActividades() {
-    // Push history state for module selector
-    window.history.pushState({page: 'estudiante', section: 'actividades', modulo: null}, 'Actividades', 'estudiante.html');
-    
     const container = document.getElementById('modulosSelectorActividades');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
@@ -5024,9 +5025,6 @@ async function loadClasesByModulo(selectedModulo) {
 }
 
 function showModulosSelectorEstudiante() {
-    // Push history state for module selector
-    window.history.pushState({page: 'estudiante', section: 'clases', modulo: null}, 'Mis Clases', 'estudiante.html');
-    
     const container = document.getElementById('modulosSelector');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
