@@ -11276,7 +11276,21 @@ REGLAS ESTRICTAS:
                         <div style="background: #f8f9fa; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
                             <h4 style="margin: 0; color: #1e3a8a;"><i class="fas fa-users"></i> Calificaciones de Estudiantes</h4>
                         </div>
-                        <div style="padding: 0;">
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Nombre</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Cédula</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Programa</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Sede</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Actividades</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Evaluaciones</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Práctica</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                 `;
 
                 for (const estudianteDoc of estudiantesSnapshot.docs) {
@@ -11295,42 +11309,33 @@ REGLAS ESTRICTAS:
                     const totalGrade = calculateTotalGrade(actividadesGrade, evaluacionesGrade, practicaGrade);
 
                     html += `
-                        <div class="estudiante-calif-item" style="border-bottom: 1px solid #f0f0f0; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-                            <div style="flex: 1;">
-                                <h5 style="margin: 0 0 0.5rem 0; color: #1e3a8a;">${estudiante.nombre} ${estudiante.apellido}</h5>
-                                <p style="margin: 0; color: #666; font-size: 0.9rem;">${estudiante.programa} - ${estudiante.sede} - ${estudiante.horario}</p>
-                            </div>
-                            <div style="display: flex; gap: 2rem; align-items: center;">
-                                <div class="grade-input-group">
-                                    <label style="font-size: 0.8rem; color: #666; display: block;">Actividades</label>
-                                    <input type="number" class="grade-input actividades-grade" data-estudiante-id="${estudianteDoc.id}"
-                                           value="${actividadesGrade.toFixed(1)}" min="0" max="0.5" step="0.1" readonly
-                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center; background: #f8f9fa;">
-                                </div>
-                                <div class="grade-input-group">
-                                    <label style="font-size: 0.8rem; color: #666; display: block;">Evaluaciones</label>
-                                    <input type="number" class="grade-input evaluaciones-grade" data-estudiante-id="${estudianteDoc.id}"
-                                           value="${evaluacionesGrade.toFixed(1)}" min="0" max="2" step="0.1" readonly
-                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center; background: #f8f9fa;">
-                                </div>
-                                <div class="grade-input-group">
-                                    <label style="font-size: 0.8rem; color: #666; display: block;">Práctica</label>
-                                    <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteDoc.id}"
-                                           value="${practicaGrade.toFixed(1)}" min="0" max="8" step="0.1"
-                                           onchange="updatePracticaGrade('${estudianteDoc.id}', this.value)"
-                                           style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
-                                </div>
-                                <div class="grade-input-group">
-                                    <label style="font-size: 0.8rem; color: #666; display: block;">Total</label>
-                                    <input type="number" class="grade-input total-grade" value="${totalGrade.toFixed(1)}" readonly
-                                           style="width: 60px; padding: 0.5rem; border: 1px solid #4CAF50; border-radius: 4px; text-align: center; background: #e8f5e8; font-weight: bold; color: #2e7d32;">
-                                </div>
-                            </div>
-                        </div>
+                        <tr style="border-bottom: 1px solid #f0f0f0; hover: background: #f8f9fa;">
+                            <td style="padding: 1rem; font-weight: 500; color: #1e3a8a;">${estudiante.nombre} ${estudiante.apellido}</td>
+                            <td style="padding: 1rem; color: #666;">${estudiante.cedula || 'N/A'}</td>
+                            <td style="padding: 1rem; color: #666;">${estudiante.programa}</td>
+                            <td style="padding: 1rem; color: #666;">${estudiante.sede}</td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${actividadesGrade.toFixed(1)}</span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${evaluacionesGrade.toFixed(1)}</span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteDoc.id}"
+                                       value="${practicaGrade.toFixed(1)}" min="0" max="8" step="0.1"
+                                       onchange="updatePracticaGrade('${estudianteDoc.id}', this.value)"
+                                       style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span style="background: #e8f5e8; padding: 0.5rem; border-radius: 4px; border: 1px solid #4CAF50; display: inline-block; min-width: 50px; font-weight: bold; color: #2e7d32;">${totalGrade.toFixed(1)}</span>
+                            </td>
+                        </tr>
                     `;
                 }
 
                 html += `
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 `;
