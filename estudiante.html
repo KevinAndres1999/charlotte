@@ -6752,6 +6752,8 @@ async function loadCalificaciones() {
             modulosCalif[data.modulo] = data;
         });
 
+        console.log('Calificaciones por módulo cargadas:', modulosCalif);
+
         let totalFinal = 0;
 
         // Actualizar UI de módulos con calificaciones específicas
@@ -6799,6 +6801,8 @@ async function loadIndividualActivities(email) {
             container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No tienes actividades calificadas aún.</p>';
             return;
         }
+
+        console.log('Entregas calificadas encontradas:', entregasSnapshot.size);
 
         let html = `
             <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 2rem;">
