@@ -4643,33 +4643,43 @@ async function loadActividadesContent(selectedModulo) {
                     const data = doc.data();
                     entregasMap[data.actividadId] = data;
                 });
-                        console.log('Entregas actualizadas:', entregasMap);
-                        allActividades.forEach(actividad => {
-                            const entrega = entregasMap[actividad.id];
-                            if (entrega) {
-                                actividad.isSubmitted = true;
-                                actividad.isCompleted = entrega.calificada || false;
-                                actividad.entrega = entrega;
-                                console.log(`Actividad ${actividad.id}: isCompleted = ${actividad.isCompleted}, calificada = ${entrega.calificada}`);
+                console.log('Entregas actualizadas:', entregasMap);
+                allActividades.forEach(actividad => {
+                    const entrega = entregasMap[actividad.id];
+                    if (entrega) {
+                        actividad.isSubmitted = true;
+                        actividad.isCompleted = entrega.calificada || false;
+                        actividad.entrega = entrega;
+                        console.log(`Actividad ${actividad.id}: isCompleted = ${actividad.isCompleted}, calificada = ${entrega.calificada}`);
+                    } else {
+                        actividad.isSubmitted = false;
+                        actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
+                        actividad.entrega = null;
+                    }
+                });
+
+                // Filtrar por acceso del usuario y por módulo
+                const filteredByAccess = filterByUserAccess(allActividades);
+
                 // Filtrar por módulo seleccionado
                 // Para módulo 3 (Pastelería), mostrar todas las actividades disponibles
-                const filteredByModulo = selectedModulo === 'modulo3' 
-                    ? filteredByAccess 
+                const filteredByModulo = selectedModulo === 'modulo3'
+                    ? filteredByAccess
                     : filteredByAccess.filter(actividad => actividad.modulo === selectedModulo);
-                
+
                 filteredActividades = filteredByModulo;
-                
+
                 // Mostrar contenido de actividades
                 document.getElementById('modulosSelectorActividades').style.display = 'none';
                 document.getElementById('actividadesContent').style.display = 'block';
-                
+
                 // Push history state for the selected module
                 window.history.pushState({page: 'estudiante', section: 'actividades', modulo: selectedModulo}, `${getModuloName(selectedModulo)} - Actividades`, 'estudiante.html');
-                
+
                 // Actualizar título
                 const tituloElement = document.querySelector('#actividades .page-title');
                 tituloElement.innerHTML = `<i class="fas fa-tasks"></i> ${getModuloName(selectedModulo)} - Actividades`;
-                
+
                 sortActividades();
                 updateActividadesStats();
                 renderActividades();
@@ -7424,8 +7434,6 @@ function openImageModal(imageUrl, title) {
     modal.onclick = () => modal.remove();
     document.body.appendChild(modal);
 }
-
-updateDashboard();
 
 
 </script>
