@@ -1345,6 +1345,15 @@
             color: #10b981;
         }
 
+        .clase-card.submitted {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        }
+
+        .clase-card.submitted .clase-title i {
+            color: #f59e0b;
+        }
+
         .clase-card.new {
             border-color: #f59e0b;
             position: relative;
@@ -4637,9 +4646,11 @@ async function loadActividadesContent(selectedModulo) {
                 allActividades.forEach(actividad => {
                     const entrega = entregasMap[actividad.id];
                     if (entrega) {
-                        actividad.isCompleted = true;
+                        actividad.isSubmitted = true;
+                        actividad.isCompleted = entrega.calificada || false;
                         actividad.entrega = entrega;
                     } else {
+                        actividad.isSubmitted = false;
                         actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
                         actividad.entrega = null;
                     }
@@ -5592,7 +5603,7 @@ function renderActividades() {
         const tiempoText = actividad.tiempoEstimado ? `${actividad.tiempoEstimado} min` : 'Sin especificar';
 
         return `
-            <div class="clase-card ${currentActividadesViewMode === 'list' ? 'list-view' : ''} ${actividad.isCompleted ? 'completed' : ''} ${isNew ? 'new' : ''}" data-id="${actividad.id}">
+            <div class="clase-card ${currentActividadesViewMode === 'list' ? 'list-view' : ''} ${actividad.isCompleted ? 'completed' : actividad.isSubmitted ? 'submitted' : ''} ${isNew ? 'new' : ''}" data-id="${actividad.id}">
                 <div class="clase-header">
                     <div class="clase-title">
                         <i class="fas fa-tasks"></i> ${actividad.titulo}
@@ -5611,10 +5622,10 @@ function renderActividades() {
                     ${actividad.materiales ? `<div class="clase-materiales"><strong>Materiales:</strong> ${actividad.materiales}</div>` : ''}
                     ${actividad.archivoUrl ? `<div class="clase-archivo"><i class="fas fa-link"></i> <a href="${actividad.archivoUrl}" target="_blank">Recursos adicionales</a></div>` : ''}
                     <div class="clase-actions">
-                        <button class="btn-primary-clase" onclick="openModal('actividad', '${actividad.id}')">
-                            <i class="fas fa-upload"></i> ${actividad.isCompleted ? 'Revisar Entrega' : 'Entregar Actividad'}
+                        <button class="btn-primary-clase" onclick="openModal('actividad', '${actividad.id}')" ${actividad.isSubmitted && !actividad.isCompleted ? 'disabled' : ''}>
+                            <i class="fas fa-upload"></i> ${actividad.isCompleted ? 'Revisar Entrega' : actividad.isSubmitted ? 'Pendiente de calificación' : 'Entregar Actividad'}
                         </button>
-                        <button class="btn-secondary-clase" onclick="toggleActividadCompleted('${actividad.id}')">
+                        <button class="btn-secondary-clase" onclick="toggleActividadCompleted('${actividad.id}')" ${actividad.isSubmitted ? 'disabled' : ''}>
                             <i class="fas fa-check"></i> ${actividad.isCompleted ? 'Marcar pendiente' : 'Marcar completada'}
                         </button>
                     </div>
@@ -5782,7 +5793,7 @@ function sortActividades() {
 
 function toggleActividadCompleted(actividadId) {
     const actividad = allActividades.find(a => a.id === actividadId);
-    if (!actividad) return;
+    if (!actividad || actividad.isSubmitted) return;
 
     actividad.isCompleted = !actividad.isCompleted;
     actividad.progress = actividad.isCompleted ? 100 : Math.max(actividad.progress, 50);
