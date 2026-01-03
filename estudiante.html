@@ -3842,12 +3842,14 @@ if (window.history && window.history.pushState) {
 
 // Interceptar el botón atrás del navegador
 window.addEventListener('popstate', function(event) {
-    // Si el usuario presiona atrás, llevarlo al dashboard
-    const activeSection = sessionStorage.getItem('activeSection');
-    if (activeSection && activeSection !== 'dashboard') {
-        event.preventDefault();
+    if (event.state && event.state.section) {
+        // Ir a la sección guardada en el estado
+        showSectionV2(event.state.section);
+    } else {
+        // Por defecto, ir al dashboard
         showSectionV2('dashboard');
-        window.history.pushState({page: 'estudiante', section: 'dashboard'}, 'Dashboard', 'estudiante.html');
+    }
+});
     }
 });
 
@@ -4257,6 +4259,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         });
+
+        // Event listener para el botón volver a módulos
+        const volverBtn = document.querySelector('button[onclick*="volverAModulos"]');
+        if (volverBtn) {
+            volverBtn.removeAttribute('onclick');
+            volverBtn.addEventListener('click', volverAModulos);
+        }
 
         // Cargar datos iniciales
         updateDashboard();
@@ -4947,7 +4956,10 @@ async function loadClasesByModulo(selectedModulo) {
         const filteredByAccess = filterByUserAccess(allClases);
         
         // Filtrar por módulo seleccionado
-        const filteredByModulo = filteredByAccess.filter(clase => clase.modulo === selectedModulo);
+        // Para módulo 3 (Pastelería), mostrar todas las clases disponibles
+        const filteredByModulo = selectedModulo === 'modulo3' 
+            ? filteredByAccess 
+            : filteredByAccess.filter(clase => clase.modulo === selectedModulo);
         
         console.log('Clases después del filtro:', filteredByModulo.length, 'de', allClases.length);
         filteredClases = filteredByModulo;
@@ -5932,6 +5944,9 @@ async function loadClaseDetail(id) {
             nextBtn.onclick = () => currentIndex < filteredClases.length - 1 ? loadClaseDetail(filteredClases[currentIndex + 1].id) : null;
 
             // Cambiar a la sección de clase-viewer
+            // Guardar la sección actual antes de cambiar
+            const currentSection = sessionStorage.getItem('activeSection') || 'dashboard';
+            window.history.pushState({page: 'estudiante', section: currentSection}, 'Clases', 'estudiante.html');
             showSection('clase-viewer');
 
             // Actualizar el menú de navegación para mostrar "Ver Clase"
