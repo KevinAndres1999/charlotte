@@ -11266,7 +11266,7 @@ REGLAS ESTRICTAS:
                 let estudiantesFiltrados = [];
                 estudiantesSnapshot.forEach(doc => {
                     const estudiante = doc.data();
-                    console.log('Estudiante:', estudiante.nombre, estudiante.apellido, estudiante.estado, estudiante.programa);
+                    console.log('Estudiante:', estudiante.name, estudiante.estado, estudiante.programa);
 
                     let incluir = true;
 
@@ -11284,11 +11284,11 @@ REGLAS ESTRICTAS:
 
                 console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
 
-                // Ordenar por apellido en el cliente
+                // Ordenar alfabéticamente por nombre en el cliente
                 estudiantesFiltrados.sort((a, b) => {
-                    const apellidoA = a.data.apellido || '';
-                    const apellidoB = b.data.apellido || '';
-                    return apellidoA.localeCompare(apellidoB);
+                    const nameA = a.data.name || '';
+                    const nameB = b.data.name || '';
+                    return nameA.localeCompare(nameB);
                 });
 
                 if (estudiantesFiltrados.length === 0) {
@@ -11343,7 +11343,7 @@ REGLAS ESTRICTAS:
 
                     html += `
                         <tr style="border-bottom: 1px solid #f0f0f0; hover: background: #f8f9fa;">
-                            <td style="padding: 1rem; font-weight: 500; color: #1e3a8a;">${estudiante.nombre} ${estudiante.apellido}</td>
+                            <td style="padding: 1rem; font-weight: 500; color: #1e3a8a;">${estudiante.name || 'Sin nombre'}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.programa}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.sede}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.horario}</td>
