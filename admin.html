@@ -9763,8 +9763,28 @@ REGLAS ESTRICTAS:
                 document.getElementById('actividadSeleccionada').textContent = `Entregas: ${actividad.titulo}`;
                 
                 // Cargar entregas de esta actividad
-                const snapshot = await db.collection('entregas').where('actividadId', '==', actividadId).get();
-                entregasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const entregasSnapshot = await db.collection('entregas').where('actividadId', '==', actividadId).get();
+                
+                // Obtener todos los usuarios para resolver nombres
+                const usuariosSnapshot = await db.collection('users').get();
+                const usuariosMap = {};
+                usuariosSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    usuariosMap[userData.email] = userData.name || userData.email;
+                });
+                
+                // Procesar entregas con nombres resueltos
+                entregasData = entregasSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const estudianteEmail = data.estudianteId;
+                    const nombreEstudiante = usuariosMap[estudianteEmail] || data.nombre || estudianteEmail || 'Estudiante';
+                    
+                    return { 
+                        id: doc.id, 
+                        ...data,
+                        estudianteNombre: nombreEstudiante
+                    };
+                });
                 
                 const container = document.getElementById('entregasGrid').querySelector('.clase-content-grid');
                 if (entregasData.length === 0) {
@@ -10068,6 +10088,20 @@ REGLAS ESTRICTAS:
                 const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
                 const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionarioId).get();
                 respuestasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Resolver nombres de estudiantes
+                const usuariosSnapshot = await db.collection('users').get();
+                const usuariosMap = {};
+                usuariosSnapshot.docs.forEach(doc => {
+                    const userData = doc.data();
+                    usuariosMap[userData.email] = userData.name || userData.email;
+                });
+                
+                // Agregar nombres resueltos a las respuestas
+                respuestasData = respuestasData.map(respuesta => ({
+                    ...respuesta,
+                    estudianteNombre: usuariosMap[respuesta.estudianteId] || respuesta.estudianteNombre || respuesta.estudianteId || 'Estudiante'
+                }));
                 
                 const container = document.getElementById('respuestasGrid').querySelector('.clase-content-grid');
                 if (respuestasData.length === 0) {
