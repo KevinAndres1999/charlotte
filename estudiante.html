@@ -6470,7 +6470,7 @@ async function loadEvaluacionesGrades(email) {
 
 async function loadPracticaGrade(email) {
     try {
-        const practicaQuery = query(collection(db, 'evaluaciones_practicas'), where('estudianteId', '==', email));
+        const practicaQuery = query(collection(db, 'calificaciones_practicas'), where('estudianteId', '==', email));
         const practicaSnapshot = await getDocs(practicaQuery);
         
         if (!practicaSnapshot.empty) {
