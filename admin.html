@@ -10129,21 +10129,13 @@ REGLAS ESTRICTAS:
         // Función para cargar detalles de una entrega específica
         async function loadEntregaDetail(entregaId) {
             try {
-                console.log('🔍 loadEntregaDetail called with ID:', entregaId);
                 const doc = await db.collection('entregas').doc(entregaId).get();
-                console.log('📄 Document exists:', doc.exists);
                 if (!doc.exists) {
                     console.error('Entrega no encontrada');
                     return;
                 }
-
-                const entrega = { id: doc.id, ...doc.data() };
-                console.log('📋 Entrega data:', entrega);
-                console.log('📝 Campo entrega:', entrega.entrega);
-                console.log('📝 Tipo de entrega.entrega:', typeof entrega.entrega);
-                console.log('📝 Longitud de entrega.entrega:', entrega.entrega ? entrega.entrega.length : 'N/A');
-                currentEntregaIndex = entregasData.findIndex(e => e.id === entregaId);
                 
+                const entrega = { id: doc.id, ...doc.data() };
                 // Obtener nombre del estudiante desde la colección de usuarios
                 let nombreEstudiante = 'Estudiante';
                 if (entrega.estudianteId) {
@@ -10213,12 +10205,7 @@ REGLAS ESTRICTAS:
                     ` : ''}
                 `;
                 
-                console.log('🎯 Asignando contenido al DOM...');
-                console.log('🎯 entrega.entrega value:', entrega.entrega);
-                console.log('🎯 entrega.entrega truthy check:', !!entrega.entrega);
-                const contenidoFinal = entrega.entrega || 'Sin contenido entregado';
-                console.log('🎯 Contenido final a mostrar:', contenidoFinal);
-                document.getElementById('entregaContenido').innerHTML = contenidoFinal;
+                document.getElementById('entregaContenido').innerHTML = entrega.entrega || 'Sin contenido entregado';
                 
                 // Actualizar navegación
                 document.getElementById('prevEntregaBtn').style.display = currentEntregaIndex > 0 ? 'block' : 'none';
