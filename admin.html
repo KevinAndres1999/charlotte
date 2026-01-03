@@ -11343,24 +11343,64 @@ REGLAS ESTRICTAS:
                     practicasMap[estudianteId] = practica;
                 });
 
+                // Cargar calificaciones específicas por módulo si existen
+                const modulosCalificaciones = {};
+                for (const estudianteInfo of estudiantesFiltrados) {
+                    const estudianteId = estudianteInfo.id;
+                    modulosCalificaciones[estudianteId] = {};
+
+                    // Intentar cargar calificaciones específicas por módulo
+                    try {
+                        const modulosSnapshot = await db.collection('calificaciones_modulos')
+                            .where('estudianteId', '==', estudianteId)
+                            .get();
+
+                        modulosSnapshot.forEach(doc => {
+                            const calif = doc.data();
+                            modulosCalificaciones[estudianteId][calif.modulo] = calif;
+                        });
+                    } catch (error) {
+                        console.log('No hay calificaciones específicas para módulos:', error);
+                    }
+                }
+
                 let html = `
                     <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <div style="background: #f8f9fa; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
                             <h4 style="margin: 0; color: #1e3a8a;"><i class="fas fa-users"></i> Calificaciones de Estudiantes</h4>
+                            <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 0.9rem;">Haga clic en las celdas para editar calificaciones</p>
                         </div>
                         <div style="overflow-x: auto;">
                             <table style="width: 100%; border-collapse: collapse;">
                                 <thead style="background: #f8f9fa;">
                                     <tr>
-                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Nombre</th>
-                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Programa</th>
-                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Sede</th>
-                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Horario</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 1</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 2</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 3</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 4</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Total Final</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" rowspan="2">Nombre</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" rowspan="2">Programa</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" rowspan="2">Sede</th>
+                                        <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" rowspan="2">Horario</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" colspan="4">Módulo 1</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" colspan="4">Módulo 2</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" colspan="4">Módulo 3</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" colspan="4">Módulo 4</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;" rowspan="2">Total Final</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Act.<br/>(0.5)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Eval.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Prác.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Total</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Act.<br/>(0.5)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Eval.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Prác.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Total</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Act.<br/>(0.5)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Eval.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Prác.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Total</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Act.<br/>(0.5)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Eval.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Prác.<br/>(2.0)</th>
+                                        <th style="padding: 0.5rem; text-align: center; font-weight: 500; color: #1e3a8a; font-size: 0.8rem;">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -11370,64 +11410,58 @@ REGLAS ESTRICTAS:
                     const estudiante = estudianteInfo.data;
                     const estudianteId = estudianteInfo.id;
 
-                    // Calcular calificaciones para cada módulo
-                    // Cada módulo tiene sus propias actividades, evaluaciones y práctica
-                    const modulos = [1, 2, 3, 4];
-                    const modulosGrades = [];
+                    // Obtener calificaciones específicas por módulo si existen
+                    const modulosCalif = modulosCalificaciones[estudianteId] || {};
+
                     let totalFinal = 0;
+                    let modulosHtml = '';
 
-                    for (const moduloNum of modulos) {
-                        // Filtrar actividades por módulo (por ahora, distribuir equitativamente)
-                        const actividadesModulo = actividadesMap[estudianteId] || [];
-                        const actividadesCount = actividadesModulo.length;
-                        const actividadesPorModulo = Math.ceil(actividadesCount / 4);
-                        const startIdx = (moduloNum - 1) * actividadesPorModulo;
-                        const endIdx = Math.min(startIdx + actividadesPorModulo, actividadesCount);
-                        const actividadesModuloData = actividadesModulo.slice(startIdx, endIdx);
+                    for (let moduloNum = 1; moduloNum <= 4; moduloNum++) {
+                        const moduloKey = `modulo${moduloNum}`;
+                        const moduloData = modulosCalif[moduloKey] || {};
 
-                        const actividadesGrade = actividadesModuloData.length > 0 ?
-                            actividadesModuloData.reduce((sum, entrega) => sum + (entrega.nota || 0), 0) / actividadesModuloData.length * 0.5 : 0;
+                        // Valores por defecto o existentes
+                        const actividades = moduloData.actividades || 0;
+                        const evaluaciones = moduloData.evaluaciones || 0;
+                        const practica = moduloData.practica || 0;
+                        const moduloTotal = actividades + evaluaciones + practica;
 
-                        // Filtrar evaluaciones por módulo (por ahora, distribuir equitativamente)
-                        const evaluacionesModulo = evaluacionesMap[estudianteId] || [];
-                        const evaluacionesCount = evaluacionesModulo.length;
-                        const evaluacionesPorModulo = Math.ceil(evaluacionesCount / 4);
-                        const evalStartIdx = (moduloNum - 1) * evaluacionesPorModulo;
-                        const evalEndIdx = Math.min(evalStartIdx + evaluacionesPorModulo, evaluacionesCount);
-                        const evaluacionesModuloData = evaluacionesModulo.slice(evalStartIdx, evalEndIdx);
-
-                        const evaluacionesGrade = evaluacionesModuloData.length > 0 ?
-                            evaluacionesModuloData.reduce((sum, resultado) => sum + (resultado.nota || 0), 0) / evaluacionesModuloData.length * 2 : 0;
-
-                        // Para práctica, por ahora dividir la calificación total en 4 módulos
-                        const practicaTotal = practicasMap[estudianteId] ? practicasMap[estudianteId].nota || 0 : 0;
-                        const practicaGrade = practicaTotal / 4; // Distribuir equitativamente
-
-                        const moduloTotal = actividadesGrade + evaluacionesGrade + practicaGrade;
-                        modulosGrades.push(moduloTotal);
                         totalFinal += moduloTotal;
+
+                        modulosHtml += `
+                            <td style="padding: 0.5rem; text-align: center;">
+                                <input type="number" step="0.1" min="0" max="0.5" 
+                                       value="${actividades.toFixed(1)}" 
+                                       style="width: 50px; padding: 0.25rem; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 0.8rem;"
+                                       onchange="updateModuloGrade('${estudianteId}', ${moduloNum}, 'actividades', this.value)">
+                            </td>
+                            <td style="padding: 0.5rem; text-align: center;">
+                                <input type="number" step="0.1" min="0" max="2.0" 
+                                       value="${evaluaciones.toFixed(1)}" 
+                                       style="width: 50px; padding: 0.25rem; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 0.8rem;"
+                                       onchange="updateModuloGrade('${estudianteId}', ${moduloNum}, 'evaluaciones', this.value)">
+                            </td>
+                            <td style="padding: 0.5rem; text-align: center;">
+                                <input type="number" step="0.1" min="0" max="2.0" 
+                                       value="${practica.toFixed(1)}" 
+                                       style="width: 50px; padding: 0.25rem; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 0.8rem;"
+                                       onchange="updateModuloGrade('${estudianteId}', ${moduloNum}, 'practica', this.value)">
+                            </td>
+                            <td style="padding: 0.5rem; text-align: center;">
+                                <span style="background: #f0f8ff; padding: 0.25rem; border-radius: 3px; border: 1px solid #b3d9ff; display: inline-block; min-width: 40px; font-weight: bold; color: #1e40af;">${moduloTotal.toFixed(1)}</span>
+                            </td>
+                        `;
                     }
 
                     totalFinal = totalFinal / 4; // Promedio de los 4 módulos
 
                     html += `
-                        <tr style="border-bottom: 1px solid #f0f0f0; hover: background: #f8f9fa;">
+                        <tr style="border-bottom: 1px solid #f0f0f0;">
                             <td style="padding: 1rem; font-weight: 500; color: #1e3a8a;">${estudiante.name || 'Sin nombre'}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.programa}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.sede}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.horario}</td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[0].toFixed(1)}</span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[1].toFixed(1)}</span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[2].toFixed(1)}</span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[3].toFixed(1)}</span>
-                            </td>
+                            ${modulosHtml}
                             <td style="padding: 1rem; text-align: center;">
                                 <span style="background: #e8f5e8; padding: 0.5rem; border-radius: 4px; border: 1px solid #4CAF50; display: inline-block; min-width: 50px; font-weight: bold; color: #2e7d32;">${totalFinal.toFixed(1)}</span>
                             </td>
@@ -11587,6 +11621,103 @@ REGLAS ESTRICTAS:
             document.getElementById('califSede').value = '';
             document.getElementById('califHorario').value = '';
             loadCalificacionesList();
+        }
+
+        async function updateModuloGrade(estudianteId, moduloNum, componente, valor) {
+            try {
+                const notaNum = parseFloat(valor);
+                if (isNaN(notaNum)) {
+                    alert('El valor debe ser un número válido');
+                    return;
+                }
+
+                // Validar límites según el componente
+                let maxValor = 2.0;
+                if (componente === 'actividades') maxValor = 0.5;
+
+                if (notaNum < 0 || notaNum > maxValor) {
+                    alert(`El valor para ${componente} debe estar entre 0 y ${maxValor}`);
+                    // Recargar la lista para revertir el cambio
+                    loadCalificacionesList();
+                    return;
+                }
+
+                const moduloKey = `modulo${moduloNum}`;
+
+                // Buscar si ya existe una calificación para este módulo y estudiante
+                const existingSnapshot = await db.collection('calificaciones_modulos')
+                    .where('estudianteId', '==', estudianteId)
+                    .where('modulo', '==', moduloKey)
+                    .limit(1)
+                    .get();
+
+                const califData = {
+                    estudianteId: estudianteId,
+                    modulo: moduloKey,
+                    [componente]: notaNum,
+                    fechaActualizacion: new Date().toISOString(),
+                    actualizadoPor: sessionStorage.getItem('userId') || 'admin'
+                };
+
+                if (!existingSnapshot.empty) {
+                    // Actualizar existente
+                    const docId = existingSnapshot.docs[0].id;
+                    await db.collection('calificaciones_modulos').doc(docId).update(califData);
+                } else {
+                    // Crear nueva
+                    await db.collection('calificaciones_modulos').add(califData);
+                }
+
+                // Actualizar los totales en la interfaz sin recargar toda la tabla
+                updateRowTotals(estudianteId);
+
+                console.log(`Calificación ${componente} del módulo ${moduloNum} actualizada para estudiante ${estudianteId}`);
+            } catch (error) {
+                console.error('Error updating modulo grade:', error);
+                alert('Error al actualizar calificación: ' + error.message);
+                // Recargar la lista para revertir el cambio
+                loadCalificacionesList();
+            }
+        }
+
+        function updateRowTotals(estudianteId) {
+            // Encontrar la fila del estudiante buscando en los inputs que tienen el estudianteId
+            const rows = document.querySelectorAll('#calificacionesList table tbody tr');
+            for (const row of rows) {
+                // Buscar el primer input de actividades del módulo 1 que contenga el estudianteId
+                const firstInput = row.querySelector('input[onchange*="updateModuloGrade(\'' + estudianteId + '\'"]');
+                if (firstInput) {
+                    // Esta es la fila correcta, calcular totales
+                    let totalFinal = 0;
+                    
+                    // Calcular total de cada módulo (columnas 4-7, 8-11, 12-15, 16-19)
+                    for (let moduloIdx = 0; moduloIdx < 4; moduloIdx++) {
+                        const baseCol = 4 + (moduloIdx * 4); // 4, 8, 12, 16
+                        const actInput = row.cells[baseCol].querySelector('input');
+                        const evalInput = row.cells[baseCol + 1].querySelector('input');
+                        const pracInput = row.cells[baseCol + 2].querySelector('input');
+                        const totalSpan = row.cells[baseCol + 3].querySelector('span');
+                        
+                        if (actInput && evalInput && pracInput && totalSpan) {
+                            const actVal = parseFloat(actInput.value) || 0;
+                            const evalVal = parseFloat(evalInput.value) || 0;
+                            const pracVal = parseFloat(pracInput.value) || 0;
+                            const moduloTotal = actVal + evalVal + pracVal;
+                            
+                            totalSpan.textContent = moduloTotal.toFixed(1);
+                            totalFinal += moduloTotal;
+                        }
+                    }
+                    
+                    totalFinal = totalFinal / 4; // Promedio de los 4 módulos
+                    const finalTotalSpan = row.cells[row.cells.length - 1].querySelector('span');
+                    if (finalTotalSpan) {
+                        finalTotalSpan.textContent = totalFinal.toFixed(1);
+                    }
+                    
+                    break;
+                }
+            }
         }
 
         loadDashboardStats();

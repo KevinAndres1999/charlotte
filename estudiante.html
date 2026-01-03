@@ -6407,46 +6407,51 @@ async function loadCalificaciones() {
     if (!currentUser) return;
 
     try {
-        // Cargar todos los datos de calificaciones de una vez para optimizar
-        const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot] = await Promise.all([
-            getDocs(query(collection(db, 'entregas'), where('estudianteId', '==', currentUser.email))),
-            getDocs(query(collection(db, 'resultados_evaluaciones'), where('estudianteId', '==', currentUser.email))),
-            getDocs(query(collection(db, 'calificaciones_practicas'), where('estudianteId', '==', currentUser.email)))
-        ]);
+        // Cargar calificaciones específicas por módulo
+        const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
+        const modulosSnapshot = await getDocs(modulosQuery);
 
-        // Procesar datos
-        const actividades = entregasSnapshot.docs.filter(doc => doc.data().calificada && doc.data().tipo === 'actividad');
-        const evaluaciones = evaluacionesSnapshot.docs.filter(doc => doc.data().calificada);
-        const practica = practicasSnapshot.docs.length > 0 ? practicasSnapshot.docs[0].data() : null;
+        // Crear mapa de calificaciones por módulo
+        const modulosCalif = {};
+        modulosSnapshot.forEach(doc => {
+            const data = doc.data();
+            modulosCalif[data.modulo] = data;
+        });
 
-        // Calcular calificaciones base
-        const actividadesGrade = actividades.length > 0 ?
-            actividades.reduce((sum, doc) => sum + (doc.data().nota || 0), 0) / actividades.length * 0.5 : 0;
+        let totalFinal = 0;
 
-        const evaluacionesGrade = evaluaciones.length > 0 ?
-            evaluaciones.reduce((sum, doc) => sum + (doc.data().nota || 0), 0) / evaluaciones.length * 2 : 0;
-
-        const practicaGrade = practica ? practica.nota || 0 : 0;
-
-        // Calcular módulos (por ahora, cada módulo tiene la misma calificación)
-        const moduloGrade = actividadesGrade + evaluacionesGrade + practicaGrade;
-
-        // Actualizar UI de módulos
+        // Actualizar UI de módulos con calificaciones específicas
         for (let i = 1; i <= 4; i++) {
-            document.getElementById(`modulo${i}Score`).textContent = moduloGrade.toFixed(1);
-            document.getElementById(`modulo${i}Actividades`).textContent = actividadesGrade.toFixed(1);
-            document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluacionesGrade.toFixed(1);
-            document.getElementById(`modulo${i}Practica`).textContent = practicaGrade.toFixed(1);
-            document.getElementById(`modulo${i}Ponderado`).textContent = moduloGrade.toFixed(1);
+            const moduloKey = `modulo${i}`;
+            const moduloData = modulosCalif[moduloKey] || {};
+
+            const actividades = moduloData.actividades || 0;
+            const evaluaciones = moduloData.evaluaciones || 0;
+            const practica = moduloData.practica || 0;
+            const moduloTotal = actividades + evaluaciones + practica;
+
+            // Actualizar elementos de la UI
+            document.getElementById(`modulo${i}Score`).textContent = moduloTotal.toFixed(1);
+            document.getElementById(`modulo${i}Actividades`).textContent = actividades.toFixed(1);
+            document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluaciones.toFixed(1);
+            document.getElementById(`modulo${i}Practica`).textContent = practica.toFixed(1);
+            document.getElementById(`modulo${i}Ponderado`).textContent = moduloTotal.toFixed(1);
+
+            totalFinal += moduloTotal;
         }
 
         // Calcular total final (promedio de módulos)
-        document.getElementById('totalScore').textContent = moduloGrade.toFixed(1);
-        document.getElementById('totalPonderado').textContent = moduloGrade.toFixed(1);
+        const promedioFinal = totalFinal / 4;
+        document.getElementById('totalScore').textContent = promedioFinal.toFixed(1);
+        document.getElementById('totalPonderado').textContent = promedioFinal.toFixed(1);
 
-        // Actualizar estado de práctica
-        if (practica) {
-            document.getElementById('practicaScore').textContent = practicaGrade.toFixed(1);
+        // También cargar datos de práctica para mostrar comentarios si existen
+        const practicaQuery = query(collection(db, 'calificaciones_practicas'), where('estudianteId', '==', currentUser.email));
+        const practicaSnapshot = await getDocs(practicaQuery);
+
+        if (!practicaSnapshot.empty) {
+            const practica = practicaSnapshot.docs[0].data();
+            document.getElementById('practicaScore').textContent = (practica.nota || 0).toFixed(1);
             document.getElementById('practicaStatus').textContent = 'Calificada';
             document.getElementById('practicaStatus').className = 'grade-status graded';
 
