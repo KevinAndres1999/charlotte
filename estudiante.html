@@ -6748,10 +6748,14 @@ async function loadCalificaciones() {
         const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
         const modulosSnapshot = await getDocs(modulosQuery);
 
+        console.log('Query de calificaciones ejecutada para:', currentUser.email);
+        console.log('Documentos encontrados:', modulosSnapshot.size);
+
         // Crear mapa de calificaciones por módulo
         const modulosCalif = {};
         modulosSnapshot.forEach(doc => {
             const data = doc.data();
+            console.log('Documento de calificación:', doc.id, data);
             modulosCalif[data.modulo] = data;
         });
 
@@ -6770,6 +6774,7 @@ async function loadCalificaciones() {
             const moduloTotal = actividades + evaluaciones + practica;
 
             // Actualizar elementos de la UI
+            console.log(`Actualizando módulo ${i}: actividades=${actividades}, evaluaciones=${evaluaciones}, practica=${practica}, total=${moduloTotal}`);
             document.getElementById(`modulo${i}Score`).textContent = moduloTotal.toFixed(1);
             document.getElementById(`modulo${i}Actividades`).textContent = actividades.toFixed(1);
             document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluaciones.toFixed(1);
