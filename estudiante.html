@@ -3844,7 +3844,7 @@ if (window.history && window.history.pushState) {
 window.addEventListener('popstate', function(event) {
     if (event.state && event.state.section) {
         // Ir a la sección guardada en el estado
-        showSectionV2(event.state.section);
+        showSectionV2(event.state.section, true);
         
         // Si es la sección de clases o actividades y hay un módulo específico, cargarlo
         if ((event.state.section === 'clases' || event.state.section === 'actividades') && event.state.modulo !== undefined) {
@@ -4153,7 +4153,7 @@ async function loadDashboardStats() {
     }
 }
 
-function showSectionV2(sectionId) {
+function showSectionV2(sectionId, noPush = false) {
     if (!sectionId) {
         console.error('showSection called with null or undefined sectionId');
         return;
@@ -4175,7 +4175,7 @@ function showSectionV2(sectionId) {
     sessionStorage.setItem('activeSection', sectionId);
     
     // Agregar al historial del navegador para control de navegación
-    if (window.history && window.history.pushState) {
+    if (!noPush && window.history && window.history.pushState) {
         if (sectionId === 'clases' || sectionId === 'actividades') {
             window.history.pushState({page: 'estudiante', section: sectionId, modulo: null}, sectionId, 'estudiante.html');
         } else {
