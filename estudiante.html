@@ -3600,6 +3600,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Actividades individuales -->
+                <div id="actividadesIndividuales"></div>
             </section>
 
             <section id="materiales" class="section">
@@ -6765,8 +6768,74 @@ async function loadCalificaciones() {
         document.getElementById('totalScore').textContent = promedioFinal.toFixed(1);
         document.getElementById('totalPonderado').textContent = promedioFinal.toFixed(1);
 
+        // Cargar y mostrar actividades individuales calificadas
+        await loadIndividualActivities(currentUser.email);
+
     } catch (error) {
         console.error('Error cargando calificaciones:', error);
+    }
+}
+
+async function loadIndividualActivities(email) {
+    try {
+        const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', email), where('calificada', '==', true));
+        const entregasSnapshot = await getDocs(entregasQuery);
+
+        const container = document.getElementById('actividadesIndividuales');
+        if (!container) return;
+
+        if (entregasSnapshot.empty) {
+            container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No tienes actividades calificadas aún.</p>';
+            return;
+        }
+
+        let html = `
+            <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 2rem;">
+                <div style="background: #f8f9fa; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0; color: #1e3a8a;"><i class="fas fa-tasks"></i> Mis Calificaciones de Actividades</h4>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: #f8f9fa;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Actividad</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Nota (0-100)</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Nota Escala (0-5)</th>
+                                <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Comentario</th>
+                                <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        entregasSnapshot.forEach(doc => {
+            const actividad = doc.data();
+            const notaEscala = (actividad.nota / 100) * 5;
+            html += `
+                            <tr>
+                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${actividad.titulo || actividad.actividadId}</td>
+                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${actividad.nota}/100</td>
+                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${notaEscala.toFixed(1)}/5</td>
+                                <td style="padding: 0.75rem; border-bottom: 1px solid #e2e8f0;">${actividad.comentario || '-'}</td>
+                                <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${actividad.fechaCalificacion ? new Date(actividad.fechaCalificacion).toLocaleDateString() : '-'}</td>
+                            </tr>
+            `;
+        });
+
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error cargando actividades individuales:', error);
+        const container = document.getElementById('actividadesIndividuales');
+        if (container) {
+            container.innerHTML = '<p style="text-align: center; color: #dc3545; padding: 2rem;">Error al cargar actividades</p>';
+        }
     }
 }
 
