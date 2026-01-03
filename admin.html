@@ -11253,10 +11253,10 @@ REGLAS ESTRICTAS:
             container.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Cargando estudiantes...</div>';
 
             try {
-                // Obtener estudiantes aprobados (consulta simple para evitar problemas de índices)
-                const estudiantesSnapshot = await db.collection('users')
-                    .where('estado', '==', 'aprobado')
-                    .get();
+                // Obtener todos los estudiantes (sin filtro de estado para asegurar que se muestren)
+                const estudiantesSnapshot = await db.collection('users').get();
+
+                console.log('Total estudiantes encontrados:', estudiantesSnapshot.size);
 
                 // Aplicar filtros en el cliente y ordenar por apellido
                 const programa = document.getElementById('califPrograma').value;
@@ -11266,7 +11266,12 @@ REGLAS ESTRICTAS:
                 let estudiantesFiltrados = [];
                 estudiantesSnapshot.forEach(doc => {
                     const estudiante = doc.data();
+                    console.log('Estudiante:', estudiante.nombre, estudiante.apellido, estudiante.estado, estudiante.programa);
+
                     let incluir = true;
+
+                    // Solo incluir estudiantes que no sean admin
+                    if (estudiante.role === 'admin') incluir = false;
 
                     if (programa && estudiante.programa !== programa) incluir = false;
                     if (sede && estudiante.sede !== sede) incluir = false;
@@ -11276,6 +11281,8 @@ REGLAS ESTRICTAS:
                         estudiantesFiltrados.push({ id: doc.id, data: estudiante });
                     }
                 });
+
+                console.log('Estudiantes filtrados:', estudiantesFiltrados.length);
 
                 // Ordenar por apellido en el cliente
                 estudiantesFiltrados.sort((a, b) => {
