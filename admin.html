@@ -11371,26 +11371,44 @@ REGLAS ESTRICTAS:
                     const estudianteId = estudianteInfo.id;
 
                     // Calcular calificaciones para cada módulo
-                    // Por ahora, distribuimos las calificaciones existentes en los 4 módulos
-                    // TODO: Implementar campos 'modulo' en la base de datos para calificaciones específicas
+                    // Cada módulo tiene sus propias actividades, evaluaciones y práctica
+                    const modulos = [1, 2, 3, 4];
+                    const modulosGrades = [];
+                    let totalFinal = 0;
 
-                    // Calcular actividades totales
-                    const actividadesModulo = actividadesMap[estudianteId] || [];
-                    const actividadesGrade = actividadesModulo.length > 0 ?
-                        actividadesModulo.reduce((sum, entrega) => sum + (entrega.nota || 0), 0) / actividadesModulo.length * 0.5 : 0;
+                    for (const moduloNum of modulos) {
+                        // Filtrar actividades por módulo (por ahora, distribuir equitativamente)
+                        const actividadesModulo = actividadesMap[estudianteId] || [];
+                        const actividadesCount = actividadesModulo.length;
+                        const actividadesPorModulo = Math.ceil(actividadesCount / 4);
+                        const startIdx = (moduloNum - 1) * actividadesPorModulo;
+                        const endIdx = Math.min(startIdx + actividadesPorModulo, actividadesCount);
+                        const actividadesModuloData = actividadesModulo.slice(startIdx, endIdx);
 
-                    // Calcular evaluaciones totales
-                    const evaluacionesModulo = evaluacionesMap[estudianteId] || [];
-                    const evaluacionesGrade = evaluacionesModulo.length > 0 ?
-                        evaluacionesModulo.reduce((sum, resultado) => sum + (resultado.nota || 0), 0) / evaluacionesModulo.length * 2 : 0;
+                        const actividadesGrade = actividadesModuloData.length > 0 ?
+                            actividadesModuloData.reduce((sum, entrega) => sum + (entrega.nota || 0), 0) / actividadesModuloData.length * 0.5 : 0;
 
-                    // Obtener práctica total
-                    const practicaGrade = practicasMap[estudianteId] ? practicasMap[estudianteId].nota || 0 : 0;
+                        // Filtrar evaluaciones por módulo (por ahora, distribuir equitativamente)
+                        const evaluacionesModulo = evaluacionesMap[estudianteId] || [];
+                        const evaluacionesCount = evaluacionesModulo.length;
+                        const evaluacionesPorModulo = Math.ceil(evaluacionesCount / 4);
+                        const evalStartIdx = (moduloNum - 1) * evaluacionesPorModulo;
+                        const evalEndIdx = Math.min(evalStartIdx + evaluacionesPorModulo, evaluacionesCount);
+                        const evaluacionesModuloData = evaluacionesModulo.slice(evalStartIdx, evalEndIdx);
 
-                    // Distribuir calificaciones en 4 módulos (por ahora, cada módulo tiene la misma calificación)
-                    const moduloGrade = actividadesGrade + evaluacionesGrade + practicaGrade;
-                    const modulosGrades = [moduloGrade, moduloGrade, moduloGrade, moduloGrade];
-                    const totalFinal = moduloGrade; // Por ahora, el total es igual a un módulo
+                        const evaluacionesGrade = evaluacionesModuloData.length > 0 ?
+                            evaluacionesModuloData.reduce((sum, resultado) => sum + (resultado.nota || 0), 0) / evaluacionesModuloData.length * 2 : 0;
+
+                        // Para práctica, por ahora dividir la calificación total en 4 módulos
+                        const practicaTotal = practicasMap[estudianteId] ? practicasMap[estudianteId].nota || 0 : 0;
+                        const practicaGrade = practicaTotal / 4; // Distribuir equitativamente
+
+                        const moduloTotal = actividadesGrade + evaluacionesGrade + practicaGrade;
+                        modulosGrades.push(moduloTotal);
+                        totalFinal += moduloTotal;
+                    }
+
+                    totalFinal = totalFinal / 4; // Promedio de los 4 módulos
 
                     html += `
                         <tr style="border-bottom: 1px solid #f0f0f0; hover: background: #f8f9fa;">
