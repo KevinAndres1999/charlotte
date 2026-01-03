@@ -11304,6 +11304,45 @@ REGLAS ESTRICTAS:
                     return;
                 }
 
+                // Cargar todos los datos de calificaciones de una vez para optimizar
+                const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot] = await Promise.all([
+                    db.collection('entregas').get(),
+                    db.collection('resultados_evaluaciones').get(),
+                    db.collection('calificaciones_practicas').get()
+                ]);
+
+                // Crear mapas para acceso rápido
+                const actividadesMap = {};
+                const evaluacionesMap = {};
+                const practicasMap = {};
+
+                // Procesar entregas (actividades)
+                entregasSnapshot.forEach(doc => {
+                    const entrega = doc.data();
+                    if (entrega.calificada && entrega.tipo === 'actividad') {
+                        const estudianteId = entrega.estudianteId;
+                        if (!actividadesMap[estudianteId]) actividadesMap[estudianteId] = [];
+                        actividadesMap[estudianteId].push(entrega);
+                    }
+                });
+
+                // Procesar evaluaciones
+                evaluacionesSnapshot.forEach(doc => {
+                    const resultado = doc.data();
+                    if (resultado.calificada) {
+                        const estudianteId = resultado.estudianteId;
+                        if (!evaluacionesMap[estudianteId]) evaluacionesMap[estudianteId] = [];
+                        evaluacionesMap[estudianteId].push(resultado);
+                    }
+                });
+
+                // Procesar prácticas
+                practicasSnapshot.forEach(doc => {
+                    const practica = doc.data();
+                    const estudianteId = practica.estudianteId;
+                    practicasMap[estudianteId] = practica;
+                });
+
                 let html = `
                     <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <div style="background: #f8f9fa; padding: 1rem; border-bottom: 1px solid #e2e8f0;">
@@ -11317,10 +11356,11 @@ REGLAS ESTRICTAS:
                                         <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Programa</th>
                                         <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Sede</th>
                                         <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Horario</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Actividades</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Evaluaciones</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Práctica</th>
-                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Total</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 1</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 2</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 3</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Módulo 4</th>
+                                        <th style="padding: 1rem; text-align: center; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #1e3a8a;">Total Final</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -11328,18 +11368,36 @@ REGLAS ESTRICTAS:
 
                 for (const estudianteInfo of estudiantesFiltrados) {
                     const estudiante = estudianteInfo.data;
+                    const estudianteId = estudianteInfo.id;
 
-                    // Calcular calificación de actividades (automática)
-                    const actividadesGrade = await calculateActividadesGrade(estudianteInfo.id);
+                    // Calcular calificaciones para cada módulo
+                    const modulos = [1, 2, 3, 4];
+                    const modulosGrades = [];
+                    let totalFinal = 0;
 
-                    // Calcular calificación de evaluaciones (automática)
-                    const evaluacionesGrade = await calculateEvaluacionesGrade(estudianteInfo.id);
+                    for (const modulo of modulos) {
+                        // Calcular actividades para este módulo
+                        const actividadesModulo = (actividadesMap[estudianteId] || [])
+                            .filter(entrega => entrega.modulo === modulo);
+                        const actividadesGrade = actividadesModulo.length > 0 ?
+                            actividadesModulo.reduce((sum, entrega) => sum + (entrega.nota || 0), 0) / actividadesModulo.length * 0.5 : 0;
 
-                    // Obtener calificación de evaluación práctica (manual)
-                    const practicaGrade = await getPracticaGrade(estudianteInfo.id);
+                        // Calcular evaluaciones para este módulo
+                        const evaluacionesModulo = (evaluacionesMap[estudianteId] || [])
+                            .filter(resultado => resultado.modulo === modulo);
+                        const evaluacionesGrade = evaluacionesModulo.length > 0 ?
+                            evaluacionesModulo.reduce((sum, resultado) => sum + (resultado.nota || 0), 0) / evaluacionesModulo.length * 2 : 0;
 
-                    // Calcular total
-                    const totalGrade = calculateTotalGrade(actividadesGrade, evaluacionesGrade, practicaGrade);
+                        // Obtener práctica para este módulo
+                        const practicaModulo = practicasMap[estudianteId] && practicasMap[estudianteId].modulo === modulo ?
+                            practicasMap[estudianteId].nota || 0 : 0;
+
+                        const moduloTotal = actividadesGrade + evaluacionesGrade + practicaModulo;
+                        modulosGrades.push(moduloTotal);
+                        totalFinal += moduloTotal;
+                    }
+
+                    totalFinal = totalFinal / 4; // Promedio de los 4 módulos
 
                     html += `
                         <tr style="border-bottom: 1px solid #f0f0f0; hover: background: #f8f9fa;">
@@ -11348,19 +11406,19 @@ REGLAS ESTRICTAS:
                             <td style="padding: 1rem; color: #666;">${estudiante.sede}</td>
                             <td style="padding: 1rem; color: #666;">${estudiante.horario}</td>
                             <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${actividadesGrade.toFixed(1)}</span>
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[0].toFixed(1)}</span>
                             </td>
                             <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${evaluacionesGrade.toFixed(1)}</span>
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[1].toFixed(1)}</span>
                             </td>
                             <td style="padding: 1rem; text-align: center;">
-                                <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteInfo.id}"
-                                       value="${practicaGrade.toFixed(1)}" min="0" max="8" step="0.1"
-                                       onchange="updatePracticaGrade('${estudianteInfo.id}', this.value)"
-                                       style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[2].toFixed(1)}</span>
                             </td>
                             <td style="padding: 1rem; text-align: center;">
-                                <span style="background: #e8f5e8; padding: 0.5rem; border-radius: 4px; border: 1px solid #4CAF50; display: inline-block; min-width: 50px; font-weight: bold; color: #2e7d32;">${totalGrade.toFixed(1)}</span>
+                                <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${modulosGrades[3].toFixed(1)}</span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <span style="background: #e8f5e8; padding: 0.5rem; border-radius: 4px; border: 1px solid #4CAF50; display: inline-block; min-width: 50px; font-weight: bold; color: #2e7d32;">${totalFinal.toFixed(1)}</span>
                             </td>
                         </tr>
                     `;
