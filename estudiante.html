@@ -3837,7 +3837,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Limpiar historial para evitar volver a login con botón atrás
 if (window.history && window.history.pushState) {
     // Reemplazar la entrada actual del historial para que no vuelva a login
-    window.history.replaceState({page: 'estudiante'}, 'Portal Estudiante', 'estudiante.html');
+    window.history.replaceState({page: 'estudiante', section: 'dashboard'}, 'Dashboard', 'estudiante.html');
 }
 
 // Interceptar el botón atrás del navegador
@@ -4175,7 +4175,7 @@ function showSectionV2(sectionId) {
     sessionStorage.setItem('activeSection', sectionId);
     
     // Agregar al historial del navegador para control de navegación
-    if (window.history && window.history.pushState) {
+    if (window.history && window.history.pushState && sectionId !== 'clases' && sectionId !== 'actividades') {
         window.history.pushState({page: 'estudiante', section: sectionId}, sectionId, 'estudiante.html');
     }
     
