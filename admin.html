@@ -11253,20 +11253,32 @@ REGLAS ESTRICTAS:
             container.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Cargando estudiantes...</div>';
 
             try {
-                // Obtener estudiantes aprobados
-                let query = db.collection('users').where('estado', '==', 'aprobado');
+                // Obtener estudiantes aprobados (consulta simple para evitar problemas de índices)
+                const estudiantesSnapshot = await db.collection('users')
+                    .where('estado', '==', 'aprobado')
+                    .orderBy('apellido')
+                    .get();
 
+                // Aplicar filtros en el cliente
                 const programa = document.getElementById('califPrograma').value;
                 const sede = document.getElementById('califSede').value;
                 const horario = document.getElementById('califHorario').value;
 
-                if (programa) query = query.where('programa', '==', programa);
-                if (sede) query = query.where('sede', '==', sede);
-                if (horario) query = query.where('horario', '==', horario);
+                let estudiantesFiltrados = [];
+                estudiantesSnapshot.forEach(doc => {
+                    const estudiante = doc.data();
+                    let incluir = true;
 
-                const estudiantesSnapshot = await query.orderBy('apellido').get();
+                    if (programa && estudiante.programa !== programa) incluir = false;
+                    if (sede && estudiante.sede !== sede) incluir = false;
+                    if (horario && estudiante.horario !== horario) incluir = false;
 
-                if (estudiantesSnapshot.empty) {
+                    if (incluir) {
+                        estudiantesFiltrados.push({ id: doc.id, data: estudiante });
+                    }
+                });
+
+                if (estudiantesFiltrados.length === 0) {
                     container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">No hay estudiantes con los filtros seleccionados</div>';
                     return;
                 }
@@ -11293,17 +11305,17 @@ REGLAS ESTRICTAS:
                                 <tbody>
                 `;
 
-                for (const estudianteDoc of estudiantesSnapshot.docs) {
-                    const estudiante = estudianteDoc.data();
+                for (const estudianteInfo of estudiantesFiltrados) {
+                    const estudiante = estudianteInfo.data;
 
                     // Calcular calificación de actividades (automática)
-                    const actividadesGrade = await calculateActividadesGrade(estudianteDoc.id);
+                    const actividadesGrade = await calculateActividadesGrade(estudianteInfo.id);
 
                     // Calcular calificación de evaluaciones (automática)
-                    const evaluacionesGrade = await calculateEvaluacionesGrade(estudianteDoc.id);
+                    const evaluacionesGrade = await calculateEvaluacionesGrade(estudianteInfo.id);
 
                     // Obtener calificación de evaluación práctica (manual)
-                    const practicaGrade = await getPracticaGrade(estudianteDoc.id);
+                    const practicaGrade = await getPracticaGrade(estudianteInfo.id);
 
                     // Calcular total
                     const totalGrade = calculateTotalGrade(actividadesGrade, evaluacionesGrade, practicaGrade);
@@ -11321,9 +11333,9 @@ REGLAS ESTRICTAS:
                                 <span style="background: #f8f9fa; padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd; display: inline-block; min-width: 50px;">${evaluacionesGrade.toFixed(1)}</span>
                             </td>
                             <td style="padding: 1rem; text-align: center;">
-                                <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteDoc.id}"
+                                <input type="number" class="grade-input practica-grade" data-estudiante-id="${estudianteInfo.id}"
                                        value="${practicaGrade.toFixed(1)}" min="0" max="8" step="0.1"
-                                       onchange="updatePracticaGrade('${estudianteDoc.id}', this.value)"
+                                       onchange="updatePracticaGrade('${estudianteInfo.id}', this.value)"
                                        style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; text-align: center;">
                             </td>
                             <td style="padding: 1rem; text-align: center;">
