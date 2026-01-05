@@ -5265,10 +5265,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Restaurar la sección activa al recargar la página
             const savedSection = sessionStorage.getItem('activeSection');
-            if (savedSection && savedSection !== 'dashboard') {
+
+            // Mapear IDs antiguos a nuevos para compatibilidad
+            const sectionMapping = {
+                'clases': 'clases-manager',
+                'entregas-viewer': 'actividades-manager'
+            };
+
+            let targetSection = savedSection;
+            if (savedSection && sectionMapping[savedSection]) {
+                targetSection = sectionMapping[savedSection];
+                sessionStorage.setItem('activeSection', targetSection);
+            }
+
+            if (targetSection && targetSection !== 'dashboard') {
                 // Esperar un poco para que el DOM esté completamente listo
                 setTimeout(() => {
-                    showSection(savedSection);
+                    showSection(targetSection);
                 }, 100);
             } else if (!savedSection) {
                 // Si no hay sección guardada, establecer dashboard por defecto
@@ -5364,15 +5377,7 @@
                 } catch (e) { console.error('Error loading clases-manager:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
-            else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
-            else if (sectionId === 'actividades') {
-                try { 
-                    loadActividadesList(); 
-                    // Inicializar editor de actividades cuando se muestre la sección
-                    setTimeout(() => initializeActividadEditor(), 100);
-                } catch (e) { console.error('Error loading actividades:', e); }
-            }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
             else if (sectionId === 'evaluaciones-manager') try { loadEvaluacionesManager(); } catch (e) { console.error('Error loading evaluaciones-manager:', e); }
@@ -5381,7 +5386,6 @@
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
-            else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
 
@@ -7983,15 +7987,13 @@
                     const sectionId = activeSection.id;
                     if (sectionId === 'videos') loadVideosList();
                     else if (sectionId === 'clases-manager') loadClasesManager();
-                    else if (sectionId === 'actividades') loadActividadesList();
                     else if (sectionId === 'cuestionarios') loadCuestionariosList();
+                    else if (sectionId === 'cuestionarios-manager') loadCuestionariosManager();
+                    else if (sectionId === 'evaluaciones-manager') loadEvaluacionesManager();
+                    else if (sectionId === 'actividades-manager') loadActividadesManager();
                     else if (sectionId === 'evaluaciones') loadManagementContent();
                     else if (sectionId === 'materiales') loadMaterialesList();
                     else if (sectionId === 'recursos') loadRecursosList();
-                    else if (sectionId === 'ver-entregas') {
-                        console.log('Seleccionando sección ver-entregas');
-                        loadEntregas();
-                    }
                     else if (sectionId === 'ver-respuestas') {
                         loadRespuestas();
                     }
@@ -12983,7 +12985,6 @@ REGLAS ESTRICTAS:
         }
 
         loadDashboardStats();
-        loadEntregas();
     </script>
 
     <!-- Modal para ver entregas -->
@@ -14354,10 +14355,9 @@ REGLAS ESTRICTAS:
         // Inicializar mejoras de accesibilidad
         document.addEventListener('DOMContentLoaded', function() {
             mejorarAccesibilidad();
-            
+
             // Cargar datos iniciales del dashboard
             loadDashboardStats();
-            loadEntregas();
             loadForosList();
             loadGamificacionStats();
         });
