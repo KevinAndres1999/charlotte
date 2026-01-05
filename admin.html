@@ -2282,11 +2282,9 @@
             </div>
             <div class="nav-menu">
                 <!-- Dashboard y Usuarios -->
+                <!-- Dashboard y Usuarios -->
                 <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-section="usuarios"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
-
-                <!-- Calificaciones -->
-                <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
 
                 <!-- Contenido Educativo -->
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Videos</span></div>
@@ -2294,16 +2292,19 @@
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
 
-                <!-- Evaluación y Seguimiento -->
+                <!-- Evaluaciones y Seguimiento -->
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
                 <div class="nav-item" data-section="cuestionarios-manager"><i class="fas fa-tasks"></i><span>Gestión Cuestionarios</span></div>
+                <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
+                <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
+                <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
+                <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
+
+                <!-- Comunidad e Interacción -->
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
                 <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
-                <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
-                <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
-                <div class="nav-item" data-section="respuestas-viewer"><i class="fas fa-clipboard-list"></i><span>Ver Respuestas</span></div>
 
-                <!-- Recursos -->
+                <!-- Recursos y Herramientas -->
                 <div class="nav-item" data-section="recursos"><i class="fas fa-star"></i><span>Recursos</span></div>
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
 
@@ -4279,6 +4280,144 @@
                 </div>
             </div>
 
+            <!-- Gestión de Evaluaciones -->
+            <div id="evaluaciones-manager" class="content-section">
+
+                <!-- Centro de Gestión Integral -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-clipboard-list"></i> Centro de Gestión de Evaluaciones
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de evaluaciones y exámenes</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <span id="totalEvaluacionesBadgeManager">0</span> Evaluaciones
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
+                    </div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="filterProgramaEvaluaciones">Programa:</label>
+                            <select id="filterProgramaEvaluaciones">
+                                <option value="">Todos los programas</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSedeEvaluaciones">Sede:</label>
+                            <select id="filterSedeEvaluaciones">
+                                <option value="">Todas las sedes</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHorarioEvaluaciones">Horario:</label>
+                            <select id="filterHorarioEvaluaciones">
+                                <option value="">Todos los horarios</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstadoEvaluaciones">Estado:</label>
+                            <select id="filterEstadoEvaluaciones">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchEvaluacion">Buscar:</label>
+                            <input type="text" id="searchEvaluacion" placeholder="Buscar por título o descripción...">
+                        </div>
+                        <div class="filter-group">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosEvaluaciones()">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosEvaluaciones()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalEvaluaciones">0</h3>
+                                <p class="stat-label">Total Items</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-clipboard-check"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="evaluacionesActivas">0</h3>
+                                <p class="stat-label">Activas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalRespuestasEvaluaciones">0</h3>
+                                <p class="stat-label">Total Respuestas</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="promedioCalificacionesEvaluaciones">0%</h3>
+                                <p class="stat-label">Promedio General</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Evaluaciones -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Evaluaciones Disponibles</h3>
+                        <div class="header-actions">
+                            <button type="button" class="btn-secondary" onclick="exportarEvaluaciones()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button type="button" class="btn-primary" onclick="recargarEvaluaciones()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="evaluacionesManagerGrid" class="cuestionarios-grid">
+                        <!-- Las evaluaciones se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Materiales -->
             <div id="materiales" class="content-section">
                 <div class="quiz-builder-section">
@@ -5058,6 +5197,7 @@
             }
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
+            else if (sectionId === 'evaluaciones-manager') try { loadEvaluacionesManager(); } catch (e) { console.error('Error loading evaluaciones-manager:', e); }
             else if (sectionId === 'evaluaciones') try { loadManagementContent(); } catch (e) { console.error('Error loading management content:', e); }
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
@@ -12736,6 +12876,217 @@ REGLAS ESTRICTAS:
                 alert('Enlace copiado al portapapeles: ' + url);
             });
         };
+
+        // =================== FUNCIONES PARA GESTIÓN DE EVALUACIONES ===================
+        let evaluacionesManagerData = [];
+
+        async function loadEvaluacionesManager() {
+            try {
+                console.log('Cargando evaluaciones para gestión...');
+                const snapshot = await db.collection('evaluaciones').get();
+                console.log('Evaluaciones encontradas en Firestore:', snapshot.size);
+
+                evaluacionesManagerData = snapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        console.log('Evaluación:', data.titulo, 'Preguntas:', data.preguntas?.length || 0);
+                        return {
+                            id: doc.id,
+                            ...data,
+                            tipo: 'evaluacion'
+                        };
+                    });
+
+                console.log(`Total evaluaciones cargadas: ${evaluacionesManagerData.length}`);
+                aplicarFiltrosEvaluaciones();
+                actualizarEstadisticasEvaluaciones();
+
+            } catch (error) {
+                console.error('Error loading evaluaciones manager:', error);
+                document.getElementById('evaluacionesManagerGrid').innerHTML = '<p style="color: white;">Error al cargar las evaluaciones</p>';
+            }
+        }
+
+        // Función para aplicar filtros de evaluaciones
+        function aplicarFiltrosEvaluaciones() {
+            const programa = document.getElementById('filterProgramaEvaluaciones').value;
+            const sede = document.getElementById('filterSedeEvaluaciones').value;
+            const horario = document.getElementById('filterHorarioEvaluaciones').value;
+            const estado = document.getElementById('filterEstadoEvaluaciones').value;
+            const search = document.getElementById('searchEvaluacion').value.toLowerCase();
+
+            currentEvaluacionManagerFilter = { programa, sede, horario, estado, search };
+
+            let filteredData = evaluacionesManagerData.filter(evaluacion => {
+                const matchPrograma = !programa || evaluacion.programa === programa;
+
+                // Filtrar por sede - verificar en combinacionesPermitidas o sedes antiguas
+                let matchSede = true;
+                if (sede) {
+                    if (evaluacion.combinacionesPermitidas && Array.isArray(evaluacion.combinacionesPermitidas)) {
+                        matchSede = evaluacion.combinacionesPermitidas.some(combo => combo.sede === sede);
+                    } else if (evaluacion.sedes && Array.isArray(evaluacion.sedes)) {
+                        matchSede = evaluacion.sedes.includes(sede);
+                    } else {
+                        matchSede = evaluacion.sede === sede;
+                    }
+                }
+
+                // Filtrar por horario - verificar en combinacionesPermitidas o horarios antiguas
+                let matchHorario = true;
+                if (horario) {
+                    if (evaluacion.combinacionesPermitidas && Array.isArray(evaluacion.combinacionesPermitidas)) {
+                        matchSede = evaluacion.combinacionesPermitidas.some(combo => combo.horario === horario);
+                    } else if (evaluacion.horarios && Array.isArray(evaluacion.horarios)) {
+                        matchHorario = evaluacion.horarios.includes(horario);
+                    } else {
+                        matchHorario = evaluacion.horario === horario;
+                    }
+                }
+
+                const matchEstado = !estado || getCuestionarioEstado(evaluacion) === estado;
+                const matchSearch = !search ||
+                    evaluacion.titulo?.toLowerCase().includes(search) ||
+                    evaluacion.descripcion?.toLowerCase().includes(search);
+
+                return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
+            });
+
+            renderEvaluacionesGrid(filteredData);
+        }
+
+        // Función para limpiar filtros de evaluaciones
+        function limpiarFiltrosEvaluaciones() {
+            document.getElementById('filterProgramaEvaluaciones').value = '';
+            document.getElementById('filterSedeEvaluaciones').value = '';
+            document.getElementById('filterHorarioEvaluaciones').value = '';
+            document.getElementById('filterEstadoEvaluaciones').value = '';
+            document.getElementById('searchEvaluacion').value = '';
+            currentEvaluacionManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
+            renderEvaluacionesGrid(evaluacionesManagerData);
+        }
+
+        // Función para renderizar el grid de evaluaciones
+        function renderEvaluacionesGrid(data) {
+            const container = document.getElementById('evaluacionesManagerGrid');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron evaluaciones</h3>
+                        <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(evaluacion => {
+                const estado = getCuestionarioEstado(evaluacion);
+                const estadoClass = `status-${estado}`;
+                const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                // Calcular estadísticas
+                const stats = calcularEstadisticasCuestionario(evaluacion);
+
+                return `
+                    <div class="cuestionario-card">
+                        <div class="cuestionario-header">
+                            <div class="cuestionario-title">
+                                <i class="fas fa-clipboard-check"></i>
+                                ${evaluacion.titulo || 'Sin título'}
+                                <span class="tipo-badge badge-evaluacion">
+                                    Evaluación
+                                </span>
+                            </div>
+                            <div class="cuestionario-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(evaluacion.fechaCreacion || evaluacion.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                                <span class="cuestionario-status ${estadoClass}">${estadoText}</span>
+                            </div>
+                        </div>
+                        <div class="cuestionario-content">
+                            <div class="cuestionario-description">
+                                ${evaluacion.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-info">
+                                <div class="info-item">
+                                    <strong>Programa:</strong> ${evaluacion.programa || 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Disponible para:</strong>
+                                    ${renderizarCombinaciones(evaluacion)}
+                                </div>
+                                ${evaluacion.fechaInicio || evaluacion.fechaFin ? `
+                                <div class="info-item">
+                                    <strong>Fechas:</strong>
+                                    ${evaluacion.fechaInicio ? `Desde ${new Date(evaluacion.fechaInicio).toLocaleString('es-ES')}` : ''}
+                                    ${evaluacion.fechaInicio && evaluacion.fechaFin ? ' - ' : ''}
+                                    ${evaluacion.fechaFin ? `Hasta ${new Date(evaluacion.fechaFin).toLocaleString('es-ES')}` : ''}
+                                </div>` : ''}
+                            </div>
+                            <div class="cuestionario-actions">
+                                <button class="btn-icon" onclick="verDetalleCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver Evaluación">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editarCuestionario('${evaluacion.id}', 'evaluacion')" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteItem('evaluaciones', '${evaluacion.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Función para actualizar estadísticas de evaluaciones
+        async function actualizarEstadisticasEvaluaciones() {
+            try {
+                const total = evaluacionesManagerData.length;
+                const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
+
+                // Calcular total de respuestas
+                let totalRespuestas = 0;
+                let sumaCalificaciones = 0;
+                let countCalificaciones = 0;
+
+                for (const evaluacion of evaluacionesManagerData) {
+                    const stats = await calcularEstadisticasCuestionario(evaluacion);
+                    totalRespuestas += stats.totalRespuestas;
+                    if (stats.promedioCalificaciones > 0) {
+                        sumaCalificaciones += stats.promedioCalificaciones;
+                        countCalificaciones++;
+                    }
+                }
+
+                const promedioGeneral = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
+
+                document.getElementById('totalEvaluaciones').textContent = total;
+                document.getElementById('evaluacionesActivas').textContent = activos;
+                document.getElementById('totalRespuestasEvaluaciones').textContent = totalRespuestas;
+                document.getElementById('promedioCalificacionesEvaluaciones').textContent = `${promedioGeneral}%`;
+                document.getElementById('totalEvaluacionesBadgeManager').textContent = total;
+
+            } catch (error) {
+                console.error('Error updating evaluaciones statistics:', error);
+            }
+        }
+
+        // Función para recargar evaluaciones
+        function recargarEvaluaciones() {
+            loadEvaluacionesManager();
+        }
+
+        // Función para exportar evaluaciones
+        function exportarEvaluaciones() {
+            // Implementar exportación
+            alert('Función de exportación próximamente disponible');
+        }
 
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {
