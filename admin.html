@@ -3493,21 +3493,34 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="autoCuestionarioSede">Sede</label>
-                                    <select id="autoCuestionarioSede" required>
-                                        <option value="">Seleccionar sede</option>
-                                        <option value="Carapungo">Carapungo</option>
-                                        <option value="Sangolquí">Sangolquí</option>
-                                    </select>
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="autoCuestionarioSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="autoCuestionarioSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="autoCuestionarioHorario">Horario</label>
-                                    <select id="autoCuestionarioHorario" required>
-                                        <option value="">Seleccionar horario</option>
-                                        <option value="Sábado Matutina">Sábado Matutina</option>
-                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
-                                        <option value="Domingo Matutina">Domingo Matutina</option>
-                                    </select>
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -8738,8 +8751,8 @@
             const title = document.getElementById('autoCuestionarioTitle').value.trim();
             const desc = document.getElementById('autoCuestionarioDesc').value.trim();
             const programa = document.getElementById('autoCuestionarioPrograma').value;
-            const sede = document.getElementById('autoCuestionarioSede').value;
-            const horario = document.getElementById('autoCuestionarioHorario').value;
+            const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="autoCuestionarioSedes"]:checked')).map(cb => cb.value);
+            const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="autoCuestionarioHorarios"]:checked')).map(cb => cb.value);
             const tiempo = parseInt(document.getElementById('autoCuestionarioTiempo').value) || 60;
             const intentos = parseInt(document.getElementById('autoCuestionarioIntentos').value) || 1;
 
@@ -8748,8 +8761,8 @@
                 return;
             }
 
-            if (!sede || !horario) {
-                alert('Por favor, selecciona una sede y un horario.');
+            if (sedesSeleccionadas.length === 0 || horariosSeleccionados.length === 0) {
+                alert('Por favor, selecciona al menos una sede y un horario.');
                 return;
             }
 
@@ -8770,8 +8783,8 @@
                     titulo: title,
                     descripcion: desc,
                     programa: programa,
-                    sede: sede,
-                    horario: horario,
+                    sedes: sedesSeleccionadas,
+                    horarios: horariosSeleccionados,
                     tiempoLimite: tiempo,
                     intentosMaximos: intentos,
                     preguntas: window.preguntasGeneradas.map(p => ({
@@ -8904,7 +8917,7 @@ INSTRUCCIONES CRÍTICAS:
 5. IMPORTANTE: Genera TODAS las preguntas solicitadas (${numPreguntas})
 
 CONTENIDO PARA ANALIZAR:
-${texto.substring(0, 1200)}
+${texto}
 
 FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido y COMPLETO, sin texto adicional):
 [
