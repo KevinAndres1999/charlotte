@@ -11067,6 +11067,9 @@ REGLAS ESTRICTAS:
 
             return 'Sin restricciones de sede/horario';
         }
+
+        // Función para limpiar filtros de cuestionarios
+        function limpiarFiltrosCuestionarios() {
             document.getElementById('filterProgramaCuestionarios').value = '';
             document.getElementById('filterSedeCuestionarios').value = '';
             document.getElementById('filterHorarioCuestionarios').value = '';
@@ -12911,12 +12914,13 @@ REGLAS ESTRICTAS:
         // Inicializar mejoras de accesibilidad
         document.addEventListener('DOMContentLoaded', function() {
             mejorarAccesibilidad();
+            
+            // Cargar datos iniciales del dashboard
+            loadDashboardStats();
+            loadEntregas();
+            loadForosList();
+            loadGamificacionStats();
         });
-
-        loadDashboardStats();
-        loadEntregas();
-        loadForosList();
-        loadGamificacionStats();
     </script>
 
 </body>
