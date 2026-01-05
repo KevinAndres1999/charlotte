@@ -1042,6 +1042,112 @@
             position: relative;
         }
 
+        /* === ESTILOS PARA ORGANIZACIÓN DE CLASES POR PROGRAMA Y MÓDULO === */
+        .programa-section {
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .programa-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .programa-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .programa-header h2 i {
+            font-size: 1.25rem;
+        }
+
+        .modulo-section {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modulo-section:last-child {
+            border-bottom: none;
+        }
+
+        .modulo-header {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modulo-header h3 i {
+            color: #667eea;
+        }
+
+        .modulo-clases {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Ajustes para las tarjetas de clase dentro de módulos */
+        .modulo-clases .clase-card {
+            margin: 0;
+        }
+
+        .modulo-clases .clase-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modulo-clases .clase-header h4 i {
+            color: #667eea;
+            font-size: 0.875rem;
+        }
+
+        .modulo-clases .clase-meta {
+            margin-bottom: 0.75rem;
+        }
+
+        .modulo-clases .clase-description {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .modulo-clases .clase-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modulo-clases .clase-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
         /* === ESTILOS PARA LA NUEVA INTERFAZ DE CLASE-VIEWER === */
         .clase-viewer-banner {
             background: linear-gradient(135deg, #3b82f6, #1e3a8a);
@@ -10130,29 +10236,139 @@ REGLAS ESTRICTAS:
             const container = document.getElementById('clasesList');
             if (!container) return;
 
-            container.innerHTML = allClases.map(clase => `
-                <div class="clase-card" data-id="${clase.id}">
-                    <div class="clase-header">
-                        <h3>${clase.titulo}</h3>
-                        <span class="program-badge">${clase.programa}</span>
-                    </div>
-                    <div class="clase-meta">
-                        <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
-                        ${clase.duracion ? `<span><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
-                    </div>
-                    <div class="clase-description">
-                        ${clase.descripcion ? clase.descripcion.substring(0, 150) + '...' : 'Sin descripción'}
-                    </div>
-                    <div class="clase-actions">
-                        <button class="btn btn-primary" onclick="loadClaseDetail('${clase.id}')">
-                            <i class="fas fa-eye"></i> Ver Clase
-                        </button>
-                        <button class="btn btn-secondary" onclick="editClase('${clase.id}')">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+            // Agrupar clases por programa
+            const clasesPorPrograma = {};
+            allClases.forEach(clase => {
+                const programa = clase.programa || 'Sin Programa';
+                if (!clasesPorPrograma[programa]) {
+                    clasesPorPrograma[programa] = {};
+                }
+
+                const modulo = clase.modulo || 'Sin Módulo';
+                if (!clasesPorPrograma[programa][modulo]) {
+                    clasesPorPrograma[programa][modulo] = [];
+                }
+
+                clasesPorPrograma[programa][modulo].push(clase);
+            });
+
+            // Generar HTML organizado por programa y módulo
+            let html = '';
+
+            // Definir el orden de programas
+            const ordenProgramas = ['Belleza Integral', 'Panadería y Pastelería', 'Asesoría Técnica'];
+
+            ordenProgramas.forEach(programa => {
+                if (clasesPorPrograma[programa]) {
+                    html += `
+                        <div class="programa-section">
+                            <div class="programa-header">
+                                <h2><i class="fas fa-graduation-cap"></i> ${programa}</h2>
+                            </div>
+                    `;
+
+                    // Ordenar módulos
+                    const modulosOrdenados = Object.keys(clasesPorPrograma[programa]).sort();
+
+                    modulosOrdenados.forEach(modulo => {
+                        const clases = clasesPorPrograma[programa][modulo];
+                        const moduloDisplay = modulo.startsWith('modulo') ?
+                            `Módulo ${modulo.replace('modulo', '')}` : modulo;
+
+                        html += `
+                            <div class="modulo-section">
+                                <div class="modulo-header">
+                                    <h3><i class="fas fa-book"></i> ${moduloDisplay} (${clases.length} clases)</h3>
+                                </div>
+                                <div class="modulo-clases">
+                                    ${clases.map(clase => `
+                                        <div class="clase-card" data-id="${clase.id}">
+                                            <div class="clase-header">
+                                                <h4>${clase.titulo}</h4>
+                                                <span class="program-badge">${programa}</span>
+                                            </div>
+                                            <div class="clase-meta">
+                                                <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
+                                                ${clase.duracion ? `<span><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
+                                            </div>
+                                            <div class="clase-description">
+                                                ${clase.descripcion ? clase.descripcion.substring(0, 120) + '...' : 'Sin descripción'}
+                                            </div>
+                                            <div class="clase-actions">
+                                                <button class="btn btn-primary" onclick="loadClaseDetail('${clase.id}')">
+                                                    <i class="fas fa-eye"></i> Ver Clase
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="editClase('${clase.id}')">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                }
+            });
+
+            // Agregar programas que no estén en el orden definido
+            Object.keys(clasesPorPrograma).forEach(programa => {
+                if (!ordenProgramas.includes(programa)) {
+                    html += `
+                        <div class="programa-section">
+                            <div class="programa-header">
+                                <h2><i class="fas fa-graduation-cap"></i> ${programa}</h2>
+                            </div>
+                    `;
+
+                    const modulosOrdenados = Object.keys(clasesPorPrograma[programa]).sort();
+
+                    modulosOrdenados.forEach(modulo => {
+                        const clases = clasesPorPrograma[programa][modulo];
+                        const moduloDisplay = modulo.startsWith('modulo') ?
+                            `Módulo ${modulo.replace('modulo', '')}` : modulo;
+
+                        html += `
+                            <div class="modulo-section">
+                                <div class="modulo-header">
+                                    <h3><i class="fas fa-book"></i> ${moduloDisplay} (${clases.length} clases)</h3>
+                                </div>
+                                <div class="modulo-clases">
+                                    ${clases.map(clase => `
+                                        <div class="clase-card" data-id="${clase.id}">
+                                            <div class="clase-header">
+                                                <h4>${clase.titulo}</h4>
+                                                <span class="program-badge">${programa}</span>
+                                            </div>
+                                            <div class="clase-meta">
+                                                <span><i class="fas fa-calendar"></i> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'Sin fecha'}</span>
+                                                ${clase.duracion ? `<span><i class="fas fa-clock"></i> ${clase.duracion}</span>` : ''}
+                                            </div>
+                                            <div class="clase-description">
+                                                ${clase.descripcion ? clase.descripcion.substring(0, 120) + '...' : 'Sin descripción'}
+                                            </div>
+                                            <div class="clase-actions">
+                                                <button class="btn btn-primary" onclick="loadClaseDetail('${clase.id}')">
+                                                    <i class="fas fa-eye"></i> Ver Clase
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="editClase('${clase.id}')">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                }
+            });
+
+            container.innerHTML = html;
 
             if (allClases.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No hay clases disponibles</h3><p style="color: white;">No se encontraron clases en la base de datos.</p></div>';
