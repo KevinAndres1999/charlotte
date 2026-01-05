@@ -1949,6 +1949,16 @@
             color: #d97706;
         }
 
+        .badge-actividad {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-clase {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
         .cuestionario-meta {
             display: flex;
             gap: 1rem;
@@ -2264,6 +2274,241 @@
                 align-items: stretch;
             }
         }
+
+        /* Estilos para gestión de actividades */
+        .entregas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .entrega-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .entrega-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .entrega-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .entrega-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: #111827;
+        }
+
+        .entrega-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .entrega-status .status-calificado {
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .entrega-status .status-pendiente {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .entrega-content {
+            padding: 1.5rem;
+        }
+
+        .entrega-preview {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .entrega-actions {
+            padding: 1rem 1.5rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .entrega-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .entrega-detail-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .entrega-detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .entrega-detail-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .entrega-detail-section h4 {
+            margin: 0 0 1rem 0;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .entrega-content-display {
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .archivos-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .archivo-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .archivo-item a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .archivo-item a:hover {
+            text-decoration: underline;
+        }
+
+        .calificacion-display {
+            text-align: center;
+        }
+
+        .calificacion-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #166534;
+            margin-bottom: 0.5rem;
+        }
+
+        .calificacion-comentarios {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            color: #374151;
+        }
+
+        .calificacion-fecha {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .calificacion-form {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .entrega-detail-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .entrega-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .entregas-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Estilos para gestión de clases */
+        .clase-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .clase-detail-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .clase-detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .clase-detail-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .clase-detail-section h4 {
+            margin: 0 0 1rem 0;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .clase-content-display {
+            color: #374151;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .clase-detail-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 768px) {
+            .clase-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head><body>
     <header class="admin-header">
@@ -2288,7 +2533,7 @@
 
                 <!-- Contenido Educativo -->
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Videos</span></div>
-                <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Clases</span></div>
+                <div class="nav-item" data-section="clases-manager"><i class="fas fa-book-open"></i><span>Gestionar Clases</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
 
@@ -2298,7 +2543,7 @@
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
-                <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
+                <div class="nav-item" data-section="actividades-manager"><i class="fas fa-tasks"></i><span>Gestionar Actividades</span></div>
 
                 <!-- Comunidad e Interacción -->
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
@@ -2326,11 +2571,11 @@
                             <div class="stat-card-icon blue"><i class="fas fa-video"></i></div>
                         </div>
                     </div>
-                    <div class="stat-card" onclick="showSection('clases', event)" style="cursor: pointer;">
+                    <div class="stat-card" onclick="showSection('clases-manager', event)" style="cursor: pointer;">
                         <div class="stat-card-header">
                             <div>
                                 <h3 class="stat-value" id="stat-clases">0</h3>
-                                <p class="stat-label">Clases Subidas</p>
+                                <p class="stat-label">Total Clases</p>
                             </div>
                             <div class="stat-card-icon green"><i class="fas fa-book-open"></i></div>
                         </div>
@@ -2613,106 +2858,154 @@
             </div>
 
             <!-- Subir Clases -->
-            <div id="clases" class="content-section">
+            <div id="clases-manager" class="content-section">
+
+                <!-- Centro de Gestión Integral -->
                 <div class="quiz-builder-section">
                     <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-book-open"></i> Gestión de Clases</h3>
-                        <p style="color: white;">Sube y administra las clases disponibles para tus estudiantes</p>
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-book-open"></i> Centro de Gestión de Clases
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de clases y contenido educativo</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-book-open"></i>
+                                    <span id="totalClasesBadge">0</span> Clases
+                                </div>
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-users"></i>
+                                    <span id="clasesActivasBadge">0</span> Activas
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <form id="claseForm">
-                        <div class="quiz-form-grid">
-                            <div class="quiz-form-card">
-                                <h4><i class="fas fa-info-circle"></i> Información de la Clase</h4>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="claseTitle">Título de la Clase</label>
-                                    <input type="text" id="claseTitle" placeholder="Ej: Introducción a Técnicas de Panadería" required>
-                                </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="claseDesc">Descripción</label>
-                                    <textarea id="claseDesc" placeholder="Describe brevemente el contenido y objetivos de la clase..."></textarea>
-                                </div>
-                            </div>
-
-                            <div class="quiz-form-card">
-                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="clasePrograma">Programa</label>
-                                    <select id="clasePrograma" required>
-                                        <option value="">Seleccionar programa</option>
-                                        <option value="Belleza Integral">Belleza Integral</option>
-                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="claseModulo">Módulo</label>
-                                    <select id="claseModulo" required>
-                                        <option value="">Seleccionar módulo</option>
-                                        <option value="modulo1">Módulo 1: Panadería</option>
-                                        <option value="modulo2">Módulo 2: Galletaría</option>
-                                        <option value="modulo3">Módulo 3: Pastelería</option>
-                                        <option value="modulo4">Módulo 4: Repostería</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Horarios (selecciona uno o más)</label>
-                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="claseHorarios" value="Sábado Matutina">
-                                            Sábado Matutina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="claseHorarios" value="Sábado Vespertina">
-                                            Sábado Vespertina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="claseHorarios" value="Domingo Matutina">
-                                            Domingo Matutina
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Sedes (selecciona una o más)</label>
-                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="claseSedes" value="Carapungo">
-                                            Carapungo
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="claseSedes" value="Sangolquí">
-                                            Sangolquí
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-content-section" style="margin-top: 20px; margin-bottom: 20px;">
-                            <div class="quiz-form-card" style="width: 100%;">
-                                <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="claseContent">Contenido Detallado</label>
-                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
-                                    <button type="button" onclick="initializeClaseEditor()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Inicializar Editor</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="submit-section">
-                            <button type="submit" class="btn-submit-quiz">
-                                <i class="fas fa-upload"></i> Subir Clase
-                            </button>
-                        </div>
-                    </form>
                 </div>
 
+                <!-- Filtros y Búsqueda -->
                 <div class="quiz-builder-section">
                     <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-list"></i> Clases Subidas</h3>
-                        <p style="color: white;">Gestiona y administra tus clases publicadas</p>
+                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
                     </div>
-                    <div id="clasesList" class="grid"></div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="filterProgramaClases">Programa:</label>
+                            <select id="filterProgramaClases">
+                                <option value="">Todos los programas</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSedeClases">Sede:</label>
+                            <select id="filterSedeClases">
+                                <option value="">Todas las sedes</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHorarioClases">Horario:</label>
+                            <select id="filterHorarioClases">
+                                <option value="">Todos los horarios</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterModuloClases">Módulo:</label>
+                            <select id="filterModuloClases">
+                                <option value="">Todos los módulos</option>
+                                <option value="modulo1">Módulo 1: Panadería</option>
+                                <option value="modulo2">Módulo 2: Galletaría</option>
+                                <option value="modulo3">Módulo 3: Pastelería</option>
+                                <option value="modulo4">Módulo 4: Repostería</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstadoClases">Estado:</label>
+                            <select id="filterEstadoClases">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchClase">Buscar:</label>
+                            <input type="text" id="searchClase" placeholder="Buscar por título o descripción...">
+                        </div>
+                        <div class="filter-group">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosClases()">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosClases()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalClases">0</h3>
+                                <p class="stat-label">Total Clases</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-book-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesActivas">0</h3>
+                                <p class="stat-label">Activas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesBelleza">0</h3>
+                                <p class="stat-label">Belleza</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-spa"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesPanaderia">0</h3>
+                                <p class="stat-label">Panadería</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-bread-slice"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Clases -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Clases Disponibles</h3>
+                        <div class="header-actions">
+                            <button type="button" class="btn-secondary" onclick="exportarClases()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button type="button" class="btn-primary" onclick="recargarClases()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="clasesManagerGrid" class="cuestionarios-grid">
+                        <!-- Las clases se cargarán aquí -->
+                    </div>
                 </div>
             </div>
 
@@ -2845,259 +3138,146 @@
 
             <!-- Ver Entregas -->
             <!-- Entregas Viewer -->
-            <div id="entregas-viewer" class="content-section">
-                <!-- Panel de Estadísticas -->
+            <div id="actividades-manager" class="content-section">
+
+                <!-- Centro de Gestión Integral -->
                 <div class="quiz-builder-section">
                     <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-inbox"></i> Entregas de Actividades</h3>
-                        <p style="color: white;">Revisa y califica las entregas de tus estudiantes</p>
-                    </div>
-
-                    <!-- Estadísticas -->
-                    <div class="stats-grid" style="margin-bottom: 32px;">
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="total-entregas">0</h3>
-                                    <p class="stat-label">Total Entregas</p>
-                                </div>
-                                <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="pendientes-entregas">0</h3>
-                                    <p class="stat-label">Pendientes</p>
-                                </div>
-                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="calificadas-entregas">0</h3>
-                                    <p class="stat-label">Calificadas</p>
-                                </div>
-                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grid de Actividades -->
-                <div id="actividadesGrid" class="quiz-builder-section" style="display: block;">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-tasks"></i> Actividades Disponibles</h3>
-                        <p style="color: white;">Haz clic en una actividad para ver las entregas de estudiantes</p>
-                    </div>
-                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
-                        <!-- Las actividades se cargarán aquí -->
-                    </div>
-                </div>
-
-                <!-- Grid de Entregas de una Actividad -->
-                <div id="entregasGrid" class="quiz-builder-section" style="display: none;">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                             <div>
-                                <h3><i class="fas fa-file-alt"></i> <span id="actividadSeleccionada">Entregas de Actividad</span></h3>
-                                <p style="color: white;">Entregas de estudiantes para esta actividad</p>
+                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-tasks"></i> Centro de Gestión de Actividades
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de actividades y entregas</p>
                             </div>
-                            <button class="btn-secondary" onclick="volverAActividades()" style="margin: 0;">
-                                <i class="fas fa-arrow-left"></i> Volver a Actividades
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-tasks"></i>
+                                    <span id="totalActividadesBadge">0</span> Actividades
+                                </div>
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-inbox"></i>
+                                    <span id="totalEntregasBadge">0</span> Entregas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
+                    </div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="filterProgramaActividades">Programa:</label>
+                            <select id="filterProgramaActividades">
+                                <option value="">Todos los programas</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSedeActividades">Sede:</label>
+                            <select id="filterSedeActividades">
+                                <option value="">Todas las sedes</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHorarioActividades">Horario:</label>
+                            <select id="filterHorarioActividades">
+                                <option value="">Todos los horarios</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstadoActividades">Estado:</label>
+                            <select id="filterEstadoActividades">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchActividad">Buscar:</label>
+                            <input type="text" id="searchActividad" placeholder="Buscar por título o descripción...">
+                        </div>
+                        <div class="filter-group">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosActividades()">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosActividades()">
+                                <i class="fas fa-times"></i> Limpiar
                             </button>
                         </div>
                     </div>
-                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
-                        <!-- Las entregas se cargarán aquí -->
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalActividades">0</h3>
+                                <p class="stat-label">Total Actividades</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-tasks"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="actividadesActivas">0</h3>
+                                <p class="stat-label">Activas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalEntregas">0</h3>
+                                <p class="stat-label">Total Entregas</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-inbox"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="entregasPendientes">0</h3>
+                                <p class="stat-label">Pendientes</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-clock"></i></div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Vista de Detalle de Entrega -->
-                <div id="entregaDetail" style="display: none;">
-                    <!-- Banner -->
-                    <div class="entregas-viewer-banner">
-                        <div class="entregas-viewer-header">
-                            <div class="entregas-viewer-nav">
-                                <button class="btn-secondary" onclick="backToEntregas()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
-                                    <i class="fas fa-arrow-left"></i> Volver
-                                </button>
-                            </div>
-                            <div class="entregas-viewer-info">
-                                <h2 id="entregaBannerTitle">Entrega de Actividad</h2>
-                                <div class="entregas-viewer-meta">
-                                    <div class="program-badge" id="entregaBannerPrograma">Programa</div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-user"></i> <span id="entregaBannerEstudiante">Estudiante</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-calendar"></i> <span id="entregaBannerFecha">Fecha</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="entregas-viewer-actions">
-                                <button class="btn-primary" onclick="prevEntrega()" id="prevEntregaBtn" style="display: none;">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                                <button class="btn-primary" onclick="nextEntrega()" id="nextEntregaBtn" style="display: none;">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                            </div>
+                <!-- Lista de Actividades -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Actividades Disponibles</h3>
+                        <div class="header-actions">
+                            <button type="button" class="btn-secondary" onclick="exportarActividades()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button type="button" class="btn-primary" onclick="recargarActividades()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
                         </div>
                     </div>
-
-                    <!-- Estadísticas -->
-                    <div class="entregas-stats">
-                        <div class="stats-grid">
-                            <div class="stat-card">
-                                <div class="stat-card-header">
-                                    <div>
-                                        <h3 class="stat-value" id="entregaEstado">Pendiente</h3>
-                                        <p class="stat-label">Estado</p>
-                                    </div>
-                                    <div class="stat-card-icon" id="entregaEstadoIcon" style="background: #fbbf24; color: white;"><i class="fas fa-clock"></i></div>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-card-header">
-                                    <div>
-                                        <h3 class="stat-value" id="entregaCalificacion">-</h3>
-                                        <p class="stat-label">Calificación</p>
-                                    </div>
-                                    <div class="stat-card-icon" style="background: #6b7280; color: white;"><i class="fas fa-star"></i></div>
-                                </div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-card-header">
-                                    <div>
-                                        <h3 class="stat-value" id="entregaIntentos">1</h3>
-                                        <p class="stat-label">Intento</p>
-                                    </div>
-                                    <div class="stat-card-icon blue"><i class="fas fa-redo"></i></div>
-                                </div>
-                            </div>
-                        </div>
+                    <div id="actividadesManagerGrid" class="cuestionarios-grid">
+                        <!-- Las actividades se cargarán aquí -->
                     </div>
-
-                    <!-- Contenido -->
-                    <div class="entregas-viewer-content">
-                        <div class="entregas-content-grid">
-                            <!-- Información de la Actividad -->
-                            <div class="card entregas-description-card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-tasks"></i> Información de la Actividad</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div class="entregas-description-content" id="entregaActividadInfo">
-                                        Cargando información de la actividad...
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Contenido de la Entrega -->
-                            <div class="card entregas-main-content-card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-file-alt"></i> Entrega del Estudiante</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div class="entregas-content-viewer" id="entregaContenido">
-                                        Cargando contenido de la entrega...
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Calificación -->
-                            <div class="card entregas-calificacion-card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-star"></i> Calificación y Comentarios</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div id="calificacionSection">
-                                        <div style="margin-bottom: 1.5rem;">
-                                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Calificación (0-100)</label>
-                                            <input type="number" id="calificacionInput" min="0" max="100" placeholder="Ingresa calificación" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
-                                        </div>
-                                        <div style="margin-bottom: 1.5rem;">
-                                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Comentarios</label>
-                                            <textarea id="comentariosInput" placeholder="Escribe tus comentarios sobre la entrega..." rows="4" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
-                                        </div>
-                                        <div style="display: flex; gap: 1rem;">
-                                            <button class="btn-primary" onclick="guardarCalificacion()">
-                                                <i class="fas fa-save"></i> Guardar Calificación
-                                            </button>
-                                            <button class="btn-secondary" onclick="resetCalificacion()">
-                                                <i class="fas fa-undo"></i> Reset
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div id="calificacionGuardada" style="display: none; padding: 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534;">
-                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <i class="fas fa-check-circle"></i>
-                                            <strong>Calificación guardada exitosamente</strong>
-                                        </div>
-                                        <div style="margin-top: 0.5rem;">
-                                            <span id="calificacionMostrada"></span>
-                                        </div>
-                                        <div id="comentariosMostrados" style="margin-top: 0.5rem; font-style: italic;"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Navegación -->
-                            <div class="card entregas-navigation-card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-route"></i> Navegación</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div class="navigation-controls">
-                                        <button class="btn-secondary" onclick="prevEntrega()" id="prevEntregaBtnBottom">
-                                            <i class="fas fa-chevron-left"></i> Entrega Anterior
-                                        </button>
-                                        <div class="navigation-indicator" id="entregaIndicator">
-                                            Entrega 1 de X
-                                        </div>
-                                        <button class="btn-secondary" onclick="nextEntrega()" id="nextEntregaBtnBottom">
-                                            Entrega Siguiente <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Acciones Rápidas -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
-                                </div>
-                                <div class="card-content">
-                                    <div class="entregas-actions-links">
-                                        <div class="quick-link-grid">
-                                            <div class="quick-link" onclick="marcarComoRevisada()">
-                                                <div class="quick-link-icon">
-                                                    <i class="fas fa-eye"></i>
-                                                </div>
-                                                <h4>Marcar como Revisada</h4>
-                                                <p style="color: white;">Sin calificación específica</p>
-                                            </div>
-                                            <div class="quick-link" onclick="descargarEntrega()">
-                                                <div class="quick-link-icon">
-                                                    <i class="fas fa-download"></i>
-                                                </div>
-                                                <h4>Descargar Entrega</h4>
-                                                <p style="color: white;">Guardar como archivo</p>
-                                            </div>
-                                            <div class="quick-link" onclick="contactarEstudiante()">
-                                                <div class="quick-link-icon">
-                                                    <i class="fas fa-envelope"></i>
-                                                </div>
-                                                <h4>Contactar Estudiante</h4>
-                                                <p style="color: white;">Enviar mensaje directo</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                </div>
+            </div>
                     </div>
                 </div>
             </div>
@@ -4671,8 +4851,8 @@
                 <div class="welcome-banner clase-viewer-banner">
                     <div class="clase-viewer-header">
                         <div class="clase-viewer-nav">
-                            <button class="btn btn-secondary" onclick="showSection('clases')">
-                                <i class="fas fa-arrow-left"></i> Volver a Clases
+                            <button class="btn btn-secondary" onclick="showSection('clases-manager')">
+                                <i class="fas fa-arrow-left"></i> Volver a Gestionar Clases
                             </button>
                         </div>
                         <div class="clase-viewer-info">
@@ -5178,12 +5358,10 @@
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
-            else if (sectionId === 'clases') {
+            else if (sectionId === 'clases-manager') {
                 try {
-                    loadClasesList();
-                    // Inicializar editor de clases cuando se muestre la sección
-                    setTimeout(() => initializeClaseEditor(), 100);
-                } catch (e) { console.error('Error loading clases:', e); }
+                    loadClasesManager();
+                } catch (e) { console.error('Error loading clases-manager:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
@@ -5198,6 +5376,7 @@
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
             else if (sectionId === 'evaluaciones-manager') try { loadEvaluacionesManager(); } catch (e) { console.error('Error loading evaluaciones-manager:', e); }
+            else if (sectionId === 'actividades-manager') try { loadActividadesManager(); } catch (e) { console.error('Error loading actividades-manager:', e); }
             else if (sectionId === 'evaluaciones') try { loadManagementContent(); } catch (e) { console.error('Error loading management content:', e); }
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
@@ -7803,7 +7982,7 @@
                 if (activeSection) {
                     const sectionId = activeSection.id;
                     if (sectionId === 'videos') loadVideosList();
-                    else if (sectionId === 'clases') loadClasesList();
+                    else if (sectionId === 'clases-manager') loadClasesManager();
                     else if (sectionId === 'actividades') loadActividadesList();
                     else if (sectionId === 'cuestionarios') loadCuestionariosList();
                     else if (sectionId === 'evaluaciones') loadManagementContent();
@@ -13086,6 +13265,918 @@ REGLAS ESTRICTAS:
         function exportarEvaluaciones() {
             // Implementar exportación
             alert('Función de exportación próximamente disponible');
+        }
+
+        // =================== FUNCIONES PARA GESTIÓN DE ACTIVIDADES ===================
+
+        let actividadesManagerData = [];
+        let currentActividadManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
+
+        // Función para cargar actividades para gestión
+        async function loadActividadesManager() {
+            try {
+                console.log('Cargando actividades para gestión...');
+                const snapshot = await db.collection('actividades').get();
+                console.log('Actividades encontradas en Firestore:', snapshot.size);
+
+                actividadesManagerData = snapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        console.log('Actividad:', data.titulo, 'Tipo:', data.tipo);
+                        return {
+                            id: doc.id,
+                            ...data
+                        };
+                    });
+
+                console.log(`Total actividades cargadas: ${actividadesManagerData.length}`);
+                aplicarFiltrosActividades();
+                actualizarEstadisticasActividades();
+
+            } catch (error) {
+                console.error('Error loading actividades manager:', error);
+                document.getElementById('actividadesManagerGrid').innerHTML = '<p style="color: white;">Error al cargar las actividades</p>';
+            }
+        }
+
+        // Función para aplicar filtros de actividades
+        function aplicarFiltrosActividades() {
+            const programa = document.getElementById('filterProgramaActividades').value;
+            const sede = document.getElementById('filterSedeActividades').value;
+            const horario = document.getElementById('filterHorarioActividades').value;
+            const estado = document.getElementById('filterEstadoActividades').value;
+            const search = document.getElementById('searchActividad').value.toLowerCase();
+
+            currentActividadManagerFilter = { programa, sede, horario, estado, search };
+
+            let filteredData = actividadesManagerData.filter(actividad => {
+                const matchPrograma = !programa || actividad.programa === programa;
+
+                // Filtrar por sede - verificar en combinacionesPermitidas o sedes antiguas
+                let matchSede = true;
+                if (sede) {
+                    if (actividad.combinacionesPermitidas && Array.isArray(actividad.combinacionesPermitidas)) {
+                        matchSede = actividad.combinacionesPermitidas.some(combo => combo.sede === sede);
+                    } else if (actividad.sedes && Array.isArray(actividad.sedes)) {
+                        matchSede = actividad.sedes.includes(sede);
+                    } else {
+                        matchSede = actividad.sede === sede;
+                    }
+                }
+
+                // Filtrar por horario - verificar en combinacionesPermitidas o horarios antiguas
+                let matchHorario = true;
+                if (horario) {
+                    if (actividad.combinacionesPermitidas && Array.isArray(actividad.combinacionesPermitidas)) {
+                        matchHorario = actividad.combinacionesPermitidas.some(combo => combo.horario === horario);
+                    } else if (actividad.horarios && Array.isArray(actividad.horarios)) {
+                        matchHorario = actividad.horarios.includes(horario);
+                    } else {
+                        matchHorario = actividad.horario === horario;
+                    }
+                }
+
+                const matchEstado = !estado || getActividadEstado(actividad) === estado;
+                const matchSearch = !search ||
+                    actividad.titulo?.toLowerCase().includes(search) ||
+                    actividad.descripcion?.toLowerCase().includes(search);
+
+                return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
+            });
+
+            renderActividadesGrid(filteredData);
+        }
+
+        // Función para limpiar filtros de actividades
+        function limpiarFiltrosActividades() {
+            document.getElementById('filterProgramaActividades').value = '';
+            document.getElementById('filterSedeActividades').value = '';
+            document.getElementById('filterHorarioActividades').value = '';
+            document.getElementById('filterEstadoActividades').value = '';
+            document.getElementById('searchActividad').value = '';
+            currentActividadManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
+            renderActividadesGrid(actividadesManagerData);
+        }
+
+        // Función para obtener el estado de una actividad
+        function getActividadEstado(actividad) {
+            const ahora = new Date();
+            const fechaInicio = actividad.fechaInicio ? new Date(actividad.fechaInicio) : null;
+            const fechaFin = actividad.fechaFin ? new Date(actividad.fechaFin) : null;
+
+            if (!fechaInicio && !fechaFin) return 'activo';
+            if (fechaFin && ahora > fechaFin) return 'inactivo';
+            if (fechaInicio && ahora < fechaInicio) return 'borrador';
+            return 'activo';
+        }
+
+        // Función para renderizar el grid de actividades
+        function renderActividadesGrid(data) {
+            const container = document.getElementById('actividadesManagerGrid');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron actividades</h3>
+                        <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(actividad => {
+                const estado = getActividadEstado(actividad);
+                const estadoClass = `status-${estado}`;
+                const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                // Calcular estadísticas
+                const stats = calcularEstadisticasActividad(actividad);
+
+                return `
+                    <div class="cuestionario-card">
+                        <div class="cuestionario-header">
+                            <div class="cuestionario-title">
+                                <i class="fas fa-tasks"></i>
+                                ${actividad.titulo || 'Sin título'}
+                                <span class="tipo-badge badge-actividad">
+                                    Actividad
+                                </span>
+                            </div>
+                            <div class="cuestionario-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(actividad.fechaCreacion || actividad.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                                <span class="cuestionario-status ${estadoClass}">${estadoText}</span>
+                            </div>
+                        </div>
+                        <div class="cuestionario-content">
+                            <div class="cuestionario-description">
+                                ${actividad.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-info">
+                                <div class="info-item">
+                                    <strong>Programa:</strong> ${actividad.programa || 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Disponible para:</strong>
+                                    ${renderizarCombinaciones(actividad)}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Tipo:</strong> ${actividad.tipo || 'General'}
+                                </div>
+                                ${actividad.fechaInicio || actividad.fechaFin ? `
+                                <div class="info-item">
+                                    <strong>Fechas:</strong>
+                                    ${actividad.fechaInicio ? `Desde ${new Date(actividad.fechaInicio).toLocaleString('es-ES')}` : ''}
+                                    ${actividad.fechaInicio && actividad.fechaFin ? ' - ' : ''}
+                                    ${actividad.fechaFin ? `Hasta ${new Date(actividad.fechaFin).toLocaleString('es-ES')}` : ''}
+                                </div>` : ''}
+                            </div>
+                            <div class="cuestionario-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.totalEntregas}</div>
+                                    <div class="stat-label">Entregas</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.pendientes}</div>
+                                    <div class="stat-label">Pendientes</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.calificadas}</div>
+                                    <div class="stat-label">Calificadas</div>
+                                </div>
+                            </div>
+                            <div class="cuestionario-actions">
+                                <button type="button" class="btn-primary-cuestionario" onclick="verEntregasActividad('${actividad.id}')">
+                                    <i class="fas fa-inbox"></i> Ver Entregas
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="editarActividad('${actividad.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="duplicarActividad('${actividad.id}')">
+                                    <i class="fas fa-copy"></i> Duplicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Función para calcular estadísticas de una actividad
+        async function calcularEstadisticasActividad(actividad) {
+            try {
+                const snapshot = await db.collection('entregas').where('actividadId', '==', actividad.id).get();
+                const entregas = snapshot.docs.map(doc => doc.data());
+
+                const totalEntregas = entregas.length;
+                const pendientes = entregas.filter(e => !e.calificacion && e.calificacion !== 0).length;
+                const calificadas = entregas.filter(e => e.calificacion || e.calificacion === 0).length;
+
+                return {
+                    totalEntregas,
+                    pendientes,
+                    calificadas
+                };
+            } catch (error) {
+                console.error('Error calculating actividad stats:', error);
+                return { totalEntregas: 0, pendientes: 0, calificadas: 0 };
+            }
+        }
+
+        // Función para actualizar estadísticas generales de actividades
+        async function actualizarEstadisticasActividades() {
+            try {
+                const total = actividadesManagerData.length;
+                const activos = actividadesManagerData.filter(a => getActividadEstado(a) === 'activo').length;
+
+                // Calcular total de entregas
+                let totalEntregas = 0;
+                let entregasPendientes = 0;
+
+                for (const actividad of actividadesManagerData) {
+                    const stats = await calcularEstadisticasActividad(actividad);
+                    totalEntregas += stats.totalEntregas;
+                    entregasPendientes += stats.pendientes;
+                }
+
+                document.getElementById('totalActividades').textContent = total;
+                document.getElementById('actividadesActivas').textContent = activos;
+                document.getElementById('totalEntregas').textContent = totalEntregas;
+                document.getElementById('entregasPendientes').textContent = entregasPendientes;
+                document.getElementById('totalActividadesBadge').textContent = total;
+                document.getElementById('totalEntregasBadge').textContent = totalEntregas;
+
+            } catch (error) {
+                console.error('Error updating actividades statistics:', error);
+            }
+        }
+
+        // Función para ver entregas de una actividad
+        async function verEntregasActividad(actividadId) {
+            try {
+                // Obtener la actividad
+                const actividadDoc = await db.collection('actividades').doc(actividadId).get();
+                if (!actividadDoc.exists) {
+                    alert('Actividad no encontrada');
+                    return;
+                }
+                const actividad = { id: actividadDoc.id, ...actividadDoc.data() };
+
+                // Obtener entregas
+                const entregasSnapshot = await db.collection('entregas').where('actividadId', '==', actividadId).get();
+                const entregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Crear modal de entregas
+                const modal = document.createElement('div');
+                modal.className = 'cuestionario-modal';
+                modal.id = 'entregasActividadModal';
+                modal.innerHTML = `
+                    <div class="cuestionario-modal-content" style="max-width: 1200px;">
+                        <div class="cuestionario-modal-header">
+                            <h2 class="cuestionario-modal-title">
+                                <i class="fas fa-inbox"></i>
+                                Entregas - ${actividad.titulo || 'Actividad'}
+                            </h2>
+                            <button onclick="closeEntregasModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        </div>
+                        <div class="cuestionario-modal-body">
+                            <div class="entregas-grid">
+                                ${entregas.length === 0 ? `
+                                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                        <h3>No hay entregas para esta actividad</h3>
+                                    </div>
+                                ` : entregas.map(entrega => `
+                                    <div class="entrega-card">
+                                        <div class="entrega-header">
+                                            <div class="entrega-info">
+                                                <h4>${entrega.estudianteNombre || 'Estudiante'}</h4>
+                                                <p style="color: #64748b;">
+                                                    <i class="fas fa-calendar"></i>
+                                                    ${new Date(entrega.fechaEntrega).toLocaleString('es-ES')}
+                                                </p>
+                                            </div>
+                                            <div class="entrega-status">
+                                                ${entrega.calificacion || entrega.calificacion === 0 ?
+                                                    `<span class="status-calificado">Calificado: ${entrega.calificacion}/100</span>` :
+                                                    '<span class="status-pendiente">Pendiente</span>'
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="entrega-content">
+                                            <div class="entrega-preview">
+                                                ${entrega.contenido ? entrega.contenido.substring(0, 200) + (entrega.contenido.length > 200 ? '...' : '') : 'Sin contenido'}
+                                            </div>
+                                        </div>
+                                        <div class="entrega-actions">
+                                            <button type="button" class="btn-primary-cuestionario" onclick="verDetalleEntrega('${entrega.id}')">
+                                                <i class="fas fa-eye"></i> Ver Detalle
+                                            </button>
+                                            ${!entrega.calificacion && entrega.calificacion !== 0 ? `
+                                                <button type="button" class="btn-secondary-cuestionario" onclick="calificarEntrega('${entrega.id}')">
+                                                    <i class="fas fa-star"></i> Calificar
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading entregas:', error);
+                alert('Error al cargar las entregas');
+            }
+        }
+
+        // Función para ver detalle de entrega
+        async function verDetalleEntrega(entregaId) {
+            try {
+                const entregaDoc = await db.collection('entregas').doc(entregaId).get();
+                if (!entregaDoc.exists) {
+                    alert('Entrega no encontrada');
+                    return;
+                }
+                const entrega = { id: entregaDoc.id, ...entregaDoc.data() };
+
+                // Crear modal de detalle
+                const modal = document.createElement('div');
+                modal.className = 'cuestionario-modal';
+                modal.id = 'detalleEntregaModal';
+                modal.innerHTML = `
+                    <div class="cuestionario-modal-content" style="max-width: 1000px;">
+                        <div class="cuestionario-modal-header">
+                            <h2 class="cuestionario-modal-title">
+                                <i class="fas fa-file-alt"></i>
+                                Detalle de Entrega
+                            </h2>
+                            <button onclick="closeDetalleEntregaModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        </div>
+                        <div class="cuestionario-modal-body">
+                            <div class="entrega-detail-grid">
+                                <div class="entrega-detail-main">
+                                    <div class="entrega-detail-section">
+                                        <h4><i class="fas fa-user"></i> Información del Estudiante</h4>
+                                        <p><strong>Nombre:</strong> ${entrega.estudianteNombre || 'No especificado'}</p>
+                                        <p><strong>Email:</strong> ${entrega.estudianteEmail || 'No especificado'}</p>
+                                        <p><strong>Programa:</strong> ${entrega.programa || 'No especificado'}</p>
+                                        <p><strong>Fecha de entrega:</strong> ${new Date(entrega.fechaEntrega).toLocaleString('es-ES')}</p>
+                                    </div>
+
+                                    <div class="entrega-detail-section">
+                                        <h4><i class="fas fa-file-alt"></i> Contenido de la Entrega</h4>
+                                        <div class="entrega-content-display">
+                                            ${entrega.contenido || 'Sin contenido'}
+                                        </div>
+                                    </div>
+
+                                    ${entrega.archivos && entrega.archivos.length > 0 ? `
+                                        <div class="entrega-detail-section">
+                                            <h4><i class="fas fa-paperclip"></i> Archivos Adjuntos</h4>
+                                            <div class="archivos-list">
+                                                ${entrega.archivos.map(archivo => `
+                                                    <div class="archivo-item">
+                                                        <i class="fas fa-file"></i>
+                                                        <a href="${archivo.url}" target="_blank">${archivo.nombre}</a>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <div class="entrega-detail-sidebar">
+                                    <div class="entrega-detail-section">
+                                        <h4><i class="fas fa-star"></i> Calificación</h4>
+                                        ${entrega.calificacion || entrega.calificacion === 0 ? `
+                                            <div class="calificacion-display">
+                                                <div class="calificacion-value">${entrega.calificacion}/100</div>
+                                                <div class="calificacion-comentarios">
+                                                    ${entrega.comentarios || 'Sin comentarios'}
+                                                </div>
+                                                <div class="calificacion-fecha">
+                                                    Calificado el ${new Date(entrega.fechaCalificacion).toLocaleString('es-ES')}
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <div class="calificacion-form">
+                                                <div style="margin-bottom: 1rem;">
+                                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Calificación (0-100)</label>
+                                                    <input type="number" id="calificacionInput${entrega.id}" min="0" max="100" placeholder="Ingresa calificación" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                                                </div>
+                                                <div style="margin-bottom: 1rem;">
+                                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Comentarios</label>
+                                                    <textarea id="comentariosInput${entrega.id}" placeholder="Escribe tus comentarios..." rows="4" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                                                </div>
+                                                <button type="button" class="btn-primary-cuestionario" onclick="guardarCalificacion('${entrega.id}')">
+                                                    <i class="fas fa-save"></i> Guardar Calificación
+                                                </button>
+                                            </div>
+                                        `}
+                                    </div>
+
+                                    <div class="entrega-detail-actions">
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="descargarEntrega('${entrega.id}')">
+                                            <i class="fas fa-download"></i> Descargar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="contactarEstudiante('${entrega.estudianteEmail}')">
+                                            <i class="fas fa-envelope"></i> Contactar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                modal.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading entrega detail:', error);
+                alert('Error al cargar el detalle de la entrega');
+            }
+        }
+
+        // Función para guardar calificación
+        async function guardarCalificacion(entregaId) {
+            try {
+                const calificacion = parseInt(document.getElementById(`calificacionInput${entregaId}`).value);
+                const comentarios = document.getElementById(`comentariosInput${entregaId}`).value;
+
+                if (isNaN(calificacion) || calificacion < 0 || calificacion > 100) {
+                    alert('Por favor ingresa una calificación válida entre 0 y 100');
+                    return;
+                }
+
+                await db.collection('entregas').doc(entregaId).update({
+                    calificacion: calificacion,
+                    comentarios: comentarios,
+                    fechaCalificacion: new Date()
+                });
+
+                alert('Calificación guardada exitosamente');
+                closeDetalleEntregaModal();
+                // Recargar la vista actual
+                loadActividadesManager();
+
+            } catch (error) {
+                console.error('Error saving calificacion:', error);
+                alert('Error al guardar la calificación');
+            }
+        }
+
+        // Función para editar actividad
+        function editarActividad(actividadId) {
+            // Implementar edición de actividad
+            alert('Función de edición próximamente disponible');
+        }
+
+        // Función para duplicar actividad
+        function duplicarActividad(actividadId) {
+            // Implementar duplicación de actividad
+            alert('Función de duplicación próximamente disponible');
+        }
+
+        // Función para recargar actividades
+        function recargarActividades() {
+            loadActividadesManager();
+        }
+
+        // Función para exportar actividades
+        function exportarActividades() {
+            // Implementar exportación
+            alert('Función de exportación próximamente disponible');
+        }
+
+        // Funciones para cerrar modales
+        function closeEntregasModal() {
+            const modal = document.getElementById('entregasActividadModal');
+            if (modal) modal.remove();
+        }
+
+        function closeDetalleEntregaModal() {
+            const modal = document.getElementById('detalleEntregaModal');
+            if (modal) modal.remove();
+        }
+
+        // Función para calificar entrega (abre modal de detalle)
+        function calificarEntrega(entregaId) {
+            verDetalleEntrega(entregaId);
+        }
+
+        // Función para descargar entrega
+        function descargarEntrega(entregaId) {
+            // Implementar descarga
+            alert('Función de descarga próximamente disponible');
+        }
+
+        // Función para contactar estudiante
+        function contactarEstudiante(email) {
+            if (email) {
+                window.location.href = `mailto:${email}`;
+            } else {
+                alert('Email del estudiante no disponible');
+            }
+        }
+
+        // =================== FUNCIONES PARA GESTIÓN DE CLASES ===================
+
+        let clasesManagerData = [];
+        let currentClaseManagerFilter = { programa: '', sede: '', horario: '', modulo: '', estado: '', search: '' };
+
+        // Función para cargar clases para gestión
+        async function loadClasesManager() {
+            try {
+                console.log('Cargando clases para gestión...');
+                const snapshot = await db.collection('clases').get();
+                console.log('Clases encontradas en Firestore:', snapshot.size);
+
+                clasesManagerData = snapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        console.log('Clase:', data.titulo, 'Programa:', data.programa);
+                        return {
+                            id: doc.id,
+                            ...data
+                        };
+                    });
+
+                console.log(`Total clases cargadas: ${clasesManagerData.length}`);
+                aplicarFiltrosClases();
+                actualizarEstadisticasClases();
+
+            } catch (error) {
+                console.error('Error loading clases manager:', error);
+                document.getElementById('clasesManagerGrid').innerHTML = '<p style="color: white;">Error al cargar las clases</p>';
+            }
+        }
+
+        // Función para aplicar filtros de clases
+        function aplicarFiltrosClases() {
+            const programa = document.getElementById('filterProgramaClases').value;
+            const sede = document.getElementById('filterSedeClases').value;
+            const horario = document.getElementById('filterHorarioClases').value;
+            const modulo = document.getElementById('filterModuloClases').value;
+            const estado = document.getElementById('filterEstadoClases').value;
+            const search = document.getElementById('searchClase').value.toLowerCase();
+
+            currentClaseManagerFilter = { programa, sede, horario, modulo, estado, search };
+
+            let filteredData = clasesManagerData.filter(clase => {
+                const matchPrograma = !programa || clase.programa === programa;
+                const matchModulo = !modulo || clase.modulo === modulo;
+
+                // Filtrar por sede - verificar en combinacionesPermitidas o sedes antiguas
+                let matchSede = true;
+                if (sede) {
+                    if (clase.combinacionesPermitidas && Array.isArray(clase.combinacionesPermitidas)) {
+                        matchSede = clase.combinacionesPermitidas.some(combo => combo.sede === sede);
+                    } else if (clase.sedes && Array.isArray(clase.sedes)) {
+                        matchSede = clase.sedes.includes(sede);
+                    } else {
+                        matchSede = clase.sede === sede;
+                    }
+                }
+
+                // Filtrar por horario - verificar en combinacionesPermitidas o horarios antiguas
+                let matchHorario = true;
+                if (horario) {
+                    if (clase.combinacionesPermitidas && Array.isArray(clase.combinacionesPermitidas)) {
+                        matchHorario = clase.combinacionesPermitidas.some(combo => combo.horario === horario);
+                    } else if (clase.horarios && Array.isArray(clase.horarios)) {
+                        matchHorario = clase.horarios.includes(horario);
+                    } else {
+                        matchHorario = clase.horario === horario;
+                    }
+                }
+
+                const matchEstado = !estado || getClaseEstado(clase) === estado;
+                const matchSearch = !search ||
+                    clase.titulo?.toLowerCase().includes(search) ||
+                    clase.descripcion?.toLowerCase().includes(search);
+
+                return matchPrograma && matchSede && matchHorario && matchModulo && matchEstado && matchSearch;
+            });
+
+            renderClasesGrid(filteredData);
+        }
+
+        // Función para limpiar filtros de clases
+        function limpiarFiltrosClases() {
+            document.getElementById('filterProgramaClases').value = '';
+            document.getElementById('filterSedeClases').value = '';
+            document.getElementById('filterHorarioClases').value = '';
+            document.getElementById('filterModuloClases').value = '';
+            document.getElementById('filterEstadoClases').value = '';
+            document.getElementById('searchClase').value = '';
+            currentClaseManagerFilter = { programa: '', sede: '', horario: '', modulo: '', estado: '', search: '' };
+            renderClasesGrid(clasesManagerData);
+        }
+
+        // Función para obtener el estado de una clase
+        function getClaseEstado(clase) {
+            const ahora = new Date();
+            const fechaInicio = clase.fechaInicio ? new Date(clase.fechaInicio) : null;
+            const fechaFin = clase.fechaFin ? new Date(clase.fechaFin) : null;
+
+            if (!fechaInicio && !fechaFin) return 'activo';
+            if (fechaFin && ahora > fechaFin) return 'inactivo';
+            if (fechaInicio && ahora < fechaInicio) return 'borrador';
+            return 'activo';
+        }
+
+        // Función para renderizar el grid de clases
+        function renderClasesGrid(data) {
+            const container = document.getElementById('clasesManagerGrid');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron clases</h3>
+                        <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(clase => {
+                const estado = getClaseEstado(clase);
+                const estadoClass = `status-${estado}`;
+                const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                // Calcular estadísticas
+                const stats = calcularEstadisticasClase(clase);
+
+                return `
+                    <div class="cuestionario-card">
+                        <div class="cuestionario-header">
+                            <div class="cuestionario-title">
+                                <i class="fas fa-book-open"></i>
+                                ${clase.titulo || 'Sin título'}
+                                <span class="tipo-badge badge-clase">
+                                    Clase
+                                </span>
+                            </div>
+                            <div class="cuestionario-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(clase.fechaCreacion || clase.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                                <span class="cuestionario-status ${estadoClass}">${estadoText}</span>
+                            </div>
+                        </div>
+                        <div class="cuestionario-content">
+                            <div class="cuestionario-description">
+                                ${clase.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-info">
+                                <div class="info-item">
+                                    <strong>Programa:</strong> ${clase.programa || 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Módulo:</strong> ${clase.modulo ? clase.modulo.replace('modulo', 'Módulo ') : 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Disponible para:</strong>
+                                    ${renderizarCombinaciones(clase)}
+                                </div>
+                                ${clase.fechaInicio || clase.fechaFin ? `
+                                <div class="info-item">
+                                    <strong>Fechas:</strong>
+                                    ${clase.fechaInicio ? `Desde ${new Date(clase.fechaInicio).toLocaleString('es-ES')}` : ''}
+                                    ${clase.fechaInicio && clase.fechaFin ? ' - ' : ''}
+                                    ${clase.fechaFin ? `Hasta ${new Date(clase.fechaFin).toLocaleString('es-ES')}` : ''}
+                                </div>` : ''}
+                            </div>
+                            <div class="cuestionario-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.totalVisualizaciones}</div>
+                                    <div class="stat-label">Visualizaciones</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.tiempoPromedio}min</div>
+                                    <div class="stat-label">Tiempo Promedio</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${stats.calificacionPromedio}</div>
+                                    <div class="stat-label">Calificación</div>
+                                </div>
+                            </div>
+                            <div class="cuestionario-actions">
+                                <button type="button" class="btn-primary-cuestionario" onclick="verDetalleClase('${clase.id}')">
+                                    <i class="fas fa-eye"></i> Ver Detalles
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="editarClase('${clase.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button type="button" class="btn-secondary-cuestionario" onclick="duplicarClase('${clase.id}')">
+                                    <i class="fas fa-copy"></i> Duplicar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Función para calcular estadísticas de una clase
+        async function calcularEstadisticasClase(clase) {
+            try {
+                // Aquí irían las consultas para estadísticas de visualizaciones, tiempo, etc.
+                // Por ahora retornamos valores por defecto
+                return {
+                    totalVisualizaciones: 0,
+                    tiempoPromedio: 0,
+                    calificacionPromedio: 0
+                };
+            } catch (error) {
+                console.error('Error calculating clase stats:', error);
+                return { totalVisualizaciones: 0, tiempoPromedio: 0, calificacionPromedio: 0 };
+            }
+        }
+
+        // Función para actualizar estadísticas generales de clases
+        async function actualizarEstadisticasClases() {
+            try {
+                const total = clasesManagerData.length;
+                const activos = clasesManagerData.filter(c => getClaseEstado(c) === 'activo').length;
+                const belleza = clasesManagerData.filter(c => c.programa === 'Belleza Integral').length;
+                const panaderia = clasesManagerData.filter(c => c.programa === 'Panadería y Pastelería').length;
+
+                document.getElementById('totalClases').textContent = total;
+                document.getElementById('clasesActivas').textContent = activos;
+                document.getElementById('clasesBelleza').textContent = belleza;
+                document.getElementById('clasesPanaderia').textContent = panaderia;
+                document.getElementById('totalClasesBadge').textContent = total;
+                document.getElementById('clasesActivasBadge').textContent = activos;
+
+            } catch (error) {
+                console.error('Error updating clases statistics:', error);
+            }
+        }
+
+        // Función para ver detalle de clase
+        async function verDetalleClase(claseId) {
+            try {
+                const doc = await db.collection('clases').doc(claseId).get();
+
+                if (!doc.exists) {
+                    alert('Clase no encontrada');
+                    return;
+                }
+
+                const clase = { id: doc.id, ...doc.data() };
+
+                // Crear modal de detalle
+                const modal = document.createElement('div');
+                modal.className = 'cuestionario-modal';
+                modal.id = 'claseDetailModal';
+                modal.innerHTML = `
+                    <div class="cuestionario-modal-content" style="max-width: 1000px;">
+                        <div class="cuestionario-modal-header">
+                            <h2 class="cuestionario-modal-title">
+                                <i class="fas fa-book-open"></i>
+                                ${clase.titulo || 'Sin título'}
+                            </h2>
+                            <button onclick="closeClaseModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        </div>
+                        <div class="cuestionario-modal-body">
+                            <div class="clase-detail-grid">
+                                <div class="clase-detail-main">
+                                    <div class="clase-detail-section">
+                                        <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                        <p><strong>Descripción:</strong> ${clase.descripcion || 'Sin descripción'}</p>
+                                        <p><strong>Programa:</strong> ${clase.programa || 'Sin programa'}</p>
+                                        <p><strong>Módulo:</strong> ${clase.modulo ? clase.modulo.replace('modulo', 'Módulo ') : 'Sin módulo'}</p>
+                                        <p><strong>Disponible para:</strong> ${renderizarCombinaciones(clase)}</p>
+                                        ${clase.fechaInicio ? `<p><strong>Fecha de inicio:</strong> ${new Date(clase.fechaInicio).toLocaleString('es-ES')}</p>` : ''}
+                                        ${clase.fechaFin ? `<p><strong>Fecha de fin:</strong> ${new Date(clase.fechaFin).toLocaleString('es-ES')}</p>` : ''}
+                                    </div>
+
+                                    <div class="clase-detail-section">
+                                        <h4><i class="fas fa-file-alt"></i> Contenido de la Clase</h4>
+                                        <div class="clase-content-display">
+                                            ${clase.contenido || 'Sin contenido detallado'}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="clase-detail-sidebar">
+                                    <div class="clase-detail-section">
+                                        <h4><i class="fas fa-chart-bar"></i> Estadísticas</h4>
+                                        <div id="claseStatsDetail">
+                                            <p style="color: white;">Cargando estadísticas...</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="clase-detail-actions">
+                                        <button type="button" class="btn-primary-cuestionario" onclick="editarClase('${claseId}')">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="duplicarClase('${claseId}')">
+                                            <i class="fas fa-copy"></i> Duplicar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="exportarClase('${claseId}')">
+                                            <i class="fas fa-download"></i> Exportar
+                                        </button>
+                                        <button type="button" class="btn-secondary-cuestionario" onclick="eliminarClase('${claseId}')" style="background: #fee2e2; color: #dc2626; border-color: #dc2626;">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                modal.style.display = 'block';
+
+                // Cargar estadísticas
+                cargarEstadisticasDetalleClase(claseId);
+
+            } catch (error) {
+                console.error('Error loading clase detail:', error);
+                alert('Error al cargar los detalles de la clase');
+            }
+        }
+
+        // Función para cargar estadísticas en el detalle de clase
+        async function cargarEstadisticasDetalleClase(claseId) {
+            try {
+                // Aquí irían las consultas para estadísticas específicas de la clase
+                const statsContainer = document.getElementById('claseStatsDetail');
+                statsContainer.innerHTML = `
+                    <p><strong>Visualizaciones totales:</strong> 0</p>
+                    <p><strong>Tiempo promedio de visualización:</strong> 0 min</p>
+                    <p><strong>Calificación promedio:</strong> 0/5</p>
+                    <p><strong>Última visualización:</strong> Nunca</p>
+                `;
+            } catch (error) {
+                console.error('Error loading clase stats:', error);
+            }
+        }
+
+        // Función para editar clase
+        function editarClase(claseId) {
+            // Implementar edición de clase
+            alert('Función de edición próximamente disponible');
+        }
+
+        // Función para duplicar clase
+        function duplicarClase(claseId) {
+            // Implementar duplicación de clase
+            alert('Función de duplicación próximamente disponible');
+        }
+
+        // Función para exportar clase
+        function exportarClase(claseId) {
+            // Implementar exportación de clase
+            alert('Función de exportación próximamente disponible');
+        }
+
+        // Función para eliminar clase
+        async function eliminarClase(claseId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta clase? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                await db.collection('clases').doc(claseId).delete();
+                alert('Clase eliminada exitosamente');
+                closeClaseModal();
+                loadClasesManager();
+            } catch (error) {
+                console.error('Error deleting clase:', error);
+                alert('Error al eliminar la clase');
+            }
+        }
+
+        // Función para recargar clases
+        function recargarClases() {
+            loadClasesManager();
+        }
+
+        // Función para exportar clases
+        function exportarClases() {
+            // Implementar exportación
+            alert('Función de exportación próximamente disponible');
+        }
+
+        // Función para cerrar modal de clase
+        function closeClaseModal() {
+            const modal = document.getElementById('claseDetailModal');
+            if (modal) modal.remove();
         }
 
         // =================== FUNCIONES PARA FOROS ===================
