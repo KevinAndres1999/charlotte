@@ -3270,6 +3270,9 @@
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
+                <div class="nav-item" data-section="quizzes"><i class="fas fa-question-circle"></i><span>Quizzes Interactivos</span></div>
+                <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
+                <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
                 <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
@@ -3666,6 +3669,87 @@
 
                 <!-- Actividades individuales -->
                 <div id="actividadesIndividuales"></div>
+            </section>
+
+            <!-- =================== QUIZZES INTERACTIVOS =================== -->
+            <section id="quizzes" class="section">
+                <h2 class="page-title"><i class="fas fa-question-circle"></i> Quizzes Interactivos</h2>
+                <p class="page-subtitle">Realiza evaluaciones interactivas y gana puntos</p>
+
+                <div class="search-container">
+                    <input type="text" id="quizzesSearch" placeholder="Buscar quizzes..." onkeyup="filterQuizzes()">
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterQuizzesByStatus('all')">Todos</button>
+                    <button class="filter-tab" onclick="filterQuizzesByStatus('pending')">Pendientes</button>
+                    <button class="filter-tab" onclick="filterQuizzesByStatus('completed')">Completados</button>
+                </div>
+
+                <div id="quizzesList" class="grid">
+                    <!-- Los quizzes se cargarán dinámicamente -->
+                </div>
+            </section>
+
+            <!-- =================== FOROS =================== -->
+            <section id="foros" class="section">
+                <h2 class="page-title"><i class="fas fa-comments"></i> Foros de Discusión</h2>
+                <p class="page-subtitle">Participa en conversaciones con tus compañeros</p>
+
+                <div class="foro-actions" style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="showCreateForoModal()">
+                        <i class="fas fa-plus"></i> Nuevo Hilo
+                    </button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="forosSearch" placeholder="Buscar hilos..." onkeyup="filterForos()">
+                </div>
+
+                <div id="forosList" class="grid">
+                    <!-- Los hilos se cargarán dinámicamente -->
+                </div>
+            </section>
+
+            <!-- =================== GAMIFICACIÓN =================== -->
+            <section id="gamificacion" class="section">
+                <h2 class="page-title"><i class="fas fa-trophy"></i> Mi Progreso</h2>
+                <p class="page-subtitle">Tu ranking y logros en la plataforma</p>
+
+                <!-- Estadísticas Personales -->
+                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                        <i class="fas fa-star" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <h3 id="misPuntos">0</h3>
+                        <p>Mis Puntos</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                        <i class="fas fa-trophy" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <h3 id="miRanking">-</h3>
+                        <p>Mi Ranking</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <h3 id="quizzesCompletados">0</h3>
+                        <p>Quizzes Completados</p>
+                    </div>
+                </div>
+
+                <!-- Leaderboard -->
+                <div class="leaderboard-section">
+                    <h3 style="margin-bottom: 1rem;"><i class="fas fa-crown"></i> Ranking General</h3>
+                    <div id="leaderboardPersonal" class="leaderboard-list">
+                        <!-- El leaderboard se cargará dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Logros Recientes -->
+                <div class="achievements-section" style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;"><i class="fas fa-medal"></i> Logros Recientes</h3>
+                    <div id="misLogros" class="achievements-grid">
+                        <!-- Los logros se cargarán dinámicamente -->
+                    </div>
+                </div>
             </section>
 
             <section id="materiales" class="section">
@@ -4321,6 +4405,12 @@ function showSectionV2(sectionId, noPush = false) {
         loadCalificaciones();
     } else if (sectionId === 'recursos') {
         loadRecursos();
+    } else if (sectionId === 'quizzes') {
+        loadQuizzesList();
+    } else if (sectionId === 'foros') {
+        loadForosList();
+    } else if (sectionId === 'gamificacion') {
+        loadGamificacionStats();
     }
 }
 
@@ -7529,8 +7619,633 @@ function openImageModal(imageUrl, title) {
     document.body.appendChild(modal);
 }
 
+        // =================== FUNCIONES PARA QUIZZES ===================
+        async function loadQuizzesList() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
 
-</script>
+                const snapshot = await db.collection('quizzes')
+                    .where('programa', '==', currentUser.programa || '')
+                    .where('activo', '==', true)
+                    .orderBy('fechaCreacion', 'desc')
+                    .get();
+
+                const container = document.getElementById('quizzesList');
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-question-circle"></i><h3>No hay quizzes disponibles</h3><p>Los quizzes aparecerán aquí cuando estén disponibles.</p></div>';
+                    return;
+                }
+
+                // Obtener resultados del usuario
+                const resultadosSnapshot = await db.collection('quiz_resultados')
+                    .where('estudianteId', '==', user.uid)
+                    .get();
+                
+                const resultadosMap = {};
+                resultadosSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    resultadosMap[data.quizId] = data;
+                });
+
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const quiz = doc.data();
+                    const resultado = resultadosMap[doc.id];
+                    const completado = !!resultado;
+                    const calificacion = resultado ? resultado.calificacion : 0;
+                    const fechaCompletado = resultado ? new Date(resultado.fechaCompletado).toLocaleDateString() : '';
+
+                    return `
+                        <div class="quiz-card ${completado ? 'completed' : 'pending'}" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; ${completado ? 'background: #f0f9ff; border-color: #3b82f6;' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${quiz.titulo}</h4>
+                                    <p style="color: #64748b; margin: 0 0 0.5rem 0;">${quiz.descripcion || 'Sin descripción'}</p>
+                                    <div style="display: flex; gap: 1rem; font-size: 0.9rem; color: #64748b;">
+                                        <span><i class="fas fa-clock"></i> ${quiz.tiempoLimite || 0} min</span>
+                                        <span><i class="fas fa-question"></i> ${quiz.preguntas?.length || 0} preguntas</span>
+                                    </div>
+                                    ${completado ? `
+                                        <div style="margin-top: 1rem; padding: 0.5rem; background: #dcfce7; border-radius: 6px; display: inline-block;">
+                                            <span style="color: #166534; font-weight: 600;">
+                                                <i class="fas fa-check-circle"></i> Completado - ${calificacion}% - ${fechaCompletado}
+                                            </span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div>
+                                    ${completado ? 
+                                        `<button class="btn btn-secondary" onclick="viewQuizResult('${doc.id}')">
+                                            <i class="fas fa-eye"></i> Ver Resultado
+                                        </button>` :
+                                        `<button class="btn btn-primary" onclick="startQuiz('${doc.id}')">
+                                            <i class="fas fa-play"></i> Iniciar Quiz
+                                        </button>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading quizzes:', error);
+            }
+        }
+
+        function filterQuizzes() {
+            const searchTerm = document.getElementById('quizzesSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('#quizzesList .quiz-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                const visible = title.includes(searchTerm) || description.includes(searchTerm);
+                card.style.display = visible ? 'block' : 'none';
+            });
+        }
+
+        function filterQuizzesByStatus(status) {
+            const cards = document.querySelectorAll('#quizzesList .quiz-card');
+            const tabs = document.querySelectorAll('#quizzes .filter-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            cards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = 'block';
+                } else if (status === 'completed') {
+                    card.style.display = card.classList.contains('completed') ? 'block' : 'none';
+                } else if (status === 'pending') {
+                    card.style.display = card.classList.contains('pending') ? 'block' : 'none';
+                }
+            });
+        }
+
+        async function startQuiz(quizId) {
+            try {
+                const quizDoc = await db.collection('quizzes').doc(quizId).get();
+                if (!quizDoc.exists) {
+                    alert('Quiz no encontrado');
+                    return;
+                }
+
+                const quiz = quizDoc.data();
+                showQuizModal(quiz, quizId);
+            } catch (error) {
+                console.error('Error starting quiz:', error);
+                alert('Error al iniciar el quiz');
+            }
+        }
+
+        function showQuizModal(quiz, quizId) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                align-items: center; justify-content: center; padding: 2rem;
+            `;
+
+            let currentQuestionIndex = 0;
+            let answers = [];
+            let timeLeft = (quiz.tiempoLimite || 0) * 60; // convertir a segundos
+            let timerInterval;
+
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('quizTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+                timeLeft--;
+            }
+
+            function renderQuestion() {
+                const question = quiz.preguntas[currentQuestionIndex];
+                const progress = ((currentQuestionIndex + 1) / quiz.preguntas.length) * 100;
+
+                let optionsHTML = '';
+                if (question.tipo === 'multiple') {
+                    optionsHTML = question.opciones.map((option, index) => `
+                        <label style="display: block; margin: 0.5rem 0; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="question" value="${index}" style="margin-right: 0.5rem;">
+                            ${String.fromCharCode(65 + index)}. ${option}
+                        </label>
+                    `).join('');
+                } else if (question.tipo === 'verdadero-falso') {
+                    optionsHTML = `
+                        <label style="display: block; margin: 0.5rem 0; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="question" value="0" style="margin-right: 0.5rem;">
+                            Verdadero
+                        </label>
+                        <label style="display: block; margin: 0.5rem 0; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                            <input type="radio" name="question" value="1" style="margin-right: 0.5rem;">
+                            Falso
+                        </label>
+                    `;
+                } else if (question.tipo === 'abierta') {
+                    optionsHTML = `
+                        <textarea name="question" placeholder="Escribe tu respuesta..." 
+                                style="width: 100%; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; min-height: 100px;"></textarea>
+                    `;
+                }
+
+                modal.innerHTML = `
+                    <div style="background: white; border-radius: 12px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+                        <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 style="margin: 0; color: #1e40af;">${quiz.titulo}</h3>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <span id="quizTimer" style="font-weight: 600; color: #dc2626;">${Math.floor(timeLeft / 60).toString().padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}</span>
+                                    <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: #3b82f6; height: 100%; width: ${progress}%; transition: width 0.3s;"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                                Pregunta ${currentQuestionIndex + 1} de ${quiz.preguntas.length}
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 2rem;">
+                            <h4 style="margin-bottom: 1.5rem; color: #374151;">${question.pregunta}</h4>
+                            <form id="questionForm">
+                                ${optionsHTML}
+                            </form>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                                <button type="button" onclick="previousQuestion()" 
+                                        ${currentQuestionIndex === 0 ? 'disabled style="opacity: 0.5;"' : ''}
+                                        class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Anterior
+                                </button>
+                                ${currentQuestionIndex === quiz.preguntas.length - 1 ? 
+                                    '<button type="button" onclick="submitQuiz()" class="btn btn-success"><i class="fas fa-check"></i> Finalizar Quiz</button>' :
+                                    '<button type="button" onclick="nextQuestion()" class="btn btn-primary">Siguiente <i class="fas fa-arrow-right"></i></button>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Restaurar respuesta anterior si existe
+                if (answers[currentQuestionIndex] !== undefined) {
+                    const form = document.getElementById('questionForm');
+                    if (question.tipo === 'abierta') {
+                        form.querySelector('textarea').value = answers[currentQuestionIndex];
+                    } else {
+                        const radio = form.querySelector(`input[value="${answers[currentQuestionIndex]}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                }
+            }
+
+            window.nextQuestion = function() {
+                const form = document.getElementById('questionForm');
+                const question = quiz.preguntas[currentQuestionIndex];
+                
+                let answer;
+                if (question.tipo === 'abierta') {
+                    answer = form.querySelector('textarea').value.trim();
+                } else {
+                    const selected = form.querySelector('input:checked');
+                    answer = selected ? parseInt(selected.value) : null;
+                }
+                
+                if (answer === null || answer === '') {
+                    alert('Por favor responde la pregunta antes de continuar');
+                    return;
+                }
+                
+                answers[currentQuestionIndex] = answer;
+                currentQuestionIndex++;
+                renderQuestion();
+            };
+
+            window.previousQuestion = function() {
+                currentQuestionIndex--;
+                renderQuestion();
+            };
+
+            window.submitQuiz = async function() {
+                // Guardar última respuesta
+                const form = document.getElementById('questionForm');
+                const question = quiz.preguntas[currentQuestionIndex];
+                
+                if (question.tipo === 'abierta') {
+                    answers[currentQuestionIndex] = form.querySelector('textarea').value.trim();
+                } else {
+                    const selected = form.querySelector('input:checked');
+                    answers[currentQuestionIndex] = selected ? parseInt(selected.value) : null;
+                }
+
+                clearInterval(timerInterval);
+                
+                // Calcular calificación
+                let correctas = 0;
+                quiz.preguntas.forEach((question, index) => {
+                    const userAnswer = answers[index];
+                    if (question.tipo === 'abierta') {
+                        // Para preguntas abiertas, comparación simple (puede mejorarse)
+                        if (userAnswer && userAnswer.toLowerCase().includes(question.respuestaEsperada.toLowerCase())) {
+                            correctas++;
+                        }
+                    } else {
+                        if (userAnswer === question.correcta) {
+                            correctas++;
+                        }
+                    }
+                });
+                
+                const calificacion = Math.round((correctas / quiz.preguntas.length) * 100);
+                
+                try {
+                    // Guardar resultado
+                    await db.collection('quiz_resultados').add({
+                        estudianteId: auth.currentUser.uid,
+                        estudianteNombre: currentUser.name || currentUser.email,
+                        quizId: quizId,
+                        quizTitulo: quiz.titulo,
+                        respuestas: answers,
+                        calificacion: calificacion,
+                        fechaCompletado: new Date().toISOString(),
+                        tiempoUsado: (quiz.tiempoLimite * 60) - timeLeft
+                    });
+                    
+                    // Otorgar puntos
+                    const configSnapshot = await db.collection('configuracion').doc('gamificacion').get();
+                    const puntosPorQuiz = configSnapshot.exists ? configSnapshot.data().puntosQuiz || 50 : 50;
+                    
+                    const userRef = db.collection('users').doc(auth.currentUser.uid);
+                    await db.runTransaction(async (transaction) => {
+                        const userDoc = await transaction.get(userRef);
+                        const currentPuntos = userDoc.data()?.puntos || 0;
+                        transaction.update(userRef, { puntos: currentPuntos + puntosPorQuiz });
+                    });
+                    
+                    modal.remove();
+                    alert(`¡Quiz completado! Calificación: ${calificacion}%. Has ganado ${puntosPorQuiz} puntos.`);
+                    loadQuizzesList();
+                    loadGamificacionStats();
+                    
+                } catch (error) {
+                    console.error('Error submitting quiz:', error);
+                    alert('Error al guardar el resultado del quiz');
+                }
+            };
+
+            renderQuestion();
+            if (timeLeft > 0) {
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+            
+            document.body.appendChild(modal);
+        }
+
+        // =================== FUNCIONES PARA FOROS ===================
+        async function loadForosList() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                const snapshot = await db.collection('foros')
+                    .where('programa', '==', currentUser.programa || '')
+                    .orderBy('fechaCreacion', 'desc')
+                    .get();
+
+                const container = document.getElementById('forosList');
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><h3>No hay hilos activos</h3><p>¡Sé el primero en crear un hilo de discusión!</p></div>';
+                    return;
+                }
+
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const foro = doc.data();
+                    const fecha = new Date(foro.fechaCreacion).toLocaleDateString();
+                    
+                    return `
+                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo('${doc.id}')">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${foro.titulo}</h4>
+                                    <p style="color: #64748b; margin: 0 0 0.5rem 0;">${foro.contenido ? foro.contenido.substring(0, 150) + '...' : 'Sin contenido'}</p>
+                                    <div style="display: flex; gap: 1rem; font-size: 0.9rem; color: #64748b;">
+                                        <span><i class="fas fa-user"></i> ${foro.autorNombre}</span>
+                                        <span><i class="fas fa-calendar"></i> ${fecha}</span>
+                                        <span><i class="fas fa-comments"></i> ${foro.respuestas || 0} respuestas</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <i class="fas fa-chevron-right" style="color: #64748b;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading foros:', error);
+            }
+        }
+
+        function filterForos() {
+            const searchTerm = document.getElementById('forosSearch').value.toLowerCase();
+            const cards = document.querySelectorAll('#forosList .foro-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const content = card.querySelector('p').textContent.toLowerCase();
+                const visible = title.includes(searchTerm) || content.includes(searchTerm);
+                card.style.display = visible ? 'block' : 'none';
+            });
+        }
+
+        function showCreateForoModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 1000; display: flex; 
+                align-items: center; justify-content: center; padding: 2rem;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%;">
+                    <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: #1e40af;">Crear Nuevo Hilo</h3>
+                            <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="createForoForm" style="padding: 2rem;" onsubmit="createForo(event)">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Título del Hilo</label>
+                            <input type="text" name="titulo" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;" placeholder="Escribe un título descriptivo...">
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Contenido</label>
+                            <textarea name="contenido" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; min-height: 150px; font-size: 1rem;" placeholder="Describe tu pregunta o tema de discusión..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Crear Hilo</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        async function createForo(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const titulo = formData.get('titulo').trim();
+            const contenido = formData.get('contenido').trim();
+            
+            if (!titulo || !contenido) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                await db.collection('foros').add({
+                    titulo: titulo,
+                    contenido: contenido,
+                    autorId: auth.currentUser.uid,
+                    autorNombre: currentUser.name || currentUser.email,
+                    programa: currentUser.programa || '',
+                    fechaCreacion: new Date().toISOString(),
+                    respuestas: 0,
+                    activo: true
+                });
+                
+                event.target.closest('.modal-overlay').remove();
+                alert('Hilo creado exitosamente');
+                loadForosList();
+                
+            } catch (error) {
+                console.error('Error creating foro:', error);
+                alert('Error al crear el hilo');
+            }
+        }
+
+        function viewForo(foroId) {
+            // Esta función se puede expandir para mostrar el hilo completo con respuestas
+            alert('Vista completa del foro próximamente disponible');
+        }
+
+        // =================== FUNCIONES PARA GAMIFICACIÓN ===================
+        async function loadGamificacionStats() {
+            try {
+                const user = auth.currentUser;
+                if (!user) return;
+
+                // Cargar puntos del usuario
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userData = userDoc.data() || {};
+                const misPuntos = userData.puntos || 0;
+                
+                document.getElementById('misPuntos').textContent = misPuntos;
+
+                // Contar quizzes completados
+                const resultadosSnapshot = await db.collection('quiz_resultados')
+                    .where('estudianteId', '==', user.uid)
+                    .get();
+                
+                document.getElementById('quizzesCompletados').textContent = resultadosSnapshot.size;
+
+                // Calcular ranking
+                const allUsersSnapshot = await db.collection('users').get();
+                const usersWithPoints = allUsersSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(u => (u.puntos || 0) > 0)
+                    .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
+                
+                const miRanking = usersWithPoints.findIndex(u => u.id === user.uid) + 1;
+                document.getElementById('miRanking').textContent = miRanking > 0 ? `#${miRanking}` : '-';
+
+                // Cargar leaderboard personal (top 10)
+                loadLeaderboardPersonal();
+                
+                // Cargar logros
+                loadMisLogros();
+                
+            } catch (error) {
+                console.error('Error loading gamification stats:', error);
+            }
+        }
+
+        async function loadLeaderboardPersonal() {
+            try {
+                const allUsersSnapshot = await db.collection('users').orderBy('puntos', 'desc').limit(10).get();
+                const container = document.getElementById('leaderboardPersonal');
+                
+                if (allUsersSnapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>No hay rankings disponibles aún</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = allUsersSnapshot.docs.map((doc, index) => {
+                    const userData = doc.data();
+                    const position = index + 1;
+                    const isCurrentUser = doc.id === auth.currentUser.uid;
+                    
+                    const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
+                    
+                    return `
+                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}" style="display: flex; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; margin: 0.5rem 0; border-radius: 8px; ${isCurrentUser ? 'background: #fef3c7; border-color: #f59e0b;' : ''}">
+                            <div style="font-size: 1.5rem; margin-right: 1rem;">${medal}</div>
+                            <div style="flex: 1;">
+                                <strong>${userData.name || userData.email}</strong>
+                                ${isCurrentUser ? ' <span style="color: #f59e0b;">(Tú)</span>' : ''}
+                                <br><small style="color: #64748b;">${userData.programa || 'Sin programa'}</small>
+                            </div>
+                            <div style="font-weight: bold; color: #f59e0b;">${userData.puntos || 0} pts</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        async function loadMisLogros() {
+            try {
+                const user = auth.currentUser;
+                const container = document.getElementById('misLogros');
+                
+                // Logros basados en actividades completadas
+                const logros = [];
+                
+                // Contar quizzes completados
+                const resultadosSnapshot = await db.collection('quiz_resultados')
+                    .where('estudianteId', '==', user.uid)
+                    .get();
+                
+                const quizzesCompletados = resultadosSnapshot.size;
+                
+                if (quizzesCompletados >= 1) {
+                    logros.push({
+                        titulo: 'Primer Quiz',
+                        descripcion: 'Completaste tu primer quiz',
+                        icono: 'fas fa-question-circle',
+                        color: '#3b82f6'
+                    });
+                }
+                
+                if (quizzesCompletados >= 5) {
+                    logros.push({
+                        titulo: 'Estudiante Activo',
+                        descripcion: 'Completaste 5 quizzes',
+                        icono: 'fas fa-graduation-cap',
+                        color: '#10b981'
+                    });
+                }
+                
+                if (quizzesCompletados >= 10) {
+                    logros.push({
+                        titulo: 'Experto',
+                        descripcion: 'Completaste 10 quizzes',
+                        icono: 'fas fa-star',
+                        color: '#f59e0b'
+                    });
+                }
+                
+                // Logro por puntos
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                const puntos = userDoc.data()?.puntos || 0;
+                
+                if (puntos >= 100) {
+                    logros.push({
+                        titulo: 'Centurión',
+                        descripcion: 'Alcanzaste 100 puntos',
+                        icono: 'fas fa-trophy',
+                        color: '#dc2626'
+                    });
+                }
+                
+                if (logros.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-medal"></i><p>Aún no has desbloqueado logros</p><small>Completa quizzes para ganar tus primeros logros</small></div>';
+                    return;
+                }
+                
+                container.innerHTML = logros.map(logro => `
+                    <div class="achievement-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 12px; text-align: center; background: linear-gradient(135deg, ${logro.color}15, ${logro.color}05);">
+                        <div style="font-size: 3rem; color: ${logro.color}; margin-bottom: 1rem;">
+                            <i class="${logro.icono}"></i>
+                        </div>
+                        <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${logro.titulo}</h4>
+                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">${logro.descripcion}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading achievements:', error);
+            }
+        }
+
+        // Inicializar nuevas funciones
+        document.addEventListener('DOMContentLoaded', function() {
+            // Las funciones se cargarán cuando se active cada sección
+        });
+
+        loadDashboardStats();
+        loadEntregas();
+    </script>
 
 </body>
 </html>
