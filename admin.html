@@ -4876,8 +4876,8 @@
                     <input type="number" id="puntosActividad" value="20" min="0">
                 </div>
                 <div class="form-group">
-                    <label>Puntos por quiz aprobado</label>
-                    <input type="number" id="puntosQuiz" value="50" min="0">
+                    <label>Puntos por cuestionario completado</label>
+                    <input type="number" id="puntosCuestionario" value="25" min="0">
                 </div>
                 <button class="btn btn-primary" onclick="guardarConfiguracionPuntos()">
                     <i class="fas fa-save"></i> Guardar Configuración
@@ -12758,7 +12758,7 @@ REGLAS ESTRICTAS:
                     const config = configSnapshot.data();
                     document.getElementById('puntosClase').value = config.puntosClase || 10;
                     document.getElementById('puntosActividad').value = config.puntosActividad || 20;
-                    document.getElementById('puntosQuiz').value = config.puntosQuiz || 50;
+                    document.getElementById('puntosCuestionario').value = config.puntosCuestionario || 25;
                 }
                 
                 // Calcular estadísticas
@@ -12789,7 +12789,7 @@ REGLAS ESTRICTAS:
             const config = {
                 puntosClase: parseInt(document.getElementById('puntosClase').value) || 10,
                 puntosActividad: parseInt(document.getElementById('puntosActividad').value) || 20,
-                puntosQuiz: parseInt(document.getElementById('puntosQuiz').value) || 50
+                puntosCuestionario: parseInt(document.getElementById('puntosCuestionario').value) || 25
             };
             
             try {
@@ -12871,7 +12871,6 @@ REGLAS ESTRICTAS:
 
         loadDashboardStats();
         loadEntregas();
-        loadQuizzesList();
         loadForosList();
         loadGamificacionStats();
     </script>

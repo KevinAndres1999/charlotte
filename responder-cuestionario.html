@@ -1181,7 +1181,28 @@ window.submitQuiz = async function() {
         const docRef = await addDoc(collection(db, 'respuestasCuestionarios'), respuestasData);
         console.log('Respuesta guardada exitosamente en Firebase:', docRef.id);
 
-        alert('¡Respuestas enviadas exitosamente!');
+        // Otorgar puntos por completar cuestionario
+        try {
+            const configSnapshot = await getDoc(doc(db, 'configuracion', 'gamificacion'));
+            const puntosPorCuestionario = configSnapshot.exists() ? configSnapshot.data().puntosCuestionario || 25 : 25;
+            
+            const userRef = doc(db, 'users', currentUser.email);
+            await runTransaction(db, async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                const currentPuntos = userDoc.exists() ? userDoc.data().puntos || 0 : 0;
+                transaction.set(userRef, { 
+                    ...userDoc.data(),
+                    puntos: currentPuntos + puntosPorCuestionario,
+                    email: currentUser.email,
+                    name: currentUser.nombre || currentUser.email
+                }, { merge: true });
+            });
+            
+            alert(`¡Respuestas enviadas exitosamente! Has ganado ${puntosPorCuestionario} puntos.`);
+        } catch (pointsError) {
+            console.error('Error otorgando puntos:', pointsError);
+            alert('¡Respuestas enviadas exitosamente! (Nota: Error al otorgar puntos, contacta al administrador)');
+        }
         
         // Redirigir de vuelta al portal estudiante
         window.location.href = 'estudiante.html';
