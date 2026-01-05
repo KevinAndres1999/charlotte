@@ -10956,15 +10956,13 @@ REGLAS ESTRICTAS:
                         tipo: 'cuestionario'
                     }))
                     .filter(cuestionario => {
-                        // Filtrar quizzes antiguos - excluir aquellos que no tienen combinacionesPermitidas
-                        // y que parecen ser quizzes basados en su estructura
-                        const tieneCombinaciones = cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas);
-                        const tieneSedesHorarios = cuestionario.sedes || cuestionario.horarios;
-                        const pareceCuestionarioNuevo = tieneCombinaciones || tieneSedesHorarios || cuestionario.fechaInicio || cuestionario.fechaFin;
+                        // Solo excluir quizzes que tienen estructura clara de quiz antiguo
+                        // (aquellos con preguntas que tienen opciones múltiples y correcta definida)
+                        const tieneEstructuraQuiz = cuestionario.preguntas && Array.isArray(cuestionario.preguntas) &&
+                                                   cuestionario.preguntas.some(p => p.opciones && p.correcta !== undefined);
 
-                        // Si no tiene ninguna de estas características, probablemente es un quiz antiguo
-                        if (!pareceCuestionarioNuevo) {
-                            console.log('Excluyendo quiz antiguo:', cuestionario.titulo);
+                        if (tieneEstructuraQuiz) {
+                            console.log('Excluyendo quiz con estructura antigua:', cuestionario.titulo);
                             return false;
                         }
 
