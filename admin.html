@@ -2296,6 +2296,9 @@
 
                 <!-- Evaluación y Seguimiento -->
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
+                <div class="nav-item" data-section="quizzes"><i class="fas fa-question-circle"></i><span>Quizzes Interactivos</span></div>
+                <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
+                <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Ver Entregas</span></div>
                 <div class="nav-item" data-section="respuestas-viewer"><i class="fas fa-clipboard-list"></i><span>Ver Respuestas</span></div>
@@ -4769,7 +4772,126 @@
             text-align: center;
         }
     </style>
-        <script>
+
+    <!-- =================== QUIZZES INTERACTIVOS =================== -->
+    <div id="quizzes" class="content-section">
+        <div class="quiz-builder-section">
+            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                <h3><i class="fas fa-question-circle"></i> Quizzes Interactivos</h3>
+                <p style="color: white;">Crea y gestiona quizzes con calificación automática</p>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-plus"></i> Crear Nuevo Quiz</h4>
+                <form id="quizForm">
+                    <div class="form-group">
+                        <label>Título del Quiz *</label>
+                        <input type="text" id="quizTitle" placeholder="Ej: Fundamentos de Panadería" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea id="quizDescription" placeholder="Describe el propósito del quiz..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Programa *</label>
+                        <select id="quizPrograma" required>
+                            <option value="">Selecciona un programa</option>
+                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                            <option value="Belleza Integral">Belleza Integral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tiempo límite (minutos)</label>
+                        <input type="number" id="quizTimeLimit" placeholder="0 = sin límite" min="0">
+                    </div>
+                    <div id="quizQuestionsContainer"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addQuizQuestion()">
+                        <i class="fas fa-plus"></i> Agregar Pregunta
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="margin-left: 10px;">
+                        <i class="fas fa-save"></i> Guardar Quiz
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-list"></i> Quizzes Creados</h4>
+                <div id="quizzesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================== FOROS =================== -->
+    <div id="foros" class="content-section">
+        <div class="quiz-builder-section">
+            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                <h3><i class="fas fa-comments"></i> Gestión de Foros</h3>
+                <p style="color: white;">Administra discusiones y hilos de conversación</p>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-eye"></i> Hilos Activos</h4>
+                <div id="forosList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================== GAMIFICACIÓN =================== -->
+    <div id="gamificacion" class="content-section">
+        <div class="quiz-builder-section">
+            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                <h3><i class="fas fa-trophy"></i> Sistema de Gamificación</h3>
+                <p style="color: white;">Gestiona puntos, logros y leaderboard de estudiantes</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <h3 class="stat-value" id="totalPuntos">0</h3>
+                            <p class="stat-label">Puntos Totales Otorgados</p>
+                        </div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-star"></i></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div>
+                            <h3 class="stat-value" id="topEstudiante">-</h3>
+                            <p class="stat-label">Estudiante Líder</p>
+                        </div>
+                        <div class="stat-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fas fa-trophy"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-cog"></i> Configuración de Puntos</h4>
+                <div class="form-group">
+                    <label>Puntos por clase completada</label>
+                    <input type="number" id="puntosClase" value="10" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Puntos por actividad completada</label>
+                    <input type="number" id="puntosActividad" value="20" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Puntos por quiz aprobado</label>
+                    <input type="number" id="puntosQuiz" value="50" min="0">
+                </div>
+                <button class="btn btn-primary" onclick="guardarConfiguracionPuntos()">
+                    <i class="fas fa-save"></i> Guardar Configuración
+                </button>
+            </div>
+
+            <div class="card">
+                <h4><i class="fas fa-trophy"></i> Leaderboard</h4>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
             constructor(loader) {
@@ -12338,6 +12460,420 @@ REGLAS ESTRICTAS:
                 alert('Enlace copiado al portapapeles: ' + url);
             });
         };
+
+        // =================== FUNCIONES PARA QUIZZES ===================
+        let quizQuestions = [];
+
+        function addQuizQuestion() {
+            const container = document.getElementById('quizQuestionsContainer');
+            const questionIndex = quizQuestions.length;
+            
+            const questionHTML = `
+                <div class="question-item" style="border: 1px solid #e2e8f0; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h5>Pregunta ${questionIndex + 1}</h5>
+                        <button type="button" class="btn-icon btn-delete" onclick="removeQuizQuestion(${questionIndex})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Pregunta</label>
+                        <select class="question-type" onchange="changeQuestionType(${questionIndex}, this.value)">
+                            <option value="multiple">Opción Múltiple</option>
+                            <option value="verdadero-falso">Verdadero/Falso</option>
+                            <option value="abierta">Respuesta Abierta</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pregunta</label>
+                        <input type="text" class="question-text" placeholder="Escribe la pregunta..." required>
+                    </div>
+                    
+                    <div class="options-container" id="options-${questionIndex}">
+                        <!-- Opciones se generan dinámicamente -->
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', questionHTML);
+            quizQuestions.push({ tipo: 'multiple', pregunta: '', opciones: ['', '', '', ''], correcta: 0 });
+            changeQuestionType(questionIndex, 'multiple');
+        }
+
+        function changeQuestionType(index, tipo) {
+            quizQuestions[index].tipo = tipo;
+            const optionsContainer = document.getElementById(`options-${index}`);
+            
+            if (tipo === 'multiple') {
+                optionsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Opción A</label>
+                        <input type="text" class="option-input" placeholder="Opción A" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Opción B</label>
+                        <input type="text" class="option-input" placeholder="Opción B" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Opción C</label>
+                        <input type="text" class="option-input" placeholder="Opción C" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Opción D</label>
+                        <input type="text" class="option-input" placeholder="Opción D" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Respuesta Correcta</label>
+                        <select class="correct-answer">
+                            <option value="0">A</option>
+                            <option value="1">B</option>
+                            <option value="2">C</option>
+                            <option value="3">D</option>
+                        </select>
+                    </div>
+                `;
+            } else if (tipo === 'verdadero-falso') {
+                optionsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Respuesta Correcta</label>
+                        <select class="correct-answer">
+                            <option value="0">Verdadero</option>
+                            <option value="1">Falso</option>
+                        </select>
+                    </div>
+                `;
+                quizQuestions[index].opciones = ['Verdadero', 'Falso'];
+            } else if (tipo === 'abierta') {
+                optionsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Respuesta Esperada</label>
+                        <input type="text" class="expected-answer" placeholder="Respuesta correcta..." required>
+                    </div>
+                `;
+            }
+        }
+
+        function removeQuizQuestion(index) {
+            quizQuestions.splice(index, 1);
+            document.getElementById('quizQuestionsContainer').children[index].remove();
+            // Reindexar preguntas restantes
+            updateQuestionIndices();
+        }
+
+        function updateQuestionIndices() {
+            const questions = document.querySelectorAll('#quizQuestionsContainer .question-item h5');
+            questions.forEach((h5, index) => {
+                h5.textContent = `Pregunta ${index + 1}`;
+            });
+        }
+
+        async function saveQuiz(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('quizTitle').value.trim();
+            const description = document.getElementById('quizDescription').value;
+            const programa = document.getElementById('quizPrograma').value;
+            const timeLimit = parseInt(document.getElementById('quizTimeLimit').value) || 0;
+            
+            if (!title || !programa) {
+                alert('Por favor completa título y programa');
+                return;
+            }
+            
+            // Recopilar preguntas
+            const questions = [];
+            const questionElements = document.querySelectorAll('#quizQuestionsContainer .question-item');
+            
+            for (let i = 0; i < questionElements.length; i++) {
+                const element = questionElements[i];
+                const tipo = element.querySelector('.question-type').value;
+                const pregunta = element.querySelector('.question-text').value.trim();
+                
+                if (!pregunta) {
+                    alert(`Pregunta ${i + 1}: Debes escribir el texto de la pregunta`);
+                    return;
+                }
+                
+                const question = { tipo, pregunta };
+                
+                if (tipo === 'multiple') {
+                    const opciones = Array.from(element.querySelectorAll('.option-input')).map(input => input.value.trim());
+                    if (opciones.some(opt => !opt)) {
+                        alert(`Pregunta ${i + 1}: Todas las opciones deben estar completas`);
+                        return;
+                    }
+                    question.opciones = opciones;
+                    question.correcta = parseInt(element.querySelector('.correct-answer').value);
+                } else if (tipo === 'verdadero-falso') {
+                    question.opciones = ['Verdadero', 'Falso'];
+                    question.correcta = parseInt(element.querySelector('.correct-answer').value);
+                } else if (tipo === 'abierta') {
+                    question.respuestaEsperada = element.querySelector('.expected-answer').value.trim();
+                    if (!question.respuestaEsperada) {
+                        alert(`Pregunta ${i + 1}: Debes especificar la respuesta esperada`);
+                        return;
+                    }
+                }
+                
+                questions.push(question);
+            }
+            
+            if (questions.length === 0) {
+                alert('Debes agregar al menos una pregunta');
+                return;
+            }
+            
+            try {
+                await db.collection('quizzes').add({
+                    titulo: title,
+                    descripcion: description,
+                    programa: programa,
+                    tiempoLimite: timeLimit,
+                    preguntas: questions,
+                    fechaCreacion: new Date().toISOString(),
+                    activo: true
+                });
+                
+                alert('Quiz guardado exitosamente');
+                document.getElementById('quizForm').reset();
+                document.getElementById('quizQuestionsContainer').innerHTML = '';
+                quizQuestions = [];
+                loadQuizzesList();
+                loadDashboardStats();
+            } catch (error) {
+                console.error('Error saving quiz:', error);
+                alert('Error al guardar el quiz');
+            }
+        }
+
+        async function loadQuizzesList() {
+            try {
+                const snapshot = await db.collection('quizzes').orderBy('fechaCreacion', 'desc').get();
+                const container = document.getElementById('quizzesList');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-question-circle"></i><h3>No hay quizzes creados</h3></div>';
+                    return;
+                }
+                
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const stats = calcularEstadisticasQuiz(data);
+                    
+                    return `
+                        <div class="quiz-card" style="border: 1px solid #e2e8f0; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h4>${data.titulo}</h4>
+                                    <p style="color: #64748b;">${data.programa} • ${data.preguntas?.length || 0} preguntas</p>
+                                    <p style="color: #64748b;">${stats.totalIntentos} intentos • Promedio: ${stats.promedio}%</p>
+                                </div>
+                                <div>
+                                    <button class="btn-icon" onclick="viewQuiz('${doc.id}')" title="Ver Quiz">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon btn-delete" onclick="deleteItem('quizzes', '${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading quizzes:', error);
+            }
+        }
+
+        function calcularEstadisticasQuiz(quiz) {
+            // Placeholder para estadísticas - implementar cuando haya respuestas
+            return { totalIntentos: 0, promedio: 0 };
+        }
+
+        // =================== FUNCIONES PARA FOROS ===================
+        async function loadForosList() {
+            try {
+                const snapshot = await db.collection('foros').orderBy('fechaCreacion', 'desc').get();
+                const container = document.getElementById('forosList');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><h3>No hay hilos activos</h3></div>';
+                    return;
+                }
+                
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return `
+                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <h4>${data.titulo}</h4>
+                                    <p style="color: #64748b;">Por ${data.autorNombre} • ${data.programa}</p>
+                                    <p style="color: #64748b;">${data.respuestas || 0} respuestas</p>
+                                </div>
+                                <div>
+                                    <button class="btn-icon" onclick="viewForo('${doc.id}')" title="Ver Hilo">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-icon btn-delete" onclick="deleteForo('${doc.id}')" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading foros:', error);
+            }
+        }
+
+        async function deleteForo(id) {
+            if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
+            try {
+                // Eliminar respuestas relacionadas
+                const respuestasSnapshot = await db.collection('foro_respuestas').where('hiloId', '==', id).get();
+                const deletePromises = respuestasSnapshot.docs.map(doc => doc.ref.delete());
+                await Promise.all(deletePromises);
+                
+                // Eliminar hilo
+                await db.collection('foros').doc(id).delete();
+                
+                alert('Hilo eliminado');
+                loadForosList();
+            } catch (error) {
+                console.error('Error deleting foro:', error);
+                alert('Error al eliminar el hilo');
+            }
+        }
+
+        // =================== FUNCIONES PARA GAMIFICACIÓN ===================
+        async function loadGamificacionStats() {
+            try {
+                // Cargar configuración de puntos
+                const configSnapshot = await db.collection('configuracion').doc('gamificacion').get();
+                if (configSnapshot.exists) {
+                    const config = configSnapshot.data();
+                    document.getElementById('puntosClase').value = config.puntosClase || 10;
+                    document.getElementById('puntosActividad').value = config.puntosActividad || 20;
+                    document.getElementById('puntosQuiz').value = config.puntosQuiz || 50;
+                }
+                
+                // Calcular estadísticas
+                const usuariosSnapshot = await db.collection('users').get();
+                let totalPuntos = 0;
+                let topEstudiante = { nombre: '-', puntos: 0 };
+                
+                usuariosSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const puntos = data.puntos || 0;
+                    totalPuntos += puntos;
+                    
+                    if (puntos > topEstudiante.puntos) {
+                        topEstudiante = { nombre: data.name || data.email, puntos: puntos };
+                    }
+                });
+                
+                document.getElementById('totalPuntos').textContent = totalPuntos;
+                document.getElementById('topEstudiante').textContent = topEstudiante.nombre;
+                
+                loadLeaderboard();
+            } catch (error) {
+                console.error('Error loading gamification stats:', error);
+            }
+        }
+
+        async function guardarConfiguracionPuntos() {
+            const config = {
+                puntosClase: parseInt(document.getElementById('puntosClase').value) || 10,
+                puntosActividad: parseInt(document.getElementById('puntosActividad').value) || 20,
+                puntosQuiz: parseInt(document.getElementById('puntosQuiz').value) || 50
+            };
+            
+            try {
+                await db.collection('configuracion').doc('gamificacion').set(config);
+                alert('Configuración guardada exitosamente');
+            } catch (error) {
+                console.error('Error saving config:', error);
+                alert('Error al guardar configuración');
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const usuariosSnapshot = await db.collection('users').orderBy('puntos', 'desc').limit(10).get();
+                const container = document.getElementById('leaderboardList');
+                
+                if (usuariosSnapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><h3>No hay estudiantes con puntos</h3></div>';
+                    return;
+                }
+                
+                container.innerHTML = usuariosSnapshot.docs.map((doc, index) => {
+                    const data = doc.data();
+                    const position = index + 1;
+                    const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
+                    
+                    return `
+                        <div class="leaderboard-item" style="display: flex; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; margin: 0.5rem 0; border-radius: 8px;">
+                            <div style="font-size: 1.5rem; margin-right: 1rem;">${medal}</div>
+                            <div style="flex: 1;">
+                                <strong>${data.name || data.email}</strong>
+                                <br><small style="color: #64748b;">${data.programa || 'Sin programa'}</small>
+                            </div>
+                            <div style="font-weight: bold; color: #f59e0b;">${data.puntos || 0} pts</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        // =================== FUNCIONES PARA ACCESIBILIDAD ===================
+        function mejorarAccesibilidad() {
+            // Agregar atributos ARIA a elementos principales
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.setAttribute('role', 'button');
+                item.setAttribute('tabindex', '0');
+                item.setAttribute('aria-label', item.textContent.trim());
+            });
+            
+            // Mejorar formularios
+            document.querySelectorAll('input, select, textarea').forEach(element => {
+                if (!element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby')) {
+                    const label = element.previousElementSibling;
+                    if (label && label.tagName === 'LABEL') {
+                        element.setAttribute('aria-labelledby', label.id || `label-${element.id}`);
+                        if (!label.id) label.id = `label-${element.id}`;
+                    }
+                }
+            });
+            
+            // Agregar navegación por teclado
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    const target = e.target;
+                    if (target.classList.contains('nav-item')) {
+                        e.preventDefault();
+                        target.click();
+                    }
+                }
+            });
+        }
+
+        // Inicializar mejoras de accesibilidad
+        document.addEventListener('DOMContentLoaded', function() {
+            mejorarAccesibilidad();
+        });
+
+        loadDashboardStats();
+        loadEntregas();
+        loadQuizzesList();
+        loadForosList();
+        loadGamificacionStats();
     </script>
 
 </body>
