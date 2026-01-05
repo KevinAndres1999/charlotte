@@ -2533,6 +2533,7 @@
 
                 <!-- Contenido Educativo -->
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Videos</span></div>
+                <div class="nav-item" data-section="clases"><i class="fas fa-upload"></i><span>Clases</span></div>
                 <div class="nav-item" data-section="clases-manager"><i class="fas fa-book-open"></i><span>Gestionar Clases</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
@@ -2858,6 +2859,259 @@
             </div>
 
             <!-- Subir Clases -->
+            <div id="clases" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-book-open"></i> Gestión de Clases</h3>
+                        <p style="color: white;">Sube y administra las clases disponibles para tus estudiantes</p>
+                    </div>
+
+                    <form id="claseForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información de la Clase</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseTitle">Título de la Clase</label>
+                                    <input type="text" id="claseTitle" placeholder="Ej: Introducción a Técnicas de Panadería" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseDesc">Descripción</label>
+                                    <textarea id="claseDesc" placeholder="Describe brevemente el contenido y objetivos de la clase..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="clasePrograma">Programa</label>
+                                    <select id="clasePrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseModulo">Módulo</label>
+                                    <select id="claseModulo" required>
+                                        <option value="">Seleccionar módulo</option>
+                                        <option value="modulo1">Módulo 1: Panadería</option>
+                                        <option value="modulo2">Módulo 2: Galletaría</option>
+                                        <option value="modulo3">Módulo 3: Pastelería</option>
+                                        <option value="modulo4">Módulo 4: Repostería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-content-section" style="margin-top: 20px; margin-bottom: 20px;">
+                            <div class="quiz-form-card" style="width: 100%;">
+                                <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseContent">Contenido Detallado</label>
+                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                                    <button type="button" onclick="initializeClaseEditor()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Inicializar Editor</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-upload"></i> Subir Clase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Clases Subidas</h3>
+                        <p style="color: white;">Gestiona y administra tus clases publicadas</p>
+                    </div>
+                    <div id="clasesList" class="grid"></div>
+                </div>
+            </div>
+
+                <!-- Centro de Gestión Integral -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-book-open"></i> Centro de Gestión de Clases
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de clases y contenido educativo</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-book-open"></i>
+                                    <span id="totalClasesBadge">0</span> Clases
+                                </div>
+                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-users"></i>
+                                    <span id="clasesActivasBadge">0</span> Activas
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
+                    </div>
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label for="filterProgramaClases">Programa:</label>
+                            <select id="filterProgramaClases">
+                                <option value="">Todos los programas</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                <option value="Asesoría Técnica">Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSedeClases">Sede:</label>
+                            <select id="filterSedeClases">
+                                <option value="">Todas las sedes</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHorarioClases">Horario:</label>
+                            <select id="filterHorarioClases">
+                                <option value="">Todos los horarios</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterModuloClases">Módulo:</label>
+                            <select id="filterModuloClases">
+                                <option value="">Todos los módulos</option>
+                                <option value="modulo1">Módulo 1: Panadería</option>
+                                <option value="modulo2">Módulo 2: Galletaría</option>
+                                <option value="modulo3">Módulo 3: Pastelería</option>
+                                <option value="modulo4">Módulo 4: Repostería</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstadoClases">Estado:</label>
+                            <select id="filterEstadoClases">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                                <option value="borrador">Borradores</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="searchClase">Buscar:</label>
+                            <input type="text" id="searchClase" placeholder="Buscar por título o descripción...">
+                        </div>
+                        <div class="filter-group">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosClases()">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosClases()">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalClases">0</h3>
+                                <p class="stat-label">Total Clases</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-book-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesActivas">0</h3>
+                                <p class="stat-label">Activas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesBelleza">0</h3>
+                                <p class="stat-label">Belleza</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-spa"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="clasesPanaderia">0</h3>
+                                <p class="stat-label">Panadería</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-bread-slice"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Clases -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Clases Disponibles</h3>
+                        <div class="header-actions">
+                            <button type="button" class="btn-secondary" onclick="exportarClases()">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                            <button type="button" class="btn-primary" onclick="recargarClases()">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                    <div id="clasesManagerGrid" class="cuestionarios-grid">
+                        <!-- Las clases se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestionar Clases -->
             <div id="clases-manager" class="content-section">
 
                 <!-- Centro de Gestión Integral -->
@@ -5371,6 +5625,13 @@
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
+            else if (sectionId === 'clases') {
+                try {
+                    loadClasesList();
+                    // Inicializar editor de clases cuando se muestre la sección
+                    setTimeout(() => initializeClaseEditor(), 100);
+                } catch (e) { console.error('Error loading clases:', e); }
+            }
             else if (sectionId === 'clases-manager') {
                 try {
                     loadClasesManager();
