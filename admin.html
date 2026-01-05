@@ -2296,7 +2296,6 @@
 
                 <!-- Evaluación y Seguimiento -->
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
-                <div class="nav-item" data-section="quizzes"><i class="fas fa-question-circle"></i><span>Quizzes Interactivos</span></div>
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
                 <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
@@ -3405,34 +3404,46 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Sedes (selecciona una o más)</label>
-                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="cuestionarioSedes" value="Carapungo">
-                                            Carapungo
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="cuestionarioSedes" value="Sangolquí">
-                                            Sangolquí
-                                        </label>
+                                    <label>Combinaciones Permitidas (selecciona las combinaciones específicas)</label>
+                                    <div class="combinaciones-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Carapungo</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Carapungo_Sábado Matutina">
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Carapungo_Sábado Vespertina">
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Carapungo_Domingo Matutina">
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Sangolquí</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Sangolquí_Sábado Matutina">
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Sangolquí_Sábado Vespertina">
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="cuestionarioCombinaciones" value="Sangolquí_Domingo Matutina">
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Horarios (selecciona uno o más)</label>
-                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="cuestionarioHorarios" value="Sábado Matutina">
-                                            Sábado Matutina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="cuestionarioHorarios" value="Sábado Vespertina">
-                                            Sábado Vespertina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="cuestionarioHorarios" value="Domingo Matutina">
-                                            Domingo Matutina
-                                        </label>
-                                    </div>
+                                    <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                        Selecciona las combinaciones específicas de sede + horario donde este cuestionario estará disponible
+                                    </small>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="cuestionarioTiempo">Tiempo Disponible (minutos)</label>
@@ -3493,34 +3504,54 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Sedes (selecciona una o más)</label>
-                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="autoCuestionarioSedes" value="Carapungo">
-                                            Carapungo
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="autoCuestionarioSedes" value="Sangolquí">
-                                            Sangolquí
-                                        </label>
+                                    <label>Combinaciones Permitidas (selecciona las combinaciones específicas)</label>
+                                    <div class="combinaciones-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Carapungo</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Carapungo_Sábado Matutina">
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Carapungo_Sábado Vespertina">
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Carapungo_Domingo Matutina">
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Sangolquí</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Sangolquí_Sábado Matutina">
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Sangolquí_Sábado Vespertina">
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="autoCuestionarioCombinaciones" value="Sangolquí_Domingo Matutina">
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                        Selecciona las combinaciones específicas de sede + horario donde este cuestionario estará disponible
+                                    </small>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Horarios (selecciona uno o más)</label>
-                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Sábado Matutina">
-                                            Sábado Matutina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Sábado Vespertina">
-                                            Sábado Vespertina
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 8px;">
-                                            <input type="checkbox" name="autoCuestionarioHorarios" value="Domingo Matutina">
-                                            Domingo Matutina
-                                        </label>
-                                    </div>
+                                    <label for="autoCuestionarioFechaInicio">Fecha de Inicio</label>
+                                    <input type="datetime-local" id="autoCuestionarioFechaInicio" title="Fecha y hora en que los estudiantes podrán acceder al cuestionario">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="autoCuestionarioFechaFin">Fecha de Fin</label>
+                                    <input type="datetime-local" id="autoCuestionarioFechaFin" title="Fecha y hora límite para resolver el cuestionario">
                                 </div>
                             </div>
 
@@ -4786,54 +4817,6 @@
         }
     </style>
 
-    <!-- =================== QUIZZES INTERACTIVOS =================== -->
-    <div id="quizzes" class="content-section">
-        <div class="quiz-builder-section">
-            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                <h3><i class="fas fa-question-circle"></i> Quizzes Interactivos</h3>
-                <p style="color: white;">Crea y gestiona quizzes con calificación automática</p>
-            </div>
-
-            <div class="card">
-                <h4><i class="fas fa-plus"></i> Crear Nuevo Quiz</h4>
-                <form id="quizForm">
-                    <div class="form-group">
-                        <label>Título del Quiz *</label>
-                        <input type="text" id="quizTitle" placeholder="Ej: Fundamentos de Panadería" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea id="quizDescription" placeholder="Describe el propósito del quiz..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Programa *</label>
-                        <select id="quizPrograma" required>
-                            <option value="">Selecciona un programa</option>
-                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                            <option value="Belleza Integral">Belleza Integral</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Tiempo límite (minutos)</label>
-                        <input type="number" id="quizTimeLimit" placeholder="0 = sin límite" min="0">
-                    </div>
-                    <div id="quizQuestionsContainer"></div>
-                    <button type="button" class="btn btn-secondary" onclick="addQuizQuestion()">
-                        <i class="fas fa-plus"></i> Agregar Pregunta
-                    </button>
-                    <button type="submit" class="btn btn-primary" style="margin-left: 10px;">
-                        <i class="fas fa-save"></i> Guardar Quiz
-                    </button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h4><i class="fas fa-list"></i> Quizzes Creados</h4>
-                <div id="quizzesList"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- =================== FOROS =================== -->
     <div id="foros" class="content-section">
         <div class="quiz-builder-section">
@@ -5486,10 +5469,11 @@
                     const title = document.getElementById('cuestionarioTitle').value;
                     const desc = document.getElementById('cuestionarioDesc').value;
                     const programa = document.getElementById('cuestionarioPrograma').value;
-                    // Recoger sedes seleccionadas
-                    const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="cuestionarioSedes"]:checked')).map(cb => cb.value);
-                    // Recoger horarios seleccionados
-                    const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="cuestionarioHorarios"]:checked')).map(cb => cb.value);
+                    // Recoger combinaciones seleccionadas
+                    const combinacionesSeleccionadas = Array.from(document.querySelectorAll('input[name="cuestionarioCombinaciones"]:checked')).map(cb => {
+                        const [sede, horario] = cb.value.split('_');
+                        return { sede, horario };
+                    });
                     const tiempo = document.getElementById('cuestionarioTiempo').value;
                     const intentos = document.getElementById('cuestionarioIntentos').value;
                     const fechaInicio = document.getElementById('cuestionarioFechaInicio').value;
@@ -5502,8 +5486,7 @@
                     }
 
                     if (!programa) return alert('Selecciona un programa');
-                    if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
-                    if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
+                    if (combinacionesSeleccionadas.length === 0) return alert('Selecciona al menos una combinación de sede y horario');
 
                     const questions = collectQuestions('cuestionario');
                     if (questions.length === 0) return alert('Agrega al menos una pregunta');
@@ -5514,8 +5497,7 @@
                             descripcion: desc,
                             preguntas: questions,
                             programa: programa,
-                            sedes: sedesSeleccionadas,
-                            horarios: horariosSeleccionados,
+                            combinacionesPermitidas: combinacionesSeleccionadas,
                             tiempoLimite: tiempo ? parseInt(tiempo) : null,
                             numeroIntentos: intentos ? parseInt(intentos) : 1,
                             fechaInicio: fechaInicio || null,
@@ -8751,18 +8733,27 @@
             const title = document.getElementById('autoCuestionarioTitle').value.trim();
             const desc = document.getElementById('autoCuestionarioDesc').value.trim();
             const programa = document.getElementById('autoCuestionarioPrograma').value;
-            const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="autoCuestionarioSedes"]:checked')).map(cb => cb.value);
-            const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="autoCuestionarioHorarios"]:checked')).map(cb => cb.value);
+            const combinacionesSeleccionadas = Array.from(document.querySelectorAll('input[name="autoCuestionarioCombinaciones"]:checked')).map(cb => {
+                const [sede, horario] = cb.value.split('_');
+                return { sede, horario };
+            });
             const tiempo = parseInt(document.getElementById('autoCuestionarioTiempo').value) || 60;
             const intentos = parseInt(document.getElementById('autoCuestionarioIntentos').value) || 1;
+            const fechaInicio = document.getElementById('autoCuestionarioFechaInicio').value;
+            const fechaFin = document.getElementById('autoCuestionarioFechaFin').value;
 
             if (!title || !programa) {
                 alert('Por favor, completa el título y selecciona un programa.');
                 return;
             }
 
-            if (sedesSeleccionadas.length === 0 || horariosSeleccionados.length === 0) {
-                alert('Por favor, selecciona al menos una sede y un horario.');
+            if (combinacionesSeleccionadas.length === 0) {
+                alert('Por favor, selecciona al menos una combinación de sede y horario.');
+                return;
+            }
+
+            if (fechaInicio && fechaFin && new Date(fechaInicio) >= new Date(fechaFin)) {
+                alert('La fecha de inicio debe ser anterior a la fecha de fin.');
                 return;
             }
 
@@ -8783,10 +8774,11 @@
                     titulo: title,
                     descripcion: desc,
                     programa: programa,
-                    sedes: sedesSeleccionadas,
-                    horarios: horariosSeleccionados,
+                    combinacionesPermitidas: combinacionesSeleccionadas,
                     tiempoLimite: tiempo,
                     intentosMaximos: intentos,
+                    fechaInicio: fechaInicio || null,
+                    fechaFin: fechaFin || null,
                     preguntas: window.preguntasGeneradas.map(p => ({
                         pregunta: p.pregunta,
                         opciones: p.opciones,
@@ -8809,6 +8801,8 @@
                 document.getElementById('autoCuestionarioTitle').value = '';
                 document.getElementById('autoCuestionarioDesc').value = '';
                 document.getElementById('autoCuestionarioPrograma').value = '';
+                document.getElementById('autoCuestionarioFechaInicio').value = '';
+                document.getElementById('autoCuestionarioFechaFin').value = '';
                 document.getElementById('autoContentText').value = '';
                 document.getElementById('autoQuestionsPreview').style.display = 'none';
                 window.preguntasGeneradas = [];
@@ -10955,11 +10949,27 @@ REGLAS ESTRICTAS:
             try {
                 console.log('Cargando cuestionarios para gestión...');
                 const snapshot = await db.collection('cuestionarios').get();
-                cuestionariosManagerData = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    tipo: 'cuestionario'
-                }));
+                cuestionariosManagerData = snapshot.docs
+                    .map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        tipo: 'cuestionario'
+                    }))
+                    .filter(cuestionario => {
+                        // Filtrar quizzes antiguos - excluir aquellos que no tienen combinacionesPermitidas
+                        // y que parecen ser quizzes basados en su estructura
+                        const tieneCombinaciones = cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas);
+                        const tieneSedesHorarios = cuestionario.sedes || cuestionario.horarios;
+                        const pareceCuestionarioNuevo = tieneCombinaciones || tieneSedesHorarios || cuestionario.fechaInicio || cuestionario.fechaFin;
+
+                        // Si no tiene ninguna de estas características, probablemente es un quiz antiguo
+                        if (!pareceCuestionarioNuevo) {
+                            console.log('Excluyendo quiz antiguo:', cuestionario.titulo);
+                            return false;
+                        }
+
+                        return true;
+                    });
 
                 // También cargar evaluaciones
                 const evaluacionesSnapshot = await db.collection('evaluaciones').get();
@@ -10993,21 +11003,70 @@ REGLAS ESTRICTAS:
 
             let filteredData = cuestionariosManagerData.filter(cuestionario => {
                 const matchPrograma = !programa || cuestionario.programa === programa;
-                const matchSede = !sede || cuestionario.sede === sede;
-                const matchHorario = !horario || cuestionario.horario === horario;
+
+                // Filtrar por sede - verificar en combinacionesPermitidas o sedes antiguas
+                let matchSede = true;
+                if (sede) {
+                    if (cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas)) {
+                        matchSede = cuestionario.combinacionesPermitidas.some(combo => combo.sede === sede);
+                    } else if (cuestionario.sedes && Array.isArray(cuestionario.sedes)) {
+                        matchSede = cuestionario.sedes.includes(sede);
+                    } else {
+                        matchSede = cuestionario.sede === sede;
+                    }
+                }
+
+                // Filtrar por horario - verificar en combinacionesPermitidas o horarios antiguas
+                let matchHorario = true;
+                if (horario) {
+                    if (cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas)) {
+                        matchHorario = cuestionario.combinacionesPermitidas.some(combo => combo.horario === horario);
+                    } else if (cuestionario.horarios && Array.isArray(cuestionario.horarios)) {
+                        matchHorario = cuestionario.horarios.includes(horario);
+                    } else {
+                        matchHorario = cuestionario.horario === horario;
+                    }
+                }
+
                 const matchEstado = !estado || getCuestionarioEstado(cuestionario) === estado;
                 const matchSearch = !search ||
                     cuestionario.titulo?.toLowerCase().includes(search) ||
                     cuestionario.descripcion?.toLowerCase().includes(search);
 
-                return matchPrograma && matchEstado && matchSearch;
+                return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
             });
 
             renderCuestionariosGrid(filteredData);
         }
 
-        // Función para limpiar filtros
-        function limpiarFiltrosCuestionarios() {
+        // Función para renderizar combinaciones de sede y horario
+        function renderizarCombinaciones(cuestionario) {
+            if (cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas)) {
+                const combinaciones = cuestionario.combinacionesPermitidas.map(combo =>
+                    `${combo.sede} - ${combo.horario}`
+                ).join(', ');
+                return combinaciones || 'Sin combinaciones definidas';
+            }
+
+            // Compatibilidad con sistema anterior
+            if (cuestionario.sedes && cuestionario.horarios) {
+                const sedes = Array.isArray(cuestionario.sedes) ? cuestionario.sedes : [cuestionario.sedes];
+                const horarios = Array.isArray(cuestionario.horarios) ? cuestionario.horarios : [cuestionario.horarios];
+                const combinaciones = [];
+                sedes.forEach(sede => {
+                    horarios.forEach(horario => {
+                        combinaciones.push(`${sede} - ${horario}`);
+                    });
+                });
+                return combinaciones.join(', ') || 'Sin combinaciones definidas';
+            }
+
+            if (cuestionario.sede && cuestionario.horario) {
+                return `${cuestionario.sede} - ${cuestionario.horario}`;
+            }
+
+            return 'Sin restricciones de sede/horario';
+        }
             document.getElementById('filterProgramaCuestionarios').value = '';
             document.getElementById('filterSedeCuestionarios').value = '';
             document.getElementById('filterHorarioCuestionarios').value = '';
@@ -11073,6 +11132,23 @@ REGLAS ESTRICTAS:
                         <div class="cuestionario-content">
                             <div class="cuestionario-description">
                                 ${cuestionario.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-info">
+                                <div class="info-item">
+                                    <strong>Programa:</strong> ${cuestionario.programa || 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Disponible para:</strong>
+                                    ${renderizarCombinaciones(cuestionario)}
+                                </div>
+                                ${cuestionario.fechaInicio || cuestionario.fechaFin ? `
+                                <div class="info-item">
+                                    <strong>Fechas:</strong>
+                                    ${cuestionario.fechaInicio ? `Desde ${new Date(cuestionario.fechaInicio).toLocaleString('es-ES')}` : ''}
+                                    ${cuestionario.fechaInicio && cuestionario.fechaFin ? ' - ' : ''}
+                                    ${cuestionario.fechaFin ? `Hasta ${new Date(cuestionario.fechaFin).toLocaleString('es-ES')}` : ''}
+                                </div>
+                                ` : ''}
                             </div>
                             <div class="cuestionario-stats">
                                 <div class="stat-item">
@@ -11192,6 +11268,7 @@ REGLAS ESTRICTAS:
                                         <h4><i class="fas fa-info-circle"></i> Información General</h4>
                                         <p><strong>Descripción:</strong> ${cuestionario.descripcion || 'Sin descripción'}</p>
                                         <p><strong>Programa:</strong> ${cuestionario.programa || 'Sin programa'}</p>
+                                        <p><strong>Disponible para:</strong> ${renderizarCombinaciones(cuestionario)}</p>
                                         <p><strong>Tipo:</strong> ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}</p>
                                         <p><strong>Tiempo límite:</strong> ${cuestionario.tiempo || cuestionario.tiempoDisponible || 'Sin límite'} minutos</p>
                                         <p><strong>Número de intentos:</strong> ${cuestionario.intentos || cuestionario.numeroIntentos || 'Ilimitados'}</p>
@@ -11311,17 +11388,202 @@ REGLAS ESTRICTAS:
         }
 
         // Función para editar cuestionario
-        function editarCuestionario(cuestionarioId, tipo) {
-            // Cambiar a la sección correspondiente y cargar el cuestionario para edición
-            if (tipo === 'cuestionario') {
-                switchSection('cuestionarios');
-                // Aquí se podría implementar la carga del cuestionario para edición
-                alert('Función de edición próximamente disponible. Por ahora, edita desde la sección "Subir Cuestionarios".');
-            } else {
-                switchSection('evaluaciones');
-                alert('Función de edición próximamente disponible. Por ahora, edita desde la sección "Evaluaciones".');
+        async function editarCuestionario(cuestionarioId, tipo) {
+            try {
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const doc = await db.collection(collectionName).doc(cuestionarioId).get();
+
+                if (!doc.exists) {
+                    alert('Cuestionario no encontrado');
+                    return;
+                }
+
+                const cuestionario = { id: doc.id, ...doc.data() };
+
+                // Crear modal de edición
+                const modal = document.createElement('div');
+                modal.className = 'cuestionario-modal';
+                modal.id = 'cuestionarioEditModal';
+                modal.innerHTML = `
+                    <div class="cuestionario-modal-content" style="max-width: 800px;">
+                        <div class="cuestionario-modal-header">
+                            <h2 class="cuestionario-modal-title">
+                                <i class="fas fa-edit"></i>
+                                Editar ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}
+                            </h2>
+                            <button onclick="closeCuestionarioModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b;">&times;</button>
+                        </div>
+                        <div class="cuestionario-modal-body">
+                            <form id="editCuestionarioForm">
+                                <div class="form-group">
+                                    <label for="editCuestionarioTitle">Título *</label>
+                                    <input type="text" id="editCuestionarioTitle" value="${cuestionario.titulo || ''}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioDesc">Descripción</label>
+                                    <textarea id="editCuestionarioDesc" rows="3">${cuestionario.descripcion || ''}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioPrograma">Programa *</label>
+                                    <select id="editCuestionarioPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral" ${cuestionario.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                        <option value="Panadería y Pastelería" ${cuestionario.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica" ${cuestionario.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Combinaciones Permitidas</label>
+                                    <div class="combinaciones-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Carapungo</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Carapungo_Sábado Matutina" ${checkCombinacion(cuestionario, 'Carapungo', 'Sábado Matutina')}>
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Carapungo_Sábado Vespertina" ${checkCombinacion(cuestionario, 'Carapungo', 'Sábado Vespertina')}>
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Carapungo_Domingo Matutina" ${checkCombinacion(cuestionario, 'Carapungo', 'Domingo Matutina')}>
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div style="border: 1px solid #e2e8f0; padding: 8px; border-radius: 4px; background: #f8f9fa;">
+                                            <strong>Sangolquí</strong>
+                                            <div style="margin-top: 5px;">
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Sangolquí_Sábado Matutina" ${checkCombinacion(cuestionario, 'Sangolquí', 'Sábado Matutina')}>
+                                                    Sábado Matutina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Sangolquí_Sábado Vespertina" ${checkCombinacion(cuestionario, 'Sangolquí', 'Sábado Vespertina')}>
+                                                    Sábado Vespertina
+                                                </label>
+                                                <label style="display: block; font-size: 12px;">
+                                                    <input type="checkbox" name="editCuestionarioCombinaciones" value="Sangolquí_Domingo Matutina" ${checkCombinacion(cuestionario, 'Sangolquí', 'Domingo Matutina')}>
+                                                    Domingo Matutina
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioTiempo">Tiempo Disponible (minutos)</label>
+                                    <input type="number" id="editCuestionarioTiempo" value="${cuestionario.tiempoLimite || cuestionario.tiempo || 60}" min="1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioIntentos">Número de Intentos</label>
+                                    <input type="number" id="editCuestionarioIntentos" value="${cuestionario.intentosMaximos || cuestionario.numeroIntentos || 1}" min="1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioFechaInicio">Fecha de Inicio</label>
+                                    <input type="datetime-local" id="editCuestionarioFechaInicio" value="${cuestionario.fechaInicio ? new Date(cuestionario.fechaInicio).toISOString().slice(0, 16) : ''}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editCuestionarioFechaFin">Fecha de Fin</label>
+                                    <input type="datetime-local" id="editCuestionarioFechaFin" value="${cuestionario.fechaFin ? new Date(cuestionario.fechaFin).toISOString().slice(0, 16) : ''}">
+                                </div>
+
+                                <div class="form-actions" style="margin-top: 20px;">
+                                    <button type="submit" class="btn-primary-cuestionario">
+                                        <i class="fas fa-save"></i> Guardar Cambios
+                                    </button>
+                                    <button type="button" onclick="closeCuestionarioModal()" class="btn-secondary-cuestionario">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Manejar el submit del formulario
+                document.getElementById('editCuestionarioForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await guardarEdicionCuestionario(cuestionarioId, tipo);
+                });
+
+            } catch (error) {
+                console.error('Error al editar cuestionario:', error);
+                alert('Error al cargar el cuestionario para edición');
             }
-            closeCuestionarioModal();
+        }
+
+        // Función auxiliar para verificar si una combinación está seleccionada
+        function checkCombinacion(cuestionario, sede, horario) {
+            if (cuestionario.combinacionesPermitidas && Array.isArray(cuestionario.combinacionesPermitidas)) {
+                return cuestionario.combinacionesPermitidas.some(combo =>
+                    combo.sede === sede && combo.horario === horario
+                ) ? 'checked' : '';
+            }
+            return '';
+        }
+
+        // Función para guardar la edición de un cuestionario
+        async function guardarEdicionCuestionario(cuestionarioId, tipo) {
+            try {
+                const title = document.getElementById('editCuestionarioTitle').value.trim();
+                const desc = document.getElementById('editCuestionarioDesc').value.trim();
+                const programa = document.getElementById('editCuestionarioPrograma').value;
+                const tiempo = parseInt(document.getElementById('editCuestionarioTiempo').value) || 60;
+                const intentos = parseInt(document.getElementById('editCuestionarioIntentos').value) || 1;
+                const fechaInicio = document.getElementById('editCuestionarioFechaInicio').value;
+                const fechaFin = document.getElementById('editCuestionarioFechaFin').value;
+
+                const combinacionesSeleccionadas = Array.from(document.querySelectorAll('input[name="editCuestionarioCombinaciones"]:checked')).map(cb => {
+                    const [sede, horario] = cb.value.split('_');
+                    return { sede, horario };
+                });
+
+                if (!title || !programa) {
+                    alert('Por favor, completa el título y selecciona un programa.');
+                    return;
+                }
+
+                if (combinacionesSeleccionadas.length === 0) {
+                    alert('Por favor, selecciona al menos una combinación de sede y horario.');
+                    return;
+                }
+
+                if (fechaInicio && fechaFin && new Date(fechaInicio) >= new Date(fechaFin)) {
+                    alert('La fecha de inicio debe ser anterior a la fecha de fin.');
+                    return;
+                }
+
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                await db.collection(collectionName).doc(cuestionarioId).update({
+                    titulo: title,
+                    descripcion: desc,
+                    programa: programa,
+                    combinacionesPermitidas: combinacionesSeleccionadas,
+                    tiempoLimite: tiempo,
+                    intentosMaximos: intentos,
+                    fechaInicio: fechaInicio || null,
+                    fechaFin: fechaFin || null,
+                    fechaActualizacion: new Date().toISOString()
+                });
+
+                alert('Cuestionario actualizado exitosamente');
+                closeCuestionarioModal();
+                loadCuestionariosManager(); // Recargar la lista
+
+            } catch (error) {
+                console.error('Error al guardar edición:', error);
+                alert('Error al guardar los cambios: ' + error.message);
+            }
         }
 
         // Función para duplicar cuestionario
@@ -12473,237 +12735,6 @@ REGLAS ESTRICTAS:
                 alert('Enlace copiado al portapapeles: ' + url);
             });
         };
-
-        // =================== FUNCIONES PARA QUIZZES ===================
-        let quizQuestions = [];
-
-        function addQuizQuestion() {
-            const container = document.getElementById('quizQuestionsContainer');
-            const questionIndex = quizQuestions.length;
-            
-            const questionHTML = `
-                <div class="question-item" style="border: 1px solid #e2e8f0; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h5>Pregunta ${questionIndex + 1}</h5>
-                        <button type="button" class="btn-icon btn-delete" onclick="removeQuizQuestion(${questionIndex})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tipo de Pregunta</label>
-                        <select class="question-type" onchange="changeQuestionType(${questionIndex}, this.value)">
-                            <option value="multiple">Opción Múltiple</option>
-                            <option value="verdadero-falso">Verdadero/Falso</option>
-                            <option value="abierta">Respuesta Abierta</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Pregunta</label>
-                        <input type="text" class="question-text" placeholder="Escribe la pregunta..." required>
-                    </div>
-                    
-                    <div class="options-container" id="options-${questionIndex}">
-                        <!-- Opciones se generan dinámicamente -->
-                    </div>
-                </div>
-            `;
-            
-            container.insertAdjacentHTML('beforeend', questionHTML);
-            quizQuestions.push({ tipo: 'multiple', pregunta: '', opciones: ['', '', '', ''], correcta: 0 });
-            changeQuestionType(questionIndex, 'multiple');
-        }
-
-        function changeQuestionType(index, tipo) {
-            quizQuestions[index].tipo = tipo;
-            const optionsContainer = document.getElementById(`options-${index}`);
-            
-            if (tipo === 'multiple') {
-                optionsContainer.innerHTML = `
-                    <div class="form-group">
-                        <label>Opción A</label>
-                        <input type="text" class="option-input" placeholder="Opción A" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Opción B</label>
-                        <input type="text" class="option-input" placeholder="Opción B" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Opción C</label>
-                        <input type="text" class="option-input" placeholder="Opción C" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Opción D</label>
-                        <input type="text" class="option-input" placeholder="Opción D" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Respuesta Correcta</label>
-                        <select class="correct-answer">
-                            <option value="0">A</option>
-                            <option value="1">B</option>
-                            <option value="2">C</option>
-                            <option value="3">D</option>
-                        </select>
-                    </div>
-                `;
-            } else if (tipo === 'verdadero-falso') {
-                optionsContainer.innerHTML = `
-                    <div class="form-group">
-                        <label>Respuesta Correcta</label>
-                        <select class="correct-answer">
-                            <option value="0">Verdadero</option>
-                            <option value="1">Falso</option>
-                        </select>
-                    </div>
-                `;
-                quizQuestions[index].opciones = ['Verdadero', 'Falso'];
-            } else if (tipo === 'abierta') {
-                optionsContainer.innerHTML = `
-                    <div class="form-group">
-                        <label>Respuesta Esperada</label>
-                        <input type="text" class="expected-answer" placeholder="Respuesta correcta..." required>
-                    </div>
-                `;
-            }
-        }
-
-        function removeQuizQuestion(index) {
-            quizQuestions.splice(index, 1);
-            document.getElementById('quizQuestionsContainer').children[index].remove();
-            // Reindexar preguntas restantes
-            updateQuestionIndices();
-        }
-
-        function updateQuestionIndices() {
-            const questions = document.querySelectorAll('#quizQuestionsContainer .question-item h5');
-            questions.forEach((h5, index) => {
-                h5.textContent = `Pregunta ${index + 1}`;
-            });
-        }
-
-        async function saveQuiz(event) {
-            event.preventDefault();
-            
-            const title = document.getElementById('quizTitle').value.trim();
-            const description = document.getElementById('quizDescription').value;
-            const programa = document.getElementById('quizPrograma').value;
-            const timeLimit = parseInt(document.getElementById('quizTimeLimit').value) || 0;
-            
-            if (!title || !programa) {
-                alert('Por favor completa título y programa');
-                return;
-            }
-            
-            // Recopilar preguntas
-            const questions = [];
-            const questionElements = document.querySelectorAll('#quizQuestionsContainer .question-item');
-            
-            for (let i = 0; i < questionElements.length; i++) {
-                const element = questionElements[i];
-                const tipo = element.querySelector('.question-type').value;
-                const pregunta = element.querySelector('.question-text').value.trim();
-                
-                if (!pregunta) {
-                    alert(`Pregunta ${i + 1}: Debes escribir el texto de la pregunta`);
-                    return;
-                }
-                
-                const question = { tipo, pregunta };
-                
-                if (tipo === 'multiple') {
-                    const opciones = Array.from(element.querySelectorAll('.option-input')).map(input => input.value.trim());
-                    if (opciones.some(opt => !opt)) {
-                        alert(`Pregunta ${i + 1}: Todas las opciones deben estar completas`);
-                        return;
-                    }
-                    question.opciones = opciones;
-                    question.correcta = parseInt(element.querySelector('.correct-answer').value);
-                } else if (tipo === 'verdadero-falso') {
-                    question.opciones = ['Verdadero', 'Falso'];
-                    question.correcta = parseInt(element.querySelector('.correct-answer').value);
-                } else if (tipo === 'abierta') {
-                    question.respuestaEsperada = element.querySelector('.expected-answer').value.trim();
-                    if (!question.respuestaEsperada) {
-                        alert(`Pregunta ${i + 1}: Debes especificar la respuesta esperada`);
-                        return;
-                    }
-                }
-                
-                questions.push(question);
-            }
-            
-            if (questions.length === 0) {
-                alert('Debes agregar al menos una pregunta');
-                return;
-            }
-            
-            try {
-                await db.collection('quizzes').add({
-                    titulo: title,
-                    descripcion: description,
-                    programa: programa,
-                    tiempoLimite: timeLimit,
-                    preguntas: questions,
-                    fechaCreacion: new Date().toISOString(),
-                    activo: true
-                });
-                
-                alert('Quiz guardado exitosamente');
-                document.getElementById('quizForm').reset();
-                document.getElementById('quizQuestionsContainer').innerHTML = '';
-                quizQuestions = [];
-                loadQuizzesList();
-                loadDashboardStats();
-            } catch (error) {
-                console.error('Error saving quiz:', error);
-                alert('Error al guardar el quiz');
-            }
-        }
-
-        async function loadQuizzesList() {
-            try {
-                const snapshot = await db.collection('quizzes').orderBy('fechaCreacion', 'desc').get();
-                const container = document.getElementById('quizzesList');
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-question-circle"></i><h3>No hay quizzes creados</h3></div>';
-                    return;
-                }
-                
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const stats = calcularEstadisticasQuiz(data);
-                    
-                    return `
-                        <div class="quiz-card" style="border: 1px solid #e2e8f0; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div>
-                                    <h4>${data.titulo}</h4>
-                                    <p style="color: #64748b;">${data.programa} • ${data.preguntas?.length || 0} preguntas</p>
-                                    <p style="color: #64748b;">${stats.totalIntentos} intentos • Promedio: ${stats.promedio}%</p>
-                                </div>
-                                <div>
-                                    <button class="btn-icon" onclick="viewQuiz('${doc.id}')" title="Ver Quiz">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn-icon btn-delete" onclick="deleteItem('quizzes', '${doc.id}')" title="Eliminar">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading quizzes:', error);
-            }
-        }
-
-        function calcularEstadisticasQuiz(quiz) {
-            // Placeholder para estadísticas - implementar cuando haya respuestas
-            return { totalIntentos: 0, promedio: 0 };
-        }
 
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {

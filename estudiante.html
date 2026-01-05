@@ -4099,30 +4099,60 @@ function filterByUserAccess(items) {
             return false;
         }
 
-        // Filtrar por sede (solo si el item tiene sedes definidas)
-        if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
+        // Filtrar por combinaciones permitidas (nuevo sistema)
+        if (item.combinacionesPermitidas && Array.isArray(item.combinacionesPermitidas) && item.combinacionesPermitidas.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
-            console.log('Comparando sedes - Item sedes:', JSON.stringify(item.sedes), 'User sede:', JSON.stringify(userSede));
-            console.log('User sede existe:', !!userSede, 'User sede en array:', item.sedes.includes(userSede));
-            if (!userSede || !item.sedes.includes(userSede)) {
-                console.log('❌ Rechazado por sede');
+            const userHorario = (currentUser.horario || '').toString().trim();
+            console.log('Comparando combinaciones - Item combinaciones:', JSON.stringify(item.combinacionesPermitidas), 'User sede+horario:', JSON.stringify({sede: userSede, horario: userHorario}));
+
+            const combinacionPermitida = item.combinacionesPermitidas.some(combo =>
+                combo.sede === userSede && combo.horario === userHorario
+            );
+
+            console.log('User combinación permitida:', combinacionPermitida);
+            if (!combinacionPermitida) {
+                console.log('❌ Rechazado por combinación no permitida');
                 return false;
             }
-        } else {
-            console.log('✅ Sin filtro de sede (sedes no definidas o vacías)');
+        }
+        // Compatibilidad con sistema anterior (sedes y horarios separados)
+        else {
+            // Filtrar por sede (solo si el item tiene sedes definidas)
+            if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
+                const userSede = (currentUser.sede || '').toString().trim();
+                console.log('Comparando sedes - Item sedes:', JSON.stringify(item.sedes), 'User sede:', JSON.stringify(userSede));
+                console.log('User sede existe:', !!userSede, 'User sede en array:', item.sedes.includes(userSede));
+                if (!userSede || !item.sedes.includes(userSede)) {
+                    console.log('❌ Rechazado por sede');
+                    return false;
+                }
+            } else {
+                console.log('✅ Sin filtro de sede (sedes no definidas o vacías)');
+            }
+
+            // Filtrar por horario (solo si el item tiene horarios definidos)
+            if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
+                const userHorario = (currentUser.horario || '').toString().trim();
+                console.log('Comparando horarios - Item horarios:', JSON.stringify(item.horarios), 'User horario:', JSON.stringify(userHorario));
+                console.log('User horario existe:', !!userHorario, 'User horario en array:', item.horarios.includes(userHorario));
+                if (!userHorario || !item.horarios.includes(userHorario)) {
+                    console.log('❌ Rechazado por horario');
+                    return false;
+                }
+            } else {
+                console.log('✅ Sin filtro de horario (horarios no definidos o vacíos)');
+            }
         }
 
-        // Filtrar por horario (solo si el item tiene horarios definidos)
-        if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
-            const userHorario = (currentUser.horario || '').toString().trim();
-            console.log('Comparando horarios - Item horarios:', JSON.stringify(item.horarios), 'User horario:', JSON.stringify(userHorario));
-            console.log('User horario existe:', !!userHorario, 'User horario en array:', item.horarios.includes(userHorario));
-            if (!userHorario || !item.horarios.includes(userHorario)) {
-                console.log('❌ Rechazado por horario');
-                return false;
-            }
-        } else {
-            console.log('✅ Sin filtro de horario (horarios no definidos o vacíos)');
+        // Filtrar por fechas de disponibilidad
+        const now = new Date();
+        if (item.fechaInicio && new Date(item.fechaInicio) > now) {
+            console.log('❌ Rechazado por fecha de inicio futura:', item.fechaInicio);
+            return false;
+        }
+        if (item.fechaFin && new Date(item.fechaFin) < now) {
+            console.log('❌ Rechazado por fecha de fin pasada:', item.fechaFin);
+            return false;
         }
 
         console.log('✅ Item aprobado');
