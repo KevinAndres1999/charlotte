@@ -2302,6 +2302,7 @@
 
                 <!-- Recursos -->
                 <div class="nav-item" data-section="recursos"><i class="fas fa-star"></i><span>Recursos</span></div>
+                <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
 
                 <!-- Elementos ocultos -->
                 <div class="nav-item" data-section="clase-viewer" style="display: none;"><i class="fas fa-eye"></i><span>Ver Clase</span></div>
@@ -4418,6 +4419,67 @@
                     <div id="recursosList"></div>
                 </div>
             </div>
+
+            <!-- Videoconferencia -->
+            <div id="videoconferencia" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-video"></i> Gestión de Videoconferencias</h3>
+                        <p style="color: white;">Administra salas de videoconferencia para clases en vivo</p>
+                    </div>
+
+                    <div class="card">
+                        <h4>Salas Disponibles</h4>
+                        <div class="conference-rooms-grid">
+                            <div class="conference-room-card">
+                                <h5>Sala General</h5>
+                                <p>Sala abierta para consultas y tutorías generales.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('sala-general')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('sala-general')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="conference-room-card">
+                                <h5>Sala de Panadería</h5>
+                                <p>Dedicada a cursos de panadería y pastelería.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('panaderia')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('panaderia')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="conference-room-card">
+                                <h5>Sala de Belleza</h5>
+                                <p>Dedicada a cursos de belleza integral.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('belleza')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('belleza')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="conference-container" style="display: none; margin-top: 2rem;">
+                        <div class="conference-header">
+                            <button class="btn btn-secondary" onclick="closeConference()">
+                                <i class="fas fa-times"></i> Cerrar Videoconferencia
+                            </button>
+                        </div>
+                        <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
             <!-- Ver Clase -->
             <section id="clase-viewer" class="content-section">
                 <div class="welcome-banner clase-viewer-banner">
@@ -4660,7 +4722,53 @@
                 font-weight: 600;
                 color: #1e3a8a;
             }
-        </style>
+        }
+
+        /* =================== ESTILOS PARA VIDEOCONFERENCIA =================== */
+        .conference-rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .conference-room-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .conference-room-card h5 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+        .conference-room-card p {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        .room-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .room-actions .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        #conference-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .conference-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+    </style>
         <script>
         // Adaptador de subida base64 para imágenes incrustadas
         class Base64UploadAdapter {
@@ -12194,6 +12302,43 @@ REGLAS ESTRICTAS:
             </div>
         </div>
     </div>
+
+    <!-- =================== FUNCIONES DE VIDEOCONFERENCIA =================== -->
+    <script>
+        window.joinConference = function(roomName) {
+            const iframe = document.getElementById('jitsi-iframe');
+            const container = document.getElementById('conference-container');
+            const url = `https://meet.jit.si/${roomName}`;
+            iframe.src = url;
+            container.style.display = 'block';
+            // Scroll to the conference
+            container.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.closeConference = function() {
+            const iframe = document.getElementById('jitsi-iframe');
+            const container = document.getElementById('conference-container');
+            iframe.src = '';
+            container.style.display = 'none';
+        };
+
+        window.copyRoomLink = function(roomName) {
+            const url = `https://meet.jit.si/${roomName}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Enlace copiado al portapapeles: ' + url);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+                // Fallback para navegadores antiguos
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Enlace copiado al portapapeles: ' + url);
+            });
+        };
+    </script>
 
 </body>
 </html>

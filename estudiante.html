@@ -3133,6 +3133,41 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* =================== ESTILOS PARA VIDEOCONFERENCIA =================== */
+        .video-conference-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .conference-room {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .conference-room h4 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+        .conference-room p {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        #conference-container {
+            margin-top: 2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .conference-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -3205,6 +3240,24 @@
                         btn.textContent = 'Cambiar contraseña';
                     });
                 }
+
+                // =================== FUNCIONES DE VIDEOCONFERENCIA ===================
+                window.joinConference = function(roomName) {
+                    const iframe = document.getElementById('jitsi-iframe');
+                    const container = document.getElementById('conference-container');
+                    const url = `https://meet.jit.si/${roomName}`;
+                    iframe.src = url;
+                    container.style.display = 'block';
+                    // Scroll to the conference
+                    container.scrollIntoView({ behavior: 'smooth' });
+                };
+
+                window.closeConference = function() {
+                    const iframe = document.getElementById('jitsi-iframe');
+                    const container = document.getElementById('conference-container');
+                    iframe.src = '';
+                    container.style.display = 'none';
+                };
             });
             </script>
             </div>
@@ -3219,6 +3272,7 @@
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
                 <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
+                <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
             </nav>
         </aside>
 
@@ -3645,6 +3699,46 @@
                 </div>
                 <div id="recursosList" class="grid">
                     <!-- El contenido se carga dinámicamente -->
+                </div>
+            </section>
+
+            <!-- =================== VIDEOCONFERENCIA =================== -->
+            <section id="videoconferencia" class="section">
+                <h2 class="page-title"><i class="fas fa-video"></i> Videoconferencia</h2>
+                <div class="card">
+                    <h3>Clases en Vivo</h3>
+                    <p>Únete a sesiones de videoconferencia en tiempo real con tus instructores y compañeros.</p>
+                    <div class="video-conference-options">
+                        <div class="conference-room">
+                            <h4>Sala General</h4>
+                            <p>Sala abierta para consultas y tutorías.</p>
+                            <button class="btn btn-primary" onclick="joinConference('sala-general')">
+                                <i class="fas fa-video"></i> Unirse a Sala General
+                            </button>
+                        </div>
+                        <div class="conference-room">
+                            <h4>Sala de Panadería</h4>
+                            <p>Dedicada a cursos de panadería.</p>
+                            <button class="btn btn-primary" onclick="joinConference('panaderia')">
+                                <i class="fas fa-video"></i> Unirse a Panadería
+                            </button>
+                        </div>
+                        <div class="conference-room">
+                            <h4>Sala de Belleza</h4>
+                            <p>Dedicada a cursos de belleza.</p>
+                            <button class="btn btn-primary" onclick="joinConference('belleza')">
+                                <i class="fas fa-video"></i> Unirse a Belleza
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="conference-container" style="display: none;">
+                    <div class="conference-header">
+                        <button class="btn btn-secondary" onclick="closeConference()">
+                            <i class="fas fa-times"></i> Cerrar Videoconferencia
+                        </button>
+                    </div>
+                    <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen></iframe>
                 </div>
             </section>
 
