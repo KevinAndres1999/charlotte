@@ -10949,28 +10949,28 @@ REGLAS ESTRICTAS:
             try {
                 console.log('Cargando cuestionarios para gestión...');
                 const snapshot = await db.collection('cuestionarios').get();
+                console.log('Cuestionarios encontrados en Firestore:', snapshot.size);
+
                 cuestionariosManagerData = snapshot.docs
-                    .map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                        tipo: 'cuestionario'
-                    }))
+                    .map(doc => {
+                        const data = doc.data();
+                        console.log('Cuestionario:', data.titulo, 'Preguntas:', data.preguntas?.length || 0);
+                        return {
+                            id: doc.id,
+                            ...data,
+                            tipo: 'cuestionario'
+                        };
+                    })
                     .filter(cuestionario => {
-                        // Solo excluir quizzes que tienen estructura clara de quiz antiguo
-                        // (aquellos con preguntas que tienen opciones múltiples y correcta definida)
-                        const tieneEstructuraQuiz = cuestionario.preguntas && Array.isArray(cuestionario.preguntas) &&
-                                                   cuestionario.preguntas.some(p => p.opciones && p.correcta !== undefined);
-
-                        if (tieneEstructuraQuiz) {
-                            console.log('Excluyendo quiz con estructura antigua:', cuestionario.titulo);
-                            return false;
-                        }
-
+                        // Por ahora, no filtrar nada para ver todos los cuestionarios
+                        console.log('Procesando cuestionario:', cuestionario.titulo);
                         return true;
                     });
 
                 // También cargar evaluaciones
                 const evaluacionesSnapshot = await db.collection('evaluaciones').get();
+                console.log('Evaluaciones encontradas en Firestore:', evaluacionesSnapshot.size);
+
                 const evaluacionesData = evaluacionesSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -10979,7 +10979,7 @@ REGLAS ESTRICTAS:
 
                 cuestionariosManagerData = [...cuestionariosManagerData, ...evaluacionesData];
 
-                console.log(`Cargados ${cuestionariosManagerData.length} cuestionarios/evaluaciones`);
+                console.log(`Total cargados: ${cuestionariosManagerData.length} items (cuestionarios: ${cuestionariosManagerData.filter(c => c.tipo === 'cuestionario').length}, evaluaciones: ${cuestionariosManagerData.filter(c => c.tipo === 'evaluacion').length})`);
                 aplicarFiltrosCuestionarios();
                 actualizarEstadisticasCuestionarios();
 
