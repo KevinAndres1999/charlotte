@@ -13676,6 +13676,11 @@ REGLAS ESTRICTAS:
             const allSedesChecked = event.target.querySelector('input[name="allSedes"]').checked;
             const allHorariosChecked = event.target.querySelector('input[name="allHorarios"]').checked;
             
+            // If no specific options selected and "all" not checked, default to all
+            if (!allProgramsChecked && programs.length === 0) programs = [];
+            if (!allSedesChecked && sedes.length === 0) sedes = [];
+            if (!allHorariosChecked && horarios.length === 0) horarios = [];
+            
             if (allProgramsChecked) programs = [];
             if (allSedesChecked) sedes = [];
             if (allHorariosChecked) horarios = [];
@@ -13804,6 +13809,11 @@ REGLAS ESTRICTAS:
             const allProgramsChecked = event.target.querySelector('input[name="allPrograms"]').checked;
             const allSedesChecked = event.target.querySelector('input[name="allSedes"]').checked;
             const allHorariosChecked = event.target.querySelector('input[name="allHorarios"]').checked;
+            
+            // If no specific options selected and "all" not checked, default to all
+            if (!allProgramsChecked && programs.length === 0) programs = [];
+            if (!allSedesChecked && sedes.length === 0) sedes = [];
+            if (!allHorariosChecked && horarios.length === 0) horarios = [];
             
             if (allProgramsChecked) programs = [];
             if (allSedesChecked) sedes = [];
