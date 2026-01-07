@@ -7793,8 +7793,11 @@ function openImageModal(imageUrl, title) {
 
                         console.log('Filtering foro:', foro.titulo, {
                             foroApprovedPrograms: foroPrograms,
+                            foroApprovedProgramsValues: foroPrograms.join(', '),
                             foroApprovedSedes: foroSedes,
+                            foroApprovedSedesValues: foroSedes.join(', '),
                             foroApprovedHorarios: foroHorarios,
+                            foroApprovedHorariosValues: foroHorarios.join(', '),
                             userPrograma,
                             userSede,
                             userHorario
@@ -7804,6 +7807,16 @@ function openImageModal(imageUrl, title) {
                         const programMatch = foroPrograms.length === 0 || foroPrograms.includes(userPrograma);
                         const sedeMatch = foroSedes.length === 0 || foroSedes.includes(userSede);
                         const horarioMatch = foroHorarios.length === 0 || foroHorarios.includes(userHorario);
+                        
+                        console.log('Detailed matching for', foro.titulo, ':', {
+                            programMatch,
+                            sedeMatch,
+                            horarioMatch,
+                            foroProgramsLength: foroPrograms.length,
+                            userProgramaInForoPrograms: foroPrograms.includes(userPrograma),
+                            userPrograma,
+                            foroPrograms
+                        });
 
                         const result = programMatch && sedeMatch && horarioMatch;
                         console.log('Filter result for', foro.titulo, ':', { programMatch, sedeMatch, horarioMatch, result });
