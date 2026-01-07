@@ -7766,7 +7766,9 @@ function openImageModal(imageUrl, title) {
                     status: f.status,
                     approvedPrograms: f.approvedPrograms,
                     approvedSedes: f.approvedSedes,
-                    approvedHorarios: f.approvedHorarios
+                    approvedHorarios: f.approvedHorarios,
+                    approvedProgramsType: Array.isArray(f.approvedPrograms) ? 'array' : typeof f.approvedPrograms,
+                    approvedProgramsLength: Array.isArray(f.approvedPrograms) ? f.approvedPrograms.length : 'N/A'
                 })));
                 
                 console.log('Current user:', {
@@ -7779,28 +7781,9 @@ function openImageModal(imageUrl, title) {
                 const approvedForos = allForos
                     .filter(foro => foro.status === 'approved')
                     .filter(foro => {
-                        // Check if user's program is in approvedPrograms (or empty means all)
-                        const userPrograma = currentUser.programa || '';
-                        const userSede = currentUser.sede || '';
-                        const userHorario = currentUser.horario || '';
-                        
-                        console.log('Filtering foro:', foro.titulo, {
-                            foroApprovedPrograms: foro.approvedPrograms,
-                            foroApprovedSedes: foro.approvedSedes,
-                            foroApprovedHorarios: foro.approvedHorarios,
-                            userPrograma,
-                            userSede,
-                            userHorario
-                        });
-                        
-                        const programMatch = foro.approvedPrograms.length === 0 || foro.approvedPrograms.includes(userPrograma);
-                        const sedeMatch = foro.approvedSedes.length === 0 || foro.approvedSedes.includes(userSede);
-                        const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(userHorario);
-                        
-                        const result = programMatch && sedeMatch && horarioMatch;
-                        console.log('Filter result for', foro.titulo, ':', { programMatch, sedeMatch, horarioMatch, result });
-                        
-                        return result;
+                        // TEMPORAL: Mostrar todos los foros aprobados para debug
+                        console.log('Processing approved foro:', foro.titulo, '- WILL SHOW');
+                        return true;
                     });
                 
                 // Show pending foros created by current user
