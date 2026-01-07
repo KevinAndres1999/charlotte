@@ -13753,6 +13753,7 @@ REGLAS ESTRICTAS:
         window.submitApproveForo = submitApproveForo;
         window.showCreateForoModal = showCreateForoModal;
         window.createForoAdmin = createForoAdmin;
+        window.viewForo = viewForo;
 
         async function deleteForo(id) {
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
@@ -13771,6 +13772,75 @@ REGLAS ESTRICTAS:
             } catch (error) {
                 console.error('Error deleting foro:', error);
                 alert('Error al eliminar el hilo');
+            }
+        }
+
+        async function viewForo(foroId) {
+            try {
+                // Obtener el foro principal
+                const foroDoc = await db.collection('foros').doc(foroId).get();
+                if (!foroDoc.exists) {
+                    alert('Hilo no encontrado');
+                    return;
+                }
+                
+                const foro = foroDoc.data();
+                
+                // Obtener respuestas del foro
+                const respuestasSnapshot = await db.collection('foro_respuestas')
+                    .where('hiloId', '==', foroId)
+                    .orderBy('fechaCreacion', 'asc')
+                    .get();
+                
+                const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Crear modal para ver el foro
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.innerHTML = `
+                    <div style="background: white; border-radius: 12px; max-width: 800px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                        <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="margin: 0; color: #1e40af;">${foro.titulo}</h3>
+                                <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+                                <p>Por ${foro.autorNombre} • ${foro.programa} • ${new Date(foro.fechaCreacion).toLocaleDateString()}</p>
+                                <p>Visible para: ${foro.approvedPrograms.join(', ') || 'Todos'} | ${foro.approvedSedes.join(', ') || 'Todas'} | ${foro.approvedHorarios.join(', ') || 'Todos'}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 2rem;">
+                            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                                <p style="margin: 0; line-height: 1.6;">${foro.contenido.replace(/\n/g, '<br>')}</p>
+                            </div>
+                            
+                            <div style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                                <h4 style="margin-bottom: 1rem; color: #1e40af;">Respuestas (${respuestas.length})</h4>
+                                
+                                ${respuestas.length === 0 ? 
+                                    '<div style="text-align: center; color: #64748b; padding: 2rem;"><i class="fas fa-comments"></i><p>No hay respuestas aún</p></div>' :
+                                    respuestas.map(respuesta => `
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                                <strong style="color: #1e40af;">${respuesta.autorNombre}</strong>
+                                                <small style="color: #64748b;">${new Date(respuesta.fechaCreacion).toLocaleDateString()}</small>
+                                            </div>
+                                            <p style="margin: 0; line-height: 1.6;">${respuesta.contenido.replace(/\n/g, '<br>')}</p>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+            } catch (error) {
+                console.error('Error viewing foro:', error);
+                alert('Error al cargar el hilo');
             }
         }
 
