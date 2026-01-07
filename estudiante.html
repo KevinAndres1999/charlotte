@@ -4177,6 +4177,15 @@ function filterByUserAccess(items) {
     });
 
     console.log('Resultado del filtro:', filtered.length, 'items pasaron');
+    
+    // Debug: mostrar qué items pasaron el filtro
+    console.log('Items que pasaron el filtro:', filtered.map(item => ({
+        id: item.id,
+        titulo: item.titulo,
+        programa: item.programa,
+        combinacionesPermitidas: item.combinacionesPermitidas
+    })));
+    
     return filtered;
 }
 
@@ -4600,8 +4609,13 @@ function updateCuestionariosStats() {
 }
 
 function renderCuestionarios() {
+    console.log('renderCuestionarios called with filteredCuestionarios:', filteredCuestionarios.length, 'items');
+    
     const container = document.getElementById('cuestionariosContainer');
-    if (!container) return;
+    if (!container) {
+        console.log('Container cuestionariosContainer not found');
+        return;
+    }
 
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) {
@@ -4612,7 +4626,9 @@ function renderCuestionarios() {
     const ahora = new Date();
     container.className = `clases-container ${currentCuestionariosViewMode}-view`;
 
-    container.innerHTML = filteredCuestionarios.map(cuestionario => {
+    container.innerHTML = filteredCuestionarios.map((cuestionario, index) => {
+        console.log(`Rendering cuestionario ${index + 1}:`, cuestionario.titulo);
+        
         const fecha = cuestionario.fechaRegistro ? new Date(cuestionario.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
         const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
         const fechaInicio = cuestionario.fechaInicio ? new Date(cuestionario.fechaInicio) : null;
@@ -4680,7 +4696,11 @@ function renderCuestionarios() {
 
     if (filteredCuestionarios.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3><p>No se encontraron cuestionarios que coincidan con tu búsqueda.</p></div>';
+        console.log('No cuestionarios to render, showing empty state');
+    } else {
+        console.log('Rendering', filteredCuestionarios.length, 'cuestionarios');
     }
+}
 }
 
 function sortEvaluaciones() {
