@@ -7824,7 +7824,7 @@ function openImageModal(imageUrl, title) {
                         '<span style="background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;">PENDIENTE</span>' : '';
                     
                     return `
-                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo('${foro.id}')">
+                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo(this.dataset.foroId)" data-foro-id="${foro.id}">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div style="flex: 1;">
                                     <h4 style="margin: 0 0 0.5rem 0; color: #1e40af; display: flex; align-items: center;">
@@ -7954,6 +7954,9 @@ function openImageModal(imageUrl, title) {
             // Esta función se puede expandir para mostrar el hilo completo con respuestas
             alert('Vista completa del foro próximamente disponible');
         }
+
+        // Make viewForo globally available
+        window.viewForo = viewForo;
 
         // =================== FUNCIONES PARA GAMIFICACIÓN ===================
         async function loadGamificacionStats() {
