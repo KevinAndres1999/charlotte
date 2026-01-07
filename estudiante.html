@@ -7741,9 +7741,16 @@ function openImageModal(imageUrl, title) {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // Filter by programa and sort by fechaCreacion desc
+                // Filter by status approved and matching restrictions
                 const filteredForos = allForos
-                    .filter(foro => foro.programa === (currentUser.programa || ''))
+                    .filter(foro => foro.status === 'approved')
+                    .filter(foro => {
+                        // Check if user's program is in approvedPrograms (or empty means all)
+                        const programMatch = foro.approvedPrograms.length === 0 || foro.approvedPrograms.includes(currentUser.programa || '');
+                        const sedeMatch = foro.approvedSedes.length === 0 || foro.approvedSedes.includes(currentUser.sede || '');
+                        const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(currentUser.horario || '');
+                        return programMatch && sedeMatch && horarioMatch;
+                    })
                     .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
 
                 const container = document.getElementById('forosList');
@@ -7853,13 +7860,19 @@ function openImageModal(imageUrl, title) {
                     autorId: currentUser.id,
                     autorNombre: currentUser.name || currentUser.email,
                     programa: currentUser.programa || '',
+                    sede: currentUser.sede || '', // Assuming user has sede
+                    horario: currentUser.horario || '', // Assuming user has horario
+                    status: 'pending', // Nuevo: hilo pendiente de aprobación
+                    approvedPrograms: [], // Para que admin seleccione
+                    approvedSedes: [],
+                    approvedHorarios: [],
                     fechaCreacion: new Date().toISOString(),
                     respuestas: 0,
                     activo: true
                 });
                 
                 event.target.closest('.modal-overlay').remove();
-                alert('Hilo creado exitosamente');
+                alert('Hilo creado exitosamente. Espera la aprobación del administrador para que sea visible.');
                 loadForosList();
                 
             } catch (error) {
