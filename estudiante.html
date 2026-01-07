@@ -3276,13 +3276,13 @@
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
 
-                <!-- Comunidad e Interacción -->
-                <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
-                <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
-
-                <!-- Recursos -->
-                <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
+                <!-- Comunicación y Colaboración -->
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
+                <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
+
+                <!-- Motivación y Recursos -->
+                <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
+                <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
 
                 <!-- Elementos ocultos -->
                 <div class="nav-item" data-section="clase-viewer" style="display: none;"><i class="fas fa-eye"></i><span>Ver Clase</span></div>
@@ -3953,19 +3953,19 @@
 
                     <!-- Acciones adicionales -->
                     <div class="quick-links clase-actions-links">
-                        <div class="quick-link" onclick="printClaseFromViewer()">
+                        <div class="quick-link" data-action="print">
                             <i class="fas fa-print"></i>
                             <h4>Imprimir Clase</h4>
                         </div>
-                        <div class="quick-link" onclick="shareClaseFromViewer()">
+                        <div class="quick-link" data-action="share">
                             <i class="fas fa-share-alt"></i>
                             <h4>Compartir</h4>
                         </div>
-                        <div class="quick-link" onclick="toggleBookmarkFromViewer()">
+                        <div class="quick-link" data-action="bookmark">
                             <i class="fas fa-bookmark"></i>
                             <h4 id="bookmark-text">Agregar a Favoritos</h4>
                         </div>
-                        <div class="quick-link" onclick="downloadClaseFromViewer()">
+                        <div class="quick-link" data-action="download">
                             <i class="fas fa-download"></i>
                             <h4>Descargar</h4>
                         </div>
@@ -3988,15 +3988,23 @@
         </div>
     </div>
 
-    <script type="module" defer>
+    <script type="module">
 // =================== IMPORTS ===================
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
 // =================== CONFIGURACIÓN ===================
 const firebaseConfig = window.FIREBASE_CONFIG;
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+if (!firebaseConfig) {
+    console.error('Firebase config not found. Make sure window.FIREBASE_CONFIG is set.');
+} else {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Variable global para el ID de la clase actual en el viewer
+    let currentClaseId = null;
 
 // =================== FUNCIONES GLOBALES ===================
 // Definidas más abajo en el archivo
@@ -6115,6 +6123,7 @@ window.onclick = function(event) {
 
 async function loadClaseDetail(id) {
     try {
+        currentClaseId = id; // Guardar el ID de la clase actual
         const docRef = doc(db, 'classes', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -6375,6 +6384,93 @@ function toggleBookmark(claseId) {
     }
 
     showToast(isBookmarked ? 'Removido de favoritos' : 'Agregado a favoritos', 'success');
+}
+
+function printClaseFromViewer() {
+    if (!currentClaseId) {
+        showToast('No hay clase cargada', 'error');
+        return;
+    }
+    printClase(currentClaseId);
+}
+
+function shareClaseFromViewer() {
+    if (!currentClaseId) {
+        showToast('No hay clase cargada', 'error');
+        return;
+    }
+    shareClase(currentClaseId);
+}
+
+function toggleBookmarkFromViewer() {
+    if (!currentClaseId) {
+        showToast('No hay clase cargada', 'error');
+        return;
+    }
+    toggleBookmark(currentClaseId);
+    
+    // Actualizar el texto del botón
+    const isBookmarked = localStorage.getItem(`clase-${currentClaseId}-bookmarked`) === 'true';
+    const bookmarkText = document.getElementById('bookmark-text');
+    if (bookmarkText) {
+        bookmarkText.textContent = isBookmarked ? 'En Favoritos' : 'Agregar a Favoritos';
+    }
+}
+
+function downloadClaseFromViewer() {
+    if (!currentClaseId) {
+        showToast('No hay clase cargada', 'error');
+        return;
+    }
+    
+    // Obtener la clase actual (asumiendo que está en filteredClases o buscarla)
+    const clase = filteredClases ? filteredClases.find(c => c.id === currentClaseId) : null;
+    if (!clase) {
+        showToast('Clase no encontrada', 'error');
+        return;
+    }
+    
+    // Crear contenido HTML para descargar
+    const content = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${clase.titulo} - ECE CHARLOTTE</title>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                h1 { color: #3b82f6; }
+                .meta { color: #64748b; margin-bottom: 20px; }
+                .content { margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1>${clase.titulo}</h1>
+            <div class="meta">
+                <p><strong>Programa:</strong> ${clase.programa}</p>
+                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
+                <p><strong>Duración:</strong> ${clase.duracion || 'N/A'}</p>
+            </div>
+            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
+            <div class="content">
+                ${clase.contenido || 'Sin contenido'}
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Crear blob y descargar
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${clase.titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Clase descargada exitosamente', 'success');
 }
 
 function showToast(message, type = 'info') {
@@ -7640,13 +7736,11 @@ function openImageModal(imageUrl, title) {
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {
             try {
-                const user = auth.currentUser;
-                if (!user) return;
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser) return;
 
-                const snapshot = await db.collection('foros')
-                    .where('programa', '==', currentUser.programa || '')
-                    .orderBy('fechaCreacion', 'desc')
-                    .get();
+                const forosQuery = query(collection(db, 'foros'), where('programa', '==', currentUser.programa || ''), orderBy('fechaCreacion', 'desc'));
+                const snapshot = await getDocs(forosQuery);
 
                 const container = document.getElementById('forosList');
                 if (snapshot.empty) {
@@ -7749,10 +7843,11 @@ function openImageModal(imageUrl, title) {
             }
             
             try {
-                await db.collection('foros').add({
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                await addDoc(collection(db, 'foros'), {
                     titulo: titulo,
                     contenido: contenido,
-                    autorId: auth.currentUser.uid,
+                    autorId: currentUser.id,
                     autorNombre: currentUser.name || currentUser.email,
                     programa: currentUser.programa || '',
                     fechaCreacion: new Date().toISOString(),
@@ -7778,31 +7873,30 @@ function openImageModal(imageUrl, title) {
         // =================== FUNCIONES PARA GAMIFICACIÓN ===================
         async function loadGamificacionStats() {
             try {
-                const user = auth.currentUser;
-                if (!user) return;
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser || !currentUser.id) return;
 
                 // Cargar puntos del usuario
-                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userDoc = await getDoc(doc(db, 'users', currentUser.id));
                 const userData = userDoc.data() || {};
                 const misPuntos = userData.puntos || 0;
                 
                 document.getElementById('misPuntos').textContent = misPuntos;
 
                 // Contar cuestionarios completados
-                const resultadosSnapshot = await db.collection('respuestasCuestionarios')
-                    .where('estudianteId', '==', user.uid)
-                    .get();
+                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
+                const resultadosSnapshot = await getDocs(resultadosQuery);
                 
                 document.getElementById('cuestionariosCompletados').textContent = resultadosSnapshot.size;
 
                 // Calcular ranking
-                const allUsersSnapshot = await db.collection('users').get();
+                const allUsersSnapshot = await getDocs(collection(db, 'users'));
                 const usersWithPoints = allUsersSnapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(u => (u.puntos || 0) > 0)
                     .sort((a, b) => (b.puntos || 0) - (a.puntos || 0));
                 
-                const miRanking = usersWithPoints.findIndex(u => u.id === user.uid) + 1;
+                const miRanking = usersWithPoints.findIndex(u => u.id === currentUser.id) + 1;
                 document.getElementById('miRanking').textContent = miRanking > 0 ? `#${miRanking}` : '-';
 
                 // Cargar leaderboard personal (top 10)
@@ -7818,7 +7912,9 @@ function openImageModal(imageUrl, title) {
 
         async function loadLeaderboardPersonal() {
             try {
-                const allUsersSnapshot = await db.collection('users').orderBy('puntos', 'desc').limit(10).get();
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                const leaderboardQuery = query(collection(db, 'users'), orderBy('puntos', 'desc'), limit(10));
+                const allUsersSnapshot = await getDocs(leaderboardQuery);
                 const container = document.getElementById('leaderboardPersonal');
                 
                 if (allUsersSnapshot.empty) {
@@ -7829,7 +7925,7 @@ function openImageModal(imageUrl, title) {
                 container.innerHTML = allUsersSnapshot.docs.map((doc, index) => {
                     const userData = doc.data();
                     const position = index + 1;
-                    const isCurrentUser = doc.id === auth.currentUser.uid;
+                    const isCurrentUser = doc.id === currentUser.id;
                     
                     const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
                     
@@ -7852,16 +7948,17 @@ function openImageModal(imageUrl, title) {
 
         async function loadMisLogros() {
             try {
-                const user = auth.currentUser;
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser || !currentUser.id) return;
+                
                 const container = document.getElementById('misLogros');
                 
                 // Logros basados en actividades completadas
                 const logros = [];
                 
                 // Contar cuestionarios completados
-                const resultadosSnapshot = await db.collection('respuestasCuestionarios')
-                    .where('estudianteId', '==', user.uid)
-                    .get();
+                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
+                const resultadosSnapshot = await getDocs(resultadosQuery);
                 
                 const cuestionariosCompletados = resultadosSnapshot.size;
                 
@@ -7893,7 +7990,7 @@ function openImageModal(imageUrl, title) {
                 }
                 
                 // Logro por puntos
-                const userDoc = await db.collection('users').doc(user.uid).get();
+                const userDoc = await getDoc(doc(db, 'users', currentUser.id));
                 const puntos = userDoc.data()?.puntos || 0;
                 
                 if (puntos >= 100) {
@@ -7926,12 +8023,46 @@ function openImageModal(imageUrl, title) {
         }
 
         // Inicializar nuevas funciones
-        document.addEventListener('DOMContentLoaded', function() {
-            // Las funciones se cargarán cuando se active cada sección
-        });
+        // Attach event listeners for quick-links immediately since script is at end
+        const quickLinks = document.querySelectorAll('.quick-link[data-action]');
+        if (quickLinks.length === 0) {
+            console.warn('No quick-links found. Make sure the HTML has elements with class quick-link and data-action.');
+        } else {
+            quickLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    switch(action) {
+                        case 'print':
+                            printClaseFromViewer();
+                            break;
+                        case 'share':
+                            shareClaseFromViewer();
+                            break;
+                        case 'bookmark':
+                            toggleBookmarkFromViewer();
+                            break;
+                        case 'download':
+                            downloadClaseFromViewer();
+                            break;
+                        default:
+                            console.warn('Unknown action:', action);
+                    }
+                });
+            });
+        }
 
         loadDashboardStats();
-        loadEntregas();
+        // loadEntregas(); // TODO: Implementar carga de entregas
+
+        // Exponer funciones globales
+        window.loadGamificacionStats = loadGamificacionStats;
+        window.loadLeaderboardPersonal = loadLeaderboardPersonal;
+        window.loadMisLogros = loadMisLogros;
+        window.loadForosList = loadForosList;
+        window.printClaseFromViewer = printClaseFromViewer;
+        window.shareClaseFromViewer = shareClaseFromViewer;
+        window.toggleBookmarkFromViewer = toggleBookmarkFromViewer;
+        window.downloadClaseFromViewer = downloadClaseFromViewer;
     </script>
 
 </body>

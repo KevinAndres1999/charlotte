@@ -3712,7 +3712,13 @@
                             <h4><i class="fas fa-file-alt"></i> Contenido para Generar Preguntas</h4>
                             <div class="form-group">
                                 <label for="autoContentText">Pega aquí todo el texto del que quieres generar preguntas</label>
-                                <textarea id="autoContentText" placeholder="Pega aquí el contenido completo (artículos, apuntes, teoría, etc.) del que se generarán las preguntas automáticamente..." style="min-height: 300px; resize: vertical;"></textarea>
+                                <textarea id="autoContentText" placeholder="Pega aquí el contenido completo del que se generarán las preguntas automáticamente. Si es muy largo, se dividirá automáticamente en secciones para mejor procesamiento..." style="min-height: 300px; resize: vertical;" oninput="updateCharCount()"></textarea>
+                                <div style="margin-top: 8px; font-size: 12px; color: #64748b;">
+                                    <span id="charCount">0</span> caracteres
+                                    <span id="charWarning" style="color: #dc2626; display: none; margin-left: 10px;">
+                                        <i class="fas fa-exclamation-triangle"></i> Contenido largo - se dividirá en secciones para procesar
+                                    </span>
+                                </div>
                             </div>
                             <div class="form-actions" style="margin-top: 15px;">
                                 <button type="button" class="btn-submit-quiz" onclick="generarPreguntasAutomaticas()" style="background: linear-gradient(135deg, #667eea, #764ba2);">
@@ -8723,6 +8729,27 @@
         window.eliminarPreguntaAuto = eliminarPreguntaAuto;
         window.testOpenAIConnection = testOpenAIConnection;
 
+        // Función para actualizar el contador de caracteres
+        function updateCharCount() {
+            const textarea = document.getElementById('autoContentText');
+            const charCount = document.getElementById('charCount');
+            const charWarning = document.getElementById('charWarning');
+            const count = textarea.value.length;
+
+            charCount.textContent = count.toLocaleString();
+
+            if (count > 12000) {
+                charWarning.style.display = 'inline';
+                charCount.style.color = '#dc2626';
+            } else if (count > 10000) {
+                charWarning.style.display = 'none';
+                charCount.style.color = '#d97706';
+            } else {
+                charWarning.style.display = 'none';
+                charCount.style.color = '#64748b';
+            }
+        }
+
         // Función para probar la conexión con OpenRouter
         async function testOpenAIConnection() {
             const apiKey = document.getElementById('openaiApiKey').value.trim();
@@ -8806,7 +8833,35 @@
                 return;
             }
 
-            if (contentText.length < 100) {
+            // Verificar longitud del contenido y dividir si es necesario
+            const MAX_CHUNK_SIZE = 12000; // Tamaño máximo por chunk para dejar espacio al prompt
+            let processedContent = contentText;
+            let contentWarning = '';
+            let chunks = [];
+
+            if (contentText.length > MAX_CHUNK_SIZE) {
+                // Dividir el contenido en chunks más pequeños
+                const totalChunks = Math.ceil(contentText.length / MAX_CHUNK_SIZE);
+                contentWarning = `⚠️ El contenido es muy largo. Se dividirá en ${totalChunks} secciones para procesar con la IA. Esto puede generar preguntas más específicas por sección.`;
+
+                for (let i = 0; i < totalChunks; i++) {
+                    let chunk = contentText.substring(i * MAX_CHUNK_SIZE, (i + 1) * MAX_CHUNK_SIZE);
+                    // Intentar cortar en oraciones completas
+                    if (i < totalChunks - 1) {
+                        const lastPeriod = chunk.lastIndexOf('.');
+                        if (lastPeriod > MAX_CHUNK_SIZE * 0.7) {
+                            chunk = chunk.substring(0, lastPeriod + 1);
+                        }
+                    }
+                    chunks.push(chunk.trim());
+                }
+
+                console.log(`Contenido dividido en ${chunks.length} chunks:`, chunks.map(c => c.length + ' chars'));
+            } else {
+                chunks = [contentText];
+            }
+
+            if (processedContent.length < 100) {
                 alert('El contenido es muy corto. Necesitas al menos 100 caracteres para generar preguntas de calidad.');
                 return;
             }
@@ -8818,14 +8873,35 @@
             generateBtn.disabled = true;
 
             try {
-                let preguntasGeneradas;
+                // Mostrar advertencia si el contenido fue dividido
+                if (contentWarning) {
+                    alert(contentWarning);
+                }
 
-                // Generar preguntas con IA (obligatorio)
+                let preguntasGeneradas = [];
+
+                // Generar preguntas con IA para cada chunk
                 if (apiKey && apiKey.length >= 10) {
-                    console.log('Generando preguntas con IA...');
-                    generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando preguntas con IA gratuita...';
-                    preguntasGeneradas = await generarPreguntasConIA(contentText, numPreguntas, apiKey);
-                    console.log('Preguntas generadas con IA:', preguntasGeneradas.length);
+                    console.log(`Procesando ${chunks.length} chunk(s) de contenido...`);
+
+                    for (let i = 0; i < chunks.length; i++) {
+                        const chunk = chunks[i];
+                        console.log(`Generando preguntas del chunk ${i + 1}/${chunks.length} (${chunk.length} caracteres)...`);
+
+                        generateBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generando preguntas con IA gratuita... (${i + 1}/${chunks.length})`;
+
+                        const chunkPreguntas = await generarPreguntasConIA(chunk, Math.ceil(numPreguntas / chunks.length), apiKey);
+                        preguntasGeneradas = preguntasGeneradas.concat(chunkPreguntas);
+
+                        console.log(`Chunk ${i + 1}: generadas ${chunkPreguntas.length} preguntas`);
+                    }
+
+                    // Ajustar al número exacto solicitado
+                    if (preguntasGeneradas.length > numPreguntas) {
+                        preguntasGeneradas = preguntasGeneradas.slice(0, numPreguntas);
+                    }
+
+                    console.log(`Total preguntas generadas: ${preguntasGeneradas.length}`);
                 } else {
                     throw new Error('Se requiere una API key válida de OpenRouter para generar preguntas. Obtén una gratuita en https://openrouter.ai/keys');
                 }
@@ -13573,7 +13649,10 @@ REGLAS ESTRICTAS:
         // Inicializar mejoras de accesibilidad
         document.addEventListener('DOMContentLoaded', function() {
             mejorarAccesibilidad();
-            
+
+            // Inicializar contador de caracteres para cuestionarios automáticos
+            updateCharCount();
+
             // Cargar datos iniciales del dashboard
             loadDashboardStats();
             loadEntregas();
