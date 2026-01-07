@@ -7737,21 +7737,26 @@ function openImageModal(imageUrl, title) {
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                 if (!currentUser) return;
 
-                const forosQuery = query(collection(db, 'foros'), where('programa', '==', currentUser.programa || ''), orderBy('fechaCreacion', 'desc'));
-                const snapshot = await getDocs(forosQuery);
+                // Fetch all foros and filter/sort client-side to avoid index requirement
+                const snapshot = await getDocs(collection(db, 'foros'));
+                const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Filter by programa and sort by fechaCreacion desc
+                const filteredForos = allForos
+                    .filter(foro => foro.programa === (currentUser.programa || ''))
+                    .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
 
                 const container = document.getElementById('forosList');
-                if (snapshot.empty) {
+                if (filteredForos.length === 0) {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><h3>No hay hilos activos</h3><p>¡Sé el primero en crear un hilo de discusión!</p></div>';
                     return;
                 }
 
-                container.innerHTML = snapshot.docs.map(doc => {
-                    const foro = doc.data();
+                container.innerHTML = filteredForos.map(foro => {
                     const fecha = new Date(foro.fechaCreacion).toLocaleDateString();
                     
                     return `
-                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo('${doc.id}')">
+                        <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo('${foro.id}')">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div style="flex: 1;">
                                     <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${foro.titulo}</h4>
@@ -7911,19 +7916,26 @@ function openImageModal(imageUrl, title) {
         async function loadLeaderboardPersonal() {
             try {
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-                const leaderboardQuery = query(collection(db, 'users'), orderBy('puntos', 'desc'), limit(10));
-                const allUsersSnapshot = await getDocs(leaderboardQuery);
+                // Fetch all users and sort client-side to avoid index requirement
+                const allUsersSnapshot = await getDocs(collection(db, 'users'));
+                const allUsers = allUsersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Sort by puntos desc and take top 10
+                const topUsers = allUsers
+                    .filter(user => (user.puntos || 0) > 0)
+                    .sort((a, b) => (b.puntos || 0) - (a.puntos || 0))
+                    .slice(0, 10);
+                
                 const container = document.getElementById('leaderboardPersonal');
                 
-                if (allUsersSnapshot.empty) {
+                if (topUsers.length === 0) {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>No hay rankings disponibles aún</p></div>';
                     return;
                 }
                 
-                container.innerHTML = allUsersSnapshot.docs.map((doc, index) => {
-                    const userData = doc.data();
+                container.innerHTML = topUsers.map((userData, index) => {
                     const position = index + 1;
-                    const isCurrentUser = doc.id === currentUser.id;
+                    const isCurrentUser = userData.id === currentUser.id;
                     
                     const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
                     
