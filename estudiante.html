@@ -7741,8 +7741,8 @@ function openImageModal(imageUrl, title) {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // Filter by status approved and matching restrictions
-                const filteredForos = allForos
+                // Separate approved and pending foros
+                const approvedForos = allForos
                     .filter(foro => foro.status === 'approved')
                     .filter(foro => {
                         // Check if user's program is in approvedPrograms (or empty means all)
@@ -7755,7 +7755,14 @@ function openImageModal(imageUrl, title) {
                         const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(userHorario);
                         
                         return programMatch && sedeMatch && horarioMatch;
-                    })
+                    });
+                
+                // Show pending foros created by current user
+                const myPendingForos = allForos
+                    .filter(foro => foro.status === 'pending' && foro.autorId === currentUser.id);
+                
+                // Combine and sort by creation date (newest first)
+                const filteredForos = [...approvedForos, ...myPendingForos]
                     .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
 
                 const container = document.getElementById('forosList');
@@ -7767,11 +7774,16 @@ function openImageModal(imageUrl, title) {
                 container.innerHTML = filteredForos.map(foro => {
                     const fecha = new Date(foro.fechaCreacion).toLocaleDateString();
                     
+                    const statusBadge = foro.status === 'pending' ? 
+                        '<span style="background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;">PENDIENTE</span>' : '';
+                    
                     return `
                         <div class="foro-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; cursor: pointer;" onclick="viewForo('${foro.id}')">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div style="flex: 1;">
-                                    <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${foro.titulo}</h4>
+                                    <h4 style="margin: 0 0 0.5rem 0; color: #1e40af; display: flex; align-items: center;">
+                                        ${foro.titulo}${statusBadge}
+                                    </h4>
                                     <p style="color: #64748b; margin: 0 0 0.5rem 0;">${foro.contenido ? foro.contenido.substring(0, 150) + '...' : 'Sin contenido'}</p>
                                     <div style="display: flex; gap: 1rem; font-size: 0.9rem; color: #64748b;">
                                         <span><i class="fas fa-user"></i> ${foro.autorNombre}</span>

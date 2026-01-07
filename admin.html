@@ -13666,10 +13666,19 @@ REGLAS ESTRICTAS:
         async function submitApproveForo(event, id) {
             event.preventDefault();
             
-            // Get selected values from checkboxes
-            const programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked')).map(cb => cb.value);
-            const sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked')).map(cb => cb.value);
-            const horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked')).map(cb => cb.value);
+            // Get selected values from checkboxes, excluding "all" options
+            let programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked:not([onclick])')).map(cb => cb.value);
+            let sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked:not([onclick])')).map(cb => cb.value);
+            let horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked:not([onclick])')).map(cb => cb.value);
+            
+            // If "all" is checked, set to empty array (means all users can see)
+            const allProgramsChecked = event.target.querySelector('input[name="allPrograms"]').checked;
+            const allSedesChecked = event.target.querySelector('input[name="allSedes"]').checked;
+            const allHorariosChecked = event.target.querySelector('input[name="allHorarios"]').checked;
+            
+            if (allProgramsChecked) programs = [];
+            if (allSedesChecked) sedes = [];
+            if (allHorariosChecked) horarios = [];
             
             try {
                 await db.collection('foros').doc(id).update({
@@ -13786,10 +13795,19 @@ REGLAS ESTRICTAS:
             const titulo = formData.get('titulo').trim();
             const contenido = formData.get('contenido').trim();
             
-            // Get selected values from checkboxes
-            const programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked')).map(cb => cb.value);
-            const sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked')).map(cb => cb.value);
-            const horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked')).map(cb => cb.value);
+            // Get selected values from checkboxes, excluding "all" options
+            let programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked:not([onclick])')).map(cb => cb.value);
+            let sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked:not([onclick])')).map(cb => cb.value);
+            let horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked:not([onclick])')).map(cb => cb.value);
+            
+            // If "all" is checked, set to empty array (means all users can see)
+            const allProgramsChecked = event.target.querySelector('input[name="allPrograms"]').checked;
+            const allSedesChecked = event.target.querySelector('input[name="allSedes"]').checked;
+            const allHorariosChecked = event.target.querySelector('input[name="allHorarios"]').checked;
+            
+            if (allProgramsChecked) programs = [];
+            if (allSedesChecked) sedes = [];
+            if (allHorariosChecked) horarios = [];
             
             if (!titulo || !contenido) {
                 alert('Por favor completa todos los campos');
