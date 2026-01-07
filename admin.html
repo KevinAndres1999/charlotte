@@ -13603,16 +13603,52 @@ REGLAS ESTRICTAS:
                         </div>
                         <form id="approveForoForm" style="padding: 2rem;" onsubmit="submitApproveForo(event, '${id}')">
                             <div style="margin-bottom: 1.5rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Programas (deja vacío para todos)</label>
-                                <input type="text" name="programs" placeholder="Panadería, Belleza" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Programas</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="programs" value="Panadería"> Panadería
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="programs" value="Belleza"> Belleza
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allPrograms" onclick="toggleAll(this, 'programs')"> Todos los programas
+                                    </label>
+                                </div>
                             </div>
                             <div style="margin-bottom: 1.5rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Sedes (deja vacío para todas)</label>
-                                <input type="text" name="sedes" placeholder="Carapungo, Sangolquí" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Sedes</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Carapungo"> Carapungo
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Sangolquí"> Sangolquí
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Quito Norte"> Quito Norte
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allSedes" onclick="toggleAll(this, 'sedes')"> Todas las sedes
+                                    </label>
+                                </div>
                             </div>
                             <div style="margin-bottom: 1.5rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Horarios (deja vacío para todos)</label>
-                                <input type="text" name="horarios" placeholder="Mañana, Tarde" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Horarios</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Mañana"> Mañana
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Tarde"> Tarde
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Noche"> Noche
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allHorarios" onclick="toggleAll(this, 'horarios')"> Todos los horarios
+                                    </label>
+                                </div>
                             </div>
                             <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                                 <button type="button" onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Cancelar</button>
@@ -13630,10 +13666,10 @@ REGLAS ESTRICTAS:
         async function submitApproveForo(event, id) {
             event.preventDefault();
             
-            const formData = new FormData(event.target);
-            const programs = formData.get('programs').split(',').map(s => s.trim()).filter(s => s);
-            const sedes = formData.get('sedes').split(',').map(s => s.trim()).filter(s => s);
-            const horarios = formData.get('horarios').split(',').map(s => s.trim()).filter(s => s);
+            // Get selected values from checkboxes
+            const programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked')).map(cb => cb.value);
+            const sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked')).map(cb => cb.value);
+            const horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked')).map(cb => cb.value);
             
             try {
                 await db.collection('foros').doc(id).update({
@@ -13680,18 +13716,55 @@ REGLAS ESTRICTAS:
                         
                         <div style="margin-bottom: 1.5rem;">
                             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Visibilidad</label>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                                <div>
-                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Programas (deja vacío para todos)</label>
-                                    <input type="text" name="programs" placeholder="Panadería, Belleza" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">Programas</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="programs" value="Panadería"> Panadería
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="programs" value="Belleza"> Belleza
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allPrograms" onclick="toggleAll(this, 'programs')"> Todos los programas
+                                    </label>
                                 </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Sedes (deja vacío para todas)</label>
-                                    <input type="text" name="sedes" placeholder="Carapungo, Sangolquí" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">Sedes</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Carapungo"> Carapungo
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Sangolquí"> Sangolquí
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="sedes" value="Quito Norte"> Quito Norte
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allSedes" onclick="toggleAll(this, 'sedes')"> Todas las sedes
+                                    </label>
                                 </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Horarios (deja vacío para todos)</label>
-                                    <input type="text" name="horarios" placeholder="Mañana, Tarde" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151;">Horarios</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Mañana"> Mañana
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Tarde"> Tarde
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="horarios" value="Noche"> Noche
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" name="allHorarios" onclick="toggleAll(this, 'horarios')"> Todos los horarios
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -13712,9 +13785,11 @@ REGLAS ESTRICTAS:
             const formData = new FormData(event.target);
             const titulo = formData.get('titulo').trim();
             const contenido = formData.get('contenido').trim();
-            const programs = formData.get('programs').split(',').map(s => s.trim()).filter(s => s);
-            const sedes = formData.get('sedes').split(',').map(s => s.trim()).filter(s => s);
-            const horarios = formData.get('horarios').split(',').map(s => s.trim()).filter(s => s);
+            
+            // Get selected values from checkboxes
+            const programs = Array.from(event.target.querySelectorAll('input[name="programs"]:checked')).map(cb => cb.value);
+            const sedes = Array.from(event.target.querySelectorAll('input[name="sedes"]:checked')).map(cb => cb.value);
+            const horarios = Array.from(event.target.querySelectorAll('input[name="horarios"]:checked')).map(cb => cb.value);
             
             if (!titulo || !contenido) {
                 alert('Por favor completa todos los campos');
@@ -13748,12 +13823,21 @@ REGLAS ESTRICTAS:
             }
         }
 
+        function toggleAll(checkbox, name) {
+            const checkboxes = document.querySelectorAll(`input[name="${name}"]:not([onclick])`);
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.disabled = checkbox.checked;
+            });
+        }
+
         // Exponer funciones al objeto window
         window.approveForo = approveForo;
         window.submitApproveForo = submitApproveForo;
         window.showCreateForoModal = showCreateForoModal;
         window.createForoAdmin = createForoAdmin;
         window.viewForo = viewForo;
+        window.toggleAll = toggleAll;
 
         async function deleteForo(id) {
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;

@@ -7746,9 +7746,14 @@ function openImageModal(imageUrl, title) {
                     .filter(foro => foro.status === 'approved')
                     .filter(foro => {
                         // Check if user's program is in approvedPrograms (or empty means all)
-                        const programMatch = foro.approvedPrograms.length === 0 || foro.approvedPrograms.includes(currentUser.programa || '');
-                        const sedeMatch = foro.approvedSedes.length === 0 || foro.approvedSedes.includes(currentUser.sede || '');
-                        const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(currentUser.horario || '');
+                        const userPrograma = currentUser.programa || '';
+                        const userSede = currentUser.sede || '';
+                        const userHorario = currentUser.horario || '';
+                        
+                        const programMatch = foro.approvedPrograms.length === 0 || foro.approvedPrograms.includes(userPrograma);
+                        const sedeMatch = foro.approvedSedes.length === 0 || foro.approvedSedes.includes(userSede);
+                        const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(userHorario);
+                        
                         return programMatch && sedeMatch && horarioMatch;
                     })
                     .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
