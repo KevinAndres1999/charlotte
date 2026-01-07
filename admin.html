@@ -13870,19 +13870,15 @@ REGLAS ESTRICTAS:
         async function deleteForo(id) {
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
             try {
-                // Eliminar respuestas relacionadas (filtrar en cliente para evitar índices)
-                const allRespuestasSnapshot = await db.collection('foro_respuestas').get();
-                const respuestasToDelete = allRespuestasSnapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(respuesta => respuesta.hiloId === id);
+                // Eliminar respuestas relacionadas
+                const respuestasQuery = query(collection(db, 'respuestasForos'), where('foroId', '==', id));
+                const respuestasSnapshot = await getDocs(respuestasQuery);
                 
-                const deletePromises = respuestasToDelete.map(respuesta => 
-                    db.collection('foro_respuestas').doc(respuesta.id).delete()
-                );
+                const deletePromises = respuestasSnapshot.docs.map(doc => deleteDoc(doc.ref));
                 await Promise.all(deletePromises);
                 
                 // Eliminar hilo
-                await db.collection('foros').doc(id).delete();
+                await deleteDoc(doc(db, 'foros', id));
                 
                 alert('Hilo eliminado');
                 loadForosList();
@@ -13904,14 +13900,14 @@ REGLAS ESTRICTAS:
                 
                 const foro = foroDoc.data();
                 
-                // Obtener respuestas del foro (filtrar y ordenar en cliente para evitar índice)
-                const allRespuestasSnapshot = await db.collection('foro_respuestas').get();
-                const allRespuestas = allRespuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                // Filtrar por hiloId y ordenar por fecha
-                const respuestas = allRespuestas
-                    .filter(respuesta => respuesta.hiloId === foroId)
-                    .sort((a, b) => new Date(a.fechaCreacion) - new Date(b.fechaCreacion));
+                // Obtener respuestas del foro
+                const respuestasQuery = query(
+                    collection(db, 'respuestasForos'),
+                    where('foroId', '==', foroId),
+                    orderBy('fechaCreacion', 'asc')
+                );
+                const respuestasSnapshot = await getDocs(respuestasQuery);
+                const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Crear modal para ver el foro
                 const modal = document.createElement('div');
