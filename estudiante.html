@@ -7950,9 +7950,150 @@ function openImageModal(imageUrl, title) {
             }
         }
 
-        function viewForo(foroId) {
-            // Esta función se puede expandir para mostrar el hilo completo con respuestas
-            alert('Vista completa del foro próximamente disponible');
+        async function viewForo(foroId) {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser) {
+                    alert('Debes iniciar sesión para ver el foro');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Obtener el foro
+                const foroDoc = await getDoc(doc(db, 'foros', foroId));
+                if (!foroDoc.exists()) {
+                    alert('Foro no encontrado');
+                    return;
+                }
+
+                const foro = { id: foroDoc.id, ...foroDoc.data() };
+
+                // Obtener respuestas del foro
+                const respuestasQuery = query(
+                    collection(db, 'respuestasForos'),
+                    where('foroId', '==', foroId),
+                    orderBy('fechaCreacion', 'asc')
+                );
+                const respuestasSnapshot = await getDocs(respuestasQuery);
+                const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Crear modal para ver el foro completo
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.8); z-index: 10000; display: flex;
+                    align-items: center; justify-content: center; padding: 20px;
+                `;
+
+                const fechaForo = new Date(foro.fechaCreacion).toLocaleString();
+
+                modal.innerHTML = `
+                    <div style="background: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative;">
+                        <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <h2 style="margin: 0; color: #1e40af; font-size: 1.5rem;">${foro.titulo}</h2>
+                                <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+                            </div>
+                            <div style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">
+                                <span><i class="fas fa-user"></i> ${foro.autorNombre}</span> |
+                                <span><i class="fas fa-calendar"></i> ${fechaForo}</span> |
+                                <span><i class="fas fa-comments"></i> ${respuestas.length} respuestas</span>
+                            </div>
+                            <div style="color: #374151; line-height: 1.6; margin-bottom: 2rem;">
+                                ${foro.contenido ? foro.contenido.replace(/\n/g, '<br>') : 'Sin contenido'}
+                            </div>
+                        </div>
+
+                        <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                            <h3 style="margin: 0 0 1rem 0; color: #1e40af;">Respuestas (${respuestas.length})</h3>
+                            <div id="respuestas-container">
+                                ${respuestas.length === 0 ?
+                                    '<p style="color: #64748b; font-style: italic;">No hay respuestas aún. ¡Sé el primero en responder!</p>' :
+                                    respuestas.map(respuesta => {
+                                        const fechaRespuesta = new Date(respuesta.fechaCreacion).toLocaleString();
+                                        return `
+                                            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #f8fafc;">
+                                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                                    <strong style="color: #1e40af;">${respuesta.autorNombre}</strong>
+                                                    <small style="color: #64748b;">${fechaRespuesta}</small>
+                                                </div>
+                                                <div style="color: #374151; line-height: 1.5;">
+                                                    ${respuesta.contenido.replace(/\n/g, '<br>')}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')
+                                }
+                            </div>
+                        </div>
+
+                        <div style="padding: 2rem;">
+                            <h3 style="margin: 0 0 1rem 0; color: #1e40af;">Agregar Respuesta</h3>
+                            <form id="respuesta-form">
+                                <textarea id="respuesta-content" placeholder="Escribe tu respuesta aquí..." required
+                                    style="width: 100%; min-height: 120px; padding: 1rem; border: 1px solid #d1d5db; border-radius: 8px; resize: vertical; font-family: inherit; margin-bottom: 1rem;"></textarea>
+                                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                    <button type="button" onclick="this.closest('.modal-overlay').remove()"
+                                        style="padding: 0.5rem 1rem; border: 1px solid #d1d5db; background: white; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                                    <button type="submit" id="submit-respuesta-btn"
+                                        style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">Enviar Respuesta</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+
+                // Manejar envío de respuesta
+                const form = modal.querySelector('#respuesta-form');
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const contenido = modal.querySelector('#respuesta-content').value.trim();
+                    if (!contenido) {
+                        alert('Por favor escribe una respuesta');
+                        return;
+                    }
+
+                    const submitBtn = modal.querySelector('#submit-respuesta-btn');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Enviando...';
+
+                    try {
+                        // Agregar respuesta a la colección
+                        await addDoc(collection(db, 'respuestasForos'), {
+                            foroId: foroId,
+                            contenido: contenido,
+                            autorId: currentUser.id,
+                            autorNombre: currentUser.name || currentUser.email,
+                            fechaCreacion: new Date().toISOString()
+                        });
+
+                        // Actualizar contador de respuestas en el foro
+                        await updateDoc(doc(db, 'foros', foroId), {
+                            respuestas: respuestas.length + 1
+                        });
+
+                        alert('Respuesta enviada exitosamente');
+                        modal.remove();
+
+                        // Recargar la lista de foros para actualizar el contador
+                        loadForosList();
+
+                    } catch (error) {
+                        console.error('Error sending respuesta:', error);
+                        alert('Error al enviar la respuesta');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Enviar Respuesta';
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error viewing foro:', error);
+                alert('Error al cargar el foro');
+            }
         }
 
         // Make viewForo globally available
