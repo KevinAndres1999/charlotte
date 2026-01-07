@@ -4638,7 +4638,7 @@ function renderCuestionarios() {
         const disponible = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
         const isNew = cuestionario.fechaRegistro && (new Date() - new Date(cuestionario.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
         const intentosRealizados = cuestionario.intentosRealizados || 0;
-        const maxIntentos = cuestionario.numeroIntentos || 1;
+        const maxIntentos = cuestionario.intentosMaximos || cuestionario.numeroIntentos || cuestionario.intentos || 1;
         const intentosRestantes = maxIntentos - intentosRealizados;
         const puedeResponder = disponible && !vencido && intentosRestantes > 0;
         const isCompleted = intentosRealizados > 0;
@@ -4667,7 +4667,7 @@ function renderCuestionarios() {
                         <i class="fas fa-list"></i> ${cuestionario.preguntas?.length || 0} preguntas
                     </div>
                     <div class="stat-item">
-                        <i class="fas fa-redo"></i> ${intentosRealizados}/${Math.max(cuestionario.numeroIntentos || 1, intentosRealizados)} intentos
+                        <i class="fas fa-redo"></i> ${intentosRealizados}/${Math.max(cuestionario.intentosMaximos || cuestionario.numeroIntentos || cuestionario.intentos || 1, intentosRealizados)} intentos
                     </div>
                 </div>
                 ${fechaLimite ? `<div class="clase-deadline ${vencido ? 'expired' : ''}">
@@ -4733,7 +4733,7 @@ function renderEvaluaciones() {
         const disponible = (!fechaInicio || ahora >= fechaInicio) && (!fechaFin || ahora <= fechaFin);
         const isNew = evaluacion.fechaRegistro && (new Date() - new Date(evaluacion.fechaRegistro)) < (7 * 24 * 60 * 60 * 1000); // 7 días
         const intentosRealizados = evaluacion.intentosRealizados || 0;
-        const maxIntentos = 1; // Evaluaciones solo 1 intento
+        const maxIntentos = evaluacion.intentosMaximos || evaluacion.numeroIntentos || evaluacion.intentos || 1; // Evaluaciones pueden tener múltiples intentos
         const intentosRestantes = maxIntentos - intentosRealizados;
         const puedeResponder = disponible && !vencido && intentosRestantes > 0;
         const isCompleted = intentosRealizados > 0;
@@ -4762,7 +4762,7 @@ function renderEvaluaciones() {
                         <i class="fas fa-list"></i> ${evaluacion.preguntas?.length || 0} preguntas
                     </div>
                     <div class="stat-item">
-                        <i class="fas fa-redo"></i> ${intentosRealizados}/${maxIntentos} intentos
+                        <i class="fas fa-redo"></i> ${intentosRealizados}/${Math.max(maxIntentos, intentosRealizados)} intentos
                     </div>
                 </div>
                 ${fechaLimite ? `<div class="clase-deadline ${vencido ? 'expired' : ''}">
