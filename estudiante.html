@@ -7760,6 +7760,21 @@ function openImageModal(imageUrl, title) {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
+                console.log('All foros loaded:', allForos.map(f => ({
+                    id: f.id,
+                    titulo: f.titulo,
+                    status: f.status,
+                    approvedPrograms: f.approvedPrograms,
+                    approvedSedes: f.approvedSedes,
+                    approvedHorarios: f.approvedHorarios
+                })));
+                
+                console.log('Current user:', {
+                    programa: currentUser.programa,
+                    sede: currentUser.sede,
+                    horario: currentUser.horario
+                });
+                
                 // Separate approved and pending foros
                 const approvedForos = allForos
                     .filter(foro => foro.status === 'approved')
@@ -7769,11 +7784,23 @@ function openImageModal(imageUrl, title) {
                         const userSede = currentUser.sede || '';
                         const userHorario = currentUser.horario || '';
                         
+                        console.log('Filtering foro:', foro.titulo, {
+                            foroApprovedPrograms: foro.approvedPrograms,
+                            foroApprovedSedes: foro.approvedSedes,
+                            foroApprovedHorarios: foro.approvedHorarios,
+                            userPrograma,
+                            userSede,
+                            userHorario
+                        });
+                        
                         const programMatch = foro.approvedPrograms.length === 0 || foro.approvedPrograms.includes(userPrograma);
                         const sedeMatch = foro.approvedSedes.length === 0 || foro.approvedSedes.includes(userSede);
                         const horarioMatch = foro.approvedHorarios.length === 0 || foro.approvedHorarios.includes(userHorario);
                         
-                        return programMatch && sedeMatch && horarioMatch;
+                        const result = programMatch && sedeMatch && horarioMatch;
+                        console.log('Filter result for', foro.titulo, ':', { programMatch, sedeMatch, horarioMatch, result });
+                        
+                        return result;
                     });
                 
                 // Show pending foros created by current user
