@@ -7852,16 +7852,22 @@ function openImageModal(imageUrl, title) {
                 return;
             }
             
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            if (!currentUser || !currentUser.id) {
+                alert('Debes iniciar sesión para crear un foro');
+                window.location.href = 'login.html';
+                return;
+            }
+            
             try {
-                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                 await addDoc(collection(db, 'foros'), {
                     titulo: titulo,
                     contenido: contenido,
                     autorId: currentUser.id,
                     autorNombre: currentUser.name || currentUser.email,
                     programa: currentUser.programa || '',
-                    sede: currentUser.sede || '', // Assuming user has sede
-                    horario: currentUser.horario || '', // Assuming user has horario
+                    sede: currentUser.sede || '', // Campo opcional
+                    horario: currentUser.horario || '', // Campo opcional
                     status: 'pending', // Nuevo: hilo pendiente de aprobación
                     approvedPrograms: [], // Para que admin seleccione
                     approvedSedes: [],
@@ -8082,6 +8088,7 @@ function openImageModal(imageUrl, title) {
         window.loadLeaderboardPersonal = loadLeaderboardPersonal;
         window.loadMisLogros = loadMisLogros;
         window.loadForosList = loadForosList;
+        window.createForo = createForo;
         window.printClaseFromViewer = printClaseFromViewer;
         window.shareClaseFromViewer = shareClaseFromViewer;
         window.toggleBookmarkFromViewer = toggleBookmarkFromViewer;

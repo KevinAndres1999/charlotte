@@ -5086,8 +5086,15 @@
     <div id="foros" class="content-section">
         <div class="quiz-builder-section">
             <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                <h3><i class="fas fa-comments"></i> Gestión de Foros</h3>
-                <p style="color: white;">Administra discusiones y hilos de conversación</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3><i class="fas fa-comments"></i> Gestión de Foros</h3>
+                        <p style="color: white; margin: 0.5rem 0 0 0;">Administra discusiones y hilos de conversación</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="showCreateForoModal()" style="background: white; color: #059669; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                        <i class="fas fa-plus"></i> Crear Foro
+                    </button>
+                </div>
             </div>
 
             <div class="card">
@@ -13647,9 +13654,106 @@ REGLAS ESTRICTAS:
             }
         }
 
+        function showCreateForoModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                    <div style="padding: 2rem; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: #1e40af;">Crear Nuevo Hilo (Admin)</h3>
+                            <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="createForoForm" style="padding: 2rem;" onsubmit="createForoAdmin(event)">
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Título del Hilo</label>
+                            <input type="text" name="titulo" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;" placeholder="Escribe un título descriptivo...">
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Contenido</label>
+                            <textarea name="contenido" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; min-height: 150px; font-size: 1rem;" placeholder="Describe el tema de discusión..."></textarea>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Visibilidad</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Programas (deja vacío para todos)</label>
+                                    <input type="text" name="programs" placeholder="Panadería, Belleza" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Sedes (deja vacío para todas)</label>
+                                    <input type="text" name="sedes" placeholder="Carapungo, Sangolquí" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 0.25rem; font-size: 0.875rem; color: #6b7280;">Horarios (deja vacío para todos)</label>
+                                    <input type="text" name="horarios" placeholder="Mañana, Tarde" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="button" onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Crear y Publicar Hilo</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function createForoAdmin(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const titulo = formData.get('titulo').trim();
+            const contenido = formData.get('contenido').trim();
+            const programs = formData.get('programs').split(',').map(s => s.trim()).filter(s => s);
+            const sedes = formData.get('sedes').split(',').map(s => s.trim()).filter(s => s);
+            const horarios = formData.get('horarios').split(',').map(s => s.trim()).filter(s => s);
+            
+            if (!titulo || !contenido) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            try {
+                await db.collection('foros').add({
+                    titulo: titulo,
+                    contenido: contenido,
+                    autorId: 'admin',
+                    autorNombre: 'Administrador',
+                    programa: 'Admin',
+                    sede: '',
+                    horario: '',
+                    status: 'approved', // Admin crea directamente aprobado
+                    approvedPrograms: programs,
+                    approvedSedes: sedes,
+                    approvedHorarios: horarios,
+                    fechaCreacion: new Date().toISOString(),
+                    respuestas: 0,
+                    activo: true
+                });
+                
+                event.target.closest('.modal-overlay').remove();
+                alert('Hilo creado y publicado exitosamente');
+                loadForosList();
+            } catch (error) {
+                console.error('Error creating foro:', error);
+                alert('Error al crear el hilo');
+            }
+        }
+
         // Exponer funciones al objeto window
         window.approveForo = approveForo;
         window.submitApproveForo = submitApproveForo;
+        window.showCreateForoModal = showCreateForoModal;
+        window.createForoAdmin = createForoAdmin;
 
         async function deleteForo(id) {
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
