@@ -1194,6 +1194,27 @@
             transform: translateY(-1px);
         }
 
+        .btn-eye-clase {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .btn-eye-clase:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
         .btn-secondary-clase {
             background: transparent;
             color: #64748b;
@@ -2386,6 +2407,261 @@
 
             .total {
                 font-size: 1.2rem;
+            }
+        }
+
+        /* === ESTILOS PARA MODAL DE RESPUESTAS DETALLADAS === */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .respuestas-modal {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 0;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .respuestas-container {
+            padding: 1.5rem 2rem;
+        }
+
+        .respuesta-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .respuesta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .respuesta-header h4 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 1.1rem;
+        }
+
+        .respuesta-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .respuesta-status.correct {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .respuesta-status.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .respuesta-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .pregunta-texto {
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .respuestas-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .respuesta-estudiante, .respuesta-correcta {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .respuesta-estudiante.incorrect {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        .respuesta-correcta {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .respuesta-estudiante strong, .respuesta-correcta strong {
+            color: #374151;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .respuesta-abierta {
+            margin-bottom: 1rem;
+        }
+
+        .respuesta-abierta .respuesta-estudiante {
+            margin-bottom: 1rem;
+        }
+
+        .respuesta-explicacion {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .respuesta-explicacion strong {
+            color: #0c4a6e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .respuesta-explicacion p {
+            margin: 0;
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            background: #f9fafb;
+        }
+
+        .modal-footer .btn-secondary {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-footer .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+            }
+            
+            .modal-header, .modal-body, .modal-footer {
+                padding: 1rem;
+            }
+            
+            .respuestas-container {
+                padding: 0;
+            }
+            
+            .respuesta-item {
+                padding: 1rem;
+            }
+            
+            .respuestas-comparison {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.25rem;
             }
         }
     </style>
@@ -4678,6 +4954,9 @@ function renderCuestionarios() {
                     <button class="btn-primary-clase" onclick="window.location.href='responder-cuestionario.html?id=${cuestionario.id}'" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
                     </button>
+                    ${isCompleted ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${cuestionario.id}', 'cuestionario')" title="Ver respuestas detalladas">
+                        <i class="fas fa-eye"></i>
+                    </button>` : ''}
                 </div>
                 ${cuestionario.respuestas && cuestionario.respuestas.length > 0 ? `
                 <div class="clase-calificacion">
@@ -4773,6 +5052,9 @@ function renderEvaluaciones() {
                     <button class="btn-primary-clase" onclick="window.location.href='responder-evaluacion.html?id=${evaluacion.id}'" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
                     </button>
+                    ${isCompleted ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver respuestas detalladas">
+                        <i class="fas fa-eye"></i>
+                    </button>` : ''}
                 </div>
                 ${evaluacion.respuestas && evaluacion.respuestas.length > 0 ? `
                 <div class="clase-calificacion">
@@ -4791,6 +5073,146 @@ function renderEvaluaciones() {
 
     if (filteredEvaluaciones.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay evaluaciones disponibles</h3><p>No se encontraron evaluaciones que coincidan con tu búsqueda.</p></div>';
+    }
+}
+
+// =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
+async function verRespuestasCuestionario(cuestionarioId, tipo) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) {
+            alert('Usuario no autenticado');
+            return;
+        }
+
+        // Obtener las respuestas del estudiante
+        const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+        const respuestasQuery = query(
+            collection(db, collectionName), 
+            where('estudianteId', '==', currentUser.email),
+            where('cuestionarioId', '==', cuestionarioId)
+        );
+        const respuestasSnapshot = await getDocs(respuestasQuery);
+        
+        if (respuestasSnapshot.empty) {
+            alert('No se encontraron respuestas para este ' + (tipo === 'cuestionario' ? 'cuestionario' : 'evaluación'));
+            return;
+        }
+        
+        // Tomar la respuesta más reciente
+        const respuestaDoc = respuestasSnapshot.docs[0];
+        const respuestaData = respuestaDoc.data();
+        
+        // Obtener el cuestionario/evaluación
+        const cuestionarioRef = await getDoc(doc(db, tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones', cuestionarioId));
+        if (!cuestionarioRef.exists()) {
+            alert('Cuestionario no encontrado');
+            return;
+        }
+        
+        const cuestionarioData = cuestionarioRef.data();
+        
+        // Crear el modal
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content respuestas-modal">
+                <div class="modal-header">
+                    <h2><i class="fas fa-eye"></i> ${cuestionarioData.titulo || 'Cuestionario'} - Revisión de Respuestas</h2>
+                    <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="respuestas-container">
+                        ${respuestaData.preguntasDetalladas ? respuestaData.preguntasDetalladas.map((pregunta, index) => {
+                            const respuestaCorrecta = pregunta.respuestaCorrecta;
+                            const respuestaEstudiante = pregunta.respuestaEstudiante;
+                            const esCorrecta = pregunta.correcta;
+                            const explicacion = pregunta.explicacion || 'Sin explicación disponible';
+                            
+                            let respuestaTexto = '';
+                            let respuestaCorrectaTexto = '';
+                            
+                            if (pregunta.tipo === 'multiple' && pregunta.opciones && pregunta.opciones.length > 0) {
+                                respuestaTexto = pregunta.opciones[respuestaEstudiante] || 'Sin respuesta';
+                                respuestaCorrectaTexto = pregunta.opciones[respuestaCorrecta] || 'Sin respuesta correcta';
+                            } else {
+                                respuestaTexto = respuestaEstudiante || 'Sin respuesta';
+                                respuestaCorrectaTexto = respuestaCorrecta || 'Sin respuesta correcta';
+                            }
+                            
+                            const statusClass = esCorrecta === true ? 'correct' : esCorrecta === false ? 'incorrect' : 'pending';
+                            const statusIcon = esCorrecta === true ? '✅' : esCorrecta === false ? '❌' : '⏳';
+                            const statusText = esCorrecta === true ? 'Correcta' : esCorrecta === false ? 'Incorrecta' : 'Pendiente';
+                            
+                            return `
+                                <div class="respuesta-item">
+                                    <div class="respuesta-header">
+                                        <h4>Pregunta ${index + 1}</h4>
+                                        <span class="respuesta-status ${statusClass}">${statusIcon} ${statusText}</span>
+                                    </div>
+                                    <div class="respuesta-content">
+                                        <p class="pregunta-texto">${pregunta.pregunta || pregunta.texto || `Pregunta ${index + 1}`}</p>
+                                        
+                                        ${pregunta.tipo === 'multiple' ? `
+                                            <div class="respuestas-comparison">
+                                                <div class="respuesta-estudiante ${esCorrecta === false ? 'incorrect' : ''}">
+                                                    <strong>Tu respuesta:</strong><br>
+                                                    ${respuestaTexto}
+                                                </div>
+                                                <div class="respuesta-correcta">
+                                                    <strong>Respuesta correcta:</strong><br>
+                                                    ${respuestaCorrectaTexto}
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <div class="respuesta-abierta">
+                                                <div class="respuesta-estudiante">
+                                                    <strong>Tu respuesta:</strong><br>
+                                                    ${respuestaTexto}
+                                                </div>
+                                                <div class="respuesta-correcta">
+                                                    <strong>Respuesta esperada:</strong><br>
+                                                    ${respuestaCorrectaTexto}
+                                                </div>
+                                            </div>
+                                        `}
+                                        
+                                        ${explicacion && explicacion !== 'Sin explicación disponible' ? `
+                                            <div class="respuesta-explicacion">
+                                                <strong><i class="fas fa-lightbulb"></i> Explicación:</strong>
+                                                <p>${explicacion}</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('') : '<p>No hay respuestas detalladas disponibles</p>'}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cerrar</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Prevenir scroll del body cuando el modal está abierto
+        document.body.style.overflow = 'hidden';
+        
+        // Cerrar modal al hacer clic fuera
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+                document.body.style.overflow = '';
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error al cargar respuestas detalladas:', error);
+        alert('Error al cargar las respuestas detalladas');
     }
 }
 
