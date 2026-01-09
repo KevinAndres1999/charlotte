@@ -8778,7 +8778,8 @@ async function verificarPagosYAcceder(id, tipo) {
         }
 
         // Verificar estado de pagos del usuario
-        const userDoc = await db.collection('users').where('email', '==', currentUser.email).where('role', '==', 'student').get();
+        const q = query(collection(db, 'users'), where('email', '==', currentUser.email), where('role', '==', 'student'));
+        const userDoc = await getDocs(q);
         if (userDoc.empty) {
             alert('Usuario no encontrado');
             return;
