@@ -5079,30 +5079,38 @@ function renderEvaluaciones() {
 // =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
 // Función wrapper para manejar llamadas desde HTML onclick
 window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
+    console.log('mostrarRespuestasModal called with:', cuestionarioId, tipo);
     verRespuestasCuestionario(cuestionarioId, tipo).catch(error => {
         console.error('Error al mostrar respuestas:', error);
-        alert('Error al cargar las respuestas detalladas');
+        alert('Error al cargar las respuestas detalladas: ' + error.message);
     });
 };
 
 async function verRespuestasCuestionario(cuestionarioId, tipo) {
     try {
+        console.log('verRespuestasCuestionario started with:', cuestionarioId, tipo);
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser) {
+            console.log('No current user found');
             alert('Usuario no autenticado');
             return;
         }
+        
+        console.log('Current user:', currentUser.email);
 
         // Obtener las respuestas del estudiante
         const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+        console.log('Collection name:', collectionName);
         const respuestasQuery = query(
             collection(db, collectionName), 
             where('estudianteId', '==', currentUser.email),
             where('cuestionarioId', '==', cuestionarioId)
         );
         const respuestasSnapshot = await getDocs(respuestasQuery);
+        console.log('Respuestas snapshot size:', respuestasSnapshot.size);
         
         if (respuestasSnapshot.empty) {
+            console.log('No responses found');
             alert('No se encontraron respuestas para este ' + (tipo === 'cuestionario' ? 'cuestionario' : 'evaluación'));
             return;
         }
@@ -5110,10 +5118,13 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         // Tomar la respuesta más reciente
         const respuestaDoc = respuestasSnapshot.docs[0];
         const respuestaData = respuestaDoc.data();
+        console.log('Respuesta data loaded:', respuestaData);
         
         // Obtener el cuestionario/evaluación
         const cuestionarioRef = await getDoc(doc(db, tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones', cuestionarioId));
+        console.log('Cuestionario ref exists:', cuestionarioRef.exists());
         if (!cuestionarioRef.exists()) {
+            console.log('Cuestionario not found');
             alert('Cuestionario no encontrado');
             return;
         }
@@ -5121,6 +5132,7 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         const cuestionarioData = cuestionarioRef.data();
         
         // Crear el modal
+        console.log('Creating modal...');
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
@@ -5134,6 +5146,7 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
                 <div class="modal-body">
                     <div class="respuestas-container">
                         ${respuestaData.preguntasDetalladas ? respuestaData.preguntasDetalladas.map((pregunta, index) => {
+                            console.log('Processing question', index, pregunta);
                             const respuestaCorrecta = pregunta.respuestaCorrecta;
                             const respuestaEstudiante = pregunta.respuestaEstudiante;
                             const esCorrecta = pregunta.correcta;
@@ -5205,10 +5218,13 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
             </div>
         `;
         
+        console.log('Modal HTML created, appending to body...');
         document.body.appendChild(modal);
+        console.log('Modal appended to body');
         
         // Prevenir scroll del body cuando el modal está abierto
         document.body.style.overflow = 'hidden';
+        console.log('Body overflow set to hidden');
         
         // Cerrar modal al hacer clic fuera
         modal.addEventListener('click', function(e) {
@@ -5217,6 +5233,9 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
                 document.body.style.overflow = '';
             }
         });
+        
+        console.log('Modal event listeners added');
+        console.log('Function completed successfully');
         
     } catch (error) {
         console.error('Error al cargar respuestas detalladas:', error);
