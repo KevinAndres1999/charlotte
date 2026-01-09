@@ -6270,7 +6270,7 @@
                 await db.collection('users').doc(userId).update({
                     estadoPagos: nuevoEstado,
                     pagosUpdatedAt: new Date().toISOString(),
-                    pagosUpdatedBy: currentUser ? currentUser.id : 'admin'
+                    pagosUpdatedBy: currentUser && currentUser.id ? currentUser.id : 'admin'
                 });
 
                 // Cerrar modal y recargar lista
@@ -6444,7 +6444,7 @@
                     role: 'student',
                     status: 'active',
                     approvedAt: new Date().toISOString(),
-                    approvedBy: currentUser ? currentUser.id : 'admin'
+                    approvedBy: currentUser && currentUser.id ? currentUser.id : 'admin'
                 });
 
                 // Eliminar de pendingStudents
