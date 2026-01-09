@@ -11781,7 +11781,7 @@ REGLAS ESTRICTAS:
             }).join('');
         }
 
-        // Función para calcular estadísticas de un cuestionario
+        // Función para calcular estadísticas de un cuestionario (usa la misma lógica que cargarEstadisticasDetalle)
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
                 const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
@@ -11791,7 +11791,7 @@ REGLAS ESTRICTAS:
                 const totalRespuestas = respuestas.length;
                 const calificaciones = respuestas.filter(r => r.calificacion).map(r => r.calificacion);
                 const promedioCalificaciones = calificaciones.length > 0 ?
-                    Math.round(calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) : 0;
+                    Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10 : 0;
 
                 return {
                     totalRespuestas,
