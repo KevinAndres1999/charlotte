@@ -5079,9 +5079,6 @@ function renderEvaluaciones() {
 // =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
 // Función wrapper para manejar llamadas desde HTML onclick
 window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
-    console.log('=== mostrarRespuestasModal START ===');
-    console.log('mostrarRespuestasModal called with:', cuestionarioId, tipo);
-    console.log('Current timestamp:', Date.now());
     verRespuestasCuestionario(cuestionarioId, tipo).catch(error => {
         console.error('Error al mostrar respuestas:', error);
         alert('Error al cargar las respuestas detalladas: ' + error.message);
@@ -5090,29 +5087,22 @@ window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
 
 async function verRespuestasCuestionario(cuestionarioId, tipo) {
     try {
-        console.log('verRespuestasCuestionario started with:', cuestionarioId, tipo);
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser) {
-            console.log('No current user found');
             alert('Usuario no autenticado');
             return;
         }
-        
-        console.log('Current user:', currentUser.email);
 
         // Obtener las respuestas del estudiante
         const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-        console.log('Collection name:', collectionName);
         const respuestasQuery = query(
             collection(db, collectionName), 
             where('estudianteId', '==', currentUser.email),
             where('cuestionarioId', '==', cuestionarioId)
         );
         const respuestasSnapshot = await getDocs(respuestasQuery);
-        console.log('Respuestas snapshot size:', respuestasSnapshot.size);
         
         if (respuestasSnapshot.empty) {
-            console.log('No responses found');
             alert('No se encontraron respuestas para este ' + (tipo === 'cuestionario' ? 'cuestionario' : 'evaluación'));
             return;
         }
@@ -5120,22 +5110,17 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         // Tomar la respuesta más reciente
         const respuestaDoc = respuestasSnapshot.docs[0];
         const respuestaData = respuestaDoc.data();
-        console.log('Respuesta data loaded:', respuestaData);
         
         // Obtener el cuestionario/evaluación
         const cuestionarioRef = await getDoc(doc(db, tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones', cuestionarioId));
-        console.log('Cuestionario ref exists:', cuestionarioRef.exists());
         if (!cuestionarioRef.exists()) {
-            console.log('Cuestionario not found');
             alert('Cuestionario no encontrado');
             return;
         }
         
         const cuestionarioData = cuestionarioRef.data();
         
-        console.log('About to create modal HTML...');
         // Crear el modal
-        console.log('Creating modal...');
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.innerHTML = `
@@ -5149,7 +5134,6 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
                 <div class="modal-body">
                     <div class="respuestas-container">
                         ${respuestaData.preguntasDetalladas ? respuestaData.preguntasDetalladas.map((pregunta, index) => {
-                            console.log('Processing question', index, pregunta);
                             const respuestaCorrecta = pregunta.respuestaCorrecta;
                             const respuestaEstudiante = pregunta.respuestaEstudiante;
                             const esCorrecta = pregunta.correcta;
@@ -5221,58 +5205,34 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
             </div>
         `;
         
-        console.log('Modal HTML created, appending to body...');
         document.body.appendChild(modal);
-        console.log('Modal appended to body');
         
         try {
-            console.log('Modal element:', modal);
-            console.log('Modal className:', modal.className);
-            console.log('Modal style.display:', modal.style.display);
-            console.log('Modal innerHTML length:', modal.innerHTML.length);
+            // Forzar estilos del modal para asegurar visibilidad
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.background = 'rgba(0, 0, 0, 0.7)';
+            modal.style.zIndex = '10000';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
             
-            // Verificar que el modal esté en el DOM
-            const modalInDOM = document.querySelector('.modal-overlay');
-            console.log('Modal found in DOM:', modalInDOM);
-            if (modalInDOM) {
-                console.log('Modal computed style display:', window.getComputedStyle(modalInDOM).display);
-                console.log('Modal computed style visibility:', window.getComputedStyle(modalInDOM).visibility);
-                console.log('Modal computed style z-index:', window.getComputedStyle(modalInDOM).zIndex);
-            }
+            // Verificar nuevamente después de forzar estilos
+            setTimeout(() => {
+                const modalAfterForce = document.querySelector('.modal-overlay');
+                if (modalAfterForce) {
+                    // Logs de verificación silenciosos (solo en desarrollo)
+                }
+            }, 100);
         } catch (error) {
-            console.error('Error in modal debugging:', error);
+            console.error('Error in modal styling:', error);
         }
         
-        // Forzar estilos del modal para asegurar visibilidad
-        console.log('Forcing modal styles...');
-        modal.style.display = 'flex';
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100%';
-        modal.style.height = '100%';
-        modal.style.background = 'rgba(0, 0, 0, 0.7)';
-        modal.style.zIndex = '10000';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-        console.log('Modal styles forced. Final z-index:', modal.style.zIndex);
-        console.log('Modal styles forced. Final display:', modal.style.display);
-        
-        // Verificar nuevamente después de forzar estilos
-        setTimeout(() => {
-            const modalAfterForce = document.querySelector('.modal-overlay');
-            if (modalAfterForce) {
-                console.log('Modal after forcing styles - computed display:', window.getComputedStyle(modalAfterForce).display);
-                console.log('Modal after forcing styles - computed z-index:', window.getComputedStyle(modalAfterForce).zIndex);
-                console.log('Modal after forcing styles - offsetWidth:', modalAfterForce.offsetWidth);
-                console.log('Modal after forcing styles - offsetHeight:', modalAfterForce.offsetHeight);
-            }
-        }, 100);
-        
         // Prevenir scroll del body cuando el modal está abierto
-        console.log('Setting body overflow to hidden...');
         document.body.style.overflow = 'hidden';
-        console.log('Body overflow set to hidden');
         
         // Cerrar modal al hacer clic fuera
         modal.addEventListener('click', function(e) {
@@ -5281,9 +5241,6 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
                 document.body.style.overflow = '';
             }
         });
-        
-        console.log('Modal event listeners added');
-        console.log('Function completed successfully - modal should be visible now');
         
     } catch (error) {
         console.error('Error al cargar respuestas detalladas:', error);
