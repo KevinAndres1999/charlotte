@@ -645,6 +645,167 @@
             .question-nav { gap: 0.25rem; }
             .question-dot { width: 35px; height: 35px; font-size: 0.9rem; }
         }
+
+        /* === ESTILOS PARA MODO REVISIÓN === */
+        .revision-mode .question-card {
+            pointer-events: none;
+        }
+
+        .revision-mode .option.correct {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .revision-mode .option.selected-correct {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+        }
+
+        .revision-mode .option.selected-incorrect {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+        }
+
+        .revision-mode .option.selected-incorrect::after {
+            content: '❌ Tu respuesta';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .revision-mode .option.correct:not(.selected-correct)::after {
+            content: '✅ Respuesta correcta';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .answer-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .answer-status.correct {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .answer-status.incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .answer-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        .answer-status.open {
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #6366f1;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .question-header h3 {
+            margin: 0;
+            color: #1e3a8a;
+            font-size: 1.2rem;
+        }
+
+        .explanation-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .explanation-container h4 {
+            margin: 0 0 1rem 0;
+            color: #0c4a6e;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explanation-container h4::before {
+            content: '💡';
+        }
+
+        .explanation-container p {
+            margin: 0;
+            color: #374151;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .open-answer-review {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .student-answer, .correct-answer {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .student-answer {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .correct-answer {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+
+        .student-answer strong, .correct-answer strong {
+            color: #374151;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .open-answer-review {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -797,6 +958,69 @@ document.addEventListener('DOMContentLoaded', () => {
     loadQuiz(quizId);
 });
 
+// =================== FUNCIONES PARA REVISIÓN DE RESPUESTAS ===================
+async function loadRespuestasParaRevision(quizId, estudianteEmail) {
+    try {
+        console.log('Cargando respuestas para revisión:', quizId, estudianteEmail);
+        
+        // Obtener las respuestas del estudiante
+        const respuestasQuery = query(
+            collection(db, 'respuestasCuestionarios'), 
+            where('estudianteId', '==', estudianteEmail),
+            where('cuestionarioId', '==', quizId)
+        );
+        const respuestasSnapshot = await getDocs(respuestasQuery);
+        
+        if (respuestasSnapshot.empty) {
+            showError('No se encontraron respuestas para revisar');
+            return;
+        }
+        
+        // Tomar la respuesta más reciente
+        const respuestaDoc = respuestasSnapshot.docs[0];
+        const respuestaData = respuestaDoc.data();
+        
+        console.log('Respuesta encontrada:', respuestaData);
+        
+        // Configurar el cuestionario para modo revisión
+        currentQuiz = {
+            id: quizId,
+            titulo: respuestaData.cuestionarioInfo?.titulo || 'Cuestionario',
+            descripcion: respuestaData.cuestionarioInfo?.descripcion || 'Sin descripción',
+            programa: respuestaData.cuestionarioInfo?.programa || 'Sin programa',
+            tiempoLimite: respuestaData.cuestionarioInfo?.tiempoLimite || 0,
+            preguntas: respuestaData.preguntasDetalladas || [],
+            intentosMaximos: respuestaData.cuestionarioInfo?.numeroIntentos || 1,
+            numeroIntentos: respuestaData.cuestionarioInfo?.numeroIntentos || 1,
+            intentos: respuestaData.cuestionarioInfo?.numeroIntentos || 1
+        };
+        
+        // Cargar las respuestas del estudiante
+        answers = respuestaData.preguntasDetalladas ? 
+            respuestaData.preguntasDetalladas.map(p => p.respuestaEstudiante) : 
+            respuestaData.respuestas || [];
+        
+        // Configurar UI para modo revisión
+        document.getElementById('quizTitle').textContent = `${currentQuiz.titulo} - Revisión de Respuestas`;
+        document.getElementById('quizDescription').textContent = currentQuiz.descripcion;
+        document.getElementById('totalQuestions').textContent = currentQuiz.preguntas.length;
+        document.getElementById('timeLimit').textContent = currentQuiz.tiempoLimite ? `${currentQuiz.tiempoLimite} min` : 'Sin límite';
+        document.getElementById('attemptsLeft').textContent = `Revisión`;
+        
+        // Mostrar indicador de progreso
+        document.getElementById('progressIndicator').style.display = 'flex';
+        
+        // Renderizar preguntas en modo revisión
+        renderQuizRevision();
+        
+        hideLoading();
+        
+    } catch (error) {
+        console.error('Error cargando respuestas para revisión:', error);
+        showError('Error al cargar las respuestas para revisión');
+    }
+}
+
 // =================== FUNCIONES PRINCIPALES ===================
 async function loadQuiz(quizId) {
     try {
@@ -850,7 +1074,9 @@ async function loadQuiz(quizId) {
         }
         
         if (intentosAgotados) {
-            showError(`Ya has completado el número máximo de intentos autorizados (${maxIntentos}). No puedes responder este cuestionario nuevamente.`);
+            // Si ya completó el cuestionario, permitir revisar respuestas
+            console.log('Usuario ya completó el cuestionario, cargando respuestas para revisión');
+            await loadRespuestasParaRevision(quizId, currentUser.email);
             return;
         }
 
@@ -936,6 +1162,91 @@ function renderQuiz() {
     console.log('About to call updateNavigation()');
     updateNavigation();
     console.log('=== QUIZ RENDERING COMPLETE ===');
+}
+
+function renderQuizRevision() {
+    console.log('=== RENDERING QUIZ REVISION ===');
+    
+    const container = document.getElementById('questionsContainer');
+    container.innerHTML = '';
+
+    currentQuiz.preguntas.forEach((pregunta, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = `question-card revision-mode ${index === currentQuestionIndex ? 'active' : ''}`;
+        questionCard.id = `question-${index}`;
+
+        let optionsHtml = '';
+        let respuestaCorrecta = pregunta.respuestaCorrecta;
+        let respuestaEstudiante = pregunta.respuestaEstudiante;
+        let esCorrecta = pregunta.correcta;
+        let explicacion = pregunta.explicacion || 'Sin explicación disponible';
+
+        if (pregunta.tipo === 'multiple' && pregunta.opciones && pregunta.opciones.length > 0) {
+            optionsHtml = pregunta.opciones.map((opcion, opcionIndex) => {
+                let claseOpcion = 'option';
+                
+                if (opcionIndex === respuestaCorrecta) {
+                    claseOpcion += ' correct';
+                }
+                
+                if (opcionIndex === respuestaEstudiante) {
+                    claseOpcion += respuestaEstudiante === respuestaCorrecta ? ' selected-correct' : ' selected-incorrect';
+                }
+                
+                return `<div class="${claseOpcion}">${opcion}</div>`;
+            }).join('');
+        } else {
+            // Para preguntas abiertas
+            optionsHtml = `
+                <div class="open-answer-review">
+                    <div class="student-answer">
+                        <strong>Tu respuesta:</strong><br>
+                        ${respuestaEstudiante || 'Sin respuesta'}
+                    </div>
+                    <div class="correct-answer">
+                        <strong>Respuesta esperada:</strong><br>
+                        ${respuestaCorrecta || 'Pregunta abierta - requiere calificación manual'}
+                    </div>
+                </div>
+            `;
+        }
+
+        let statusHtml = '';
+        if (pregunta.tipo === 'multiple') {
+            if (esCorrecta === true) {
+                statusHtml = '<div class="answer-status correct">✅ Correcta</div>';
+            } else if (esCorrecta === false) {
+                statusHtml = '<div class="answer-status incorrect">❌ Incorrecta</div>';
+            } else {
+                statusHtml = '<div class="answer-status pending">⏳ Pendiente de calificación</div>';
+            }
+        } else {
+            statusHtml = '<div class="answer-status open">📝 Pregunta abierta</div>';
+        }
+
+        questionCard.innerHTML = `
+            <div class="question-header">
+                <h3>Pregunta ${index + 1}</h3>
+                ${statusHtml}
+            </div>
+            <div class="question-text">${pregunta.pregunta || pregunta.texto || `Pregunta ${index + 1}`}</div>
+            <div class="options-container">
+                ${optionsHtml}
+            </div>
+            <div class="explanation-container">
+                <h4>Explicación:</h4>
+                <p>${explicacion}</p>
+            </div>
+        `;
+
+        container.appendChild(questionCard);
+    });
+
+    console.log('About to call renderQuestionNav()');
+    renderQuestionNav();
+    console.log('About to call updateNavigation()');
+    updateNavigation();
+    console.log('=== QUIZ REVISION RENDERING COMPLETE ===');
 }
 
 function renderQuestions() {
