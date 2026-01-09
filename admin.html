@@ -11785,11 +11785,7 @@ REGLAS ESTRICTAS:
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
                 const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const respuestasQuery = query(
-                    collection(db, collectionName), 
-                    where('cuestionarioId', '==', cuestionario.id)
-                );
-                const snapshot = await getDocs(respuestasQuery);
+                const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionario.id).get();
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
                 const totalRespuestas = respuestas.length;
@@ -13925,14 +13921,13 @@ REGLAS ESTRICTAS:
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
             try {
                 // Eliminar respuestas relacionadas
-                const respuestasQuery = query(collection(db, 'respuestasForos'), where('foroId', '==', id));
-                const respuestasSnapshot = await getDocs(respuestasQuery);
+                const respuestasSnapshot = await db.collection('respuestasForos').where('foroId', '==', id).get();
                 
-                const deletePromises = respuestasSnapshot.docs.map(doc => deleteDoc(doc.ref));
+                const deletePromises = respuestasSnapshot.docs.map(doc => doc.ref.delete());
                 await Promise.all(deletePromises);
                 
                 // Eliminar hilo
-                await deleteDoc(doc(db, 'foros', id));
+                await db.collection('foros').doc(id).delete();
                 
                 alert('Hilo eliminado');
                 loadForosList();
@@ -13955,12 +13950,10 @@ REGLAS ESTRICTAS:
                 const foro = foroDoc.data();
                 
                 // Obtener respuestas del foro
-                const respuestasQuery = query(
-                    collection(db, 'respuestasForos'),
-                    where('foroId', '==', foroId),
-                    orderBy('fechaCreacion', 'asc')
-                );
-                const respuestasSnapshot = await getDocs(respuestasQuery);
+                const respuestasSnapshot = await db.collection('respuestasForos')
+                    .where('foroId', '==', foroId)
+                    .orderBy('fechaCreacion', 'asc')
+                    .get();
                 const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Crear modal para ver el foro
