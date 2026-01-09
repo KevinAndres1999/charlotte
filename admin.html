@@ -11587,7 +11587,7 @@ REGLAS ESTRICTAS:
         }
 
         // Función para aplicar filtros
-        function aplicarFiltrosCuestionarios() {
+        async function aplicarFiltrosCuestionarios() {
             const programa = document.getElementById('filterProgramaCuestionarios').value;
             const sede = document.getElementById('filterSedeCuestionarios').value;
             const horario = document.getElementById('filterHorarioCuestionarios').value;
@@ -11631,7 +11631,7 @@ REGLAS ESTRICTAS:
                 return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
             });
 
-            renderCuestionariosGrid(filteredData);
+            await renderCuestionariosGrid(filteredData);
         }
 
         // Función para renderizar combinaciones de sede y horario
@@ -11664,14 +11664,14 @@ REGLAS ESTRICTAS:
         }
 
         // Función para limpiar filtros de cuestionarios
-        function limpiarFiltrosCuestionarios() {
+        async function limpiarFiltrosCuestionarios() {
             document.getElementById('filterProgramaCuestionarios').value = '';
             document.getElementById('filterSedeCuestionarios').value = '';
             document.getElementById('filterHorarioCuestionarios').value = '';
             document.getElementById('filterEstado').value = '';
             document.getElementById('searchCuestionario').value = '';
             currentCuestionarioManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
-            renderCuestionariosGrid(cuestionariosManagerData);
+            await renderCuestionariosGrid(cuestionariosManagerData);
         }
 
         // Función para obtener el estado de un cuestionario
@@ -11687,7 +11687,7 @@ REGLAS ESTRICTAS:
         }
 
         // Función para renderizar el grid de cuestionarios
-        function renderCuestionariosGrid(data) {
+        async function renderCuestionariosGrid(data) {
             const container = document.getElementById('cuestionariosManagerGrid');
 
             if (data.length === 0) {
@@ -11707,7 +11707,7 @@ REGLAS ESTRICTAS:
                 const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
 
                 // Calcular estadísticas
-                const stats = calcularEstadisticasCuestionario(cuestionario);
+                const stats = await calcularEstadisticasCuestionario(cuestionario);
 
                 return `
                     <div class="cuestionario-card">
@@ -11783,7 +11783,11 @@ REGLAS ESTRICTAS:
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
                 const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const snapshot = await db.collection(collectionName).where('cuestionarioId', '==', cuestionario.id).get();
+                const respuestasQuery = query(
+                    collection(db, collectionName), 
+                    where('cuestionarioId', '==', cuestionario.id)
+                );
+                const snapshot = await getDocs(respuestasQuery);
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
                 const totalRespuestas = respuestas.length;
@@ -13365,7 +13369,7 @@ REGLAS ESTRICTAS:
         }
 
         // Función para aplicar filtros de evaluaciones
-        function aplicarFiltrosEvaluaciones() {
+        async function aplicarFiltrosEvaluaciones() {
             const programa = document.getElementById('filterProgramaEvaluaciones').value;
             const sede = document.getElementById('filterSedeEvaluaciones').value;
             const horario = document.getElementById('filterHorarioEvaluaciones').value;
@@ -13409,22 +13413,22 @@ REGLAS ESTRICTAS:
                 return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
             });
 
-            renderEvaluacionesGrid(filteredData);
+            await renderEvaluacionesGrid(filteredData);
         }
 
         // Función para limpiar filtros de evaluaciones
-        function limpiarFiltrosEvaluaciones() {
+        async function limpiarFiltrosEvaluaciones() {
             document.getElementById('filterProgramaEvaluaciones').value = '';
             document.getElementById('filterSedeEvaluaciones').value = '';
             document.getElementById('filterHorarioEvaluaciones').value = '';
             document.getElementById('filterEstadoEvaluaciones').value = '';
             document.getElementById('searchEvaluacion').value = '';
             currentEvaluacionManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
-            renderEvaluacionesGrid(evaluacionesManagerData);
+            await renderEvaluacionesGrid(evaluacionesManagerData);
         }
 
         // Función para renderizar el grid de evaluaciones
-        function renderEvaluacionesGrid(data) {
+        async function renderEvaluacionesGrid(data) {
             const container = document.getElementById('evaluacionesManagerGrid');
 
             if (data.length === 0) {
@@ -13444,7 +13448,7 @@ REGLAS ESTRICTAS:
                 const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
 
                 // Calcular estadísticas
-                const stats = calcularEstadisticasCuestionario(evaluacion);
+                const stats = await calcularEstadisticasCuestionario(evaluacion);
 
                 return `
                     <div class="cuestionario-card">
