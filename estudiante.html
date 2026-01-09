@@ -5240,6 +5240,32 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
             console.error('Error in modal debugging:', error);
         }
         
+        // Forzar estilos del modal para asegurar visibilidad
+        console.log('Forcing modal styles...');
+        modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.background = 'rgba(0, 0, 0, 0.7)';
+        modal.style.zIndex = '10000';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        console.log('Modal styles forced. Final z-index:', modal.style.zIndex);
+        console.log('Modal styles forced. Final display:', modal.style.display);
+        
+        // Verificar nuevamente después de forzar estilos
+        setTimeout(() => {
+            const modalAfterForce = document.querySelector('.modal-overlay');
+            if (modalAfterForce) {
+                console.log('Modal after forcing styles - computed display:', window.getComputedStyle(modalAfterForce).display);
+                console.log('Modal after forcing styles - computed z-index:', window.getComputedStyle(modalAfterForce).zIndex);
+                console.log('Modal after forcing styles - offsetWidth:', modalAfterForce.offsetWidth);
+                console.log('Modal after forcing styles - offsetHeight:', modalAfterForce.offsetHeight);
+            }
+        }, 100);
+        
         // Prevenir scroll del body cuando el modal está abierto
         console.log('Setting body overflow to hidden...');
         document.body.style.overflow = 'hidden';
