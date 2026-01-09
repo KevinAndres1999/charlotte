@@ -4951,7 +4951,7 @@ function renderCuestionarios() {
                     ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
                 </div>` : ''}
                 <div class="clase-actions">
-                    <button class="btn-primary-clase" onclick="window.location.href='responder-cuestionario.html?id=${cuestionario.id}'" ${!puedeResponder ? 'disabled' : ''}>
+                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${cuestionario.id}', 'cuestionario')" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
                     </button>
                     ${isCompleted ? `<button class="btn-eye-clase" onclick="mostrarRespuestasModal('${cuestionario.id}', 'cuestionario')" title="Ver respuestas detalladas">
@@ -5049,7 +5049,7 @@ function renderEvaluaciones() {
                     ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
                 </div>` : ''}
                 <div class="clase-actions">
-                    <button class="btn-primary-clase" onclick="window.location.href='responder-evaluacion.html?id=${evaluacion.id}'" ${!puedeResponder ? 'disabled' : ''}>
+                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${evaluacion.id}', 'evaluacion')" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
                     </button>
                     ${isCompleted ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver respuestas detalladas">
@@ -5245,6 +5245,65 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
     } catch (error) {
         console.error('Error al cargar respuestas detalladas:', error);
         alert('Error al cargar las respuestas detalladas');
+    }
+}
+
+// Función para verificar pagos antes de acceder a cuestionarios/evaluaciones
+async function verificarPagosYAcceder(id, tipo) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) {
+            alert('Usuario no autenticado');
+            return;
+        }
+
+        // Verificar estado de pagos del usuario
+        const userDoc = await db.collection('users').where('email', '==', currentUser.email).where('role', '==', 'student').get();
+        if (userDoc.empty) {
+            alert('Usuario no encontrado');
+            return;
+        }
+
+        const userData = userDoc.docs[0].data();
+        const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
+
+        if (estadoPagos === 'pagos_pendientes') {
+            // Mostrar modal de advertencia
+            const modalHtml = `
+                <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                    <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                        <div style="padding: 2rem; text-align: center;">
+                            <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
+                            <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
+                                Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
+                            </p>
+                            <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
+                                Por favor, contacta a tu docente para resolver esta situación.
+                            </p>
+                            <button onclick="document.getElementById('pagosPendientesModal').remove()" 
+                                    style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            return;
+        }
+
+        // Si los pagos están al día, proceder con el acceso normal
+        const url = tipo === 'cuestionario' ? 
+            `responder-cuestionario.html?id=${id}` : 
+            `responder-evaluacion.html?id=${id}`;
+        window.location.href = url;
+
+    } catch (error) {
+        console.error('Error verificando pagos:', error);
+        alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
     }
 }
 

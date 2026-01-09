@@ -6049,9 +6049,16 @@
                     <div class="content-info">
                         <h5>${user.name}</h5>
                         <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}${user.horario ? ` • ${user.horario}` : ''}</p>
+                        <p style="color: ${user.estadoPagos === 'pagos_pendientes' ? '#ef4444' : '#10b981'}; font-weight: bold;">
+                            <i class="fas fa-${user.estadoPagos === 'pagos_pendientes' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                            ${user.estadoPagos === 'pagos_pendientes' ? 'Pagos Pendientes' : 'Pagos al Día'}
+                        </p>
                         <small style="color: #64748b;">Contraseña: ${user.password}</small>
                     </div>
                     <div class="content-actions">
+                        <button class="btn-icon" onclick="controlarPagosUsuario('${user.id}')" title="Controlar Pagos" style="background: ${user.estadoPagos === 'pagos_pendientes' ? '#fed7aa' : '#dcfce7'}; color: ${user.estadoPagos === 'pagos_pendientes' ? '#9a3412' : '#166534'};">
+                            <i class="fas fa-dollar-sign"></i>
+                        </button>
                         <button class="btn-icon" onclick="editarHorarioUsuarioAprobado('${user.id}')" title="Editar Horario" style="background: #dbeafe; color: #1e40af;">
                             <i class="fas fa-clock"></i>
                         </button>
@@ -6116,6 +6123,15 @@
                                         <option value="Domingo Matutina">Domingo Matutina</option>
                                     </select>
                                 </div>
+
+                                <div class="form-group" style="margin: 20px 0;">
+                                    <label for="estadoPagos"><strong>Estado de Pagos:</strong></label>
+                                    <select id="estadoPagos" required style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option value="pagos_al_dia">Pagos al día</option>
+                                        <option value="pagos_pendientes">Pagos pendientes</option>
+                                    </select>
+                                    <small style="color: #666; font-size: 0.9em;">Los estudiantes con pagos pendientes no podrán acceder a cuestionarios ni evaluaciones</small>
+                                </div>
                             </div>
                             <div class="modal-footer" style="text-align: right; padding: 20px; border-top: 1px solid #eee;">
                                 <button onclick="document.getElementById('approvalModal').style.display='none'" style="margin-right: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
@@ -6131,6 +6147,65 @@
             } catch (error) {
                 console.error('Error approving user:', error);
                 alert('Error al aprobar usuario: ' + error.message);
+            }
+        }
+
+        async function controlarPagosUsuario(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (!userDoc.exists) {
+                    alert('Usuario no encontrado');
+                    return;
+                }
+
+                const userData = userDoc.data();
+                const currentEstado = userData.estadoPagos || 'pagos_al_dia';
+
+                // Mostrar modal para cambiar estado de pagos
+                const modalHtml = `
+                    <div id="pagosModal" class="modal" style="display: block;">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h2>Control de Pagos</h2>
+                                <span class="close" onclick="document.getElementById('pagosModal').style.display='none'">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Estudiante:</strong> ${userData.name}</p>
+                                <p><strong>Email:</strong> ${userData.email}</p>
+                                <p><strong>Estado actual:</strong> 
+                                    <span style="color: ${currentEstado === 'pagos_pendientes' ? '#ef4444' : '#10b981'}; font-weight: bold;">
+                                        <i class="fas fa-${currentEstado === 'pagos_pendientes' ? 'exclamation-triangle' : 'check-circle'}"></i>
+                                        ${currentEstado === 'pagos_pendientes' ? 'Pagos Pendientes' : 'Pagos al Día'}
+                                    </span>
+                                </p>
+
+                                <div class="form-group" style="margin: 20px 0;">
+                                    <label for="nuevoEstadoPagos"><strong>Nuevo Estado:</strong></label>
+                                    <select id="nuevoEstadoPagos" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option value="pagos_al_dia" ${currentEstado === 'pagos_al_dia' ? 'selected' : ''}>Pagos al día</option>
+                                        <option value="pagos_pendientes" ${currentEstado === 'pagos_pendientes' ? 'selected' : ''}>Pagos pendientes</option>
+                                    </select>
+                                    <small style="color: #666; font-size: 0.9em;">
+                                        ${currentEstado === 'pagos_pendientes' ? 
+                                            'Cambiar a "Pagos al día" permitirá al estudiante acceder a cuestionarios y evaluaciones.' : 
+                                            'Cambiar a "Pagos pendientes" bloqueará el acceso a cuestionarios y evaluaciones.'}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="text-align: right; padding: 20px; border-top: 1px solid #eee;">
+                                <button onclick="document.getElementById('pagosModal').style.display='none'" style="margin-right: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                                <button onclick="guardarEstadoPagos('${userId}')" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Agregar el modal al body
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error controlling user payments:', error);
+                alert('Error al controlar pagos: ' + error.message);
             }
         }
 
@@ -6185,6 +6260,27 @@
             } catch (error) {
                 console.error('Error editing user horario:', error);
                 alert('Error al editar horario: ' + error.message);
+            }
+        }
+
+        async function guardarEstadoPagos(userId) {
+            const nuevoEstado = document.getElementById('nuevoEstadoPagos').value;
+
+            try {
+                await db.collection('users').doc(userId).update({
+                    estadoPagos: nuevoEstado,
+                    pagosUpdatedAt: new Date().toISOString(),
+                    pagosUpdatedBy: currentUser ? currentUser.id : 'admin'
+                });
+
+                // Cerrar modal y recargar lista
+                document.getElementById('pagosModal').remove();
+                loadUsuariosAprobados();
+                alert('Estado de pagos actualizado exitosamente');
+
+            } catch (error) {
+                console.error('Error updating payment status:', error);
+                alert('Error al actualizar estado de pagos: ' + error.message);
             }
         }
 
@@ -6297,9 +6393,10 @@
         async function confirmarAprobacion(id) {
             const sede = document.getElementById('userSede').value;
             const horario = document.getElementById('userHorario').value;
+            const estadoPagos = document.getElementById('estadoPagos').value;
 
-            if (!sede || !horario) {
-                alert('Por favor selecciona tanto la sede como el horario');
+            if (!sede || !horario || !estadoPagos) {
+                alert('Por favor completa todos los campos (sede, horario y estado de pagos)');
                 return;
             }
 
@@ -6337,11 +6434,12 @@
                     return;
                 }
 
-                // Guardar en users con sede y horario seleccionados
+                // Guardar en users con sede, horario y estado de pagos
                 await db.collection('users').add({
                     ...data,
                     sede: sede,
                     horario: horario,
+                    estadoPagos: estadoPagos,
                     password: password,
                     role: 'student',
                     status: 'active',
@@ -8729,7 +8827,11 @@
         window.showSection = showSection;
         window.toggleMobileMenu = toggleMobileMenu;
         window.logout = logout;
-        window.aprobarUsuario = aprobarUsuario;
+        window.controlarPagosUsuario = controlarPagosUsuario;
+        window.guardarEstadoPagos = guardarEstadoPagos;
+        window.editarHorarioUsuario = editarHorarioUsuario;
+        window.guardarHorarioUsuario = guardarHorarioUsuario;
+        window.guardarHorarioUsuarioAprobado = guardarHorarioUsuarioAprobado;
         window.rechazarUsuario = rechazarUsuario;
         window.eliminarUsuario = eliminarUsuario;
         window.limpiarDuplicados = limpiarDuplicados;
