@@ -5078,12 +5078,12 @@ function renderEvaluaciones() {
 
 // =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
 // Función wrapper para manejar llamadas desde HTML onclick
-function mostrarRespuestasModal(cuestionarioId, tipo) {
+window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
     verRespuestasCuestionario(cuestionarioId, tipo).catch(error => {
         console.error('Error al mostrar respuestas:', error);
         alert('Error al cargar las respuestas detalladas');
     });
-}
+};
 
 async function verRespuestasCuestionario(cuestionarioId, tipo) {
     try {
