@@ -11701,13 +11701,15 @@ REGLAS ESTRICTAS:
                 return;
             }
 
-            container.innerHTML = data.map(cuestionario => {
+            // Calcular estadísticas para todos los cuestionarios
+            const statsPromises = data.map(cuestionario => calcularEstadisticasCuestionario(cuestionario));
+            const statsArray = await Promise.all(statsPromises);
+
+            container.innerHTML = data.map((cuestionario, index) => {
                 const estado = getCuestionarioEstado(cuestionario);
                 const estadoClass = `status-${estado}`;
                 const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
-
-                // Calcular estadísticas
-                const stats = await calcularEstadisticasCuestionario(cuestionario);
+                const stats = statsArray[index];
 
                 return `
                     <div class="cuestionario-card">
@@ -13442,13 +13444,15 @@ REGLAS ESTRICTAS:
                 return;
             }
 
-            container.innerHTML = data.map(evaluacion => {
+            // Calcular estadísticas para todas las evaluaciones
+            const statsPromises = data.map(evaluacion => calcularEstadisticasCuestionario(evaluacion));
+            const statsArray = await Promise.all(statsPromises);
+
+            container.innerHTML = data.map((evaluacion, index) => {
                 const estado = getCuestionarioEstado(evaluacion);
                 const estadoClass = `status-${estado}`;
                 const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
-
-                // Calcular estadísticas
-                const stats = await calcularEstadisticasCuestionario(evaluacion);
+                const stats = statsArray[index];
 
                 return `
                     <div class="cuestionario-card">
