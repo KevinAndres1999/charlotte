@@ -5221,21 +5221,27 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         console.log('Modal HTML created, appending to body...');
         document.body.appendChild(modal);
         console.log('Modal appended to body');
-        console.log('Modal element:', modal);
-        console.log('Modal className:', modal.className);
-        console.log('Modal style.display:', modal.style.display);
-        console.log('Modal innerHTML length:', modal.innerHTML.length);
         
-        // Verificar que el modal esté en el DOM
-        const modalInDOM = document.querySelector('.modal-overlay');
-        console.log('Modal found in DOM:', modalInDOM);
-        if (modalInDOM) {
-            console.log('Modal computed style display:', window.getComputedStyle(modalInDOM).display);
-            console.log('Modal computed style visibility:', window.getComputedStyle(modalInDOM).visibility);
-            console.log('Modal computed style z-index:', window.getComputedStyle(modalInDOM).zIndex);
+        try {
+            console.log('Modal element:', modal);
+            console.log('Modal className:', modal.className);
+            console.log('Modal style.display:', modal.style.display);
+            console.log('Modal innerHTML length:', modal.innerHTML.length);
+            
+            // Verificar que el modal esté en el DOM
+            const modalInDOM = document.querySelector('.modal-overlay');
+            console.log('Modal found in DOM:', modalInDOM);
+            if (modalInDOM) {
+                console.log('Modal computed style display:', window.getComputedStyle(modalInDOM).display);
+                console.log('Modal computed style visibility:', window.getComputedStyle(modalInDOM).visibility);
+                console.log('Modal computed style z-index:', window.getComputedStyle(modalInDOM).zIndex);
+            }
+        } catch (error) {
+            console.error('Error in modal debugging:', error);
         }
         
         // Prevenir scroll del body cuando el modal está abierto
+        console.log('Setting body overflow to hidden...');
         document.body.style.overflow = 'hidden';
         console.log('Body overflow set to hidden');
         
@@ -5248,7 +5254,7 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         });
         
         console.log('Modal event listeners added');
-        console.log('Function completed successfully');
+        console.log('Function completed successfully - modal should be visible now');
         
     } catch (error) {
         console.error('Error al cargar respuestas detalladas:', error);
