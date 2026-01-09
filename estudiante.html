@@ -5079,7 +5079,9 @@ function renderEvaluaciones() {
 // =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
 // Función wrapper para manejar llamadas desde HTML onclick
 window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
+    console.log('=== mostrarRespuestasModal START ===');
     console.log('mostrarRespuestasModal called with:', cuestionarioId, tipo);
+    console.log('Current timestamp:', Date.now());
     verRespuestasCuestionario(cuestionarioId, tipo).catch(error => {
         console.error('Error al mostrar respuestas:', error);
         alert('Error al cargar las respuestas detalladas: ' + error.message);
@@ -5131,6 +5133,7 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         
         const cuestionarioData = cuestionarioRef.data();
         
+        console.log('About to create modal HTML...');
         // Crear el modal
         console.log('Creating modal...');
         const modal = document.createElement('div');
