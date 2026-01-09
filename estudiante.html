@@ -4954,7 +4954,7 @@ function renderCuestionarios() {
                     <button class="btn-primary-clase" onclick="window.location.href='responder-cuestionario.html?id=${cuestionario.id}'" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
                     </button>
-                    ${isCompleted ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${cuestionario.id}', 'cuestionario')" title="Ver respuestas detalladas">
+                    ${isCompleted ? `<button class="btn-eye-clase" onclick="mostrarRespuestasModal('${cuestionario.id}', 'cuestionario')" title="Ver respuestas detalladas">
                         <i class="fas fa-eye"></i>
                     </button>` : ''}
                 </div>
@@ -5077,6 +5077,14 @@ function renderEvaluaciones() {
 }
 
 // =================== FUNCIONES PARA VER RESPUESTAS DETALLADAS ===================
+// Función wrapper para manejar llamadas desde HTML onclick
+function mostrarRespuestasModal(cuestionarioId, tipo) {
+    verRespuestasCuestionario(cuestionarioId, tipo).catch(error => {
+        console.error('Error al mostrar respuestas:', error);
+        alert('Error al cargar las respuestas detalladas');
+    });
+}
+
 async function verRespuestasCuestionario(cuestionarioId, tipo) {
     try {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
