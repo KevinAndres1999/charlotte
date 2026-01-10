@@ -5596,10 +5596,10 @@
                             // Dividir contenido en chunks
                             await saveContentInChunks(claseRef.id, content);
                             // Actualizar el documento principal para indicar que tiene chunks
-                            await claseRef.update(;
+                            await claseRef.update({ hasChunks: true });
                         } else {
                             // Guardar contenido directamente
-                            await claseRef.update(;
+                            await claseRef.update({ content: content });
                         }
 
                         alert('Clase subida exitosamente');
@@ -6554,7 +6554,7 @@
             if (!newPassword) return;
 
             try {
-                await doc(db, 'users', id).update(;
+                await doc(db, 'users', id).update({ password: newPassword });
                 loadUsuariosAprobados();
                 alert('Contraseña actualizada');
             } catch (error) {
@@ -10320,7 +10320,7 @@ REGLAS ESTRICTAS:
                     updateData.calificacion = (respuesta.calificacionAutomatica || 0) + calificacionAbiertas;
                 }
 
-                await docRef.update(;
+                await docRef.update(updateData);
 
                 // Update total calificación
                 const updatedDoc = await docRef.get();
@@ -10397,7 +10397,7 @@ REGLAS ESTRICTAS:
                     updateData.calificacion = calificacion;
                 }
 
-                await docRef.update(;
+                await docRef.update(updateData);
 
                 if (respuesta.preguntasAbiertas && preguntasAbiertasRestantes.length > 0) {
                     alert('Calificación guardada. Quedan preguntas abiertas por calificar.');
@@ -13346,7 +13346,7 @@ REGLAS ESTRICTAS:
                 if (!existingSnapshot.empty) {
                     // Actualizar existente
                     const docId = existingSnapshot.docs[0].id;
-                    await doc(db, 'calificaciones_modulos', docId).update(;
+                    await doc(db, 'calificaciones_modulos', docId).update(califData);
                 } else {
                     // Crear nueva
                     await addDoc(collection(db, 'calificaciones_modulos'), califData);
