@@ -14263,8 +14263,12 @@ REGLAS ESTRICTAS:
         document.addEventListener('DOMContentLoaded', function() {
             mejorarAccesibilidad();
 
-            // Inicializar contador de caracteres para cuestionarios automáticos
-            updateCharCount();
+            // Inicializar contador de caracteres para cuestionarios automáticos con delay
+            setTimeout(() => {
+                if (typeof updateCharCount === 'function') {
+                    updateCharCount();
+                }
+            }, 100);
 
             // Inicializar selectores de módulos
             populateModuloSelect('claseModulo');
