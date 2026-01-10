@@ -5858,6 +5858,10 @@
         // Dashboard stats
         async function loadDashboardStats() {
             console.log('Loading dashboard stats');
+            if (typeof getDocs === 'undefined' || typeof collection === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 const videosSnapshot = await getDocs(collection(db, 'content'));
                 console.log('Videos snapshot size:', videosSnapshot.size);
@@ -5929,6 +5933,10 @@
 
         // Usuarios pendientes
         async function loadUsuariosPendientes() {
+            if (typeof getDocs === 'undefined' || typeof query === 'undefined' || typeof collection === 'undefined' || typeof orderBy === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 console.log('Cargando usuarios pendientes...');
                 const snapshot = await getDocs(query(collection(db, 'pendingStudents'), orderBy('registeredDate', 'desc')));
@@ -5945,6 +5953,10 @@
 
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
+            if (typeof getDocs === 'undefined' || typeof query === 'undefined' || typeof collection === 'undefined' || typeof where === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 const q = query(collection(db, 'users'), where('role', '==', 'student'));
                 const snapshot = await getDocs(q);
@@ -8266,6 +8278,10 @@
 
         async function loadEntregas() {
             console.log('Iniciando carga de entregas...');
+            if (typeof getDocs === 'undefined' || typeof collection === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 // Obtener todas las entregas
                 const entregasSnapshot = await getDocs(collection(db, 'entregas'));
@@ -8349,6 +8365,10 @@
 
         function renderEntregas() {
             const container = document.getElementById('entregas-list');
+            if (!container) {
+                console.error('Container entregas-list not found');
+                return;
+            }
             const searchTerm = document.getElementById('entregasSearch').value.toLowerCase();
             const statusFilter = document.getElementById('entregasFilter').value;
             const programaFilter = document.getElementById('programaFilter').value;
@@ -13693,6 +13713,10 @@ REGLAS ESTRICTAS:
 
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {
+            if (typeof getDocs === 'undefined' || typeof collection === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -13737,6 +13761,10 @@ REGLAS ESTRICTAS:
         }
 
         async function loadForosPendientes() {
+            if (typeof getDocs === 'undefined' || typeof collection === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -14150,6 +14178,10 @@ REGLAS ESTRICTAS:
 
         // =================== FUNCIONES PARA GAMIFICACIÓN ===================
         async function loadGamificacionStats() {
+            if (typeof getDoc === 'undefined' || typeof doc === 'undefined' || typeof db === 'undefined') {
+                console.error('Firebase functions not loaded yet');
+                return;
+            }
             try {
                 // Cargar configuración de puntos
                 const configSnapshot = await getDoc(doc(db, 'configuracion', 'gamificacion'));
