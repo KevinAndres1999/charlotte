@@ -5198,17 +5198,15 @@
 
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
+        let allPendingUsers = [];
+        let actividadesData = [];
+        let allEntregas = [];
 
         // Verificar autenticación
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         console.log('Current user from session:', currentUser);
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
-        } else {
-            // Cargar datos iniciales
-            loadDashboardStats();
-            loadUsuariosPendientes();
-            loadUsuariosAprobados();
         }
 
         // Navegación
@@ -5316,7 +5314,7 @@
                 } catch (e) { console.error('Error loading clases:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
-            else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
+            else if (sectionId === 'entregas-viewer') try { loadEntregasSection(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
             else if (sectionId === 'actividades') {
                 try { 
@@ -5332,7 +5330,7 @@
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
-            else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
+            else if (sectionId === 'ver-entregas') try { loadEntregasSection(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
 
@@ -5863,23 +5861,28 @@
             try {
                 const videosSnapshot = await getDocs(collection(db, 'content'));
                 console.log('Videos snapshot size:', videosSnapshot.size);
-                document.getElementById('stat-videos').textContent = videosSnapshot.size;
+                const statVideos = document.getElementById('stat-videos');
+                if (statVideos) statVideos.textContent = videosSnapshot.size;
 
                 const clasesSnapshot = await getDocs(collection(db, 'classes'));
                 console.log('Clases snapshot size:', clasesSnapshot.size);
-                document.getElementById('stat-clases').textContent = clasesSnapshot.size;
+                const statClases = document.getElementById('stat-clases');
+                if (statClases) statClases.textContent = clasesSnapshot.size;
 
                 const actividadesSnapshot = await getDocs(collection(db, 'activities'));
                 console.log('Actividades snapshot size:', actividadesSnapshot.size);
-                document.getElementById('stat-actividades').textContent = actividadesSnapshot.size;
+                const statActividades = document.getElementById('stat-actividades');
+                if (statActividades) statActividades.textContent = actividadesSnapshot.size;
 
                 const materialesSnapshot = await getDocs(collection(db, 'materials'));
                 console.log('Materiales snapshot size:', materialesSnapshot.size);
-                document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
+                const statMateriales = document.getElementById('stat-materiales');
+                if (statMateriales) statMateriales.textContent = materialesSnapshot.size;
 
                 const entregasSnapshot = await getDocs(collection(db, 'entregas'));
                 console.log('Entregas snapshot size:', entregasSnapshot.size);
-                document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
+                const statEntregas = document.getElementById('stat-entregas');
+                if (statEntregas) statEntregas.textContent = entregasSnapshot.size;
 
                 const respuestasSnapshot = await getDocs(collection(db, 'respuestas'));
                 console.log('Respuestas snapshot size:', respuestasSnapshot.size);
@@ -5932,7 +5935,8 @@
                 console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
                 allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log('Usuarios pendientes cargados:', allPendingUsers.length);
-                document.getElementById('total-pendientes').textContent = allPendingUsers.length;
+                const totalPendientes = document.getElementById('total-pendientes');
+                if (totalPendientes) totalPendientes.textContent = allPendingUsers.length;
                 renderPendingUsers();
             } catch (error) {
                 console.error('Error loading pending users:', error);
@@ -8176,7 +8180,7 @@
                     else if (sectionId === 'recursos') loadRecursosList();
                     else if (sectionId === 'ver-entregas') {
                         console.log('Seleccionando sección ver-entregas');
-                        loadEntregas();
+                        loadEntregasSection();
                     }
                     else if (sectionId === 'ver-respuestas') {
                         loadRespuestas();
@@ -8551,7 +8555,7 @@
 
                 alert('Calificación guardada exitosamente');
                 closeModal();
-                loadEntregas(); // Recargar la lista
+                loadEntregasSection(); // Recargar la lista
             } catch (error) {
                 console.error('Error calificando entrega:', error);
                 alert('Error al guardar la calificación');
@@ -10913,7 +10917,7 @@ REGLAS ESTRICTAS:
         }
 
         // Función para cargar actividades disponibles
-        async function loadEntregas() {
+        async function loadEntregasSection() {
             try {
                 // Cargar actividades disponibles que aún existen
                 const actividadesSnapshot = await getDocs(collection(db, 'activities'));
@@ -14280,6 +14284,8 @@ REGLAS ESTRICTAS:
             loadForosList();
             loadForosPendientes();
             loadGamificacionStats();
+            loadUsuariosPendientes();
+            loadUsuariosAprobados();
         });
     </script>
 
