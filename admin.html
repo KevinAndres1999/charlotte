@@ -2759,7 +2759,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="clasePrograma">Programa</label>
-                                    <select id="clasePrograma" required>
+                                    <select id="clasePrograma" required onchange="populateModuloSelect('claseModulo')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2770,10 +2770,6 @@
                                     <label for="claseModulo">Módulo</label>
                                     <select id="claseModulo" required>
                                         <option value="">Seleccionar módulo</option>
-                                        <option value="modulo1">Módulo 1: Panadería</option>
-                                        <option value="modulo2">Módulo 2: Galletaría</option>
-                                        <option value="modulo3">Módulo 3: Pastelería</option>
-                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -2875,7 +2871,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración y Asignación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="actividadPrograma">Programa *</label>
-                                    <select id="actividadPrograma" required>
+                                    <select id="actividadPrograma" required onchange="populateModuloSelect('actividadModulo')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2886,10 +2882,6 @@
                                     <label for="actividadModulo">Módulo *</label>
                                     <select id="actividadModulo" required>
                                         <option value="">Seleccionar módulo</option>
-                                        <option value="modulo1">Módulo 1: Panadería</option>
-                                        <option value="modulo2">Módulo 2: Galletaría</option>
-                                        <option value="modulo3">Módulo 3: Pastelería</option>
-                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -6694,31 +6686,33 @@
         }
 
         function showModuloSelector() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
+
+            const modulosData = isBelleza ? [
+                { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+                { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+                { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
+            ] : [
+                { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+                { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+                { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
+            ];
+
             const container = document.getElementById('clasesList');
             container.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
                     <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        <div class="modulo-card" onclick="loadClasesList('modulo1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-bread-slice" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 1</h4>
-                            <p>Panadería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-cookie-bite" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 2</h4>
-                            <p>Galletaría</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-birthday-cake" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 3</h4>
-                            <p>Pastelería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 4</h4>
-                            <p>Repostería</p>
-                        </div>
+                        ${modulosData.map(modulo => `
+                            <div class="modulo-card" onclick="loadClasesList('${modulo.key}')" style="background: ${modulo.gradient}; color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                                <i class="${modulo.icon}" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                <h4>${modulo.title}</h4>
+                                <p>${modulo.subtitle}</p>
+                            </div>
+                        `).join('')}
                         <div class="modulo-card" onclick="showAllClases()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
                             <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                             <h4>Ver Todas</h4>
@@ -6779,13 +6773,52 @@
         }
 
         function getModuloName(moduloKey) {
-            const modulos = {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
+
+            const modulos = isBelleza ? {
+                'modulo1': 'Módulo 1: Diseño de Mirada',
+                'modulo2': 'Módulo 2: Maquillaje',
+                'modulo3': 'Módulo 3: Estilismo',
+                'modulo4': 'Módulo 4: Nails Design'
+            } : {
                 'modulo1': 'Módulo 1: Panadería',
-                'modulo2': 'Módulo 2: Galletaría', 
+                'modulo2': 'Módulo 2: Galletaría',
                 'modulo3': 'Módulo 3: Pastelería',
                 'modulo4': 'Módulo 4: Repostería'
             };
             return modulos[moduloKey] || moduloKey;
+        }
+
+        function populateModuloSelect(selectId) {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
+
+            const modulos = isBelleza ? [
+                { value: 'modulo1', text: 'Módulo 1: Diseño de Mirada' },
+                { value: 'modulo2', text: 'Módulo 2: Maquillaje' },
+                { value: 'modulo3', text: 'Módulo 3: Estilismo' },
+                { value: 'modulo4', text: 'Módulo 4: Nails Design' }
+            ] : [
+                { value: 'modulo1', text: 'Módulo 1: Panadería' },
+                { value: 'modulo2', text: 'Módulo 2: Galletaría' },
+                { value: 'modulo3', text: 'Módulo 3: Pastelería' },
+                { value: 'modulo4', text: 'Módulo 4: Repostería' }
+            ];
+
+            // Limpiar opciones existentes excepto la primera
+            select.innerHTML = '<option value="">Seleccionar módulo</option>';
+
+            // Agregar las opciones del programa correspondiente
+            modulos.forEach(modulo => {
+                const option = document.createElement('option');
+                option.value = modulo.value;
+                option.textContent = modulo.text;
+                select.appendChild(option);
+            });
         }
 
         async function loadActividadesList(selectedModulo = null) {
@@ -6857,31 +6890,33 @@
         }
 
         function showModuloSelectorActividades() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
+
+            const modulosData = isBelleza ? [
+                { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+                { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+                { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
+            ] : [
+                { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+                { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+                { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
+            ];
+
             const container = document.getElementById('actividadesList');
             container.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
                     <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        <div class="modulo-card" onclick="loadActividadesList('modulo1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-bread-slice" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 1</h4>
-                            <p>Panadería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadActividadesList('modulo2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-cookie-bite" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 2</h4>
-                            <p>Galletaría</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadActividadesList('modulo3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-birthday-cake" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 3</h4>
-                            <p>Pastelería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadActividadesList('modulo4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 4</h4>
-                            <p>Repostería</p>
-                        </div>
+                        ${modulosData.map(modulo => `
+                            <div class="modulo-card" onclick="loadActividadesList('${modulo.key}')" style="background: ${modulo.gradient}; color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                                <i class="${modulo.icon}" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                <h4>${modulo.title}</h4>
+                                <p>${modulo.subtitle}</p>
+                            </div>
+                        `).join('')}
                         <div class="modulo-card" onclick="showAllActividades()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
                             <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                             <h4>Ver Todas</h4>
@@ -14230,6 +14265,10 @@ REGLAS ESTRICTAS:
 
             // Inicializar contador de caracteres para cuestionarios automáticos
             updateCharCount();
+
+            // Inicializar selectores de módulos
+            populateModuloSelect('claseModulo');
+            populateModuloSelect('actividadModulo');
 
             // Cargar datos iniciales del dashboard
             loadDashboardStats();
