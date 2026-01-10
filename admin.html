@@ -8,8 +8,11 @@
     <!-- Actualizado: 11/12/2025 16:38:02 -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-compat.js"></script>
-    <script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
         // Firebase configuration - values will be replaced by Netlify during build
         window.FIREBASE_CONFIG = {
             apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
@@ -21,12 +24,6 @@
             messagingSenderId: "971007838036",
             appId: "1:971007838036:web:381b5c516ba841fef12ac1"
         };
-
-        // Initialize Firebase
-        const firebaseConfig = window.FIREBASE_CONFIG;
-        const app = firebase.initializeApp(firebaseConfig);
-        window.db = firebase.getFirestore(app);
-        console.log('Firebase initialized in head, db:', window.db);
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -2762,7 +2759,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="clasePrograma">Programa</label>
-                                    <select id="clasePrograma" required onchange="populateModuloSelect('claseModulo')">
+                                    <select id="clasePrograma" required>
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2773,6 +2770,10 @@
                                     <label for="claseModulo">Módulo</label>
                                     <select id="claseModulo" required>
                                         <option value="">Seleccionar módulo</option>
+                                        <option value="modulo1">Módulo 1: Panadería</option>
+                                        <option value="modulo2">Módulo 2: Galletaría</option>
+                                        <option value="modulo3">Módulo 3: Pastelería</option>
+                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -2874,7 +2875,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración y Asignación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="actividadPrograma">Programa *</label>
-                                    <select id="actividadPrograma" required onchange="populateModuloSelect('actividadModulo')">
+                                    <select id="actividadPrograma" required>
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2885,6 +2886,10 @@
                                     <label for="actividadModulo">Módulo *</label>
                                     <select id="actividadModulo" required>
                                         <option value="">Seleccionar módulo</option>
+                                        <option value="modulo1">Módulo 1: Panadería</option>
+                                        <option value="modulo2">Módulo 2: Galletaría</option>
+                                        <option value="modulo3">Módulo 3: Pastelería</option>
+                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -5193,19 +5198,25 @@
             };
         }
 
-        const db = window.db;
+        const firebaseConfig = window.FIREBASE_CONFIG;
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        console.log('Firebase initialized, db:', db);
 
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
-        let allPendingUsers = [];
-        let actividadesData = [];
-        let allEntregas = [];
 
         // Verificar autenticación
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         console.log('Current user from session:', currentUser);
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
+        } else {
+            // Cargar datos iniciales
+            loadDashboardStats();
+            loadUsuariosPendientes();
+            loadUsuariosAprobados();
         }
 
         // Navegación
@@ -5278,7 +5289,7 @@
                             data.email = email;
                         }
 
-                        await firebase.addDoc(firebase.collection(db, tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos'), data);
+                        await addDoc(collection(db, tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos'), data);
 
                         alert('Recurso agregado exitosamente');
                         recursoForm.reset();
@@ -5313,7 +5324,7 @@
                 } catch (e) { console.error('Error loading clases:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
-            else if (sectionId === 'entregas-viewer') try { loadEntregasSection(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
+            else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
             else if (sectionId === 'actividades') {
                 try { 
@@ -5329,7 +5340,7 @@
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
-            else if (sectionId === 'ver-entregas') try { loadEntregasSection(); } catch (e) { console.error('Error loading entregas:', e); }
+            else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
 
@@ -5533,7 +5544,7 @@
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
 
                     try {
-                        await firebase.addDoc(firebase.collection(db, 'content'), {
+                        await addDoc(collection(db, 'content'), {
                             titulo: title,
                             descripcion: desc,
                             url: url,
@@ -5576,7 +5587,7 @@
 
                     try {
                         // Crear el documento principal de la clase
-                        const claseRef = await firebase.addDoc(firebase.collection(db, 'classes'), {
+                        const claseRef = await addDoc(collection(db, 'classes'), {
                             titulo: title,
                             descripcion: desc,
                             programa: programa,
@@ -5595,10 +5606,10 @@
                             // Dividir contenido en chunks
                             await saveContentInChunks(claseRef.id, content);
                             // Actualizar el documento principal para indicar que tiene chunks
-                            await claseRef.update({ hasChunks: true });
+                            await claseRef.update(;
                         } else {
                             // Guardar contenido directamente
-                            await claseRef.update({ content: content });
+                            await claseRef.update(;
                         }
 
                         alert('Clase subida exitosamente');
@@ -5644,7 +5655,7 @@
                     if (!title.trim()) return alert('Ingresa un título para la actividad');
 
                     try {
-                        await firebase.addDoc(firebase.collection(db, 'activities'), {
+                        await addDoc(collection(db, 'activities'), {
                             titulo: title,
                             objetivos: objetivos || null,
                             dificultad: dificultad || 'intermedio',
@@ -5706,7 +5717,7 @@
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
 
                     try {
-                        await firebase.addDoc(firebase.collection(db, 'materials'), {
+                        await addDoc(collection(db, 'materials'), {
                             titulo: title,
                             descripcion: desc,
                             url: url,
@@ -5759,7 +5770,7 @@
                     if (questions.length === 0) return alert('Agrega al menos una pregunta');
 
                     try {
-                        await firebase.addDoc(firebase.collection(db, 'cuestionarios'), {
+                        await addDoc(collection(db, 'cuestionarios'), {
                             titulo: title,
                             descripcion: desc,
                             preguntas: questions,
@@ -5822,7 +5833,7 @@
                         if (!numPreguntas || numPreguntas < 1) return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
 
                         // Verificar que no se pidan más preguntas de las disponibles
-                        const cuestionarioDoc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                        const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
                         const cuestionarioData = cuestionarioDoc.data();
                         const preguntasDisponibles = cuestionarioData.preguntas ? cuestionarioData.preguntas.length : 0;
 
@@ -5858,36 +5869,31 @@
         async function loadDashboardStats() {
             console.log('Loading dashboard stats');
             try {
-                const videosSnapshot = await firebase.getDocs(firebase.collection(db, 'content'));
+                const videosSnapshot = await getDocs(collection(db, 'content'));
                 console.log('Videos snapshot size:', videosSnapshot.size);
-                const statVideos = document.getElementById('stat-videos');
-                if (statVideos) statVideos.textContent = videosSnapshot.size;
+                document.getElementById('stat-videos').textContent = videosSnapshot.size;
 
-                const clasesSnapshot = await firebase.getDocs(firebase.collection(db, 'classes'));
+                const clasesSnapshot = await getDocs(collection(db, 'classes'));
                 console.log('Clases snapshot size:', clasesSnapshot.size);
-                const statClases = document.getElementById('stat-clases');
-                if (statClases) statClases.textContent = clasesSnapshot.size;
+                document.getElementById('stat-clases').textContent = clasesSnapshot.size;
 
-                const actividadesSnapshot = await firebase.getDocs(firebase.collection(db, 'activities'));
+                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
                 console.log('Actividades snapshot size:', actividadesSnapshot.size);
-                const statActividades = document.getElementById('stat-actividades');
-                if (statActividades) statActividades.textContent = actividadesSnapshot.size;
+                document.getElementById('stat-actividades').textContent = actividadesSnapshot.size;
 
-                const materialesSnapshot = await firebase.getDocs(firebase.collection(db, 'materials'));
+                const materialesSnapshot = await getDocs(collection(db, 'materials'));
                 console.log('Materiales snapshot size:', materialesSnapshot.size);
-                const statMateriales = document.getElementById('stat-materiales');
-                if (statMateriales) statMateriales.textContent = materialesSnapshot.size;
+                document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
 
-                const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
                 console.log('Entregas snapshot size:', entregasSnapshot.size);
-                const statEntregas = document.getElementById('stat-entregas');
-                if (statEntregas) statEntregas.textContent = entregasSnapshot.size;
+                document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
 
-                const respuestasSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestas'));
+                const respuestasSnapshot = await getDocs(collection(db, 'respuestas'));
                 console.log('Respuestas snapshot size:', respuestasSnapshot.size);
                 // Si hay un elemento para mostrar respuestas en el dashboard, actualizarlo aquí
 
-                const usuariosSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'users'), firebase.where('role', '==', 'student')));
+                const usuariosSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
                 console.log('Usuarios snapshot size (raw):', usuariosSnapshot.size);
                 
                 // Filtrar usuarios activos y eliminar duplicados por email
@@ -5914,11 +5920,11 @@
                 console.log('Usuarios activos únicos:', finalUserCount);
                 document.getElementById('stat-usuarios').textContent = finalUserCount;
 
-                const cuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 console.log('Cuestionarios snapshot size:', cuestionariosSnapshot.size);
                 document.getElementById('stat-cuestionarios').textContent = cuestionariosSnapshot.size;
 
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 console.log('Evaluaciones snapshot size:', evaluacionesSnapshot.size);
                 document.getElementById('stat-evaluaciones').textContent = evaluacionesSnapshot.size;
             } catch (error) {
@@ -5930,12 +5936,11 @@
         async function loadUsuariosPendientes() {
             try {
                 console.log('Cargando usuarios pendientes...');
-                const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'pendingStudents'), firebase.orderBy('registeredDate', 'desc')));
+                const snapshot = await getDocs(query(collection(db, 'pendingStudents'), orderBy('registeredDate', 'desc')));
                 console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
                 allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log('Usuarios pendientes cargados:', allPendingUsers.length);
-                const totalPendientes = document.getElementById('total-pendientes');
-                if (totalPendientes) totalPendientes.textContent = allPendingUsers.length;
+                document.getElementById('total-pendientes').textContent = allPendingUsers.length;
                 renderPendingUsers();
             } catch (error) {
                 console.error('Error loading pending users:', error);
@@ -5945,8 +5950,8 @@
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
             try {
-                const q = firebase.query(firebase.collection(db, 'users'), firebase.where('role', '==', 'student'));
-                const snapshot = await firebase.getDocs(q);
+                const q = query(collection(db, 'users'), where('role', '==', 'student'));
+                const snapshot = await getDocs(q);
                 let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 // Filtrar duplicados basados en email, manteniendo el más reciente
@@ -6075,7 +6080,7 @@
         async function aprobarUsuario(id) {
             try {
                 console.log('Aprobando usuario con ID:', id);
-                const docRef = firebase.doc(db, 'pendingStudents', id);
+                const docRef = doc(db, 'pendingStudents', id);
 
                 // Verificar que el documento existe antes de intentar obtenerlo
                 const docSnap = await docRef.get();
@@ -6148,7 +6153,7 @@
 
         async function controlarPagosUsuario(userId) {
             try {
-                const userDoc = await firebase.getDoc(firebase.doc(db, 'users', userId));
+                const userDoc = await getDoc(doc(db, 'users', userId));
                 if (!userDoc.exists) {
                     alert('Usuario no encontrado');
                     return;
@@ -6207,7 +6212,7 @@
 
         async function editarHorarioUsuario(userId) {
             try {
-                const docRef = firebase.doc(db, 'pendingStudents', userId);
+                const docRef = doc(db, 'pendingStudents', userId);
                 const docSnap = await docRef.get();
 
                 if (!docSnap.exists) {
@@ -6263,7 +6268,7 @@
             const nuevoEstado = document.getElementById('nuevoEstadoPagos').value;
 
             try {
-                await firebase.doc(db, 'users', userId).update({
+                await doc(db, 'users', userId).update({
                     estadoPagos: nuevoEstado,
                     pagosUpdatedAt: new Date().toISOString(),
                     pagosUpdatedBy: currentUser && currentUser.id ? currentUser.id : 'admin'
@@ -6289,7 +6294,7 @@
             }
 
             try {
-                await firebase.doc(db, 'pendingStudents', userId).update({
+                await doc(db, 'pendingStudents', userId).update({
                     horario: nuevoHorario
                 });
 
@@ -6308,7 +6313,7 @@
 
         async function editarHorarioUsuarioAprobado(userId) {
             try {
-                const docRef = firebase.doc(db, 'users', userId);
+                const docRef = doc(db, 'users', userId);
                 const docSnap = await docRef.get();
 
                 if (!docSnap.exists) {
@@ -6369,7 +6374,7 @@
             }
 
             try {
-                await firebase.doc(db, 'users', userId).update({
+                await doc(db, 'users', userId).update({
                     horario: nuevoHorario
                 });
 
@@ -6398,7 +6403,7 @@
 
             try {
                 console.log('Confirmando aprobación de usuario con ID:', id);
-                const docRef = firebase.doc(db, 'pendingStudents', id);
+                const docRef = doc(db, 'pendingStudents', id);
 
                 const docSnap = await docRef.get();
                 if (!docSnap.exists) {
@@ -6409,13 +6414,13 @@
                 const data = docSnap.data();
 
                 // Verificar si el usuario ya existe en la colección users
-                const existingUserQuery = await firebase.getDocs(firebase.query(firebase.collection(db, 'users'),
-                    firebase.where('email', '==', data.email),
-                    firebase.where('role', '==', 'student')
+                const existingUserQuery = await getDocs(query(collection(db, 'users'),
+                    where('email', '==', data.email),
+                    where('role', '==', 'student')
                 ));
 
                 if (!existingUserQuery.empty) {
-                    await deletefirebase.doc(docRef);
+                    await deleteDoc(docRef);
                     loadUsuariosPendientes();
                     loadUsuariosAprobados();
                     alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
@@ -6431,7 +6436,7 @@
                 }
 
                 // Guardar en users con sede, horario y estado de pagos
-                await firebase.addDoc(firebase.collection(db, 'users'), {
+                await addDoc(collection(db, 'users'), {
                     ...data,
                     sede: sede,
                     horario: horario,
@@ -6444,7 +6449,7 @@
                 });
 
                 // Eliminar de pendingStudents
-                await deletefirebase.doc(docRef);
+                await deleteDoc(docRef);
 
                 // Cerrar modal y recargar listas
                 document.getElementById('approvalModal').remove();
@@ -6461,7 +6466,7 @@
         async function rechazarUsuario(id) {
             try {
                 console.log('Rechazando usuario con ID:', id);
-                const docRef = firebase.doc(db, 'pendingStudents', id);
+                const docRef = doc(db, 'pendingStudents', id);
 
                 // Verificar que el documento existe
                 const docSnap = await docRef.get();
@@ -6472,7 +6477,7 @@
                 }
 
                 console.log('Eliminando usuario rechazado de pendingStudents...');
-                await deletefirebase.doc(docRef);
+                await deleteDoc(docRef);
 
                 console.log('Usuario rechazado exitosamente, recargando lista...');
                 loadUsuariosPendientes();
@@ -6486,7 +6491,7 @@
         async function eliminarUsuario(id) {
             if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
             try {
-                await deletefirebase.doc(firebase.doc(db, 'users', id));
+                await deleteDoc(doc(db, 'users', id));
                 loadUsuariosAprobados();
                 alert('Usuario eliminado');
             } catch (error) {
@@ -6501,7 +6506,7 @@
 
             try {
                 console.log('Iniciando limpieza de duplicados...');
-                const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'users'), firebase.where('role', '==', 'student')));
+                const snapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
                 const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 // Agrupar por email
@@ -6532,7 +6537,7 @@
                         // Mantener el primero (más reciente) y eliminar los demás
                         for (let i = 1; i < userGroup.length; i++) {
                             console.log(`Eliminando duplicado: ${userGroup[i].id}`);
-                            await deletefirebase.doc(firebase.doc(db, 'users', userGroup[i].id));
+                            await deleteDoc(doc(db, 'users', userGroup[i].id));
                             duplicatesRemoved++;
                         }
                     }
@@ -6553,7 +6558,7 @@
             if (!newPassword) return;
 
             try {
-                await firebase.doc(db, 'users', id).update({ password: newPassword });
+                await doc(db, 'users', id).update(;
                 loadUsuariosAprobados();
                 alert('Contraseña actualizada');
             } catch (error) {
@@ -6565,7 +6570,7 @@
         // Funciones para cargar listas de contenido
         async function loadVideosList() {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'content'));
+                const snapshot = await getDocs(collection(db, 'content'));
                 const container = document.getElementById('videosList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-play-circle"></i> No hay videos subidos</div></div></div>';
@@ -6614,7 +6619,7 @@
 
         async function loadClasesList(selectedModulo = null) {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'classes'));
+                const snapshot = await getDocs(collection(db, 'classes'));
                 allClases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Si no hay módulo seleccionado, mostrar todas las clases
@@ -6689,33 +6694,31 @@
         }
 
         function showModuloSelector() {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-            const modulosData = isBelleza ? [
-                { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-                { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-                { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-                { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
-            ] : [
-                { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-                { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-                { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-                { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
-            ];
-
             const container = document.getElementById('clasesList');
             container.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
                     <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        ${modulosData.map(modulo => `
-                            <div class="modulo-card" onclick="loadClasesList('${modulo.key}')" style="background: ${modulo.gradient}; color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                                <i class="${modulo.icon}" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                                <h4>${modulo.title}</h4>
-                                <p>${modulo.subtitle}</p>
-                            </div>
-                        `).join('')}
+                        <div class="modulo-card" onclick="loadClasesList('modulo1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-bread-slice" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 1</h4>
+                            <p>Panadería</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadClasesList('modulo2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-cookie-bite" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 2</h4>
+                            <p>Galletaría</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadClasesList('modulo3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-birthday-cake" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 3</h4>
+                            <p>Pastelería</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadClasesList('modulo4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 4</h4>
+                            <p>Repostería</p>
+                        </div>
                         <div class="modulo-card" onclick="showAllClases()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
                             <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                             <h4>Ver Todas</h4>
@@ -6776,57 +6779,18 @@
         }
 
         function getModuloName(moduloKey) {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-            const modulos = isBelleza ? {
-                'modulo1': 'Módulo 1: Diseño de Mirada',
-                'modulo2': 'Módulo 2: Maquillaje',
-                'modulo3': 'Módulo 3: Estilismo',
-                'modulo4': 'Módulo 4: Nails Design'
-            } : {
+            const modulos = {
                 'modulo1': 'Módulo 1: Panadería',
-                'modulo2': 'Módulo 2: Galletaría',
+                'modulo2': 'Módulo 2: Galletaría', 
                 'modulo3': 'Módulo 3: Pastelería',
                 'modulo4': 'Módulo 4: Repostería'
             };
             return modulos[moduloKey] || moduloKey;
         }
 
-        function populateModuloSelect(selectId) {
-            const select = document.getElementById(selectId);
-            if (!select) return;
-
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-            const modulos = isBelleza ? [
-                { value: 'modulo1', text: 'Módulo 1: Diseño de Mirada' },
-                { value: 'modulo2', text: 'Módulo 2: Maquillaje' },
-                { value: 'modulo3', text: 'Módulo 3: Estilismo' },
-                { value: 'modulo4', text: 'Módulo 4: Nails Design' }
-            ] : [
-                { value: 'modulo1', text: 'Módulo 1: Panadería' },
-                { value: 'modulo2', text: 'Módulo 2: Galletaría' },
-                { value: 'modulo3', text: 'Módulo 3: Pastelería' },
-                { value: 'modulo4', text: 'Módulo 4: Repostería' }
-            ];
-
-            // Limpiar opciones existentes excepto la primera
-            select.innerHTML = '<option value="">Seleccionar módulo</option>';
-
-            // Agregar las opciones del programa correspondiente
-            modulos.forEach(modulo => {
-                const option = document.createElement('option');
-                option.value = modulo.value;
-                option.textContent = modulo.text;
-                select.appendChild(option);
-            });
-        }
-
         async function loadActividadesList(selectedModulo = null) {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'activities'));
+                const snapshot = await getDocs(collection(db, 'activities'));
                 allActividades = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Si no hay módulo seleccionado, mostrar todas las actividades
@@ -6893,33 +6857,31 @@
         }
 
         function showModuloSelectorActividades() {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-            const modulosData = isBelleza ? [
-                { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-                { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-                { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-                { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
-            ] : [
-                { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-                { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-                { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-                { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
-            ];
-
             const container = document.getElementById('actividadesList');
             container.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
                     <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        ${modulosData.map(modulo => `
-                            <div class="modulo-card" onclick="loadActividadesList('${modulo.key}')" style="background: ${modulo.gradient}; color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                                <i class="${modulo.icon}" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                                <h4>${modulo.title}</h4>
-                                <p>${modulo.subtitle}</p>
-                            </div>
-                        `).join('')}
+                        <div class="modulo-card" onclick="loadActividadesList('modulo1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-bread-slice" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 1</h4>
+                            <p>Panadería</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadActividadesList('modulo2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-cookie-bite" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 2</h4>
+                            <p>Galletaría</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadActividadesList('modulo3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-birthday-cake" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 3</h4>
+                            <p>Pastelería</p>
+                        </div>
+                        <div class="modulo-card" onclick="loadActividadesList('modulo4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <h4>Módulo 4</h4>
+                            <p>Repostería</p>
+                        </div>
                         <div class="modulo-card" onclick="showAllActividades()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
                             <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                             <h4>Ver Todas</h4>
@@ -7059,7 +7021,7 @@
         // Función para cargar preview de cuestionario
         async function loadCuestionarioPreview(cuestionarioId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7135,7 +7097,7 @@
         // Función para cargar preview de evaluación
         async function loadEvaluacionPreview(evaluacionId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', evaluacionId));
+                const doc = await getDoc(doc(db, 'evaluaciones', evaluacionId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7211,7 +7173,7 @@
         // Función para cargar preview de video
         async function loadVideoPreview(videoId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'content', videoId));
+                const doc = await getDoc(doc(db, 'content', videoId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7268,7 +7230,7 @@
         // Función para cargar preview de clase
         async function loadClasePreview(claseId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'classes', claseId));
+                const doc = await getDoc(doc(db, 'classes', claseId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7339,7 +7301,7 @@
         // Función para cargar preview de material
         async function loadMaterialPreview(materialId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'materials', materialId));
+                const doc = await getDoc(doc(db, 'materials', materialId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7403,7 +7365,7 @@
         async function loadRecursoPreview(recursoId, tipo) {
             try {
                 const collectionName = tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos';
-                const doc = await firebase.getDoc(firebase.doc(db, collectionName, recursoId));
+                const doc = await getDoc(doc(db, collectionName, recursoId));
 
                 if (doc.exists) {
                     const data = doc.data();
@@ -7475,7 +7437,7 @@
                 const container = document.getElementById('cuestionariosList');
                 if (!container) return; // Contenedor eliminado, no hacer nada
                 
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const snapshot = await getDocs(collection(db, 'cuestionarios'));
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-question-circle"></i> No hay cuestionarios subidos</div></div></div>';
                     return;
@@ -7531,7 +7493,7 @@
         async function loadManagementContent() {
             try {
                 // Cargar evaluaciones
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -7542,7 +7504,7 @@
                 }));
 
                 // Cargar cuestionarios
-                const cuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 const cuestionarios = cuestionariosSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
@@ -7819,7 +7781,7 @@
                     duplicateData.fechaCreacion = Date.now();
 
                     try {
-                        await firebase.addDoc(firebase.collection(db, `${item.type}s`), duplicateData);
+                        await addDoc(collection(db, `${item.type}s`), duplicateData);
                         alert(`${item.type === 'evaluacion' ? 'Evaluación' : 'Cuestionario'} duplicado exitosamente`);
                     } catch (error) {
                         console.error('Error duplicating item:', error);
@@ -7845,7 +7807,7 @@
                 const item = allManagementItems.find(i => i.id === itemId);
                 if (item) {
                     try {
-                        await deletefirebase.doc(firebase.doc(db, `${item.type}s`, itemId));
+                        await deleteDoc(doc(db, `${item.type}s`, itemId));
                         successCount++;
                     } catch (error) {
                         console.error('Error deleting item:', error);
@@ -7888,7 +7850,7 @@
         // Función para ver evaluación (reutilizar la existente)
         async function viewEvaluacion(id) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', id));
+                const doc = await getDoc(doc(db, 'evaluaciones', id));
                 if (doc.exists) {
                     const data = doc.data();
                     showEvaluacionPreview({
@@ -7910,7 +7872,7 @@
         // Función para ver cuestionario
         async function viewCuestionario(id) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', id));
+                const doc = await getDoc(doc(db, 'cuestionarios', id));
                 if (doc.exists) {
                     const data = doc.data();
                     // Mostrar modal con información del cuestionario
@@ -7989,7 +7951,7 @@
             if (!confirm(`¿Estás seguro de que quieres eliminar esta ${itemName}? Esta acción no se puede deshacer.`)) return;
 
             try {
-                await deletefirebase.doc(firebase.doc(db, collection, id));
+                await deleteDoc(doc(db, collection, id));
                 alert(`${itemName.charAt(0).toUpperCase() + itemName.slice(1)} eliminada exitosamente`);
 
                 // Recargar contenido
@@ -8015,7 +7977,7 @@
 
         async function loadMaterialesList() {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'materials'));
+                const snapshot = await getDocs(collection(db, 'materials'));
                 const container = document.getElementById('materialesList');
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="clase-card"><div class="clase-header"><div class="clase-title"><i class="fas fa-folder-open"></i> No hay materiales subidos</div></div></div>';
@@ -8073,9 +8035,9 @@
         async function loadRecursosList() {
             try {
                 const [fotosSnap, recursosSnap, contactosSnap] = await Promise.all([
-                    firebase.getDocs(firebase.collection(db, 'fotos')),
-                    firebase.getDocs(firebase.collection(db, 'recursos')),
-                    firebase.getDocs(firebase.collection(db, 'contactos'))
+                    getDocs(collection(db, 'fotos')),
+                    getDocs(collection(db, 'recursos')),
+                    getDocs(collection(db, 'contactos'))
                 ]);
 
                 const container = document.getElementById('recursosList');
@@ -8132,14 +8094,14 @@
             try {
                 // Si es clase, eliminar chunks relacionados
                 if (collectionName === 'classes') {
-                    const chunksSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'class_chunks'), firebase.where('claseId', '==', id)));
+                    const chunksSnapshot = await getDocs(query(collection(db, 'class_chunks'), where('claseId', '==', id)));
                     const deletePromises = chunksSnapshot.docs.map(doc => doc.ref.delete());
                     await Promise.all(deletePromises);
                     console.log(`Eliminados ${deletePromises.length} chunks relacionados con la clase`);
                 }
                 // Si es actividad, eliminar entregas relacionadas
                 if (collectionName === 'activities') {
-                    const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
+                    const entregasSnapshot = await getDocs(collection(db, 'entregas'));
                     const deletePromises = entregasSnapshot.docs
                         .filter(doc => doc.data().actividadId === id)
                         .map(doc => doc.ref.delete());
@@ -8148,14 +8110,14 @@
                 }
                 // Si es cuestionario o evaluación, eliminar respuestas relacionadas
                 else if (collectionName === 'cuestionarios') {
-                    const respuestasSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasCuestionarios'));
+                    const respuestasSnapshot = await getDocs(collection(db, 'respuestasCuestionarios'));
                     const deletePromises = respuestasSnapshot.docs
                         .filter(doc => doc.data().cuestionarioId === id)
                         .map(doc => doc.ref.delete());
                     await Promise.all(deletePromises);
                     console.log(`Eliminadas ${deletePromises.length} respuestas relacionadas con el cuestionario`);
                 } else if (collectionName === 'evaluaciones') {
-                    const respuestasSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasEvaluaciones'));
+                    const respuestasSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
                     const deletePromises = respuestasSnapshot.docs
                         .filter(doc => doc.data().evaluacionId === id)
                         .map(doc => doc.ref.delete());
@@ -8163,7 +8125,7 @@
                     console.log(`Eliminadas ${deletePromises.length} respuestas relacionadas con la evaluación`);
                 }
                 
-                await deletefirebase.doc(firebase.doc(db, collectionName, id));
+                await deleteDoc(doc(db, collectionName, id));
                 alert('Elemento eliminado');
                 loadDashboardStats(); // Actualizar stats
                 // Recargar la lista actual
@@ -8179,7 +8141,7 @@
                     else if (sectionId === 'recursos') loadRecursosList();
                     else if (sectionId === 'ver-entregas') {
                         console.log('Seleccionando sección ver-entregas');
-                        loadEntregasSection();
+                        loadEntregas();
                     }
                     else if (sectionId === 'ver-respuestas') {
                         loadRespuestas();
@@ -8198,8 +8160,8 @@
                 let totalEliminados = 0;
 
                 // 1. Limpiar entregas de actividades que ya no existen
-                const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
-                const activitiesSnapshot = await firebase.getDocs(firebase.collection(db, 'activities'));
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+                const activitiesSnapshot = await getDocs(collection(db, 'activities'));
                 const actividadesIds = new Set(activitiesSnapshot.docs.map(doc => doc.id));
 
                 const entregasHuerfanas = entregasSnapshot.docs.filter(doc => {
@@ -8215,8 +8177,8 @@
                 }
 
                 // 2. Limpiar respuestas de cuestionarios que ya no existen
-                const respuestasCuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasCuestionarios'));
-                const cuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const respuestasCuestionariosSnapshot = await getDocs(collection(db, 'respuestasCuestionarios'));
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 const cuestionariosIds = new Set(cuestionariosSnapshot.docs.map(doc => doc.id));
 
                 const respuestasCuestionariosHuerfanas = respuestasCuestionariosSnapshot.docs.filter(doc => {
@@ -8232,8 +8194,8 @@
                 }
 
                 // 3. Limpiar respuestas de evaluaciones que ya no existen
-                const respuestasEvaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasEvaluaciones'));
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 const evaluacionesIds = new Set(evaluacionesSnapshot.docs.map(doc => doc.id));
 
                 const respuestasEvaluacionesHuerfanas = respuestasEvaluacionesSnapshot.docs.filter(doc => {
@@ -8267,11 +8229,11 @@
             console.log('Iniciando carga de entregas...');
             try {
                 // Obtener todas las entregas
-                const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
                 console.log('Entregas snapshot obtenido:', entregasSnapshot.size);
 
                 // Obtener todos los usuarios para resolver nombres
-                const usuariosSnapshot = await firebase.getDocs(firebase.collection(db, 'users'));
+                const usuariosSnapshot = await getDocs(collection(db, 'users'));
                 console.log('Usuarios snapshot obtenido:', usuariosSnapshot.size);
 
                 // Crear mapa de usuarios por email
@@ -8348,10 +8310,6 @@
 
         function renderEntregas() {
             const container = document.getElementById('entregas-list');
-            if (!container) {
-                console.error('Container entregas-list not found');
-                return;
-            }
             const searchTerm = document.getElementById('entregasSearch').value.toLowerCase();
             const statusFilter = document.getElementById('entregasFilter').value;
             const programaFilter = document.getElementById('programaFilter').value;
@@ -8416,14 +8374,14 @@
 
         async function viewEntregaDetail(entregaId, calificar = false) {
             try {
-                const docRef = firebase.doc(db, 'entregas', entregaId);
+                const docRef = doc(db, 'entregas', entregaId);
                 const docSnap = await docRef.get();
 
                 if (docSnap.exists) {
                     const entrega = docSnap.data();
 
                     // Obtener información de la actividad
-                    const actividadDoc = await firebase.getDoc(firebase.doc(db, 'activities', entrega.actividadId));
+                    const actividadDoc = await getDoc(doc(db, 'activities', entrega.actividadId));
                     const actividad = actividadDoc.exists ? actividadDoc.data() : { titulo: `Actividad ID: ${entrega.actividadId} (no encontrada)`, instrucciones: 'No se pudo cargar la información de la actividad' };
 
                     document.getElementById('modalTitle').textContent = calificar ? 'Calificar Entrega' : 'Detalle de Entrega';
@@ -8502,7 +8460,7 @@
 
             try {
                 // Obtener la entrega para saber el estudianteId
-                const entregaDoc = await firebase.getDoc(firebase.doc(db, 'entregas', entregaId));
+                const entregaDoc = await getDoc(doc(db, 'entregas', entregaId));
                 if (!entregaDoc.exists) {
                     alert('Error: Entrega no encontrada');
                     return;
@@ -8511,7 +8469,7 @@
                 const estudianteId = entrega.estudianteId;
 
                 // Guardar calificación en la entrega
-                await firebase.doc(db, 'entregas', entregaId).set({
+                await doc(db, 'entregas', entregaId).set({
                     calificada: true,
                     nota: calificacion,
                     comentario: comentarios,
@@ -8521,7 +8479,7 @@
                 // Actualizar automáticamente el módulo correspondiente con la calificación de actividades
                 if (estudianteId) {
                     // Obtener el módulo de la actividad
-                    const actividadDoc = await firebase.getDoc(firebase.doc(db, 'activities', entrega.actividadId));
+                    const actividadDoc = await getDoc(doc(db, 'activities', entrega.actividadId));
                     if (actividadDoc.exists) {
                         const actividad = actividadDoc.data();
                         const moduloKey = `modulo${actividad.modulo}`;
@@ -8531,7 +8489,7 @@
 
                         // Buscar si ya existe una calificación para este módulo y estudiante
                         const califDocId = `${estudianteId}_${moduloKey}`;
-                        const califDocRef = firebase.doc(db, 'calificaciones_modulos', califDocId);
+                        const califDocRef = doc(db, 'calificaciones_modulos', califDocId);
                         const califDocSnap = await califDocRef.get();
 
                         const califData = {
@@ -8558,7 +8516,7 @@
 
                 alert('Calificación guardada exitosamente');
                 closeModal();
-                loadEntregasSection(); // Recargar la lista
+                loadEntregas(); // Recargar la lista
             } catch (error) {
                 console.error('Error calificando entrega:', error);
                 alert('Error al guardar la calificación');
@@ -8636,7 +8594,7 @@
         async function loadCuestionariosForSelection() {
             const container = document.getElementById('cuestionariosSelector');
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const snapshot = await getDocs(collection(db, 'cuestionarios'));
                 if (snapshot.empty) {
                     container.innerHTML = '<p style="color: white;">No hay cuestionarios disponibles</p>';
                     return;
@@ -8667,7 +8625,7 @@
             const numInput = document.getElementById('autoNumPreguntas');
             select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const snapshot = await getDocs(collection(db, 'cuestionarios'));
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const numPreguntas = data.preguntas ? data.preguntas.length : 0;
@@ -8697,7 +8655,7 @@
             const questionsDiv = document.getElementById(`questions-${cuestionarioId}`);
             if (questionsDiv.style.display === 'none') {
                 try {
-                    const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                    const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
                     const data = doc.data();
                     console.log('Preguntas del cuestionario:', data.preguntas); // Debug log
                     questionsDiv.innerHTML = data.preguntas.map((q, index) => `
@@ -8723,7 +8681,7 @@
             for (const key of selectedQuestions) {
                 const [cuestionarioId, questionIndex] = key.split('-');
                 try {
-                    const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                    const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
                     const data = doc.data();
                     if (data.preguntas && data.preguntas[questionIndex]) {
                         questions.push(data.preguntas[questionIndex]);
@@ -8739,7 +8697,7 @@
         async function getRandomQuestions(cuestionarioId, num) {
             try {
                 console.log(`Obteniendo ${num} preguntas aleatorias del cuestionario ${cuestionarioId}`);
-                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
                 const data = doc.data();
                 const allQuestions = data.preguntas || [];
 
@@ -9377,7 +9335,7 @@
                     tipo: 'cuestionario'
                 };
 
-                await firebase.addDoc(firebase.collection(db, 'cuestionarios'), cuestionarioData);
+                await addDoc(collection(db, 'cuestionarios'), cuestionarioData);
 
                 alert('¡Cuestionario publicado exitosamente!');
                 loadCuestionarios();
@@ -9904,11 +9862,11 @@ REGLAS ESTRICTAS:
             console.log('Iniciando carga de respuestas...');
             try {
                 // Cargar respuestas de cuestionarios
-                const snapshotCuestionarios = await firebase.getDocs(firebase.collection(db, 'respuestasCuestionarios'));
+                const snapshotCuestionarios = await getDocs(collection(db, 'respuestasCuestionarios'));
                 console.log('Snapshot respuestas cuestionarios:', snapshotCuestionarios.size);
                 
                 // Cargar respuestas de evaluaciones
-                const snapshotEvaluaciones = await firebase.getDocs(firebase.collection(db, 'respuestasEvaluaciones'));
+                const snapshotEvaluaciones = await getDocs(collection(db, 'respuestasEvaluaciones'));
                 console.log('Snapshot respuestas evaluaciones:', snapshotEvaluaciones.size);
                 
                 allRespuestas = [];
@@ -9920,7 +9878,7 @@ REGLAS ESTRICTAS:
                     
                     let cuestionarioInfo = { titulo: 'Cuestionario', programa: 'N/A', tipo: 'cuestionario' };
                     try {
-                        const cuestionarioDoc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', data.cuestionarioId));
+                        const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', data.cuestionarioId));
                         if (cuestionarioDoc.exists) {
                             const cqData = cuestionarioDoc.data();
                             cuestionarioInfo = {
@@ -9950,7 +9908,7 @@ REGLAS ESTRICTAS:
                     
                     let evaluacionInfo = { titulo: 'Evaluación', programa: 'N/A', tipo: 'evaluacion' };
                     try {
-                        const evaluacionDoc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', data.evaluacionId));
+                        const evaluacionDoc = await getDoc(doc(db, 'evaluaciones', data.evaluacionId));
                         if (evaluacionDoc.exists) {
                             const evData = evaluacionDoc.data();
                             evaluacionInfo = {
@@ -10055,14 +10013,14 @@ REGLAS ESTRICTAS:
                 const itemCollection = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const itemIdField = tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId';
                 
-                const docRef = firebase.doc(db, collectionName, respuestaId);
+                const docRef = doc(db, collectionName, respuestaId);
                 const docSnap = await docRef.get();
 
                 if (docSnap.exists) {
                     const respuesta = docSnap.data();
 
                     // Obtener info del item
-                    const itemDoc = await firebase.getDoc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
+                    const itemDoc = await getDoc(doc(db, itemCollection, respuesta[itemIdField]));
                     const item = itemDoc.exists ? itemDoc.data() : {};
 
                     document.getElementById('modalTitle').textContent = `Detalle de Respuesta - ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}`;
@@ -10162,14 +10120,14 @@ REGLAS ESTRICTAS:
                 const itemCollection = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const itemIdField = tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId';
                 
-                const docRef = firebase.doc(db, collectionName, respuestaId);
+                const docRef = doc(db, collectionName, respuestaId);
                 const docSnap = await docRef.get();
 
                 if (docSnap.exists) {
                     const respuesta = docSnap.data();
 
                     // Obtener info del item
-                    const itemDoc = await firebase.getDoc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
+                    const itemDoc = await getDoc(doc(db, itemCollection, respuesta[itemIdField]));
                     const item = itemDoc.exists ? itemDoc.data() : {};
 
                     document.getElementById('modalTitle').textContent = `Calificar Respuesta - ${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}`;
@@ -10290,7 +10248,7 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const docRef = firebase.doc(db, collectionName, respuestaId);
+                const docRef = doc(db, collectionName, respuestaId);
                 const docSnap = await docRef.get();
                 const respuesta = docSnap.data();
 
@@ -10323,7 +10281,7 @@ REGLAS ESTRICTAS:
                     updateData.calificacion = (respuesta.calificacionAutomatica || 0) + calificacionAbiertas;
                 }
 
-                await docRef.update(updateData);
+                await docRef.update(;
 
                 // Update total calificación
                 const updatedDoc = await docRef.get();
@@ -10358,7 +10316,7 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const docRef = firebase.doc(db, collectionName, respuestaId);
+                const docRef = doc(db, collectionName, respuestaId);
                 const docSnap = await docRef.get();
                 const respuesta = docSnap.data();
 
@@ -10400,7 +10358,7 @@ REGLAS ESTRICTAS:
                     updateData.calificacion = calificacion;
                 }
 
-                await docRef.update(updateData);
+                await docRef.update(;
 
                 if (respuesta.preguntasAbiertas && preguntasAbiertasRestantes.length > 0) {
                     alert('Calificación guardada. Quedan preguntas abiertas por calificar.');
@@ -10422,11 +10380,11 @@ REGLAS ESTRICTAS:
             
             try {
                 // Obtener todos los cuestionarios existentes
-                const cuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 const cuestionariosIds = new Set(cuestionariosSnapshot.docs.map(doc => doc.id));
                 
                 // Obtener todas las respuestas
-                const respuestasSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasCuestionarios'));
+                const respuestasSnapshot = await getDocs(collection(db, 'respuestasCuestionarios'));
                 const respuestasHuerfanas = respuestasSnapshot.docs.filter(doc => !cuestionariosIds.has(doc.data().cuestionarioId));
                 
                 if (respuestasHuerfanas.length === 0) {
@@ -10458,7 +10416,7 @@ REGLAS ESTRICTAS:
             if (!container) return;
 
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'classes'));
+                const snapshot = await getDocs(collection(db, 'classes'));
                 allClases = [];
                 let allActividades = [];
                 snapshot.forEach(doc => {
@@ -10636,7 +10594,7 @@ REGLAS ESTRICTAS:
 
             // Guardar cada chunk
             const chunkPromises = chunks.map((chunk, index) => {
-                return firebase.addDoc(firebase.collection(db, 'class_chunks'), {
+                return addDoc(collection(db, 'class_chunks'), {
                     claseId: claseId,
                     chunkIndex: index,
                     content: chunk,
@@ -10651,8 +10609,8 @@ REGLAS ESTRICTAS:
         async function loadContentFromChunks(claseId) {
             try {
                 // Obtener todos los chunks para esta clase y ordenarlos en memoria
-                const chunksSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'class_chunks'),
-                    firebase.where('claseId', '==', claseId)
+                const chunksSnapshot = await getDocs(query(collection(db, 'class_chunks'),
+                    where('claseId', '==', claseId)
                 ));
 
                 if (chunksSnapshot.empty) {
@@ -10680,7 +10638,7 @@ REGLAS ESTRICTAS:
         async function loadClaseDetail(id) {
             try {
                 console.log('Loading clase detail for id:', id);
-                const docRef = firebase.doc(db, 'classes', id);
+                const docRef = doc(db, 'classes', id);
                 console.log('docRef:', docRef);
                 const docSnap = await docRef.get();
                 console.log('docSnap:', docSnap);
@@ -10869,7 +10827,7 @@ REGLAS ESTRICTAS:
         async function actualizarEstadisticasEntregas() {
             try {
                 console.log('Actualizando estadísticas de entregas...');
-                const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
                 const allEntregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 const totalElement = document.getElementById('total-entregas');
@@ -10894,8 +10852,8 @@ REGLAS ESTRICTAS:
         async function actualizarEstadisticasRespuestas() {
             try {
                 console.log('Actualizando estadísticas de respuestas...');
-                const respuestasCuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasCuestionarios'));
-                const respuestasEvaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'respuestasEvaluaciones'));
+                const respuestasCuestionariosSnapshot = await getDocs(collection(db, 'respuestasCuestionarios'));
+                const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
                 const allRespuestas = [
                     ...respuestasCuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })),
                     ...respuestasEvaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
@@ -10920,10 +10878,10 @@ REGLAS ESTRICTAS:
         }
 
         // Función para cargar actividades disponibles
-        async function loadEntregasSection() {
+        async function loadEntregas() {
             try {
                 // Cargar actividades disponibles que aún existen
-                const actividadesSnapshot = await firebase.getDocs(firebase.collection(db, 'activities'));
+                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
                 actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Actualizar estadísticas
@@ -10993,10 +10951,10 @@ REGLAS ESTRICTAS:
                 document.getElementById('actividadSeleccionada').textContent = `Entregas: ${actividad.titulo}`;
                 
                 // Cargar entregas de esta actividad
-                const entregasSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'entregas'), firebase.where('actividadId', '==', actividadId)));
+                const entregasSnapshot = await getDocs(query(collection(db, 'entregas'), where('actividadId', '==', actividadId)));
                 
                 // Obtener todos los usuarios para resolver nombres
-                const usuariosSnapshot = await firebase.getDocs(firebase.collection(db, 'users'));
+                const usuariosSnapshot = await getDocs(collection(db, 'users'));
                 const usuariosMap = {};
                 usuariosSnapshot.forEach(doc => {
                     const userData = doc.data();
@@ -11062,7 +11020,7 @@ REGLAS ESTRICTAS:
         // Función para cargar detalles de una entrega específica
         async function loadEntregaDetail(entregaId) {
             try {
-                const doc = await firebase.getDoc(firebase.doc(db, 'entregas', entregaId));
+                const doc = await getDoc(doc(db, 'entregas', entregaId));
                 if (!doc.exists) {
                     console.error('Entrega no encontrada');
                     return;
@@ -11073,7 +11031,7 @@ REGLAS ESTRICTAS:
                 let nombreEstudiante = 'Estudiante';
                 if (entrega.estudianteId) {
                     try {
-                        const userQuery = await firebase.getDocs(firebase.query(firebase.collection(db, 'users'), firebase.where('email', '==', entrega.estudianteId), limit(1)));
+                        const userQuery = await getDocs(query(collection(db, 'users'), where('email', '==', entrega.estudianteId), limit(1)));
                         if (!userQuery.empty) {
                             const userData = userQuery.docs[0].data();
                             nombreEstudiante = userData.name || entrega.estudianteId;
@@ -11204,7 +11162,7 @@ REGLAS ESTRICTAS:
             
             try {
                 const entregaId = entregasData[currentEntregaIndex].id;
-                await firebase.doc(db, 'entregas', entregaId).update({
+                await doc(db, 'entregas', entregaId).update({
                     nota: parseInt(calificacion),
                     comentario: comentarios,
                     fechaCalificacion: new Date(),
@@ -11265,11 +11223,11 @@ REGLAS ESTRICTAS:
         async function loadRespuestas() {
             try {
                 // Cargar cuestionarios
-                const cuestionariosSnapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 const cuestionarios = cuestionariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'cuestionario' }));
                 
                 // Cargar evaluaciones
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 const evaluaciones = evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), tipo: 'evaluacion' }));
                 
                 cuestionariosData = [...cuestionarios, ...evaluaciones];
@@ -11344,11 +11302,11 @@ REGLAS ESTRICTAS:
                 
                 // Cargar respuestas de este cuestionario/evaluación
                 const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, collectionName), firebase.where('cuestionarioId', '==', cuestionarioId)));
+                const snapshot = await getDocs(query(collection(db, collectionName), where('cuestionarioId', '==', cuestionarioId)));
                 respuestasData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Resolver nombres de estudiantes
-                const usuariosSnapshot = await firebase.getDocs(firebase.collection(db, 'users'));
+                const usuariosSnapshot = await getDocs(collection(db, 'users'));
                 const usuariosMap = {};
                 usuariosSnapshot.docs.forEach(doc => {
                     const userData = doc.data();
@@ -11409,7 +11367,7 @@ REGLAS ESTRICTAS:
         async function loadRespuestaDetail(respuestaId) {
             try {
                 const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const doc = await firebase.getDoc(firebase.doc(db, collectionName, respuestaId));
+                const doc = await getDoc(doc(db, collectionName, respuestaId));
                 if (!doc.exists) {
                     console.error('Respuesta no encontrada');
                     return;
@@ -11593,7 +11551,7 @@ REGLAS ESTRICTAS:
                 const respuestaId = respuestasData[currentRespuestaIndex].id;
                 const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
                 
-                await firebase.doc(db, collectionName, respuestaId).update({
+                await doc(db, collectionName, respuestaId).update({
                     calificacion: parseInt(calificacion),
                     comentarios: comentarios,
                     fechaCalificacion: new Date(),
@@ -11690,7 +11648,7 @@ REGLAS ESTRICTAS:
         async function loadCuestionariosManager() {
             try {
                 console.log('Cargando cuestionarios para gestión...');
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'cuestionarios'));
+                const snapshot = await getDocs(collection(db, 'cuestionarios'));
                 console.log('Cuestionarios encontrados en Firestore:', snapshot.size);
 
                 cuestionariosManagerData = snapshot.docs
@@ -11710,7 +11668,7 @@ REGLAS ESTRICTAS:
                     });
 
                 // También cargar evaluaciones
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 console.log('Evaluaciones encontradas en Firestore:', evaluacionesSnapshot.size);
 
                 const evaluacionesData = evaluacionesSnapshot.docs.map(doc => ({
@@ -11930,7 +11888,7 @@ REGLAS ESTRICTAS:
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
                 const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, collectionName), firebase.where('cuestionarioId', '==', cuestionario.id)));
+                const snapshot = await getDocs(query(collection(db, collectionName), where('cuestionarioId', '==', cuestionario.id)));
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
                 const totalRespuestas = respuestas.length;
@@ -11984,7 +11942,7 @@ REGLAS ESTRICTAS:
         async function verDetalleCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
 
                 if (!doc.exists) {
                     alert('Cuestionario no encontrado');
@@ -12103,7 +12061,7 @@ REGLAS ESTRICTAS:
         async function cargarEstadisticasDetalle(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, collectionName), firebase.where('cuestionarioId', '==', cuestionarioId)));
+                const snapshot = await getDocs(query(collection(db, collectionName), where('cuestionarioId', '==', cuestionarioId)));
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
                 const totalRespuestas = respuestas.length;
@@ -12136,7 +12094,7 @@ REGLAS ESTRICTAS:
         async function editarCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
 
                 if (!doc.exists) {
                     alert('Cuestionario no encontrado');
@@ -12309,7 +12267,7 @@ REGLAS ESTRICTAS:
                 }
 
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                await firebase.doc(db, collectionName, cuestionarioId).update({
+                await doc(db, collectionName, cuestionarioId).update({
                     titulo: title,
                     descripcion: desc,
                     programa: programa,
@@ -12337,7 +12295,7 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
                 const cuestionario = doc.data();
 
                 const nuevoCuestionario = {
@@ -12349,7 +12307,7 @@ REGLAS ESTRICTAS:
 
                 delete nuevoCuestionario.id; // Remover el ID original
 
-                await firebase.addDoc(firebase.collection(db, collectionName), nuevoCuestionario);
+                await addDoc(collection(db, collectionName), nuevoCuestionario);
 
                 alert('Cuestionario duplicado exitosamente');
                 closeCuestionarioModal();
@@ -12381,7 +12339,7 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                await deletefirebase.doc(firebase.doc(db, collectionName, cuestionarioId));
+                await deleteDoc(doc(db, collectionName, cuestionarioId));
 
                 alert('Cuestionario eliminado exitosamente');
                 closeCuestionarioModal();
@@ -12865,7 +12823,7 @@ REGLAS ESTRICTAS:
             if (!confirm('¿Estás seguro de que quieres publicar esta evaluación?')) return;
 
             try {
-                await firebase.addDoc(firebase.collection(db, 'evaluaciones'), {
+                await addDoc(collection(db, 'evaluaciones'), {
                     ...evaluacionPreviewData,
                     fechaRegistro: new Date().toISOString()
                 });
@@ -12894,7 +12852,7 @@ REGLAS ESTRICTAS:
 
             try {
                 // Obtener todos los estudiantes (sin filtro de estado para asegurar que se muestren)
-                const estudiantesSnapshot = await firebase.getDocs(firebase.collection(db, 'users'));
+                const estudiantesSnapshot = await getDocs(collection(db, 'users'));
 
                 console.log('Total estudiantes encontrados:', estudiantesSnapshot.size);
 
@@ -12946,9 +12904,9 @@ REGLAS ESTRICTAS:
 
                 // Cargar todos los datos de calificaciones de una vez para optimizar
                 const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot] = await Promise.all([
-                    firebase.getDocs(firebase.collection(db, 'entregas')),
-                    firebase.getDocs(firebase.collection(db, 'resultados_evaluaciones')),
-                    firebase.getDocs(firebase.collection(db, 'calificaciones_practicas'))
+                    getDocs(collection(db, 'entregas')),
+                    getDocs(collection(db, 'resultados_evaluaciones')),
+                    getDocs(collection(db, 'calificaciones_practicas'))
                 ]);
 
                 // Crear mapas para acceso rápido
@@ -12986,7 +12944,7 @@ REGLAS ESTRICTAS:
                 // Cargar TODAS las calificaciones específicas por módulo de una vez (optimización)
                 const modulosCalificaciones = {};
                 try {
-                    const allModulosSnapshot = await firebase.getDocs(firebase.collection(db, 'calificaciones_modulos'));
+                    const allModulosSnapshot = await getDocs(collection(db, 'calificaciones_modulos'));
                     console.log('Total calificaciones por módulo cargadas:', allModulosSnapshot.size);
 
                     allModulosSnapshot.forEach(doc => {
@@ -13171,9 +13129,9 @@ REGLAS ESTRICTAS:
 
         async function calculateActividadesGrade(estudianteId) {
             try {
-                const entregasSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'entregas'),
-                    firebase.where('estudianteId', '==', estudianteId),
-                    firebase.where('calificada', '==', true)
+                const entregasSnapshot = await getDocs(query(collection(db, 'entregas'),
+                    where('estudianteId', '==', estudianteId),
+                    where('calificada', '==', true)
                 ));
 
                 if (entregasSnapshot.empty) return 0;
@@ -13202,8 +13160,8 @@ REGLAS ESTRICTAS:
 
         async function calculateEvaluacionesGrade(estudianteId) {
             try {
-                const evaluacionesSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'resultados_evaluaciones'),
-                    firebase.where('estudianteId', '==', estudianteId)
+                const evaluacionesSnapshot = await getDocs(query(collection(db, 'resultados_evaluaciones'),
+                    where('estudianteId', '==', estudianteId)
                 ));
 
                 if (evaluacionesSnapshot.empty) return 0;
@@ -13232,8 +13190,8 @@ REGLAS ESTRICTAS:
 
         async function getPracticaGrade(estudianteId) {
             try {
-                const practicaSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'calificaciones_practicas'),
-                    firebase.where('estudianteId', '==', estudianteId),
+                const practicaSnapshot = await getDocs(query(collection(db, 'calificaciones_practicas'),
+                    where('estudianteId', '==', estudianteId),
                     limit(1)
                 ));
 
@@ -13262,8 +13220,8 @@ REGLAS ESTRICTAS:
                 }
 
                 // Buscar si ya existe una calificación
-                const existingSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'calificaciones_practicas'),
-                    firebase.where('estudianteId', '==', estudianteId),
+                const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_practicas'),
+                    where('estudianteId', '==', estudianteId),
                     limit(1)
                 ));
 
@@ -13276,7 +13234,7 @@ REGLAS ESTRICTAS:
                     });
                 } else {
                     // Crear nueva
-                    await firebase.addDoc(firebase.collection(db, 'calificaciones_practicas'), {
+                    await addDoc(collection(db, 'calificaciones_practicas'), {
                         estudianteId: estudianteId,
                         nota: notaNum,
                         fechaCreacion: new Date().toISOString(),
@@ -13332,9 +13290,9 @@ REGLAS ESTRICTAS:
                 const moduloKey = `modulo${moduloNum}`;
 
                 // Buscar si ya existe una calificación para este módulo y estudiante
-                const existingSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'calificaciones_modulos'),
-                    firebase.where('estudianteId', '==', estudianteId),
-                    firebase.where('modulo', '==', moduloKey),
+                const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
+                    where('estudianteId', '==', estudianteId),
+                    where('modulo', '==', moduloKey),
                     limit(1)
                 ));
 
@@ -13349,10 +13307,10 @@ REGLAS ESTRICTAS:
                 if (!existingSnapshot.empty) {
                     // Actualizar existente
                     const docId = existingSnapshot.docs[0].id;
-                    await firebase.doc(db, 'calificaciones_modulos', docId).update(califData);
+                    await doc(db, 'calificaciones_modulos', docId).update(;
                 } else {
                     // Crear nueva
-                    await firebase.addDoc(firebase.collection(db, 'calificaciones_modulos'), califData);
+                    await addDoc(collection(db, 'calificaciones_modulos'), califData);
                 }
 
                 // Actualizar los totales en la interfaz sin recargar toda la tabla
@@ -13487,7 +13445,7 @@ REGLAS ESTRICTAS:
         async function loadEvaluacionesManager() {
             try {
                 console.log('Cargando evaluaciones para gestión...');
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'evaluaciones'));
+                const snapshot = await getDocs(collection(db, 'evaluaciones'));
                 console.log('Evaluaciones encontradas en Firestore:', snapshot.size);
 
                 evaluacionesManagerData = snapshot.docs
@@ -13697,7 +13655,7 @@ REGLAS ESTRICTAS:
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'foros'));
+                const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Filter approved and sort
@@ -13741,7 +13699,7 @@ REGLAS ESTRICTAS:
 
         async function loadForosPendientes() {
             try {
-                const snapshot = await firebase.getDocs(firebase.collection(db, 'foros'));
+                const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
                 // Filter pending
@@ -13783,7 +13741,7 @@ REGLAS ESTRICTAS:
         async function approveForo(id) {
             try {
                 // Get current foro
-                const foroDoc = await firebase.getDoc(firebase.doc(db, 'foros', id));
+                const foroDoc = await getDoc(doc(db, 'foros', id));
                 if (!foroDoc.exists) return;
                 
                 const foro = foroDoc.data();
@@ -13881,7 +13839,7 @@ REGLAS ESTRICTAS:
             if (allHorariosChecked) horarios = [];
             
             try {
-                await firebase.doc(db, 'foros', id).update({
+                await doc(db, 'foros', id).update({
                     status: 'approved',
                     approvedPrograms: programs,
                     approvedSedes: sedes,
@@ -14020,7 +13978,7 @@ REGLAS ESTRICTAS:
             }
             
             try {
-                await firebase.addDoc(firebase.collection(db, 'foros'), {
+                await addDoc(collection(db, 'foros'), {
                     titulo: titulo,
                     contenido: contenido,
                     autorId: 'admin',
@@ -14066,13 +14024,13 @@ REGLAS ESTRICTAS:
             if (!confirm('¿Estás seguro de eliminar este hilo y todas sus respuestas?')) return;
             try {
                 // Eliminar respuestas relacionadas
-                const respuestasSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'respuestasForos'), firebase.where('foroId', '==', id)));
+                const respuestasSnapshot = await getDocs(query(collection(db, 'respuestasForos'), where('foroId', '==', id)));
                 
                 const deletePromises = respuestasSnapshot.docs.map(doc => doc.ref.delete());
                 await Promise.all(deletePromises);
                 
                 // Eliminar hilo
-                await deletefirebase.doc(firebase.doc(db, 'foros', id));
+                await deleteDoc(doc(db, 'foros', id));
                 
                 alert('Hilo eliminado');
                 loadForosList();
@@ -14086,7 +14044,7 @@ REGLAS ESTRICTAS:
         async function viewForo(foroId) {
             try {
                 // Obtener el foro principal
-                const foroDoc = await firebase.getDoc(firebase.doc(db, 'foros', foroId));
+                const foroDoc = await getDoc(doc(db, 'foros', foroId));
                 if (!foroDoc.exists) {
                     alert('Hilo no encontrado');
                     return;
@@ -14095,9 +14053,9 @@ REGLAS ESTRICTAS:
                 const foro = foroDoc.data();
                 
                 // Obtener respuestas del foro
-                const respuestasSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'respuestasForos'),
-                    firebase.where('foroId', '==', foroId),
-                    firebase.orderBy('fechaCreacion', 'asc')
+                const respuestasSnapshot = await getDocs(query(collection(db, 'respuestasForos'),
+                    where('foroId', '==', foroId),
+                    orderBy('fechaCreacion', 'asc')
                 ));
                 const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
@@ -14155,7 +14113,7 @@ REGLAS ESTRICTAS:
         async function loadGamificacionStats() {
             try {
                 // Cargar configuración de puntos
-                const configSnapshot = await firebase.getDoc(firebase.doc(db, 'configuracion', 'gamificacion'));
+                const configSnapshot = await getDoc(doc(db, 'configuracion', 'gamificacion'));
                 if (configSnapshot.exists) {
                     const config = configSnapshot.data();
                     document.getElementById('puntosClase').value = config.puntosClase || 10;
@@ -14164,7 +14122,7 @@ REGLAS ESTRICTAS:
                 }
                 
                 // Calcular estadísticas
-                const usuariosSnapshot = await firebase.getDocs(firebase.collection(db, 'users'));
+                const usuariosSnapshot = await getDocs(collection(db, 'users'));
                 let totalPuntos = 0;
                 let topEstudiante = { nombre: '-', puntos: 0 };
                 
@@ -14195,7 +14153,7 @@ REGLAS ESTRICTAS:
             };
             
             try {
-                await firebase.doc(db, 'configuracion', 'gamificacion').set(config);
+                await doc(db, 'configuracion', 'gamificacion').set(config);
                 alert('Configuración guardada exitosamente');
             } catch (error) {
                 console.error('Error saving config:', error);
@@ -14205,7 +14163,7 @@ REGLAS ESTRICTAS:
 
         async function loadLeaderboard() {
             try {
-                const usuariosSnapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'users'), firebase.orderBy('puntos', 'desc'), limit(10)));
+                const usuariosSnapshot = await getDocs(query(collection(db, 'users'), orderBy('puntos', 'desc'), limit(10)));
                 const container = document.getElementById('leaderboardList');
                 
                 if (usuariosSnapshot.empty) {
@@ -14270,16 +14228,8 @@ REGLAS ESTRICTAS:
         document.addEventListener('DOMContentLoaded', function() {
             mejorarAccesibilidad();
 
-            // Inicializar contador de caracteres para cuestionarios automáticos con delay
-            setTimeout(() => {
-                if (typeof updateCharCount === 'function') {
-                    updateCharCount();
-                }
-            }, 100);
-
-            // Inicializar selectores de módulos
-            populateModuloSelect('claseModulo');
-            populateModuloSelect('actividadModulo');
+            // Inicializar contador de caracteres para cuestionarios automáticos
+            updateCharCount();
 
             // Cargar datos iniciales del dashboard
             loadDashboardStats();
@@ -14287,8 +14237,6 @@ REGLAS ESTRICTAS:
             loadForosList();
             loadForosPendientes();
             loadGamificacionStats();
-            loadUsuariosPendientes();
-            loadUsuariosAprobados();
         });
     </script>
 
