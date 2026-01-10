@@ -23,6 +23,12 @@
             messagingSenderId: "971007838036",
             appId: "1:971007838036:web:381b5c516ba841fef12ac1"
         };
+
+        // Initialize Firebase
+        const firebaseConfig = window.FIREBASE_CONFIG;
+        const app = firebase.initializeApp(firebaseConfig);
+        window.db = firebase.getFirestore(app);
+        console.log('Firebase initialized in head, db:', window.db);
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -5189,11 +5195,7 @@
             };
         }
 
-        const firebaseConfig = window.FIREBASE_CONFIG;
-
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.getFirestore(app);
-        console.log('Firebase initialized, db:', db);
+        const db = window.db;
 
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
@@ -5822,7 +5824,7 @@
                         if (!numPreguntas || numPreguntas < 1) return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
 
                         // Verificar que no se pidan más preguntas de las disponibles
-                        const cuestionarioDoc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                        const cuestionarioDoc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
                         const cuestionarioData = cuestionarioDoc.data();
                         const preguntasDisponibles = cuestionarioData.preguntas ? cuestionarioData.preguntas.length : 0;
 
@@ -5857,10 +5859,6 @@
         // Dashboard stats
         async function loadDashboardStats() {
             console.log('Loading dashboard stats');
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.collection === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 const videosSnapshot = await firebase.getDocs(firebase.collection(db, 'content'));
                 console.log('Videos snapshot size:', videosSnapshot.size);
@@ -5932,10 +5930,6 @@
 
         // Usuarios pendientes
         async function loadUsuariosPendientes() {
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.query === 'undefined' || typeof firebase.collection === 'undefined' || typeof firebase.orderBy === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 console.log('Cargando usuarios pendientes...');
                 const snapshot = await firebase.getDocs(firebase.query(firebase.collection(db, 'pendingStudents'), firebase.orderBy('registeredDate', 'desc')));
@@ -5952,10 +5946,6 @@
 
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.query === 'undefined' || typeof firebase.collection === 'undefined' || typeof firebase.where === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 const q = firebase.query(firebase.collection(db, 'users'), firebase.where('role', '==', 'student'));
                 const snapshot = await firebase.getDocs(q);
@@ -6160,7 +6150,7 @@
 
         async function controlarPagosUsuario(userId) {
             try {
-                const userDoc = await firebase.getfirebase.doc(firebase.doc(db, 'users', userId));
+                const userDoc = await firebase.getDoc(firebase.doc(db, 'users', userId));
                 if (!userDoc.exists) {
                     alert('Usuario no encontrado');
                     return;
@@ -7071,7 +7061,7 @@
         // Función para cargar preview de cuestionario
         async function loadCuestionarioPreview(cuestionarioId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7147,7 +7137,7 @@
         // Función para cargar preview de evaluación
         async function loadEvaluacionPreview(evaluacionId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'evaluaciones', evaluacionId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', evaluacionId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7223,7 +7213,7 @@
         // Función para cargar preview de video
         async function loadVideoPreview(videoId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'content', videoId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'content', videoId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7280,7 +7270,7 @@
         // Función para cargar preview de clase
         async function loadClasePreview(claseId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'classes', claseId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'classes', claseId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7351,7 +7341,7 @@
         // Función para cargar preview de material
         async function loadMaterialPreview(materialId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'materials', materialId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'materials', materialId));
                 if (doc.exists) {
                     const data = doc.data();
                     const title = document.getElementById('previewTitle');
@@ -7415,7 +7405,7 @@
         async function loadRecursoPreview(recursoId, tipo) {
             try {
                 const collectionName = tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos';
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, collectionName, recursoId));
+                const doc = await firebase.getDoc(firebase.doc(db, collectionName, recursoId));
 
                 if (doc.exists) {
                     const data = doc.data();
@@ -7900,7 +7890,7 @@
         // Función para ver evaluación (reutilizar la existente)
         async function viewEvaluacion(id) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'evaluaciones', id));
+                const doc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', id));
                 if (doc.exists) {
                     const data = doc.data();
                     showEvaluacionPreview({
@@ -7922,7 +7912,7 @@
         // Función para ver cuestionario
         async function viewCuestionario(id) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', id));
+                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', id));
                 if (doc.exists) {
                     const data = doc.data();
                     // Mostrar modal con información del cuestionario
@@ -8277,10 +8267,6 @@
 
         async function loadEntregas() {
             console.log('Iniciando carga de entregas...');
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.collection === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 // Obtener todas las entregas
                 const entregasSnapshot = await firebase.getDocs(firebase.collection(db, 'entregas'));
@@ -8439,7 +8425,7 @@
                     const entrega = docSnap.data();
 
                     // Obtener información de la actividad
-                    const actividadDoc = await firebase.getfirebase.doc(firebase.doc(db, 'activities', entrega.actividadId));
+                    const actividadDoc = await firebase.getDoc(firebase.doc(db, 'activities', entrega.actividadId));
                     const actividad = actividadDoc.exists ? actividadDoc.data() : { titulo: `Actividad ID: ${entrega.actividadId} (no encontrada)`, instrucciones: 'No se pudo cargar la información de la actividad' };
 
                     document.getElementById('modalTitle').textContent = calificar ? 'Calificar Entrega' : 'Detalle de Entrega';
@@ -8518,7 +8504,7 @@
 
             try {
                 // Obtener la entrega para saber el estudianteId
-                const entregaDoc = await firebase.getfirebase.doc(firebase.doc(db, 'entregas', entregaId));
+                const entregaDoc = await firebase.getDoc(firebase.doc(db, 'entregas', entregaId));
                 if (!entregaDoc.exists) {
                     alert('Error: Entrega no encontrada');
                     return;
@@ -8537,7 +8523,7 @@
                 // Actualizar automáticamente el módulo correspondiente con la calificación de actividades
                 if (estudianteId) {
                     // Obtener el módulo de la actividad
-                    const actividadDoc = await firebase.getfirebase.doc(firebase.doc(db, 'activities', entrega.actividadId));
+                    const actividadDoc = await firebase.getDoc(firebase.doc(db, 'activities', entrega.actividadId));
                     if (actividadDoc.exists) {
                         const actividad = actividadDoc.data();
                         const moduloKey = `modulo${actividad.modulo}`;
@@ -8713,7 +8699,7 @@
             const questionsDiv = document.getElementById(`questions-${cuestionarioId}`);
             if (questionsDiv.style.display === 'none') {
                 try {
-                    const doc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                    const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
                     const data = doc.data();
                     console.log('Preguntas del cuestionario:', data.preguntas); // Debug log
                     questionsDiv.innerHTML = data.preguntas.map((q, index) => `
@@ -8739,7 +8725,7 @@
             for (const key of selectedQuestions) {
                 const [cuestionarioId, questionIndex] = key.split('-');
                 try {
-                    const doc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                    const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
                     const data = doc.data();
                     if (data.preguntas && data.preguntas[questionIndex]) {
                         questions.push(data.preguntas[questionIndex]);
@@ -8755,7 +8741,7 @@
         async function getRandomQuestions(cuestionarioId, num) {
             try {
                 console.log(`Obteniendo ${num} preguntas aleatorias del cuestionario ${cuestionarioId}`);
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', cuestionarioId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', cuestionarioId));
                 const data = doc.data();
                 const allQuestions = data.preguntas || [];
 
@@ -9936,7 +9922,7 @@ REGLAS ESTRICTAS:
                     
                     let cuestionarioInfo = { titulo: 'Cuestionario', programa: 'N/A', tipo: 'cuestionario' };
                     try {
-                        const cuestionarioDoc = await firebase.getfirebase.doc(firebase.doc(db, 'cuestionarios', data.cuestionarioId));
+                        const cuestionarioDoc = await firebase.getDoc(firebase.doc(db, 'cuestionarios', data.cuestionarioId));
                         if (cuestionarioDoc.exists) {
                             const cqData = cuestionarioDoc.data();
                             cuestionarioInfo = {
@@ -9966,7 +9952,7 @@ REGLAS ESTRICTAS:
                     
                     let evaluacionInfo = { titulo: 'Evaluación', programa: 'N/A', tipo: 'evaluacion' };
                     try {
-                        const evaluacionDoc = await firebase.getfirebase.doc(firebase.doc(db, 'evaluaciones', data.evaluacionId));
+                        const evaluacionDoc = await firebase.getDoc(firebase.doc(db, 'evaluaciones', data.evaluacionId));
                         if (evaluacionDoc.exists) {
                             const evData = evaluacionDoc.data();
                             evaluacionInfo = {
@@ -10078,7 +10064,7 @@ REGLAS ESTRICTAS:
                     const respuesta = docSnap.data();
 
                     // Obtener info del item
-                    const itemDoc = await firebase.getfirebase.doc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
+                    const itemDoc = await firebase.getDoc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
                     const item = itemDoc.exists ? itemDoc.data() : {};
 
                     document.getElementById('modalTitle').textContent = `Detalle de Respuesta - ${tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}`;
@@ -10185,7 +10171,7 @@ REGLAS ESTRICTAS:
                     const respuesta = docSnap.data();
 
                     // Obtener info del item
-                    const itemDoc = await firebase.getfirebase.doc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
+                    const itemDoc = await firebase.getDoc(firebase.doc(db, itemCollection, respuesta[itemIdField]));
                     const item = itemDoc.exists ? itemDoc.data() : {};
 
                     document.getElementById('modalTitle').textContent = `Calificar Respuesta - ${item.titulo || (tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación')}`;
@@ -11078,7 +11064,7 @@ REGLAS ESTRICTAS:
         // Función para cargar detalles de una entrega específica
         async function loadEntregaDetail(entregaId) {
             try {
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, 'entregas', entregaId));
+                const doc = await firebase.getDoc(firebase.doc(db, 'entregas', entregaId));
                 if (!doc.exists) {
                     console.error('Entrega no encontrada');
                     return;
@@ -11425,7 +11411,7 @@ REGLAS ESTRICTAS:
         async function loadRespuestaDetail(respuestaId) {
             try {
                 const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, collectionName, respuestaId));
+                const doc = await firebase.getDoc(firebase.doc(db, collectionName, respuestaId));
                 if (!doc.exists) {
                     console.error('Respuesta no encontrada');
                     return;
@@ -12000,7 +11986,7 @@ REGLAS ESTRICTAS:
         async function verDetalleCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
 
                 if (!doc.exists) {
                     alert('Cuestionario no encontrado');
@@ -12152,7 +12138,7 @@ REGLAS ESTRICTAS:
         async function editarCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
 
                 if (!doc.exists) {
                     alert('Cuestionario no encontrado');
@@ -12353,7 +12339,7 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await firebase.getfirebase.doc(firebase.doc(db, collectionName, cuestionarioId));
+                const doc = await firebase.getDoc(firebase.doc(db, collectionName, cuestionarioId));
                 const cuestionario = doc.data();
 
                 const nuevoCuestionario = {
@@ -13712,10 +13698,6 @@ REGLAS ESTRICTAS:
 
         // =================== FUNCIONES PARA FOROS ===================
         async function loadForosList() {
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.collection === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 const snapshot = await firebase.getDocs(firebase.collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -13760,10 +13742,6 @@ REGLAS ESTRICTAS:
         }
 
         async function loadForosPendientes() {
-            if (typeof firebase === 'undefined' || typeof firebase.getDocs === 'undefined' || typeof firebase.collection === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 const snapshot = await firebase.getDocs(firebase.collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -13807,7 +13785,7 @@ REGLAS ESTRICTAS:
         async function approveForo(id) {
             try {
                 // Get current foro
-                const foroDoc = await firebase.getfirebase.doc(firebase.doc(db, 'foros', id));
+                const foroDoc = await firebase.getDoc(firebase.doc(db, 'foros', id));
                 if (!foroDoc.exists) return;
                 
                 const foro = foroDoc.data();
@@ -14110,7 +14088,7 @@ REGLAS ESTRICTAS:
         async function viewForo(foroId) {
             try {
                 // Obtener el foro principal
-                const foroDoc = await firebase.getfirebase.doc(firebase.doc(db, 'foros', foroId));
+                const foroDoc = await firebase.getDoc(firebase.doc(db, 'foros', foroId));
                 if (!foroDoc.exists) {
                     alert('Hilo no encontrado');
                     return;
@@ -14177,13 +14155,9 @@ REGLAS ESTRICTAS:
 
         // =================== FUNCIONES PARA GAMIFICACIÓN ===================
         async function loadGamificacionStats() {
-            if (typeof firebase === 'undefined' || typeof firebase.getDoc === 'undefined' || typeof firebase.doc === 'undefined' || typeof db === 'undefined') {
-                console.error('Firebase functions not loaded yet');
-                return;
-            }
             try {
                 // Cargar configuración de puntos
-                const configSnapshot = await firebase.getfirebase.doc(firebase.doc(db, 'configuracion', 'gamificacion'));
+                const configSnapshot = await firebase.getDoc(firebase.doc(db, 'configuracion', 'gamificacion'));
                 if (configSnapshot.exists) {
                     const config = configSnapshot.data();
                     document.getElementById('puntosClase').value = config.puntosClase || 10;
