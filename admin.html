@@ -5606,10 +5606,17 @@
                             // Dividir contenido en chunks
                             await saveContentInChunks(claseRef.id, content);
                             // Actualizar el documento principal para indicar que tiene chunks
-                            await claseRef.update(;
+                            await updateDoc(claseRef, {
+                                hasChunks: true,
+                                fechaCreacion: new Date().toISOString()
+                            });
                         } else {
                             // Guardar contenido directamente
-                            await claseRef.update(;
+                            await updateDoc(claseRef, {
+                                contenido: content,
+                                hasChunks: false,
+                                fechaCreacion: new Date().toISOString()
+                            });
                         }
 
                         alert('Clase subida exitosamente');
@@ -8877,6 +8884,9 @@
                 charCount.style.color = '#64748b';
             }
         }
+
+        // Exponer función global
+        window.updateCharCount = updateCharCount;
 
         // Función para probar la conexión con OpenRouter
         async function testOpenAIConnection() {
