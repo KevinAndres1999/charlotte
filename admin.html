@@ -8,15 +8,12 @@
     <!-- Actualizado: 11/12/2025 16:38:02 -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script>
         // Firebase configuration - values will be replaced by Netlify during build
         window.FIREBASE_CONFIG = {
-            apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
-            authDomain: "charlotte-a0d47.firebaseapp.com",
             apiKey: "AIzaSyC5QpmTOMpI36qczNrQmicpMmnQC8PZCe8",
             authDomain: "charlotte-a0d47.firebaseapp.com",
             projectId: "charlotte-a0d47",
@@ -24,6 +21,45 @@
             messagingSenderId: "971007838036",
             appId: "1:971007838036:web:381b5c516ba841fef12ac1"
         };
+
+        // Initialize Firebase
+        const firebaseConfig = window.FIREBASE_CONFIG;
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        console.log('Firebase initialized in head, db:', db);
+
+        // Helper functions to map modular API to compat API
+        window.collection = (db, path) => db.collection(path);
+        window.doc = (db, path, ...segments) => {
+            if (segments.length > 0) {
+                return db.collection(path).doc(segments[0]);
+            }
+            return db.doc(path);
+        };
+        window.query = (collectionRef, ...queryConstraints) => {
+            let q = collectionRef;
+            queryConstraints.forEach(constraint => {
+                if (constraint.type === 'where') {
+                    q = q.where(constraint.field, constraint.op, constraint.value);
+                } else if (constraint.type === 'orderBy') {
+                    q = q.orderBy(constraint.field, constraint.direction);
+                } else if (constraint.type === 'limit') {
+                    q = q.limit(constraint.value);
+                }
+            });
+            return q;
+        };
+        window.where = (field, op, value) => ({ type: 'where', field, op, value });
+        window.orderBy = (field, direction = 'asc') => ({ type: 'orderBy', field, direction });
+        window.limit = (value) => ({ type: 'limit', value });
+        window.getDocs = (query) => query.get();
+        window.getDoc = (docRef) => docRef.get();
+        window.addDoc = (collectionRef, data) => collectionRef.add(data);
+        window.setDoc = (docRef, data, options) => options?.merge ? docRef.set(data, { merge: true }) : docRef.set(data);
+        window.updateDoc = (docRef, data) => docRef.update(data);
+        window.deleteDoc = (docRef) => docRef.delete();
+        window.onSnapshot = (query, callback) => query.onSnapshot(callback);
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -5197,12 +5233,6 @@
                 return new Base64UploadAdapter(loader);
             };
         }
-
-        const firebaseConfig = window.FIREBASE_CONFIG;
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        console.log('Firebase initialized, db:', db);
 
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
