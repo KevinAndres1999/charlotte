@@ -8214,11 +8214,12 @@ function openImageModal(imageUrl, title) {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                console.log('Usuario actual:', {
+                console.log('=== DEBUG FOROS ===');
+                console.log('Usuario actual:', JSON.stringify({
                     programa: currentUser.programa,
                     sede: currentUser.sede,
                     horario: currentUser.horario
-                });
+                }, null, 2));
                 
                 console.log('Foros totales:', allForos.length);
                 console.log('Foros aprobados:', allForos.filter(f => f.status === 'approved').length);
@@ -8237,26 +8238,29 @@ function openImageModal(imageUrl, title) {
                         const foroSedes = Array.isArray(foro.approvedSedes) ? foro.approvedSedes : [];
                         const foroHorarios = Array.isArray(foro.approvedHorarios) ? foro.approvedHorarios : [];
 
-                        console.log(`Foro "${foro.titulo}":`, {
+                        console.log(`Foro "${foro.titulo}":`, JSON.stringify({
                             foroPrograms,
                             foroSedes,
                             foroHorarios,
                             userPrograma,
                             userSede,
                             userHorario
-                        });
+                        }, null, 2));
 
                         // Check matches - empty array means all users can see
                         const programMatch = foroPrograms.length === 0 || foroPrograms.includes(userPrograma);
                         const sedeMatch = foroSedes.length === 0 || foroSedes.includes(userSede);
                         const horarioMatch = foroHorarios.length === 0 || foroHorarios.includes(userHorario);
                         
-                        console.log(`Matches para "${foro.titulo}":`, {
+                        console.log(`Matches para "${foro.titulo}":`, JSON.stringify({
                             programMatch,
                             sedeMatch,
                             horarioMatch,
+                            'foroPrograms.length': foroPrograms.length,
+                            'foroSedes.length': foroSedes.length,
+                            'foroHorarios.length': foroHorarios.length,
                             resultado: programMatch && sedeMatch && horarioMatch
-                        });
+                        }, null, 2));
 
                         return programMatch && sedeMatch && horarioMatch;
                     });
