@@ -5534,37 +5534,35 @@ function volverAModulos() {
 }
 
 function showModulosSelectorActividades() {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-    const modulosData = isBelleza ? [
-        { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', cssClass: '' },
-        { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', cssClass: 'modulo-card modulo2' },
-        { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', cssClass: 'modulo-card modulo3' },
-        { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', cssClass: 'modulo-card modulo4' }
-    ] : [
-        { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', cssClass: '' },
-        { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', cssClass: 'modulo-card modulo2' },
-        { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', cssClass: 'modulo-card modulo3' },
-        { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', cssClass: 'modulo-card modulo4' }
-    ];
-
     const container = document.getElementById('modulosSelectorActividades');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
             <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                ${modulosData.map(modulo => `
-                    <div class="modulo-card ${modulo.cssClass}" data-modulo="${modulo.key}">
-                        <i class="${modulo.icon}"></i>
-                        <h4>${modulo.title}</h4>
-                        <p>${modulo.subtitle}</p>
-                    </div>
-                `).join('')}
+                <div class="modulo-card" data-modulo="modulo1">
+                    <i class="fas fa-bread-slice"></i>
+                    <h4>Módulo 1</h4>
+                    <p>Panadería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo2" data-modulo="modulo2">
+                    <i class="fas fa-cookie-bite"></i>
+                    <h4>Módulo 2</h4>
+                    <p>Galletaría</p>
+                </div>
+                <div class="modulo-card modulo-card modulo3" data-modulo="modulo3">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h4>Módulo 3</h4>
+                    <p>Pastelería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo4" data-modulo="modulo4">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Módulo 4</h4>
+                    <p>Repostería</p>
+                </div>
             </div>
         </div>
     `;
-
+    
     // Agregar event listeners para los clics
     const cards = container.querySelectorAll('.modulo-card');
     cards.forEach(card => {
@@ -5588,17 +5586,9 @@ function volverAModulosActividades() {
 }
 
 function getModuloName(moduloKey) {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-    const modulos = isBelleza ? {
-        'modulo1': 'Módulo 1: Diseño de Mirada',
-        'modulo2': 'Módulo 2: Maquillaje',
-        'modulo3': 'Módulo 3: Estilismo',
-        'modulo4': 'Módulo 4: Nails Design'
-    } : {
+    const modulos = {
         'modulo1': 'Módulo 1: Panadería',
-        'modulo2': 'Módulo 2: Galletaría',
+        'modulo2': 'Módulo 2: Galletaría', 
         'modulo3': 'Módulo 3: Pastelería',
         'modulo4': 'Módulo 4: Repostería'
     };
@@ -5742,37 +5732,35 @@ async function loadClasesByModulo(selectedModulo) {
 }
 
 function showModulosSelectorEstudiante() {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    const isBelleza = currentUser && currentUser.programa && currentUser.programa.toLowerCase().includes('belleza');
-
-    const modulosData = isBelleza ? [
-        { key: 'modulo1', icon: 'fas fa-eye', title: 'Módulo 1', subtitle: 'Diseño de Mirada', cssClass: '' },
-        { key: 'modulo2', icon: 'fas fa-palette', title: 'Módulo 2', subtitle: 'Maquillaje', cssClass: 'modulo-card modulo2' },
-        { key: 'modulo3', icon: 'fas fa-cut', title: 'Módulo 3', subtitle: 'Estilismo', cssClass: 'modulo-card modulo3' },
-        { key: 'modulo4', icon: 'fas fa-hand-sparkles', title: 'Módulo 4', subtitle: 'Nails Design', cssClass: 'modulo-card modulo4' }
-    ] : [
-        { key: 'modulo1', icon: 'fas fa-bread-slice', title: 'Módulo 1', subtitle: 'Panadería', cssClass: '' },
-        { key: 'modulo2', icon: 'fas fa-cookie-bite', title: 'Módulo 2', subtitle: 'Galletaría', cssClass: 'modulo-card modulo2' },
-        { key: 'modulo3', icon: 'fas fa-birthday-cake', title: 'Módulo 3', subtitle: 'Pastelería', cssClass: 'modulo-card modulo3' },
-        { key: 'modulo4', icon: 'fas fa-utensils', title: 'Módulo 4', subtitle: 'Repostería', cssClass: 'modulo-card modulo4' }
-    ];
-
     const container = document.getElementById('modulosSelector');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
             <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                ${modulosData.map(modulo => `
-                    <div class="modulo-card ${modulo.cssClass}" data-modulo="${modulo.key}">
-                        <i class="${modulo.icon}"></i>
-                        <h4>${modulo.title}</h4>
-                        <p>${modulo.subtitle}</p>
-                    </div>
-                `).join('')}
+                <div class="modulo-card" data-modulo="modulo1">
+                    <i class="fas fa-bread-slice"></i>
+                    <h4>Módulo 1</h4>
+                    <p>Panadería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo2" data-modulo="modulo2">
+                    <i class="fas fa-cookie-bite"></i>
+                    <h4>Módulo 2</h4>
+                    <p>Galletaría</p>
+                </div>
+                <div class="modulo-card modulo-card modulo3" data-modulo="modulo3">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h4>Módulo 3</h4>
+                    <p>Pastelería</p>
+                </div>
+                <div class="modulo-card modulo-card modulo4" data-modulo="modulo4">
+                    <i class="fas fa-utensils"></i>
+                    <h4>Módulo 4</h4>
+                    <p>Repostería</p>
+                </div>
             </div>
         </div>
     `;
-
+    
     // Agregar event listeners para los clics
     const cards = container.querySelectorAll('.modulo-card');
     cards.forEach(card => {
