@@ -226,12 +226,16 @@
                 console.log('Query snapshot size:', querySnapshot.size);
 
                 if (!querySnapshot.empty) {
-                    const userData = querySnapshot.docs[0].data();
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+
+                    console.log('Login - User document ID:', userDoc.id);
+                    console.log('Login - User data:', userData);
 
                     // Verificar contraseña
                     if (userData.password === password) {
                         const currentUser = {
-                            id: email,
+                            id: userDoc.id,  // Usar el ID real del documento
                             email: userData.email,
                             role: userData.role,
                             name: userData.name,
@@ -243,7 +247,7 @@
                         };
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-                        console.log('User logged in:', currentUser);
+                        console.log('User logged in successfully:', currentUser);
 
                         // Redirigir según el rol
                         if (userData.role === 'admin') {

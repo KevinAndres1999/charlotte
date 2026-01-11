@@ -4108,40 +4108,146 @@
             <!-- =================== VIDEOCONFERENCIA =================== -->
             <section id="videoconferencia" class="section">
                 <h2 class="page-title"><i class="fas fa-video"></i> Videoconferencia</h2>
-                <div class="card">
-                    <h3>Clases en Vivo</h3>
-                    <p>Únete a sesiones de videoconferencia en tiempo real con tus instructores y compañeros.</p>
-                    <div class="video-conference-options">
-                        <div class="conference-room">
-                            <h4>Sala General</h4>
-                            <p>Sala abierta para consultas y tutorías.</p>
-                            <button class="btn btn-primary" onclick="joinConference('sala-general')">
-                                <i class="fas fa-video"></i> Unirse a Sala General
+                <p class="page-subtitle">Únete a sesiones en tiempo real con tus instructores y compañeros de clase.</p>
+                
+                <!-- Tarjetas de estadísticas -->
+                <div class="stat-cards" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <i class="fas fa-door-open"></i>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label">Salas Disponibles</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <div class="stat-number" id="conferenceInstructors">-</div>
+                        <div class="stat-label">Instructores Online</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number" id="conferenceParticipants">-</div>
+                        <div class="stat-label">Participantes Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-number" id="conferenceStatus">En vivo</div>
+                        <div class="stat-label">Estado</div>
+                    </div>
+                </div>
+
+                <!-- Contenedor de salas -->
+                <div class="content-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <h3 style="color: #1e3a8a; font-size: 1.3rem; margin: 0;">
+                            <i class="fas fa-broadcast-tower" style="color: #3b82f6;"></i> Salas de Clases en Vivo
+                        </h3>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span style="background: #dcfce7; color: #166534; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-circle" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i> Conectado
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="video-conference-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                        <!-- Sala General -->
+                        <div class="conference-room" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.1)'; this.style.borderColor='#3b82f6';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e2e8f0';">
+                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #1e3a8a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="fas fa-users" style="font-size: 1.8rem; color: white;"></i>
+                            </div>
+                            <h4 style="color: #1e3a8a; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala General</h4>
+                            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">Sala abierta para consultas generales y tutorías con instructores.</p>
+                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                                    <i class="fas fa-user"></i> Abierta
+                                </span>
+                            </div>
+                            <button class="btn btn-primary" onclick="joinConference('sala-general')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600;">
+                                <i class="fas fa-video"></i> Unirse a Sala
                             </button>
                         </div>
-                        <div class="conference-room">
-                            <h4>Sala de Panadería</h4>
-                            <p>Dedicada a cursos de panadería.</p>
-                            <button class="btn btn-primary" onclick="joinConference('panaderia')">
-                                <i class="fas fa-video"></i> Unirse a Panadería
+
+                        <!-- Sala de Panadería -->
+                        <div class="conference-room" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fcd34d; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(245,158,11,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="fas fa-bread-slice" style="font-size: 1.8rem; color: white;"></i>
+                            </div>
+                            <h4 style="color: #92400e; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala de Panadería</h4>
+                            <p style="color: #a16207; font-size: 0.9rem; margin-bottom: 1rem;">Clases en vivo dedicadas al programa de Panadería y Pastelería.</p>
+                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                                    <i class="fas fa-bread-slice"></i> Panadería
+                                </span>
+                            </div>
+                            <button class="btn" onclick="joinConference('panaderia')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; cursor: pointer;">
+                                <i class="fas fa-video"></i> Unirse a Sala
                             </button>
                         </div>
-                        <div class="conference-room">
-                            <h4>Sala de Belleza</h4>
-                            <p>Dedicada a cursos de belleza.</p>
-                            <button class="btn btn-primary" onclick="joinConference('belleza')">
-                                <i class="fas fa-video"></i> Unirse a Belleza
+
+                        <!-- Sala de Belleza -->
+                        <div class="conference-room" style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border: 2px solid #f9a8d4; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(236,72,153,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <i class="fas fa-spa" style="font-size: 1.8rem; color: white;"></i>
+                            </div>
+                            <h4 style="color: #9d174d; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala de Belleza</h4>
+                            <p style="color: #be185d; font-size: 0.9rem; margin-bottom: 1rem;">Clases en vivo dedicadas al programa de Belleza Integral.</p>
+                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span style="background: #fce7f3; color: #9d174d; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                                    <i class="fas fa-spa"></i> Belleza
+                                </span>
+                            </div>
+                            <button class="btn" onclick="joinConference('belleza')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; cursor: pointer;">
+                                <i class="fas fa-video"></i> Unirse a Sala
                             </button>
                         </div>
                     </div>
                 </div>
-                <div id="conference-container" style="display: none;">
-                    <div class="conference-header">
-                        <button class="btn btn-secondary" onclick="closeConference()">
-                            <i class="fas fa-times"></i> Cerrar Videoconferencia
+
+                <!-- Contenedor de conferencia activa -->
+                <div id="conference-container" class="content-card" style="display: none; margin-top: 1.5rem;">
+                    <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 12px 12px 0 0; border-bottom: 1px solid #e2e8f0;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span style="background: #ef4444; width: 12px; height: 12px; border-radius: 50%; animation: pulse 1.5s infinite;"></span>
+                            <span style="font-weight: 600; color: #1e3a8a;">En vivo - Sala Activa</span>
+                        </div>
+                        <button class="btn" onclick="closeConference()" style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-times"></i> Cerrar Conferencia
                         </button>
                     </div>
-                    <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen allow="camera; microphone; display-capture; autoplay; encrypted-media"></iframe>
+                    <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen allow="camera; microphone; display-capture; autoplay; encrypted-media" style="border-radius: 0 0 12px 12px;"></iframe>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="card" style="margin-top: 1.5rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe;">
+                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Información Importante</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <i class="fas fa-microphone" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <div>
+                                <strong style="color: #1e40af;">Micrófono</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Activa tu micrófono solo cuando vayas a participar.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <i class="fas fa-camera" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <div>
+                                <strong style="color: #1e40af;">Cámara</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Puedes activar o desactivar tu cámara según prefieras.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <i class="fas fa-hand-paper" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <div>
+                                <strong style="color: #1e40af;">Participación</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Levanta la mano virtual para pedir la palabra.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <i class="fas fa-wifi" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <div>
+                                <strong style="color: #1e40af;">Conexión</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Asegúrate de tener una conexión estable a internet.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -4327,10 +4433,18 @@ import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth
 
 // =================== CONFIGURACIÓN ===================
 try {
+    if (!window.FIREBASE_CONFIG) {
+        throw new Error('Firebase config not found');
+    }
+    
     const firebaseConfig = window.FIREBASE_CONFIG;
+    console.log('Initializing Firebase with config:', firebaseConfig);
+    
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
+    
+    console.log('Firebase initialized successfully');
 
     // Variable global para el ID de la clase actual en el viewer
     let currentClaseId = null;
@@ -8692,12 +8806,55 @@ function openImageModal(imageUrl, title) {
         
         async function loadGamificacionStats() {
             try {
+                console.log('Starting loadGamificacionStats...');
+                
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-                if (!currentUser || !currentUser.id) return;
+                if (!currentUser || !currentUser.id) {
+                    console.log('No currentUser found in sessionStorage');
+                    return;
+                }
 
-                // Cargar datos del usuario
-                const userDoc = await getDoc(doc(db, 'users', currentUser.id));
+                console.log('Current user:', currentUser);
+
+                // Verificar que Firebase esté disponible
+                if (!db) {
+                    throw new Error('Firebase db not initialized');
+                }
+
+                console.log('Firebase db available, fetching user document...');
+
+                // Cargar datos del usuario con timeout
+                const userDocPromise = getDoc(doc(db, 'users', currentUser.id));
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout al cargar datos del usuario')), 10000)
+                );
+                
+                const userDoc = await Promise.race([userDocPromise, timeoutPromise]);
+                
+                console.log('User document exists:', userDoc.exists());
+                console.log('User document data:', userDoc.data());
+                
+                // Verificar que el documento existe
+                if (!userDoc.exists()) {
+                    console.error('User document not found. Checking if user exists in users collection...');
+                    
+                    // Intentar buscar por email como fallback
+                    const q = query(collection(db, 'users'), where('email', '==', currentUser.email));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        console.log('User found by email search:', querySnapshot.docs[0].data());
+                        throw new Error('Usuario encontrado por email pero no por ID. ID guardado: ' + currentUser.id);
+                    } else {
+                        console.error('User not found in users collection at all');
+                        throw new Error('Usuario no encontrado en la colección users. Email: ' + currentUser.email);
+                    }
+                }
+                
                 const userData = userDoc.data() || {};
+                
+                console.log('User data loaded:', userData);
+                
                 const misPuntos = userData.puntos || 0;
                 
                 // Actualizar nombre y programa del jugador
@@ -8716,7 +8873,7 @@ function openImageModal(imageUrl, title) {
                 document.getElementById('misPuntos').textContent = misPuntos.toLocaleString();
 
                 // Contar cuestionarios completados
-                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
+                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.email));
                 const resultadosSnapshot = await getDocs(resultadosQuery);
                 
                 document.getElementById('cuestionariosCompletados').textContent = resultadosSnapshot.size;
@@ -8739,6 +8896,26 @@ function openImageModal(imageUrl, title) {
                 
             } catch (error) {
                 console.error('Error loading gamification stats:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    stack: error.stack
+                });
+                
+                // Mostrar mensaje de error al usuario
+                const gamificationSection = document.querySelector('.content-card');
+                if (gamificationSection) {
+                    gamificationSection.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #ef4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p><strong>Error al cargar estadísticas de gamificación</strong></p>
+                            <p style="font-size: 0.9em; margin-top: 0.5rem;">${error.message}</p>
+                            <button onclick="loadGamificacionStats()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Reintentar
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
@@ -8859,7 +9036,7 @@ function openImageModal(imageUrl, title) {
                 const container = document.getElementById('misLogros');
                 
                 // Contar cuestionarios completados
-                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
+                const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.email));
                 const resultadosSnapshot = await getDocs(resultadosQuery);
                 const cuestionariosCompletados = resultadosSnapshot.size;
                 
