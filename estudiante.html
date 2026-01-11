@@ -8214,23 +8214,6 @@ function openImageModal(imageUrl, title) {
                 const snapshot = await getDocs(collection(db, 'foros'));
                 const allForos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                console.log('All foros loaded:', allForos.map(f => ({
-                    id: f.id,
-                    titulo: f.titulo,
-                    status: f.status,
-                    approvedPrograms: f.approvedPrograms,
-                    approvedSedes: f.approvedSedes,
-                    approvedHorarios: f.approvedHorarios,
-                    approvedProgramsType: Array.isArray(f.approvedPrograms) ? 'array' : typeof f.approvedPrograms,
-                    approvedProgramsLength: Array.isArray(f.approvedPrograms) ? f.approvedPrograms.length : 'N/A'
-                })));
-                
-                console.log('Current user:', {
-                    programa: currentUser.programa,
-                    sede: currentUser.sede,
-                    horario: currentUser.horario
-                });
-                
                 // Separate approved and pending foros
                 const approvedForos = allForos
                     .filter(foro => foro.status === 'approved')
@@ -8245,37 +8228,12 @@ function openImageModal(imageUrl, title) {
                         const foroSedes = Array.isArray(foro.approvedSedes) ? foro.approvedSedes : [];
                         const foroHorarios = Array.isArray(foro.approvedHorarios) ? foro.approvedHorarios : [];
 
-                        console.log('Filtering foro:', foro.titulo, {
-                            foroApprovedPrograms: foroPrograms,
-                            foroApprovedProgramsValues: foroPrograms.join(', '),
-                            foroApprovedSedes: foroSedes,
-                            foroApprovedSedesValues: foroSedes.join(', '),
-                            foroApprovedHorarios: foroHorarios,
-                            foroApprovedHorariosValues: foroHorarios.join(', '),
-                            userPrograma,
-                            userSede,
-                            userHorario
-                        });
-
                         // Check matches - empty array means all users can see
                         const programMatch = foroPrograms.length === 0 || foroPrograms.includes(userPrograma);
                         const sedeMatch = foroSedes.length === 0 || foroSedes.includes(userSede);
                         const horarioMatch = foroHorarios.length === 0 || foroHorarios.includes(userHorario);
-                        
-                        console.log('Detailed matching for', foro.titulo, ':', {
-                            programMatch,
-                            sedeMatch,
-                            horarioMatch,
-                            foroProgramsLength: foroPrograms.length,
-                            userProgramaInForoPrograms: foroPrograms.includes(userPrograma),
-                            userPrograma,
-                            foroPrograms
-                        });
 
-                        const result = programMatch && sedeMatch && horarioMatch;
-                        console.log('Filter result for', foro.titulo, ':', { programMatch, sedeMatch, horarioMatch, result });
-
-                        return result;
+                        return programMatch && sedeMatch && horarioMatch;
                     });
                 
                 // Show pending foros created by current user
