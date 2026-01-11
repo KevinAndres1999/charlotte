@@ -2709,7 +2709,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="videoPrograma">Programa</label>
-                                    <select id="videoPrograma" required>
+                                    <select id="videoPrograma" required onchange="populateModuloSelect('videoModulo', 'videoPrograma')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2796,7 +2796,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="clasePrograma">Programa</label>
-                                    <select id="clasePrograma" required>
+                                    <select id="clasePrograma" required onchange="populateModuloSelect('claseModulo', 'clasePrograma')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2807,10 +2807,6 @@
                                     <label for="claseModulo">Módulo</label>
                                     <select id="claseModulo" required>
                                         <option value="">Seleccionar módulo</option>
-                                        <option value="modulo1">Módulo 1: Panadería</option>
-                                        <option value="modulo2">Módulo 2: Galletaría</option>
-                                        <option value="modulo3">Módulo 3: Pastelería</option>
-                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -2912,7 +2908,7 @@
                                 <h4><i class="fas fa-cogs"></i> Configuración y Asignación</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="actividadPrograma">Programa *</label>
-                                    <select id="actividadPrograma" required>
+                                    <select id="actividadPrograma" required onchange="populateModuloSelect('actividadModulo', 'actividadPrograma')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -2923,10 +2919,6 @@
                                     <label for="actividadModulo">Módulo *</label>
                                     <select id="actividadModulo" required>
                                         <option value="">Seleccionar módulo</option>
-                                        <option value="modulo1">Módulo 1: Panadería</option>
-                                        <option value="modulo2">Módulo 2: Galletaría</option>
-                                        <option value="modulo3">Módulo 3: Pastelería</option>
-                                        <option value="modulo4">Módulo 4: Repostería</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -5382,6 +5374,45 @@
         function logout() {
             sessionStorage.clear();
             window.location.href = 'login.html';
+        }
+
+        // Función para poblar módulos según programa seleccionado
+        function populateModuloSelect(selectId, programaSelectId) {
+            const programaSelect = document.getElementById(programaSelectId || selectId.replace('Modulo', 'Programa'));
+            const moduloSelect = document.getElementById(selectId);
+            
+            if (!programaSelect || !moduloSelect) return;
+            
+            const programa = programaSelect.value;
+            
+            // Limpiar opciones actuales excepto la primera
+            moduloSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+            
+            let modulos = [];
+            
+            if (programa === 'Belleza Integral') {
+                modulos = [
+                    { value: 'modulo1', text: 'Módulo 1: Diseño de Mirada' },
+                    { value: 'modulo2', text: 'Módulo 2: Maquillaje' },
+                    { value: 'modulo3', text: 'Módulo 3: Estilismo' },
+                    { value: 'modulo4', text: 'Módulo 4: Nails Designer' }
+                ];
+            } else if (programa === 'Panadería y Pastelería') {
+                modulos = [
+                    { value: 'modulo1', text: 'Módulo 1: Panadería' },
+                    { value: 'modulo2', text: 'Módulo 2: Galletaría' },
+                    { value: 'modulo3', text: 'Módulo 3: Pastelería' },
+                    { value: 'modulo4', text: 'Módulo 4: Repostería' }
+                ];
+            }
+            
+            // Agregar las opciones
+            modulos.forEach(modulo => {
+                const option = document.createElement('option');
+                option.value = modulo.value;
+                option.textContent = modulo.text;
+                moduloSelect.appendChild(option);
+            });
         }
 
         // Funciones para preguntas
