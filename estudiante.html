@@ -3992,41 +3992,489 @@
 
             <!-- =================== GAMIFICACIÓN =================== -->
             <section id="gamificacion" class="section">
-                <h2 class="page-title"><i class="fas fa-trophy"></i> Mi Progreso</h2>
-                <p class="page-subtitle">Tu ranking y logros en la plataforma</p>
+                <style>
+                    .gamification-header {
+                        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+                        border-radius: 16px;
+                        padding: 3rem 2rem;
+                        color: white;
+                        margin-bottom: 2rem;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .gamification-header::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        right: -10%;
+                        width: 300px;
+                        height: 300px;
+                        background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+                        border-radius: 50%;
+                        filter: blur(40px);
+                    }
+                    .gamification-header h2 {
+                        margin: 0 0 0.5rem 0;
+                        font-size: 2.5rem;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .gamification-header p {
+                        margin: 0;
+                        font-size: 1.1rem;
+                        opacity: 0.95;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    
+                    /* Tarjeta de perfil del jugador */
+                    .player-profile-card {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 2rem;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                        margin-bottom: 2rem;
+                    }
+                    .player-avatar-section {
+                        display: flex;
+                        align-items: center;
+                        gap: 2rem;
+                        margin-bottom: 2rem;
+                    }
+                    .player-avatar {
+                        width: 120px;
+                        height: 120px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 3rem;
+                        color: white;
+                        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+                        position: relative;
+                    }
+                    .player-avatar::after {
+                        content: '';
+                        position: absolute;
+                        inset: -4px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #f59e0b, #d946ef);
+                        z-index: -1;
+                        opacity: 0.5;
+                        filter: blur(10px);
+                    }
+                    .player-info h3 {
+                        margin: 0 0 0.5rem 0;
+                        color: #1e293b;
+                        font-size: 1.8rem;
+                    }
+                    .player-level {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                        color: white;
+                        padding: 0.5rem 1rem;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        font-size: 0.9rem;
+                        margin-bottom: 1rem;
+                    }
+                    .progress-bar-container {
+                        background: #e2e8f0;
+                        border-radius: 20px;
+                        height: 24px;
+                        overflow: hidden;
+                        position: relative;
+                        margin-top: 1rem;
+                    }
+                    .progress-bar-fill {
+                        height: 100%;
+                        background: linear-gradient(90deg, #6366f1, #8b5cf6, #d946ef);
+                        border-radius: 20px;
+                        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .progress-bar-fill::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        animation: shimmer 2s infinite;
+                    }
+                    @keyframes shimmer {
+                        0% { left: -100%; }
+                        100% { left: 100%; }
+                    }
+                    .progress-bar-text {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-weight: 600;
+                        font-size: 0.85rem;
+                        color: #1e293b;
+                        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+                    }
+                    
+                    /* Grid de estadísticas premium */
+                    .premium-stats-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 1.5rem;
+                        margin-bottom: 2rem;
+                    }
+                    .premium-stat-card {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 2rem;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                        position: relative;
+                        overflow: hidden;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    }
+                    .premium-stat-card:hover {
+                        transform: translateY(-8px);
+                        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+                    }
+                    .premium-stat-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 4px;
+                        background: var(--card-gradient);
+                    }
+                    .stat-icon {
+                        width: 60px;
+                        height: 60px;
+                        border-radius: 12px;
+                        background: var(--card-gradient);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.8rem;
+                        color: white;
+                        margin-bottom: 1rem;
+                    }
+                    .stat-value {
+                        font-size: 2.5rem;
+                        font-weight: 700;
+                        color: #1e293b;
+                        margin: 0.5rem 0;
+                    }
+                    .stat-label {
+                        color: #64748b;
+                        font-size: 0.95rem;
+                        font-weight: 500;
+                    }
+                    
+                    /* Leaderboard Premium */
+                    .premium-leaderboard {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 2rem;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                        margin-bottom: 2rem;
+                    }
+                    .leaderboard-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 2rem;
+                        padding-bottom: 1rem;
+                        border-bottom: 2px solid #e2e8f0;
+                    }
+                    .leaderboard-header h3 {
+                        margin: 0;
+                        color: #1e293b;
+                        font-size: 1.5rem;
+                        flex: 1;
+                    }
+                    .leaderboard-filter {
+                        display: flex;
+                        gap: 0.5rem;
+                        background: #f1f5f9;
+                        padding: 0.25rem;
+                        border-radius: 8px;
+                    }
+                    .filter-btn {
+                        padding: 0.5rem 1rem;
+                        border: none;
+                        background: transparent;
+                        color: #64748b;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        transition: all 0.3s;
+                    }
+                    .filter-btn.active {
+                        background: white;
+                        color: #6366f1;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                    }
+                    .leaderboard-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.5rem;
+                        padding: 1.25rem;
+                        margin: 0.75rem 0;
+                        border-radius: 12px;
+                        background: #f8fafc;
+                        transition: all 0.3s;
+                        position: relative;
+                    }
+                    .leaderboard-item:hover {
+                        background: #f1f5f9;
+                        transform: translateX(8px);
+                    }
+                    .leaderboard-item.current-user {
+                        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                        border: 2px solid #f59e0b;
+                        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+                    }
+                    .leaderboard-item.top-3 {
+                        background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+                        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+                    }
+                    .leaderboard-position {
+                        font-size: 1.8rem;
+                        font-weight: 700;
+                        min-width: 40px;
+                        text-align: center;
+                    }
+                    .leaderboard-avatar {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-weight: 600;
+                        font-size: 1.2rem;
+                    }
+                    .leaderboard-user-info {
+                        flex: 1;
+                    }
+                    .leaderboard-user-info strong {
+                        display: block;
+                        color: #1e293b;
+                        font-size: 1.1rem;
+                        margin-bottom: 0.25rem;
+                    }
+                    .leaderboard-user-info small {
+                        color: #64748b;
+                        font-size: 0.85rem;
+                    }
+                    .leaderboard-points {
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                        background: linear-gradient(135deg, #f59e0b, #d97706);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    }
+                    
+                    /* Insignias y logros */
+                    .achievements-section {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 2rem;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                    }
+                    .achievements-header {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        margin-bottom: 2rem;
+                        padding-bottom: 1rem;
+                        border-bottom: 2px solid #e2e8f0;
+                    }
+                    .achievements-header h3 {
+                        margin: 0;
+                        color: #1e293b;
+                        font-size: 1.5rem;
+                    }
+                    .achievements-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                        gap: 1.5rem;
+                    }
+                    .achievement-card {
+                        background: white;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        text-align: center;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .achievement-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: var(--achievement-gradient);
+                        opacity: 0.05;
+                        transition: opacity 0.3s;
+                    }
+                    .achievement-card:hover {
+                        transform: translateY(-8px) scale(1.05);
+                        border-color: var(--achievement-color);
+                        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+                    }
+                    .achievement-card:hover::before {
+                        opacity: 0.15;
+                    }
+                    .achievement-icon {
+                        font-size: 3.5rem;
+                        margin-bottom: 1rem;
+                        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+                        animation: float 3s ease-in-out infinite;
+                    }
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0); }
+                        50% { transform: translateY(-10px); }
+                    }
+                    .achievement-card h4 {
+                        margin: 0 0 0.5rem 0;
+                        color: #1e293b;
+                        font-size: 1.1rem;
+                    }
+                    .achievement-card p {
+                        margin: 0;
+                        color: #64748b;
+                        font-size: 0.85rem;
+                        line-height: 1.4;
+                    }
+                    .achievement-locked {
+                        opacity: 0.4;
+                        filter: grayscale(100%);
+                    }
+                    .achievement-date {
+                        margin-top: 0.75rem;
+                        padding-top: 0.75rem;
+                        border-top: 1px solid #e2e8f0;
+                        font-size: 0.75rem;
+                        color: #94a3b8;
+                    }
+                </style>
 
-                <!-- Estadísticas Personales -->
-                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
-                        <i class="fas fa-star" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <h3 id="misPuntos">0</h3>
-                        <p>Mis Puntos</p>
+                <!-- Header Premium -->
+                <div class="gamification-header">
+                    <h2><i class="fas fa-trophy"></i> Centro de Gamificación</h2>
+                    <p>Gana puntos, desbloquea logros y compite con otros estudiantes</p>
+                </div>
+
+                <!-- Perfil del Jugador -->
+                <div class="player-profile-card">
+                    <div class="player-avatar-section">
+                        <div class="player-avatar">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="player-info">
+                            <h3 id="playerName">Cargando...</h3>
+                            <div class="player-level">
+                                <i class="fas fa-star"></i>
+                                <span>Nivel <span id="playerLevel">1</span></span>
+                            </div>
+                            <div style="color: #64748b; font-size: 0.9rem;">
+                                <span id="playerProgram">Programa</span> • <span id="playerHorario">Horario</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
-                        <i class="fas fa-trophy" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <h3 id="miRanking">-</h3>
-                        <p>Mi Ranking</p>
-                    </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
-                        <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                        <h3 id="cuestionariosCompletados">0</h3>
-                        <p>Cuestionarios Completados</p>
+                    
+                    <!-- Barra de Progreso de Nivel -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.9rem; color: #64748b;">Progreso al siguiente nivel</span>
+                            <span style="font-size: 0.9rem; font-weight: 600; color: #6366f1;" id="levelProgress">0/100 XP</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+                            <div class="progress-bar-text" id="progressBarText">0%</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Leaderboard -->
-                <div class="leaderboard-section">
-                    <h3 style="margin-bottom: 1rem;"><i class="fas fa-crown"></i> Ranking General</h3>
-                    <div id="leaderboardPersonal" class="leaderboard-list">
-                        <!-- El leaderboard se cargará dinámicamente -->
+                <!-- Estadísticas Premium -->
+                <div class="premium-stats-grid">
+                    <div class="premium-stat-card" style="--card-gradient: linear-gradient(135deg, #3b82f6, #1e40af);">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-value" id="misPuntos">0</div>
+                        <div class="stat-label">Puntos Totales</div>
+                    </div>
+                    
+                    <div class="premium-stat-card" style="--card-gradient: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-value" id="miRanking">-</div>
+                        <div class="stat-label">Posición Global</div>
+                    </div>
+                    
+                    <div class="premium-stat-card" style="--card-gradient: linear-gradient(135deg, #10b981, #059669);">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value" id="cuestionariosCompletados">0</div>
+                        <div class="stat-label">Cuestionarios</div>
+                    </div>
+                    
+                    <div class="premium-stat-card" style="--card-gradient: linear-gradient(135deg, #8b5cf6, #6366f1);">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-value" id="logrosDesbloqueados">0</div>
+                        <div class="stat-label">Logros</div>
                     </div>
                 </div>
 
-                <!-- Logros Recientes -->
-                <div class="achievements-section" style="margin-top: 2rem;">
-                    <h3 style="margin-bottom: 1rem;"><i class="fas fa-medal"></i> Logros Recientes</h3>
+                <!-- Leaderboard Premium -->
+                <div class="premium-leaderboard">
+                    <div class="leaderboard-header">
+                        <i class="fas fa-crown" style="font-size: 2rem; color: #f59e0b;"></i>
+                        <h3>Tabla de Clasificación</h3>
+                        <div class="leaderboard-filter">
+                            <button class="filter-btn active" onclick="filterLeaderboard('all')">Global</button>
+                            <button class="filter-btn" onclick="filterLeaderboard('program')">Mi Programa</button>
+                        </div>
+                    </div>
+                    <div id="leaderboardPersonal">
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>Cargando clasificación...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logros y Medallas -->
+                <div class="achievements-section">
+                    <div class="achievements-header">
+                        <i class="fas fa-award" style="font-size: 2rem; color: #8b5cf6;"></i>
+                        <h3>Mis Logros</h3>
+                        <div style="margin-left: auto; color: #64748b; font-size: 0.95rem;">
+                            <span id="achievementCount">0</span> de <span id="achievementTotal">12</span> desbloqueados
+                        </div>
+                    </div>
                     <div id="misLogros" class="achievements-grid">
-                        <!-- Los logros se cargarán dinámicamente -->
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>Cargando logros...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -8824,17 +9272,50 @@ function openImageModal(imageUrl, title) {
         window.viewForo = viewForo;
 
         // =================== FUNCIONES PARA GAMIFICACIÓN ===================
+        
+        // Función para calcular nivel basado en puntos
+        function calculateLevel(points) {
+            // Cada nivel requiere más XP: nivel 1 = 100 XP, nivel 2 = 200 XP, etc.
+            let level = 1;
+            let totalXPNeeded = 0;
+            let xpForNextLevel = 100;
+            
+            while (points >= totalXPNeeded + xpForNextLevel) {
+                totalXPNeeded += xpForNextLevel;
+                level++;
+                xpForNextLevel = level * 100; // Incremento progresivo
+            }
+            
+            const currentXP = points - totalXPNeeded;
+            const progress = Math.round((currentXP / xpForNextLevel) * 100);
+            
+            return { level, currentXP, xpForNextLevel, progress };
+        }
+        
         async function loadGamificacionStats() {
             try {
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                 if (!currentUser || !currentUser.id) return;
 
-                // Cargar puntos del usuario
+                // Cargar datos del usuario
                 const userDoc = await getDoc(doc(db, 'users', currentUser.id));
                 const userData = userDoc.data() || {};
                 const misPuntos = userData.puntos || 0;
                 
-                document.getElementById('misPuntos').textContent = misPuntos;
+                // Actualizar nombre y programa del jugador
+                document.getElementById('playerName').textContent = userData.name || currentUser.email;
+                document.getElementById('playerProgram').textContent = userData.programa || 'Sin programa';
+                document.getElementById('playerHorario').textContent = userData.horario || 'Sin horario';
+                
+                // Calcular nivel y experiencia
+                const { level, currentXP, xpForNextLevel, progress } = calculateLevel(misPuntos);
+                document.getElementById('playerLevel').textContent = level;
+                document.getElementById('levelProgress').textContent = `${currentXP}/${xpForNextLevel} XP`;
+                document.getElementById('progressBarFill').style.width = `${progress}%`;
+                document.getElementById('progressBarText').textContent = `${progress}%`;
+                
+                // Actualizar puntos
+                document.getElementById('misPuntos').textContent = misPuntos.toLocaleString();
 
                 // Contar cuestionarios completados
                 const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
@@ -8862,6 +9343,25 @@ function openImageModal(imageUrl, title) {
                 console.error('Error loading gamification stats:', error);
             }
         }
+        
+        // Función para calcular nivel basado en puntos
+        function calculateLevel(points) {
+            // Cada nivel requiere más XP: nivel 1 = 100 XP, nivel 2 = 200 XP, etc.
+            let level = 1;
+            let totalXPNeeded = 0;
+            let xpForNextLevel = 100;
+            
+            while (points >= totalXPNeeded + xpForNextLevel) {
+                totalXPNeeded += xpForNextLevel;
+                level++;
+                xpForNextLevel = level * 100; // Incremento progresivo
+            }
+            
+            const currentXP = points - totalXPNeeded;
+            const progress = Math.round((currentXP / xpForNextLevel) * 100);
+            
+            return { level, currentXP, xpForNextLevel, progress };
+        }
 
         async function loadLeaderboardPersonal() {
             try {
@@ -8879,32 +9379,71 @@ function openImageModal(imageUrl, title) {
                 const container = document.getElementById('leaderboardPersonal');
                 
                 if (topUsers.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-trophy"></i><p>No hay rankings disponibles aún</p></div>';
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                            <i class="fas fa-trophy" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p style="font-size: 1.1rem; margin: 0;">No hay clasificaciones disponibles aún</p>
+                            <small>¡Sé el primero en ganar puntos!</small>
+                        </div>
+                    `;
                     return;
                 }
                 
                 container.innerHTML = topUsers.map((userData, index) => {
                     const position = index + 1;
                     const isCurrentUser = userData.id === currentUser.id;
+                    const isTop3 = position <= 3;
                     
-                    const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏅';
+                    const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position;
+                    const { level } = calculateLevel(userData.puntos || 0);
+                    const initials = (userData.name || userData.email || '?').substring(0, 2).toUpperCase();
                     
                     return `
-                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}" style="display: flex; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; margin: 0.5rem 0; border-radius: 8px; ${isCurrentUser ? 'background: #fef3c7; border-color: #f59e0b;' : ''}">
-                            <div style="font-size: 1.5rem; margin-right: 1rem;">${medal}</div>
-                            <div style="flex: 1;">
-                                <strong>${userData.name || userData.email}</strong>
-                                ${isCurrentUser ? ' <span style="color: #f59e0b;">(Tú)</span>' : ''}
-                                <br><small style="color: #64748b;">${userData.programa || 'Sin programa'}</small>
+                        <div class="leaderboard-item ${isCurrentUser ? 'current-user' : ''} ${isTop3 ? 'top-3' : ''}">
+                            <div class="leaderboard-position">${medal}</div>
+                            <div class="leaderboard-avatar">${initials}</div>
+                            <div class="leaderboard-user-info">
+                                <strong>
+                                    ${userData.name || userData.email}
+                                    ${isCurrentUser ? '<span style="color: #f59e0b;"> (Tú)</span>' : ''}
+                                </strong>
+                                <small>
+                                    <i class="fas fa-graduation-cap"></i> ${userData.programa || 'Sin programa'} • 
+                                    <i class="fas fa-layer-group"></i> Nivel ${level}
+                                </small>
                             </div>
-                            <div style="font-weight: bold; color: #f59e0b;">${userData.puntos || 0} pts</div>
+                            <div class="leaderboard-points">${(userData.puntos || 0).toLocaleString()}</div>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
+                document.getElementById('leaderboardPersonal').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Error al cargar la clasificación</p>
+                    </div>
+                `;
             }
         }
+        
+        function filterLeaderboard(filter) {
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // TODO: Implementar filtro por programa
+            if (filter === 'program') {
+                // Filtrar por programa del usuario actual
+                console.log('Filtrando por programa...');
+            }
+            // Por ahora, volver a cargar todos
+            loadLeaderboardPersonal();
+        }
+        
+        window.filterLeaderboard = filterLeaderboard;
 
         async function loadMisLogros() {
             try {
@@ -8913,72 +9452,168 @@ function openImageModal(imageUrl, title) {
                 
                 const container = document.getElementById('misLogros');
                 
-                // Logros basados en actividades completadas
-                const logros = [];
-                
                 // Contar cuestionarios completados
                 const resultadosQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.id));
                 const resultadosSnapshot = await getDocs(resultadosQuery);
-                
                 const cuestionariosCompletados = resultadosSnapshot.size;
                 
-                if (cuestionariosCompletados >= 1) {
-                    logros.push({
-                        titulo: 'Primer Cuestionario',
-                        descripcion: 'Completaste tu primer cuestionario',
-                        icono: 'fas fa-file-alt',
-                        color: '#3b82f6'
-                    });
-                }
-                
-                if (cuestionariosCompletados >= 5) {
-                    logros.push({
-                        titulo: 'Estudiante Activo',
-                        descripcion: 'Completaste 5 cuestionarios',
-                        icono: 'fas fa-graduation-cap',
-                        color: '#10b981'
-                    });
-                }
-                
-                if (cuestionariosCompletados >= 10) {
-                    logros.push({
-                        titulo: 'Experto',
-                        descripcion: 'Completaste 10 cuestionarios',
-                        icono: 'fas fa-star',
-                        color: '#f59e0b'
-                    });
-                }
-                
-                // Logro por puntos
+                // Obtener puntos del usuario
                 const userDoc = await getDoc(doc(db, 'users', currentUser.id));
                 const puntos = userDoc.data()?.puntos || 0;
+                const { level } = calculateLevel(puntos);
                 
-                if (puntos >= 100) {
-                    logros.push({
-                        titulo: 'Centurión',
+                // Sistema completo de logros
+                const allAchievements = [
+                    {
+                        id: 'first_quiz',
+                        titulo: '🎯 Primer Paso',
+                        descripcion: 'Completaste tu primer cuestionario',
+                        icono: 'fas fa-file-alt',
+                        color: '#3b82f6',
+                        gradient: 'linear-gradient(135deg, #3b82f6, #1e40af)',
+                        unlocked: cuestionariosCompletados >= 1,
+                        requirement: 'Completa 1 cuestionario'
+                    },
+                    {
+                        id: 'active_student',
+                        titulo: '📚 Estudiante Activo',
+                        descripcion: 'Completaste 5 cuestionarios',
+                        icono: 'fas fa-graduation-cap',
+                        color: '#10b981',
+                        gradient: 'linear-gradient(135deg, #10b981, #059669)',
+                        unlocked: cuestionariosCompletados >= 5,
+                        requirement: 'Completa 5 cuestionarios'
+                    },
+                    {
+                        id: 'expert',
+                        titulo: '⭐ Experto',
+                        descripcion: 'Completaste 10 cuestionarios',
+                        icono: 'fas fa-star',
+                        color: '#f59e0b',
+                        gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        unlocked: cuestionariosCompletados >= 10,
+                        requirement: 'Completa 10 cuestionarios'
+                    },
+                    {
+                        id: 'master',
+                        titulo: '👑 Maestro',
+                        descripcion: 'Completaste 20 cuestionarios',
+                        icono: 'fas fa-crown',
+                        color: '#8b5cf6',
+                        gradient: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                        unlocked: cuestionariosCompletados >= 20,
+                        requirement: 'Completa 20 cuestionarios'
+                    },
+                    {
+                        id: 'centurion',
+                        titulo: '💯 Centurión',
                         descripcion: 'Alcanzaste 100 puntos',
                         icono: 'fas fa-trophy',
-                        color: '#dc2626'
-                    });
-                }
+                        color: '#dc2626',
+                        gradient: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                        unlocked: puntos >= 100,
+                        requirement: 'Alcanza 100 puntos'
+                    },
+                    {
+                        id: 'half_thousand',
+                        titulo: '🔥 Imparable',
+                        descripcion: 'Alcanzaste 500 puntos',
+                        icono: 'fas fa-fire',
+                        color: '#f97316',
+                        gradient: 'linear-gradient(135deg, #f97316, #ea580c)',
+                        unlocked: puntos >= 500,
+                        requirement: 'Alcanza 500 puntos'
+                    },
+                    {
+                        id: 'thousand',
+                        titulo: '💎 Leyenda',
+                        descripcion: 'Alcanzaste 1000 puntos',
+                        icono: 'fas fa-gem',
+                        color: '#06b6d4',
+                        gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+                        unlocked: puntos >= 1000,
+                        requirement: 'Alcanza 1000 puntos'
+                    },
+                    {
+                        id: 'level_5',
+                        titulo: '🚀 Nivel 5',
+                        descripcion: 'Alcanzaste el nivel 5',
+                        icono: 'fas fa-rocket',
+                        color: '#ec4899',
+                        gradient: 'linear-gradient(135deg, #ec4899, #db2777)',
+                        unlocked: level >= 5,
+                        requirement: 'Alcanza el nivel 5'
+                    },
+                    {
+                        id: 'level_10',
+                        titulo: '⚡ Nivel 10',
+                        descripcion: 'Alcanzaste el nivel 10',
+                        icono: 'fas fa-bolt',
+                        color: '#eab308',
+                        gradient: 'linear-gradient(135deg, #eab308, #ca8a04)',
+                        unlocked: level >= 10,
+                        requirement: 'Alcanza el nivel 10'
+                    },
+                    {
+                        id: 'early_bird',
+                        titulo: '🌅 Madrugador',
+                        descripcion: 'Iniciaste sesión antes de las 8 AM',
+                        icono: 'fas fa-sun',
+                        color: '#fbbf24',
+                        gradient: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                        unlocked: false, // Lógica especial
+                        requirement: 'Inicia sesión antes de las 8 AM'
+                    },
+                    {
+                        id: 'night_owl',
+                        titulo: '🦉 Búho Nocturno',
+                        descripcion: 'Estudiaste después de las 10 PM',
+                        icono: 'fas fa-moon',
+                        color: '#6366f1',
+                        gradient: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        unlocked: false, // Lógica especial
+                        requirement: 'Estudia después de las 10 PM'
+                    },
+                    {
+                        id: 'week_streak',
+                        titulo: '📅 Racha Semanal',
+                        descripcion: 'Accediste 7 días seguidos',
+                        icono: 'fas fa-calendar-check',
+                        color: '#14b8a6',
+                        gradient: 'linear-gradient(135deg, #14b8a6, #0d9488)',
+                        unlocked: false, // Requiere implementación de racha
+                        requirement: 'Accede 7 días consecutivos'
+                    }
+                ];
                 
-                if (logros.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-medal"></i><p>Aún no has desbloqueado logros</p><small>Completa cuestionarios para ganar tus primeros logros</small></div>';
-                    return;
-                }
+                const unlockedCount = allAchievements.filter(a => a.unlocked).length;
+                document.getElementById('logrosDesbloqueados').textContent = unlockedCount;
+                document.getElementById('achievementCount').textContent = unlockedCount;
+                document.getElementById('achievementTotal').textContent = allAchievements.length;
                 
-                container.innerHTML = logros.map(logro => `
-                    <div class="achievement-card" style="border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 12px; text-align: center; background: linear-gradient(135deg, ${logro.color}15, ${logro.color}05);">
-                        <div style="font-size: 3rem; color: ${logro.color}; margin-bottom: 1rem;">
+                container.innerHTML = allAchievements.map(logro => `
+                    <div class="achievement-card ${logro.unlocked ? '' : 'achievement-locked'}" 
+                         style="--achievement-color: ${logro.color}; --achievement-gradient: ${logro.gradient};">
+                        <div class="achievement-icon" style="color: ${logro.color};">
                             <i class="${logro.icono}"></i>
                         </div>
-                        <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">${logro.titulo}</h4>
-                        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">${logro.descripcion}</p>
+                        <h4>${logro.titulo}</h4>
+                        <p>${logro.descripcion}</p>
+                        ${logro.unlocked ? 
+                            '<div class="achievement-date"><i class="fas fa-check-circle"></i> Desbloqueado</div>' : 
+                            `<div class="achievement-date" style="color: #94a3b8;"><i class="fas fa-lock"></i> ${logro.requirement}</div>`
+                        }
                     </div>
                 `).join('');
                 
             } catch (error) {
                 console.error('Error loading achievements:', error);
+                document.getElementById('misLogros').innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <p>Error al cargar logros</p>
+                    </div>
+                `;
             }
         }
 
