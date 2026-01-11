@@ -8946,25 +8946,6 @@ function openImageModal(imageUrl, title) {
                 console.error('Error loading gamification stats:', error);
             }
         }
-        
-        // Función para calcular nivel basado en puntos
-        function calculateLevel(points) {
-            // Cada nivel requiere más XP: nivel 1 = 100 XP, nivel 2 = 200 XP, etc.
-            let level = 1;
-            let totalXPNeeded = 0;
-            let xpForNextLevel = 100;
-            
-            while (points >= totalXPNeeded + xpForNextLevel) {
-                totalXPNeeded += xpForNextLevel;
-                level++;
-                xpForNextLevel = level * 100; // Incremento progresivo
-            }
-            
-            const currentXP = points - totalXPNeeded;
-            const progress = Math.round((currentXP / xpForNextLevel) * 100);
-            
-            return { level, currentXP, xpForNextLevel, progress };
-        }
 
         async function loadLeaderboardPersonal() {
             try {
