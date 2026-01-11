@@ -1,6 +1,11 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Permitir acceso a todas las colecciones (temporal para desarrollo)
+    match /{document=**} {
+      allow read, write: if true;
+    }
+    
     // Permitir lectura/escritura en pendingStudents para registro público
     match /pendingStudents/{document} {
       allow read, write: if true;
@@ -8,7 +13,7 @@ service cloud.firestore {
 
     // Permitir lectura/escritura en users para autenticación
     match /users/{document} {
-      allow read, write: if request.auth != null || true; // Permitir acceso temporal para debugging
+      allow read, write: if true;
     }
 
     // Permitir lectura/escritura en contenido para usuarios autenticados (admin)
@@ -17,6 +22,10 @@ service cloud.firestore {
     }
 
     match /classes/{document} {
+      allow read, write: if true;
+    }
+    
+    match /class_chunks/{document} {
       allow read, write: if true;
     }
 
@@ -35,10 +44,45 @@ service cloud.firestore {
     match /evaluaciones/{document} {
       allow read, write: if true;
     }
-  }
-
-  // Allow all for any other documents
-  match /{document=**} {
-    allow read, write: if true;
+    
+    match /entregas/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasCuestionarios/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasEvaluaciones/{document} {
+      allow read, write: if true;
+    }
+    
+    match /foros/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasForos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /calificaciones_modulos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /configuracion/{document} {
+      allow read, write: if true;
+    }
+    
+    match /fotos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /recursos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /contactos/{document} {
+      allow read, write: if true;
+    }
   }
 }
