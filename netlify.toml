@@ -1,30 +1,74 @@
-[build]
-  publish = "."
-  command = "node build.js"
+headersOrigin = "config"
+redirectsOrigin = "config"
+plugins = []
 
-[build.environment]
+[functions]
+
+  [functions."*"]
+
+[build]
+publish = "C:\\workspace"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "node build.js"
+
+  [build.environment]
   NODE_VERSION = "18"
 
+  [build.processing]
+
+    [build.processing.css]
+
+    [build.processing.html]
+
+    [build.processing.images]
+
+    [build.processing.js]
+
+  [build.services]
+
+[[headers]]
+for = "/*"
+
+  [headers.values]
+  X-Frame-Options = "DENY"
+  X-XSS-Protection = "1; mode=block"
+  X-Content-Type-Options = "nosniff"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+for = "*.js"
+
+  [headers.values]
+  Cache-Control = "public, max-age=0, must-revalidate"
+  X-Content-Type-Options = "nosniff"
+
+[[headers]]
+for = "*.css"
+
+  [headers.values]
+  Cache-Control = "public, max-age=0, must-revalidate"
+
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200
+force = false
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
+  [redirects.query]
 
-[[headers]]
-  for = "*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-    X-Content-Type-Options = "nosniff"
+  [redirects.conditions]
 
-[[headers]]
-  for = "*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+  [redirects.headers]
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200
+force = false
+
+  [redirects.query]
+
+  [redirects.conditions]
+
+  [redirects.headers]
