@@ -7,6 +7,8 @@
     <title>Portal Estudiante | Charlotte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
+    <!-- JaaS (Jitsi as a Service) API -->
+    <script src="https://8x8.vc/vpaas-magic-cookie-f9b193b32789486da9489bb7ea7f61e9/external_api.js" async></script>
 
     <!-- Firebase Environment Variables -->
     <script>
@@ -3517,22 +3519,120 @@
                     });
                 }
 
-                // =================== FUNCIONES DE VIDEOCONFERENCIA ===================
+                // =================== FUNCIONES DE VIDEOCONFERENCIA (JaaS) ===================
+                let jitsiApi = null;
+                
                 window.joinConference = function(roomName) {
-                    const iframe = document.getElementById('jitsi-iframe');
                     const container = document.getElementById('conference-container');
-                    const url = `https://meet.jit.si/${roomName}`;
-                    iframe.src = url;
-                    container.style.display = 'block';
-                    // Scroll to the conference
-                    container.scrollIntoView({ behavior: 'smooth' });
+                    const jaasContainer = document.getElementById('jaas-container');
+                    
+                    // Obtener datos del usuario actual
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+                    const userName = currentUser.name || currentUser.email || 'Estudiante';
+                    const userEmail = currentUser.email || '';
+                    
+                    // Limpiar contenedor anterior si existe
+                    if (jitsiApi) {
+                        jitsiApi.dispose();
+                        jitsiApi = null;
+                    }
+                    jaasContainer.innerHTML = '';
+                    
+                    // Mapear nombres de sala a nombres completos
+                    const roomNames = {
+                        'sala-general': 'CharlotteSalaGeneral',
+                        'panaderia': 'CharlottePanaderia',
+                        'belleza': 'CharlotteBelleza'
+                    };
+                    
+                    const fullRoomName = roomNames[roomName] || roomName;
+                    
+                    try {
+                        // Crear instancia de JaaS
+                        jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
+                            roomName: `vpaas-magic-cookie-f9b193b32789486da9489bb7ea7f61e9/${fullRoomName}`,
+                            parentNode: jaasContainer,
+                            width: '100%',
+                            height: 600,
+                            userInfo: {
+                                displayName: userName,
+                                email: userEmail
+                            },
+                            configOverwrite: {
+                                startWithAudioMuted: true,
+                                startWithVideoMuted: true,
+                                prejoinPageEnabled: false,
+                                disableDeepLinking: true,
+                                lang: 'es'
+                            },
+                            interfaceConfigOverwrite: {
+                                TOOLBAR_BUTTONS: [
+                                    'microphone', 'camera', 'closedcaptions', 'desktop',
+                                    'fullscreen', 'fodeviceselection', 'hangup', 'chat',
+                                    'raisehand', 'videoquality', 'filmstrip', 'participants-pane',
+                                    'tileview', 'select-background', 'mute-everyone'
+                                ],
+                                SHOW_JITSI_WATERMARK: false,
+                                SHOW_BRAND_WATERMARK: false,
+                                BRAND_WATERMARK_LINK: '',
+                                SHOW_POWERED_BY: false,
+                                DEFAULT_BACKGROUND: '#1e3a8a',
+                                MOBILE_APP_PROMO: false,
+                                DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
+                            }
+                        });
+                        
+                        // Eventos de la conferencia
+                        jitsiApi.addListener('videoConferenceJoined', () => {
+                            console.log('Usuario unido a la conferencia:', fullRoomName);
+                            document.getElementById('conferenceStatus').textContent = 'Conectado';
+                        });
+                        
+                        jitsiApi.addListener('videoConferenceLeft', () => {
+                            console.log('Usuario salió de la conferencia');
+                            closeConference();
+                        });
+                        
+                        jitsiApi.addListener('participantJoined', () => {
+                            updateParticipantCount();
+                        });
+                        
+                        jitsiApi.addListener('participantLeft', () => {
+                            updateParticipantCount();
+                        });
+                        
+                        container.style.display = 'block';
+                        container.scrollIntoView({ behavior: 'smooth' });
+                        
+                    } catch (error) {
+                        console.error('Error al iniciar JaaS:', error);
+                        alert('Error al conectar con el servicio de videoconferencia. Por favor, intenta de nuevo.');
+                    }
                 };
+                
+                function updateParticipantCount() {
+                    if (jitsiApi) {
+                        const count = jitsiApi.getNumberOfParticipants();
+                        const participantsEl = document.getElementById('conferenceParticipants');
+                        if (participantsEl) {
+                            participantsEl.textContent = count;
+                        }
+                    }
+                }
 
                 window.closeConference = function() {
-                    const iframe = document.getElementById('jitsi-iframe');
                     const container = document.getElementById('conference-container');
-                    iframe.src = '';
+                    const jaasContainer = document.getElementById('jaas-container');
+                    
+                    if (jitsiApi) {
+                        jitsiApi.dispose();
+                        jitsiApi = null;
+                    }
+                    
+                    jaasContainer.innerHTML = '';
                     container.style.display = 'none';
+                    document.getElementById('conferenceStatus').textContent = 'En vivo';
+                    document.getElementById('conferenceParticipants').textContent = '-';
                 };
             });
             </script>
@@ -4201,7 +4301,7 @@
                     </div>
                 </div>
 
-                <!-- Contenedor de conferencia activa -->
+                <!-- Contenedor de conferencia activa (JaaS) -->
                 <div id="conference-container" class="content-card" style="display: none; margin-top: 1.5rem;">
                     <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 12px 12px 0 0; border-bottom: 1px solid #e2e8f0;">
                         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -4212,7 +4312,7 @@
                             <i class="fas fa-times"></i> Cerrar Conferencia
                         </button>
                     </div>
-                    <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen allow="camera; microphone; display-capture; autoplay; encrypted-media" style="border-radius: 0 0 12px 12px;"></iframe>
+                    <div id="jaas-container" style="width: 100%; height: 600px; border-radius: 0 0 12px 12px; overflow: hidden;"></div>
                 </div>
 
                 <!-- Información adicional -->
