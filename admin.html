@@ -5347,12 +5347,12 @@
         console.log('Current user from session:', currentUser);
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
-        } else {
-            // Cargar datos iniciales
-            loadDashboardStats();
-            loadUsuariosPendientes();
-            loadUsuariosAprobados();
         }
+        
+        // Flag para evitar cargas duplicadas
+        let dashboardLoaded = false;
+        let usuariosPendientesLoaded = false;
+        let usuariosAprobadosLoaded = false;
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
@@ -6046,49 +6046,43 @@
                 });
             }        });
 
-        // Dashboard stats
-        async function loadDashboardStats() {
+        // Dashboard stats - con caché para evitar consultas repetidas
+        let statsCache = null;
+        let statsCacheTime = 0;
+        const STATS_CACHE_DURATION = 30000; // 30 segundos de caché
+        
+        async function loadDashboardStats(forceReload = false) {
+            // Evitar cargas duplicadas simultáneas
+            if (dashboardLoaded && !forceReload && statsCache && (Date.now() - statsCacheTime < STATS_CACHE_DURATION)) {
+                console.log('Using cached dashboard stats');
+                applyStatsToUI(statsCache);
+                return;
+            }
+            
+            dashboardLoaded = true;
             console.log('Loading dashboard stats');
+            
             try {
-                const videosSnapshot = await getDocs(collection(db, 'content'));
-                console.log('Videos snapshot size:', videosSnapshot.size);
-                document.getElementById('stat-videos').textContent = videosSnapshot.size;
-
-                const clasesSnapshot = await getDocs(collection(db, 'classes'));
-                console.log('Clases snapshot size:', clasesSnapshot.size);
-                document.getElementById('stat-clases').textContent = clasesSnapshot.size;
-
-                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
-                console.log('Actividades snapshot size:', actividadesSnapshot.size);
-                document.getElementById('stat-actividades').textContent = actividadesSnapshot.size;
-
-                const materialesSnapshot = await getDocs(collection(db, 'materials'));
-                console.log('Materiales snapshot size:', materialesSnapshot.size);
-                document.getElementById('stat-materiales').textContent = materialesSnapshot.size;
-
-                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
-                console.log('Entregas snapshot size:', entregasSnapshot.size);
-                document.getElementById('stat-entregas').textContent = entregasSnapshot.size;
-
-                const respuestasSnapshot = await getDocs(collection(db, 'respuestas'));
-                console.log('Respuestas snapshot size:', respuestasSnapshot.size);
-                // Si hay un elemento para mostrar respuestas en el dashboard, actualizarlo aquí
-
-                const usuariosSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
-                console.log('Usuarios snapshot size (raw):', usuariosSnapshot.size);
+                // Cargar todas las colecciones en paralelo para mayor velocidad
+                const [videosSnapshot, clasesSnapshot, actividadesSnapshot, materialesSnapshot, entregasSnapshot, respuestasSnapshot, usuariosSnapshot, cuestionariosSnapshot, evaluacionesSnapshot] = await Promise.all([
+                    getDocs(collection(db, 'content')),
+                    getDocs(collection(db, 'classes')),
+                    getDocs(collection(db, 'activities')),
+                    getDocs(collection(db, 'materials')),
+                    getDocs(collection(db, 'entregas')),
+                    getDocs(collection(db, 'respuestas')),
+                    getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
+                    getDocs(collection(db, 'cuestionarios')),
+                    getDocs(collection(db, 'evaluaciones'))
+                ]);
                 
-                // Filtrar usuarios activos y eliminar duplicados por email
+                console.log('All stats loaded in parallel');
+                
+                // Procesar usuarios
                 let activeUsers = usuariosSnapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(user => user.status === 'active');
                 
-                console.log('Usuarios por status:', {
-                    total: usuariosSnapshot.size,
-                    active: activeUsers.length,
-                    inactive: usuariosSnapshot.size - activeUsers.length
-                });
-                
-                // Eliminar duplicados basados en email, manteniendo el más reciente
                 const uniqueUsers = {};
                 activeUsers.forEach(user => {
                     const email = user.email;
@@ -6097,20 +6091,35 @@
                     }
                 });
                 
-                const finalUserCount = Object.keys(uniqueUsers).length;
-                console.log('Usuarios activos únicos:', finalUserCount);
-                document.getElementById('stat-usuarios').textContent = finalUserCount;
-
-                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
-                console.log('Cuestionarios snapshot size:', cuestionariosSnapshot.size);
-                document.getElementById('stat-cuestionarios').textContent = cuestionariosSnapshot.size;
-
-                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
-                console.log('Evaluaciones snapshot size:', evaluacionesSnapshot.size);
-                document.getElementById('stat-evaluaciones').textContent = evaluacionesSnapshot.size;
+                // Guardar en caché
+                statsCache = {
+                    videos: videosSnapshot.size,
+                    clases: clasesSnapshot.size,
+                    actividades: actividadesSnapshot.size,
+                    materiales: materialesSnapshot.size,
+                    entregas: entregasSnapshot.size,
+                    usuarios: Object.keys(uniqueUsers).length,
+                    cuestionarios: cuestionariosSnapshot.size,
+                    evaluaciones: evaluacionesSnapshot.size
+                };
+                statsCacheTime = Date.now();
+                
+                applyStatsToUI(statsCache);
             } catch (error) {
                 console.error('Error loading stats:', error);
+                dashboardLoaded = false;
             }
+        }
+        
+        function applyStatsToUI(stats) {
+            document.getElementById('stat-videos').textContent = stats.videos;
+            document.getElementById('stat-clases').textContent = stats.clases;
+            document.getElementById('stat-actividades').textContent = stats.actividades;
+            document.getElementById('stat-materiales').textContent = stats.materiales;
+            document.getElementById('stat-entregas').textContent = stats.entregas;
+            document.getElementById('stat-usuarios').textContent = stats.usuarios;
+            document.getElementById('stat-cuestionarios').textContent = stats.cuestionarios;
+            document.getElementById('stat-evaluaciones').textContent = stats.evaluaciones;
         }
 
         // Usuarios pendientes
@@ -15429,13 +15438,21 @@ REGLAS ESTRICTAS:
                 }
             }, 100);
 
-            // Cargar datos iniciales del dashboard
-            loadDashboardStats();
+            // Cargar datos iniciales del dashboard (solo si no se han cargado)
+            if (!dashboardLoaded) loadDashboardStats();
+            if (!usuariosPendientesLoaded) {
+                usuariosPendientesLoaded = true;
+                loadUsuariosPendientes();
+            }
+            if (!usuariosAprobadosLoaded) {
+                usuariosAprobadosLoaded = true;
+                loadUsuariosAprobados();
+            }
+            
+            // Cargar otros datos (solo una vez)
             loadForosList();
             loadForosPendientes();
             loadGamificacionStats();
-            loadUsuariosPendientes();
-            loadUsuariosAprobados();
         });
     </script>
 
