@@ -2455,7 +2455,6 @@
                 <div class="nav-item" data-section="cuestionarios-manager"><i class="fas fa-tasks"></i><span>Gestión Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
-                <div class="nav-item" data-section="respuestas-cuestionarios"><i class="fas fa-poll"></i><span>Resultados Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Gestión de Actividades</span></div>
 
@@ -3793,143 +3792,182 @@
             <!-- Gestión de Cuestionarios -->
             <div id="cuestionarios-manager" class="content-section">
 
-                <!-- Centro de Gestión Integral -->
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-                            <div>
-                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
-                                    <i class="fas fa-cogs"></i> Centro de Gestión Integral
-                                </h3>
-                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de evaluaciones y cuestionarios</p>
-                            </div>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    <span id="totalEvaluacionesBadge">0</span> Evaluaciones
-                                </div>
-                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-question-circle"></i>
-                                    <span id="totalCuestionariosBadge">0</span> Cuestionarios
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Pestañas de navegación -->
+                <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                    <button type="button" onclick="switchCuestionariosTab('gestion')" id="tabGestion" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-list"></i> Cuestionarios
+                    </button>
+                    <button type="button" onclick="switchCuestionariosTab('resultados')" id="tabResultados" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-poll"></i> Resultados
+                    </button>
                 </div>
 
-                <!-- Filtros y Búsqueda -->
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
+                <!-- Panel de Gestión -->
+                <div id="panelGestionCuestionarios">
+
+                <!-- Header con estadísticas integradas -->
+                <div class="quiz-builder-section" style="margin-bottom: 1.5rem;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1.5rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-file-alt"></i> Gestión de Cuestionarios
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Administra, edita y elimina cuestionarios</p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="totalCuestionariosBadge">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Total</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="cuestionariosActivosBadge">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Activos</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="filters-grid">
-                        <div class="filter-group">
-                            <label for="filterProgramaCuestionarios">Programa:</label>
-                            <select id="filterProgramaCuestionarios">
-                                <option value="">Todos los programas</option>
+
+                    <!-- Filtros compactos -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterProgramaCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Programa</label>
+                            <select id="filterProgramaCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="Belleza Integral">Belleza Integral</option>
                                 <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                <option value="Asesoría Técnica">Asesoría Técnica</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterSedeCuestionarios">Sede:</label>
-                            <select id="filterSedeCuestionarios">
-                                <option value="">Todas las sedes</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterSedeCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Sede</label>
+                            <select id="filterSedeCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todas</option>
                                 <option value="Carapungo">Carapungo</option>
                                 <option value="Sangolquí">Sangolquí</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterHorarioCuestionarios">Horario:</label>
-                            <select id="filterHorarioCuestionarios">
-                                <option value="">Todos los horarios</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterHorarioCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Horario</label>
+                            <select id="filterHorarioCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="Sábado Matutina">Sábado Matutina</option>
                                 <option value="Sábado Vespertina">Sábado Vespertina</option>
                                 <option value="Domingo Matutina">Domingo Matutina</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterEstado">Estado:</label>
-                            <select id="filterEstado">
-                                <option value="">Todos los estados</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterEstado" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Estado</label>
+                            <select id="filterEstado" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="activo">Activos</option>
                                 <option value="inactivo">Inactivos</option>
-                                <option value="borrador">Borradores</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="searchCuestionario">Buscar:</label>
-                            <input type="text" id="searchCuestionario" placeholder="Buscar por título o descripción...">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="searchCuestionario" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Buscar</label>
+                            <input type="text" id="searchCuestionario" placeholder="Título o descripción..." style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
                         </div>
-                        <div class="filter-group">
-                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosCuestionarios()">
-                                <i class="fas fa-search"></i> Aplicar Filtros
+                        <div class="form-group" style="margin: 0; display: flex; align-items: flex-end; gap: 0.5rem;">
+                            <button type="button" class="btn-primary" onclick="aplicarFiltrosCuestionarios()" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                <i class="fas fa-search"></i> Filtrar
                             </button>
-                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosCuestionarios()">
-                                <i class="fas fa-times"></i> Limpiar
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosCuestionarios()" style="padding: 0.5rem 0.75rem; font-size: 0.85rem;">
+                                <i class="fas fa-times"></i>
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Estadísticas Rápidas -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="totalCuestionarios">0</h3>
-                                <p class="stat-label">Total Items</p>
-                            </div>
-                            <div class="stat-card-icon blue"><i class="fas fa-file-alt"></i></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="cuestionariosActivos">0</h3>
-                                <p class="stat-label">Activos</p>
-                            </div>
-                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="totalRespuestas">0</h3>
-                                <p class="stat-label">Total Respuestas</p>
-                            </div>
-                            <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-card-header">
-                            <div>
-                                <h3 class="stat-value" id="promedioCalificaciones">0%</h3>
-                                <p class="stat-label">Promedio General</p>
-                            </div>
-                            <div class="stat-card-icon orange"><i class="fas fa-chart-line"></i></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Lista de Cuestionarios -->
                 <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-list"></i> Cuestionarios y Evaluaciones Disponibles</h3>
-                        <div class="header-actions">
-                            <button type="button" class="btn-secondary" onclick="exportarCuestionarios()">
-                                <i class="fas fa-download"></i> Exportar
-                            </button>
-                            <button type="button" class="btn-primary" onclick="recargarCuestionarios()">
-                                <i class="fas fa-sync"></i> Actualizar
-                            </button>
-                        </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="margin: 0; color: #374151; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-list"></i> Lista de Cuestionarios
+                        </h4>
+                        <button type="button" class="btn-primary" onclick="recargarCuestionarios()" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
                     </div>
                     <div id="cuestionariosManagerGrid" class="cuestionarios-grid">
                         <!-- Los cuestionarios se cargarán aquí -->
                     </div>
                 </div>
+                </div><!-- Fin del panelGestionCuestionarios -->
+
+                <!-- Panel de Resultados -->
+                <div id="panelResultadosCuestionarios" style="display: none;">
+                    <div class="quiz-builder-section">
+                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.8rem;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
+                                    <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-graduation-cap"></i> Programa
+                                    </label>
+                                    <select id="filtroProgResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los programas</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-file-alt"></i> Cuestionario
+                                    </label>
+                                    <select id="filtroCuestionarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los cuestionarios</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-search"></i> Buscar estudiante
+                                    </label>
+                                    <input type="text" id="buscarEstudianteResultados" placeholder="Nombre o email..." onkeyup="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-sort"></i> Ordenar por
+                                    </label>
+                                    <select id="ordenResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="fecha-desc">Más recientes primero</option>
+                                        <option value="fecha-asc">Más antiguos primero</option>
+                                        <option value="calificacion-desc">Mayor calificación</option>
+                                        <option value="calificacion-asc">Menor calificación</option>
+                                        <option value="nombre-asc">Nombre A-Z</option>
+                                        <option value="nombre-desc">Nombre Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de resultados -->
+                        <div id="resultadosCuestionariosList" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                                <p style="margin-top: 1rem;">Cargando resultados...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Fin del panelResultadosCuestionarios -->
             </div>
 
             <!-- Evaluaciones -->
@@ -4385,81 +4423,6 @@
                                     <i class="fas fa-rocket"></i> Publicar Evaluación
                                 </button>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Resultados de Cuestionarios -->
-            <div id="respuestas-cuestionarios" class="content-section">
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                            <div>
-                                <h3 style="margin: 0; font-size: 1.8rem;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
-                                <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
-                            </div>
-                            <div style="display: flex; gap: 1rem;">
-                                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
-                                    <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
-                                </div>
-                                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
-                                    <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
-                                    <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Filtros -->
-                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                            <div class="form-group">
-                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                    <i class="fas fa-graduation-cap"></i> Programa
-                                </label>
-                                <select id="filtroProgResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
-                                    <option value="">Todos los programas</option>
-                                    <option value="Belleza Integral">Belleza Integral</option>
-                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                    <i class="fas fa-file-alt"></i> Cuestionario
-                                </label>
-                                <select id="filtroCuestionarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
-                                    <option value="">Todos los cuestionarios</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                    <i class="fas fa-search"></i> Buscar estudiante
-                                </label>
-                                <input type="text" id="buscarEstudianteResultados" placeholder="Nombre o email..." onkeyup="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                    <i class="fas fa-sort"></i> Ordenar por
-                                </label>
-                                <select id="ordenResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
-                                    <option value="fecha-desc">Más recientes primero</option>
-                                    <option value="fecha-asc">Más antiguos primero</option>
-                                    <option value="calificacion-desc">Mayor calificación</option>
-                                    <option value="calificacion-asc">Menor calificación</option>
-                                    <option value="nombre-asc">Nombre A-Z</option>
-                                    <option value="nombre-desc">Nombre Z-A</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lista de resultados -->
-                    <div id="resultadosCuestionariosList" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                        <div style="text-align: center; padding: 3rem; color: #64748b;">
-                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
-                            <p style="margin-top: 1rem;">Cargando resultados...</p>
                         </div>
                     </div>
                 </div>
@@ -5457,7 +5420,6 @@
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
-            else if (sectionId === 'respuestas-cuestionarios') try { loadResultadosCuestionarios(); } catch (e) { console.error('Error loading respuestas-cuestionarios:', e); }
             else if (sectionId === 'actividades') {
                 try { 
                     loadActividadesList(); 
@@ -11825,6 +11787,32 @@ REGLAS ESTRICTAS:
             search: ''
         };
 
+        // Función para cambiar entre pestañas de Gestión y Resultados
+        function switchCuestionariosTab(tab) {
+            const tabGestion = document.getElementById('tabGestion');
+            const tabResultados = document.getElementById('tabResultados');
+            const panelGestion = document.getElementById('panelGestionCuestionarios');
+            const panelResultados = document.getElementById('panelResultadosCuestionarios');
+            
+            if (tab === 'gestion') {
+                tabGestion.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                tabGestion.style.color = 'white';
+                tabResultados.style.background = '#f1f5f9';
+                tabResultados.style.color = '#64748b';
+                panelGestion.style.display = 'block';
+                panelResultados.style.display = 'none';
+            } else if (tab === 'resultados') {
+                tabResultados.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                tabResultados.style.color = 'white';
+                tabGestion.style.background = '#f1f5f9';
+                tabGestion.style.color = '#64748b';
+                panelGestion.style.display = 'none';
+                panelResultados.style.display = 'block';
+                // Cargar resultados al cambiar a esa pestaña
+                loadResultadosCuestionarios();
+            }
+        }
+
         // Función para cargar cuestionarios en el manager
         async function loadCuestionariosManager() {
             try {
@@ -11841,26 +11829,9 @@ REGLAS ESTRICTAS:
                             ...data,
                             tipo: 'cuestionario'
                         };
-                    })
-                    .filter(cuestionario => {
-                        // Por ahora, no filtrar nada para ver todos los cuestionarios
-                        console.log('Procesando cuestionario:', cuestionario.titulo);
-                        return true;
                     });
 
-                // También cargar evaluaciones
-                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
-                console.log('Evaluaciones encontradas en Firestore:', evaluacionesSnapshot.size);
-
-                const evaluacionesData = evaluacionesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    tipo: 'evaluacion'
-                }));
-
-                cuestionariosManagerData = [...cuestionariosManagerData, ...evaluacionesData];
-
-                console.log(`Total cargados: ${cuestionariosManagerData.length} items (cuestionarios: ${cuestionariosManagerData.filter(c => c.tipo === 'cuestionario').length}, evaluaciones: ${cuestionariosManagerData.filter(c => c.tipo === 'evaluacion').length})`);
+                console.log(`Total cuestionarios cargados: ${cuestionariosManagerData.length}`);
                 aplicarFiltrosCuestionarios();
                 actualizarEstadisticasCuestionarios();
 
@@ -11977,9 +11948,9 @@ REGLAS ESTRICTAS:
             if (data.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: #64748b;">
-                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                        <h3>No se encontraron cuestionarios o evaluaciones</h3>
-                        <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
+                        <i class="fas fa-file-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h3 style="margin: 0 0 0.5rem 0; color: #374151;">No se encontraron cuestionarios</h3>
+                        <p style="margin: 0; color: #64748b;">Intenta ajustar los filtros o crea uno nuevo</p>
                     </div>
                 `;
                 return;
@@ -11999,11 +11970,8 @@ REGLAS ESTRICTAS:
                     <div class="cuestionario-card">
                         <div class="cuestionario-header">
                             <div class="cuestionario-title">
-                                <i class="fas fa-${cuestionario.tipo === 'cuestionario' ? 'file-alt' : 'clipboard-check'}"></i>
+                                <i class="fas fa-file-alt"></i>
                                 ${cuestionario.titulo || 'Sin título'}
-                                <span class="tipo-badge ${cuestionario.tipo === 'cuestionario' ? 'badge-cuestionario' : 'badge-evaluacion'}">
-                                    ${cuestionario.tipo === 'cuestionario' ? 'Cuestionario' : 'Evaluación'}
-                                </span>
                             </div>
                             <div class="cuestionario-meta">
                                 <span class="meta-item">
@@ -12049,14 +12017,14 @@ REGLAS ESTRICTAS:
                                 </div>
                             </div>
                             <div class="cuestionario-actions">
-                                <button type="button" class="btn-primary-cuestionario" onclick="verDetalleCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
-                                    <i class="fas fa-eye"></i> Ver Detalles
+                                <button type="button" class="btn-primary-cuestionario" onclick="verDetalleCuestionario('${cuestionario.id}', 'cuestionario')">
+                                    <i class="fas fa-eye"></i> Ver
                                 </button>
-                                <button type="button" class="btn-secondary-cuestionario" onclick="editarCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
+                                <button type="button" class="btn-secondary-cuestionario" onclick="editarCuestionario('${cuestionario.id}', 'cuestionario')">
                                     <i class="fas fa-edit"></i> Editar
                                 </button>
-                                <button type="button" class="btn-secondary-cuestionario" onclick="duplicarCuestionario('${cuestionario.id}', '${cuestionario.tipo}')">
-                                    <i class="fas fa-copy"></i> Duplicar
+                                <button type="button" class="btn-danger-cuestionario" onclick="eliminarCuestionario('${cuestionario.id}')" style="background: #ef4444; color: white;">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </div>
                         </div>
@@ -12065,11 +12033,10 @@ REGLAS ESTRICTAS:
             }).join('');
         }
 
-        // Función para calcular estadísticas de un cuestionario (usa la misma lógica que cargarEstadisticasDetalle)
+        // Función para calcular estadísticas de un cuestionario
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
-                const collectionName = cuestionario.tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const snapshot = await getDocs(query(collection(db, collectionName), where('cuestionarioId', '==', cuestionario.id)));
+                const snapshot = await getDocs(query(collection(db, 'respuestasCuestionarios'), where('cuestionarioId', '==', cuestionario.id)));
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
                 const totalRespuestas = respuestas.length;
@@ -12109,10 +12076,11 @@ REGLAS ESTRICTAS:
 
                 const promedioGeneral = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
 
-                document.getElementById('totalCuestionarios').textContent = total;
-                document.getElementById('cuestionariosActivos').textContent = activos;
-                document.getElementById('totalRespuestas').textContent = totalRespuestas;
-                document.getElementById('promedioCalificaciones').textContent = `${promedioGeneral}%`;
+                // Actualizar badges del header
+                const totalBadge = document.getElementById('totalCuestionariosBadge');
+                const activosBadge = document.getElementById('cuestionariosActivosBadge');
+                if (totalBadge) totalBadge.textContent = total;
+                if (activosBadge) activosBadge.textContent = activos;
 
             } catch (error) {
                 console.error('Error updating cuestionarios statistics:', error);
@@ -12515,12 +12483,11 @@ REGLAS ESTRICTAS:
         }
 
         // Función para eliminar cuestionario
-        async function eliminarCuestionario(cuestionarioId, tipo) {
+        async function eliminarCuestionario(cuestionarioId, tipo = 'cuestionario') {
             if (!confirm('¿Estás seguro de que quieres eliminar este cuestionario? Esta acción no se puede deshacer.')) return;
 
             try {
-                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                await deleteDoc(doc(db, collectionName, cuestionarioId));
+                await deleteDoc(doc(db, 'cuestionarios', cuestionarioId));
 
                 alert('Cuestionario eliminado exitosamente');
                 closeCuestionarioModal();
