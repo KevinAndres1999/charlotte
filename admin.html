@@ -7211,9 +7211,9 @@
         // Función para cargar preview de cuestionario
         async function loadCuestionarioPreview(cuestionarioId) {
             try {
-                const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7270,7 +7270,7 @@
                             <div class="meta-item"><i class="fas fa-question"></i> ${data.preguntas ? data.preguntas.length : 0} preguntas</div>
                         </div>
                         <div class="preview-actions">
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('cuestionarios', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('cuestionarios', '${cuestionarioId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -7287,9 +7287,9 @@
         // Función para cargar preview de evaluación
         async function loadEvaluacionPreview(evaluacionId) {
             try {
-                const doc = await getDoc(doc(db, 'evaluaciones', evaluacionId));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'evaluaciones', evaluacionId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7346,7 +7346,7 @@
                             <div class="meta-item"><i class="fas fa-question"></i> ${data.preguntas ? data.preguntas.length : 0} preguntas</div>
                         </div>
                         <div class="preview-actions">
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('evaluaciones', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('evaluaciones', '${evaluacionId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -7363,9 +7363,9 @@
         // Función para cargar preview de video
         async function loadVideoPreview(videoId) {
             try {
-                const doc = await getDoc(doc(db, 'content', videoId));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'content', videoId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7403,7 +7403,7 @@
                             <a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
                                 <i class="fas fa-external-link-alt"></i> Ver Video
                             </a>
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('content', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('content', '${videoId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -7420,9 +7420,9 @@
         // Función para cargar preview de clase
         async function loadClasePreview(claseId) {
             try {
-                const doc = await getDoc(doc(db, 'classes', claseId));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'classes', claseId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7474,7 +7474,7 @@
                             <button class="btn-preview btn-preview-primary" onclick="alert('La clase se puede visualizar completamente en el área de contenido arriba. El contenido HTML se muestra tal como fue creado con el editor.')" title="El contenido se muestra arriba">
                                 <i class="fas fa-eye"></i> Contenido Visible
                             </button>
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('classes', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('classes', '${claseId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -7491,9 +7491,9 @@
         // Función para cargar preview de material
         async function loadMaterialPreview(materialId) {
             try {
-                const doc = await getDoc(doc(db, 'materials', materialId));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'materials', materialId));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7537,7 +7537,7 @@
                             ${data.url ? `<a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
                                 <i class="fas fa-external-link-alt"></i> Ver/Descargar
                             </a>` : ''}
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('materials', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('materials', '${materialId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -7555,10 +7555,10 @@
         async function loadRecursoPreview(recursoId, tipo) {
             try {
                 const collectionName = tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos';
-                const doc = await getDoc(doc(db, collectionName, recursoId));
+                const docSnap = await getDoc(doc(db, collectionName, recursoId));
 
-                if (doc.exists) {
-                    const data = doc.data();
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
                     const sidebar = document.getElementById('previewSidebar');
@@ -7601,7 +7601,7 @@
                             ${data.url ? `<a href="${data.url}" target="_blank" class="btn-preview btn-preview-primary">
                                 <i class="fas fa-external-link-alt"></i> Ver ${tipoText}
                             </a>` : ''}
-                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('${collectionName}', '${doc.id}')">
+                            <button class="btn-preview btn-preview-danger" onclick="deleteItem('${collectionName}', '${recursoId}')">
                                 <i class="fas fa-trash"></i> Eliminar
                             </button>
                         </div>
@@ -8066,9 +8066,9 @@
         // Función para ver evaluación (reutilizar la existente)
         async function viewEvaluacion(id) {
             try {
-                const doc = await getDoc(doc(db, 'evaluaciones', id));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'evaluaciones', id));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     showEvaluacionPreview({
                         titulo: data.titulo,
                         descripcion: data.descripcion,
@@ -8088,9 +8088,9 @@
         // Función para ver cuestionario
         async function viewCuestionario(id) {
             try {
-                const doc = await getDoc(doc(db, 'cuestionarios', id));
-                if (doc.exists) {
-                    const data = doc.data();
+                const docSnap = await getDoc(doc(db, 'cuestionarios', id));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
                     // Mostrar modal con información del cuestionario
                     showCuestionarioModal(data, id);
                 }
@@ -11239,13 +11239,13 @@ REGLAS ESTRICTAS:
         // Función para cargar detalles de una entrega específica
         async function loadEntregaDetail(entregaId) {
             try {
-                const doc = await getDoc(doc(db, 'entregas', entregaId));
-                if (!doc.exists) {
+                const docSnap = await getDoc(doc(db, 'entregas', entregaId));
+                if (!docSnap.exists()) {
                     console.error('Entrega no encontrada');
                     return;
                 }
                 
-                const entrega = { id: doc.id, ...doc.data() };
+                const entrega = { id: docSnap.id, ...docSnap.data() };
                 // Obtener nombre del estudiante desde la colección de usuarios
                 let nombreEstudiante = 'Estudiante';
                 if (entrega.estudianteId) {
@@ -11586,13 +11586,13 @@ REGLAS ESTRICTAS:
         async function loadRespuestaDetail(respuestaId) {
             try {
                 const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
-                const doc = await getDoc(doc(db, collectionName, respuestaId));
-                if (!doc.exists) {
+                const docSnap = await getDoc(doc(db, collectionName, respuestaId));
+                if (!docSnap.exists()) {
                     console.error('Respuesta no encontrada');
                     return;
                 }
                 
-                const respuesta = { id: doc.id, ...doc.data() };
+                const respuesta = { id: docSnap.id, ...docSnap.data() };
                 currentRespuestaIndex = respuestasData.findIndex(r => r.id === respuestaId);
                 
                 // Mostrar sección de detalle
@@ -12256,14 +12256,14 @@ REGLAS ESTRICTAS:
         async function verDetalleCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
+                const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
-                if (!doc.exists) {
+                if (!docSnap.exists()) {
                     alert('Cuestionario no encontrado');
                     return;
                 }
 
-                const cuestionario = { id: doc.id, ...doc.data() };
+                const cuestionario = { id: docSnap.id, ...docSnap.data() };
 
                 // Crear modal de detalle
                 const modal = document.createElement('div');
@@ -12408,14 +12408,14 @@ REGLAS ESTRICTAS:
         async function editarCuestionario(cuestionarioId, tipo) {
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
+                const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
-                if (!doc.exists) {
+                if (!docSnap.exists()) {
                     alert('Cuestionario no encontrado');
                     return;
                 }
 
-                const cuestionario = { id: doc.id, ...doc.data() };
+                const cuestionario = { id: docSnap.id, ...docSnap.data() };
 
                 // Crear modal de edición
                 const modal = document.createElement('div');
@@ -12609,8 +12609,8 @@ REGLAS ESTRICTAS:
 
             try {
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                const doc = await getDoc(doc(db, collectionName, cuestionarioId));
-                const cuestionario = doc.data();
+                const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
+                const cuestionario = docSnap.data();
 
                 const nuevoCuestionario = {
                     ...cuestionario,
