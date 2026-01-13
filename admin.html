@@ -7670,8 +7670,15 @@
         let itemsPerPage = 12;
         let selectedItems = new Set();
 
-        // Función principal para cargar el contenido de gestión
+        // Función principal para cargar el contenido de gestión (legacy - ya no se usa)
         async function loadManagementContent() {
+            // Verificar si el contenedor existe, si no, salir silenciosamente
+            const container = document.getElementById('managementContent');
+            if (!container) {
+                console.log('loadManagementContent: contenedor no existe, función legacy omitida');
+                return;
+            }
+            
             try {
                 // Cargar evaluaciones
                 const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
@@ -7711,18 +7718,29 @@
 
             } catch (error) {
                 console.error('Error loading management content:', error);
-                document.getElementById('managementContent').innerHTML =
-                    '<div style="text-align: center; padding: 3rem; color: #718096;"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i><br>Error al cargar el contenido</div>';
+                const errorContainer = document.getElementById('managementContent');
+                if (errorContainer) {
+                    errorContainer.innerHTML = '<div style="text-align: center; padding: 3rem; color: #718096;"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i><br>Error al cargar el contenido</div>';
+                }
             }
         }
 
-        // Función para filtrar contenido
+        // Función para filtrar contenido (legacy - ya no se usa)
         function filterManagementContent() {
-            const typeFilter = document.getElementById('managementFilterType').value;
-            const programaFilter = document.getElementById('managementFilterPrograma').value;
-            const sedeFilter = document.getElementById('managementFilterSede').value;
-            const horarioFilter = document.getElementById('managementFilterHorario').value;
-            const searchTerm = document.getElementById('managementSearch').value.toLowerCase();
+            // Verificar si los elementos existen
+            const typeFilterEl = document.getElementById('managementFilterType');
+            const programaFilterEl = document.getElementById('managementFilterPrograma');
+            const sedeFilterEl = document.getElementById('managementFilterSede');
+            const horarioFilterEl = document.getElementById('managementFilterHorario');
+            const searchEl = document.getElementById('managementSearch');
+            
+            if (!typeFilterEl || !programaFilterEl || !sedeFilterEl || !horarioFilterEl || !searchEl) return;
+            
+            const typeFilter = typeFilterEl.value;
+            const programaFilter = programaFilterEl.value;
+            const sedeFilter = sedeFilterEl.value;
+            const horarioFilter = horarioFilterEl.value;
+            const searchTerm = searchEl.value.toLowerCase();
 
             filteredManagementItems = allManagementItems.filter(item => {
                 // Filtro por tipo
@@ -7753,9 +7771,12 @@
             renderManagementContent();
         }
 
-        // Función para ordenar contenido
+        // Función para ordenar contenido (legacy - ya no se usa)
         function sortManagementContent() {
-            const sortBy = document.getElementById('managementSort').value;
+            const sortEl = document.getElementById('managementSort');
+            if (!sortEl) return;
+            
+            const sortBy = sortEl.value;
 
             filteredManagementItems.sort((a, b) => {
                 switch (sortBy) {
@@ -7777,9 +7798,11 @@
             renderManagementContent();
         }
 
-        // Función para renderizar el contenido
+        // Función para renderizar el contenido (legacy - ya no se usa)
         function renderManagementContent() {
             const container = document.getElementById('managementContent');
+            if (!container) return;
+            
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             const itemsToShow = filteredManagementItems.slice(startIndex, endIndex);
@@ -7792,7 +7815,8 @@
                         <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
                     </div>
                 `;
-                document.getElementById('paginationControls').style.display = 'none';
+                const paginationControls = document.getElementById('paginationControls');
+                if (paginationControls) paginationControls.style.display = 'none';
                 return;
             }
 
