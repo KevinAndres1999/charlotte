@@ -8756,8 +8756,8 @@
             const questionsDiv = document.getElementById(`questions-${cuestionarioId}`);
             if (questionsDiv.style.display === 'none') {
                 try {
-                    const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
-                    const data = doc.data();
+                    const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
+                    const data = cuestionarioDoc.data();
                     console.log('Preguntas del cuestionario:', data.preguntas); // Debug log
                     questionsDiv.innerHTML = data.preguntas.map((q, index) => `
                         <div class="question-item">
@@ -8782,8 +8782,8 @@
             for (const key of selectedQuestions) {
                 const [cuestionarioId, questionIndex] = key.split('-');
                 try {
-                    const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
-                    const data = doc.data();
+                    const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
+                    const data = cuestionarioDoc.data();
                     if (data.preguntas && data.preguntas[questionIndex]) {
                         questions.push(data.preguntas[questionIndex]);
                     }
