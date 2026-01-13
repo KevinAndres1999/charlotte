@@ -3902,7 +3902,7 @@
                         <div class="stat-card-header">
                             <div>
                                 <h3 class="stat-value" id="totalRespuestasCuest">0</h3>
-                                <p class="stat-label">Total Respuestas</p>
+                                <p class="stat-label">Estudiantes</p>
                             </div>
                             <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
                         </div>
@@ -4527,7 +4527,7 @@
                         <div class="stat-card-header">
                             <div>
                                 <h3 class="stat-value" id="totalRespuestasEvaluaciones">0</h3>
-                                <p class="stat-label">Total Respuestas</p>
+                                <p class="stat-label">Estudiantes</p>
                             </div>
                             <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
                         </div>
@@ -12111,7 +12111,7 @@ REGLAS ESTRICTAS:
                                 </div>
                                 <div class="stat-item">
                                     <div class="stat-value">${stats.totalRespuestas}</div>
-                                    <div class="stat-label">Respuestas</div>
+                                    <div class="stat-label">Estudiantes</div>
                                 </div>
                                 <div class="stat-item">
                                     <div class="stat-value">${stats.promedioCalificaciones}%</div>
@@ -12136,13 +12136,29 @@ REGLAS ESTRICTAS:
         }
 
         // Función para calcular estadísticas de un cuestionario
+        // Solo cuenta el último intento de cada estudiante (cada nuevo intento reemplaza al anterior)
         async function calcularEstadisticasCuestionario(cuestionario) {
             try {
                 const snapshot = await getDocs(query(collection(db, 'respuestasCuestionarios'), where('cuestionarioId', '==', cuestionario.id)));
                 const respuestas = snapshot.docs.map(doc => doc.data());
 
-                const totalRespuestas = respuestas.length;
-                const calificaciones = respuestas.filter(r => r.calificacion).map(r => r.calificacion);
+                // Agrupar respuestas por estudiante y quedarse solo con la última
+                const respuestasPorEstudiante = {};
+                respuestas.forEach(respuesta => {
+                    const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
+                    const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
+                    
+                    // Si no existe o la nueva es más reciente, reemplazar
+                    if (!respuestasPorEstudiante[estudianteKey] || 
+                        fechaRespuesta > new Date(respuestasPorEstudiante[estudianteKey].fechaRespuesta || 0)) {
+                        respuestasPorEstudiante[estudianteKey] = respuesta;
+                    }
+                });
+
+                // Obtener solo las últimas respuestas (una por estudiante)
+                const ultimasRespuestas = Object.values(respuestasPorEstudiante);
+                const totalRespuestas = ultimasRespuestas.length;
+                const calificaciones = ultimasRespuestas.filter(r => r.calificacion).map(r => r.calificacion);
                 const promedioCalificaciones = calificaciones.length > 0 ?
                     Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10 : 0;
 
@@ -12152,6 +12168,43 @@ REGLAS ESTRICTAS:
                 };
             } catch (error) {
                 console.error('Error calculating cuestionario stats:', error);
+                return { totalRespuestas: 0, promedioCalificaciones: 0 };
+            }
+        }
+
+        // Función para calcular estadísticas de una evaluación
+        // Solo cuenta el último intento de cada estudiante (cada nuevo intento reemplaza al anterior)
+        async function calcularEstadisticasEvaluacion(evaluacion) {
+            try {
+                const snapshot = await getDocs(query(collection(db, 'respuestasEvaluaciones'), where('evaluacionId', '==', evaluacion.id)));
+                const respuestas = snapshot.docs.map(doc => doc.data());
+
+                // Agrupar respuestas por estudiante y quedarse solo con la última
+                const respuestasPorEstudiante = {};
+                respuestas.forEach(respuesta => {
+                    const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
+                    const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
+                    
+                    // Si no existe o la nueva es más reciente, reemplazar
+                    if (!respuestasPorEstudiante[estudianteKey] || 
+                        fechaRespuesta > new Date(respuestasPorEstudiante[estudianteKey].fechaRespuesta || 0)) {
+                        respuestasPorEstudiante[estudianteKey] = respuesta;
+                    }
+                });
+
+                // Obtener solo las últimas respuestas (una por estudiante)
+                const ultimasRespuestas = Object.values(respuestasPorEstudiante);
+                const totalRespuestas = ultimasRespuestas.length;
+                const calificaciones = ultimasRespuestas.filter(r => r.calificacion).map(r => r.calificacion);
+                const promedioCalificaciones = calificaciones.length > 0 ?
+                    Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10 : 0;
+
+                return {
+                    totalRespuestas,
+                    promedioCalificaciones
+                };
+            } catch (error) {
+                console.error('Error calculating evaluacion stats:', error);
                 return { totalRespuestas: 0, promedioCalificaciones: 0 };
             }
         }
@@ -13804,7 +13857,7 @@ REGLAS ESTRICTAS:
             }
 
             // Calcular estadísticas para todas las evaluaciones
-            const statsPromises = data.map(evaluacion => calcularEstadisticasCuestionario(evaluacion));
+            const statsPromises = data.map(evaluacion => calcularEstadisticasEvaluacion(evaluacion));
             const statsArray = await Promise.all(statsPromises);
 
             container.innerHTML = data.map((evaluacion, index) => {
@@ -13874,13 +13927,13 @@ REGLAS ESTRICTAS:
                 const total = evaluacionesManagerData.length;
                 const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
 
-                // Calcular total de respuestas
+                // Calcular total de respuestas (solo último intento por estudiante)
                 let totalRespuestas = 0;
                 let sumaCalificaciones = 0;
                 let countCalificaciones = 0;
 
                 for (const evaluacion of evaluacionesManagerData) {
-                    const stats = await calcularEstadisticasCuestionario(evaluacion);
+                    const stats = await calcularEstadisticasEvaluacion(evaluacion);
                     totalRespuestas += stats.totalRespuestas;
                     if (stats.promedioCalificaciones > 0) {
                         sumaCalificaciones += stats.promedioCalificaciones;
