@@ -2455,6 +2455,7 @@
                 <div class="nav-item" data-section="cuestionarios-manager"><i class="fas fa-tasks"></i><span>Gestión Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
+                <div class="nav-item" data-section="respuestas-cuestionarios"><i class="fas fa-poll"></i><span>Resultados Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Gestión de Actividades</span></div>
 
@@ -4389,6 +4390,81 @@
                 </div>
             </div>
 
+            <!-- Resultados de Cuestionarios -->
+            <div id="respuestas-cuestionarios" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.8rem;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
+                                <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
+                                    <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
+                                    <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                    <i class="fas fa-graduation-cap"></i> Programa
+                                </label>
+                                <select id="filtroProgResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <option value="">Todos los programas</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                    <i class="fas fa-file-alt"></i> Cuestionario
+                                </label>
+                                <select id="filtroCuestionarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <option value="">Todos los cuestionarios</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                    <i class="fas fa-search"></i> Buscar estudiante
+                                </label>
+                                <input type="text" id="buscarEstudianteResultados" placeholder="Nombre o email..." onkeyup="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                            </div>
+                            <div class="form-group">
+                                <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                    <i class="fas fa-sort"></i> Ordenar por
+                                </label>
+                                <select id="ordenResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <option value="fecha-desc">Más recientes primero</option>
+                                    <option value="fecha-asc">Más antiguos primero</option>
+                                    <option value="calificacion-desc">Mayor calificación</option>
+                                    <option value="calificacion-asc">Menor calificación</option>
+                                    <option value="nombre-asc">Nombre A-Z</option>
+                                    <option value="nombre-desc">Nombre Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de resultados -->
+                    <div id="resultadosCuestionariosList" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                            <p style="margin-top: 1rem;">Cargando resultados...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Calificaciones -->
             <div id="evaluacion-practica" class="content-section">
                 <div class="quiz-builder-section">
@@ -5381,6 +5457,7 @@
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
             else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
+            else if (sectionId === 'respuestas-cuestionarios') try { loadResultadosCuestionarios(); } catch (e) { console.error('Error loading respuestas-cuestionarios:', e); }
             else if (sectionId === 'actividades') {
                 try { 
                     loadActividadesList(); 
@@ -14670,6 +14747,282 @@ REGLAS ESTRICTAS:
                     }
                 }
             });
+        }
+
+        // =================== FUNCIONES PARA RESULTADOS DE CUESTIONARIOS ===================
+        async function loadResultadosCuestionarios() {
+            const container = document.getElementById('resultadosCuestionariosList');
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando resultados...</p></div>';
+
+            try {
+                // Cargar cuestionarios para el filtro
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                const selectCuestionario = document.getElementById('filtroCuestionarioResultados');
+                const currentValue = selectCuestionario.value;
+                selectCuestionario.innerHTML = '<option value="">Todos los cuestionarios</option>';
+                cuestionariosSnapshot.forEach(docSnap => {
+                    const c = docSnap.data();
+                    selectCuestionario.innerHTML += `<option value="${docSnap.id}">${c.titulo || 'Sin título'}</option>`;
+                });
+                selectCuestionario.value = currentValue;
+
+                // Cargar respuestas de cuestionarios
+                const respuestasSnapshot = await getDocs(collection(db, 'respuestasCuestionarios'));
+                let respuestas = [];
+
+                // Crear un mapa de cuestionarios
+                const cuestionariosMap = {};
+                cuestionariosSnapshot.forEach(docSnap => {
+                    cuestionariosMap[docSnap.id] = docSnap.data();
+                });
+
+                // Cargar usuarios para obtener nombres
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const usersMap = {};
+                usersSnapshot.forEach(docSnap => {
+                    const u = docSnap.data();
+                    usersMap[u.email] = u;
+                });
+
+                // Procesar respuestas
+                respuestasSnapshot.forEach(docSnap => {
+                    const r = docSnap.data();
+                    const cuestionario = cuestionariosMap[r.cuestionarioId] || {};
+                    const usuario = usersMap[r.estudianteId] || {};
+                    
+                    respuestas.push({
+                        id: docSnap.id,
+                        ...r,
+                        cuestionarioTitulo: cuestionario.titulo || 'Cuestionario eliminado',
+                        cuestionarioPrograma: cuestionario.programa || 'N/A',
+                        estudianteNombre: usuario.name || r.nombre || r.estudianteId,
+                        estudiantePrograma: usuario.programa || 'N/A',
+                        estudianteSede: usuario.sede || 'N/A',
+                        estudianteHorario: usuario.horario || 'N/A'
+                    });
+                });
+
+                // Aplicar filtros
+                const filtroPrograma = document.getElementById('filtroProgResultados').value;
+                const filtroCuestionario = document.getElementById('filtroCuestionarioResultados').value;
+                const busqueda = document.getElementById('buscarEstudianteResultados').value.toLowerCase();
+                const orden = document.getElementById('ordenResultados').value;
+
+                let filtradas = respuestas.filter(r => {
+                    const matchPrograma = !filtroPrograma || r.cuestionarioPrograma === filtroPrograma || r.estudiantePrograma === filtroPrograma;
+                    const matchCuestionario = !filtroCuestionario || r.cuestionarioId === filtroCuestionario;
+                    const matchBusqueda = !busqueda || 
+                        r.estudianteNombre.toLowerCase().includes(busqueda) || 
+                        r.estudianteId.toLowerCase().includes(busqueda);
+                    return matchPrograma && matchCuestionario && matchBusqueda;
+                });
+
+                // Ordenar
+                filtradas.sort((a, b) => {
+                    switch(orden) {
+                        case 'fecha-desc':
+                            return new Date(b.fechaRespuesta || 0) - new Date(a.fechaRespuesta || 0);
+                        case 'fecha-asc':
+                            return new Date(a.fechaRespuesta || 0) - new Date(b.fechaRespuesta || 0);
+                        case 'calificacion-desc':
+                            return (b.calificacion || 0) - (a.calificacion || 0);
+                        case 'calificacion-asc':
+                            return (a.calificacion || 0) - (b.calificacion || 0);
+                        case 'nombre-asc':
+                            return a.estudianteNombre.localeCompare(b.estudianteNombre);
+                        case 'nombre-desc':
+                            return b.estudianteNombre.localeCompare(a.estudianteNombre);
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Actualizar estadísticas
+                document.getElementById('totalRespuestasCuestionarios').textContent = filtradas.length;
+                const calificaciones = filtradas.filter(r => r.calificacion !== undefined && r.calificacion !== null);
+                const promedio = calificaciones.length > 0 
+                    ? Math.round(calificaciones.reduce((sum, r) => sum + (r.calificacion || 0), 0) / calificaciones.length)
+                    : 0;
+                document.getElementById('promedioGeneralCuestionarios').textContent = promedio + '%';
+
+                if (filtradas.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                            <h3 style="margin-top: 1rem; color: #374151;">No hay resultados</h3>
+                            <p>No se encontraron respuestas con los filtros seleccionados.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar tabla
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Cuestionario</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Calificación</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Fecha</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtradas.map((r, index) => {
+                                const calificacionColor = (r.calificacion || 0) >= 70 ? '#10b981' : (r.calificacion || 0) >= 50 ? '#f59e0b' : '#ef4444';
+                                const fechaFormateada = r.fechaRespuesta ? new Date(r.fechaRespuesta).toLocaleDateString('es-ES', { 
+                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                }) : 'Sin fecha';
+                                
+                                return `
+                                    <tr style="border-bottom: 1px solid #e2e8f0; ${index % 2 === 0 ? 'background: #fafafa;' : ''}">
+                                        <td style="padding: 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1e3a8a); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                                    ${(r.estudianteNombre || 'E').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600; color: #1e3a8a;">${r.estudianteNombre}</div>
+                                                    <div style="font-size: 0.8rem; color: #64748b;">${r.estudianteId}</div>
+                                                    <div style="font-size: 0.75rem; color: #94a3b8;">${r.estudianteSede} • ${r.estudianteHorario}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <div style="font-weight: 500; color: #374151;">${r.cuestionarioTitulo}</div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <span style="background: ${r.cuestionarioPrograma.includes('Belleza') ? '#fce7f3' : '#fef3c7'}; color: ${r.cuestionarioPrograma.includes('Belleza') ? '#be185d' : '#92400e'}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                                ${r.cuestionarioPrograma}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: ${calificacionColor}15; color: ${calificacionColor}; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;">
+                                                <i class="fas ${(r.calificacion || 0) >= 70 ? 'fa-check-circle' : (r.calificacion || 0) >= 50 ? 'fa-exclamation-circle' : 'fa-times-circle'}"></i>
+                                                ${r.calificacion !== undefined && r.calificacion !== null ? r.calificacion + '%' : 'Pendiente'}
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center; color: #64748b; font-size: 0.9rem;">
+                                            ${fechaFormateada}
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <button onclick="verDetalleRespuestaCuestionario('${r.id}')" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#3b82f6'">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Error loading resultados cuestionarios:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Error al cargar resultados: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function verDetalleRespuestaCuestionario(respuestaId) {
+            try {
+                const respuestaDoc = await getDoc(doc(db, 'respuestasCuestionarios', respuestaId));
+                if (!respuestaDoc.exists()) {
+                    alert('Respuesta no encontrada');
+                    return;
+                }
+
+                const respuesta = respuestaDoc.data();
+                
+                // Obtener info del cuestionario
+                let cuestionarioInfo = { titulo: 'Cuestionario', preguntas: [] };
+                if (respuesta.cuestionarioId) {
+                    const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', respuesta.cuestionarioId));
+                    if (cuestionarioDoc.exists()) {
+                        cuestionarioInfo = cuestionarioDoc.data();
+                    }
+                }
+
+                // Obtener info del estudiante
+                const usersSnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', respuesta.estudianteId)));
+                let estudianteInfo = { name: respuesta.nombre || respuesta.estudianteId };
+                if (!usersSnapshot.empty) {
+                    estudianteInfo = usersSnapshot.docs[0].data();
+                }
+
+                // Crear modal con detalle
+                const modalHtml = `
+                    <div id="modalDetalleRespuesta" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                        <div style="background: white; border-radius: 16px; width: 100%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 1.5rem; flex-shrink: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.3rem;"><i class="fas fa-clipboard-check"></i> ${cuestionarioInfo.titulo || 'Cuestionario'}</h3>
+                                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Respondido por: ${estudianteInfo.name}</p>
+                                    </div>
+                                    <button onclick="document.getElementById('modalDetalleRespuesta').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div style="display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-star"></i> Calificación: <strong>${respuesta.calificacion !== undefined ? respuesta.calificacion + '%' : 'Pendiente'}</strong>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-calendar"></i> ${respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta).toLocaleDateString('es-ES') : 'Sin fecha'}
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-graduation-cap"></i> ${estudianteInfo.programa || 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Body -->
+                            <div style="padding: 1.5rem; overflow-y: auto; flex: 1;">
+                                <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-list-ol"></i> Respuestas del estudiante</h4>
+                                ${(respuesta.respuestas || []).map((resp, index) => {
+                                    const pregunta = cuestionarioInfo.preguntas?.[index] || {};
+                                    const esCorrecta = resp.correcta;
+                                    return `
+                                        <div style="background: ${esCorrecta ? '#dcfce7' : '#fee2e2'}; border: 1px solid ${esCorrecta ? '#86efac' : '#fca5a5'}; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                                <strong style="color: #374151;">Pregunta ${index + 1}: ${pregunta.texto || resp.pregunta || 'Sin texto'}</strong>
+                                                <span style="background: ${esCorrecta ? '#10b981' : '#ef4444'}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                                                    ${esCorrecta ? '<i class="fas fa-check"></i> Correcta' : '<i class="fas fa-times"></i> Incorrecta'}
+                                                </span>
+                                            </div>
+                                            <div style="margin-top: 0.5rem; padding-left: 1rem; border-left: 3px solid ${esCorrecta ? '#10b981' : '#ef4444'};">
+                                                <p style="margin: 0; color: #1e3a8a;"><strong>Respuesta del estudiante:</strong> ${resp.respuesta || 'Sin respuesta'}</p>
+                                                ${!esCorrecta && pregunta.correcta ? `<p style="margin: 0.5rem 0 0 0; color: #059669;"><strong>Respuesta correcta:</strong> ${pregunta.correcta}</p>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                
+                                ${(!respuesta.respuestas || respuesta.respuestas.length === 0) ? `
+                                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                                        <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                                        <p>No hay respuestas detalladas disponibles</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error al ver detalle:', error);
+                alert('Error al cargar el detalle: ' + error.message);
+            }
         }
 
         // Inicializar mejoras de accesibilidad
