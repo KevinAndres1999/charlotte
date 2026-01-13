@@ -12650,16 +12650,107 @@ REGLAS ESTRICTAS:
 
         // Función para ver respuestas de un cuestionario
         function verRespuestasCuestionario(cuestionarioId, tipo) {
-            // Cambiar a la sección de respuestas y filtrar por este cuestionario
-            switchSection('respuestas-viewer');
-            // Aquí se podría implementar el filtro automático
             closeCuestionarioModal();
+            
+            if (tipo === 'cuestionario') {
+                // Cambiar a la sección de cuestionarios y a la pestaña de resultados
+                switchSection('cuestionarios-manager');
+                setTimeout(() => {
+                    switchCuestionariosTab('resultados');
+                    // Filtrar por el cuestionario específico si existe el filtro
+                    const filterSelect = document.getElementById('filtroCuestionarioResultados');
+                    if (filterSelect) {
+                        filterSelect.value = cuestionarioId;
+                        filtrarResultadosCuestionarios();
+                    }
+                }, 100);
+            } else {
+                // Cambiar a la sección de evaluaciones y a la pestaña de resultados
+                switchSection('evaluaciones-manager');
+                setTimeout(() => {
+                    switchEvaluacionesTab('resultados');
+                    // Filtrar por la evaluación específica si existe el filtro
+                    const filterSelect = document.getElementById('filtroEvaluacionResultados');
+                    if (filterSelect) {
+                        filterSelect.value = cuestionarioId;
+                        filtrarResultadosEvaluaciones();
+                    }
+                }, 100);
+            }
         }
 
-        // Función para exportar cuestionario
-        function exportarCuestionario(cuestionarioId, tipo) {
-            alert('Función de exportación próximamente disponible');
-            closeCuestionarioModal();
+        // Función para exportar cuestionario a JSON/CSV
+        async function exportarCuestionario(cuestionarioId, tipo) {
+            try {
+                closeCuestionarioModal();
+                
+                const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
+                const respuestasCollection = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const idField = tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId';
+                
+                // Obtener el cuestionario/evaluación
+                const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
+                if (!docSnap.exists) {
+                    alert('No se encontró el elemento a exportar');
+                    return;
+                }
+                const itemData = { id: docSnap.id, ...docSnap.data() };
+                
+                // Obtener las respuestas
+                const respuestasSnapshot = await getDocs(query(collection(db, respuestasCollection), where(idField, '==', cuestionarioId)));
+                const respuestas = respuestasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Agrupar por estudiante (solo último intento)
+                const respuestasPorEstudiante = {};
+                respuestas.forEach(respuesta => {
+                    const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
+                    const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
+                    
+                    if (!respuestasPorEstudiante[estudianteKey] || 
+                        fechaRespuesta > new Date(respuestasPorEstudiante[estudianteKey].fechaRespuesta || 0)) {
+                        respuestasPorEstudiante[estudianteKey] = respuesta;
+                    }
+                });
+                const ultimasRespuestas = Object.values(respuestasPorEstudiante);
+                
+                // Crear contenido CSV
+                let csvContent = 'Estudiante,Email,Sede,Horario,Calificación,Fecha Respuesta,Tiempo Empleado\n';
+                ultimasRespuestas.forEach(r => {
+                    const estudiante = r.estudianteNombre || r.nombre || 'Sin nombre';
+                    const email = r.estudianteId || r.email || 'Sin email';
+                    const sede = r.sede || 'Sin sede';
+                    const horario = r.horario || 'Sin horario';
+                    const calificacion = r.calificacion || 0;
+                    const fecha = r.fechaRespuesta ? new Date(r.fechaRespuesta).toLocaleString('es-ES') : 'Sin fecha';
+                    const tiempo = r.tiempoEmpleado || 0;
+                    csvContent += `"${estudiante}","${email}","${sede}","${horario}",${calificacion},"${fecha}",${tiempo}\n`;
+                });
+                
+                // Agregar resumen al final
+                const promedio = ultimasRespuestas.length > 0 
+                    ? Math.round(ultimasRespuestas.reduce((sum, r) => sum + (r.calificacion || 0), 0) / ultimasRespuestas.length * 10) / 10
+                    : 0;
+                csvContent += `\nRESUMEN\n`;
+                csvContent += `"Total Estudiantes",${ultimasRespuestas.length}\n`;
+                csvContent += `"Promedio General",${promedio}%\n`;
+                
+                // Descargar archivo
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${itemData.titulo || 'exportacion'}_resultados_${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                alert(`Exportación completada: ${ultimasRespuestas.length} estudiantes exportados`);
+                
+            } catch (error) {
+                console.error('Error al exportar:', error);
+                alert('Error al exportar: ' + error.message);
+            }
         }
 
         // Función para eliminar cuestionario
@@ -14897,6 +14988,17 @@ REGLAS ESTRICTAS:
         }
 
         // =================== FUNCIONES PARA RESULTADOS DE CUESTIONARIOS ===================
+        
+        // Función alias para filtrar resultados (usada desde verRespuestasCuestionario)
+        function filtrarResultadosCuestionarios() {
+            loadResultadosCuestionarios();
+        }
+        
+        // Función alias para filtrar resultados de evaluaciones
+        function filtrarResultadosEvaluaciones() {
+            loadResultadosEvaluaciones();
+        }
+        
         async function loadResultadosCuestionarios() {
             const container = document.getElementById('resultadosCuestionariosList');
             container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando resultados...</p></div>';
