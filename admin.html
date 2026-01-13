@@ -7212,7 +7212,7 @@
         async function loadCuestionarioPreview(cuestionarioId) {
             try {
                 const docSnap = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -7288,7 +7288,7 @@
         async function loadEvaluacionPreview(evaluacionId) {
             try {
                 const docSnap = await getDoc(doc(db, 'evaluaciones', evaluacionId));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -7364,7 +7364,7 @@
         async function loadVideoPreview(videoId) {
             try {
                 const docSnap = await getDoc(doc(db, 'content', videoId));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -7421,7 +7421,7 @@
         async function loadClasePreview(claseId) {
             try {
                 const docSnap = await getDoc(doc(db, 'classes', claseId));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -7492,7 +7492,7 @@
         async function loadMaterialPreview(materialId) {
             try {
                 const docSnap = await getDoc(doc(db, 'materials', materialId));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -7557,7 +7557,7 @@
                 const collectionName = tipo === 'foto' ? 'fotos' : tipo === 'recurso' ? 'recursos' : 'contactos';
                 const docSnap = await getDoc(doc(db, collectionName, recursoId));
 
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     const title = document.getElementById('previewTitle');
                     const main = document.getElementById('previewMain');
@@ -8067,7 +8067,7 @@
         async function viewEvaluacion(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'evaluaciones', id));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     showEvaluacionPreview({
                         titulo: data.titulo,
@@ -8089,7 +8089,7 @@
         async function viewCuestionario(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'cuestionarios', id));
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     // Mostrar modal con información del cuestionario
                     showCuestionarioModal(data, id);
@@ -10876,7 +10876,7 @@ REGLAS ESTRICTAS:
                 // Intentar diferentes formas de verificar si existe
                 let exists = false;
                 if (typeof docSnap.exists === 'function') {
-                    exists = docSnap.exists();
+                    exists = docSnap.exists;
                 } else if (typeof docSnap.exists === 'boolean') {
                     exists = docSnap.exists;
                 } else if (docSnap._delegate && typeof docSnap._delegate.exists === 'boolean') {
@@ -11240,7 +11240,7 @@ REGLAS ESTRICTAS:
         async function loadEntregaDetail(entregaId) {
             try {
                 const docSnap = await getDoc(doc(db, 'entregas', entregaId));
-                if (!docSnap.exists()) {
+                if (!docSnap.exists) {
                     console.error('Entrega no encontrada');
                     return;
                 }
@@ -11587,7 +11587,7 @@ REGLAS ESTRICTAS:
             try {
                 const collectionName = currentTipoRespuesta === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
                 const docSnap = await getDoc(doc(db, collectionName, respuestaId));
-                if (!docSnap.exists()) {
+                if (!docSnap.exists) {
                     console.error('Respuesta no encontrada');
                     return;
                 }
@@ -12258,7 +12258,7 @@ REGLAS ESTRICTAS:
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
-                if (!docSnap.exists()) {
+                if (!docSnap.exists) {
                     alert('Cuestionario no encontrado');
                     return;
                 }
@@ -12410,7 +12410,7 @@ REGLAS ESTRICTAS:
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
-                if (!docSnap.exists()) {
+                if (!docSnap.exists) {
                     alert('Cuestionario no encontrado');
                     return;
                 }
