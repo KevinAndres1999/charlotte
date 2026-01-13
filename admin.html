@@ -12255,6 +12255,9 @@ REGLAS ESTRICTAS:
         // Función para ver detalle de cuestionario
         async function verDetalleCuestionario(cuestionarioId, tipo) {
             try {
+                // Cerrar modales existentes antes de abrir uno nuevo
+                closeCuestionarioModal();
+                
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
@@ -12398,15 +12401,23 @@ REGLAS ESTRICTAS:
 
         // Función para cerrar modal de cuestionario
         function closeCuestionarioModal() {
-            const modal = document.getElementById('cuestionarioDetailModal');
-            if (modal) {
-                modal.remove();
+            // Cerrar ambos tipos de modal (detalle y edición)
+            const detailModal = document.getElementById('cuestionarioDetailModal');
+            const editModal = document.getElementById('cuestionarioEditModal');
+            if (detailModal) {
+                detailModal.remove();
+            }
+            if (editModal) {
+                editModal.remove();
             }
         }
 
         // Función para editar cuestionario
         async function editarCuestionario(cuestionarioId, tipo) {
             try {
+                // Cerrar modales existentes antes de abrir uno nuevo
+                closeCuestionarioModal();
+                
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
                 const docSnap = await getDoc(doc(db, collectionName, cuestionarioId));
 
