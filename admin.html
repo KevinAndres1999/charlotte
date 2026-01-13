@@ -12401,7 +12401,7 @@ REGLAS ESTRICTAS:
 
         // Función para cerrar modal de cuestionario
         function closeCuestionarioModal() {
-            // Cerrar ambos tipos de modal (detalle y edición)
+            // Cerrar TODOS los modales de cuestionario (por ID y por clase)
             const detailModal = document.getElementById('cuestionarioDetailModal');
             const editModal = document.getElementById('cuestionarioEditModal');
             if (detailModal) {
@@ -12410,6 +12410,8 @@ REGLAS ESTRICTAS:
             if (editModal) {
                 editModal.remove();
             }
+            // También eliminar cualquier modal con la clase cuestionario-modal
+            document.querySelectorAll('.cuestionario-modal').forEach(modal => modal.remove());
         }
 
         // Función para editar cuestionario
@@ -12537,6 +12539,7 @@ REGLAS ESTRICTAS:
                 `;
 
                 document.body.appendChild(modal);
+                modal.style.display = 'block';
 
                 // Manejar el submit del formulario
                 document.getElementById('editCuestionarioForm').addEventListener('submit', async function(e) {
