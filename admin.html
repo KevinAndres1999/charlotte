@@ -3958,7 +3958,7 @@
 
                         <!-- Filtros -->
                         <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
                                 <div class="form-group">
                                     <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
                                         <i class="fas fa-graduation-cap"></i> Programa
@@ -3967,6 +3967,27 @@
                                         <option value="">Todos los programas</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-map-marker-alt"></i> Sede
+                                    </label>
+                                    <select id="filtroSedeResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las sedes</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-clock"></i> Horario
+                                    </label>
+                                    <select id="filtroHorarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los horarios</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -14842,17 +14863,21 @@ REGLAS ESTRICTAS:
 
                 // Aplicar filtros
                 const filtroPrograma = document.getElementById('filtroProgResultados').value;
+                const filtroSede = document.getElementById('filtroSedeResultados').value;
+                const filtroHorario = document.getElementById('filtroHorarioResultados').value;
                 const filtroCuestionario = document.getElementById('filtroCuestionarioResultados').value;
                 const busqueda = document.getElementById('buscarEstudianteResultados').value.toLowerCase();
                 const orden = document.getElementById('ordenResultados').value;
 
                 let filtradas = respuestas.filter(r => {
                     const matchPrograma = !filtroPrograma || r.cuestionarioPrograma === filtroPrograma || r.estudiantePrograma === filtroPrograma;
+                    const matchSede = !filtroSede || r.estudianteSede === filtroSede;
+                    const matchHorario = !filtroHorario || r.estudianteHorario === filtroHorario;
                     const matchCuestionario = !filtroCuestionario || r.cuestionarioId === filtroCuestionario;
                     const matchBusqueda = !busqueda || 
                         r.estudianteNombre.toLowerCase().includes(busqueda) || 
                         r.estudianteId.toLowerCase().includes(busqueda);
-                    return matchPrograma && matchCuestionario && matchBusqueda;
+                    return matchPrograma && matchSede && matchHorario && matchCuestionario && matchBusqueda;
                 });
 
                 // Ordenar
