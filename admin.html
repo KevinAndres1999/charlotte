@@ -7699,9 +7699,11 @@
                     new Date(b.fechaCreacion) - new Date(a.fechaCreacion)
                 );
 
-                // Actualizar badges
-                document.getElementById('totalEvaluacionesBadge').textContent = evaluaciones.length;
-                document.getElementById('totalCuestionariosBadge').textContent = cuestionarios.length;
+                // Actualizar badges si existen
+                const evalBadge = document.getElementById('totalEvaluacionesBadge');
+                const cuestBadge = document.getElementById('totalCuestionariosBadge');
+                if (evalBadge) evalBadge.textContent = evaluaciones.length;
+                if (cuestBadge) cuestBadge.textContent = cuestionarios.length;
 
                 // Aplicar filtros iniciales
                 filterManagementContent();
