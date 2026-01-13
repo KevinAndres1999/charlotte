@@ -4539,89 +4539,99 @@
             <!-- Gestión de Evaluaciones -->
             <div id="evaluaciones-manager" class="content-section">
 
-                <!-- Centro de Gestión Integral -->
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                <!-- Pestañas de navegación -->
+                <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                    <button type="button" onclick="switchEvaluacionesTab('gestion')" id="tabGestionEval" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-clipboard-check"></i> Evaluaciones
+                    </button>
+                    <button type="button" onclick="switchEvaluacionesTab('resultados')" id="tabResultadosEval" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-poll"></i> Resultados
+                    </button>
+                </div>
+
+                <!-- Panel de Gestión de Evaluaciones -->
+                <div id="panelGestionEvaluaciones">
+
+                <!-- Header con estadísticas integradas -->
+                <div class="quiz-builder-section" style="margin-bottom: 1.5rem;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1.5rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                             <div>
-                                <h3 style="margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 0.75rem;">
-                                    <i class="fas fa-clipboard-list"></i> Centro de Gestión de Evaluaciones
+                                <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <i class="fas fa-clipboard-check"></i> Gestión de Evaluaciones
                                 </h3>
-                                <p style="margin: 0.5rem 0 0 0; color: white; font-size: 1.1rem;">Administración completa de evaluaciones y exámenes</p>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Administra, edita y elimina evaluaciones</p>
                             </div>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <div class="stat-badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; gap: 0.5rem;">
-                                    <i class="fas fa-clipboard-check"></i>
-                                    <span id="totalEvaluacionesBadgeManager">0</span> Evaluaciones
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="totalEvaluacionesBadgeManager">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Total</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="evaluacionesActivasBadge">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Activas</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Filtros y Búsqueda -->
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-filter"></i> Filtros y Búsqueda</h3>
-                    </div>
-                    <div class="filters-grid">
-                        <div class="filter-group">
-                            <label for="filterProgramaEvaluaciones">Programa:</label>
-                            <select id="filterProgramaEvaluaciones">
-                                <option value="">Todos los programas</option>
+                    <!-- Filtros compactos -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterProgramaEvaluaciones" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Programa</label>
+                            <select id="filterProgramaEvaluaciones" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="Belleza Integral">Belleza Integral</option>
                                 <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                <option value="Asesoría Técnica">Asesoría Técnica</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterSedeEvaluaciones">Sede:</label>
-                            <select id="filterSedeEvaluaciones">
-                                <option value="">Todas las sedes</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterSedeEvaluaciones" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Sede</label>
+                            <select id="filterSedeEvaluaciones" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todas</option>
                                 <option value="Carapungo">Carapungo</option>
                                 <option value="Sangolquí">Sangolquí</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterHorarioEvaluaciones">Horario:</label>
-                            <select id="filterHorarioEvaluaciones">
-                                <option value="">Todos los horarios</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterHorarioEvaluaciones" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Horario</label>
+                            <select id="filterHorarioEvaluaciones" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="Sábado Matutina">Sábado Matutina</option>
                                 <option value="Sábado Vespertina">Sábado Vespertina</option>
                                 <option value="Domingo Matutina">Domingo Matutina</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="filterEstadoEvaluaciones">Estado:</label>
-                            <select id="filterEstadoEvaluaciones">
-                                <option value="">Todos los estados</option>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterEstadoEvaluaciones" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Estado</label>
+                            <select id="filterEstadoEvaluaciones" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
                                 <option value="activo">Activos</option>
                                 <option value="inactivo">Inactivos</option>
-                                <option value="borrador">Borradores</option>
                             </select>
                         </div>
-                        <div class="filter-group">
-                            <label for="searchEvaluacion">Buscar:</label>
-                            <input type="text" id="searchEvaluacion" placeholder="Buscar por título o descripción...">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="searchEvaluacion" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Buscar</label>
+                            <input type="text" id="searchEvaluacion" placeholder="Título o descripción..." style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
                         </div>
-                        <div class="filter-group">
+                        <div class="form-group" style="margin: 0; display: flex; align-items: flex-end; gap: 0.5rem;">
                             <button type="button" class="btn-secondary" onclick="aplicarFiltrosEvaluaciones()">
-                                <i class="fas fa-search"></i> Aplicar Filtros
+                                <i class="fas fa-search"></i> Filtrar
                             </button>
                             <button type="button" class="btn-secondary" onclick="limpiarFiltrosEvaluaciones()">
-                                <i class="fas fa-times"></i> Limpiar
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Estadísticas Rápidas -->
-                <div class="stats-grid">
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
                     <div class="stat-card">
                         <div class="stat-card-header">
                             <div>
                                 <h3 class="stat-value" id="totalEvaluaciones">0</h3>
-                                <p class="stat-label">Total Items</p>
+                                <p class="stat-label">Total Evaluaciones</p>
                             </div>
                             <div class="stat-card-icon blue"><i class="fas fa-clipboard-check"></i></div>
                         </div>
@@ -4657,21 +4667,113 @@
 
                 <!-- Lista de Evaluaciones -->
                 <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-list"></i> Evaluaciones Disponibles</h3>
-                        <div class="header-actions">
-                            <button type="button" class="btn-secondary" onclick="exportarEvaluaciones()">
-                                <i class="fas fa-download"></i> Exportar
-                            </button>
-                            <button type="button" class="btn-primary" onclick="recargarEvaluaciones()">
-                                <i class="fas fa-sync"></i> Actualizar
-                            </button>
-                        </div>
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <h3 style="margin: 0;"><i class="fas fa-list"></i> Evaluaciones Disponibles</h3>
                     </div>
                     <div id="evaluacionesManagerGrid" class="cuestionarios-grid">
                         <!-- Las evaluaciones se cargarán aquí -->
                     </div>
                 </div>
+                </div><!-- Fin del panelGestionEvaluaciones -->
+
+                <!-- Panel de Resultados de Evaluaciones -->
+                <div id="panelResultadosEvaluaciones" style="display: none;">
+                    <div class="quiz-builder-section">
+                        <!-- Header -->
+                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                                        <i class="fas fa-poll"></i> Resultados de Evaluaciones
+                                    </h3>
+                                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Visualiza y gestiona las respuestas de estudiantes</p>
+                                </div>
+                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 1.25rem; font-weight: bold;" id="totalRespuestasEvalBadge">0</div>
+                                        <div style="font-size: 0.75rem; opacity: 0.9;">Respuestas</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 1.25rem; font-weight: bold;" id="promedioEvalBadge">0%</div>
+                                        <div style="font-size: 0.75rem; opacity: 0.9;">Promedio</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-graduation-cap"></i> Programa
+                                    </label>
+                                    <select id="filtroProgResultadosEval" onchange="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los programas</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-map-marker-alt"></i> Sede
+                                    </label>
+                                    <select id="filtroSedeResultadosEval" onchange="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las sedes</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-clock"></i> Horario
+                                    </label>
+                                    <select id="filtroHorarioResultadosEval" onchange="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los horarios</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-clipboard-check"></i> Evaluación
+                                    </label>
+                                    <select id="filtroEvaluacionResultados" onchange="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las evaluaciones</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-search"></i> Buscar estudiante
+                                    </label>
+                                    <input type="text" id="buscarEstudianteResultadosEval" placeholder="Nombre o email..." onkeyup="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-sort"></i> Ordenar por
+                                    </label>
+                                    <select id="ordenResultadosEval" onchange="loadResultadosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="fecha-desc">Más recientes primero</option>
+                                        <option value="fecha-asc">Más antiguos primero</option>
+                                        <option value="calificacion-desc">Mayor calificación</option>
+                                        <option value="calificacion-asc">Menor calificación</option>
+                                        <option value="nombre-asc">Nombre A-Z</option>
+                                        <option value="nombre-desc">Nombre Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de resultados -->
+                        <div id="resultadosEvaluacionesList" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                                <p style="margin-top: 1rem;">Cargando resultados...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Fin del panelResultadosEvaluaciones -->
             </div>
 
             <!-- Materiales -->
@@ -11876,6 +11978,32 @@ REGLAS ESTRICTAS:
             }
         }
 
+        // Función para cambiar tabs en Gestión de Evaluaciones
+        function switchEvaluacionesTab(tab) {
+            const tabGestion = document.getElementById('tabGestionEval');
+            const tabResultados = document.getElementById('tabResultadosEval');
+            const panelGestion = document.getElementById('panelGestionEvaluaciones');
+            const panelResultados = document.getElementById('panelResultadosEvaluaciones');
+            
+            if (tab === 'gestion') {
+                tabGestion.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                tabGestion.style.color = 'white';
+                tabResultados.style.background = '#f1f5f9';
+                tabResultados.style.color = '#64748b';
+                panelGestion.style.display = 'block';
+                panelResultados.style.display = 'none';
+            } else if (tab === 'resultados') {
+                tabResultados.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                tabResultados.style.color = 'white';
+                tabGestion.style.background = '#f1f5f9';
+                tabGestion.style.color = '#64748b';
+                panelGestion.style.display = 'none';
+                panelResultados.style.display = 'block';
+                // Cargar resultados al cambiar a esa pestaña
+                loadResultadosEvaluaciones();
+            }
+        }
+
         // Función para cargar cuestionarios en el manager
         async function loadCuestionariosManager() {
             try {
@@ -15070,6 +15198,306 @@ REGLAS ESTRICTAS:
                                 }).join('')}
                                 
                                 ${(!respuesta.respuestas || respuesta.respuestas.length === 0) ? `
+                                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                                        <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                                        <p>No hay respuestas detalladas disponibles</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error al ver detalle:', error);
+                alert('Error al cargar el detalle: ' + error.message);
+            }
+        }
+
+        // =================== FUNCIONES PARA RESULTADOS DE EVALUACIONES ===================
+        async function loadResultadosEvaluaciones() {
+            const container = document.getElementById('resultadosEvaluacionesList');
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando resultados...</p></div>';
+
+            try {
+                // Cargar evaluaciones para el filtro
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                const selectEvaluacion = document.getElementById('filtroEvaluacionResultados');
+                const currentValue = selectEvaluacion.value;
+                selectEvaluacion.innerHTML = '<option value="">Todas las evaluaciones</option>';
+                evaluacionesSnapshot.forEach(docSnap => {
+                    const e = docSnap.data();
+                    selectEvaluacion.innerHTML += `<option value="${docSnap.id}">${e.titulo || 'Sin título'}</option>`;
+                });
+                selectEvaluacion.value = currentValue;
+
+                // Cargar respuestas de evaluaciones
+                const respuestasSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
+
+                // Crear un mapa de evaluaciones
+                const evaluacionesMap = {};
+                evaluacionesSnapshot.forEach(docSnap => {
+                    evaluacionesMap[docSnap.id] = docSnap.data();
+                });
+
+                // Cargar usuarios para obtener nombres
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const usersMap = {};
+                usersSnapshot.forEach(docSnap => {
+                    const u = docSnap.data();
+                    usersMap[u.email] = u;
+                });
+
+                // Procesar respuestas y quedarse solo con la más reciente por estudiante+evaluacion
+                const respuestasMap = new Map();
+                
+                respuestasSnapshot.forEach(docSnap => {
+                    const r = docSnap.data();
+                    const evaluacion = evaluacionesMap[r.evaluacionId] || evaluacionesMap[r.cuestionarioId] || {};
+                    const usuario = usersMap[r.estudianteId] || {};
+                    
+                    const respuesta = {
+                        id: docSnap.id,
+                        ...r,
+                        evaluacionTitulo: evaluacion.titulo || 'Evaluación eliminada',
+                        evaluacionPrograma: evaluacion.programa || 'N/A',
+                        estudianteNombre: usuario.name || r.nombre || r.estudianteId,
+                        estudiantePrograma: usuario.programa || 'N/A',
+                        estudianteSede: usuario.sede || 'N/A',
+                        estudianteHorario: usuario.horario || 'N/A'
+                    };
+                    
+                    const clave = `${r.estudianteId}_${r.evaluacionId || r.cuestionarioId}`;
+                    const existente = respuestasMap.get(clave);
+                    
+                    if (!existente) {
+                        respuestasMap.set(clave, respuesta);
+                    } else {
+                        const fechaExistente = existente.fechaEnvio || existente.fechaRespuesta || 0;
+                        const fechaNueva = r.fechaEnvio || r.fechaRespuesta || 0;
+                        if (new Date(fechaNueva) > new Date(fechaExistente)) {
+                            respuestasMap.set(clave, respuesta);
+                        }
+                    }
+                });
+                
+                let respuestas = Array.from(respuestasMap.values());
+
+                // Aplicar filtros
+                const filtroPrograma = document.getElementById('filtroProgResultadosEval').value;
+                const filtroSede = document.getElementById('filtroSedeResultadosEval').value;
+                const filtroHorario = document.getElementById('filtroHorarioResultadosEval').value;
+                const filtroEvaluacion = document.getElementById('filtroEvaluacionResultados').value;
+                const busqueda = document.getElementById('buscarEstudianteResultadosEval').value.toLowerCase();
+                const orden = document.getElementById('ordenResultadosEval').value;
+
+                let filtradas = respuestas.filter(r => {
+                    const matchPrograma = !filtroPrograma || r.evaluacionPrograma === filtroPrograma || r.estudiantePrograma === filtroPrograma;
+                    const matchSede = !filtroSede || r.estudianteSede === filtroSede;
+                    const matchHorario = !filtroHorario || r.estudianteHorario === filtroHorario;
+                    const matchEvaluacion = !filtroEvaluacion || r.evaluacionId === filtroEvaluacion || r.cuestionarioId === filtroEvaluacion;
+                    const matchBusqueda = !busqueda || 
+                        r.estudianteNombre.toLowerCase().includes(busqueda) || 
+                        r.estudianteId.toLowerCase().includes(busqueda);
+                    return matchPrograma && matchSede && matchHorario && matchEvaluacion && matchBusqueda;
+                });
+
+                // Ordenar
+                filtradas.sort((a, b) => {
+                    switch(orden) {
+                        case 'fecha-desc':
+                            return new Date(b.fechaRespuesta || b.fechaEnvio || 0) - new Date(a.fechaRespuesta || a.fechaEnvio || 0);
+                        case 'fecha-asc':
+                            return new Date(a.fechaRespuesta || a.fechaEnvio || 0) - new Date(b.fechaRespuesta || b.fechaEnvio || 0);
+                        case 'calificacion-desc':
+                            return (b.calificacion || 0) - (a.calificacion || 0);
+                        case 'calificacion-asc':
+                            return (a.calificacion || 0) - (b.calificacion || 0);
+                        case 'nombre-asc':
+                            return a.estudianteNombre.localeCompare(b.estudianteNombre);
+                        case 'nombre-desc':
+                            return b.estudianteNombre.localeCompare(a.estudianteNombre);
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Actualizar estadísticas en badges
+                const totalBadge = document.getElementById('totalRespuestasEvalBadge');
+                if (totalBadge) totalBadge.textContent = filtradas.length;
+                
+                const calificaciones = filtradas.filter(r => r.calificacion !== undefined && r.calificacion !== null);
+                const promedio = calificaciones.length > 0 
+                    ? Math.round(calificaciones.reduce((sum, r) => sum + (r.calificacion || 0), 0) / calificaciones.length)
+                    : 0;
+                const promedioBadge = document.getElementById('promedioEvalBadge');
+                if (promedioBadge) promedioBadge.textContent = promedio + '%';
+
+                if (filtradas.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                            <h3 style="margin-top: 1rem; color: #374151;">No hay resultados</h3>
+                            <p>No se encontraron respuestas con los filtros seleccionados.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar tabla
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Evaluación</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Calificación</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Fecha</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtradas.map((r, index) => {
+                                const calificacionColor = (r.calificacion || 0) >= 70 ? '#10b981' : (r.calificacion || 0) >= 50 ? '#f59e0b' : '#ef4444';
+                                const fechaFormateada = (r.fechaRespuesta || r.fechaEnvio) ? new Date(r.fechaRespuesta || r.fechaEnvio).toLocaleDateString('es-ES', { 
+                                    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                                }) : 'Sin fecha';
+                                
+                                return `
+                                    <tr style="border-bottom: 1px solid #e2e8f0; ${index % 2 === 0 ? 'background: #fafafa;' : ''}">
+                                        <td style="padding: 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                                    ${(r.estudianteNombre || 'E').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600; color: #1e3a8a;">${r.estudianteNombre}</div>
+                                                    <div style="font-size: 0.8rem; color: #64748b;">${r.estudianteId}</div>
+                                                    <div style="font-size: 0.75rem; color: #94a3b8;">${r.estudianteSede} • ${r.estudianteHorario}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem;">
+                                            <div style="font-weight: 500; color: #374151;">${r.evaluacionTitulo}</div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <span style="background: ${r.evaluacionPrograma.includes('Belleza') ? '#fce7f3' : '#fef3c7'}; color: ${r.evaluacionPrograma.includes('Belleza') ? '#be185d' : '#92400e'}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                                ${r.evaluacionPrograma}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: ${calificacionColor}15; color: ${calificacionColor}; padding: 0.5rem 1rem; border-radius: 20px; font-weight: bold;">
+                                                <i class="fas ${(r.calificacion || 0) >= 70 ? 'fa-check-circle' : (r.calificacion || 0) >= 50 ? 'fa-exclamation-circle' : 'fa-times-circle'}"></i>
+                                                ${r.calificacion !== undefined && r.calificacion !== null ? r.calificacion + '%' : 'Pendiente'}
+                                            </div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center; color: #64748b; font-size: 0.9rem;">
+                                            ${fechaFormateada}
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <button onclick="verDetalleRespuestaEvaluacion('${r.id}')" style="background: #667eea; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Error loading resultados evaluaciones:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Error al cargar resultados: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function verDetalleRespuestaEvaluacion(respuestaId) {
+            try {
+                const respuestaDoc = await getDoc(doc(db, 'respuestasEvaluaciones', respuestaId));
+                if (!respuestaDoc.exists()) {
+                    alert('Respuesta no encontrada');
+                    return;
+                }
+
+                const respuesta = respuestaDoc.data();
+                
+                // Obtener info de la evaluación
+                let evaluacionInfo = { titulo: 'Evaluación', preguntas: [] };
+                const evalId = respuesta.evaluacionId || respuesta.cuestionarioId;
+                if (evalId) {
+                    const evaluacionDoc = await getDoc(doc(db, 'evaluaciones', evalId));
+                    if (evaluacionDoc.exists()) {
+                        evaluacionInfo = evaluacionDoc.data();
+                    }
+                }
+
+                // Obtener info del estudiante
+                const usersSnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', respuesta.estudianteId)));
+                let estudianteInfo = { name: respuesta.nombre || respuesta.estudianteId };
+                if (!usersSnapshot.empty) {
+                    estudianteInfo = usersSnapshot.docs[0].data();
+                }
+
+                // Crear modal con detalle
+                const modalHtml = `
+                    <div id="modalDetalleRespuestaEval" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+                        <div style="background: white; border-radius: 16px; width: 100%; max-width: 800px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+                            <!-- Header -->
+                            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1.5rem; flex-shrink: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.3rem;"><i class="fas fa-clipboard-check"></i> ${evaluacionInfo.titulo || 'Evaluación'}</h3>
+                                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Respondido por: ${estudianteInfo.name}</p>
+                                    </div>
+                                    <button onclick="document.getElementById('modalDetalleRespuestaEval').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div style="display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-star"></i> Calificación: <strong>${respuesta.calificacion !== undefined ? respuesta.calificacion + '%' : 'Pendiente'}</strong>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-calendar"></i> ${(respuesta.fechaRespuesta || respuesta.fechaEnvio) ? new Date(respuesta.fechaRespuesta || respuesta.fechaEnvio).toLocaleDateString('es-ES') : 'Sin fecha'}
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px;">
+                                        <i class="fas fa-graduation-cap"></i> ${estudianteInfo.programa || 'N/A'}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Body -->
+                            <div style="padding: 1.5rem; overflow-y: auto; flex: 1;">
+                                <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-list-ol"></i> Respuestas del estudiante</h4>
+                                ${(respuesta.respuestas || respuesta.preguntasDetalladas || []).map((resp, index) => {
+                                    const pregunta = evaluacionInfo.preguntas?.[index] || {};
+                                    const esCorrecta = resp.correcta;
+                                    return `
+                                        <div style="background: ${esCorrecta ? '#dcfce7' : '#fee2e2'}; border: 1px solid ${esCorrecta ? '#86efac' : '#fca5a5'}; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                                <strong style="color: #374151;">Pregunta ${index + 1}: ${pregunta.texto || resp.pregunta || 'Sin texto'}</strong>
+                                                <span style="background: ${esCorrecta ? '#10b981' : '#ef4444'}; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
+                                                    ${esCorrecta ? '<i class="fas fa-check"></i> Correcta' : '<i class="fas fa-times"></i> Incorrecta'}
+                                                </span>
+                                            </div>
+                                            <div style="margin-top: 0.5rem; padding-left: 1rem; border-left: 3px solid ${esCorrecta ? '#10b981' : '#ef4444'};">
+                                                <p style="margin: 0; color: #1e3a8a;"><strong>Respuesta del estudiante:</strong> ${resp.respuestaEstudiante || resp.respuesta || 'Sin respuesta'}</p>
+                                                ${!esCorrecta && (pregunta.correcta || resp.respuestaCorrecta) ? `<p style="margin: 0.5rem 0 0 0; color: #059669;"><strong>Respuesta correcta:</strong> ${pregunta.correcta || resp.respuestaCorrecta}</p>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                
+                                ${(!respuesta.respuestas && !respuesta.preguntasDetalladas) || (respuesta.respuestas?.length === 0 && respuesta.preguntasDetalladas?.length === 0) ? `
                                     <div style="text-align: center; padding: 2rem; color: #64748b;">
                                         <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
                                         <p>No hay respuestas detalladas disponibles</p>
