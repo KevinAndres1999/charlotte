@@ -14803,13 +14803,15 @@ REGLAS ESTRICTAS:
                     usersMap[u.email] = u;
                 });
 
-                // Procesar respuestas
+                // Procesar respuestas y quedarse solo con la más reciente por estudiante+cuestionario
+                const respuestasMap = new Map(); // Clave: estudianteId_cuestionarioId -> respuesta más reciente
+                
                 respuestasSnapshot.forEach(docSnap => {
                     const r = docSnap.data();
                     const cuestionario = cuestionariosMap[r.cuestionarioId] || {};
                     const usuario = usersMap[r.estudianteId] || {};
                     
-                    respuestas.push({
+                    const respuesta = {
                         id: docSnap.id,
                         ...r,
                         cuestionarioTitulo: cuestionario.titulo || 'Cuestionario eliminado',
@@ -14818,8 +14820,26 @@ REGLAS ESTRICTAS:
                         estudiantePrograma: usuario.programa || 'N/A',
                         estudianteSede: usuario.sede || 'N/A',
                         estudianteHorario: usuario.horario || 'N/A'
-                    });
+                    };
+                    
+                    // Clave única por estudiante + cuestionario
+                    const clave = `${r.estudianteId}_${r.cuestionarioId}`;
+                    const existente = respuestasMap.get(clave);
+                    
+                    // Guardar solo si no existe o si esta respuesta es más reciente
+                    if (!existente) {
+                        respuestasMap.set(clave, respuesta);
+                    } else {
+                        const fechaExistente = existente.fechaEnvio || existente.fechaRespuesta || 0;
+                        const fechaNueva = r.fechaEnvio || r.fechaRespuesta || 0;
+                        if (new Date(fechaNueva) > new Date(fechaExistente)) {
+                            respuestasMap.set(clave, respuesta);
+                        }
+                    }
                 });
+                
+                // Convertir Map a array
+                let respuestas = Array.from(respuestasMap.values());
 
                 // Aplicar filtros
                 const filtroPrograma = document.getElementById('filtroProgResultados').value;
