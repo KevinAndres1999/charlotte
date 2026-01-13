@@ -12592,7 +12592,8 @@ REGLAS ESTRICTAS:
                 }
 
                 const collectionName = tipo === 'cuestionario' ? 'cuestionarios' : 'evaluaciones';
-                await doc(db, collectionName, cuestionarioId).update({
+                const docRef = doc(db, collectionName, cuestionarioId);
+                await updateDoc(docRef, {
                     titulo: title,
                     descripcion: desc,
                     programa: programa,
