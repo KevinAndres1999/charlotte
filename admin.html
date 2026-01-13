@@ -8798,8 +8798,8 @@
         async function getRandomQuestions(cuestionarioId, num) {
             try {
                 console.log(`Obteniendo ${num} preguntas aleatorias del cuestionario ${cuestionarioId}`);
-                const doc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
-                const data = doc.data();
+                const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
+                const data = cuestionarioDoc.data();
                 const allQuestions = data.preguntas || [];
 
                 console.log(`Cuestionario tiene ${allQuestions.length} preguntas totales`);
