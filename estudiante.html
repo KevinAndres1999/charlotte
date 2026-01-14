@@ -8048,13 +8048,20 @@ function actualizarNotasEvaluacionesPorModulo() {
         const moduloKey = `modulo${i}`;
         const datos = moduloNotas[moduloKey];
         
-        // Usar el promedio si hay múltiples evaluaciones, o la nota directa si hay una sola
-        const notaFinal = datos.count > 0 ? (datos.total / datos.count) : 0;
+        // Obtener la nota guardada previamente en la base de datos
+        const notaGuardada = window.calificacionesEvaluacionesGuardadas?.[moduloKey] || 0;
+        
+        // Calcular nota de evaluaciones respondidas
+        const notaCalculada = datos.count > 0 ? (datos.total / datos.count) : 0;
+        
+        // Usar el MÁXIMO entre la nota guardada y la calculada
+        // Esto preserva las notas existentes y solo las actualiza si la calculada es mayor
+        const notaFinal = Math.max(notaGuardada, notaCalculada);
         
         const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
         if (elemento) {
             elemento.textContent = notaFinal.toFixed(1);
-            console.log(`${moduloKey}Evaluaciones = ${notaFinal.toFixed(1)} (${datos.count} evaluaciones)`);
+            console.log(`${moduloKey}Evaluaciones: guardada=${notaGuardada.toFixed(1)}, calculada=${notaCalculada.toFixed(1)}, final=${notaFinal.toFixed(1)}`);
         }
         
         // También actualizar el score total del módulo
@@ -8124,22 +8131,28 @@ async function loadCalificaciones() {
 
         console.log('Calificaciones por módulo cargadas:', modulosCalif);
 
-        // Actualizar UI de módulos con calificaciones específicas (actividades y práctica)
+        // Guardar las calificaciones de evaluaciones existentes para usarlas después
+        window.calificacionesEvaluacionesGuardadas = {};
+
+        // Actualizar UI de módulos con calificaciones específicas
         for (let i = 1; i <= 4; i++) {
             const moduloKey = `modulo${i}`;
             const moduloData = modulosCalif[moduloKey] || {};
 
             const actividades = moduloData.actividades || 0;
+            const evaluacionesGuardadas = moduloData.evaluaciones || 0;
             const practica = moduloData.practica || 0;
 
-            // Actualizar solo actividades y práctica (las evaluaciones se calculan después)
+            // Guardar las evaluaciones existentes
+            window.calificacionesEvaluacionesGuardadas[moduloKey] = evaluacionesGuardadas;
+
+            // Actualizar elementos de la UI
             document.getElementById(`modulo${i}Actividades`).textContent = actividades.toFixed(1);
+            document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluacionesGuardadas.toFixed(1);
             document.getElementById(`modulo${i}Practica`).textContent = practica.toFixed(1);
-            // Inicializar evaluaciones en 0, se actualizará después
-            document.getElementById(`modulo${i}Evaluaciones`).textContent = '0.0';
         }
 
-        // Cargar evaluaciones del estudiante para calcular notas
+        // Cargar evaluaciones del estudiante para calcular notas adicionales
         await cargarEvaluacionesParaCalificaciones(currentUser.email);
 
         // Cargar y mostrar actividades individuales calificadas
