@@ -10364,7 +10364,7 @@ REGLAS:
                     metodologia: 'constructivista'
                 };
 
-                await addDoc(collection(db, 'clases'), claseData);
+                await addDoc(collection(db, 'classes'), claseData);
                 
                 alert('✅ Clase guardada exitosamente!');
                 
@@ -10374,8 +10374,8 @@ REGLAS:
                 document.getElementById('claseGeneradaPreview').style.display = 'none';
                 
                 // Recargar lista de clases
-                if (typeof loadClases === 'function') {
-                    loadClases();
+                if (typeof loadClasesList === 'function') {
+                    loadClasesList();
                 }
 
             } catch (error) {
