@@ -10165,6 +10165,34 @@ REGLAS:
                 return;
             }
 
+            // Verificar tamaño del contenido (Firebase tiene límite de ~1MB)
+            const contenidoBytes = new Blob([contenido]).size;
+            const limiteBytes = 900000; // 900KB para dejar margen
+            
+            if (contenidoBytes > limiteBytes) {
+                // Intentar limpiar el contenido de imágenes base64 muy grandes
+                const contenidoLimpio = contenido.replace(/data:image\/[^;]+;base64,[^"]+/g, (match) => {
+                    // Si la imagen es muy grande (> 100KB), reemplazarla con placeholder
+                    if (match.length > 100000) {
+                        return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiByZW1vdmlkYTwvdGV4dD48L3N2Zz4=';
+                    }
+                    return match;
+                });
+                
+                const contenidoLimpioBytes = new Blob([contenidoLimpio]).size;
+                
+                if (contenidoLimpioBytes > limiteBytes) {
+                    const confirmar = confirm(`El contenido es muy extenso (${Math.round(contenidoLimpioBytes/1024)}KB). Firebase tiene un límite de ~1MB.\n\n¿Deseas guardar una versión reducida? Se truncará el contenido para que quepa.`);
+                    if (!confirmar) return;
+                    
+                    // Truncar el contenido
+                    contenido = contenidoLimpio.substring(0, limiteBytes - 50000) + '\n\n<p style="color: red;"><strong>⚠️ Contenido truncado por límite de tamaño. Por favor, edita la clase para completar el contenido.</strong></p>';
+                } else {
+                    contenido = contenidoLimpio;
+                    console.log('Imágenes grandes removidas, nuevo tamaño:', contenidoLimpioBytes);
+                }
+            }
+
             // Mostrar indicador de carga
             const btnGuardar = document.querySelector('#claseGeneradaPreview .btn-submit-quiz:last-child');
             const textoOriginal = btnGuardar.innerHTML;
