@@ -7009,9 +7009,54 @@ async function loadEvaluaciones() {
     }
 }
 
-// Función para actualizar el dashboard
-function updateDashboard() {
+// Función para sincronizar datos del usuario desde Firebase
+async function sincronizarDatosUsuario() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser || !currentUser.email) return currentUser;
+    
+    try {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', currentUser.email));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+            
+            // Actualizar datos en sessionStorage
+            const updatedUser = {
+                ...currentUser,
+                name: userData.name || currentUser.name,
+                programa: userData.programa || currentUser.programa,
+                sede: userData.sede || currentUser.sede,
+                horario: userData.horario || currentUser.horario,
+                estadoPagos: userData.estadoPagos || currentUser.estadoPagos
+            };
+            
+            // Solo actualizar si hay cambios
+            if (JSON.stringify(updatedUser) !== JSON.stringify(currentUser)) {
+                console.log('🔄 Datos de usuario actualizados desde Firebase:', {
+                    programa: updatedUser.programa,
+                    sede: updatedUser.sede,
+                    horario: updatedUser.horario
+                });
+                sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            }
+            
+            return updatedUser;
+        }
+    } catch (error) {
+        console.error('Error sincronizando datos de usuario:', error);
+    }
+    
+    return currentUser;
+}
+
+// Función para actualizar el dashboard
+async function updateDashboard() {
+    // Primero sincronizar datos desde Firebase
+    const currentUser = await sincronizarDatosUsuario();
+    
     if (currentUser && currentUser.role === 'student') {
         loadStudentInfo();
         loadDashboardStats();
