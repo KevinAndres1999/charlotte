@@ -10357,11 +10357,13 @@ REGLAS:
                     contenido: contenido,
                     programa: programa,
                     modulo: modulo,
+                    duracion: parseInt(document.getElementById('claseDuracionIA').value) || 60,
                     horarios: horarios,
                     sedes: sedes,
-                    fechaRegistro: new Date().toISOString(),
+                    fechaCreacion: new Date().toISOString(),
                     generadaConIA: true,
-                    metodologia: 'constructivista'
+                    metodologia: 'constructivista',
+                    hasChunks: false
                 };
 
                 await addDoc(collection(db, 'classes'), claseData);
@@ -10374,9 +10376,9 @@ REGLAS:
                 document.getElementById('claseGeneradaPreview').style.display = 'none';
                 
                 // Recargar lista de clases
-                if (typeof loadClasesList === 'function') {
-                    loadClasesList();
-                }
+                console.log('Recargando lista de clases...');
+                await loadClasesList();
+                console.log('Lista de clases recargada, total:', allClases.length);
 
             } catch (error) {
                 console.error('Error guardando clase:', error);
