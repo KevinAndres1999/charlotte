@@ -7600,6 +7600,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const snapshot = await getDocs(collection(db, 'classes'));
                 allClases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
+                console.log('Clases cargadas:', allClases.length);
+                console.log('Detalle clases:', allClases.map(c => ({ id: c.id, titulo: c.titulo, programa: c.programa, modulo: c.modulo })));
+                
                 // Mostrar resumen de clases por programa
                 mostrarResumenClases();
                 
@@ -10298,6 +10301,13 @@ REGLAS:
             const descripcion = document.getElementById('claseDescGenerada').value.trim();
             const programa = document.getElementById('claseProgramaIA').value;
             const modulo = document.getElementById('claseModuloIA').value;
+            
+            console.log('Guardando clase IA - Programa:', programa, 'Módulo:', modulo);
+            
+            if (!programa || !modulo) {
+                alert('Por favor, selecciona un programa y módulo antes de guardar.');
+                return;
+            }
             
             // Obtener contenido del editor
             let contenido = '';
