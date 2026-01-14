@@ -3615,6 +3615,43 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         <h3><i class="fas fa-list"></i> Clases Subidas</h3>
                         <p style="color: white;">Gestiona y administra tus clases publicadas</p>
                     </div>
+                    
+                    <!-- Filtros de búsqueda -->
+                    <div id="clasesFilters" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                                <select id="filterProgramaClases" onchange="filtrarClases()" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                                    <option value="">Todos los programas</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-layer-group"></i> Módulo</label>
+                                <select id="filterModuloClases" onchange="filtrarClases()" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                                    <option value="">Todos los módulos</option>
+                                    <option value="modulo1">Módulo 1</option>
+                                    <option value="modulo2">Módulo 2</option>
+                                    <option value="modulo3">Módulo 3</option>
+                                    <option value="modulo4">Módulo 4</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-search"></i> Buscar</label>
+                                <input type="text" id="filterBuscarClases" onkeyup="filtrarClases()" placeholder="Buscar por título..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                            </div>
+                            <button onclick="limpiarFiltrosClases()" style="padding: 0.75rem 1.5rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de clases -->
+                    <div id="clasesResumen" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
+                    
+                    <!-- Lista de clases -->
                     <div id="clasesList" class="grid"></div>
                 </div>
             </div>
@@ -7563,75 +7600,177 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const snapshot = await getDocs(collection(db, 'classes'));
                 allClases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 
-                // Si no hay módulo seleccionado, mostrar todas las clases
-                if (!selectedModulo) {
-                    showAllClases();
-                    return;
-                }
+                // Mostrar resumen de clases por programa
+                mostrarResumenClases();
                 
-                // Filtrar por módulo seleccionado
-                const clasesFiltradas = allClases.filter(clase => clase.modulo === selectedModulo);
-                
-                const container = document.getElementById('clasesList');
-                if (clasesFiltradas.length === 0) {
-                    container.innerHTML = `
-                        <div class="modulo-header" style="margin-bottom: 20px;">
-                            <button onclick="loadClasesList()" class="btn-secondary" style="margin-bottom: 10px;">
-                                <i class="fas fa-arrow-left"></i> Volver a módulos
-                            </button>
-                            <h4 style="color: #1e3a8a; margin: 0;">${getModuloName(selectedModulo)} - No hay clases</h4>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = `
-                    <div class="modulo-header" style="margin-bottom: 20px;">
-                        <button onclick="loadClasesList()" class="btn-secondary" style="margin-bottom: 10px;">
-                            <i class="fas fa-arrow-left"></i> Volver a módulos
-                        </button>
-                        <h4 style="color: #1e3a8a; margin: 0;">${getModuloName(selectedModulo)} (${clasesFiltradas.length} clases)</h4>
-                    </div>
-                    ${clasesFiltradas.map(doc => {
-                        const data = doc;
-                        const horarios = data.horarios || [];
-                        const sedes = data.sedes || [];
-                        const horariosText = horarios.length > 0 ? horarios.join(', ') : 'Sin horario asignado';
-                        const sedesText = sedes.length > 0 ? sedes.join(', ') : 'Sin sede asignada';
-                        return `
-                            <div class="clase-card grid-view">
-                                <div class="clase-header">
-                                    <div class="clase-title">
-                                        <i class="fas fa-chalkboard-teacher"></i> ${data.titulo}
-                                    </div>
-                                    <div class="clase-meta">
-                                        <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                        <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo)}</div>
-                                        <div class="meta-item"><i class="fas fa-clock"></i> ${horariosText}</div>
-                                        <div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${sedesText}</div>
-                                        <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaCreacion || Date.now()).toLocaleDateString('es-ES')}</div>
-                                    </div>
-                                </div>
-                                <div class="clase-content">
-                                    <div class="clase-description">
-                                        ${data.descripcion || ''}
-                                    </div>
-                                    <div class="clase-actions">
-                                        <button class="btn-icon btn-view" onclick="viewClase('${doc.id}')" title="Ver Clase" style="background: #8b5cf6; margin-right: 8px;">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-icon btn-delete" onclick="deleteItem('classes', '${doc.id}')" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                `;
+                // Aplicar filtros
+                filtrarClases();
             } catch (error) {
                 console.error('Error loading clases:', error);
             }
+        }
+        
+        function mostrarResumenClases() {
+            const resumenContainer = document.getElementById('clasesResumen');
+            if (!resumenContainer) return;
+            
+            // Contar clases por programa
+            const porPrograma = {};
+            const porModulo = {};
+            
+            allClases.forEach(clase => {
+                const prog = clase.programa || 'Sin programa';
+                const mod = clase.modulo || 'Sin módulo';
+                porPrograma[prog] = (porPrograma[prog] || 0) + 1;
+                porModulo[mod] = (porModulo[mod] || 0) + 1;
+            });
+            
+            const colores = {
+                'Belleza Integral': '#ec4899',
+                'Panadería y Pastelería': '#f59e0b',
+                'Asesoría Técnica': '#8b5cf6'
+            };
+            
+            resumenContainer.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: bold;">${allClases.length}</div>
+                    <div style="font-size: 0.875rem; opacity: 0.9;">Total Clases</div>
+                </div>
+                ${Object.entries(porPrograma).map(([prog, count]) => `
+                    <div style="background: ${colores[prog] || '#6b7280'}; color: white; padding: 1rem; border-radius: 12px; text-align: center; cursor: pointer;" onclick="document.getElementById('filterProgramaClases').value='${prog}'; filtrarClases();">
+                        <div style="font-size: 1.5rem; font-weight: bold;">${count}</div>
+                        <div style="font-size: 0.75rem; opacity: 0.9;">${prog}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        function filtrarClases() {
+            const programa = document.getElementById('filterProgramaClases')?.value || '';
+            const modulo = document.getElementById('filterModuloClases')?.value || '';
+            const buscar = document.getElementById('filterBuscarClases')?.value?.toLowerCase() || '';
+            
+            let clasesFiltradas = [...allClases];
+            
+            if (programa) {
+                clasesFiltradas = clasesFiltradas.filter(c => c.programa === programa);
+            }
+            if (modulo) {
+                clasesFiltradas = clasesFiltradas.filter(c => c.modulo === modulo);
+            }
+            if (buscar) {
+                clasesFiltradas = clasesFiltradas.filter(c => 
+                    (c.titulo || '').toLowerCase().includes(buscar) ||
+                    (c.descripcion || '').toLowerCase().includes(buscar)
+                );
+            }
+            
+            renderClasesFiltradasNuevo(clasesFiltradas);
+        }
+        
+        function limpiarFiltrosClases() {
+            document.getElementById('filterProgramaClases').value = '';
+            document.getElementById('filterModuloClases').value = '';
+            document.getElementById('filterBuscarClases').value = '';
+            filtrarClases();
+        }
+        
+        function renderClasesFiltradasNuevo(clases) {
+            const container = document.getElementById('clasesList');
+            
+            if (clases.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: #f8fafc; border-radius: 12px; border: 2px dashed #d1d5db;">
+                        <i class="fas fa-folder-open" style="font-size: 3rem; color: #9ca3af; margin-bottom: 1rem;"></i>
+                        <p style="color: #6b7280; font-size: 1.1rem;">No se encontraron clases con los filtros seleccionados</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Agrupar por programa y módulo
+            const agrupadas = {};
+            clases.forEach(clase => {
+                const prog = clase.programa || 'Sin programa';
+                const mod = clase.modulo || 'Sin módulo';
+                const key = `${prog}|||${mod}`;
+                if (!agrupadas[key]) {
+                    agrupadas[key] = { programa: prog, modulo: mod, clases: [] };
+                }
+                agrupadas[key].clases.push(clase);
+            });
+            
+            const coloresPrograma = {
+                'Belleza Integral': { bg: '#fdf2f8', border: '#ec4899', header: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)' },
+                'Panadería y Pastelería': { bg: '#fffbeb', border: '#f59e0b', header: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' },
+                'Asesoría Técnica': { bg: '#f5f3ff', border: '#8b5cf6', header: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' }
+            };
+            
+            const coloresModulo = {
+                'modulo1': '#667eea',
+                'modulo2': '#f093fb',
+                'modulo3': '#4facfe',
+                'modulo4': '#43e97b'
+            };
+            
+            let html = '';
+            
+            // Ordenar grupos por programa y módulo
+            const gruposOrdenados = Object.values(agrupadas).sort((a, b) => {
+                if (a.programa !== b.programa) return a.programa.localeCompare(b.programa);
+                return a.modulo.localeCompare(b.modulo);
+            });
+            
+            gruposOrdenados.forEach(grupo => {
+                const colores = coloresPrograma[grupo.programa] || { bg: '#f8fafc', border: '#6b7280', header: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' };
+                const colorModulo = coloresModulo[grupo.modulo] || '#6b7280';
+                
+                html += `
+                    <div style="grid-column: 1 / -1; margin-bottom: 1.5rem; background: ${colores.bg}; border: 2px solid ${colores.border}; border-radius: 12px; overflow: hidden;">
+                        <div style="background: ${colores.header}; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.1rem;"><i class="fas fa-graduation-cap"></i> ${grupo.programa}</h4>
+                                <span style="opacity: 0.9; font-size: 0.9rem;"><i class="fas fa-layer-group"></i> ${getModuloName(grupo.modulo)}</span>
+                            </div>
+                            <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">
+                                ${grupo.clases.length} clase${grupo.clases.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
+                        <div style="padding: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+                            ${grupo.clases.map(clase => {
+                                const horarios = clase.horarios || [];
+                                const sedes = clase.sedes || [];
+                                const duracion = clase.duracion ? `${clase.duracion} min` : '';
+                                return `
+                                    <div style="background: white; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid ${colorModulo};">
+                                        <h5 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 1rem;">
+                                            <i class="fas fa-chalkboard-teacher" style="color: ${colorModulo};"></i> ${clase.titulo}
+                                        </h5>
+                                        <p style="color: #6b7280; font-size: 0.85rem; margin: 0 0 0.75rem 0; line-height: 1.4;">
+                                            ${(clase.descripcion || 'Sin descripción').substring(0, 100)}${(clase.descripcion || '').length > 100 ? '...' : ''}
+                                        </p>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem;">
+                                            ${duracion ? `<span style="background: #e5e7eb; padding: 0.25rem 0.5rem; border-radius: 4px;"><i class="fas fa-clock"></i> ${duracion}</span>` : ''}
+                                            ${horarios.length > 0 ? `<span style="background: #dbeafe; padding: 0.25rem 0.5rem; border-radius: 4px;"><i class="fas fa-calendar"></i> ${horarios.join(', ')}</span>` : ''}
+                                            ${sedes.length > 0 ? `<span style="background: #dcfce7; padding: 0.25rem 0.5rem; border-radius: 4px;"><i class="fas fa-map-marker-alt"></i> ${sedes.join(', ')}</span>` : ''}
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                            <button onclick="viewClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                            <button onclick="deleteItem('classes', '${clase.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
         }
 
         function showModuloSelector() {
