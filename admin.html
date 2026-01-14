@@ -3070,122 +3070,144 @@
 
             <!-- Usuarios (aprobaciones) -->
             <div id="usuarios" class="content-section">
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-user-check"></i> Aprobar Usuarios</h3>
-                        <p style="color: white;">Gestiona las solicitudes de registro y administra usuarios aprobados</p>
+                <!-- Header Premium -->
+                <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4c1d95 100%); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; color: white; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem; font-weight: 700;">
+                            <i class="fas fa-users-cog"></i> Centro de Gestión de Usuarios
+                        </h2>
+                        <p style="margin: 0; opacity: 0.9;">Administra solicitudes, aprueba estudiantes y gestiona sus datos</p>
                     </div>
+                </div>
 
-                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-                        <strong><i class="fas fa-exclamation-triangle"></i> Importante sobre contraseñas:</strong>
-                        <p style="margin: 8px 0 0 0; color: #92400e;">
-                            • Nuevas aprobaciones: Los estudiantes mantienen la contraseña que ingresaron al registrarse<br>
-                            • Si un estudiante no puede ingresar: Usa el botón "Restablecer" en Usuarios Aprobados para cambiar su contraseña<br>
-                            • Puedes ver y copiar las contraseñas de todos los usuarios aprobados
-                        </p>
-                    </div>
-
-                    <!-- Estadísticas -->
-                    <div class="stats-grid" style="margin-bottom: 32px;">
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="total-pendientes">0</h3>
-                                    <p class="stat-label">Solicitudes Pendientes</p>
-                                </div>
-                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                <!-- Estadísticas Premium -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #92400e; font-weight: 600; text-transform: uppercase;">Pendientes</p>
+                                <h3 id="total-pendientes" style="margin: 0.25rem 0 0 0; font-size: 2.5rem; font-weight: 700; color: #78350f;">0</h3>
                             </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="total-aprobados">0</h3>
-                                    <p class="stat-label">Usuarios Aprobados</p>
-                                </div>
-                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            <div style="width: 60px; height: 60px; background: rgba(245,158,11,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="font-size: 1.5rem; color: #f59e0b;"></i>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Filtros y búsqueda -->
-                    <div class="quiz-form-grid">
-                        <div class="quiz-form-card">
-                            <h4><i class="fas fa-filter"></i> Filtros y Búsqueda</h4>
-                            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
-                                <div style="flex: 1; min-width: 200px;">
-                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Buscar usuario</label>
-                                    <input type="text" id="usuariosSearch" placeholder="Buscar por nombre o email..." onkeyup="filterUsuarios()" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Programa</label>
-                                    <select id="filterProgramaPendientes" onchange="filterUsuarios()" style="width: 150px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                        <option value="">Todos</option>
-                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                                        <option value="Belleza Integral">Belleza Integral</option>
-                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Sede</label>
-                                    <select id="filterSedePendientes" onchange="filterUsuarios()" style="width: 120px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                        <option value="">Todas</option>
-                                        <option value="Carapungo">Carapungo</option>
-                                        <option value="Sangolquí">Sangolquí</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="display: block; margin-bottom: 8px; color: #334155; font-weight: 600;">Horario</label>
-                                    <select id="filterHorarioPendientes" onchange="filterUsuarios()" style="width: 140px; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
-                                        <option value="">Todos</option>
-                                        <option value="Sábado Matutina">Sábado Matutina</option>
-                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
-                                        <option value="Domingo Matutina">Domingo Matutina</option>
-                                    </select>
-                                </div>
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #10b981; box-shadow: 0 4px 15px rgba(16,185,129,0.2);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #065f46; font-weight: 600; text-transform: uppercase;">Aprobados</p>
+                                <h3 id="total-aprobados" style="margin: 0.25rem 0 0 0; font-size: 2.5rem; font-weight: 700; color: #064e3b;">0</h3>
+                            </div>
+                            <div style="width: 60px; height: 60px; background: rgba(16,185,129,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-check" style="font-size: 1.5rem; color: #10b981;"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-list"></i> Solicitudes Pendientes</h3>
-                        <p style="color: white;">Usuarios esperando aprobación</p>
-                    </div>
-                    <div id="usuarios-pendientes"></div>
+                <!-- Nota informativa -->
+                <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <p style="margin: 0; color: #1e40af; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Puedes editar el programa, sede y horario de cualquier estudiante usando el botón <i class="fas fa-edit"></i>
+                    </p>
                 </div>
 
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-users"></i> Usuarios Aprobados</h3>
-                        <p style="color: white;">Gestiona usuarios activos</p>
+                <!-- Solicitudes Pendientes -->
+                <div style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 2rem;">
+                    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1.5rem 2rem; color: white;">
+                        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">
+                            <i class="fas fa-user-clock"></i> Solicitudes Pendientes
+                        </h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Usuarios esperando aprobación</p>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">Todos los programas</option>
-                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
-                            <option value="Belleza Integral">Belleza Integral</option>
-                            <option value="Asesoría Técnica">Asesoría Técnica</option>
-                        </select>
-                        <select id="filterSedeAprobados" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">Todas las sedes</option>
-                            <option value="Carapungo">Carapungo</option>
-                            <option value="Sangolquí">Sangolquí</option>
-                        </select>
-                        <select id="filterHorarioAprobados" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">Todos los horarios</option>
-                            <option value="Sábado Matutina">Sábado Matutina</option>
-                            <option value="Sábado Vespertina">Sábado Vespertina</option>
-                            <option value="Domingo Matutina">Domingo Matutina</option>
-                        </select>
-                        <button onclick="limpiarDuplicados()" class="btn-secondary" style="background: #fef3c7; color: #92400e; border: 1px solid #f59e0b;" title="Eliminar usuarios duplicados">
-                            <i class="fas fa-broom"></i> Limpiar Duplicados
-                        </button>
-                        <select id="filterLugar" onchange="loadUsuariosAprobados()" style="padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;">
-                            <option value="">Todos los lugares</option>
-                        </select>
+                    
+                    <!-- Filtros de pendientes -->
+                    <div style="padding: 1.5rem 2rem; background: #fffbeb; border-bottom: 1px solid #fde68a;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 2; min-width: 200px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Buscar</label>
+                                <input type="text" id="usuariosSearch" placeholder="Nombre o email..." onkeyup="filterUsuarios()" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                            </div>
+                            <div style="flex: 1; min-width: 150px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                <select id="filterProgramaPendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Panadería y Pastelería">Panadería</option>
+                                    <option value="Belleza Integral">Belleza</option>
+                                    <option value="Asesoría Técnica">Asesoría</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                <select id="filterSedePendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todas</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 140px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                <select id="filterHorarioPendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Sábado Matutina">Sáb. Mat.</option>
+                                    <option value="Sábado Vespertina">Sáb. Vesp.</option>
+                                    <option value="Domingo Matutina">Dom. Mat.</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div id="usuarios-aprobados"></div>
+                    
+                    <div id="usuarios-pendientes" style="padding: 1rem;"></div>
+                </div>
+
+                <!-- Usuarios Aprobados -->
+                <div style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; color: white;">
+                        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">
+                            <i class="fas fa-user-check"></i> Usuarios Aprobados
+                        </h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Gestiona estudiantes activos</p>
+                    </div>
+                    
+                    <!-- Filtros de aprobados -->
+                    <div style="padding: 1.5rem 2rem; background: #ecfdf5; border-bottom: 1px solid #a7f3d0;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 150px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Panadería y Pastelería">Panadería</option>
+                                    <option value="Belleza Integral">Belleza</option>
+                                    <option value="Asesoría Técnica">Asesoría</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                <select id="filterSedeAprobados" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todas</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 140px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                <select id="filterHorarioAprobados" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Sábado Matutina">Sáb. Mat.</option>
+                                    <option value="Sábado Vespertina">Sáb. Vesp.</option>
+                                    <option value="Domingo Matutina">Dom. Mat.</option>
+                                </select>
+                            </div>
+                            <button onclick="limpiarDuplicados()" style="padding: 0.75rem 1.25rem; background: #fef3c7; color: #92400e; border: 2px solid #fde68a; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-broom"></i> Limpiar Duplicados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="usuarios-aprobados" style="padding: 1rem;"></div>
                 </div>
             </div>
 
@@ -6986,29 +7008,65 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay solicitudes pendientes</h5></div></div>';
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="margin: 0; font-size: 1.1rem;">No hay solicitudes pendientes</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = filtered.map(user => `
-                <div class="content-item">
-                    <div class="content-info">
-                        <h5>${user.name}</h5>
-                        <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}${user.horario ? ` • ${user.horario}` : ''}</p>
-                    </div>
-                    <div class="content-actions">
-                        <button class="btn-icon" onclick="editarHorarioUsuario('${user.id}')" title="Editar Horario" style="background: #dbeafe; color: #1e40af;">
-                            <i class="fas fa-clock"></i>
-                        </button>
-                        <button class="btn-icon" onclick="aprobarUsuario('${user.id}')" title="Aprobar" style="background: #dcfce7; color: #166534;">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button class="btn-icon btn-delete" onclick="rechazarUsuario('${user.id}')" title="Rechazar">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+            const programaColores = {
+                'Panadería y Pastelería': { bg: '#fffbeb', border: '#f59e0b', icon: 'fa-bread-slice' },
+                'Belleza Integral': { bg: '#fdf2f8', border: '#ec4899', icon: 'fa-cut' },
+                'Asesoría Técnica': { bg: '#f5f3ff', border: '#8b5cf6', icon: 'fa-chalkboard-teacher' }
+            };
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1rem; padding: 0.5rem;">
+                    ${filtered.map(user => {
+                        const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user' };
+                        return `
+                            <div style="background: ${colores.bg}; border: 2px solid ${colores.border}; border-radius: 16px; padding: 1.25rem; position: relative; transition: transform 0.2s, box-shadow 0.2s;" 
+                                 onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)';"
+                                 onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                                    <div style="width: 50px; height: 50px; background: ${colores.border}; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas ${colores.icon}" style="color: white; font-size: 1.25rem;"></i>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <h4 style="margin: 0 0 0.25rem 0; font-size: 1rem; color: #1f2937; font-weight: 600;">${user.name}</h4>
+                                        <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #6b7280; word-break: break-all;">${user.email}</p>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-graduation-cap"></i> ${user.programa || 'Sin programa'}
+                                            </span>
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-map-marker-alt"></i> ${user.sede || 'Sin sede'}
+                                            </span>
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-clock"></i> ${user.horario || 'Sin horario'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: flex-end;">
+                                    <button onclick="editarUsuarioPendiente('${user.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button onclick="aprobarUsuario('${user.id}')" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-check"></i> Aprobar
+                                    </button>
+                                    <button onclick="rechazarUsuario('${user.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
-            `).join('');
+            `;
         }
 
         function renderApprovedUsers() {
@@ -7035,37 +7093,79 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="content-item"><div class="content-info"><h5>No hay usuarios aprobados</h5></div></div>';
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                        <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="margin: 0; font-size: 1.1rem;">No hay usuarios aprobados con estos filtros</p>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = filtered.map(user => `
-                <div class="content-item">
-                    <div class="content-info">
-                        <h5>${user.name}</h5>
-                        <p style="color: white;">${user.email} • ${user.programa} • ${user.sede}${user.horario ? ` • ${user.horario}` : ''}</p>
-                        <p style="color: ${user.estadoPagos === 'pagos_pendientes' ? '#ef4444' : '#10b981'}; font-weight: bold;">
-                            <i class="fas fa-${user.estadoPagos === 'pagos_pendientes' ? 'exclamation-triangle' : 'check-circle'}"></i>
-                            ${user.estadoPagos === 'pagos_pendientes' ? 'Pagos Pendientes' : 'Pagos al Día'}
-                        </p>
-                        <small style="color: #64748b;">Contraseña: ${user.password}</small>
-                    </div>
-                    <div class="content-actions">
-                        <button class="btn-icon" onclick="controlarPagosUsuario('${user.id}')" title="Controlar Pagos" style="background: ${user.estadoPagos === 'pagos_pendientes' ? '#fed7aa' : '#dcfce7'}; color: ${user.estadoPagos === 'pagos_pendientes' ? '#9a3412' : '#166534'};">
-                            <i class="fas fa-dollar-sign"></i>
-                        </button>
-                        <button class="btn-icon" onclick="editarHorarioUsuarioAprobado('${user.id}')" title="Editar Horario" style="background: #dbeafe; color: #1e40af;">
-                            <i class="fas fa-clock"></i>
-                        </button>
-                        <button class="btn-icon" onclick="resetPassword('${user.id}')" title="Restablecer contraseña" style="background: #fed7aa; color: #9a3412;">
-                            <i class="fas fa-key"></i>
-                        </button>
-                        <button class="btn-icon btn-delete" onclick="eliminarUsuario('${user.id}')" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+            const programaColores = {
+                'Panadería y Pastelería': { bg: '#fffbeb', border: '#f59e0b', icon: 'fa-bread-slice', color: '#92400e' },
+                'Belleza Integral': { bg: '#fdf2f8', border: '#ec4899', icon: 'fa-cut', color: '#9d174d' },
+                'Asesoría Técnica': { bg: '#f5f3ff', border: '#8b5cf6', icon: 'fa-chalkboard-teacher', color: '#5b21b6' }
+            };
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; padding: 0.5rem;">
+                    ${filtered.map(user => {
+                        const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user', color: '#374151' };
+                        const estadoPago = user.estadoPagos === 'pagos_pendientes';
+                        return `
+                            <div style="background: white; border: 2px solid ${colores.border}; border-radius: 16px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;"
+                                 onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)';"
+                                 onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                <div style="background: ${colores.bg}; padding: 1rem 1.25rem; border-bottom: 1px solid ${colores.border};">
+                                    <div style="display: flex; align-items: center; gap: 1rem;">
+                                        <div style="width: 45px; height: 45px; background: ${colores.border}; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas ${colores.icon}" style="color: white; font-size: 1.1rem;"></i>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <h4 style="margin: 0; font-size: 1rem; color: #1f2937; font-weight: 600;">${user.name}</h4>
+                                            <p style="margin: 0; font-size: 0.8rem; color: #6b7280;">${user.email}</p>
+                                        </div>
+                                        <div style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; background: ${estadoPago ? '#fef2f2' : '#ecfdf5'}; color: ${estadoPago ? '#dc2626' : '#059669'}; border: 1px solid ${estadoPago ? '#fecaca' : '#a7f3d0'};">
+                                            <i class="fas fa-${estadoPago ? 'exclamation-circle' : 'check-circle'}"></i> ${estadoPago ? 'Pago Pend.' : 'Al día'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="padding: 1rem 1.25rem;">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                        <span style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #374151;">
+                                            <i class="fas fa-graduation-cap"></i> ${user.programa || 'Sin programa'}
+                                        </span>
+                                        <span style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #374151;">
+                                            <i class="fas fa-map-marker-alt"></i> ${user.sede || 'Sin sede'}
+                                        </span>
+                                        <span style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #374151;">
+                                            <i class="fas fa-clock"></i> ${user.horario || 'Sin horario'}
+                                        </span>
+                                    </div>
+                                    <div style="background: #f9fafb; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #6b7280; margin-bottom: 0.75rem;">
+                                        <i class="fas fa-key"></i> Contraseña: <code style="background: #e5e7eb; padding: 0.1rem 0.4rem; border-radius: 4px; font-family: monospace;">${user.password || '***'}</code>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                        <button onclick="editarUsuarioAprobado('${user.id}')" style="flex: 1; padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button onclick="controlarPagosUsuario('${user.id}')" style="flex: 1; padding: 0.5rem; background: ${estadoPago ? '#f59e0b' : '#10b981'}; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                            <i class="fas fa-dollar-sign"></i> Pagos
+                                        </button>
+                                        <button onclick="resetPassword('${user.id}')" style="padding: 0.5rem 0.75rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+                                        <button onclick="eliminarUsuario('${user.id}')" style="padding: 0.5rem 0.75rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
-            `).join('');
+            `;
         }
 
         function filterUsuarios() {
@@ -7205,6 +7305,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         }
 
         async function editarHorarioUsuario(userId) {
+            // Redirigir a la nueva función de edición completa
+            editarUsuarioPendiente(userId);
+        }
+        
+        async function editarUsuarioPendiente(userId) {
             try {
                 const docRef = doc(db, 'pendingStudents', userId);
                 const docSnap = await docRef.get();
@@ -7216,45 +7321,188 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
                 const userData = docSnap.data();
 
-                // Mostrar modal para editar horario
                 const modalHtml = `
-                    <div id="horarioModal" class="modal" style="display: block;">
-                        <div class="modal-content" style="max-width: 500px;">
-                            <div class="modal-header">
-                                <h2>Editar Horario</h2>
-                                <span class="close" onclick="document.getElementById('horarioModal').style.display='none'">&times;</span>
+                    <div id="editUserModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+                        <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                            <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h3 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-user-edit"></i> Editar Estudiante</h3>
+                                    <button onclick="document.getElementById('editUserModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="modal-body">
-                                <p><strong>Estudiante:</strong> ${userData.name}</p>
-                                <p><strong>Email:</strong> ${userData.email}</p>
-                                <p><strong>Programa:</strong> ${userData.programa}</p>
-                                <p><strong>Sede:</strong> ${userData.sede}</p>
-                                <p><strong>Horario actual:</strong> ${userData.horario || 'No asignado'}</p>
-
-                                <div class="form-group" style="margin: 20px 0;">
-                                    <label for="userHorarioEdit"><strong>Nuevo Horario:</strong></label>
-                                    <select id="userHorarioEdit" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
-                                        <option value="">Seleccionar horario</option>
+                            <div style="padding: 2rem;">
+                                <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                                    <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: #1f2937;">${userData.name}</p>
+                                    <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${userData.email}</p>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                                    <select id="editUserPrograma" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="Panadería y Pastelería" ${userData.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                        <option value="Belleza Integral" ${userData.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                        <option value="Asesoría Técnica" ${userData.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt"></i> Sede</label>
+                                    <select id="editUserSede" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="Carapungo" ${userData.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
+                                        <option value="Sangolquí" ${userData.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Horario</label>
+                                    <select id="editUserHorario" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="">Sin horario asignado</option>
                                         <option value="Sábado Matutina" ${userData.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
                                         <option value="Sábado Vespertina" ${userData.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
                                         <option value="Domingo Matutina" ${userData.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="modal-footer" style="text-align: right; padding: 20px; border-top: 1px solid #eee;">
-                                <button onclick="document.getElementById('horarioModal').style.display='none'" style="margin-right: 10px; padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
-                                <button onclick="guardarHorarioUsuario('${userId}')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar Horario</button>
+                                
+                                <div style="display: flex; gap: 1rem;">
+                                    <button onclick="document.getElementById('editUserModal').remove()" style="flex: 1; padding: 0.875rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                        Cancelar
+                                    </button>
+                                    <button onclick="guardarEdicionUsuarioPendiente('${userId}')" style="flex: 2; padding: 0.875rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                        <i class="fas fa-save"></i> Guardar Cambios
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 `;
 
-                // Agregar el modal al body
                 document.body.insertAdjacentHTML('beforeend', modalHtml);
 
             } catch (error) {
-                console.error('Error editing user horario:', error);
-                alert('Error al editar horario: ' + error.message);
+                console.error('Error:', error);
+                alert('Error al cargar usuario: ' + error.message);
+            }
+        }
+        
+        async function guardarEdicionUsuarioPendiente(userId) {
+            const programa = document.getElementById('editUserPrograma').value;
+            const sede = document.getElementById('editUserSede').value;
+            const horario = document.getElementById('editUserHorario').value;
+            
+            try {
+                await updateDoc(doc(db, 'pendingStudents', userId), {
+                    programa: programa,
+                    sede: sede,
+                    horario: horario
+                });
+                
+                document.getElementById('editUserModal').remove();
+                loadUsuariosPendientes();
+                alert('✅ Usuario actualizado exitosamente');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar: ' + error.message);
+            }
+        }
+        
+        async function editarUsuarioAprobado(userId) {
+            try {
+                const docRef = doc(db, 'users', userId);
+                const docSnap = await docRef.get();
+
+                if (!docSnap.exists) {
+                    alert('Usuario no encontrado');
+                    return;
+                }
+
+                const userData = docSnap.data();
+
+                const modalHtml = `
+                    <div id="editUserAprobadoModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+                        <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h3 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-user-edit"></i> Editar Estudiante Aprobado</h3>
+                                    <button onclick="document.getElementById('editUserAprobadoModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="padding: 2rem;">
+                                <div style="background: #ecfdf5; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #a7f3d0;">
+                                    <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: #1f2937;">${userData.name}</p>
+                                    <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${userData.email}</p>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                                    <select id="editUserAprobadoPrograma" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="Panadería y Pastelería" ${userData.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                        <option value="Belleza Integral" ${userData.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                        <option value="Asesoría Técnica" ${userData.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.25rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt"></i> Sede</label>
+                                    <select id="editUserAprobadoSede" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="Carapungo" ${userData.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
+                                        <option value="Sangolquí" ${userData.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="margin-bottom: 1.5rem;">
+                                    <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Horario</label>
+                                    <select id="editUserAprobadoHorario" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                        <option value="">Sin horario asignado</option>
+                                        <option value="Sábado Matutina" ${userData.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
+                                        <option value="Sábado Vespertina" ${userData.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
+                                        <option value="Domingo Matutina" ${userData.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                
+                                <div style="display: flex; gap: 1rem;">
+                                    <button onclick="document.getElementById('editUserAprobadoModal').remove()" style="flex: 1; padding: 0.875rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                        Cancelar
+                                    </button>
+                                    <button onclick="guardarEdicionUsuarioAprobado('${userId}')" style="flex: 2; padding: 0.875rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                        <i class="fas fa-save"></i> Guardar Cambios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar usuario: ' + error.message);
+            }
+        }
+        
+        async function guardarEdicionUsuarioAprobado(userId) {
+            const programa = document.getElementById('editUserAprobadoPrograma').value;
+            const sede = document.getElementById('editUserAprobadoSede').value;
+            const horario = document.getElementById('editUserAprobadoHorario').value;
+            
+            try {
+                await updateDoc(doc(db, 'users', userId), {
+                    programa: programa,
+                    sede: sede,
+                    horario: horario,
+                    updatedAt: new Date().toISOString()
+                });
+                
+                document.getElementById('editUserAprobadoModal').remove();
+                loadUsuariosAprobados();
+                alert('✅ Usuario actualizado exitosamente');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar: ' + error.message);
             }
         }
 
