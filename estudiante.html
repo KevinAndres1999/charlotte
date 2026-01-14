@@ -5226,6 +5226,9 @@ async function loadCuestionarios() {
                 sortCuestionarios();
                 updateCuestionariosStats();
                 renderCuestionarios();
+                
+                // Actualizar las notas de cuestionarios/evaluaciones en la sección de calificaciones por módulo
+                actualizarNotasCuestionariosPorModulo();
             }, (error) => {
                 console.error('Error listening respuestas:', error);
             });
@@ -6996,6 +6999,9 @@ async function loadEvaluaciones() {
                 sortEvaluaciones();
                 updateEvaluacionesStats();
                 renderEvaluaciones();
+                
+                // Actualizar las notas de evaluaciones en la sección de calificaciones por módulo
+                actualizarNotasEvaluacionesPorModulo();
             }, (error) => {
                 console.error('Error listening respuestas evaluaciones:', error);
             });
@@ -7978,6 +7984,213 @@ window.shareClase = shareClase;
 window.printClase = printClase;
 
 // =================== FUNCIONES CALIFICACIONES ===================
+
+// Función para actualizar las notas de evaluaciones en la sección de calificaciones
+// Calcula sobre 2 puntos: 100% = 2, 50% = 1, etc.
+function actualizarNotasEvaluacionesPorModulo() {
+    // Mapeo de módulos
+    const moduloMap = {
+        'modulo1': ['panaderia', 'panadería', 'panes'],
+        'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
+        'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
+        'modulo4': ['reposteria', 'repostería', 'postres']
+    };
+    
+    // Inicializar contadores por módulo
+    const moduloNotas = {
+        'modulo1': { total: 0, count: 0 },
+        'modulo2': { total: 0, count: 0 },
+        'modulo3': { total: 0, count: 0 },
+        'modulo4': { total: 0, count: 0 }
+    };
+    
+    // Calcular la nota promedio de evaluaciones por módulo
+    allEvaluaciones.forEach(evaluacion => {
+        if (evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined) {
+            // Determinar a qué módulo pertenece esta evaluación
+            const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
+            const tituloEvaluacion = (evaluacion.titulo || '').toLowerCase();
+            
+            let moduloAsignado = null;
+            
+            // Primero buscar por campo modulo
+            for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                if (keywords.some(kw => moduloEvaluacion.includes(kw))) {
+                    moduloAsignado = modulo;
+                    break;
+                }
+            }
+            
+            // Si no se encontró, buscar por título
+            if (!moduloAsignado) {
+                for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                    if (keywords.some(kw => tituloEvaluacion.includes(kw))) {
+                        moduloAsignado = modulo;
+                        break;
+                    }
+                }
+            }
+            
+            // Si aún no se encontró, asignar a modulo3 (Pastelería) como default
+            if (!moduloAsignado) {
+                moduloAsignado = 'modulo3';
+            }
+            
+            // Convertir calificación porcentual a escala de 2 puntos
+            const notaEscala2 = (evaluacion.calificacionRecalculada / 100) * 2;
+            
+            moduloNotas[moduloAsignado].total += notaEscala2;
+            moduloNotas[moduloAsignado].count++;
+            
+            console.log(`Evaluación "${evaluacion.titulo}" -> ${moduloAsignado}: ${evaluacion.calificacionRecalculada}% = ${notaEscala2.toFixed(2)} pts`);
+        }
+    });
+    
+    // Actualizar UI con las notas calculadas
+    for (let i = 1; i <= 4; i++) {
+        const moduloKey = `modulo${i}`;
+        const datos = moduloNotas[moduloKey];
+        
+        // Usar el promedio si hay múltiples evaluaciones, o la nota directa si hay una sola
+        const notaFinal = datos.count > 0 ? (datos.total / datos.count) : 0;
+        
+        const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
+        if (elemento) {
+            elemento.textContent = notaFinal.toFixed(1);
+            console.log(`${moduloKey}Evaluaciones = ${notaFinal.toFixed(1)} (${datos.count} evaluaciones)`);
+        }
+        
+        // También actualizar el score total del módulo
+        actualizarScoreModulo(i);
+    }
+    
+    // Actualizar total final
+    actualizarTotalFinal();
+}
+
+// Función para actualizar el score total de un módulo
+function actualizarScoreModulo(moduloNum) {
+    const actividadesEl = document.getElementById(`modulo${moduloNum}Actividades`);
+    const evaluacionesEl = document.getElementById(`modulo${moduloNum}Evaluaciones`);
+    const practicaEl = document.getElementById(`modulo${moduloNum}Practica`);
+    const scoreEl = document.getElementById(`modulo${moduloNum}Score`);
+    const ponderadoEl = document.getElementById(`modulo${moduloNum}Ponderado`);
+    
+    const actividades = parseFloat(actividadesEl?.textContent || '0') || 0;
+    const evaluaciones = parseFloat(evaluacionesEl?.textContent || '0') || 0;
+    const practica = parseFloat(practicaEl?.textContent || '0') || 0;
+    
+    const total = actividades + evaluaciones + practica;
+    
+    if (scoreEl) scoreEl.textContent = total.toFixed(1);
+    if (ponderadoEl) ponderadoEl.textContent = total.toFixed(1);
+}
+
+// Función para actualizar el total final
+function actualizarTotalFinal() {
+    let totalFinal = 0;
+    for (let i = 1; i <= 4; i++) {
+        const scoreEl = document.getElementById(`modulo${i}Score`);
+        totalFinal += parseFloat(scoreEl?.textContent || '0') || 0;
+    }
+    
+    const promedioFinal = totalFinal / 4;
+    const totalScoreEl = document.getElementById('totalScore');
+    const totalPonderadoEl = document.getElementById('totalPonderado');
+    
+    if (totalScoreEl) totalScoreEl.textContent = promedioFinal.toFixed(1);
+    if (totalPonderadoEl) totalPonderadoEl.textContent = promedioFinal.toFixed(1);
+}
+
+// Función para actualizar las notas de cuestionarios en la sección de calificaciones
+// Calcula sobre 2 puntos: 100% = 2, 50% = 1, etc.
+function actualizarNotasCuestionariosPorModulo() {
+    // Mapeo de módulos
+    const moduloMap = {
+        'modulo1': ['panaderia', 'panadería', 'panes'],
+        'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
+        'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
+        'modulo4': ['reposteria', 'repostería', 'postres']
+    };
+    
+    // Inicializar contadores por módulo
+    const moduloNotas = {
+        'modulo1': { total: 0, count: 0 },
+        'modulo2': { total: 0, count: 0 },
+        'modulo3': { total: 0, count: 0 },
+        'modulo4': { total: 0, count: 0 }
+    };
+    
+    // Calcular la nota promedio de cuestionarios por módulo
+    allCuestionarios.forEach(cuestionario => {
+        if (cuestionario.calificacionRecalculada !== null && cuestionario.calificacionRecalculada !== undefined) {
+            // Determinar a qué módulo pertenece este cuestionario
+            const moduloCuestionario = (cuestionario.modulo || '').toLowerCase();
+            const tituloCuestionario = (cuestionario.titulo || '').toLowerCase();
+            
+            let moduloAsignado = null;
+            
+            // Primero buscar por campo modulo
+            for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                if (keywords.some(kw => moduloCuestionario.includes(kw))) {
+                    moduloAsignado = modulo;
+                    break;
+                }
+            }
+            
+            // Si no se encontró, buscar por título
+            if (!moduloAsignado) {
+                for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                    if (keywords.some(kw => tituloCuestionario.includes(kw))) {
+                        moduloAsignado = modulo;
+                        break;
+                    }
+                }
+            }
+            
+            // Si aún no se encontró, asignar a modulo3 (Pastelería) como default
+            if (!moduloAsignado) {
+                moduloAsignado = 'modulo3';
+            }
+            
+            // Convertir calificación porcentual a escala de 2 puntos
+            const notaEscala2 = (cuestionario.calificacionRecalculada / 100) * 2;
+            
+            moduloNotas[moduloAsignado].total += notaEscala2;
+            moduloNotas[moduloAsignado].count++;
+            
+            console.log(`Cuestionario "${cuestionario.titulo}" -> ${moduloAsignado}: ${cuestionario.calificacionRecalculada}% = ${notaEscala2.toFixed(2)} pts`);
+        }
+    });
+    
+    // Actualizar UI con las notas calculadas (sumar a lo existente de evaluaciones)
+    for (let i = 1; i <= 4; i++) {
+        const moduloKey = `modulo${i}`;
+        const datos = moduloNotas[moduloKey];
+        
+        // Obtener la nota actual de evaluaciones
+        const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
+        const notaActual = parseFloat(elemento?.textContent || '0') || 0;
+        
+        // Usar el promedio si hay múltiples cuestionarios, o la nota directa si hay uno solo
+        const notaCuestionarios = datos.count > 0 ? (datos.total / datos.count) : 0;
+        
+        // Si ya hay evaluaciones, promediamos; si no, usamos solo cuestionarios
+        const notaFinal = notaActual > 0 ? ((notaActual + notaCuestionarios) / 2) : notaCuestionarios;
+        
+        if (elemento && notaCuestionarios > 0) {
+            elemento.textContent = notaFinal.toFixed(1);
+            console.log(`${moduloKey}Evaluaciones actualizado con cuestionarios = ${notaFinal.toFixed(1)}`);
+        }
+        
+        // Actualizar el score total del módulo
+        actualizarScoreModulo(i);
+    }
+    
+    // Actualizar total final
+    actualizarTotalFinal();
+}
+
 async function loadCalificaciones() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
