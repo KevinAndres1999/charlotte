@@ -8104,6 +8104,9 @@ async function loadCalificaciones() {
     if (!currentUser) return;
 
     try {
+        // Primero cargar las preguntas originales y evaluaciones si no están cargadas
+        await cargarPreguntasOriginales();
+        
         // Cargar calificaciones específicas por módulo
         const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
         const modulosSnapshot = await getDocs(modulosQuery);
@@ -8121,39 +8124,83 @@ async function loadCalificaciones() {
 
         console.log('Calificaciones por módulo cargadas:', modulosCalif);
 
-        let totalFinal = 0;
-
-        // Actualizar UI de módulos con calificaciones específicas
+        // Actualizar UI de módulos con calificaciones específicas (actividades y práctica)
         for (let i = 1; i <= 4; i++) {
             const moduloKey = `modulo${i}`;
             const moduloData = modulosCalif[moduloKey] || {};
 
             const actividades = moduloData.actividades || 0;
-            const evaluaciones = moduloData.evaluaciones || 0;
             const practica = moduloData.practica || 0;
-            const moduloTotal = actividades + evaluaciones + practica;
 
-            // Actualizar elementos de la UI
-            console.log(`Actualizando módulo ${i}: actividades=${actividades}, evaluaciones=${evaluaciones}, practica=${practica}, total=${moduloTotal}`);
-            document.getElementById(`modulo${i}Score`).textContent = moduloTotal.toFixed(1);
+            // Actualizar solo actividades y práctica (las evaluaciones se calculan después)
             document.getElementById(`modulo${i}Actividades`).textContent = actividades.toFixed(1);
-            document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluaciones.toFixed(1);
             document.getElementById(`modulo${i}Practica`).textContent = practica.toFixed(1);
-            document.getElementById(`modulo${i}Ponderado`).textContent = moduloTotal.toFixed(1);
-
-            totalFinal += moduloTotal;
+            // Inicializar evaluaciones en 0, se actualizará después
+            document.getElementById(`modulo${i}Evaluaciones`).textContent = '0.0';
         }
 
-        // Calcular total final (promedio de módulos)
-        const promedioFinal = totalFinal / 4;
-        document.getElementById('totalScore').textContent = promedioFinal.toFixed(1);
-        document.getElementById('totalPonderado').textContent = promedioFinal.toFixed(1);
+        // Cargar evaluaciones del estudiante para calcular notas
+        await cargarEvaluacionesParaCalificaciones(currentUser.email);
 
         // Cargar y mostrar actividades individuales calificadas
         await loadIndividualActivities(currentUser.email);
 
     } catch (error) {
         console.error('Error cargando calificaciones:', error);
+    }
+}
+
+// Función para cargar evaluaciones y calcular notas para la sección de calificaciones
+async function cargarEvaluacionesParaCalificaciones(estudianteEmail) {
+    try {
+        // Si allEvaluaciones ya tiene datos con calificaciones, usarlos directamente
+        if (allEvaluaciones && allEvaluaciones.length > 0 && allEvaluaciones.some(e => e.calificacionRecalculada !== undefined)) {
+            console.log('Usando evaluaciones ya cargadas');
+            actualizarNotasEvaluacionesPorModulo();
+            return;
+        }
+
+        // Cargar evaluaciones
+        const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+        const evaluaciones = [];
+        evaluacionesSnapshot.forEach(doc => {
+            evaluaciones.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Cargar respuestas del estudiante
+        const respuestasQuery = query(collection(db, 'respuestasEvaluaciones'), where('estudianteId', '==', estudianteEmail));
+        const respuestasSnapshot = await getDocs(respuestasQuery);
+        
+        const respuestasMap = {};
+        respuestasSnapshot.forEach(doc => {
+            const data = doc.data();
+            const clave = `${data.estudianteId}_${data.evaluacionId}`;
+            if (!respuestasMap[clave]) respuestasMap[clave] = [];
+            respuestasMap[clave].push(data);
+        });
+
+        // Calcular calificaciones
+        evaluaciones.forEach(evaluacion => {
+            const clave = `${estudianteEmail}_${evaluacion.id}`;
+            const misRespuestas = respuestasMap[clave] || [];
+            
+            if (misRespuestas.length > 0) {
+                const ultimaRespuesta = misRespuestas[misRespuestas.length - 1];
+                if (ultimaRespuesta.respuestas && evaluacion.preguntas) {
+                    evaluacion.calificacionRecalculada = recalcularCalificacion(ultimaRespuesta.respuestas, evaluacion.preguntas);
+                    console.log(`Evaluación "${evaluacion.titulo}": calificación recalculada = ${evaluacion.calificacionRecalculada}%`);
+                }
+            }
+        });
+
+        // Guardar en allEvaluaciones para que actualizarNotasEvaluacionesPorModulo las use
+        allEvaluaciones = evaluaciones;
+        
+        // Actualizar las notas en la UI
+        actualizarNotasEvaluacionesPorModulo();
+
+    } catch (error) {
+        console.error('Error cargando evaluaciones para calificaciones:', error);
     }
 }
 
