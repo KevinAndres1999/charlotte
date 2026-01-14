@@ -3651,6 +3651,22 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     <!-- Resumen de clases -->
                     <div id="clasesResumen" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
                     
+                    <!-- Herramientas de administración -->
+                    <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #f59e0b;">
+                        <h4 style="margin: 0 0 0.75rem 0; color: #92400e;"><i class="fas fa-tools"></i> Herramientas de Administración</h4>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="asignarModuloClasesSinModulo()" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-layer-group"></i> Asignar Módulo 3 a clases sin módulo
+                            </button>
+                            <button onclick="migrarClasesDeColeccionVieja()" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-exchange-alt"></i> Migrar clases de colección antigua
+                            </button>
+                            <button onclick="verClasesEnAmbosColecciones()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-search"></i> Diagnóstico de colecciones
+                            </button>
+                        </div>
+                    </div>
+                    
                     <!-- Lista de clases -->
                     <div id="clasesList" class="grid"></div>
                 </div>
@@ -7594,6 +7610,103 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 console.error('Error loading videos:', error);
             }
         }
+
+        // ================== HERRAMIENTAS DE ADMINISTRACIÓN DE CLASES ==================
+        
+        async function asignarModuloClasesSinModulo() {
+            if (!confirm('¿Asignar "modulo3" a todas las clases de Panadería y Pastelería que no tienen módulo?')) {
+                return;
+            }
+            
+            try {
+                const snapshot = await getDocs(collection(db, 'classes'));
+                let actualizadas = 0;
+                
+                for (const docSnap of snapshot.docs) {
+                    const data = docSnap.data();
+                    if (data.programa === 'Panadería y Pastelería' && (!data.modulo || data.modulo === '')) {
+                        await updateDoc(doc(db, 'classes', docSnap.id), { modulo: 'modulo3' });
+                        actualizadas++;
+                        console.log('Actualizada clase:', data.titulo);
+                    }
+                }
+                
+                alert(`✅ Se actualizaron ${actualizadas} clases con módulo 3`);
+                loadClasesList();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function migrarClasesDeColeccionVieja() {
+            try {
+                // Verificar si existe la colección 'clases' (en español)
+                const snapshotVieja = await getDocs(collection(db, 'clases'));
+                
+                if (snapshotVieja.empty) {
+                    alert('No hay clases en la colección antigua "clases"');
+                    return;
+                }
+                
+                if (!confirm(`Se encontraron ${snapshotVieja.size} clases en la colección antigua. ¿Migrarlas a la colección "classes"?`)) {
+                    return;
+                }
+                
+                let migradas = 0;
+                for (const docSnap of snapshotVieja.docs) {
+                    const data = docSnap.data();
+                    // Copiar a la nueva colección
+                    await addDoc(collection(db, 'classes'), {
+                        ...data,
+                        migradaDesde: 'clases',
+                        fechaMigracion: new Date().toISOString()
+                    });
+                    // Eliminar de la colección vieja
+                    await deleteDoc(doc(db, 'clases', docSnap.id));
+                    migradas++;
+                    console.log('Migrada clase:', data.titulo);
+                }
+                
+                alert(`✅ Se migraron ${migradas} clases exitosamente`);
+                loadClasesList();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function verClasesEnAmbosColecciones() {
+            try {
+                const snapshotClasses = await getDocs(collection(db, 'classes'));
+                const snapshotClases = await getDocs(collection(db, 'clases'));
+                
+                console.log('=== DIAGNÓSTICO DE COLECCIONES ===');
+                console.log('Colección "classes":', snapshotClasses.size, 'documentos');
+                snapshotClasses.docs.forEach(d => {
+                    const data = d.data();
+                    console.log('  -', data.titulo, '| Programa:', data.programa, '| Módulo:', data.modulo);
+                });
+                
+                console.log('Colección "clases":', snapshotClases.size, 'documentos');
+                snapshotClases.docs.forEach(d => {
+                    const data = d.data();
+                    console.log('  -', data.titulo, '| Programa:', data.programa, '| Módulo:', data.modulo);
+                });
+                
+                alert(`Diagnóstico completado (ver consola F12):
+- Colección "classes": ${snapshotClasses.size} clases
+- Colección "clases" (antigua): ${snapshotClases.size} clases
+
+${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que necesitan migrarse' : '✅ No hay clases en la colección antigua'}`);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // ================== FIN HERRAMIENTAS DE ADMINISTRACIÓN ==================
 
         async function loadClasesList(selectedModulo = null) {
             try {
