@@ -5226,9 +5226,6 @@ async function loadCuestionarios() {
                 sortCuestionarios();
                 updateCuestionariosStats();
                 renderCuestionarios();
-                
-                // Actualizar las notas de cuestionarios/evaluaciones en la sección de calificaciones por módulo
-                actualizarNotasCuestionariosPorModulo();
             }, (error) => {
                 console.error('Error listening respuestas:', error);
             });
@@ -8100,95 +8097,6 @@ function actualizarTotalFinal() {
     
     if (totalScoreEl) totalScoreEl.textContent = promedioFinal.toFixed(1);
     if (totalPonderadoEl) totalPonderadoEl.textContent = promedioFinal.toFixed(1);
-}
-
-// Función para actualizar las notas de cuestionarios en la sección de calificaciones
-// Calcula sobre 2 puntos: 100% = 2, 50% = 1, etc.
-function actualizarNotasCuestionariosPorModulo() {
-    // Mapeo de módulos
-    const moduloMap = {
-        'modulo1': ['panaderia', 'panadería', 'panes'],
-        'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
-        'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
-        'modulo4': ['reposteria', 'repostería', 'postres']
-    };
-    
-    // Inicializar contadores por módulo
-    const moduloNotas = {
-        'modulo1': { total: 0, count: 0 },
-        'modulo2': { total: 0, count: 0 },
-        'modulo3': { total: 0, count: 0 },
-        'modulo4': { total: 0, count: 0 }
-    };
-    
-    // Calcular la nota promedio de cuestionarios por módulo
-    allCuestionarios.forEach(cuestionario => {
-        if (cuestionario.calificacionRecalculada !== null && cuestionario.calificacionRecalculada !== undefined) {
-            // Determinar a qué módulo pertenece este cuestionario
-            const moduloCuestionario = (cuestionario.modulo || '').toLowerCase();
-            const tituloCuestionario = (cuestionario.titulo || '').toLowerCase();
-            
-            let moduloAsignado = null;
-            
-            // Primero buscar por campo modulo
-            for (const [modulo, keywords] of Object.entries(moduloMap)) {
-                if (keywords.some(kw => moduloCuestionario.includes(kw))) {
-                    moduloAsignado = modulo;
-                    break;
-                }
-            }
-            
-            // Si no se encontró, buscar por título
-            if (!moduloAsignado) {
-                for (const [modulo, keywords] of Object.entries(moduloMap)) {
-                    if (keywords.some(kw => tituloCuestionario.includes(kw))) {
-                        moduloAsignado = modulo;
-                        break;
-                    }
-                }
-            }
-            
-            // Si aún no se encontró, asignar a modulo3 (Pastelería) como default
-            if (!moduloAsignado) {
-                moduloAsignado = 'modulo3';
-            }
-            
-            // Convertir calificación porcentual a escala de 2 puntos
-            const notaEscala2 = (cuestionario.calificacionRecalculada / 100) * 2;
-            
-            moduloNotas[moduloAsignado].total += notaEscala2;
-            moduloNotas[moduloAsignado].count++;
-            
-            console.log(`Cuestionario "${cuestionario.titulo}" -> ${moduloAsignado}: ${cuestionario.calificacionRecalculada}% = ${notaEscala2.toFixed(2)} pts`);
-        }
-    });
-    
-    // Actualizar UI con las notas calculadas (sumar a lo existente de evaluaciones)
-    for (let i = 1; i <= 4; i++) {
-        const moduloKey = `modulo${i}`;
-        const datos = moduloNotas[moduloKey];
-        
-        // Obtener la nota actual de evaluaciones
-        const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
-        const notaActual = parseFloat(elemento?.textContent || '0') || 0;
-        
-        // Usar el promedio si hay múltiples cuestionarios, o la nota directa si hay uno solo
-        const notaCuestionarios = datos.count > 0 ? (datos.total / datos.count) : 0;
-        
-        // Si ya hay evaluaciones, promediamos; si no, usamos solo cuestionarios
-        const notaFinal = notaActual > 0 ? ((notaActual + notaCuestionarios) / 2) : notaCuestionarios;
-        
-        if (elemento && notaCuestionarios > 0) {
-            elemento.textContent = notaFinal.toFixed(1);
-            console.log(`${moduloKey}Evaluaciones actualizado con cuestionarios = ${notaFinal.toFixed(1)}`);
-        }
-        
-        // Actualizar el score total del módulo
-        actualizarScoreModulo(i);
-    }
-    
-    // Actualizar total final
-    actualizarTotalFinal();
 }
 
 async function loadCalificaciones() {
