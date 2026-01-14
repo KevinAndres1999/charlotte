@@ -5984,31 +5984,46 @@ function volverAModulos() {
 }
 
 function showModulosSelectorActividades() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const programa = currentUser.programa || '';
+    
+    // Definir módulos según el programa
+    const modulosPorPrograma = {
+        'Panadería y Pastelería': [
+            { id: 'modulo1', icon: 'fa-bread-slice', nombre: 'Módulo 1', descripcion: 'Panadería', color: '#667eea' },
+            { id: 'modulo2', icon: 'fa-cookie-bite', nombre: 'Módulo 2', descripcion: 'Galletaría', color: '#f093fb' },
+            { id: 'modulo3', icon: 'fa-birthday-cake', nombre: 'Módulo 3', descripcion: 'Pastelería', color: '#4facfe' },
+            { id: 'modulo4', icon: 'fa-utensils', nombre: 'Módulo 4', descripcion: 'Repostería', color: '#43e97b' }
+        ],
+        'Belleza Integral': [
+            { id: 'modulo1', icon: 'fa-cut', nombre: 'Módulo 1', descripcion: 'Corte y Peinado', color: '#ec4899' },
+            { id: 'modulo2', icon: 'fa-paint-brush', nombre: 'Módulo 2', descripcion: 'Colorimetría', color: '#f472b6' },
+            { id: 'modulo3', icon: 'fa-spa', nombre: 'Módulo 3', descripcion: 'Tratamientos', color: '#a855f7' },
+            { id: 'modulo4', icon: 'fa-magic', nombre: 'Módulo 4', descripcion: 'Maquillaje', color: '#8b5cf6' }
+        ],
+        'Asesoría Técnica': [
+            { id: 'modulo1', icon: 'fa-chalkboard-teacher', nombre: 'Módulo 1', descripcion: 'Fundamentos', color: '#3b82f6' },
+            { id: 'modulo2', icon: 'fa-chart-line', nombre: 'Módulo 2', descripcion: 'Estrategias', color: '#6366f1' },
+            { id: 'modulo3', icon: 'fa-users', nombre: 'Módulo 3', descripcion: 'Gestión', color: '#8b5cf6' },
+            { id: 'modulo4', icon: 'fa-award', nombre: 'Módulo 4', descripcion: 'Especialización', color: '#a855f7' }
+        ]
+    };
+    
+    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+    
     const container = document.getElementById('modulosSelectorActividades');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
-            <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <p style="color: #6b7280; margin-bottom: 2rem;">${programa}</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                <div class="modulo-card" data-modulo="modulo1">
-                    <i class="fas fa-bread-slice"></i>
-                    <h4>Módulo 1</h4>
-                    <p>Panadería</p>
-                </div>
-                <div class="modulo-card modulo-card modulo2" data-modulo="modulo2">
-                    <i class="fas fa-cookie-bite"></i>
-                    <h4>Módulo 2</h4>
-                    <p>Galletaría</p>
-                </div>
-                <div class="modulo-card modulo-card modulo3" data-modulo="modulo3">
-                    <i class="fas fa-birthday-cake"></i>
-                    <h4>Módulo 3</h4>
-                    <p>Pastelería</p>
-                </div>
-                <div class="modulo-card modulo-card modulo4" data-modulo="modulo4">
-                    <i class="fas fa-utensils"></i>
-                    <h4>Módulo 4</h4>
-                    <p>Repostería</p>
-                </div>
+                ${modulos.map(m => `
+                    <div class="modulo-card" data-modulo="${m.id}" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%);">
+                        <i class="fas ${m.icon}"></i>
+                        <h4>${m.nombre}</h4>
+                        <p>${m.descripcion}</p>
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
@@ -6036,12 +6051,31 @@ function volverAModulosActividades() {
 }
 
 function getModuloName(moduloKey) {
-    const modulos = {
-        'modulo1': 'Módulo 1: Panadería',
-        'modulo2': 'Módulo 2: Galletaría', 
-        'modulo3': 'Módulo 3: Pastelería',
-        'modulo4': 'Módulo 4: Repostería'
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const programa = currentUser.programa || '';
+    
+    const modulosPorPrograma = {
+        'Panadería y Pastelería': {
+            'modulo1': 'Módulo 1: Panadería',
+            'modulo2': 'Módulo 2: Galletaría', 
+            'modulo3': 'Módulo 3: Pastelería',
+            'modulo4': 'Módulo 4: Repostería'
+        },
+        'Belleza Integral': {
+            'modulo1': 'Módulo 1: Corte y Peinado',
+            'modulo2': 'Módulo 2: Colorimetría', 
+            'modulo3': 'Módulo 3: Tratamientos',
+            'modulo4': 'Módulo 4: Maquillaje'
+        },
+        'Asesoría Técnica': {
+            'modulo1': 'Módulo 1: Fundamentos',
+            'modulo2': 'Módulo 2: Estrategias', 
+            'modulo3': 'Módulo 3: Gestión',
+            'modulo4': 'Módulo 4: Especialización'
+        }
     };
+    
+    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
     return modulos[moduloKey] || moduloKey;
 }
 
@@ -6182,31 +6216,46 @@ async function loadClasesByModulo(selectedModulo) {
 }
 
 function showModulosSelectorEstudiante() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const programa = currentUser.programa || '';
+    
+    // Definir módulos según el programa
+    const modulosPorPrograma = {
+        'Panadería y Pastelería': [
+            { id: 'modulo1', icon: 'fa-bread-slice', nombre: 'Módulo 1', descripcion: 'Panadería', color: '#667eea' },
+            { id: 'modulo2', icon: 'fa-cookie-bite', nombre: 'Módulo 2', descripcion: 'Galletaría', color: '#f093fb' },
+            { id: 'modulo3', icon: 'fa-birthday-cake', nombre: 'Módulo 3', descripcion: 'Pastelería', color: '#4facfe' },
+            { id: 'modulo4', icon: 'fa-utensils', nombre: 'Módulo 4', descripcion: 'Repostería', color: '#43e97b' }
+        ],
+        'Belleza Integral': [
+            { id: 'modulo1', icon: 'fa-cut', nombre: 'Módulo 1', descripcion: 'Corte y Peinado', color: '#ec4899' },
+            { id: 'modulo2', icon: 'fa-paint-brush', nombre: 'Módulo 2', descripcion: 'Colorimetría', color: '#f472b6' },
+            { id: 'modulo3', icon: 'fa-spa', nombre: 'Módulo 3', descripcion: 'Tratamientos', color: '#a855f7' },
+            { id: 'modulo4', icon: 'fa-magic', nombre: 'Módulo 4', descripcion: 'Maquillaje', color: '#8b5cf6' }
+        ],
+        'Asesoría Técnica': [
+            { id: 'modulo1', icon: 'fa-chalkboard-teacher', nombre: 'Módulo 1', descripcion: 'Fundamentos', color: '#3b82f6' },
+            { id: 'modulo2', icon: 'fa-chart-line', nombre: 'Módulo 2', descripcion: 'Estrategias', color: '#6366f1' },
+            { id: 'modulo3', icon: 'fa-users', nombre: 'Módulo 3', descripcion: 'Gestión', color: '#8b5cf6' },
+            { id: 'modulo4', icon: 'fa-award', nombre: 'Módulo 4', descripcion: 'Especialización', color: '#a855f7' }
+        ]
+    };
+    
+    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+    
     const container = document.getElementById('modulosSelector');
     container.innerHTML = `
         <div style="text-align: center; padding: 2rem;">
-            <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <p style="color: #6b7280; margin-bottom: 2rem;">${programa}</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                <div class="modulo-card" data-modulo="modulo1">
-                    <i class="fas fa-bread-slice"></i>
-                    <h4>Módulo 1</h4>
-                    <p>Panadería</p>
-                </div>
-                <div class="modulo-card modulo-card modulo2" data-modulo="modulo2">
-                    <i class="fas fa-cookie-bite"></i>
-                    <h4>Módulo 2</h4>
-                    <p>Galletaría</p>
-                </div>
-                <div class="modulo-card modulo-card modulo3" data-modulo="modulo3">
-                    <i class="fas fa-birthday-cake"></i>
-                    <h4>Módulo 3</h4>
-                    <p>Pastelería</p>
-                </div>
-                <div class="modulo-card modulo-card modulo4" data-modulo="modulo4">
-                    <i class="fas fa-utensils"></i>
-                    <h4>Módulo 4</h4>
-                    <p>Repostería</p>
-                </div>
+                ${modulos.map(m => `
+                    <div class="modulo-card" data-modulo="${m.id}" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%);">
+                        <i class="fas ${m.icon}"></i>
+                        <h4>${m.nombre}</h4>
+                        <p>${m.descripcion}</p>
+                    </div>
+                `).join('')}
             </div>
         </div>
     `;
