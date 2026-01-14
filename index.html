@@ -53,6 +53,104 @@
         visibility: hidden;
       }
     }
+
+    /* Botón flotante de guía interactiva */
+    .floating-guide-btn {
+      position: fixed;
+      bottom: 100px;
+      right: 25px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #e63971, #8b45ac);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(230, 57, 113, 0.5);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      animation: floatPulse 3s ease-in-out infinite;
+    }
+
+    .floating-guide-btn:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 40px rgba(230, 57, 113, 0.6);
+    }
+
+    .floating-guide-btn i {
+      font-size: 20px;
+      animation: sparkle 2s ease-in-out infinite;
+    }
+
+    @keyframes floatPulse {
+      0%, 100% { box-shadow: 0 8px 30px rgba(230, 57, 113, 0.5); }
+      50% { box-shadow: 0 8px 50px rgba(230, 57, 113, 0.8); }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-10deg) scale(1.1); }
+      75% { transform: rotate(10deg) scale(1.1); }
+    }
+
+    /* Tooltip del botón */
+    .floating-guide-btn::before {
+      content: '¡Descubre tu curso ideal!';
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      margin-bottom: 10px;
+      padding: 10px 16px;
+      background: #0a1628;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .floating-guide-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 30px;
+      margin-bottom: 2px;
+      border: 8px solid transparent;
+      border-top-color: #0a1628;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .floating-guide-btn:hover::before,
+    .floating-guide-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (max-width: 768px) {
+      .floating-guide-btn {
+        bottom: 90px;
+        right: 15px;
+        padding: 14px 18px;
+        font-size: 14px;
+      }
+      .floating-guide-btn span {
+        display: none;
+      }
+      .floating-guide-btn i {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -113,8 +211,10 @@
             <h1>Convierte tu Pasión en Profesión</h1>
             <p class="hero-subtitle">Capacitación práctica, certificaciones reconocidas y apoyo para emprendedores. Cursos en Belleza, Panadería y Asesoría Técnica con horarios flexibles.</p>
             <div class="hero-cta">
-              <a class="btn btn-large" href="cursos.html">Ver Programas</a>
-              <a class="btn secondary btn-large" href="contacto.html">Contáctanos</a>
+              <a class="btn btn-large" href="guia-interactiva.html" style="background: linear-gradient(135deg, #e63971, #8b45ac);">
+                <i class="fas fa-compass" style="margin-right: 8px;"></i> Descubre tu Curso
+              </a>
+              <a class="btn secondary btn-large" href="cursos.html">Ver Programas</a>
             </div>
             <div class="hero-stats">
               <div class="stat-item">
@@ -265,6 +365,12 @@
       </div>
     </section>
   </main>
+
+  <!-- Botón flotante de guía interactiva -->
+  <a href="guia-interactiva.html" class="floating-guide-btn">
+    <i class="fas fa-magic"></i>
+    <span>¿Qué quieres aprender?</span>
+  </a>
 
   <footer class="site-footer">
     <div class="container">© 2025 CHARLOTTE · Todos los derechos reservados</div>

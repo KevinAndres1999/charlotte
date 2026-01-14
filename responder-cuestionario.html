@@ -1419,7 +1419,11 @@ window.submitQuiz = async function() {
         // Preparar datos para enviar
         const respuestasData = {
             estudianteId: currentUser.email,
-            nombre: currentUser.nombre || currentUser.email,
+            estudianteNombre: currentUser.name || currentUser.nombre || currentUser.email,
+            nombre: currentUser.nombre || currentUser.name || currentUser.email,
+            sede: currentUser.sede || '',
+            horario: currentUser.horario || '',
+            programa: currentUser.programa || '',
             cuestionarioId: currentQuiz.id,
             respuestas: answers,
             fechaEnvio: new Date(),
