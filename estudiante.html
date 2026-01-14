@@ -5089,12 +5089,96 @@ document.addEventListener('DOMContentLoaded', function() {
 
 let allCuestionarios = [];
 let allEvaluaciones = [];
+let preguntasOriginalesMap = new Map(); // Mapa global de preguntas originales
+
+// Función para recalcular calificación (igual que admin.html)
+function recalcularCalificacion(respuestas, preguntas) {
+    if (!respuestas || !preguntas || preguntas.length === 0) {
+        console.log('recalcularCalificacion: datos faltantes', {respuestas: !!respuestas, preguntas: !!preguntas, len: preguntas?.length});
+        return null;
+    }
+    
+    let correctas = 0;
+    preguntas.forEach((pregunta, idx) => {
+        const respuestaEstudiante = respuestas[idx];
+        const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
+        
+        // Buscar respuesta correcta: primero en la pregunta, luego en el mapa global
+        let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : 
+                                   (pregunta.correcta !== undefined ? pregunta.correcta : null);
+        
+        if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
+            const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
+            if (preguntaOriginal) {
+                respuestaCorrectaIdx = preguntaOriginal.correcta;
+            }
+        }
+        
+        console.log(`Pregunta ${idx}: estudiante=${respuestaEstudiante}, correcta=${respuestaCorrectaIdx}, match=${respuestaEstudiante === respuestaCorrectaIdx}`);
+        
+        if (respuestaEstudiante === respuestaCorrectaIdx) {
+            correctas++;
+        }
+    });
+    
+    const resultado = Math.round((correctas / preguntas.length) * 100);
+    console.log(`Calificación recalculada: ${correctas}/${preguntas.length} = ${resultado}%`);
+    return resultado;
+}
+
+// Función para cargar el mapa de preguntas originales
+async function cargarPreguntasOriginales() {
+    if (preguntasOriginalesMap.size > 0) return; // Ya está cargado
+    
+    try {
+        // Cargar preguntas de cuestionarios
+        const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+        cuestionariosSnapshot.forEach(docSnap => {
+            const cuest = docSnap.data();
+            if (cuest.preguntas && Array.isArray(cuest.preguntas)) {
+                cuest.preguntas.forEach(p => {
+                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
+                    if (texto) {
+                        preguntasOriginalesMap.set(texto, {
+                            opciones: p.opciones || [],
+                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
+                        });
+                    }
+                });
+            }
+        });
+        
+        // También cargar preguntas de evaluaciones
+        const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+        evaluacionesSnapshot.forEach(docSnap => {
+            const eval_ = docSnap.data();
+            if (eval_.preguntas && Array.isArray(eval_.preguntas)) {
+                eval_.preguntas.forEach(p => {
+                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
+                    if (texto && !preguntasOriginalesMap.has(texto)) {
+                        preguntasOriginalesMap.set(texto, {
+                            opciones: p.opciones || [],
+                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
+                        });
+                    }
+                });
+            }
+        });
+        
+        console.log('Preguntas originales cargadas:', preguntasOriginalesMap.size);
+    } catch (error) {
+        console.error('Error cargando preguntas originales:', error);
+    }
+}
 
 async function loadCuestionarios() {
     const container = document.getElementById('cuestionariosContainer');
     if (!container) return;
 
     try {
+        // Cargar preguntas originales primero
+        await cargarPreguntasOriginales();
+        
         const snapshot = await getDocs(collection(db, 'cuestionarios'));
         allCuestionarios = [];
         snapshot.forEach(doc => {
@@ -5124,10 +5208,17 @@ async function loadCuestionarios() {
                     if (misRespuestas.length > 0) {
                         cuestionario.isCompleted = true;
                         cuestionario.respuestas = misRespuestas;
-                        cuestionario.progress = 100; // Simplificado
+                        cuestionario.progress = 100;
+                        
+                        // PRE-CALCULAR la calificación usando el mismo método que admin.html
+                        const ultimaRespuesta = misRespuestas[misRespuestas.length - 1];
+                        if (ultimaRespuesta.respuestas && cuestionario.preguntas) {
+                            cuestionario.calificacionRecalculada = recalcularCalificacion(ultimaRespuesta.respuestas, cuestionario.preguntas);
+                        }
                     } else {
                         cuestionario.isCompleted = false;
                         cuestionario.respuestas = null;
+                        cuestionario.calificacionRecalculada = null;
                     }
                 });
         const filtered = filterByUserAccess(allCuestionarios);
@@ -5230,7 +5321,7 @@ function renderCuestionarios() {
                 ${cuestionario.respuestas && cuestionario.respuestas.length > 0 ? `
                 <div class="clase-calificacion">
                     <div class="calificacion-badge">
-                        <i class="fas fa-star"></i> Calificación: ${cuestionario.respuestas[cuestionario.respuestas.length - 1].calificacion || 'Pendiente'}
+                        <i class="fas fa-star"></i> Calificación: ${cuestionario.calificacionRecalculada !== null && cuestionario.calificacionRecalculada !== undefined ? cuestionario.calificacionRecalculada + '%' : 'Pendiente'}
                     </div>
                 </div>
                 ` : ''}
@@ -5328,7 +5419,7 @@ function renderEvaluaciones() {
                 ${evaluacion.respuestas && evaluacion.respuestas.length > 0 ? `
                 <div class="clase-calificacion">
                     <div class="calificacion-badge">
-                        <i class="fas fa-star"></i> Calificación: ${evaluacion.respuestas[evaluacion.respuestas.length - 1].calificacion || 'Pendiente'}
+                        <i class="fas fa-star"></i> Calificación: ${evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined ? evaluacion.calificacionRecalculada + '%' : 'Pendiente'}
                     </div>
                 </div>
                 ` : ''}
@@ -5354,6 +5445,9 @@ window.mostrarRespuestasModal = function(cuestionarioId, tipo) {
     });
 };
 
+// Exponer también verRespuestasCuestionario para evaluaciones
+window.verRespuestasCuestionario = verRespuestasCuestionario;
+
 async function verRespuestasCuestionario(cuestionarioId, tipo) {
     try {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
@@ -5364,10 +5458,12 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
 
         // Obtener las respuestas del estudiante
         const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+        // Para evaluaciones, buscar por evaluacionId; para cuestionarios, buscar por cuestionarioId
+        const campoId = tipo === 'evaluacion' ? 'evaluacionId' : 'cuestionarioId';
         const respuestasQuery = query(
             collection(db, collectionName), 
             where('estudianteId', '==', currentUser.email),
-            where('cuestionarioId', '==', cuestionarioId)
+            where(campoId, '==', cuestionarioId)
         );
         const respuestasSnapshot = await getDocs(respuestasQuery);
         
@@ -5389,6 +5485,150 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
         
         const cuestionarioData = cuestionarioRef.data();
         
+        // RECALCULAR las respuestas usando el MISMO MÉTODO que admin.html
+        let preguntasRecalculadas = [];
+        let correctasCount = 0;
+        
+        // Cargar TODOS los cuestionarios para buscar respuestas correctas por texto de pregunta
+        const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+        const todasLasPreguntasCuestionarios = [];
+        cuestionariosSnapshot.forEach(docSnap => {
+            const cuest = docSnap.data();
+            if (cuest.preguntas && Array.isArray(cuest.preguntas)) {
+                cuest.preguntas.forEach(p => {
+                    todasLasPreguntasCuestionarios.push({
+                        texto: (p.texto || p.pregunta || '').trim().toLowerCase(),
+                        opciones: p.opciones || [],
+                        correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
+                    });
+                });
+            }
+        });
+        
+        if (cuestionarioData.preguntas && cuestionarioData.preguntas.length > 0 && respuestaData.respuestas) {
+            cuestionarioData.preguntas.forEach((pregunta, index) => {
+                const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
+                
+                // Buscar la respuesta correcta: primero en la pregunta, luego en cuestionarios
+                let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : 
+                                           (pregunta.correcta !== undefined ? pregunta.correcta : null);
+                
+                // Si no encontramos la respuesta en la evaluación, buscar en cuestionarios
+                if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
+                    const preguntaEnCuestionario = todasLasPreguntasCuestionarios.find(p => p.texto === textoPregunta);
+                    if (preguntaEnCuestionario) {
+                        respuestaCorrectaIdx = preguntaEnCuestionario.correcta;
+                    }
+                }
+                
+                const respuestaEstudianteIdx = respuestaData.respuestas[index];
+                
+                // Comparar índices para determinar si es correcta (igual que admin)
+                const esCorrecta = respuestaEstudianteIdx === respuestaCorrectaIdx;
+                
+                if (esCorrecta) {
+                    correctasCount++;
+                }
+                
+                // Obtener textos de las respuestas
+                let textoRespuestaEstudiante = 'Sin respuesta';
+                let textoRespuestaCorrecta = 'Sin respuesta correcta';
+                
+                if (pregunta.opciones && Array.isArray(pregunta.opciones)) {
+                    textoRespuestaEstudiante = (respuestaEstudianteIdx !== undefined && respuestaEstudianteIdx !== null && pregunta.opciones[respuestaEstudianteIdx]) 
+                        ? pregunta.opciones[respuestaEstudianteIdx] 
+                        : 'Sin respuesta';
+                    textoRespuestaCorrecta = (respuestaCorrectaIdx !== undefined && respuestaCorrectaIdx !== null && pregunta.opciones[respuestaCorrectaIdx]) 
+                        ? pregunta.opciones[respuestaCorrectaIdx] 
+                        : 'Sin respuesta correcta';
+                }
+                
+                preguntasRecalculadas.push({
+                    pregunta: pregunta.texto || pregunta.pregunta || `Pregunta ${index + 1}`,
+                    opciones: pregunta.opciones || [],
+                    respuestaEstudiante: textoRespuestaEstudiante,
+                    respuestaEstudianteIdx: respuestaEstudianteIdx,
+                    respuestaCorrecta: textoRespuestaCorrecta,
+                    respuestaCorrectaIdx: respuestaCorrectaIdx,
+                    correcta: esCorrecta
+                });
+            });
+        } else if (respuestaData.preguntasDetalladas && respuestaData.preguntasDetalladas.length > 0) {
+            // Fallback a preguntasDetalladas si existen
+            preguntasRecalculadas = respuestaData.preguntasDetalladas;
+            correctasCount = preguntasRecalculadas.filter(p => p.correcta === true).length;
+        }
+        
+        const calificacionRecalculada = preguntasRecalculadas.length > 0 
+            ? Math.round((correctasCount / preguntasRecalculadas.length) * 100) 
+            : 0;
+        
+        // Generar HTML de las preguntas
+        function generarHTMLPregunta(pregunta, index) {
+            const esCorrecta = pregunta.correcta;
+            const statusIcon = esCorrecta === true ? '✅' : '❌';
+            const statusText = esCorrecta === true ? 'Correcta' : 'Incorrecta';
+            const bgPregunta = esCorrecta ? '#f0fdf4' : '#fef2f2';
+            const borderPregunta = esCorrecta ? '#10b981' : '#ef4444';
+            const colorStatus = esCorrecta ? '#10b981' : '#ef4444';
+            
+            let opcionesHTML = '';
+            if (pregunta.opciones && pregunta.opciones.length > 0) {
+                opcionesHTML = '<div style="display: grid; gap: 0.5rem;">';
+                pregunta.opciones.forEach((opcion, opIdx) => {
+                    // Comparar directamente como lo hace el admin (sin parseInt)
+                    const esRespuestaEstudiante = opIdx === pregunta.respuestaEstudianteIdx;
+                    const esRespuestaCorrecta = opIdx === pregunta.respuestaCorrectaIdx;
+                    let bgColor = '#f8fafc';
+                    let borderColor = '#e2e8f0';
+                    let label = '';
+                    
+                    if (esRespuestaCorrecta && esRespuestaEstudiante) {
+                        bgColor = '#d1fae5';
+                        borderColor = '#10b981';
+                        label = '<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">✓ TU RESPUESTA (CORRECTA)</span>';
+                    } else if (esRespuestaEstudiante && !esCorrecta) {
+                        bgColor = '#fee2e2';
+                        borderColor = '#ef4444';
+                        label = '<span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">✗ TU RESPUESTA</span>';
+                    } else if (esRespuestaCorrecta) {
+                        bgColor = '#d1fae5';
+                        borderColor = '#10b981';
+                        label = '<span style="background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">✓ CORRECTA</span>';
+                    }
+                    
+                    opcionesHTML += '<div style="background: ' + bgColor + '; border: 2px solid ' + borderColor + '; padding: 0.75rem; border-radius: 6px;">' +
+                        '<span style="font-weight: 500;">' + String.fromCharCode(65 + opIdx) + '.</span> ' + opcion + ' ' + label +
+                    '</div>';
+                });
+                opcionesHTML += '</div>';
+            } else {
+                opcionesHTML = '<div style="display: grid; gap: 0.5rem;">' +
+                    '<div style="background: #fee2e2; border: 2px solid #ef4444; padding: 0.75rem; border-radius: 6px;">' +
+                        '<strong>Tu respuesta:</strong> ' + (pregunta.respuestaEstudiante || 'Sin respuesta') +
+                    '</div>' +
+                    '<div style="background: #d1fae5; border: 2px solid #10b981; padding: 0.75rem; border-radius: 6px;">' +
+                        '<strong>Respuesta correcta:</strong> ' + (pregunta.respuestaCorrecta || 'Sin respuesta correcta') +
+                    '</div>' +
+                '</div>';
+            }
+            
+            return '<div class="respuesta-item" style="background: ' + bgPregunta + '; border-left: 4px solid ' + borderPregunta + '; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">' +
+                '<div class="respuesta-header" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">' +
+                    '<h4 style="margin: 0; color: #1e3a8a;">Pregunta ' + (index + 1) + '</h4>' +
+                    '<span style="font-weight: bold; color: ' + colorStatus + ';">' + statusIcon + ' ' + statusText + '</span>' +
+                '</div>' +
+                '<div class="respuesta-content">' +
+                    '<p style="font-weight: 500; color: #374151; margin-bottom: 1rem;">' + pregunta.pregunta + '</p>' +
+                    opcionesHTML +
+                '</div>' +
+            '</div>';
+        }
+        
+        const preguntasHTML = preguntasRecalculadas.length > 0 
+            ? preguntasRecalculadas.map((p, i) => generarHTMLPregunta(p, i)).join('')
+            : '<p style="text-align: center; color: #64748b; padding: 2rem;">No hay respuestas disponibles para mostrar</p>';
+        
         // Crear el modal
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -5401,71 +5641,12 @@ async function verRespuestasCuestionario(cuestionarioId, tipo) {
                     </button>
                 </div>
                 <div class="modal-body">
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;">
+                        <h3 style="margin: 0;">Calificación: ${calificacionRecalculada}%</h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">${correctasCount} de ${preguntasRecalculadas.length} respuestas correctas</p>
+                    </div>
                     <div class="respuestas-container">
-                        ${respuestaData.preguntasDetalladas ? respuestaData.preguntasDetalladas.map((pregunta, index) => {
-                            const respuestaCorrecta = pregunta.respuestaCorrecta;
-                            const respuestaEstudiante = pregunta.respuestaEstudiante;
-                            const esCorrecta = pregunta.correcta;
-                            const explicacion = pregunta.explicacion || 'Sin explicación disponible';
-                            
-                            let respuestaTexto = '';
-                            let respuestaCorrectaTexto = '';
-                            
-                            if (pregunta.tipo === 'multiple' && pregunta.opciones && pregunta.opciones.length > 0) {
-                                respuestaTexto = pregunta.opciones[respuestaEstudiante] || 'Sin respuesta';
-                                respuestaCorrectaTexto = pregunta.opciones[respuestaCorrecta] || 'Sin respuesta correcta';
-                            } else {
-                                respuestaTexto = respuestaEstudiante || 'Sin respuesta';
-                                respuestaCorrectaTexto = respuestaCorrecta || 'Sin respuesta correcta';
-                            }
-                            
-                            const statusClass = esCorrecta === true ? 'correct' : esCorrecta === false ? 'incorrect' : 'pending';
-                            const statusIcon = esCorrecta === true ? '✅' : esCorrecta === false ? '❌' : '⏳';
-                            const statusText = esCorrecta === true ? 'Correcta' : esCorrecta === false ? 'Incorrecta' : 'Pendiente';
-                            
-                            return `
-                                <div class="respuesta-item">
-                                    <div class="respuesta-header">
-                                        <h4>Pregunta ${index + 1}</h4>
-                                        <span class="respuesta-status ${statusClass}">${statusIcon} ${statusText}</span>
-                                    </div>
-                                    <div class="respuesta-content">
-                                        <p class="pregunta-texto">${pregunta.pregunta || pregunta.texto || `Pregunta ${index + 1}`}</p>
-                                        
-                                        ${pregunta.tipo === 'multiple' ? `
-                                            <div class="respuestas-comparison">
-                                                <div class="respuesta-estudiante ${esCorrecta === false ? 'incorrect' : ''}">
-                                                    <strong>Tu respuesta:</strong><br>
-                                                    ${respuestaTexto}
-                                                </div>
-                                                <div class="respuesta-correcta">
-                                                    <strong>Respuesta correcta:</strong><br>
-                                                    ${respuestaCorrectaTexto}
-                                                </div>
-                                            </div>
-                                        ` : `
-                                            <div class="respuesta-abierta">
-                                                <div class="respuesta-estudiante">
-                                                    <strong>Tu respuesta:</strong><br>
-                                                    ${respuestaTexto}
-                                                </div>
-                                                <div class="respuesta-correcta">
-                                                    <strong>Respuesta esperada:</strong><br>
-                                                    ${respuestaCorrectaTexto}
-                                                </div>
-                                            </div>
-                                        `}
-                                        
-                                        ${explicacion && explicacion !== 'Sin explicación disponible' ? `
-                                            <div class="respuesta-explicacion">
-                                                <strong><i class="fas fa-lightbulb"></i> Explicación:</strong>
-                                                <p>${explicacion}</p>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('') : '<p>No hay respuestas detalladas disponibles</p>'}
+                        ${preguntasHTML}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -6765,6 +6946,9 @@ async function loadEvaluaciones() {
     if (!container) return;
 
     try {
+        // Cargar preguntas originales primero
+        await cargarPreguntasOriginales();
+        
         const snapshot = await getDocs(collection(db, 'evaluaciones'));
         allEvaluaciones = [];
         snapshot.forEach(doc => {
@@ -6794,10 +6978,17 @@ async function loadEvaluaciones() {
                     if (misRespuestas.length > 0) {
                         evaluacion.isCompleted = true;
                         evaluacion.respuestas = misRespuestas;
-                        evaluacion.progress = 100; // Simplificado
+                        evaluacion.progress = 100;
+                        
+                        // PRE-CALCULAR la calificación usando el mismo método que admin.html
+                        const ultimaRespuesta = misRespuestas[misRespuestas.length - 1];
+                        if (ultimaRespuesta.respuestas && evaluacion.preguntas) {
+                            evaluacion.calificacionRecalculada = recalcularCalificacion(ultimaRespuesta.respuestas, evaluacion.preguntas);
+                        }
                     } else {
                         evaluacion.isCompleted = false;
                         evaluacion.respuestas = null;
+                        evaluacion.calificacionRecalculada = null;
                     }
                 });
                 const filtered = filterByUserAccess(allEvaluaciones);
@@ -9337,65 +9528,66 @@ function openImageModal(imageUrl, title) {
         // Exponer funciones globales
         window.loadGamificacionStats = loadGamificacionStats;
         window.loadLeaderboardPersonal = loadLeaderboardPersonal;
-// Función para verificar pagos antes de acceder a cuestionarios/evaluaciones
-async function verificarPagosYAcceder(id, tipo) {
-    try {
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        if (!currentUser) {
-            alert('Usuario no autenticado');
-            return;
-        }
+        
+        // Función para verificar pagos antes de acceder a cuestionarios/evaluaciones
+        async function verificarPagosYAcceder(id, tipo) {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser) {
+                    alert('Usuario no autenticado');
+                    return;
+                }
 
-        // Verificar estado de pagos del usuario
-        const q = query(collection(db, 'users'), where('email', '==', currentUser.email), where('role', '==', 'student'));
-        const userDoc = await getDocs(q);
-        if (userDoc.empty) {
-            alert('Usuario no encontrado');
-            return;
-        }
+                // Verificar estado de pagos del usuario
+                const q = query(collection(db, 'users'), where('email', '==', currentUser.email), where('role', '==', 'student'));
+                const userDoc = await getDocs(q);
+                if (userDoc.empty) {
+                    alert('Usuario no encontrado');
+                    return;
+                }
 
-        const userData = userDoc.docs[0].data();
-        const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
+                const userData = userDoc.docs[0].data();
+                const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
 
-        if (estadoPagos === 'pagos_pendientes') {
-            // Mostrar modal de advertencia
-            const modalHtml = `
-                <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
-                    <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                        <div style="padding: 2rem; text-align: center;">
-                            <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
-                                <i class="fas fa-exclamation-triangle"></i>
+                if (estadoPagos === 'pagos_pendientes') {
+                    // Mostrar modal de advertencia
+                    const modalHtml = `
+                        <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                            <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                                <div style="padding: 2rem; text-align: center;">
+                                    <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
+                                    <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
+                                        Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
+                                    </p>
+                                    <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
+                                        Por favor, contacta a tu docente para resolver esta situación.
+                                    </p>
+                                    <button onclick="document.getElementById('pagosPendientesModal').remove()"
+                                            style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                        Entendido
+                                    </button>
+                                </div>
                             </div>
-                            <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
-                            <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
-                                Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
-                            </p>
-                            <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
-                                Por favor, contacta a tu docente para resolver esta situación.
-                            </p>
-                            <button onclick="document.getElementById('pagosPendientesModal').remove()"
-                                    style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                Entendido
-                            </button>
                         </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
-            return;
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    return;
+                }
+
+                // Si los pagos están al día, proceder con el acceso normal
+                const url = tipo === 'cuestionario' ?
+                    `responder-cuestionario.html?id=${id}` :
+                    `responder-evaluacion.html?id=${id}`;
+                window.location.href = url;
+
+            } catch (error) {
+                console.error('Error verificando pagos:', error);
+                alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
+            }
         }
-
-        // Si los pagos están al día, proceder con el acceso normal
-        const url = tipo === 'cuestionario' ?
-            `responder-cuestionario.html?id=${id}` :
-            `responder-evaluacion.html?id=${id}`;
-        window.location.href = url;
-
-    } catch (error) {
-        console.error('Error verificando pagos:', error);
-        alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
-    }
-}
 
         // Exponer funciones globales
         window.loadMisLogros = loadMisLogros;
@@ -9407,9 +9599,10 @@ async function verificarPagosYAcceder(id, tipo) {
         window.downloadClaseFromViewer = downloadClaseFromViewer;
         window.showCreateForoModal = showCreateForoModal;
         window.verificarPagosYAcceder = verificarPagosYAcceder;
-} catch (error) {
-    console.error('Error initializing Firebase:', error);
-}
+        
+    } catch (error) {
+        console.error('Error initializing Firebase:', error);
+    }
     </script>
 
 </body>
