@@ -16023,6 +16023,9 @@ REGLAS ESTRICTAS:
                     const estudiante = estudianteInfo.data;
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
+                    console.log('Procesando estudiante:', estudiante.name, 'ID:', estudianteId);
+                    console.log('Calificaciones guardadas para este estudiante:', calificacionesGuardadas[estudianteId]);
+
                     // Obtener calificaciones específicas por módulo si existen
                     const modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
                     const modulosCalifCalculados = evaluacionesPorModulo[estudianteId] || {};
@@ -16035,12 +16038,16 @@ REGLAS ESTRICTAS:
                         const moduloDataGuardado = modulosCalifGuardados[moduloKey] || {};
                         const moduloDataCalculado = modulosCalifCalculados[moduloKey] || {};
 
+                        console.log(`Módulo ${moduloKey} - Guardado:`, moduloDataGuardado, 'Calculado:', moduloDataCalculado);
+
                         // Valores por defecto o existentes
                         const actividades = moduloDataGuardado.actividades || 0;
                         // Usar evaluaciones guardadas si existen, de lo contrario usar las calculadas
                         const evaluaciones = moduloDataGuardado.evaluaciones !== undefined ? moduloDataGuardado.evaluaciones : (moduloDataCalculado.evaluaciones || 0);
                         const practica = moduloDataGuardado.practica || 0;
                         const moduloTotal = actividades + evaluaciones + practica;
+
+                        console.log(`Valores finales - Act: ${actividades}, Eval: ${evaluaciones}, Prác: ${practica}`);
 
                         totalFinal += moduloTotal;
 
