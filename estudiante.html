@@ -8717,6 +8717,11 @@ async function actualizarNotasEvaluacionesPorModulo() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
 
+    // Inicializar calificacionesEvaluacionesGuardadas si no existe
+    if (!window.calificacionesEvaluacionesGuardadas) {
+        window.calificacionesEvaluacionesGuardadas = {};
+    }
+
     const programa = (currentUser.programa || '').toLowerCase();
 
     // Mapeo de módulos dinámico según programa
