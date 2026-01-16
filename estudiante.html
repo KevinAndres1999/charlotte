@@ -3650,77 +3650,10 @@
                 childList: true,
                 subtree: true
             });
-
-            // Inicializar sistema de notificaciones
-            initializeNotifications();
         });
 
         // Sistema básico de notificaciones
-        function initializeNotifications() {
-            // Verificar si hay notificaciones pendientes al cargar
-            checkForNewContent();
-
-            // Verificar cada 5 minutos por nuevo contenido
-            setInterval(checkForNewContent, 300000);
-        }
-
-        async function checkForNewContent() {
-            try {
-                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-                if (!currentUser) return;
-
-                const lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
-                const currentTime = Date.now();
-
-                // Solo verificar si han pasado al menos 5 minutos
-                if (currentTime - parseInt(lastCheck) < 300000) return;
-
-                const snapshot = await getDocs(collection(db, 'classes'));
-                let newContentCount = 0;
-
-                snapshot.forEach(doc => {
-                    const clase = doc.data();
-                    const claseDate = clase.fechaCreacion ? new Date(clase.fechaCreacion.seconds * 1000) : new Date();
-
-                    // Verificar si es del programa del usuario
-                    if (clase.programa === currentUser.programa && claseDate.getTime() > parseInt(lastCheck)) {
-                        newContentCount++;
-                    }
-                });
-
-                if (newContentCount > 0) {
-                    showNotification(`¡${newContentCount} nuevo${newContentCount > 1 ? 's' : ''} contenido${newContentCount > 1 ? 's' : ''} disponible${newContentCount > 1 ? 's' : ''} en tu programa!`, 'info');
-                }
-
-                localStorage.setItem('lastNotificationCheck', currentTime.toString());
-
-            } catch (error) {
-                console.error('Error checking for new content:', error);
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            // Crear elemento de notificación
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                <span>${message}</span>
-                <button onclick="this.parentElement.remove()" class="notification-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-
-            // Agregar al DOM
-            document.body.appendChild(notification);
-
-            // Auto-remover después de 5 segundos
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 5000);
-        }
+        // (Movido al script principal de Firebase)
     </script>
 
     <!-- PWA Manifest -->
@@ -4773,6 +4706,13 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         // Usuario válido, cargar datos iniciales
         updateDashboard();
+        
+        // Inicializar sistema de notificaciones después de que Firebase esté listo
+        setTimeout(() => {
+            if (window.initializeNotifications) {
+                window.initializeNotifications();
+            }
+        }, 1000); // Pequeño delay para asegurar que Firebase esté completamente inicializado
     }
 });
 
@@ -5299,6 +5239,78 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Error in DOMContentLoaded:', error);
     }
 });
+
+// Sistema básico de notificaciones
+function initializeNotifications() {
+    // Verificar si hay notificaciones pendientes al cargar
+    checkForNewContent();
+
+    // Verificar cada 5 minutos por nuevo contenido
+    setInterval(checkForNewContent, 300000);
+}
+
+async function checkForNewContent() {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) return;
+
+        const lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
+        const currentTime = Date.now();
+
+        // Solo verificar si han pasado al menos 5 minutos
+        if (currentTime - parseInt(lastCheck) < 300000) return;
+
+        const snapshot = await getDocs(collection(db, 'classes'));
+        let newContentCount = 0;
+
+        snapshot.forEach(doc => {
+            const clase = doc.data();
+            const claseDate = clase.fechaCreacion ? new Date(clase.fechaCreacion.seconds * 1000) : new Date();
+
+            // Verificar si es del programa del usuario
+            if (clase.programa === currentUser.programa && claseDate.getTime() > parseInt(lastCheck)) {
+                newContentCount++;
+            }
+        });
+
+        if (newContentCount > 0) {
+            showNotification(`¡${newContentCount} nuevo${newContentCount > 1 ? 's' : ''} contenido${newContentCount > 1 ? 's' : ''} disponible${newContentCount > 1 ? 's' : ''} en tu programa!`, 'info');
+        }
+
+        localStorage.setItem('lastNotificationCheck', currentTime.toString());
+
+    } catch (error) {
+        console.error('Error checking for new content:', error);
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Crear elemento de notificación
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    // Agregar al DOM
+    document.body.appendChild(notification);
+
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Exponer funciones globalmente
+window.initializeNotifications = initializeNotifications;
+window.checkForNewContent = checkForNewContent;
+window.showNotification = showNotification;
 
 let allCuestionarios = [];
 let allEvaluaciones = [];
@@ -8396,11 +8408,14 @@ window.printClase = printClase;
 
 // Función para actualizar las notas de evaluaciones en la sección de calificaciones
 // Calcula sobre 2 puntos: 100% = 2, 50% = 1, etc.
-function actualizarNotasEvaluacionesPorModulo() {
+async function actualizarNotasEvaluacionesPorModulo() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
 
     const programa = (currentUser.programa || '').toLowerCase();
+    console.log('=== INICIANDO CÁLCULO DE NOTAS ===');
+    console.log('Usuario:', currentUser.email, 'Programa:', programa);
+    console.log('Total evaluaciones en allEvaluaciones:', allEvaluaciones.length);
 
     // Mapeo de módulos dinámico según programa
     let moduloMap = {};
@@ -8440,6 +8455,12 @@ function actualizarNotasEvaluacionesPorModulo() {
     
     // Calcular la nota promedio de evaluaciones por módulo
     allEvaluaciones.forEach(evaluacion => {
+        console.log('Procesando evaluación:', {
+            titulo: evaluacion.titulo,
+            modulo: evaluacion.modulo,
+            calificacionRecalculada: evaluacion.calificacionRecalculada
+        });
+        
         if (evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined) {
             // Determinar a qué módulo pertenece esta evaluación
             const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
@@ -8497,13 +8518,29 @@ function actualizarNotasEvaluacionesPorModulo() {
         
         // Si hay evaluaciones completadas, guardar/actualizar automáticamente en Firebase
         if (datos.count > 0) {
+            console.log(`Módulo ${moduloKey}: ${datos.count} evaluaciones, nota calculada: ${notaCalculada.toFixed(2)}, intentando guardar...`);
+            // Validar que tenemos los datos necesarios
+            if (!currentUser || !currentUser.email) {
+                console.error('Usuario no válido para guardar calificaciones');
+                return;
+            }
+            
             try {
+                console.log(`Intentando guardar calificación para módulo ${moduloKey}, estudiante ${currentUser.email}, nota ${notaCalculada.toFixed(1)}`);
+                
                 // Buscar si ya existe una calificación para este módulo y estudiante
                 const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
                     where('estudianteId', '==', currentUser.email),
                     where('modulo', '==', moduloKey),
                     limit(1)
                 ));
+
+                console.log(`Query ejecutado, documentos encontrados: ${existingSnapshot.size}`);
+                if (existingSnapshot.size > 0) {
+                    console.log('Documento encontrado:', existingSnapshot.docs[0].data());
+                } else {
+                    console.log('No se encontró documento existente, se creará uno nuevo');
+                }
 
                 const califData = {
                     estudianteId: currentUser.email,
@@ -8516,10 +8553,11 @@ function actualizarNotasEvaluacionesPorModulo() {
                 if (!existingSnapshot.empty) {
                     // Actualizar existente
                     const docId = existingSnapshot.docs[0].id;
-                    await doc(db, 'calificaciones_modulos', docId).update(califData);
+                    await updateDoc(doc(db, 'calificaciones_modulos', docId), califData);
                     console.log(`Calificación evaluaciones actualizada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
                 } else {
                     // Crear nueva
+                    console.log('Creando nuevo documento con datos:', califData);
                     await addDoc(collection(db, 'calificaciones_modulos'), califData);
                     console.log(`Calificación evaluaciones creada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
                 }
@@ -8527,7 +8565,14 @@ function actualizarNotasEvaluacionesPorModulo() {
                 // Actualizar el valor guardado para evitar re-guardar en la misma sesión
                 window.calificacionesEvaluacionesGuardadas[moduloKey] = notaCalculada;
             } catch (error) {
-                console.error('Error guardando calificación calculada:', error);
+                console.error(`Error guardando calificación calculada para módulo ${moduloKey}:`, error);
+                console.error('Detalles del error:', {
+                    message: error.message,
+                    code: error.code,
+                    modulo: moduloKey,
+                    estudiante: currentUser?.email,
+                    nota: notaCalculada
+                });
             }
         }
         
