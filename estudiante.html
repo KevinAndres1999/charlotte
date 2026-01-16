@@ -5008,6 +5008,103 @@ try {
     
     console.log('Firebase initialized successfully');
 
+    // =================== SISTEMA DE OPTIMIZACIÓN DE CONSULTAS ===================
+    class FirebaseQueryOptimizer {
+      constructor() {
+        this.cache = new Map();
+        this.cacheTimeout = 5 * 60 * 1000; // 5 minutos
+      }
+
+      // Método para consultas con cache
+      async queryWithCache(collectionName, queryConstraints = [], options = {}) {
+        const cacheKey = this.generateCacheKey(collectionName, queryConstraints);
+        const cached = this.getFromCache(cacheKey);
+
+        if (cached && !options.forceRefresh) {
+          return cached;
+        }
+
+        try {
+          let queryRef = collection(db, collectionName);
+
+          // Aplicar constraints
+          if (queryConstraints.length > 0) {
+            queryRef = query(queryRef, ...queryConstraints);
+          }
+
+          // Aplicar límite por defecto si no se especifica
+          if (!queryConstraints.some(c => c.type === 'limit') && !options.noLimit) {
+            queryRef = query(queryRef, limit(50));
+          }
+
+          const snapshot = await getDocs(queryRef);
+          const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+          // Cachear resultado
+          this.setCache(cacheKey, data);
+
+          return data;
+        } catch (error) {
+          console.error(`Error querying ${collectionName}:`, error);
+          throw error;
+        }
+      }
+
+      // Método para consultas paralelas
+      async parallelQueries(queries) {
+        const promises = queries.map(({ collection: collectionName, constraints, options }) =>
+          this.queryWithCache(collectionName, constraints, options)
+        );
+
+        try {
+          const results = await Promise.all(promises);
+          return results;
+        } catch (error) {
+          console.error('Error in parallel queries:', error);
+          throw error;
+        }
+      }
+
+      // Utilidades de cache
+      generateCacheKey(collectionName, constraints) {
+        const constraintsStr = constraints.map(c => JSON.stringify(c)).join('|');
+        return `${collectionName}:${constraintsStr}`;
+      }
+
+      getFromCache(key) {
+        const cached = this.cache.get(key);
+        if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+          return cached.data;
+        }
+        this.cache.delete(key);
+        return null;
+      }
+
+      setCache(key, data) {
+        this.cache.set(key, {
+          data,
+          timestamp: Date.now()
+        });
+      }
+
+      clearCache() {
+        this.cache.clear();
+      }
+    }
+
+    // Crear instancia global del optimizador
+    window.firebaseOptimizer = new FirebaseQueryOptimizer();
+
+    // Función helper para consultas optimizadas
+    window.queryOptimized = (collectionName, constraints, options) =>
+      window.firebaseOptimizer.queryWithCache(collectionName, constraints, options);
+
+    // Función helper para consultas paralelas
+    window.parallelQueries = (queries) =>
+      window.firebaseOptimizer.parallelQueries(queries);
+
+    // =================== FIN SISTEMA DE OPTIMIZACIÓN DE CONSULTAS ===================
+
     // Variable global para el ID de la clase actual en el viewer
     let currentClaseId = null;
 
