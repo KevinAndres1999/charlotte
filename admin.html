@@ -8481,7 +8481,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                 const claseRef = doc(db, 'classes', claseId);
                 const claseSnap = await getDoc(claseRef);
 
-                if (!claseSnap.exists()) {
+                if (!claseSnap.exists) {
                     alert('Clase no encontrada');
                     return;
                 }
