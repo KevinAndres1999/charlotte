@@ -7174,6 +7174,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
                 const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
 
+                console.log('📊 loadDashboardStats RESULTADO:', promedioGeneralEvaluaciones, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones, 'respuestasPorEvaluacion keys:', Object.keys(respuestasPorEvaluacion));
+
                 // Guardar métricas avanzadas en caché
                 statsCache = {
                     videos: videosSnapshot.size,
@@ -16307,6 +16309,11 @@ REGLAS ESTRICTAS:
                 const total = evaluacionesManagerData.length;
                 const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
 
+                console.log('📊 actualizarEstadisticasEvaluaciones - Total evaluaciones:', total);
+                console.log('📊 evaluacionesManagerData:', evaluacionesManagerData.map(e => ({ id: e.id, titulo: e.titulo })));
+                const evaluacionesIds = new Set(evaluacionesManagerData.map(e => e.id));
+                console.log('📊 evaluacionesIds (manager):', Array.from(evaluacionesIds));
+
                 // Cargar respuestas de evaluaciones usando el mismo método que loadDashboardStats
                 const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
                 
@@ -16355,6 +16362,8 @@ REGLAS ESTRICTAS:
                 });
 
                 const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
+
+                console.log('📊 actualizarEstadisticasEvaluaciones RESULTADO:', promedioGeneral, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones, 'respuestasPorEvaluacion keys:', Object.keys(respuestasPorEvaluacion));
 
                 document.getElementById('totalEvaluaciones').textContent = total;
                 document.getElementById('evaluacionesActivas').textContent = activos;
