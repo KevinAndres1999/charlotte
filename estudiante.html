@@ -8582,12 +8582,12 @@ function actualizarNotasEvaluacionesPorModulo() {
         // Calcular nota de evaluaciones respondidas
         const notaCalculada = datos.count > 0 ? (datos.total / datos.count) : 0;
         
-        // Usar el MÁXIMO entre la nota guardada y la calculada
-        // Esto preserva las notas existentes y solo las actualiza si la calculada es mayor
-        const notaFinal = Math.max(notaGuardada, notaCalculada);
+        // Si hay evaluaciones completadas, usar la nota calculada (ahora corregida)
+        // Si no hay evaluaciones, usar la nota guardada
+        const notaFinal = datos.count > 0 ? notaCalculada : notaGuardada;
         
-        // Si la nota calculada es mayor que la guardada, guardar automáticamente en Firebase
-        if (notaCalculada > notaGuardada && datos.count > 0) {
+        // Si hay evaluaciones completadas, guardar/actualizar automáticamente en Firebase
+        if (datos.count > 0) {
             try {
                 // Buscar si ya existe una calificación para este módulo y estudiante
                 const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
