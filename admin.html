@@ -15757,11 +15757,27 @@ REGLAS ESTRICTAS:
                 }
 
                 // Cargar todos los datos de calificaciones de una vez para optimizar
-                const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot] = await Promise.all([
+                const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot, calificacionesSnapshot] = await Promise.all([
                     getDocs(collection(db, 'entregas')),
                     getDocs(collection(db, 'resultados_evaluaciones')),
-                    getDocs(collection(db, 'calificaciones_practicas'))
+                    getDocs(collection(db, 'calificaciones_practicas')),
+                    getDocs(collection(db, 'calificaciones_modulos'))
                 ]);
+
+                // Crear mapa de calificaciones guardadas por estudiante y módulo
+                const calificacionesGuardadas = {};
+                calificacionesSnapshot.forEach(doc => {
+                    const calif = doc.data();
+                    const estudianteId = calif.estudianteId;
+                    const modulo = calif.modulo;
+                    
+                    if (!calificacionesGuardadas[estudianteId]) {
+                        calificacionesGuardadas[estudianteId] = {};
+                    }
+                    calificacionesGuardadas[estudianteId][modulo] = calif;
+                });
+
+                console.log('Calificaciones guardadas cargadas:', calificacionesGuardadas);
 
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
@@ -16008,27 +16024,22 @@ REGLAS ESTRICTAS:
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
                     // Obtener calificaciones específicas por módulo si existen
-                    const modulosCalif = evaluacionesPorModulo[estudianteId] || {};
+                    const modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
+                    const modulosCalifCalculados = evaluacionesPorModulo[estudianteId] || {};
 
                     let totalFinal = 0;
                     let modulosHtml = '';
 
                     for (let moduloNum = 1; moduloNum <= 4; moduloNum++) {
                         const moduloKey = `modulo${moduloNum}`;
-                        const moduloData = modulosCalif[moduloKey] || {};
+                        const moduloDataGuardado = modulosCalifGuardados[moduloKey] || {};
+                        const moduloDataCalculado = modulosCalifCalculados[moduloKey] || {};
 
                         // Valores por defecto o existentes
-                        const actividades = moduloData.actividades || 0;
-                        // Usar evaluaciones calculadas en tiempo real, pero permitir override manual si existe
-                        let evaluacionesCalculadas = 0;
-                        if (evaluacionesPorModulo[estudianteId] && evaluacionesPorModulo[estudianteId][moduloKey] !== undefined) {
-                            evaluacionesCalculadas = evaluacionesPorModulo[estudianteId][moduloKey];
-                        }
-                        // Usar la guardada si existe y es mayor, de lo contrario usar la calculada
-                        const evaluaciones = (moduloData.evaluaciones !== undefined && moduloData.evaluaciones > evaluacionesCalculadas) 
-                                           ? moduloData.evaluaciones 
-                                           : evaluacionesCalculadas;
-                        const practica = moduloData.practica || 0;
+                        const actividades = moduloDataGuardado.actividades || 0;
+                        // Usar evaluaciones guardadas si existen, de lo contrario usar las calculadas
+                        const evaluaciones = moduloDataGuardado.evaluaciones !== undefined ? moduloDataGuardado.evaluaciones : (moduloDataCalculado.evaluaciones || 0);
+                        const practica = moduloDataGuardado.practica || 0;
                         const moduloTotal = actividades + evaluaciones + practica;
 
                         totalFinal += moduloTotal;
