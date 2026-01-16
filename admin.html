@@ -16035,7 +16035,7 @@ REGLAS ESTRICTAS:
 
                 // Promedio de evaluaciones (máximo 2 puntos)
                 const average = totalScore / count;
-                return Math.min(average * 2 / 10, 2); // Escalar a máximo 2
+                return Math.min(average / 50, 2); // Convertir de 0-100 a 0-2 (100=2, 50=1, etc.)
             } catch (error) {
                 console.error('Error calculating evaluaciones grade:', error);
                 return 0;
