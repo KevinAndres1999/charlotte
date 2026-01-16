@@ -7110,6 +7110,49 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const evaluacionesCompletionRate = evaluacionesSnapshot.size > 0 ?
                     Math.round((totalEvaluacionesCompletadas / evaluacionesSnapshot.size) * 100) : 0;
 
+                // Calcular evaluaciones activas
+                let evaluacionesActivas = 0;
+                evaluacionesSnapshot.forEach(doc => {
+                    const evaluacion = doc.data();
+                    const ahora = new Date();
+                    const fechaInicio = evaluacion.fechaInicio ? new Date(evaluacion.fechaInicio) : null;
+                    const fechaFin = evaluacion.fechaFin ? new Date(evaluacion.fechaFin) : null;
+
+                    // Una evaluación está activa si no tiene fechas o está dentro del rango
+                    if (!fechaInicio && !fechaFin) {
+                        evaluacionesActivas++;
+                    } else if (fechaFin && ahora <= fechaFin && (!fechaInicio || ahora >= fechaInicio)) {
+                        evaluacionesActivas++;
+                    }
+                });
+
+                // Calcular promedio general de evaluaciones
+                let sumaCalificaciones = 0;
+                let countCalificaciones = 0;
+                
+                // Procesar respuestas para calcular promedios por evaluación
+                const respuestasPorEvaluacion = {};
+                respuestasSnapshot.forEach(doc => {
+                    const respuesta = doc.data();
+                    if (respuesta.evaluacionId && respuesta.calificacion !== undefined) {
+                        if (!respuestasPorEvaluacion[respuesta.evaluacionId]) {
+                            respuestasPorEvaluacion[respuesta.evaluacionId] = [];
+                        }
+                        respuestasPorEvaluacion[respuesta.evaluacionId].push(respuesta.calificacion);
+                    }
+                });
+
+                // Calcular promedio por evaluación
+                Object.values(respuestasPorEvaluacion).forEach(calificaciones => {
+                    if (calificaciones.length > 0) {
+                        const promedioEvaluacion = calificaciones.reduce((sum, cal) => sum + cal, 0) / calificaciones.length;
+                        sumaCalificaciones += promedioEvaluacion;
+                        countCalificaciones++;
+                    }
+                });
+
+                const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
+
                 // Guardar métricas avanzadas en caché
                 statsCache = {
                     videos: videosSnapshot.size,
@@ -7120,6 +7163,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     usuarios: totalUsers,
                     cuestionarios: cuestionariosSnapshot.size,
                     evaluaciones: evaluacionesSnapshot.size,
+                    evaluacionesActivas: evaluacionesActivas,
+                    promedioGeneralEvaluaciones: promedioGeneralEvaluaciones,
                     // Métricas avanzadas
                     usuariosRecientes: recentUsers.length,
                     engagementRate: engagementRate,
@@ -7145,6 +7190,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             document.getElementById('stat-usuarios').textContent = stats.usuarios;
             document.getElementById('stat-cuestionarios').textContent = stats.cuestionarios;
             document.getElementById('stat-evaluaciones').textContent = stats.evaluaciones;
+            
+            // Actualizar tarjetas rápidas de evaluaciones
+            document.getElementById('totalEvaluaciones').textContent = stats.evaluaciones || 0;
+            document.getElementById('evaluacionesActivas').textContent = stats.evaluacionesActivas || 0;
+            document.getElementById('promedioCalificacionesEvaluaciones').textContent = `${stats.promedioGeneralEvaluaciones || 0}%`;
             
             // Aplicar métricas avanzadas
             document.getElementById('stat-usuarios-recientes').textContent = stats.usuariosRecientes || 0;
