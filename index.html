@@ -152,6 +152,60 @@
       }
     }
   </style>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Service Worker Registration -->
+  <script>
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker registrado exitosamente:', registration.scope);
+
+            // Verificar si hay una nueva versión disponible
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nueva versión disponible
+                    if (confirm('Hay una nueva versión disponible. ¿Quieres actualizar?')) {
+                      newWorker.postMessage({ type: 'SKIP_WAITING' });
+                      window.location.reload();
+                    }
+                  }
+                });
+              }
+            });
+          })
+          .catch((error) => {
+            console.log('Error al registrar Service Worker:', error);
+          });
+      });
+    }
+
+    // Solicitar permisos para notificaciones push
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      if (Notification.permission === 'default') {
+        // Pedir permiso después de una interacción del usuario
+        document.addEventListener('click', function requestNotificationPermission() {
+          Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+              console.log('Permiso de notificaciones concedido');
+              // Aquí se podría registrar para push notifications
+            }
+          });
+          document.removeEventListener('click', requestNotificationPermission);
+        }, { once: true });
+      }
+    }
+  </script>
+
+  <!-- PWA Script -->
+  <script src="pwa.js"></script>
 </head>
 <body>
   <!-- Splash Screen -->
@@ -193,6 +247,9 @@
           <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="TikTok"><i class="fab fa-tiktok"></i></a>
           <a href="https://wa.me/+593964245339" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         </div>
+        <button id="pwa-install-btn" class="btn btn-header" style="display: none; background: linear-gradient(135deg, #22c55e, #16a34a); margin-right: 8px;">
+          <i class="fas fa-download" style="margin-right: 8px;"></i> Instalar App
+        </button>
         <a href="login.html" class="btn btn-header">Acceso Estudiantes</a>
       </div>
     </div>

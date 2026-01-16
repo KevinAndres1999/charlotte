@@ -3722,6 +3722,60 @@
             }, 5000);
         }
     </script>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Service Worker Registration -->
+    <script>
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registrado exitosamente en estudiante:', registration.scope);
+
+                        // Verificar si hay una nueva versión disponible
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // Nueva versión disponible
+                                        if (confirm('Hay una nueva versión disponible de la plataforma estudiante. ¿Quieres actualizar?')) {
+                                            newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                            window.location.reload();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Error al registrar Service Worker en estudiante:', error);
+                    });
+            });
+        }
+
+        // Solicitar permisos para notificaciones push
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            if (Notification.permission === 'default') {
+                // Pedir permiso después de una interacción del usuario
+                document.addEventListener('click', function requestNotificationPermission() {
+                    Notification.requestPermission().then((permission) => {
+                        if (permission === 'granted') {
+                            console.log('Permiso de notificaciones concedido en estudiante');
+                            // Aquí se podría registrar para push notifications de contenido
+                        }
+                    });
+                    document.removeEventListener('click', requestNotificationPermission);
+                }, { once: true });
+            }
+        }
+    </script>
+
+    <!-- PWA Script -->
+    <script src="pwa.js"></script>
 </head>
 <body>
     <header class="header">
