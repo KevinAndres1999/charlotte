@@ -7138,6 +7138,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     evaluacionesMap[doc.id] = doc.data();
                 });
                 
+                // Crear set de IDs de evaluaciones para filtrar respuestas
+                const evaluacionesIds = new Set(Object.keys(evaluacionesMap));
+                
                 const cuestionariosMap = {};
                 cuestionariosSnapshot.forEach(doc => {
                     cuestionariosMap[doc.id] = doc.data();
