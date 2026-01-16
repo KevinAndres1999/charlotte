@@ -15778,6 +15778,16 @@ REGLAS ESTRICTAS:
                 console.log('Calificaciones guardadas cargadas:', Object.keys(modulosCalificaciones));
                 console.log('Total calificaciones guardadas:', calificacionesSnapshot.size);
 
+                // Mostrar todas las calificaciones para debug
+                calificacionesSnapshot.forEach(doc => {
+                    const calif = doc.data();
+                    console.log('Calificación:', calif.estudianteId, calif.modulo, {
+                        actividades: calif.actividades,
+                        evaluaciones: calif.evaluaciones,
+                        practica: calif.practica
+                    });
+                });
+
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
                 const evaluacionesMap = {};
@@ -16022,8 +16032,17 @@ REGLAS ESTRICTAS:
                     const estudiante = estudianteInfo.data;
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
+                    console.log('=== ESTUDIANTE ===');
+                    console.log('Nombre:', estudiante.name);
+                    console.log('Email del estudiante:', estudiante.email);
+                    console.log('ID del documento:', estudianteInfo.id);
+                    console.log('ID usado para buscar:', estudianteId);
+
                     // Obtener calificaciones específicas por módulo si existen
                     const modulosCalif = modulosCalificaciones[estudianteId] || {};
+
+                    console.log('Calificaciones encontradas para este ID:', Object.keys(modulosCalif));
+                    console.log('¿Tiene calificaciones?', Object.keys(modulosCalif).length > 0);
 
                     let totalFinal = 0;
                     let modulosHtml = '';
