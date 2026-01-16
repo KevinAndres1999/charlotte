@@ -8673,7 +8673,8 @@ async function loadCalificaciones() {
 
     // Renderizar módulos según el programa
     renderModulosCalificaciones();
-        
+    
+    try {
         // Cargar calificaciones específicas por módulo
         const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
         const modulosSnapshot = await getDocs(modulosQuery);
