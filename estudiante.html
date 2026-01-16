@@ -8513,14 +8513,39 @@ window.printClase = printClase;
 // Función para actualizar las notas de evaluaciones en la sección de calificaciones
 // Calcula sobre 2 puntos: 100% = 2, 50% = 1, etc.
 function actualizarNotasEvaluacionesPorModulo() {
-    // Mapeo de módulos
-    const moduloMap = {
-        'modulo1': ['panaderia', 'panadería', 'panes'],
-        'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
-        'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
-        'modulo4': ['reposteria', 'repostería', 'postres']
-    };
-    
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return;
+
+    const programa = (currentUser.programa || '').toLowerCase();
+
+    // Mapeo de módulos dinámico según programa
+    let moduloMap = {};
+
+    if (programa.includes('panaderia') || programa.includes('panadería')) {
+        moduloMap = {
+            'modulo1': ['panaderia', 'panadería', 'panes'],
+            'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
+            'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
+            'modulo4': ['reposteria', 'repostería', 'postres']
+        };
+    } else if (programa.includes('belleza')) {
+        // Para belleza, asignar evaluaciones por título específico o por defecto al módulo 3
+        moduloMap = {
+            'modulo1': ['corte', 'peinado', 'corte y peinado'],
+            'modulo2': ['maquillaje', 'makeup'],
+            'modulo3': ['estetica', 'facial', 'estética facial'],
+            'modulo4': ['cabello', 'cuidado del cabello']
+        };
+    } else {
+        // Default
+        moduloMap = {
+            'modulo1': ['modulo1', 'módulo 1'],
+            'modulo2': ['modulo2', 'módulo 2'],
+            'modulo3': ['modulo3', 'módulo 3'],
+            'modulo4': ['modulo4', 'módulo 4']
+        };
+    }
+
     // Inicializar contadores por módulo
     const moduloNotas = {
         'modulo1': { total: 0, count: 0 },
@@ -8670,13 +8695,100 @@ function actualizarTotalFinal() {
     if (totalPonderadoEl) totalPonderadoEl.textContent = promedioFinal.toFixed(1);
 }
 
+// Función para renderizar módulos dinámicamente según el programa
+function renderModulosCalificaciones() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return;
+
+    const programa = (currentUser.programa || '').toLowerCase();
+    let modulos = [];
+
+    if (programa.includes('panaderia') || programa.includes('panadería')) {
+        modulos = [
+            { id: 'modulo1', nombre: 'Panadería' },
+            { id: 'modulo2', nombre: 'Galletaría' },
+            { id: 'modulo3', nombre: 'Pastelería' },
+            { id: 'modulo4', nombre: 'Repostería' }
+        ];
+    } else if (programa.includes('belleza')) {
+        modulos = [
+            { id: 'modulo1', nombre: 'Corte y Peinado' },
+            { id: 'modulo2', nombre: 'Maquillaje' },
+            { id: 'modulo3', nombre: 'Estética Facial' },
+            { id: 'modulo4', nombre: 'Cuidado del Cabello' }
+        ];
+    } else {
+        // Default para otros programas
+        modulos = [
+            { id: 'modulo1', nombre: 'Módulo 1' },
+            { id: 'modulo2', nombre: 'Módulo 2' },
+            { id: 'modulo3', nombre: 'Módulo 3' },
+            { id: 'modulo4', nombre: 'Módulo 4' }
+        ];
+    }
+
+    const container = document.getElementById('gradesContainer');
+    if (!container) return;
+
+    let html = '';
+
+    // Renderizar tarjetas de módulos
+    modulos.forEach(modulo => {
+        html += `
+            <div class="grade-card">
+                <div class="grade-header">
+                    <h3 class="grade-title">${modulo.nombre}</h3>
+                    <div class="grade-score" id="${modulo.id}Score">0.0</div>
+                </div>
+                <div class="grade-details">
+                    <div class="grade-item">
+                        <span class="grade-label">Actividades</span>
+                        <span class="grade-value" id="${modulo.id}Actividades">0.0</span>
+                    </div>
+                    <div class="grade-item">
+                        <span class="grade-label">Evaluaciones</span>
+                        <span class="grade-value" id="${modulo.id}Evaluaciones">0.0</span>
+                    </div>
+                    <div class="grade-item">
+                        <span class="grade-label">Práctica</span>
+                        <span class="grade-value" id="${modulo.id}Practica">0.0</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    // Renderizar resumen final
+    html += `
+        <div class="grade-card grade-summary">
+            <div class="grade-header">
+                <h3 class="grade-title">Resumen Final</h3>
+                <div class="grade-score" id="totalScore">0.0</div>
+            </div>
+            <div class="grade-details">
+                ${modulos.map(modulo => `
+                    <div class="grade-item">
+                        <span class="grade-label">${modulo.nombre}</span>
+                        <span class="grade-value" id="${modulo.id}Ponderado">0.0</span>
+                    </div>
+                `).join('')}
+                <div class="grade-item" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 1rem; margin-top: 0.5rem;">
+                    <span class="grade-label" style="font-weight: 700;">Promedio Final</span>
+                    <span class="grade-value" id="totalPonderado">0.0</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
 async function loadCalificaciones() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
 
-    try {
-        // Primero cargar las preguntas originales y evaluaciones si no están cargadas
-        await cargarPreguntasOriginales();
+    // Renderizar módulos según el programa
+    renderModulosCalificaciones();
         
         // Cargar calificaciones específicas por módulo
         const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
@@ -8698,23 +8810,53 @@ async function loadCalificaciones() {
         // Guardar las calificaciones de evaluaciones existentes para usarlas después
         window.calificacionesEvaluacionesGuardadas = {};
 
+        // Definir módulos según programa para actualizar datos
+        const programa = (currentUser.programa || '').toLowerCase();
+        let modulos = [];
+
+        if (programa.includes('panaderia') || programa.includes('panadería')) {
+            modulos = [
+                { id: 'modulo1', nombre: 'Panadería' },
+                { id: 'modulo2', nombre: 'Galletaría' },
+                { id: 'modulo3', nombre: 'Pastelería' },
+                { id: 'modulo4', nombre: 'Repostería' }
+            ];
+        } else if (programa.includes('belleza')) {
+            modulos = [
+                { id: 'modulo1', nombre: 'Corte y Peinado' },
+                { id: 'modulo2', nombre: 'Maquillaje' },
+                { id: 'modulo3', nombre: 'Estética Facial' },
+                { id: 'modulo4', nombre: 'Cuidado del Cabello' }
+            ];
+        } else {
+            modulos = [
+                { id: 'modulo1', nombre: 'Módulo 1' },
+                { id: 'modulo2', nombre: 'Módulo 2' },
+                { id: 'modulo3', nombre: 'Módulo 3' },
+                { id: 'modulo4', nombre: 'Módulo 4' }
+            ];
+        }
+
         // Actualizar UI de módulos con calificaciones específicas
-        for (let i = 1; i <= 4; i++) {
-            const moduloKey = `modulo${i}`;
-            const moduloData = modulosCalif[moduloKey] || {};
+        modulos.forEach(modulo => {
+            const moduloData = modulosCalif[modulo.id] || {};
 
             const actividades = moduloData.actividades || 0;
             const evaluacionesGuardadas = moduloData.evaluaciones || 0;
             const practica = moduloData.practica || 0;
 
             // Guardar las evaluaciones existentes
-            window.calificacionesEvaluacionesGuardadas[moduloKey] = evaluacionesGuardadas;
+            window.calificacionesEvaluacionesGuardadas[modulo.id] = evaluacionesGuardadas;
 
             // Actualizar elementos de la UI
-            document.getElementById(`modulo${i}Actividades`).textContent = actividades.toFixed(1);
-            document.getElementById(`modulo${i}Evaluaciones`).textContent = evaluacionesGuardadas.toFixed(1);
-            document.getElementById(`modulo${i}Practica`).textContent = practica.toFixed(1);
-        }
+            const actividadesEl = document.getElementById(`${modulo.id}Actividades`);
+            const evaluacionesEl = document.getElementById(`${modulo.id}Evaluaciones`);
+            const practicaEl = document.getElementById(`${modulo.id}Practica`);
+
+            if (actividadesEl) actividadesEl.textContent = actividades.toFixed(1);
+            if (evaluacionesEl) evaluacionesEl.textContent = evaluacionesGuardadas.toFixed(1);
+            if (practicaEl) practicaEl.textContent = practica.toFixed(1);
+        });
 
         // Cargar evaluaciones del estudiante para calcular notas adicionales
         await cargarEvaluacionesParaCalificaciones(currentUser.email);
