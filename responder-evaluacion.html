@@ -1489,7 +1489,7 @@ window.submitQuiz = async function() {
         });
 
         respuestasData.puntosPorPregunta = puntosPorPregunta;
-        respuestasData.calificacionAutomatica = correctas * puntosPorPregunta;
+        respuestasData.calificacionAutomatica = Math.round((correctas / currentQuiz.preguntas.length) * 100);
         respuestasData.calificacionAbiertas = 0;
         respuestasData.preguntasAbiertas = preguntasAbiertas;
         respuestasData.preguntasDetalladas = preguntasDetalladas; // Guardar detalle completo
