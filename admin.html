@@ -7178,11 +7178,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
                         const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
                         
-                        // Recalcular calificación si no existe (como en loadResultadosEvaluaciones)
+                        // Recalcular calificación SIEMPRE (como en loadResultadosEvaluaciones)
                         let calificacionRecalculada = respuesta.calificacion;
-                        if (!respuesta.calificacion) {
-                            const evaluacion = evaluacionesMap[respuesta.evaluacionId];
-                            if (evaluacion && evaluacion.preguntas && respuesta.respuestas) {
+                        const evaluacion = evaluacionesMap[respuesta.evaluacionId];
+                        if (evaluacion && evaluacion.preguntas && respuesta.respuestas) {
                                 let correctas = 0;
                                 evaluacion.preguntas.forEach((pregunta, idx) => {
                                     const respuestaEstudiante = respuesta.respuestas[idx];
@@ -16412,7 +16411,7 @@ REGLAS ESTRICTAS:
                         const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
                         const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
                         
-                        // Recalcular calificación si no existe (como en loadResultadosEvaluaciones)
+                        // Recalcular calificación SIEMPRE (como en loadResultadosEvaluaciones)
                         let calificacionRecalculada = respuesta.calificacion;
                         if (!respuesta.calificacion) {
                             const evaluacion = evaluacionesMap[respuesta.evaluacionId];
