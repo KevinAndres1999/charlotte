@@ -15777,7 +15777,8 @@ REGLAS ESTRICTAS:
                     calificacionesGuardadas[estudianteId][modulo] = calif;
                 });
 
-                console.log('Calificaciones guardadas cargadas:', calificacionesGuardadas);
+                console.log('Calificaciones guardadas cargadas:', Object.keys(calificacionesGuardadas));
+                console.log('Total calificaciones guardadas:', calificacionesSnapshot.size);
 
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
@@ -16023,8 +16024,9 @@ REGLAS ESTRICTAS:
                     const estudiante = estudianteInfo.data;
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
-                    console.log('Procesando estudiante:', estudiante.name, 'ID:', estudianteId);
+                    console.log('Procesando estudiante:', estudiante.name, 'ID:', estudianteId, 'Email:', estudiante.email, 'Info ID:', estudianteInfo.id);
                     console.log('Calificaciones guardadas para este estudiante:', calificacionesGuardadas[estudianteId]);
+                    console.log('¿Existe en calificaciones guardadas?', !!calificacionesGuardadas[estudianteId]);
 
                     // Obtener calificaciones específicas por módulo si existen
                     const modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
