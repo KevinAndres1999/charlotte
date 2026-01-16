@@ -15756,7 +15756,7 @@ REGLAS ESTRICTAS:
                     return;
                 }
 
-                // Cargar todos los datos de calificaciones de una vez para optimizar
+                // Cargar TODAS las calificaciones específicas de una vez (optimización)
                 const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot, calificacionesSnapshot] = await Promise.all([
                     getDocs(collection(db, 'entregas')),
                     getDocs(collection(db, 'resultados_evaluaciones')),
@@ -15765,33 +15765,18 @@ REGLAS ESTRICTAS:
                 ]);
 
                 // Crear mapa de calificaciones guardadas por estudiante y módulo
-                const calificacionesGuardadas = {};
+                const modulosCalificaciones = {};
                 calificacionesSnapshot.forEach(doc => {
                     const calif = doc.data();
                     const estudianteId = calif.estudianteId;
-                    const modulo = calif.modulo;
-                    
-                    if (!calificacionesGuardadas[estudianteId]) {
-                        calificacionesGuardadas[estudianteId] = {};
+                    if (!modulosCalificaciones[estudianteId]) {
+                        modulosCalificaciones[estudianteId] = {};
                     }
-                    calificacionesGuardadas[estudianteId][modulo] = calif;
+                    modulosCalificaciones[estudianteId][calif.modulo] = calif;
                 });
 
-                console.log('Calificaciones guardadas cargadas:', Object.keys(calificacionesGuardadas));
+                console.log('Calificaciones guardadas cargadas:', Object.keys(modulosCalificaciones));
                 console.log('Total calificaciones guardadas:', calificacionesSnapshot.size);
-                
-                // Mostrar todas las calificaciones guardadas para debug
-                calificacionesSnapshot.forEach(doc => {
-                    const calif = doc.data();
-                    console.log('Calificación guardada:', {
-                        id: doc.id,
-                        estudianteId: calif.estudianteId,
-                        modulo: calif.modulo,
-                        actividades: calif.actividades,
-                        evaluaciones: calif.evaluaciones,
-                        practica: calif.practica
-                    });
-                });
 
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
@@ -16037,28 +16022,25 @@ REGLAS ESTRICTAS:
                     const estudiante = estudianteInfo.data;
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
-                    console.log('Procesando estudiante:', estudiante.name, 'ID:', estudianteId, 'Email:', estudiante.email, 'Info ID:', estudianteInfo.id);
-                    
-                    // Intentar múltiples formas de encontrar las calificaciones
-                    let modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
-                    
-                    // Si no se encontraron por ID principal, intentar por email
-                    if (Object.keys(modulosCalifGuardados).length === 0 && estudiante.email) {
-                        modulosCalifGuardados = calificacionesGuardadas[estudiante.email] || {};
-                        console.log('Buscando por email alternativo:', estudiante.email, 'Encontrado:', Object.keys(modulosCalifGuardados).length > 0);
-                    }
-                    
-                    // Si aún no se encontraron, intentar por ID del documento
-                    if (Object.keys(modulosCalifGuardados).length === 0 && estudianteInfo.id) {
-                        modulosCalifGuardados = calificacionesGuardadas[estudianteInfo.id] || {};
-                        console.log('Buscando por ID del documento:', estudianteInfo.id, 'Encontrado:', Object.keys(modulosCalifGuardados).length > 0);
-                    }
-                    
-                    console.log('Calificaciones guardadas para este estudiante:', modulosCalifGuardados);
-                    console.log('¿Existe en calificaciones guardadas?', Object.keys(modulosCalifGuardados).length > 0);
-
                     // Obtener calificaciones específicas por módulo si existen
-                    const modulosCalifCalculados = evaluacionesPorModulo[estudianteId] || {};
+                    const modulosCalif = modulosCalificaciones[estudianteId] || {};
+
+                    let totalFinal = 0;
+                    let modulosHtml = '';
+
+                    for (let moduloNum = 1; moduloNum <= 4; moduloNum++) {
+                        const moduloKey = `modulo${moduloNum}`;
+                        const moduloData = modulosCalif[moduloKey] || {};
+
+                        // Valores por defecto o existentes
+                        const actividades = moduloData.actividades || 0;
+                        // Para el módulo 3, usar evaluaciones calculadas automáticamente, para otros módulos usar guardadas
+                        let evaluaciones = moduloData.evaluaciones || 0;
+                        if (moduloNum === 3 && evaluacionesPorModulo[estudianteId] && evaluacionesPorModulo[estudianteId][moduloKey] !== undefined) {
+                            // Solo para módulo 3, usar la evaluación calculada automáticamente
+                            evaluaciones = evaluacionesPorModulo[estudianteId][moduloKey];
+                        }
+                        const moduloTotal = actividades + evaluaciones + practica;
 
                     let totalFinal = 0;
                     let modulosHtml = '';
@@ -16068,16 +16050,15 @@ REGLAS ESTRICTAS:
                         const moduloDataGuardado = modulosCalifGuardados[moduloKey] || {};
                         const moduloDataCalculado = modulosCalifCalculados[moduloKey] || {};
 
-                        console.log(`Módulo ${moduloKey} - Guardado:`, moduloDataGuardado, 'Calculado:', moduloDataCalculado);
-
                         // Valores por defecto o existentes
-                        const actividades = moduloDataGuardado.actividades || 0;
-                        // Usar evaluaciones guardadas si existen, de lo contrario usar las calculadas
-                        const evaluaciones = moduloDataGuardado.evaluaciones !== undefined ? moduloDataGuardado.evaluaciones : (moduloDataCalculado.evaluaciones || 0);
-                        const practica = moduloDataGuardado.practica || 0;
-                        const moduloTotal = actividades + evaluaciones + practica;
-
-                        console.log(`Valores finales - Act: ${actividades}, Eval: ${evaluaciones}, Prác: ${practica}`);
+                        const actividades = moduloData.actividades || 0;
+                        // Para el módulo 3, usar evaluaciones calculadas automáticamente, para otros módulos usar guardadas
+                        let evaluaciones = moduloData.evaluaciones || 0;
+                        if (moduloNum === 3 && evaluacionesPorModulo[estudianteId] && evaluacionesPorModulo[estudianteId][moduloKey] !== undefined) {
+                            // Solo para módulo 3, usar la evaluación calculada automáticamente
+                            evaluaciones = evaluacionesPorModulo[estudianteId][moduloKey];
+                        }
+                        const practica = moduloData.practica || 0;
 
                         totalFinal += moduloTotal;
 
