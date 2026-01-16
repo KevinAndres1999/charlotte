@@ -16309,19 +16309,52 @@ REGLAS ESTRICTAS:
                 console.log('📊 actualizarEstadisticasEvaluaciones - Total evaluaciones:', total, 'Activos:', activos);
                 console.log('📊 evaluacionesManagerData:', evaluacionesManagerData.map(e => ({ id: e.id, titulo: e.titulo })));
 
-                // Calcular total de respuestas (solo último intento por estudiante)
-                let totalRespuestas = 0;
+                // Cargar respuestas de evaluaciones usando el mismo método que loadDashboardStats
+                const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
+                
+                // Crear set de IDs de evaluaciones existentes para filtrar respuestas huérfanas
+                const evaluacionesIds = new Set(evaluacionesManagerData.map(e => e.id));
+                
+                // Procesar respuestas agrupadas por evaluación, tomando solo la última por estudiante
+                const respuestasPorEvaluacion = {};
+                
+                respuestasEvaluacionesSnapshot.forEach(doc => {
+                    const respuesta = doc.data();
+                    if (respuesta.evaluacionId && respuesta.calificacion !== undefined && evaluacionesIds.has(respuesta.evaluacionId)) {
+                        if (!respuestasPorEvaluacion[respuesta.evaluacionId]) {
+                            respuestasPorEvaluacion[respuesta.evaluacionId] = {};
+                        }
+                        
+                        // Usar estudianteId, email o nombre como clave
+                        const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
+                        const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
+                        
+                        // Mantener solo la respuesta más reciente por estudiante
+                        if (!respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey] || 
+                            fechaRespuesta > new Date(respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey].fechaRespuesta || 0)) {
+                            respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey] = {
+                                calificacion: respuesta.calificacion,
+                                fechaRespuesta: respuesta.fechaRespuesta
+                            };
+                        }
+                    }
+                });
+
+                // Calcular promedio por evaluación usando solo las últimas respuestas
                 let sumaCalificaciones = 0;
                 let countCalificaciones = 0;
-
-                for (const evaluacion of evaluacionesManagerData) {
-                    const stats = await calcularEstadisticasEvaluacion(evaluacion);
-                    totalRespuestas += stats.totalRespuestas;
-                    if (stats.promedioCalificaciones > 0) {
-                        sumaCalificaciones += stats.promedioCalificaciones;
+                let totalRespuestas = 0;
+                
+                Object.values(respuestasPorEvaluacion).forEach(respuestasEstudiantes => {
+                    const calificaciones = Object.values(respuestasEstudiantes).map(r => r.calificacion).filter(c => c !== undefined);
+                    totalRespuestas += Object.keys(respuestasEstudiantes).length;
+                    if (calificaciones.length > 0) {
+                        // Calcular promedio con el mismo método que calcularEstadisticasEvaluacion
+                        const promedioEvaluacion = Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10;
+                        sumaCalificaciones += promedioEvaluacion;
                         countCalificaciones++;
                     }
-                }
+                });
 
                 const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
 
