@@ -6307,6 +6307,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         let dashboardLoaded = false;
         let usuariosPendientesLoaded = false;
         let usuariosAprobadosLoaded = false;
+        let allPendingUsers = [];
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
@@ -7313,6 +7314,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         function renderPendingUsers() {
             const container = document.getElementById('usuarios-pendientes');
+            if (!allPendingUsers || allPendingUsers.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: white;">Cargando usuarios pendientes...</p>';
+                return;
+            }
+            
             const searchTerm = document.getElementById('usuariosSearch').value.toLowerCase();
             const programaFilter = document.getElementById('filterProgramaPendientes').value;
             const sedeFilter = document.getElementById('filterSedePendientes').value;
