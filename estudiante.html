@@ -8858,14 +8858,22 @@ async function loadCalificaciones() {
             if (practicaEl) practicaEl.textContent = practica.toFixed(1);
         });
 
-        // Cargar evaluaciones del estudiante para calcular notas adicionales
-        await cargarEvaluacionesParaCalificaciones(currentUser.email);
-
-        // Cargar y mostrar actividades individuales calificadas
-        await loadIndividualActivities(currentUser.email);
-
     } catch (error) {
         console.error('Error cargando calificaciones:', error);
+    }
+
+    // Cargar evaluaciones del estudiante para calcular notas adicionales
+    try {
+        await cargarEvaluacionesParaCalificaciones(currentUser.email);
+    } catch (error) {
+        console.error('Error cargando evaluaciones para calificaciones:', error);
+    }
+
+    // Cargar y mostrar actividades individuales calificadas
+    try {
+        await loadIndividualActivities(currentUser.email);
+    } catch (error) {
+        console.error('Error cargando actividades individuales:', error);
     }
 }
 
