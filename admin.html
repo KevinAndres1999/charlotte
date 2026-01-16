@@ -7253,7 +7253,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         c.preguntas.forEach((pregunta, idx) => {
                             const texto = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
                             if (texto) {
-                                preguntasOriginalesMap.set(texto, { correctaIdx: pregunta.correctaIdx || pregunta.correcta, pregunta });
+                                preguntasOriginalesMap.set(texto, { correcta: pregunta.correctaIdx || pregunta.correcta || pregunta.respuesta, pregunta });
                             }
                         });
                     }
@@ -7292,7 +7292,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                     const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                     if (preguntaOriginal) {
-                                        respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                                        respuestaCorrectaIdx = preguntaOriginal.correcta;
                                     }
                                 }
                                 
@@ -15886,7 +15886,7 @@ REGLAS ESTRICTAS:
                             if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                 const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                 if (preguntaOriginal) {
-                                    respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                                    respuestaCorrectaIdx = preguntaOriginal.correcta;
                                 }
                             }
 
@@ -16645,7 +16645,7 @@ REGLAS ESTRICTAS:
                         evaluacion.preguntas.forEach((pregunta, idx) => {
                             const texto = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
                             if (texto) {
-                                preguntasOriginalesMap.set(texto, { correctaIdx: pregunta.correctaIdx || pregunta.correcta, pregunta });
+                                preguntasOriginalesMap.set(texto, { correcta: pregunta.correctaIdx || pregunta.correcta || pregunta.respuesta, pregunta });
                             }
                         });
                     }
@@ -16681,7 +16681,7 @@ REGLAS ESTRICTAS:
                                     if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                         const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                         if (preguntaOriginal) {
-                                            respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                                            respuestaCorrectaIdx = preguntaOriginal.correcta;
                                         }
                                     }
                                     
@@ -18014,7 +18014,7 @@ REGLAS ESTRICTAS:
                                 const correctaIdx = p.correcta !== undefined ? p.correcta : p.respuesta;
                                 if (correctaIdx !== undefined) {
                                     preguntasOriginalesMap.set(key, {
-                                        correctaIdx: correctaIdx,
+                                        correcta: correctaIdx,
                                         opciones: p.opciones || []
                                     });
                                 }
@@ -18060,7 +18060,7 @@ REGLAS ESTRICTAS:
                             if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                 const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                 if (preguntaOriginal) {
-                                    respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                                    respuestaCorrectaIdx = preguntaOriginal.correcta;
                                 }
                             }
                             
