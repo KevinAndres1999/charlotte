@@ -15779,6 +15779,19 @@ REGLAS ESTRICTAS:
 
                 console.log('Calificaciones guardadas cargadas:', Object.keys(calificacionesGuardadas));
                 console.log('Total calificaciones guardadas:', calificacionesSnapshot.size);
+                
+                // Mostrar todas las calificaciones guardadas para debug
+                calificacionesSnapshot.forEach(doc => {
+                    const calif = doc.data();
+                    console.log('Calificación guardada:', {
+                        id: doc.id,
+                        estudianteId: calif.estudianteId,
+                        modulo: calif.modulo,
+                        actividades: calif.actividades,
+                        evaluaciones: calif.evaluaciones,
+                        practica: calif.practica
+                    });
+                });
 
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
@@ -16025,11 +16038,26 @@ REGLAS ESTRICTAS:
                     const estudianteId = estudiante.email || estudianteInfo.id;
 
                     console.log('Procesando estudiante:', estudiante.name, 'ID:', estudianteId, 'Email:', estudiante.email, 'Info ID:', estudianteInfo.id);
-                    console.log('Calificaciones guardadas para este estudiante:', calificacionesGuardadas[estudianteId]);
-                    console.log('¿Existe en calificaciones guardadas?', !!calificacionesGuardadas[estudianteId]);
+                    
+                    // Intentar múltiples formas de encontrar las calificaciones
+                    let modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
+                    
+                    // Si no se encontraron por ID principal, intentar por email
+                    if (Object.keys(modulosCalifGuardados).length === 0 && estudiante.email) {
+                        modulosCalifGuardados = calificacionesGuardadas[estudiante.email] || {};
+                        console.log('Buscando por email alternativo:', estudiante.email, 'Encontrado:', Object.keys(modulosCalifGuardados).length > 0);
+                    }
+                    
+                    // Si aún no se encontraron, intentar por ID del documento
+                    if (Object.keys(modulosCalifGuardados).length === 0 && estudianteInfo.id) {
+                        modulosCalifGuardados = calificacionesGuardadas[estudianteInfo.id] || {};
+                        console.log('Buscando por ID del documento:', estudianteInfo.id, 'Encontrado:', Object.keys(modulosCalifGuardados).length > 0);
+                    }
+                    
+                    console.log('Calificaciones guardadas para este estudiante:', modulosCalifGuardados);
+                    console.log('¿Existe en calificaciones guardadas?', Object.keys(modulosCalifGuardados).length > 0);
 
                     // Obtener calificaciones específicas por módulo si existen
-                    const modulosCalifGuardados = calificacionesGuardadas[estudianteId] || {};
                     const modulosCalifCalculados = evaluacionesPorModulo[estudianteId] || {};
 
                     let totalFinal = 0;
