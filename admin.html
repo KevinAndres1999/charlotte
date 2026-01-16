@@ -7166,7 +7166,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                 });
 
-                const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
+                const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
 
                 // Guardar métricas avanzadas en caché
                 statsCache = {
@@ -16310,7 +16310,7 @@ REGLAS ESTRICTAS:
                     }
                 }
 
-                const promedioGeneral = countCalificaciones > 0 ? Math.round(sumaCalificaciones / countCalificaciones) : 0;
+                const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
 
                 document.getElementById('totalEvaluaciones').textContent = total;
                 document.getElementById('evaluacionesActivas').textContent = activos;
