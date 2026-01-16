@@ -7131,9 +7131,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 let sumaCalificaciones = 0;
                 let countCalificaciones = 0;
                 
-                // Crear set de IDs de evaluaciones existentes para filtrar respuestas huérfanas
-                const evaluacionesIds = new Set(evaluacionesSnapshot.docs.map(doc => doc.id));
-                
                 console.log('📊 loadDashboardStats - Total evaluaciones:', evaluacionesSnapshot.size);
                 console.log('📊 evaluacionesSnapshot:', evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, titulo: doc.data().titulo })));
                 console.log('📊 evaluacionesIds:', Array.from(evaluacionesIds));
@@ -7175,8 +7172,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 });
 
                 const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
-
-                console.log('📊 loadDashboardStats - promedioGeneralEvaluaciones:', promedioGeneralEvaluaciones, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones);
 
                 // Guardar métricas avanzadas en caché
                 statsCache = {
@@ -16306,9 +16301,6 @@ REGLAS ESTRICTAS:
                 const total = evaluacionesManagerData.length;
                 const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
 
-                console.log('📊 actualizarEstadisticasEvaluaciones - Total evaluaciones:', total, 'Activos:', activos);
-                console.log('📊 evaluacionesManagerData:', evaluacionesManagerData.map(e => ({ id: e.id, titulo: e.titulo })));
-
                 // Cargar respuestas de evaluaciones usando el mismo método que loadDashboardStats
                 const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
                 
@@ -16357,8 +16349,6 @@ REGLAS ESTRICTAS:
                 });
 
                 const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
-
-                console.log('📊 actualizarEstadisticasEvaluaciones - promedioGeneral:', promedioGeneral, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones);
 
                 document.getElementById('totalEvaluaciones').textContent = total;
                 document.getElementById('evaluacionesActivas').textContent = activos;
