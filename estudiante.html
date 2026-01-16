@@ -5793,10 +5793,7 @@ async function loadActividadesContent(selectedModulo) {
                 const filteredByAccess = filterByUserAccess(allActividades);
 
                 // Filtrar por módulo seleccionado
-                // Para módulo 3 (Pastelería), mostrar todas las actividades disponibles
-                const filteredByModulo = selectedModulo === 'modulo3'
-                    ? filteredByAccess
-                    : filteredByAccess.filter(actividad => actividad.modulo === selectedModulo);
+                const filteredByModulo = filteredByAccess.filter(actividad => actividad.modulo === selectedModulo);
 
                 filteredActividades = filteredByModulo;
 
@@ -6186,10 +6183,7 @@ async function loadClasesByModulo(selectedModulo) {
         const filteredByAccess = filterByUserAccess(allClases);
         
         // Filtrar por módulo seleccionado
-        // Para módulo 3 (Pastelería), mostrar todas las clases disponibles
-        const filteredByModulo = selectedModulo === 'modulo3' 
-            ? filteredByAccess 
-            : filteredByAccess.filter(clase => clase.modulo === selectedModulo);
+        const filteredByModulo = filteredByAccess.filter(clase => clase.modulo === selectedModulo);
         
         console.log('Clases después del filtro:', filteredByModulo.length, 'de', allClases.length);
         filteredClases = filteredByModulo;
