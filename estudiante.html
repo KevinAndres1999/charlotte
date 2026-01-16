@@ -3653,7 +3653,89 @@
         });
 
         // Sistema básico de notificaciones
-        // (Movido al script principal de Firebase)
+        function initializeNotifications() {
+            // Verificar si hay notificaciones pendientes al cargar
+            checkForNewContent();
+
+            // Verificar cada 5 minutos por nuevo contenido
+            setInterval(checkForNewContent, 300000);
+        }
+
+        async function checkForNewContent() {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser) return;
+
+                const lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
+                const currentTime = Date.now();
+
+                // Solo verificar si han pasado al menos 5 minutos
+                if (currentTime - parseInt(lastCheck) < 300000) return;
+
+                // Verificar si Firebase está disponible
+                if (window.db && window.getDocs && window.collection) {
+                    const snapshot = await window.getDocs(window.collection(window.db, 'classes'));
+                    let newContentCount = 0;
+
+                    snapshot.forEach(doc => {
+                        const clase = doc.data();
+                        const claseDate = clase.fechaCreacion ? new Date(clase.fechaCreacion.seconds * 1000) : new Date();
+
+                        // Verificar si es del programa del usuario
+                        if (clase.programa === currentUser.programa && claseDate.getTime() > parseInt(lastCheck)) {
+                            newContentCount++;
+                        }
+                    });
+
+                    if (newContentCount > 0) {
+                        showNotification(`¡${newContentCount} nuevo${newContentCount > 1 ? 's' : ''} contenido${newContentCount > 1 ? 's' : ''} disponible${newContentCount > 1 ? 's' : ''} en tu programa!`, 'info');
+                    }
+                } else {
+                    console.log('Firebase no disponible aún, omitiendo verificación de contenido');
+                }
+
+                localStorage.setItem('lastNotificationCheck', currentTime.toString());
+
+            } catch (error) {
+                console.error('Error checking for new content:', error);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="notification-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            // Agregar al DOM
+            document.body.appendChild(notification);
+
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // Inicializar sistema de notificaciones después de que Firebase esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            // Esperar a que Firebase esté disponible
+            const checkFirebaseReady = () => {
+                if (window.db && window.getDocs) {
+                    initializeNotifications();
+                } else {
+                    setTimeout(checkFirebaseReady, 500);
+                }
+            };
+            checkFirebaseReady();
+        });
     </script>
 
     <!-- PWA Manifest -->
@@ -3709,6 +3791,229 @@
 
     <!-- PWA Script -->
     <script src="pwa.js"></script>
+
+    <style>
+        /* Estilos para la nueva interfaz de calificaciones */
+        .grades-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            color: white;
+        }
+
+        .grades-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .grades-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .grades-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .grades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .grade-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: #333;
+        }
+
+        .grade-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .grade-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .grade-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .grade-card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .grade-card-content {
+            margin-bottom: 20px;
+        }
+
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .grade-item:last-child {
+            border-bottom: none;
+        }
+
+        .grade-label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .grade-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .grade-value.excellent {
+            color: #28a745;
+        }
+
+        .grade-value.good {
+            color: #17a2b8;
+        }
+
+        .grade-value.average {
+            color: #ffc107;
+        }
+
+        .grade-value.needs-improvement {
+            color: #dc3545;
+        }
+
+        .grade-card-footer {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .final-grade {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .grade-percentage {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.good {
+            background: linear-gradient(90deg, #17a2b8, #6f42c1);
+        }
+
+        .progress-fill.average {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+
+        .progress-fill.needs-improvement {
+            background: linear-gradient(90deg, #dc3545, #e83e8c);
+        }
+
+        .no-grades {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            color: #666;
+        }
+
+        .no-grades i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .no-grades h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .grades-section {
+                padding: 20px;
+                margin: 15px 0;
+            }
+
+            .grades-header h2 {
+                font-size: 2rem;
+            }
+
+            .grades-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .grade-card {
+                padding: 20px;
+            }
+        }
+
+        /* Animaciones */
+        .grade-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .grade-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .grade-card:nth-child(1) { animation-delay: 0.1s; }
+        .grade-card:nth-child(2) { animation-delay: 0.2s; }
+        .grade-card:nth-child(3) { animation-delay: 0.3s; }
+        .grade-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -8592,31 +8897,93 @@ async function actualizarNotasEvaluacionesPorModulo() {
 
 // Función para actualizar el score total de un módulo
 function actualizarScoreModulo(moduloNum) {
-    const actividadesEl = document.getElementById(`modulo${moduloNum}Actividades`);
-    const evaluacionesEl = document.getElementById(`modulo${moduloNum}Evaluaciones`);
-    const practicaEl = document.getElementById(`modulo${moduloNum}Practica`);
-    const scoreEl = document.getElementById(`modulo${moduloNum}Score`);
-    const ponderadoEl = document.getElementById(`modulo${moduloNum}Ponderado`);
-    
+    const moduloId = `modulo${moduloNum}`;
+    const actividadesEl = document.getElementById(`${moduloId}Actividades`);
+    const evaluacionesEl = document.getElementById(`${moduloId}Evaluaciones`);
+    const practicaEl = document.getElementById(`${moduloId}Practica`);
+    const scoreEl = document.getElementById(`${moduloId}ScoreMain`);
+    const progressEl = document.getElementById(`${moduloId}ProgressFill`);
+    const percentEl = document.getElementById(`${moduloId}ProgressPercent`);
+
     const actividades = parseFloat(actividadesEl?.textContent || '0') || 0;
     const evaluaciones = parseFloat(evaluacionesEl?.textContent || '0') || 0;
     const practica = parseFloat(practicaEl?.textContent || '0') || 0;
-    
+
     const total = actividades + evaluaciones + practica;
-    
+    const maxScore = 6.0; // Máximo posible (2 puntos por cada categoría)
+    const percentage = Math.min((total / maxScore) * 100, 100);
+
     if (scoreEl) scoreEl.textContent = total.toFixed(1);
-    if (ponderadoEl) ponderadoEl.textContent = total.toFixed(1);
+    if (progressEl) progressEl.style.width = `${percentage}%`;
+    if (percentEl) percentEl.textContent = `${Math.round(percentage)}%`;
+
+    // Actualizar clase de color según el rendimiento
+    if (progressEl) {
+        progressEl.className = 'progress-fill';
+        if (percentage >= 80) {
+            progressEl.classList.add('excellent');
+        } else if (percentage >= 60) {
+            progressEl.classList.add('good');
+        } else if (percentage >= 40) {
+            progressEl.classList.add('average');
+        } else {
+            progressEl.classList.add('needs-improvement');
+        }
+    }
+
+    // Actualizar color del valor de calificación
+    if (scoreEl) {
+        scoreEl.className = 'final-grade';
+        if (total >= 4.8) {
+            scoreEl.classList.add('excellent');
+        } else if (total >= 3.6) {
+            scoreEl.classList.add('good');
+        } else if (total >= 2.4) {
+            scoreEl.classList.add('average');
+        } else {
+            scoreEl.classList.add('needs-improvement');
+        }
+    }
 }
 
 // Función para actualizar el total final
 function actualizarTotalFinal() {
     let totalFinal = 0;
+    let modulosConDatos = 0;
+
     for (let i = 1; i <= 4; i++) {
-        const scoreEl = document.getElementById(`modulo${i}Score`);
-        totalFinal += parseFloat(scoreEl?.textContent || '0') || 0;
+        const scoreEl = document.getElementById(`modulo${i}ScoreMain`);
+        const score = parseFloat(scoreEl?.textContent || '0') || 0;
+        if (score > 0) {
+            totalFinal += score;
+            modulosConDatos++;
+        }
     }
-    
-    const promedioFinal = totalFinal / 4;
+
+    const promedioFinal = modulosConDatos > 0 ? totalFinal / modulosConDatos : 0;
+
+    // Si no hay calificaciones, mostrar mensaje alternativo
+    const container = document.getElementById('gradesContainer');
+    if (modulosConDatos === 0 && container) {
+        const noGradesHtml = `
+            <div class="grades-section">
+                <div class="grades-header">
+                    <h2><i class="fas fa-chart-line"></i> Mis Calificaciones</h2>
+                    <p>Programa de ${JSON.parse(sessionStorage.getItem('currentUser') || 'null')?.programa || 'Estudios'}</p>
+                </div>
+                <div class="no-grades">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Aún no tienes calificaciones</h3>
+                    <p>Completa evaluaciones y actividades para ver tus calificaciones aquí.</p>
+                </div>
+            </div>
+        `;
+        container.innerHTML = noGradesHtml;
+        return;
+    }
+
+    console.log(`Total final: ${totalFinal.toFixed(1)}, Promedio: ${promedioFinal.toFixed(1)}, Módulos con datos: ${modulosConDatos}`);
+}
     const totalScoreEl = document.getElementById('totalScore');
     const totalPonderadoEl = document.getElementById('totalPonderado');
     
@@ -8631,45 +8998,65 @@ function renderModulosCalificaciones() {
 
     const programa = (currentUser.programa || '').toLowerCase();
     let modulos = [];
+    let programaIcon = 'fas fa-graduation-cap';
+    let programaColor = '#3b82f6';
 
     if (programa.includes('panaderia') || programa.includes('panadería')) {
         modulos = [
-            { id: 'modulo1', nombre: 'Panadería' },
-            { id: 'modulo2', nombre: 'Galletaría' },
-            { id: 'modulo3', nombre: 'Pastelería' },
-            { id: 'modulo4', nombre: 'Repostería' }
+            { id: 'modulo1', nombre: 'Panadería', icon: 'fas fa-bread-slice', color: '#f59e0b', descripcion: 'Técnicas básicas de panadería' },
+            { id: 'modulo2', nombre: 'Galletaría', icon: 'fas fa-cookie-bite', color: '#ef4444', descripcion: 'Elaboración de galletas y pastas' },
+            { id: 'modulo3', nombre: 'Pastelería', icon: 'fas fa-birthday-cake', color: '#ec4899', descripcion: 'Arte de la pastelería fina' },
+            { id: 'modulo4', nombre: 'Repostería', icon: 'fas fa-utensils', color: '#8b5cf6', descripcion: 'Técnicas avanzadas de repostería' }
         ];
+        programaIcon = 'fas fa-utensils';
+        programaColor = '#f59e0b';
     } else if (programa.includes('belleza')) {
         modulos = [
-            { id: 'modulo1', nombre: 'Diseño de Mirada' },
-            { id: 'modulo2', nombre: 'Maquillaje' },
-            { id: 'modulo3', nombre: 'Estilismo' },
-            { id: 'modulo4', nombre: 'Nails Designer' }
+            { id: 'modulo1', nombre: 'Diseño de Mirada', icon: 'fas fa-eye', color: '#06b6d4', descripcion: 'Técnicas de maquillaje de ojos' },
+            { id: 'modulo2', nombre: 'Maquillaje', icon: 'fas fa-palette', color: '#ec4899', descripcion: 'Maquillaje completo profesional' },
+            { id: 'modulo3', nombre: 'Estilismo', icon: 'fas fa-cut', color: '#10b981', descripcion: 'Corte y peinado profesional' },
+            { id: 'modulo4', nombre: 'Nails Designer', icon: 'fas fa-hand-sparkles', color: '#f59e0b', descripcion: 'Diseño y decoración de uñas' }
         ];
+        programaIcon = 'fas fa-spa';
+        programaColor = '#ec4899';
     } else {
         // Default para otros programas
         modulos = [
-            { id: 'modulo1', nombre: 'Módulo 1' },
-            { id: 'modulo2', nombre: 'Módulo 2' },
-            { id: 'modulo3', nombre: 'Módulo 3' },
-            { id: 'modulo4', nombre: 'Módulo 4' }
+            { id: 'modulo1', nombre: 'Módulo 1', icon: 'fas fa-book', color: '#3b82f6', descripcion: 'Contenido del módulo 1' },
+            { id: 'modulo2', nombre: 'Módulo 2', icon: 'fas fa-book', color: '#3b82f6', descripcion: 'Contenido del módulo 2' },
+            { id: 'modulo3', nombre: 'Módulo 3', icon: 'fas fa-book', color: '#3b82f6', descripcion: 'Contenido del módulo 3' },
+            { id: 'modulo4', nombre: 'Módulo 4', icon: 'fas fa-book', color: '#3b82f6', descripcion: 'Contenido del módulo 4' }
         ];
+        programaIcon = 'fas fa-graduation-cap';
+        programaColor = '#3b82f6';
     }
 
     const container = document.getElementById('gradesContainer');
     if (!container) return;
 
-    let html = '';
+    let html = `
+        <div class="grades-section">
+            <div class="grades-header">
+                <h2><i class="${programaIcon}"></i> Mis Calificaciones</h2>
+                <p>Programa de ${programa.includes('panaderia') || programa.includes('panadería') ? 'Panadería' : programa.includes('belleza') ? 'Belleza' : 'Estudios'}</p>
+            </div>
 
-    // Renderizar tarjetas de módulos
-    modulos.forEach(modulo => {
+            <div class="grades-grid">
+    `;
+
+    // Renderizar tarjetas de módulos con nueva estructura
+    modulos.forEach((modulo, index) => {
+        const gradeClass = 'average'; // Esto se actualizará dinámicamente
         html += `
-            <div class="grade-card">
-                <div class="grade-header">
-                    <h3 class="grade-title">${modulo.nombre}</h3>
-                    <div class="grade-score" id="${modulo.id}Score">0.0</div>
+            <div class="grade-card" style="animation-delay: ${index * 0.1}s">
+                <div class="grade-card-header">
+                    <div class="grade-card-icon" style="background: linear-gradient(135deg, ${modulo.color}, ${modulo.color}dd);">
+                        <i class="${modulo.icon}"></i>
+                    </div>
+                    <h3 class="grade-card-title">${modulo.nombre}</h3>
                 </div>
-                <div class="grade-details">
+
+                <div class="grade-card-content">
                     <div class="grade-item">
                         <span class="grade-label">Actividades</span>
                         <span class="grade-value" id="${modulo.id}Actividades">0.0</span>
@@ -8683,33 +9070,44 @@ function renderModulosCalificaciones() {
                         <span class="grade-value" id="${modulo.id}Practica">0.0</span>
                     </div>
                 </div>
+
+                <div class="grade-card-footer">
+                    <div class="final-grade" id="${modulo.id}ScoreMain">0.0</div>
+                    <div class="grade-percentage" id="${modulo.id}ProgressPercent">0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${gradeClass}" id="${modulo.id}ProgressFill"></div>
+                    </div>
+                </div>
             </div>
         `;
     });
 
-    // Renderizar resumen final
     html += `
-        <div class="grade-card grade-summary">
-            <div class="grade-header">
-                <h3 class="grade-title">Resumen Final</h3>
-                <div class="grade-score" id="totalScore">0.0</div>
             </div>
-            <div class="grade-details">
-                ${modulos.map(modulo => `
-                    <div class="grade-item">
-                        <span class="grade-label">${modulo.nombre}</span>
-                        <span class="grade-value" id="${modulo.id}Ponderado">0.0</span>
-                    </div>
-                `).join('')}
-                <div class="grade-item" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 1rem; margin-top: 0.5rem;">
-                    <span class="grade-label" style="font-weight: 700;">Promedio Final</span>
-                    <span class="grade-value" id="totalPonderado">0.0</span>
+        </div>
+
+        <!-- Modal de Detalles de Módulo -->
+        <div id="moduleDetailModal" class="modal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h2 id="moduleDetailTitle">Detalles del Módulo</h2>
+                    <span class="modal-close">&times;</span>
+                </div>
+                <div class="modal-body" id="moduleDetailContent">
+                    <!-- Contenido dinámico del módulo -->
                 </div>
             </div>
         </div>
     `;
 
     container.innerHTML = html;
+
+    // Agregar animación de entrada
+    setTimeout(() => {
+        document.querySelectorAll('.grade-card').forEach(card => {
+            card.classList.add('animate-in');
+        });
+    }, 100);
 }
 
 async function loadCalificaciones() {
