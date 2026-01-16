@@ -7196,6 +7196,26 @@ async function loadClaseDetail(id) {
             // Actualizar contenido
             document.getElementById('clase-viewer-content').innerHTML = content || 'No hay contenido disponible para esta clase.';
 
+            // Manejar imágenes rotas en el contenido
+            setTimeout(() => {
+                const contentElement = document.getElementById('clase-viewer-content');
+                const images = contentElement.querySelectorAll('img');
+                images.forEach(img => {
+                    if (!img.hasAttribute('onerror')) {
+                        img.onerror = function() {
+                            this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjNmNGY2Ii8+Cjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW4gbm8gZGlzcG9uaWJsZTwvdGV4dD4KPC9zdmc+';
+                            this.alt = 'Imagen no disponible';
+                            this.style.maxWidth = '300px';
+                            this.style.height = 'auto';
+                            this.style.border = '2px dashed #d1d5db';
+                            this.style.borderRadius = '8px';
+                            this.style.padding = '20px';
+                            this.style.backgroundColor = '#f9fafb';
+                        };
+                    }
+                });
+            }, 100);
+
             // Actualizar progreso
             const progress = localStorage.getItem(`clase-${id}-progress`) || '0';
             document.getElementById('clase-viewer-progress').textContent = progress + '% completado';
