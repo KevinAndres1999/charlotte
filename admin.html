@@ -7281,31 +7281,30 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         let calificacionRecalculada = respuesta.calificacion;
                         const evaluacion = evaluacionesMap[respuesta.evaluacionId];
                         if (evaluacion && evaluacion.preguntas && respuesta.respuestas) {
-                                let correctas = 0;
-                                evaluacion.preguntas.forEach((pregunta, idx) => {
-                                    const respuestaEstudiante = respuesta.respuestas[idx];
-                                    const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
-                                    
-                                    let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : 
-                                                               (pregunta.correcta !== undefined ? pregunta.correcta : null);
-                                    
-                                    if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
-                                        const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
-                                        if (preguntaOriginal) {
-                                            respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
-                                        }
+                            let correctas = 0;
+                            evaluacion.preguntas.forEach((pregunta, idx) => {
+                                const respuestaEstudiante = respuesta.respuestas[idx];
+                                const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
+                                
+                                let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : 
+                                                           (pregunta.correcta !== undefined ? pregunta.correcta : null);
+                                
+                                if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
+                                    const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
+                                    if (preguntaOriginal) {
+                                        respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
                                     }
-                                    
-                                    if (respuestaCorrectaIdx !== null && respuestaCorrectaIdx !== undefined && 
-                                        respuestaEstudiante === respuestaCorrectaIdx) {
-                                        correctas++;
-                                    }
-                                });
-                                calificacionRecalculada = Math.round((correctas / evaluacion.preguntas.length) * 100);
-                            } else if (respuesta.preguntasDetalladas && respuesta.preguntasDetalladas.length > 0) {
-                                let correctas = respuesta.preguntasDetalladas.filter(p => p.correcta === true).length;
-                                calificacionRecalculada = Math.round((correctas / respuesta.preguntasDetalladas.length) * 100);
-                            }
+                                }
+                                
+                                if (respuestaCorrectaIdx !== null && respuestaCorrectaIdx !== undefined && 
+                                    respuestaEstudiante === respuestaCorrectaIdx) {
+                                    correctas++;
+                                }
+                            });
+                            calificacionRecalculada = Math.round((correctas / evaluacion.preguntas.length) * 100);
+                        } else if (respuesta.preguntasDetalladas && respuesta.preguntasDetalladas.length > 0) {
+                            let correctas = respuesta.preguntasDetalladas.filter(p => p.correcta === true).length;
+                            calificacionRecalculada = Math.round((correctas / respuesta.preguntasDetalladas.length) * 100);
                         }
                         
                         // Mantener solo la respuesta más reciente por estudiante
