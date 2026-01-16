@@ -15798,22 +15798,46 @@ REGLAS ESTRICTAS:
                 // Calcular calificaciones de evaluaciones por módulo en tiempo real
                 const evaluacionesPorModulo = {};
                 try {
-                    // Cargar preguntas originales para el cálculo
+                    // Cargar preguntas originales de la misma manera que estudiante.html
                     const preguntasOriginalesMap = new Map();
                     try {
-                        const preguntasOriginalesSnapshot = await getDocs(collection(db, 'preguntas_originales'));
-                        preguntasOriginalesSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            const key = (data.texto || data.pregunta || '').trim().toLowerCase();
-                            if (key) {
-                                preguntasOriginalesMap.set(key, {
-                                    correctaIdx: data.correctaIdx || data.correcta,
-                                    pregunta: data
+                        // Cargar preguntas de cuestionarios
+                        const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                        cuestionariosSnapshot.forEach(docSnap => {
+                            const cuest = docSnap.data();
+                            if (cuest.preguntas && Array.isArray(cuest.preguntas)) {
+                                cuest.preguntas.forEach(p => {
+                                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
+                                    if (texto) {
+                                        preguntasOriginalesMap.set(texto, {
+                                            opciones: p.opciones || [],
+                                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
+                                        });
+                                    }
                                 });
                             }
                         });
+
+                        // Cargar preguntas de evaluaciones
+                        const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                        evaluacionesSnapshot.forEach(docSnap => {
+                            const ev = docSnap.data();
+                            if (ev.preguntas && Array.isArray(ev.preguntas)) {
+                                ev.preguntas.forEach(p => {
+                                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
+                                    if (texto && !preguntasOriginalesMap.has(texto)) {
+                                        preguntasOriginalesMap.set(texto, {
+                                            opciones: p.opciones || [],
+                                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
+                        console.log('Admin - Preguntas originales cargadas:', preguntasOriginalesMap.size);
                     } catch (error) {
-                        console.log('Error cargando preguntas originales:', error);
+                        console.log('Admin - Error cargando preguntas originales:', error);
                     }
 
                     // Cargar todas las evaluaciones y respuestas
@@ -15866,12 +15890,16 @@ REGLAS ESTRICTAS:
                                 }
                             }
 
+                            console.log(`Admin - Pregunta ${idx}: estudiante=${respuestaEstudiante}, correcta=${respuestaCorrectaIdx}, texto="${textoPregunta}"`);
+
                             if (respuestaEstudiante === respuestaCorrectaIdx) {
                                 correctas++;
                             }
                         });
 
-                        return Math.round((correctas / preguntas.length) * 100);
+                        const resultado = Math.round((correctas / preguntas.length) * 100);
+                        console.log(`Admin - Calificación recalculada: ${correctas}/${preguntas.length} = ${resultado}%`);
+                        return resultado;
                     }
 
                     // Calcular notas por módulo para cada estudiante
@@ -15903,10 +15931,13 @@ REGLAS ESTRICTAS:
                                             moduloAsignado = 'modulo4';
                                         }
 
+                                        console.log(`Admin - Evaluación "${evaluacion.titulo}" (modulo: "${evaluacion.modulo}", titulo: "${evaluacion.titulo}") -> asignado a ${moduloAsignado}, calificación: ${calificacionRecalculada}%`);
+
                                         if (moduloAsignado) {
                                             const notaEscala2 = (calificacionRecalculada / 100) * 2;
                                             moduloNotas[moduloAsignado].total += notaEscala2;
                                             moduloNotas[moduloAsignado].count++;
+                                            console.log(`Admin - Nota escala 2: ${notaEscala2} para ${moduloAsignado}`);
                                         }
                                     }
                                 }
@@ -15918,6 +15949,7 @@ REGLAS ESTRICTAS:
                                 const moduloKey = `modulo${i}`;
                                 const datos = moduloNotas[moduloKey];
                                 evaluacionesPorModulo[estudianteId][moduloKey] = datos.count > 0 ? datos.total / datos.count : 0;
+                                console.log(`Admin - ${estudianteId} ${moduloKey}: ${datos.count} evaluaciones, promedio: ${evaluacionesPorModulo[estudianteId][moduloKey].toFixed(2)}`);
                             }
                         }
                     });
