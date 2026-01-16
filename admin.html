@@ -3417,6 +3417,9 @@
                             <button type="submit" class="btn-submit-quiz">
                                 <i class="fas fa-upload"></i> Subir Clase
                             </button>
+                            <button type="button" id="cancelEditBtn" class="btn-submit-quiz" style="background: #6b7280; display: none;" onclick="cancelClaseEdit()">
+                                <i class="fas fa-times"></i> Cancelar Edición
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -6585,18 +6588,36 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
 
                     try {
-                        // Crear el documento principal de la clase
-                        const claseRef = await addDoc(collection(db, 'classes'), {
-                            titulo: title,
-                            descripcion: desc,
-                            programa: programa,
-                            modulo: modulo,
-                            duracion: parseInt(duracion),
-                            horarios: horariosSeleccionados,
-                            sedes: sedesSeleccionadas,
-                            fechaCreacion: new Date().toISOString(),
-                            hasChunks: false // Por defecto, asumimos que no necesita chunks
-                        });
+                        const isEditing = window.editingClaseId;
+                        let claseRef;
+
+                        if (isEditing) {
+                            // Actualizar clase existente
+                            claseRef = doc(db, 'classes', isEditing);
+                            await updateDoc(claseRef, {
+                                titulo: title,
+                                descripcion: desc,
+                                programa: programa,
+                                modulo: modulo,
+                                duracion: parseInt(duracion),
+                                horarios: horariosSeleccionados,
+                                sedes: sedesSeleccionadas,
+                                fechaActualizacion: new Date().toISOString()
+                            });
+                        } else {
+                            // Crear nueva clase
+                            claseRef = await addDoc(collection(db, 'classes'), {
+                                titulo: title,
+                                descripcion: desc,
+                                programa: programa,
+                                modulo: modulo,
+                                duracion: parseInt(duracion),
+                                horarios: horariosSeleccionados,
+                                sedes: sedesSeleccionadas,
+                                fechaCreacion: new Date().toISOString(),
+                                hasChunks: false // Por defecto, asumimos que no necesita chunks
+                            });
+                        }
 
                         // Verificar el tamaño del contenido
                         const contentSize = new Blob([content]).size;
@@ -6608,27 +6629,41 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             // Actualizar el documento principal para indicar que tiene chunks
                             await updateDoc(claseRef, {
                                 hasChunks: true,
-                                fechaCreacion: new Date().toISOString()
+                                fechaActualizacion: new Date().toISOString()
                             });
                         } else {
                             // Guardar contenido directamente
                             await updateDoc(claseRef, {
                                 contenido: content,
                                 hasChunks: false,
-                                fechaCreacion: new Date().toISOString()
+                                fechaActualizacion: new Date().toISOString()
                             });
                         }
 
-                        alert('Clase subida exitosamente');
+                        alert(isEditing ? 'Clase actualizada exitosamente' : 'Clase subida exitosamente');
+                        
+                        // Limpiar formulario y resetear modo edición
                         claseForm.reset();
                         if (claseEditor) {
                             claseEditor.setData('');
                         }
+                        window.editingClaseId = null;
+                        
+                        // Resetear texto del botón y ocultar botón de cancelar
+                        const submitBtn = document.querySelector('#claseForm button[type="submit"]');
+                        const cancelBtn = document.getElementById('cancelEditBtn');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Clase';
+                        }
+                        if (cancelBtn) {
+                            cancelBtn.style.display = 'none';
+                        }
+                        
                         loadDashboardStats();
                         loadClasesList(); // Recargar la lista de clases
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('Error al subir clase: ' + error.message);
+                        alert('Error al ' + (window.editingClaseId ? 'actualizar' : 'subir') + ' clase: ' + error.message);
                     }
                 });
             }
@@ -8122,6 +8157,9 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                                             <button onclick="viewClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                                                 <i class="fas fa-eye"></i> Ver
                                             </button>
+                                            <button onclick="editClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
                                             <button onclick="deleteItem('classes', '${clase.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -8433,6 +8471,108 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                 await loadClasesList();
             }
             loadClaseDetail(claseId);
+        }
+
+        async function editClase(claseId) {
+            try {
+                console.log('Editando clase:', claseId);
+
+                // Obtener la clase de Firestore
+                const claseRef = doc(db, 'classes', claseId);
+                const claseSnap = await getDoc(claseRef);
+
+                if (!claseSnap.exists()) {
+                    alert('Clase no encontrada');
+                    return;
+                }
+
+                const clase = claseSnap.data();
+                console.log('Datos de la clase:', clase);
+
+                // Cargar contenido (desde chunks si es necesario)
+                let contenido = clase.contenido || '';
+                if (clase.hasChunks) {
+                    console.log('Cargando contenido desde chunks...');
+                    contenido = await loadContentFromChunks(claseId);
+                    if (!contenido) {
+                        alert('Error al cargar el contenido de la clase');
+                        return;
+                    }
+                }
+
+                // Llenar el formulario con los datos existentes
+                document.getElementById('claseTitle').value = clase.titulo || '';
+                document.getElementById('claseDesc').value = clase.descripcion || '';
+                document.getElementById('clasePrograma').value = clase.programa || '';
+                document.getElementById('claseModulo').value = clase.modulo || '';
+                document.getElementById('claseDuracion').value = clase.duracion || 60;
+
+                // Seleccionar horarios
+                document.querySelectorAll('input[name="claseHorarios"]').forEach(cb => {
+                    cb.checked = clase.horarios && clase.horarios.includes(cb.value);
+                });
+
+                // Seleccionar sedes
+                document.querySelectorAll('input[name="claseSedes"]').forEach(cb => {
+                    cb.checked = clase.sedes && clase.sedes.includes(cb.value);
+                });
+
+                // Llenar el editor con el contenido
+                if (claseEditor) {
+                    claseEditor.setData(contenido);
+                } else {
+                    document.getElementById('claseContent').value = contenido;
+                }
+
+                // Establecer modo edición
+                window.editingClaseId = claseId;
+
+                // Cambiar a la sección de clases
+                showSection('clases');
+
+                // Cambiar el texto del botón de guardar y mostrar botón de cancelar
+                const submitBtn = document.querySelector('#claseForm button[type="submit"]');
+                const cancelBtn = document.getElementById('cancelEditBtn');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Actualizar Clase';
+                }
+                if (cancelBtn) {
+                    cancelBtn.style.display = 'inline-block';
+                }
+
+                // Scroll al formulario
+                document.getElementById('claseForm').scrollIntoView({ behavior: 'smooth' });
+
+                alert('Clase cargada para edición. Realiza los cambios y guarda.');
+
+            } catch (error) {
+                console.error('Error al cargar clase para edición:', error);
+                alert('Error al cargar la clase para edición');
+            }
+        }
+
+        function cancelClaseEdit() {
+            // Limpiar formulario
+            const claseForm = document.getElementById('claseForm');
+            claseForm.reset();
+            if (claseEditor) {
+                claseEditor.setData('');
+            }
+            
+            // Resetear modo edición
+            window.editingClaseId = null;
+            
+            // Resetear botones
+            const submitBtn = document.querySelector('#claseForm button[type="submit"]');
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Clase';
+            }
+            if (cancelBtn) {
+                cancelBtn.style.display = 'none';
+            }
+            
+            alert('Edición cancelada. El formulario ha sido limpiado.');
         }
 
         async function viewEvaluacion(evaluacionId) {
@@ -12879,10 +13019,7 @@ REGLAS ESTRICTAS:
 
 
         // Función para editar clase (placeholder)
-        function editClase(claseId) {
-            // Aquí iría la lógica para editar la clase
-            alert('Función de edición próximamente disponible');
-        }
+        // Función editClase movida arriba en el código
 
         // Función para actualizar estadísticas de entregas
         async function actualizarEstadisticasEntregas() {
