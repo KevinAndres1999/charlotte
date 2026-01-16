@@ -8094,7 +8094,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                         <div style="background: ${colores.header}; color: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <h4 style="margin: 0; font-size: 1.1rem;"><i class="fas fa-graduation-cap"></i> ${grupo.programa}</h4>
-                                <span style="opacity: 0.9; font-size: 0.9rem;"><i class="fas fa-layer-group"></i> ${getModuloName(grupo.modulo)}</span>
+                                <span style="opacity: 0.9; font-size: 0.9rem;"><i class="fas fa-layer-group"></i> ${getModuloName(grupo.modulo, grupo.programa)}</span>
                             </div>
                             <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">
                                 ${grupo.clases.length} clase${grupo.clases.length !== 1 ? 's' : ''}
@@ -8138,31 +8138,44 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         }
 
         function showModuloSelector() {
+            const programa = document.getElementById('filterProgramaClases')?.value || '';
+            
+            const modulosPorPrograma = {
+                'Panadería y Pastelería': [
+                    { id: 'modulo1', icon: 'fa-bread-slice', nombre: 'Módulo 1', descripcion: 'Panadería', color: '#667eea' },
+                    { id: 'modulo2', icon: 'fa-cookie-bite', nombre: 'Módulo 2', descripcion: 'Galletaría', color: '#f093fb' },
+                    { id: 'modulo3', icon: 'fa-birthday-cake', nombre: 'Módulo 3', descripcion: 'Pastelería', color: '#4facfe' },
+                    { id: 'modulo4', icon: 'fa-utensils', nombre: 'Módulo 4', descripcion: 'Repostería', color: '#43e97b' }
+                ],
+                'Belleza Integral': [
+                    { id: 'modulo1', icon: 'fa-eye', nombre: 'Módulo 1', descripcion: 'Diseño de Mirada', color: '#ec4899' },
+                    { id: 'modulo2', icon: 'fa-magic', nombre: 'Módulo 2', descripcion: 'Maquillaje', color: '#f472b6' },
+                    { id: 'modulo3', icon: 'fa-cut', nombre: 'Módulo 3', descripcion: 'Estilismo', color: '#a855f7' },
+                    { id: 'modulo4', icon: 'fa-hand-sparkles', nombre: 'Módulo 4', descripcion: 'Nails Designer', color: '#8b5cf6' }
+                ],
+                'Asesoría Técnica': [
+                    { id: 'modulo1', icon: 'fa-chalkboard-teacher', nombre: 'Módulo 1', descripcion: 'Fundamentos', color: '#3b82f6' },
+                    { id: 'modulo2', icon: 'fa-chart-line', nombre: 'Módulo 2', descripcion: 'Estrategias', color: '#6366f1' },
+                    { id: 'modulo3', icon: 'fa-users', nombre: 'Módulo 3', descripcion: 'Gestión', color: '#8b5cf6' },
+                    { id: 'modulo4', icon: 'fa-award', nombre: 'Módulo 4', descripcion: 'Especialización', color: '#a855f7' }
+                ]
+            };
+            
+            const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+            
             const container = document.getElementById('clasesList');
             container.innerHTML = `
                 <div style="text-align: center; padding: 2rem;">
-                    <h3 style="color: #1e3a8a; margin-bottom: 2rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+                    <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+                    <p style="color: #6b7280; margin-bottom: 2rem;">${programa || 'Selecciona un programa primero'}</p>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                        <div class="modulo-card" onclick="loadClasesList('modulo1')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-bread-slice" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 1</h4>
-                            <p>Panadería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo2')" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-cookie-bite" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 2</h4>
-                            <p>Galletaría</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo3')" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-birthday-cake" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 3</h4>
-                            <p>Pastelería</p>
-                        </div>
-                        <div class="modulo-card" onclick="loadClasesList('modulo4')" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
-                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                            <h4>Módulo 4</h4>
-                            <p>Repostería</p>
-                        </div>
+                        ${modulos.map(m => `
+                            <div class="modulo-card" onclick="loadClasesList('${m.id}')" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
+                                <i class="fas ${m.icon}" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                <h4>${m.nombre}</h4>
+                                <p>${m.descripcion}</p>
+                            </div>
+                        `).join('')}
                         <div class="modulo-card" onclick="showAllClases()" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 2rem; border-radius: 12px; cursor: pointer; transition: transform 0.2s;">
                             <i class="fas fa-list" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                             <h4>Ver Todas</h4>
@@ -8204,7 +8217,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                                 </div>
                                 <div class="clase-meta">
                                     <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                    <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo)}</div>
+                                    <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo, data.programa)}</div>
                                     <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaSubida || Date.now()).toLocaleDateString('es-ES')}</div>
                                 </div>
                             </div>
@@ -8222,14 +8235,35 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             `;
         }
 
-        function getModuloName(moduloKey) {
-            const modulos = {
-                'modulo1': 'Módulo 1: Panadería',
-                'modulo2': 'Módulo 2: Galletaría', 
-                'modulo3': 'Módulo 3: Pastelería',
-                'modulo4': 'Módulo 4: Repostería'
+        function getModuloName(moduloKey, programa = null) {
+            // Si no se especifica programa, intentar obtenerlo del filtro
+            if (!programa) {
+                programa = document.getElementById('filterProgramaClases')?.value || '';
+            }
+            
+            const modulosPorPrograma = {
+                'Panadería y Pastelería': {
+                    'modulo1': 'Módulo 1: Panadería',
+                    'modulo2': 'Módulo 2: Galletaría', 
+                    'modulo3': 'Módulo 3: Pastelería',
+                    'modulo4': 'Módulo 4: Repostería'
+                },
+                'Belleza Integral': {
+                    'modulo1': 'Módulo 1: Diseño de Mirada',
+                    'modulo2': 'Módulo 2: Maquillaje',
+                    'modulo3': 'Módulo 3: Estilismo',
+                    'modulo4': 'Módulo 4: Nails Designer'
+                },
+                'Asesoría Técnica': {
+                    'modulo1': 'Módulo 1: Fundamentos',
+                    'modulo2': 'Módulo 2: Estrategias',
+                    'modulo3': 'Módulo 3: Gestión',
+                    'modulo4': 'Módulo 4: Especialización'
+                }
             };
-            return modulos[moduloKey] || moduloKey;
+            
+            const modulosPrograma = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+            return modulosPrograma[moduloKey] || moduloKey;
         }
 
         async function loadActividadesList(selectedModulo = null) {
@@ -8276,7 +8310,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                                     </div>
                                     <div class="clase-meta">
                                         <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                        <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo)}</div>
+                                        <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo, data.programa)}</div>
                                         <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaRegistro || Date.now()).toLocaleDateString('es-ES')}</div>
                                     </div>
                                 </div>
@@ -8367,7 +8401,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                                 </div>
                                 <div class="clase-meta">
                                     <div class="meta-item"><i class="fas fa-graduation-cap"></i> ${data.programa}</div>
-                                    <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo)}</div>
+                                    <div class="meta-item"><i class="fas fa-layer-group"></i> ${getModuloName(data.modulo, data.programa)}</div>
                                     <div class="meta-item"><i class="fas fa-calendar"></i> ${new Date(data.fechaRegistro || Date.now()).toLocaleDateString('es-ES')}</div>
                                 </div>
                             </div>
