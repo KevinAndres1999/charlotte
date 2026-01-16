@@ -16017,23 +16017,10 @@ REGLAS ESTRICTAS:
 
                 for (const estudianteInfo of estudiantesFiltrados) {
                     const estudiante = estudianteInfo.data;
-                    
-                    // Intentar múltiples estrategias para encontrar las calificaciones
-                    let modulosCalif = {};
-                    const posiblesIds = [
-                        estudiante.email,           // Email del documento de usuario
-                        estudianteInfo.id,          // ID del documento
-                        estudiante.email?.toLowerCase(), // Email en minúsculas
-                        estudiante.email?.trim()    // Email sin espacios
-                    ].filter(id => id); // Filtrar valores null/undefined
-                    
-                    // Buscar calificaciones con cualquiera de los IDs posibles
-                    for (const id of posiblesIds) {
-                        if (modulosCalificaciones[id]) {
-                            modulosCalif = modulosCalificaciones[id];
-                            break; // Usar las primeras calificaciones encontradas
-                        }
-                    }
+                    const estudianteId = estudiante.email || estudianteInfo.id;
+
+                    // Obtener calificaciones específicas por módulo si existen
+                    const modulosCalif = modulosCalificaciones[estudianteId] || {};
 
                     let totalFinal = 0;
                     let modulosHtml = '';
