@@ -1436,6 +1436,29 @@ window.submitQuiz = async function() {
             }
         };
 
+        // Cargar TODOS los cuestionarios para buscar respuestas correctas por texto de pregunta
+        const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+        const preguntasOriginalesMap = new Map();
+        cuestionariosSnapshot.forEach(docSnap => {
+            const cuestionario = docSnap.data();
+            if (cuestionario.preguntas && Array.isArray(cuestionario.preguntas)) {
+                cuestionario.preguntas.forEach(p => {
+                    // Usar texto || pregunta como hace el modal
+                    const textoPregunta = p.texto || p.pregunta;
+                    if (textoPregunta) {
+                        const key = textoPregunta.trim().toLowerCase();
+                        const correctaIdx = p.correcta !== undefined ? p.correcta : p.respuesta;
+                        if (correctaIdx !== undefined) {
+                            preguntasOriginalesMap.set(key, {
+                                correctaIdx: correctaIdx,
+                                opciones: p.opciones || []
+                            });
+                        }
+                    }
+                });
+            }
+        });
+
         // Calcular calificación automática
         let correctas = 0;
         let totalMultiples = 0;
@@ -1445,8 +1468,20 @@ window.submitQuiz = async function() {
 
         currentQuiz.preguntas.forEach((pregunta, index) => {
             const respuestaEstudiante = answers[index];
-            // La respuesta correcta puede estar en 'respuesta' o 'correcta'
-            const respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : (pregunta.correcta !== undefined ? pregunta.correcta : null);
+            
+            // Buscar respuesta correcta: primero en la pregunta, luego en cuestionarios
+            let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta : 
+                                       (pregunta.correcta !== undefined ? pregunta.correcta : null);
+            
+            // Si no tenemos respuesta correcta, buscar en cuestionarios por texto
+            if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
+                const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
+                const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
+                if (preguntaOriginal) {
+                    respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                }
+            }
+            
             const esCorrecta = pregunta.tipo === 'multiple' && respuestaEstudiante === respuestaCorrectaIdx;
             
             // Obtener texto de la respuesta del estudiante
@@ -1462,10 +1497,6 @@ window.submitQuiz = async function() {
             }
             
             // Agregar a preguntasDetalladas para mostrar en admin
-            // Para evaluaciones automáticas completas, marcar como correcta si se respondió
-            const marcarCorrecta = pregunta.tipo === 'multiple' ? esCorrecta : 
-                                   (pregunta.tipo === 'open' && respuestaEstudiante && respuestaEstudiante.trim() !== '');
-            
             preguntasDetalladas.push({
                 indice: index,
                 pregunta: pregunta.texto || pregunta.pregunta || `Pregunta ${index + 1}`,
@@ -1474,7 +1505,7 @@ window.submitQuiz = async function() {
                 respuestaEstudianteIndex: respuestaEstudiante,
                 respuestaCorrecta: textoRespuestaCorrecta,
                 respuestaCorrectaIndex: respuestaCorrectaIdx,
-                correcta: marcarCorrecta,
+                correcta: esCorrecta,  // Solo true para preguntas múltiples correctas
                 opciones: pregunta.opciones || []
             });
             
@@ -1484,27 +1515,28 @@ window.submitQuiz = async function() {
                     correctas++;
                 }
             } else if (pregunta.tipo === 'open') {
-                // Para preguntas abiertas, contar como correcta si tiene respuesta
-                if (respuestaEstudiante && respuestaEstudiante.trim() !== '') {
-                    correctas++;
-                }
+                // Para preguntas abiertas, agregar a lista de preguntas que requieren calificación manual
                 preguntasAbiertas.push({
                     indice: index,
                     texto: pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido',
-                    respuestaEstudiante: respuestaEstudiante
+                    respuestaEstudiante: respuestaEstudiante,
+                    respuestaCorrecta: respuestaCorrectaIdx
                 });
             }
         });
 
         respuestasData.puntosPorPregunta = puntosPorPregunta;
-        respuestasData.calificacionAutomatica = Math.round((correctas / currentQuiz.preguntas.length) * 100);
+        // Calificación automática: si no hay preguntas abiertas, calificar sobre todas las preguntas
+        // Si hay preguntas abiertas, calificar solo sobre las preguntas múltiples
+        const totalPreguntasParaCalificar = preguntasAbiertas.length === 0 ? currentQuiz.preguntas.length : totalMultiples;
+        respuestasData.calificacionAutomatica = totalPreguntasParaCalificar > 0 ? Math.round((correctas / totalPreguntasParaCalificar) * 100) : 0;
         respuestasData.calificacionAbiertas = 0;
         respuestasData.preguntasAbiertas = preguntasAbiertas;
         respuestasData.preguntasDetalladas = preguntasDetalladas; // Guardar detalle completo
         respuestasData.totalCorrectas = correctas;
         respuestasData.totalPreguntas = currentQuiz.preguntas.length;
-        // Considerar calificada si todas las preguntas tienen respuesta (abiertas respondidas cuentan)
-        respuestasData.calificada = preguntasAbiertas.filter(p => !p.respuestaEstudiante || p.respuestaEstudiante.trim() === '').length === 0;
+        // La evaluación está calificada automáticamente solo si no hay preguntas abiertas
+        respuestasData.calificada = preguntasAbiertas.length === 0;
         respuestasData.calificacion = respuestasData.calificada ? respuestasData.calificacionAutomatica : null;
         respuestasData.fechaCalificacion = respuestasData.calificada ? new Date() : null;
 
