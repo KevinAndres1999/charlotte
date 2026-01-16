@@ -335,4 +335,305 @@ function closeConfirm(){
   confirmCallback = null;
 }
 
-} // Fin del bloque de verificación de carga múltiple
+// ===== SISTEMA DE LAZY LOADING PARA MEJORAR RENDIMIENTO =====
+
+class LazyImageLoader {
+  constructor() {
+    this.imageObserver = null;
+    this.init();
+  }
+
+  init() {
+    // Crear Intersection Observer para lazy loading
+    this.imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          this.loadImage(img);
+          observer.unobserve(img);
+        }
+      });
+    }, {
+      // Comenzar a cargar cuando la imagen esté a 50px de ser visible
+      rootMargin: '50px 0px',
+      threshold: 0.01
+    });
+
+    // Observar todas las imágenes con data-src
+    this.observeImages();
+  }
+
+  observeImages() {
+    // Buscar imágenes con data-src (lazy loading)
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    lazyImages.forEach(img => {
+      this.imageObserver.observe(img);
+    });
+
+    // También observar imágenes normales que no tienen lazy loading nativo
+    const regularImages = document.querySelectorAll('img:not([data-src]):not([loading="lazy"])');
+    regularImages.forEach(img => {
+      // Solo aplicar lazy loading a imágenes que no están en el viewport inicial
+      if (!this.isElementInViewport(img)) {
+        this.convertToLazy(img);
+      }
+    });
+  }
+
+  convertToLazy(img) {
+    // Convertir imagen normal a lazy loading
+    const src = img.src;
+    if (src && !img.hasAttribute('data-src')) {
+      img.setAttribute('data-src', src);
+      img.src = ''; // Remover src para evitar carga
+      img.classList.add('lazy-loading');
+      this.imageObserver.observe(img);
+    }
+  }
+
+  loadImage(img) {
+    const src = img.getAttribute('data-src');
+    if (src) {
+      img.src = src;
+      img.classList.remove('lazy-loading');
+      img.classList.add('lazy-loaded');
+
+      // Agregar listener para manejar errores
+      img.addEventListener('load', () => {
+        img.classList.add('loaded');
+      });
+
+      img.addEventListener('error', () => {
+        console.warn(`Failed to load image: ${src}`);
+        img.classList.add('error');
+      });
+    }
+  }
+
+  isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+      rect.top >= 0 &&
+      rect.left >= 0 &&
+      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }
+}
+
+// Función para optimizar carga de imágenes en galerías
+function optimizeGalleryImages() {
+  const galleries = document.querySelectorAll('.gallery, .trabajos-grid, .image-gallery');
+  galleries.forEach(gallery => {
+    const images = gallery.querySelectorAll('img');
+    images.forEach((img, index) => {
+      // Cargar solo las primeras 3 imágenes inmediatamente
+      if (index < 3) {
+        if (img.hasAttribute('data-src')) {
+          img.src = img.getAttribute('data-src');
+          img.classList.add('lazy-loaded');
+        }
+      } else {
+        // Las demás con lazy loading
+        if (!img.hasAttribute('data-src') && img.src) {
+          img.setAttribute('data-src', img.src);
+          img.src = '';
+          img.classList.add('lazy-loading');
+        }
+      }
+    });
+  });
+}
+
+// Inicializar lazy loading cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar lazy loading
+  window.lazyImageLoader = new LazyImageLoader();
+
+  // Optimizar galerías
+  optimizeGalleryImages();
+
+  // Re-observar imágenes cuando se cargue contenido dinámico
+  const observeDynamicContent = () => {
+    if (window.lazyImageLoader) {
+      window.lazyImageLoader.observeImages();
+    }
+  };
+
+  // Observar cambios en el DOM para nuevas imágenes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === 1 && (node.tagName === 'IMG' || node.querySelectorAll)) {
+          const images = node.tagName === 'IMG' ? [node] : node.querySelectorAll('img');
+          images.forEach(img => {
+            if (window.lazyImageLoader && !img.hasAttribute('data-src') && img.src && !window.lazyImageLoader.isElementInViewport(img)) {
+              window.lazyImageLoader.convertToLazy(img);
+            }
+          });
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+});
+
+// ===== FIN SISTEMA DE LAZY LOADING =====
+
+// ===== SISTEMA DE OPTIMIZACIÓN DE CONSULTAS FIREBASE =====
+
+class FirebaseQueryOptimizer {
+  constructor() {
+    this.cache = new Map();
+    this.cacheTimeout = 5 * 60 * 1000; // 5 minutos
+  }
+
+  // Método para consultas con cache
+  async queryWithCache(collectionName, queryConstraints = [], options = {}) {
+    const cacheKey = this.generateCacheKey(collectionName, queryConstraints);
+    const cached = this.getFromCache(cacheKey);
+
+    if (cached && !options.forceRefresh) {
+      return cached;
+    }
+
+    try {
+      let queryRef = collection(db, collectionName);
+
+      // Aplicar constraints
+      if (queryConstraints.length > 0) {
+        queryRef = query(queryRef, ...queryConstraints);
+      }
+
+      // Aplicar límite por defecto si no se especifica
+      if (!queryConstraints.some(c => c.type === 'limit') && !options.noLimit) {
+        queryRef = query(queryRef, limit(50));
+      }
+
+      const snapshot = await getDocs(queryRef);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Cachear resultado
+      this.setCache(cacheKey, data);
+
+      return data;
+    } catch (error) {
+      console.error(`Error querying ${collectionName}:`, error);
+      throw error;
+    }
+  }
+
+  // Método para consultas paralelas
+  async parallelQueries(queries) {
+    const promises = queries.map(({ collection: collectionName, constraints, options }) =>
+      this.queryWithCache(collectionName, constraints, options)
+    );
+
+    try {
+      const results = await Promise.all(promises);
+      return results;
+    } catch (error) {
+      console.error('Error in parallel queries:', error);
+      throw error;
+    }
+  }
+
+  // Método para consultas paginadas
+  async queryPaginated(collectionName, queryConstraints = [], pageSize = 20, startAfter = null) {
+    try {
+      let queryRef = collection(db, collectionName);
+
+      if (queryConstraints.length > 0) {
+        queryRef = query(queryRef, ...queryConstraints);
+      }
+
+      queryRef = query(queryRef, limit(pageSize));
+
+      if (startAfter) {
+        queryRef = query(queryRef, startAfter(startAfter));
+      }
+
+      const snapshot = await getDocs(queryRef);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      return {
+        data,
+        hasMore: snapshot.docs.length === pageSize,
+        lastDoc: snapshot.docs[snapshot.docs.length - 1]
+      };
+    } catch (error) {
+      console.error(`Error in paginated query for ${collectionName}:`, error);
+      throw error;
+    }
+  }
+
+  // Utilidades de cache
+  generateCacheKey(collectionName, constraints) {
+    const constraintsStr = constraints.map(c => JSON.stringify(c)).join('|');
+    return `${collectionName}:${constraintsStr}`;
+  }
+
+  getFromCache(key) {
+    const cached = this.cache.get(key);
+    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+      return cached.data;
+    }
+    if (cached) {
+      this.cache.delete(key); // Eliminar cache expirado
+    }
+    return null;
+  }
+
+  setCache(key, data) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
+  clearCache() {
+    this.cache.clear();
+  }
+
+  // Método para pre-cargar datos críticos
+  async preloadCriticalData(user) {
+    if (!user || !user.programa) return;
+
+    const criticalQueries = [
+      {
+        collection: 'classes',
+        constraints: [where('programa', '==', user.programa), limit(10)],
+        options: { forceRefresh: false }
+      },
+      {
+        collection: 'evaluaciones',
+        constraints: [where('programa', '==', user.programa), limit(5)],
+        options: { forceRefresh: false }
+      }
+    ];
+
+    try {
+      await this.parallelQueries(criticalQueries);
+      console.log('Critical data preloaded successfully');
+    } catch (error) {
+      console.warn('Failed to preload critical data:', error);
+    }
+  }
+}
+
+// Inicializar optimizador de consultas
+window.firebaseOptimizer = new FirebaseQueryOptimizer();
+
+// Función helper para consultas optimizadas
+window.queryOptimized = (collectionName, constraints, options) =>
+  window.firebaseOptimizer.queryWithCache(collectionName, constraints, options);
+
+// Función helper para consultas paralelas
+window.parallelQueries = (queries) =>
+  window.firebaseOptimizer.parallelQueries(queries);
+
+// ===== FIN SISTEMA DE OPTIMIZACIÓN DE CONSULTAS =====

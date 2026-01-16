@@ -1426,3 +1426,51 @@ body{background:var(--bg);color:#111}
   100% { transform: rotate(360deg); }
 }
 
+/* ===== ESTILOS PARA LAZY LOADING ===== */
+
+img.lazy-loading {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+img.lazy-loaded {
+  opacity: 1;
+}
+
+img.lazy-loaded.loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+img.lazy-loading.error {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Optimizar imágenes en galerías */
+.gallery img,
+.trabajos-grid img,
+.image-gallery img {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.gallery img:hover,
+.trabajos-grid img:hover,
+.image-gallery img:hover {
+  transform: scale(1.02);
+}
+
+/* ===== FIN ESTILOS PARA LAZY LOADING ===== */
+

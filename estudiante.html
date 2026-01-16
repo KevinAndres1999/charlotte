@@ -5241,12 +5241,12 @@ async function loadDashboardStats() {
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
             }
-            
+
             // Verificar horario
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 if (!itemData.horarios.includes(currentUser.horario)) return false;
             }
-            
+
             return true;
         }
 
@@ -5256,144 +5256,159 @@ async function loadDashboardStats() {
             const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
             if (percentEl) percentEl.textContent = `${percent}%`;
             if (textEl) textEl.textContent = total > 0 ? `Hay ${total} ${type.toLowerCase()}, has completado ${completed}` : `No hay ${type.toLowerCase()} disponibles`;
-            
+
             // Actualizar círculo de progreso
             const circumference = 2 * Math.PI * 30; // r=30
             const dashArray = `${(completed / Math.max(total, 1)) * circumference}, ${circumference}`;
             if (fillEl) fillEl.style.strokeDasharray = dashArray;
         }
 
-        // Contar clases con filtro de sede y horario
-        const clasesQuery = query(collection(db, 'classes'), where('programa', '==', currentUser.programa));
-        const clasesSnapshot = await getDocs(clasesQuery);
-        
+        // ===== CONSULTAS OPTIMIZADAS EN PARALELO =====
+        const queries = [
+            {
+                collection: 'classes',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            },
+            {
+                collection: 'content',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            },
+            {
+                collection: 'activities',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            },
+            {
+                collection: 'materials',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            },
+            {
+                collection: 'cuestionarios',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            },
+            {
+                collection: 'evaluaciones',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
+            }
+        ];
+
+        // Ejecutar todas las consultas en paralelo
+        const [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData] =
+            await window.parallelQueries(queries);
+
+        // Procesar clases
         let filteredClasesCount = 0;
         let completedClasesCount = 0;
-        clasesSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        clasesData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredClasesCount++;
-                if (isCompleted('clase', doc.id)) {
+                if (isCompleted('clase', item.id)) {
                     completedClasesCount++;
                 }
             }
         });
-        
-        updateProgress('Clases', filteredClasesCount, completedClasesCount, 
-                      document.getElementById('totalClases'), 
-                      document.getElementById('progressClasesPercent'), 
-                      document.getElementById('progressClasesText'), 
+
+        updateProgress('Clases', filteredClasesCount, completedClasesCount,
+                      document.getElementById('totalClases'),
+                      document.getElementById('progressClasesPercent'),
+                      document.getElementById('progressClasesText'),
                       document.getElementById('progressClasesFill'));
 
-        // Contar videos con filtro
-        const videosQuery = query(collection(db, 'content'), where('programa', '==', currentUser.programa));
-        const videosSnapshot = await getDocs(videosQuery);
-        
+        // Procesar videos
         let filteredVideosCount = 0;
         let completedVideosCount = 0;
-        videosSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        videosData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredVideosCount++;
-                if (isCompleted('video', doc.id)) {
+                if (isCompleted('video', item.id)) {
                     completedVideosCount++;
                 }
             }
         });
-        
-        updateProgress('Videos', filteredVideosCount, completedVideosCount, 
-                      document.getElementById('totalVideos'), 
-                      document.getElementById('progressVideosPercent'), 
-                      document.getElementById('progressVideosText'), 
+
+        updateProgress('Videos', filteredVideosCount, completedVideosCount,
+                      document.getElementById('totalVideos'),
+                      document.getElementById('progressVideosPercent'),
+                      document.getElementById('progressVideosText'),
                       document.getElementById('progressVideosFill'));
 
-        // Contar actividades con filtro
-        const actividadesQuery = query(collection(db, 'activities'), where('programa', '==', currentUser.programa));
-        const actividadesSnapshot = await getDocs(actividadesQuery);
-        
+        // Procesar actividades
         let filteredActividadesCount = 0;
         let completedActividadesCount = 0;
-        actividadesSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        actividadesData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredActividadesCount++;
-                if (isCompleted('actividad', doc.id)) {
+                if (isCompleted('actividad', item.id)) {
                     completedActividadesCount++;
                 }
             }
         });
-        
-        updateProgress('Actividades', filteredActividadesCount, completedActividadesCount, 
-                      document.getElementById('totalActividades'), 
-                      document.getElementById('progressActividadesPercent'), 
-                      document.getElementById('progressActividadesText'), 
+
+        updateProgress('Actividades', filteredActividadesCount, completedActividadesCount,
+                      document.getElementById('totalActividades'),
+                      document.getElementById('progressActividadesPercent'),
+                      document.getElementById('progressActividadesText'),
                       document.getElementById('progressActividadesFill'));
 
-        // Contar materiales con filtro
-        const materialesQuery = query(collection(db, 'materials'), where('programa', '==', currentUser.programa));
-        const materialesSnapshot = await getDocs(materialesQuery);
-        
+        // Procesar materiales
         let filteredMaterialesCount = 0;
         let completedMaterialesCount = 0;
-        materialesSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        materialesData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredMaterialesCount++;
-                if (isCompleted('material', doc.id)) {
+                if (isCompleted('material', item.id)) {
                     completedMaterialesCount++;
                 }
             }
         });
-        
-        updateProgress('Materiales', filteredMaterialesCount, completedMaterialesCount, 
-                      document.getElementById('totalMateriales'), 
-                      document.getElementById('progressMaterialesPercent'), 
-                      document.getElementById('progressMaterialesText'), 
+
+        updateProgress('Materiales', filteredMaterialesCount, completedMaterialesCount,
+                      document.getElementById('totalMateriales'),
+                      document.getElementById('progressMaterialesPercent'),
+                      document.getElementById('progressMaterialesText'),
                       document.getElementById('progressMaterialesFill'));
 
-        // Contar cuestionarios con filtro
-        const cuestionariosQuery = query(collection(db, 'cuestionarios'), where('programa', '==', currentUser.programa));
-        const cuestionariosSnapshot = await getDocs(cuestionariosQuery);
-        
+        // Procesar cuestionarios
         let filteredCuestionariosCount = 0;
         let completedCuestionariosCount = 0;
-        cuestionariosSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        cuestionariosData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredCuestionariosCount++;
-                if (isCompleted('cuestionario', doc.id)) {
+                if (isCompleted('cuestionario', item.id)) {
                     completedCuestionariosCount++;
                 }
             }
         });
-        
-        updateProgress('Cuestionarios', filteredCuestionariosCount, completedCuestionariosCount, 
-                      document.getElementById('totalCuestionarios'), 
-                      document.getElementById('progressCuestionariosPercent'), 
-                      document.getElementById('progressCuestionariosText'), 
+
+        updateProgress('Cuestionarios', filteredCuestionariosCount, completedCuestionariosCount,
+                      document.getElementById('totalCuestionarios'),
+                      document.getElementById('progressCuestionariosPercent'),
+                      document.getElementById('progressCuestionariosText'),
                       document.getElementById('progressCuestionariosFill'));
 
-        // Contar evaluaciones con filtro
-        const evaluacionesQuery = query(collection(db, 'evaluaciones'), where('programa', '==', currentUser.programa));
-        const evaluacionesSnapshot = await getDocs(evaluacionesQuery);
-        
+        // Procesar evaluaciones
         let filteredEvaluacionesCount = 0;
         let completedEvaluacionesCount = 0;
-        evaluacionesSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (shouldIncludeItem(data)) {
+        evaluacionesData.forEach(item => {
+            if (shouldIncludeItem(item)) {
                 filteredEvaluacionesCount++;
-                if (isCompleted('evaluacion', doc.id)) {
+                if (isCompleted('evaluacion', item.id)) {
                     completedEvaluacionesCount++;
                 }
             }
         });
-        
-        updateProgress('Evaluaciones', filteredEvaluacionesCount, completedEvaluacionesCount, 
-                      document.getElementById('totalEvaluaciones'), 
-                      document.getElementById('progressEvaluacionesPercent'), 
-                      document.getElementById('progressEvaluacionesText'), 
+
+        updateProgress('Evaluaciones', filteredEvaluacionesCount, completedEvaluacionesCount,
+                      document.getElementById('totalEvaluaciones'),
+                      document.getElementById('progressEvaluacionesPercent'),
+                      document.getElementById('progressEvaluacionesText'),
                       document.getElementById('progressEvaluacionesFill'));
+
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
