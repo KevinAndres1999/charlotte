@@ -7172,6 +7172,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
                 const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
 
+                console.log('📊 loadDashboardStats - promedioGeneralEvaluaciones:', promedioGeneralEvaluaciones, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones);
+
                 // Guardar métricas avanzadas en caché
                 statsCache = {
                     videos: videosSnapshot.size,
@@ -16315,6 +16317,8 @@ REGLAS ESTRICTAS:
                 }
 
                 const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
+
+                console.log('📊 actualizarEstadisticasEvaluaciones - promedioGeneral:', promedioGeneral, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones);
 
                 document.getElementById('totalEvaluaciones').textContent = total;
                 document.getElementById('evaluacionesActivas').textContent = activos;
