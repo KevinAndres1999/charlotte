@@ -7130,22 +7130,37 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 let sumaCalificaciones = 0;
                 let countCalificaciones = 0;
                 
-                // Procesar respuestas para calcular promedios por evaluación
+                // Procesar respuestas agrupadas por evaluación, tomando solo la última por estudiante
                 const respuestasPorEvaluacion = {};
+                
                 respuestasSnapshot.forEach(doc => {
                     const respuesta = doc.data();
                     if (respuesta.evaluacionId && respuesta.calificacion !== undefined) {
                         if (!respuestasPorEvaluacion[respuesta.evaluacionId]) {
-                            respuestasPorEvaluacion[respuesta.evaluacionId] = [];
+                            respuestasPorEvaluacion[respuesta.evaluacionId] = {};
                         }
-                        respuestasPorEvaluacion[respuesta.evaluacionId].push(respuesta.calificacion);
+                        
+                        // Usar estudianteId, email o nombre como clave
+                        const estudianteKey = respuesta.estudianteId || respuesta.email || respuesta.nombre || 'desconocido';
+                        const fechaRespuesta = respuesta.fechaRespuesta ? new Date(respuesta.fechaRespuesta) : new Date(0);
+                        
+                        // Mantener solo la respuesta más reciente por estudiante
+                        if (!respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey] || 
+                            fechaRespuesta > new Date(respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey].fechaRespuesta || 0)) {
+                            respuestasPorEvaluacion[respuesta.evaluacionId][estudianteKey] = {
+                                calificacion: respuesta.calificacion,
+                                fechaRespuesta: respuesta.fechaRespuesta
+                            };
+                        }
                     }
                 });
 
-                // Calcular promedio por evaluación
-                Object.values(respuestasPorEvaluacion).forEach(calificaciones => {
+                // Calcular promedio por evaluación usando solo las últimas respuestas
+                Object.values(respuestasPorEvaluacion).forEach(respuestasEstudiantes => {
+                    const calificaciones = Object.values(respuestasEstudiantes).map(r => r.calificacion).filter(c => c !== undefined);
                     if (calificaciones.length > 0) {
-                        const promedioEvaluacion = calificaciones.reduce((sum, cal) => sum + cal, 0) / calificaciones.length;
+                        // Calcular promedio con el mismo método que calcularEstadisticasEvaluacion
+                        const promedioEvaluacion = Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10;
                         sumaCalificaciones += promedioEvaluacion;
                         countCalificaciones++;
                     }
