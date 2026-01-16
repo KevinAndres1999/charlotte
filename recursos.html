@@ -281,36 +281,49 @@
 
         <div class="gallery-header">
             <h1>📸 Nuestra Galería</h1>
-            <p>Descubre los trabajos realizados por nuestros estudiantes en los diferentes programas de formación. Explora 25 imágenes de nuestros talleres de panadería, belleza, clases prácticas y graduaciones.</p>
+            <p>Descubre los trabajos realizados por nuestros estudiantes en los diferentes programas de formación</p>
         </div>
 
-        <div class="filter-buttons">
-            <button class="filter-btn active" data-filter="all">Todas las Fotos (25)</button>
-            <button class="filter-btn" data-filter="panaderia">🍞 Panadería</button>
-            <button class="filter-btn" data-filter="belleza">💄 Belleza</button>
-            <button class="filter-btn" data-filter="clases">📚 Clases</button>
-            <button class="filter-btn" data-filter="graduaciones">🎓 Graduaciones</button>
+        <!-- Carrusel de imágenes -->
+        <div class="carousel-container">
+            <div class="carousel" id="carousel">
+                <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
+            </div>
+
+            <!-- Controles del carrusel -->
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevBtn">‹</button>
+                <button class="carousel-btn" id="nextBtn">›</button>
+            </div>
+
+            <!-- Indicadores -->
+            <div class="carousel-indicators" id="indicators">
+                <!-- Los indicadores se generarán dinámicamente -->
+            </div>
         </div>
 
-        <div class="gallery-grid" id="galleryGrid">
-            <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
+        <!-- Información de la galería -->
+        <div class="gallery-info">
+            <div class="gallery-stats">
+                <div class="stat-item">
+                    <span class="stat-number">25</span>
+                    <span class="stat-label">Imágenes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <span class="stat-label">Categorías</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Estudiantes</span>
+                </div>
+            </div>
+            <p style="color: #475569; margin-top: 20px;">Nuestra galería se actualiza automáticamente mostrando los mejores trabajos de nuestros estudiantes en panadería, belleza, clases prácticas y graduaciones.</p>
         </div>
 
         <div class="nav-buttons">
             <a href="index.html">← Volver al Inicio</a>
             <a href="cursos.html">Ver Cursos →</a>
-        </div>
-    </div>
-
-    <!-- Modal para galería ampliada -->
-    <div id="galleryModal" class="modal" aria-hidden="true">
-        <div class="modal-content">
-            <button class="modal-close" aria-label="Cerrar">×</button>
-            <img id="galleryModalImg" src="" alt="">
-            <div class="modal-info">
-                <h3 id="modalTitle"></h3>
-                <p id="modalDescription"></p>
-            </div>
         </div>
     </div>
 
@@ -331,228 +344,234 @@
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03.jpeg',
                 title: 'Trabajos de Panadería',
-                description: 'Productos elaborados por estudiantes del programa de panadería',
-                category: 'panaderia'
+                description: 'Productos elaborados por estudiantes del programa de panadería'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (1).jpeg',
                 title: 'Clases Prácticas',
-                description: 'Sesiones de aprendizaje hands-on con instructores expertos',
-                category: 'clases'
+                description: 'Sesiones de aprendizaje hands-on con instructores expertos'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (2).jpeg',
                 title: 'Panadería Profesional',
-                description: 'Técnicas avanzadas de panadería y pastelería',
-                category: 'panaderia'
+                description: 'Técnicas avanzadas de panadería y pastelería'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (3).jpeg',
                 title: 'Belleza y Estilismo',
-                description: 'Trabajos de maquillaje y estilismo profesional',
-                category: 'belleza'
+                description: 'Trabajos de maquillaje y estilismo profesional'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (4).jpeg',
                 title: 'Instalaciones Modernas',
-                description: 'Nuestras aulas equipadas con tecnología de vanguardia',
-                category: 'clases'
+                description: 'Nuestras aulas equipadas con tecnología de vanguardia'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (5).jpeg',
                 title: 'Ceremonia de Graduación',
-                description: 'Momentos especiales de nuestros graduados',
-                category: 'graduaciones'
+                description: 'Momentos especiales de nuestros graduados'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (6).jpeg',
                 title: 'Productos de Belleza',
-                description: 'Trabajos finales de estudiantes de cosmetología',
-                category: 'belleza'
+                description: 'Trabajos finales de estudiantes de cosmetología'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (7).jpeg',
                 title: 'Panadería Creativa',
-                description: 'Creaciones artísticas en repostería',
-                category: 'panaderia'
+                description: 'Creaciones artísticas en repostería'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (8).jpeg',
                 title: 'Sesiones de Estudio',
-                description: 'Ambiente de aprendizaje colaborativo',
-                category: 'clases'
+                description: 'Ambiente de aprendizaje colaborativo'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (9).jpeg',
                 title: 'Graduados Exitosos',
-                description: 'Nuestros estudiantes listos para el mundo laboral',
-                category: 'graduaciones'
+                description: 'Nuestros estudiantes listos para el mundo laboral'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20.jpeg',
                 title: 'Técnicas de Belleza',
-                description: 'Demostración de procedimientos estéticos',
-                category: 'belleza'
+                description: 'Demostración de procedimientos estéticos'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (1).jpeg',
                 title: 'Panadería Artesanal',
-                description: 'Elaboración tradicional de productos de panadería',
-                category: 'panaderia'
+                description: 'Elaboración tradicional de productos de panadería'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (2).jpeg',
                 title: 'Laboratorio de Belleza',
-                description: 'Espacio dedicado al aprendizaje de técnicas estéticas',
-                category: 'belleza'
+                description: 'Espacio dedicado al aprendizaje de técnicas estéticas'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (3).jpeg',
                 title: 'Productos de Panadería',
-                description: 'Variedad de panes y productos horneados',
-                category: 'panaderia'
+                description: 'Variedad de panes y productos horneados'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (4).jpeg',
                 title: 'Clases Interactivas',
-                description: 'Sesiones prácticas con participación activa',
-                category: 'clases'
+                description: 'Sesiones prácticas con participación activa'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (5).jpeg',
                 title: 'Graduación Especial',
-                description: 'Celebración de logros académicos',
-                category: 'graduaciones'
+                description: 'Celebración de logros académicos'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (6).jpeg',
                 title: 'Técnicas Avanzadas',
-                description: 'Procedimientos especializados en cosmetología',
-                category: 'belleza'
+                description: 'Procedimientos especializados en cosmetología'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (7).jpeg',
                 title: 'Repostería Gourmet',
-                description: 'Creaciones culinarias de alta calidad',
-                category: 'panaderia'
+                description: 'Creaciones culinarias de alta calidad'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (8).jpeg',
                 title: 'Ambiente Educativo',
-                description: 'Espacios diseñados para el aprendizaje óptimo',
-                category: 'clases'
+                description: 'Espacios diseñados para el aprendizaje óptimo'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (9).jpeg',
                 title: 'Éxito Profesional',
-                description: 'Estudiantes preparados para su carrera',
-                category: 'graduaciones'
+                description: 'Estudiantes preparados para su carrera'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (10).jpeg',
                 title: 'Maquillaje Artístico',
-                description: 'Técnicas creativas de maquillaje profesional',
-                category: 'belleza'
+                description: 'Técnicas creativas de maquillaje profesional'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (11).jpeg',
                 title: 'Panadería Tradicional',
-                description: 'Recetas clásicas con toque moderno',
-                category: 'panaderia'
+                description: 'Recetas clásicas con toque moderno'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (12).jpeg',
                 title: 'Sesiones Grupales',
-                description: 'Aprendizaje colaborativo en equipo',
-                category: 'clases'
+                description: 'Aprendizaje colaborativo en equipo'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.38 (1).jpeg',
                 title: 'Graduados Destacados',
-                description: 'Reconocimiento a la excelencia académica',
-                category: 'graduaciones'
+                description: 'Reconocimiento a la excelencia académica'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.38 (2).jpeg',
                 title: 'Belleza Integral',
-                description: 'Enfoque completo en tratamientos estéticos',
-                category: 'belleza'
+                description: 'Enfoque completo en tratamientos estéticos'
             },
             {
                 src: 'fotos/whatsapp image 2025-04-12 at 12.06.38 (3).jpeg',
                 title: 'Innovación en Panadería',
-                description: 'Técnicas modernas aplicadas a la panadería',
-                category: 'panaderia'
+                description: 'Técnicas modernas aplicadas a la panadería'
             }
         ];
 
-        let currentFilter = 'all';
+        let currentSlide = 0;
+        let autoPlayInterval;
 
-        // Función para renderizar la galería
-        function renderGallery(filter = 'all') {
-            const galleryGrid = document.getElementById('galleryGrid');
-            const filteredData = filter === 'all' ? galleryData : galleryData.filter(item => item.category === filter);
+        // Función para crear el carrusel
+        function createCarousel() {
+            const carousel = document.getElementById('carousel');
+            const indicators = document.getElementById('indicators');
 
-            galleryGrid.innerHTML = filteredData.map(item => `
-                <div class="gallery-item" data-category="${item.category}" onclick="openGalleryModal('${item.src}', '${item.title}', '${item.description}')">
-                    <img src="${item.src}" alt="${item.title}" class="gallery-image" loading="lazy">
-                    <div class="gallery-overlay">
-                        <i class="fas fa-search-plus"></i>
-                        <h3>${item.title}</h3>
-                        <p>${item.description}</p>
+            // Crear slides
+            galleryData.forEach((item, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                slide.innerHTML = `
+                    <img src="${item.src}" alt="${item.title}" class="carousel-image" loading="lazy">
+                    <div class="carousel-overlay">
+                        <h3 class="carousel-title">${item.title}</h3>
+                        <p class="carousel-description">${item.description}</p>
                     </div>
-                </div>
-            `).join('');
+                `;
+                carousel.appendChild(slide);
+
+                // Crear indicador
+                const indicator = document.createElement('div');
+                indicator.className = `indicator ${index === 0 ? 'active' : ''}`;
+                indicator.addEventListener('click', () => goToSlide(index));
+                indicators.appendChild(indicator);
+            });
         }
 
-        // Función para abrir el modal
-        function openGalleryModal(src, title, description) {
-            const modal = document.getElementById('galleryModal');
-            const modalImg = document.getElementById('galleryModalImg');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
+        // Función para ir a un slide específico
+        function goToSlide(slideIndex) {
+            const carousel = document.getElementById('carousel');
+            const indicators = document.querySelectorAll('.indicator');
 
-            modalImg.src = src;
-            modalTitle.textContent = title;
-            modalDescription.textContent = description;
+            currentSlide = slideIndex;
+            const translateX = -currentSlide * 100;
+            carousel.style.transform = `translateX(${translateX}%)`;
 
-            modal.setAttribute('aria-hidden', 'false');
+            // Actualizar indicadores
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
         }
 
-        // Función para cerrar el modal
-        function closeGalleryModal() {
-            const modal = document.getElementById('galleryModal');
-            modal.setAttribute('aria-hidden', 'true');
+        // Función para el slide siguiente
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % galleryData.length;
+            goToSlide(currentSlide);
+        }
+
+        // Función para el slide anterior
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + galleryData.length) % galleryData.length;
+            goToSlide(currentSlide);
+        }
+
+        // Función para iniciar el autoplay
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, 4000); // Cambiar cada 4 segundos
+        }
+
+        // Función para detener el autoplay
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            renderGallery();
+            createCarousel();
+            startAutoPlay();
 
-            // Filtros
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.filter;
-                    renderGallery(currentFilter);
-                });
+            // Controles del carrusel
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                nextSlide();
+                stopAutoPlay();
+                startAutoPlay(); // Reiniciar el autoplay
             });
 
-            // Cerrar modal
-            document.querySelector('.modal-close').addEventListener('click', closeGalleryModal);
-
-            document.getElementById('galleryModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeGalleryModal();
-                }
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                prevSlide();
+                stopAutoPlay();
+                startAutoPlay(); // Reiniciar el autoplay
             });
 
-            // Cerrar con Escape
+            // Pausar autoplay al hacer hover
+            const carouselContainer = document.querySelector('.carousel-container');
+            carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+            carouselContainer.addEventListener('mouseleave', startAutoPlay);
+
+            // Navegación con teclado
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeGalleryModal();
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    stopAutoPlay();
+                    startAutoPlay();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    stopAutoPlay();
+                    startAutoPlay();
                 }
             });
         });
