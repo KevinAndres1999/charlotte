@@ -749,8 +749,31 @@
         .stat-card-icon.green { background: #dcfce7; color: #22c55e; }
         .stat-card-icon.purple { background: #f3e8ff; color: #a855f7; }
         .stat-card-icon.orange { background: #fed7aa; color: #f97316; }
+        .stat-card-icon.teal { background: #ccfbf1; color: #14b8a6; }
+        .stat-card-icon.indigo { background: #e0e7ff; color: #6366f1; }
+        .stat-card-icon.emerald { background: #d1fae5; color: #10b981; }
         .stat-value { font-size: 32px; font-weight: 700; color: #0a1628; margin: 0; }
         .stat-label { color: #64748b; font-size: 14px; margin: 4px 0 0 0; }
+        
+        /* Estilos para estadísticas avanzadas */
+        .advanced-stat { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .advanced-stat .stat-label { color: rgba(255,255,255,0.8); }
+        .advanced-stat small { color: rgba(255,255,255,0.7); font-size: 12px; }
+        
+        /* Estilos para distribución por programa */
+        .program-distribution { margin-top: 20px; }
+        .program-distribution-grid { display: flex; flex-direction: column; gap: 16px; }
+        .program-item { display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .program-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .program-name { font-weight: 600; color: #1e3a8a; font-size: 14px; }
+        .program-count { color: #64748b; font-size: 12px; }
+        .program-bar { flex: 2; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .program-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+        .program-bar-fill.panaderia { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .program-bar-fill.belleza { background: linear-gradient(90deg, #ec4899, #be185d); }
+        .program-bar-fill.default { background: linear-gradient(90deg, #6b7280, #4b5563); }
+        .program-percentage { font-weight: 600; color: #1e3a8a; font-size: 14px; min-width: 40px; text-align: right; }
+        
         .mobile-menu-toggle { display: none; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 24px; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
         .alert { padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
@@ -779,6 +802,12 @@
             .admin-header h1 { font-size: 18px; }
             .sidebar-header { padding: 16px; }
             .sidebar-header h3 { font-size: 16px; }
+            
+            /* Estadísticas avanzadas responsive */
+            .advanced-stat { padding: 20px; }
+            .advanced-stat .stat-value { font-size: 28px; }
+            .program-item { padding: 12px; gap: 12px; }
+            .program-info { gap: 2px; }
         }
 
         .cuestionario-selector-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
@@ -3051,6 +3080,50 @@
                                 <p class="stat-label">Evaluaciones</p>
                             </div>
                             <div class="stat-card-icon blue"><i class="fas fa-clipboard-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Avanzadas -->
+                <div class="stats-grid" style="margin-top: 30px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-usuarios-recientes">0</h3>
+                                <p class="stat-label">Nuevos Estudiantes (30 días)</p>
+                            </div>
+                            <div class="stat-card-icon teal"><i class="fas fa-user-plus"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-engagement-rate">0.0</h3>
+                                <p class="stat-label">Tasa de Engagement</p>
+                                <small style="color: rgba(255,255,255,0.7); font-size: 12px;">Entregas por estudiante</small>
+                            </div>
+                            <div class="stat-card-icon indigo"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-completion-rate">0%</h3>
+                                <p class="stat-label">Completitud Evaluaciones</p>
+                                <small style="color: rgba(255,255,255,0.7); font-size: 12px;">Evaluaciones finalizadas</small>
+                            </div>
+                            <div class="stat-card-icon emerald"><i class="fas fa-trophy"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribución por Programa -->
+                <div class="stats-section" style="margin-top: 30px;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> Distribución por Programa</h3>
+                    <div class="program-distribution" id="program-distribution">
+                        <div class="empty-state">
+                            <i class="fas fa-chart-pie"></i>
+                            <p>Cargando distribución...</p>
                         </div>
                     </div>
                 </div>
@@ -6939,11 +7012,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 
                 console.log('All stats loaded in parallel');
                 
-                // Procesar usuarios
+                // Procesar usuarios con más detalle
                 let activeUsers = usuariosSnapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .filter(user => user.status === 'active');
-                
+
                 const uniqueUsers = {};
                 activeUsers.forEach(user => {
                     const email = user.email;
@@ -6951,17 +7024,54 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         uniqueUsers[email] = user;
                     }
                 });
-                
-                // Guardar en caché
+
+                // Calcular métricas avanzadas
+                const totalUsers = Object.keys(uniqueUsers).length;
+                const usersByProgram = {};
+                const usersBySede = {};
+                const recentUsers = activeUsers.filter(user =>
+                    user.approvedAt && (Date.now() - new Date(user.approvedAt).getTime()) < (30 * 24 * 60 * 60 * 1000) // Últimos 30 días
+                );
+
+                Object.values(uniqueUsers).forEach(user => {
+                    // Por programa
+                    const programa = user.programa || 'Sin programa';
+                    usersByProgram[programa] = (usersByProgram[programa] || 0) + 1;
+
+                    // Por sede
+                    const sede = user.sede || 'Sin sede';
+                    usersBySede[sede] = (usersBySede[sede] || 0) + 1;
+                });
+
+                // Calcular engagement (entregas por usuario)
+                const engagementRate = entregasSnapshot.size > 0 ? Math.round((entregasSnapshot.size / totalUsers) * 100) / 100 : 0;
+
+                // Calcular completitud de evaluaciones
+                let totalEvaluacionesCompletadas = 0;
+                respuestasSnapshot.forEach(doc => {
+                    const respuesta = doc.data();
+                    if (respuesta.completedAt) totalEvaluacionesCompletadas++;
+                });
+
+                const evaluacionesCompletionRate = evaluacionesSnapshot.size > 0 ?
+                    Math.round((totalEvaluacionesCompletadas / evaluacionesSnapshot.size) * 100) : 0;
+
+                // Guardar métricas avanzadas en caché
                 statsCache = {
                     videos: videosSnapshot.size,
                     clases: clasesSnapshot.size,
                     actividades: actividadesSnapshot.size,
                     materiales: materialesSnapshot.size,
                     entregas: entregasSnapshot.size,
-                    usuarios: Object.keys(uniqueUsers).length,
+                    usuarios: totalUsers,
                     cuestionarios: cuestionariosSnapshot.size,
-                    evaluaciones: evaluacionesSnapshot.size
+                    evaluaciones: evaluacionesSnapshot.size,
+                    // Métricas avanzadas
+                    usuariosRecientes: recentUsers.length,
+                    engagementRate: engagementRate,
+                    evaluacionesCompletionRate: evaluacionesCompletionRate,
+                    usersByProgram: usersByProgram,
+                    usersBySede: usersBySede
                 };
                 statsCacheTime = Date.now();
                 
@@ -6981,6 +7091,61 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             document.getElementById('stat-usuarios').textContent = stats.usuarios;
             document.getElementById('stat-cuestionarios').textContent = stats.cuestionarios;
             document.getElementById('stat-evaluaciones').textContent = stats.evaluaciones;
+            
+            // Aplicar métricas avanzadas
+            document.getElementById('stat-usuarios-recientes').textContent = stats.usuariosRecientes || 0;
+            document.getElementById('stat-engagement-rate').textContent = stats.engagementRate || 0;
+            document.getElementById('stat-completion-rate').textContent = `${stats.evaluacionesCompletionRate || 0}%`;
+            
+            // Mostrar distribución por programa
+            renderProgramDistribution(stats.usersByProgram || {});
+        }
+        
+        function renderProgramDistribution(usersByProgram) {
+            const container = document.getElementById('program-distribution');
+            if (!container) return;
+            
+            const totalUsers = Object.values(usersByProgram).reduce((sum, count) => sum + count, 0);
+            if (totalUsers === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-pie"></i><p>No hay datos de distribución disponibles</p></div>';
+                return;
+            }
+            
+            const programs = Object.entries(usersByProgram)
+                .sort(([,a], [,b]) => b - a) // Ordenar por cantidad descendente
+                .slice(0, 6); // Mostrar máximo 6 programas
+            
+            let html = '<div class="program-distribution-grid">';
+            
+            programs.forEach(([program, count]) => {
+                const percentage = Math.round((count / totalUsers) * 100);
+                const colorClass = getProgramColor(program);
+                
+                html += `
+                    <div class="program-item">
+                        <div class="program-info">
+                            <span class="program-name">${program}</span>
+                            <span class="program-count">${count} estudiantes</span>
+                        </div>
+                        <div class="program-bar">
+                            <div class="program-bar-fill ${colorClass}" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="program-percentage">${percentage}%</span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function getProgramColor(program) {
+            const colors = {
+                'Panadería': 'panaderia',
+                'Belleza': 'belleza',
+                'Sin programa': 'default'
+            };
+            return colors[program] || 'default';
         }
 
         // Usuarios pendientes

@@ -2666,6 +2666,112 @@
                 font-size: 1.25rem;
             }
         }
+
+        /* Lazy Loading Styles */
+        img.lazy {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        img.lazy.loaded {
+            opacity: 1;
+        }
+
+        /* Performance optimizations */
+        .content-loading {
+            position: relative;
+        }
+
+        .content-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 10000;
+            max-width: 400px;
+            animation: slideInRight 0.3s ease-out;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .notification-success {
+            border-left-color: #10b981;
+        }
+
+        .notification-success i {
+            color: #10b981;
+        }
+
+        .notification-error {
+            border-left-color: #ef4444;
+        }
+
+        .notification-error i {
+            color: #ef4444;
+        }
+
+        .notification-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .notification-warning i {
+            color: #f59e0b;
+        }
+
+        .notification i {
+            font-size: 1.25rem;
+            color: #3b82f6;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .notification-close:hover {
+            background: #f3f4f6;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 
     <style>
@@ -3447,6 +3553,175 @@
             text-align: center;
         }
     </style>
+
+    <!-- Performance Optimization Scripts -->
+    <script>
+        // Lazy Loading para imágenes
+        function lazyLoadImages() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        // Compresión automática de imágenes antes de subir
+        function compressImage(file, maxWidth = 1200, quality = 0.8) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+
+                img.onload = () => {
+                    // Calcular nuevas dimensiones manteniendo aspect ratio
+                    let { width, height } = img;
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Dibujar y comprimir
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                };
+
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Cache inteligente para contenido estático
+        const contentCache = new Map();
+        function getCachedContent(key) {
+            return contentCache.get(key);
+        }
+
+        function setCachedContent(key, data, ttl = 300000) { // 5 minutos por defecto
+            contentCache.set(key, {
+                data,
+                timestamp: Date.now(),
+                ttl
+            });
+        }
+
+        function isCacheValid(key) {
+            const cached = contentCache.get(key);
+            return cached && (Date.now() - cached.timestamp) < cached.ttl;
+        }
+
+        // Optimización de carga de clases con chunks
+        async function loadClaseOptimized(claseId) {
+            const cacheKey = `clase_${claseId}`;
+
+            if (isCacheValid(cacheKey)) {
+                return getCachedContent(cacheKey).data;
+            }
+
+            try {
+                const clase = await loadClaseDetail(claseId);
+                setCachedContent(cacheKey, clase);
+                return clase;
+            } catch (error) {
+                console.error('Error loading clase:', error);
+                throw error;
+            }
+        }
+
+        // Inicializar optimizaciones cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            lazyLoadImages();
+
+            // Optimizar carga de imágenes dinámicas
+            const observer = new MutationObserver(() => {
+                lazyLoadImages();
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            // Inicializar sistema de notificaciones
+            initializeNotifications();
+        });
+
+        // Sistema básico de notificaciones
+        function initializeNotifications() {
+            // Verificar si hay notificaciones pendientes al cargar
+            checkForNewContent();
+
+            // Verificar cada 5 minutos por nuevo contenido
+            setInterval(checkForNewContent, 300000);
+        }
+
+        async function checkForNewContent() {
+            try {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                if (!currentUser) return;
+
+                const lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
+                const currentTime = Date.now();
+
+                // Solo verificar si han pasado al menos 5 minutos
+                if (currentTime - parseInt(lastCheck) < 300000) return;
+
+                const snapshot = await getDocs(collection(db, 'classes'));
+                let newContentCount = 0;
+
+                snapshot.forEach(doc => {
+                    const clase = doc.data();
+                    const claseDate = clase.fechaCreacion ? new Date(clase.fechaCreacion.seconds * 1000) : new Date();
+
+                    // Verificar si es del programa del usuario
+                    if (clase.programa === currentUser.programa && claseDate.getTime() > parseInt(lastCheck)) {
+                        newContentCount++;
+                    }
+                });
+
+                if (newContentCount > 0) {
+                    showNotification(`¡${newContentCount} nuevo${newContentCount > 1 ? 's' : ''} contenido${newContentCount > 1 ? 's' : ''} disponible${newContentCount > 1 ? 's' : ''} en tu programa!`, 'info');
+                }
+
+                localStorage.setItem('lastNotificationCheck', currentTime.toString());
+
+            } catch (error) {
+                console.error('Error checking for new content:', error);
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="notification-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            // Agregar al DOM
+            document.body.appendChild(notification);
+
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+    </script>
 </head>
 <body>
     <header class="header">
@@ -7160,6 +7435,12 @@ window.onclick = function(event) {
 
 async function loadClaseDetail(id) {
     try {
+        // Mostrar indicador de carga
+        const contentElement = document.getElementById('clase-viewer-content');
+        if (contentElement) {
+            contentElement.innerHTML = '<div class="content-loading" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Cargando contenido...</div>';
+        }
+
         currentClaseId = id; // Guardar el ID de la clase actual
         const docRef = doc(db, 'classes', id);
         const docSnap = await getDoc(docRef);
