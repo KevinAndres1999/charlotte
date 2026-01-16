@@ -3,7 +3,7 @@ if (window.charlotteScriptLoaded) {
   console.log('Charlotte script already loaded, skipping...');
 } else {
   window.charlotteScriptLoaded = true;
-
+}
 // Manejo del modal y acceso de estudiantes (validación real con API)
 let studentAccessBtn, studentModal, closeModal, loginForm, loginMessage, studentArea, welcomeMsg, logoutBtn;
 let tabLogin, tabRegister, registerForm;
