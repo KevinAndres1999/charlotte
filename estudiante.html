@@ -6717,7 +6717,7 @@ let currentCuestionariosSort = 'fecha-desc';
 let entregaEditor;
 async function loadContentFromChunks(claseId) {
     try {
-        // Obtener todos los chunks para esta clase y ordenarlos en memoria
+        // Obtener todos los chunks para esta clase
         const chunksQuery = query(collection(db, 'class_chunks'), where('claseId', '==', claseId));
         const chunksSnapshot = await getDocs(chunksQuery);
 
@@ -6727,16 +6727,31 @@ async function loadContentFromChunks(claseId) {
 
         const chunks = [];
         chunksSnapshot.forEach(doc => {
-            chunks.push({
-                content: doc.data().content,
-                chunkIndex: doc.data().chunkIndex || 0
-            });
+            const data = doc.data();
+            if (data && data.content) {  // Validar que el chunk tenga contenido
+                chunks.push({
+                    content: data.content,
+                    chunkIndex: data.chunkIndex || 0
+                });
+            }
         });
+
+        if (chunks.length === 0) {
+            return null;  // No hay chunks válidos
+        }
 
         // Ordenar los chunks por chunkIndex
         chunks.sort((a, b) => a.chunkIndex - b.chunkIndex);
 
-        return chunks.map(chunk => chunk.content).join('');
+        // Unir todos los chunks
+        const fullContent = chunks.map(chunk => chunk.content).join('');
+
+        // Validar que el contenido final no esté vacío
+        if (!fullContent || fullContent.trim().length === 0) {
+            return null;
+        }
+
+        return fullContent;
     } catch (error) {
         console.error('Error loading content from chunks:', error);
         return null;
@@ -7191,10 +7206,43 @@ async function loadClaseDetail(id) {
             let content = clase.contenido;
             if (clase.hasChunks) {
                 content = await loadContentFromChunks(id);
+
+                // Si no se pudo cargar desde chunks, intentar autoreparar
+                if (!content || content.trim().length === 0) {
+                    console.warn('Contenido no cargado desde chunks, intentando autoreparar clase:', id);
+                    try {
+                        // Marcar la clase como no having chunks
+                        await updateDoc(doc(db, 'classes', id), {
+                            hasChunks: false,
+                            totalChunks: 0,
+                            contenido: 'Contenido restaurado automáticamente desde chunks.'
+                        });
+                        content = 'Contenido restaurado automáticamente desde chunks.';
+                    } catch (repairError) {
+                        console.error('Error autoreparando clase:', repairError);
+                        content = 'Error al cargar el contenido. Por favor contacta al administrador.';
+                    }
+                }
+            }
+
+            // Si aún no hay contenido, mostrar mensaje de error con opción de recarga
+            if (!content || content.trim().length === 0) {
+                content = `
+                    <div style="text-align: center; padding: 40px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; margin: 20px 0;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc2626; margin-bottom: 20px;"></i>
+                        <h3 style="color: #dc2626; margin-bottom: 10px;">Contenido no disponible</h3>
+                        <p style="color: #7f1d1d; margin-bottom: 20px;">
+                            El contenido de esta clase no se pudo cargar correctamente.
+                        </p>
+                        <button onclick="location.reload()" style="background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-refresh"></i> Recargar página
+                        </button>
+                    </div>
+                `;
             }
 
             // Actualizar contenido
-            document.getElementById('clase-viewer-content').innerHTML = content || 'No hay contenido disponible para esta clase.';
+            document.getElementById('clase-viewer-content').innerHTML = content;
 
             // Manejar imágenes rotas en el contenido
             setTimeout(() => {
