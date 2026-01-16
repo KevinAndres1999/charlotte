@@ -15795,22 +15795,136 @@ REGLAS ESTRICTAS:
                     practicasMap[estudianteId] = practica;
                 });
 
-                // Cargar TODAS las calificaciones específicas por módulo de una vez (optimización)
-                const modulosCalificaciones = {};
+                // Calcular calificaciones de evaluaciones por módulo en tiempo real
+                const evaluacionesPorModulo = {};
                 try {
-                    const allModulosSnapshot = await getDocs(collection(db, 'calificaciones_modulos'));
-                    console.log('Total calificaciones por módulo cargadas:', allModulosSnapshot.size);
+                    // Cargar preguntas originales para el cálculo
+                    const preguntasOriginalesMap = new Map();
+                    try {
+                        const preguntasOriginalesSnapshot = await getDocs(collection(db, 'preguntas_originales'));
+                        preguntasOriginalesSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            const key = (data.texto || data.pregunta || '').trim().toLowerCase();
+                            if (key) {
+                                preguntasOriginalesMap.set(key, {
+                                    correctaIdx: data.correctaIdx || data.correcta,
+                                    pregunta: data
+                                });
+                            }
+                        });
+                    } catch (error) {
+                        console.log('Error cargando preguntas originales:', error);
+                    }
 
-                    allModulosSnapshot.forEach(doc => {
-                        const calif = doc.data();
-                        const estudianteId = calif.estudianteId;
-                        if (!modulosCalificaciones[estudianteId]) {
-                            modulosCalificaciones[estudianteId] = {};
-                        }
-                        modulosCalificaciones[estudianteId][calif.modulo] = calif;
+                    // Cargar todas las evaluaciones y respuestas
+                    const [evaluacionesSnapshot, respuestasSnapshot] = await Promise.all([
+                        getDocs(collection(db, 'evaluaciones')),
+                        getDocs(collection(db, 'respuestasEvaluaciones'))
+                    ]);
+
+                    // Crear mapa de evaluaciones
+                    const evaluacionesMap = {};
+                    evaluacionesSnapshot.forEach(doc => {
+                        const evaluacion = doc.data();
+                        evaluacionesMap[doc.id] = evaluacion;
                     });
+
+                    // Crear mapa de respuestas por estudiante
+                    const respuestasPorEstudiante = {};
+                    respuestasSnapshot.forEach(doc => {
+                        const respuesta = doc.data();
+                        const estudianteId = respuesta.estudianteId;
+                        const evaluacionId = respuesta.evaluacionId;
+
+                        if (!respuestasPorEstudiante[estudianteId]) {
+                            respuestasPorEstudiante[estudianteId] = {};
+                        }
+
+                        // Mantener solo la respuesta más reciente
+                        if (!respuestasPorEstudiante[estudianteId][evaluacionId] ||
+                            new Date(respuesta.fechaRespuesta) > new Date(respuestasPorEstudiante[estudianteId][evaluacionId].fechaRespuesta)) {
+                            respuestasPorEstudiante[estudianteId][evaluacionId] = respuesta;
+                        }
+                    });
+
+                    // Función para recalcular calificación
+                    function recalcularCalificacion(respuestas, preguntas) {
+                        if (!respuestas || !preguntas || preguntas.length === 0) return null;
+
+                        let correctas = 0;
+                        preguntas.forEach((pregunta, idx) => {
+                            const respuestaEstudiante = respuestas[idx];
+                            const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
+
+                            let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta :
+                                                       (pregunta.correcta !== undefined ? pregunta.correcta : null);
+
+                            if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
+                                const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
+                                if (preguntaOriginal) {
+                                    respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
+                                }
+                            }
+
+                            if (respuestaEstudiante === respuestaCorrectaIdx) {
+                                correctas++;
+                            }
+                        });
+
+                        return Math.round((correctas / preguntas.length) * 100);
+                    }
+
+                    // Calcular notas por módulo para cada estudiante
+                    estudiantesFiltrados.forEach(estudianteInfo => {
+                        const estudianteId = estudianteInfo.data.email || estudianteInfo.id;
+
+                        if (respuestasPorEstudiante[estudianteId]) {
+                            const respuestasEstudiante = respuestasPorEstudiante[estudianteId];
+                            const moduloNotas = { modulo1: { total: 0, count: 0 }, modulo2: { total: 0, count: 0 }, modulo3: { total: 0, count: 0 }, modulo4: { total: 0, count: 0 } };
+
+                            Object.entries(respuestasEstudiante).forEach(([evaluacionId, respuesta]) => {
+                                const evaluacion = evaluacionesMap[evaluacionId];
+                                if (evaluacion && respuesta.respuestas && evaluacion.preguntas) {
+                                    const calificacionRecalculada = recalcularCalificacion(respuesta.respuestas, evaluacion.preguntas);
+
+                                    if (calificacionRecalculada !== null) {
+                                        // Determinar módulo
+                                        const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
+                                        const tituloEvaluacion = (evaluacion.titulo || '').toLowerCase();
+
+                                        let moduloAsignado = null;
+                                        if (moduloEvaluacion.includes('panaderia') || moduloEvaluacion.includes('panadería') || moduloEvaluacion.includes('panes') || tituloEvaluacion.includes('panaderia') || tituloEvaluacion.includes('panadería') || tituloEvaluacion.includes('panes')) {
+                                            moduloAsignado = 'modulo1';
+                                        } else if (moduloEvaluacion.includes('galleteria') || moduloEvaluacion.includes('galletería') || moduloEvaluacion.includes('galletas') || tituloEvaluacion.includes('galleteria') || tituloEvaluacion.includes('galletería') || tituloEvaluacion.includes('galletas')) {
+                                            moduloAsignado = 'modulo2';
+                                        } else if (moduloEvaluacion.includes('pasteleria') || moduloEvaluacion.includes('pastelería') || moduloEvaluacion.includes('pasteles') || tituloEvaluacion.includes('pasteleria') || tituloEvaluacion.includes('pastelería') || tituloEvaluacion.includes('pasteles')) {
+                                            moduloAsignado = 'modulo3';
+                                        } else if (moduloEvaluacion.includes('reposteria') || moduloEvaluacion.includes('repostería') || tituloEvaluacion.includes('reposteria') || tituloEvaluacion.includes('repostería')) {
+                                            moduloAsignado = 'modulo4';
+                                        }
+
+                                        if (moduloAsignado) {
+                                            const notaEscala2 = (calificacionRecalculada / 100) * 2;
+                                            moduloNotas[moduloAsignado].total += notaEscala2;
+                                            moduloNotas[moduloAsignado].count++;
+                                        }
+                                    }
+                                }
+                            });
+
+                            // Calcular promedios
+                            evaluacionesPorModulo[estudianteId] = {};
+                            for (let i = 1; i <= 4; i++) {
+                                const moduloKey = `modulo${i}`;
+                                const datos = moduloNotas[moduloKey];
+                                evaluacionesPorModulo[estudianteId][moduloKey] = datos.count > 0 ? datos.total / datos.count : 0;
+                            }
+                        }
+                    });
+
+                    console.log('Evaluaciones calculadas por módulo:', evaluacionesPorModulo);
                 } catch (error) {
-                    console.log('Error cargando calificaciones por módulo:', error);
+                    console.log('Error calculando evaluaciones por módulo:', error);
                 }
 
 
@@ -15873,7 +15987,15 @@ REGLAS ESTRICTAS:
 
                         // Valores por defecto o existentes
                         const actividades = moduloData.actividades || 0;
-                        const evaluaciones = moduloData.evaluaciones || 0;
+                        // Usar evaluaciones calculadas en tiempo real, pero permitir override manual si existe
+                        let evaluacionesCalculadas = 0;
+                        if (evaluacionesPorModulo[estudianteId] && evaluacionesPorModulo[estudianteId][moduloKey] !== undefined) {
+                            evaluacionesCalculadas = evaluacionesPorModulo[estudianteId][moduloKey];
+                        }
+                        // Usar la guardada si existe y es mayor, de lo contrario usar la calculada
+                        const evaluaciones = (moduloData.evaluaciones !== undefined && moduloData.evaluaciones > evaluacionesCalculadas) 
+                                           ? moduloData.evaluaciones 
+                                           : evaluacionesCalculadas;
                         const practica = moduloData.practica || 0;
                         const moduloTotal = actividades + evaluaciones + practica;
 
