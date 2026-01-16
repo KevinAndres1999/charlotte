@@ -8586,6 +8586,42 @@ function actualizarNotasEvaluacionesPorModulo() {
         // Esto preserva las notas existentes y solo las actualiza si la calculada es mayor
         const notaFinal = Math.max(notaGuardada, notaCalculada);
         
+        // Si la nota calculada es mayor que la guardada, guardar automáticamente en Firebase
+        if (notaCalculada > notaGuardada && datos.count > 0) {
+            try {
+                // Buscar si ya existe una calificación para este módulo y estudiante
+                const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
+                    where('estudianteId', '==', currentUser.email),
+                    where('modulo', '==', moduloKey),
+                    limit(1)
+                ));
+
+                const califData = {
+                    estudianteId: currentUser.email,
+                    modulo: moduloKey,
+                    evaluaciones: notaCalculada,
+                    fechaActualizacion: new Date().toISOString(),
+                    actualizadoPor: 'auto-calculo'
+                };
+
+                if (!existingSnapshot.empty) {
+                    // Actualizar existente
+                    const docId = existingSnapshot.docs[0].id;
+                    await doc(db, 'calificaciones_modulos', docId).update(califData);
+                    console.log(`Calificación evaluaciones actualizada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
+                } else {
+                    // Crear nueva
+                    await addDoc(collection(db, 'calificaciones_modulos'), califData);
+                    console.log(`Calificación evaluaciones creada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
+                }
+                
+                // Actualizar el valor guardado para evitar re-guardar en la misma sesión
+                window.calificacionesEvaluacionesGuardadas[moduloKey] = notaCalculada;
+            } catch (error) {
+                console.error('Error guardando calificación calculada:', error);
+            }
+        }
+        
         const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
         if (elemento) {
             elemento.textContent = notaFinal.toFixed(1);
