@@ -7052,13 +7052,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             
             try {
                 // Cargar todas las colecciones en paralelo para mayor velocidad
-                const [videosSnapshot, clasesSnapshot, actividadesSnapshot, materialesSnapshot, entregasSnapshot, respuestasSnapshot, usuariosSnapshot, cuestionariosSnapshot, evaluacionesSnapshot] = await Promise.all([
+                const [videosSnapshot, clasesSnapshot, actividadesSnapshot, materialesSnapshot, entregasSnapshot, respuestasSnapshot, respuestasEvaluacionesSnapshot, usuariosSnapshot, cuestionariosSnapshot, evaluacionesSnapshot] = await Promise.all([
                     getDocs(collection(db, 'content')),
                     getDocs(collection(db, 'classes')),
                     getDocs(collection(db, 'activities')),
                     getDocs(collection(db, 'materials')),
                     getDocs(collection(db, 'entregas')),
                     getDocs(collection(db, 'respuestas')),
+                    getDocs(collection(db, 'respuestasEvaluaciones')),
                     getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
                     getDocs(collection(db, 'cuestionarios')),
                     getDocs(collection(db, 'evaluaciones'))
@@ -7130,12 +7131,15 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 let sumaCalificaciones = 0;
                 let countCalificaciones = 0;
                 
+                // Crear set de IDs de evaluaciones existentes para filtrar respuestas huérfanas
+                const evaluacionesIds = new Set(evaluacionesSnapshot.docs.map(doc => doc.id));
+                
                 // Procesar respuestas agrupadas por evaluación, tomando solo la última por estudiante
                 const respuestasPorEvaluacion = {};
                 
-                respuestasSnapshot.forEach(doc => {
+                respuestasEvaluacionesSnapshot.forEach(doc => {
                     const respuesta = doc.data();
-                    if (respuesta.evaluacionId && respuesta.calificacion !== undefined) {
+                    if (respuesta.evaluacionId && respuesta.calificacion !== undefined && evaluacionesIds.has(respuesta.evaluacionId)) {
                         if (!respuestasPorEvaluacion[respuesta.evaluacionId]) {
                             respuestasPorEvaluacion[respuesta.evaluacionId] = {};
                         }
