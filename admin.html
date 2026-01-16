@@ -3010,6 +3010,103 @@
         }
     </script>
 
+    <!-- Script para funciones de filtrado -->
+    <script>
+        // Variables globales para filtrado
+        let allPendingUsers = [];
+
+        function filterUsuarios() {
+            renderPendingUsers();
+        }
+
+        function renderPendingUsers() {
+            const container = document.getElementById('usuarios-pendientes');
+            if (!allPendingUsers || allPendingUsers.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: white;">Cargando usuarios pendientes...</p>';
+                return;
+            }
+            
+            const searchTerm = document.getElementById('usuariosSearch').value.toLowerCase();
+            const programaFilter = document.getElementById('filterProgramaPendientes').value;
+            const sedeFilter = document.getElementById('filterSedePendientes').value;
+            const horarioFilter = document.getElementById('filterHorarioPendientes').value;
+
+            let filtered = allPendingUsers.filter(user => {
+                const matchesSearch = !searchTerm ||
+                    user.name.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm);
+                const matchesPrograma = !programaFilter ||
+                    user.programa === programaFilter;
+                const matchesSede = !sedeFilter ||
+                    user.sede === sedeFilter;
+                const matchesHorario = !horarioFilter ||
+                    user.horario === horarioFilter;
+                return matchesSearch && matchesPrograma && matchesSede && matchesHorario;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="margin: 0; font-size: 1.1rem;">No hay solicitudes pendientes</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const programaColores = {
+                'Panadería y Pastelería': { bg: '#fffbeb', border: '#f59e0b', icon: 'fa-bread-slice' },
+                'Belleza Integral': { bg: '#fdf2f8', border: '#ec4899', icon: 'fa-cut' },
+                'Asesoría Técnica': { bg: '#f5f3ff', border: '#8b5cf6', icon: 'fa-chalkboard-teacher' }
+            };
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1rem; padding: 0.5rem;">
+                    ${filtered.map(user => {
+                        const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user' };
+                        return `
+                            <div style="background: ${colores.bg}; border: 2px solid ${colores.border}; border-radius: 16px; padding: 1.25rem; position: relative; transition: transform 0.2s, box-shadow 0.2s;" 
+                                 onmouseenter="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)';"
+                                 onmouseleave="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                                    <div style="width: 50px; height: 50px; background: ${colores.border}; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fas ${colores.icon}" style="color: white; font-size: 1.25rem;"></i>
+                                    </div>
+                                    <div style="flex: 1; min-width: 0;">
+                                        <h4 style="margin: 0 0 0.25rem 0; font-size: 1rem; color: #1f2937; font-weight: 600;">${user.name}</h4>
+                                        <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #6b7280; word-break: break-all;">${user.email}</p>
+                                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-graduation-cap"></i> ${user.programa || 'Sin programa'}
+                                            </span>
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-map-marker-alt"></i> ${user.sede || 'Sin sede'}
+                                            </span>
+                                            <span style="background: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; color: #374151; border: 1px solid #e5e7eb;">
+                                                <i class="fas fa-clock"></i> ${user.horario || 'Sin horario'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: flex-end;">
+                                    <button onclick="editarUsuarioPendiente('${user.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button onclick="aprobarUsuario('${user.id}')" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-check"></i> Aprobar
+                                    </button>
+                                    <button onclick="rechazarUsuario('${user.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+    </script>
+
     <!-- PWA Script -->
     <script src="pwa.js"></script>
 </head><body>
@@ -6307,7 +6404,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         let dashboardLoaded = false;
         let usuariosPendientesLoaded = false;
         let usuariosAprobadosLoaded = false;
-        let allPendingUsers = [];
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {

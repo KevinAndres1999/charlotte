@@ -27,10 +27,10 @@ async function listEvaluaciones() {
       });
     });
 
-    evaluaciones.forEach(eval => {
-      console.log(`ID: ${eval.id}`);
-      console.log(`Título: ${eval.titulo}`);
-      console.log(`Fecha creación: ${eval.fechaCreacion}`);
+    evaluaciones.forEach(evaluacion => {
+      console.log(`ID: ${evaluacion.id}`);
+      console.log(`Título: ${evaluacion.titulo}`);
+      console.log(`Fecha creación: ${evaluacion.fechaCreacion}`);
       console.log('---');
     });
 
