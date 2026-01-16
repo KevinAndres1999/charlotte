@@ -3826,7 +3826,7 @@
             margin-bottom: 30px;
         }
 
-        .grade-card {
+        .new-grade-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 25px;
@@ -3835,18 +3835,18 @@
             color: #333;
         }
 
-        .grade-card:hover {
+        .new-grade-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
 
-        .grade-card-header {
+        .new-grade-card-header {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .grade-card-icon {
+        .new-grade-card-icon {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -3858,17 +3858,17 @@
             color: white;
         }
 
-        .grade-card-title {
+        .new-grade-card-title {
             font-size: 1.3rem;
             font-weight: 600;
             margin: 0;
         }
 
-        .grade-card-content {
+        .new-grade-card-content {
             margin-bottom: 20px;
         }
 
-        .grade-item {
+        .new-grade-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -3876,54 +3876,54 @@
             border-bottom: 1px solid #eee;
         }
 
-        .grade-item:last-child {
+        .new-grade-item:last-child {
             border-bottom: none;
         }
 
-        .grade-label {
+        .new-grade-label {
             font-weight: 500;
             color: #555;
         }
 
-        .grade-value {
+        .new-grade-value {
             font-weight: 600;
             font-size: 1.1rem;
         }
 
-        .grade-value.excellent {
+        .new-grade-value.excellent {
             color: #28a745;
         }
 
-        .grade-value.good {
+        .new-grade-value.good {
             color: #17a2b8;
         }
 
-        .grade-value.average {
+        .new-grade-value.average {
             color: #ffc107;
         }
 
-        .grade-value.needs-improvement {
+        .new-grade-value.needs-improvement {
             color: #dc3545;
         }
 
-        .grade-card-footer {
+        .new-grade-card-footer {
             text-align: center;
             padding-top: 15px;
             border-top: 1px solid #eee;
         }
 
-        .final-grade {
+        .new-final-grade {
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 5px;
         }
 
-        .grade-percentage {
+        .new-grade-percentage {
             font-size: 1.1rem;
             color: #666;
         }
 
-        .progress-bar {
+        .new-progress-bar {
             width: 100%;
             height: 8px;
             background: #e9ecef;
@@ -3932,21 +3932,21 @@
             margin: 10px 0;
         }
 
-        .progress-fill {
+        .new-progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #28a745, #20c997);
             transition: width 0.3s ease;
         }
 
-        .progress-fill.good {
+        .new-progress-fill.good {
             background: linear-gradient(90deg, #17a2b8, #6f42c1);
         }
 
-        .progress-fill.average {
+        .new-progress-fill.average {
             background: linear-gradient(90deg, #ffc107, #fd7e14);
         }
 
-        .progress-fill.needs-improvement {
+        .new-progress-fill.needs-improvement {
             background: linear-gradient(90deg, #dc3545, #e83e8c);
         }
 
@@ -3991,13 +3991,13 @@
         }
 
         /* Animaciones */
-        .grade-card {
+        .new-grade-card {
             opacity: 0;
             transform: translateY(20px);
             animation: fadeInUp 0.6s ease forwards;
         }
 
-        .grade-card.animate-in {
+        .new-grade-card.animate-in {
             opacity: 1;
             transform: translateY(0);
         }
@@ -4009,10 +4009,10 @@
             }
         }
 
-        .grade-card:nth-child(1) { animation-delay: 0.1s; }
-        .grade-card:nth-child(2) { animation-delay: 0.2s; }
-        .grade-card:nth-child(3) { animation-delay: 0.3s; }
-        .grade-card:nth-child(4) { animation-delay: 0.4s; }
+        .new-grade-card:nth-child(1) { animation-delay: 0.1s; }
+        .new-grade-card:nth-child(2) { animation-delay: 0.2s; }
+        .new-grade-card:nth-child(3) { animation-delay: 0.3s; }
+        .new-grade-card:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
@@ -4807,7 +4807,7 @@
                 <div class="welcome-banner clase-viewer-banner">
                     <div class="clase-viewer-header">
                         <div class="clase-viewer-nav">
-                            <button class="btn btn-secondary" onclick="showSection('clases')">
+                            <button class="btn btn-secondary" onclick="volverDesdeClaseViewer()">
                                 <i class="fas fa-arrow-left"></i> Volver a Clases
                             </button>
                         </div>
@@ -4995,6 +4995,17 @@ try {
     const db = getFirestore(app);
     const auth = getAuth(app);
     
+    // Asignar funciones globales para compatibilidad
+    window.db = db;
+    window.getDocs = getDocs;
+    window.collection = collection;
+    window.query = query;
+    window.where = where;
+    window.doc = doc;
+    window.getDoc = getDoc;
+    window.updateDoc = updateDoc;
+    window.addDoc = addDoc;
+    
     console.log('Firebase initialized successfully');
 
     // Variable global para el ID de la clase actual en el viewer
@@ -5030,6 +5041,13 @@ if (window.history && window.history.pushState) {
 // Interceptar el botón atrás del navegador
 window.addEventListener('popstate', function(event) {
     if (event.state && event.state.section) {
+        // Si estamos volviendo desde clase-viewer, necesitamos manejar especial
+        if (document.querySelector('.section[id="clase-viewer"]').classList.contains('active')) {
+            // Ocultar clase-viewer y mostrar la sección anterior
+            document.querySelector('.section[id="clase-viewer"]').classList.remove('active');
+            document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'none';
+        }
+        
         // Ir a la sección guardada en el estado
         showSectionV2(event.state.section, true);
         
@@ -5052,24 +5070,62 @@ window.addEventListener('popstate', function(event) {
             }
         }
     } else {
-        // Por defecto, ir al dashboard
-        showSectionV2('dashboard');
+        // Si no hay estado, verificar si estamos en clase-viewer
+        if (document.querySelector('.section[id="clase-viewer"]').classList.contains('active')) {
+            // Volver a la sección de clases
+            document.querySelector('.section[id="clase-viewer"]').classList.remove('active');
+            document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'none';
+            showSectionV2('clases', true);
+            window.loadClases();
+        } else {
+            // Por defecto, ir al dashboard
+            showSectionV2('dashboard');
+        }
     }
 });
 
 // Restaurar la sección activa al recargar la página
 const savedSection = sessionStorage.getItem('activeSection');
-if (savedSection && savedSection !== 'dashboard') {
+if (savedSection) {
     // Esperar a que el DOM esté listo antes de restaurar la sección
     window.addEventListener('DOMContentLoaded', () => {
-        showSectionV2(savedSection);
+        if (savedSection === 'clase-viewer') {
+            // Si estábamos en clase-viewer, restaurar la clase específica
+            const savedClaseId = sessionStorage.getItem('currentClaseId');
+            if (savedClaseId) {
+                loadClaseDetail(savedClaseId);
+            } else {
+                // Si no hay clase guardada, ir a clases
+                showSectionV2('clases');
+                window.loadClases();
+            }
+        } else {
+            showSectionV2(savedSection);
+        }
     });
-} else if (!savedSection) {
+} else {
     // Si no hay sección guardada, establecer dashboard por defecto
     sessionStorage.setItem('activeSection', 'dashboard');
 }
 
-// =================== FUNCIONES DE CARGA ===================
+// Función para volver desde el viewer de clase
+function volverDesdeClaseViewer() {
+    // Ocultar clase-viewer
+    document.querySelector('.section[id="clase-viewer"]').classList.remove('active');
+    document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'none';
+    
+    // Determinar a qué sección volver (clases por defecto)
+    const sectionToReturn = sessionStorage.getItem('activeSection') || 'clases';
+    
+    // Usar history.back() para simular el botón atrás del navegador
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        // Si no hay historial, ir directamente a clases
+        showSectionV2('clases');
+        window.loadClases();
+    }
+}
 function getVideoId(url) {
     const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
     return match ? match[1] : null;
@@ -5100,22 +5156,12 @@ function filterByUserAccess(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return [];
 
-    console.log('Filtrando', items.length, 'items para usuario:', {
-        programa: currentUser.programa,
-        sede: currentUser.sede,
-        horario: currentUser.horario,
-        email: currentUser.email
-    });
-
     const filtered = items.filter(item => {
-        console.log('Evaluando item:', item.titulo, 'programa:', item.programa, 'sedes:', item.sedes, 'horarios:', item.horarios);
 
         // Filtrar por programa
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
-        console.log('Comparando programas:', itemPrograma, 'vs', userPrograma);
         if (!itemPrograma || itemPrograma !== userPrograma) {
-            console.log('❌ Rechazado por programa');
             return false;
         }
 
@@ -5123,15 +5169,12 @@ function filterByUserAccess(items) {
         if (item.combinacionesPermitidas && Array.isArray(item.combinacionesPermitidas) && item.combinacionesPermitidas.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
             const userHorario = (currentUser.horario || '').toString().trim();
-            console.log('Comparando combinaciones - Item combinaciones:', JSON.stringify(item.combinacionesPermitidas), 'User sede+horario:', JSON.stringify({sede: userSede, horario: userHorario}));
 
             const combinacionPermitida = item.combinacionesPermitidas.some(combo =>
                 combo.sede === userSede && combo.horario === userHorario
             );
 
-            console.log('User combinación permitida:', combinacionPermitida);
             if (!combinacionPermitida) {
-                console.log('❌ Rechazado por combinación no permitida');
                 return false;
             }
         }
@@ -5140,55 +5183,32 @@ function filterByUserAccess(items) {
             // Filtrar por sede (solo si el item tiene sedes definidas)
             if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
                 const userSede = (currentUser.sede || '').toString().trim();
-                console.log('Comparando sedes - Item sedes:', JSON.stringify(item.sedes), 'User sede:', JSON.stringify(userSede));
-                console.log('User sede existe:', !!userSede, 'User sede en array:', item.sedes.includes(userSede));
                 if (!userSede || !item.sedes.includes(userSede)) {
-                    console.log('❌ Rechazado por sede');
                     return false;
                 }
-            } else {
-                console.log('✅ Sin filtro de sede (sedes no definidas o vacías)');
             }
 
             // Filtrar por horario (solo si el item tiene horarios definidos)
             if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').toString().trim();
-                console.log('Comparando horarios - Item horarios:', JSON.stringify(item.horarios), 'User horario:', JSON.stringify(userHorario));
-                console.log('User horario existe:', !!userHorario, 'User horario en array:', item.horarios.includes(userHorario));
                 if (!userHorario || !item.horarios.includes(userHorario)) {
-                    console.log('❌ Rechazado por horario');
                     return false;
                 }
-            } else {
-                console.log('✅ Sin filtro de horario (horarios no definidos o vacíos)');
             }
         }
 
         // Filtrar por fechas de disponibilidad
         const now = new Date();
         if (item.fechaInicio && new Date(item.fechaInicio) > now) {
-            console.log('❌ Rechazado por fecha de inicio futura:', item.fechaInicio);
             return false;
         }
         if (item.fechaFin && new Date(item.fechaFin) < now) {
-            console.log('❌ Rechazado por fecha de fin pasada:', item.fechaFin);
             return false;
         }
 
-        console.log('✅ Item aprobado');
         return true;
     });
 
-    console.log('Resultado del filtro:', filtered.length, 'items pasaron');
-    
-    // Debug: mostrar qué items pasaron el filtro
-    console.log('Items que pasaron el filtro:', filtered.map(item => ({
-        id: item.id,
-        titulo: item.titulo,
-        programa: item.programa,
-        combinacionesPermitidas: item.combinacionesPermitidas
-    })));
-    
     return filtered;
 }
 
@@ -5384,12 +5404,9 @@ function showSectionV2(sectionId, noPush = false) {
         console.error('showSection called with null or undefined sectionId');
         return;
     }
-    console.log('showSection called with:', sectionId);
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    console.log('About to get element:', sectionId);
     const section = document.getElementById(sectionId);
-    console.log('Element found:', section);
     if (section) {
         section.classList.add('active');
     } else {
@@ -5624,7 +5641,6 @@ let preguntasOriginalesMap = new Map(); // Mapa global de preguntas originales
 // Función para recalcular calificación (igual que admin.html)
 function recalcularCalificacion(respuestas, preguntas) {
     if (!respuestas || !preguntas || preguntas.length === 0) {
-        console.log('recalcularCalificacion: datos faltantes', {respuestas: !!respuestas, preguntas: !!preguntas, len: preguntas?.length});
         return null;
     }
     
@@ -5644,7 +5660,6 @@ function recalcularCalificacion(respuestas, preguntas) {
             }
         }
         
-        console.log(`Pregunta ${idx}: estudiante=${respuestaEstudiante}, correcta=${respuestaCorrectaIdx}, match=${respuestaEstudiante === respuestaCorrectaIdx}`);
         
         if (respuestaEstudiante === respuestaCorrectaIdx) {
             correctas++;
@@ -5652,7 +5667,6 @@ function recalcularCalificacion(respuestas, preguntas) {
     });
     
     const resultado = Math.round((correctas / preguntas.length) * 100);
-    console.log(`Calificación recalculada: ${correctas}/${preguntas.length} = ${resultado}%`);
     return resultado;
 }
 
@@ -5695,7 +5709,6 @@ async function cargarPreguntasOriginales() {
             }
         });
         
-        console.log('Preguntas originales cargadas:', preguntasOriginalesMap.size);
     } catch (error) {
         console.error('Error cargando preguntas originales:', error);
     }
@@ -5775,7 +5788,6 @@ function updateCuestionariosStats() {
 }
 
 function renderCuestionarios() {
-    console.log('renderCuestionarios called with filteredCuestionarios:', filteredCuestionarios.length, 'items');
     
     const container = document.getElementById('cuestionariosContainer');
     if (!container) {
@@ -5793,7 +5805,6 @@ function renderCuestionarios() {
     container.className = `clases-container ${currentCuestionariosViewMode}-view`;
 
     container.innerHTML = filteredCuestionarios.map((cuestionario, index) => {
-        console.log(`Rendering cuestionario ${index + 1}:`, cuestionario.titulo);
         
         const fecha = cuestionario.fechaRegistro ? new Date(cuestionario.fechaRegistro).toLocaleDateString('es-ES') : 'Sin fecha';
         const fechaLimite = cuestionario.fechaLimite ? new Date(cuestionario.fechaLimite) : null;
@@ -5865,9 +5876,7 @@ function renderCuestionarios() {
 
     if (filteredCuestionarios.length === 0) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No hay cuestionarios disponibles</h3><p>No se encontraron cuestionarios que coincidan con tu búsqueda.</p></div>';
-        console.log('No cuestionarios to render, showing empty state');
     } else {
-        console.log('Rendering', filteredCuestionarios.length, 'cuestionarios');
     }
 }
 
@@ -6304,14 +6313,12 @@ async function loadActividadesContent(selectedModulo) {
                     const data = doc.data();
                     entregasMap[data.actividadId] = data;
                 });
-                console.log('Entregas actualizadas:', entregasMap);
                 allActividades.forEach(actividad => {
                     const entrega = entregasMap[actividad.id];
                     if (entrega) {
                         actividad.isSubmitted = true;
                         actividad.isCompleted = entrega.calificada || false;
                         actividad.entrega = entrega;
-                        console.log(`Actividad ${actividad.id}: isCompleted = ${actividad.isCompleted}, calificada = ${entrega.calificada}`);
                     } else {
                         actividad.isSubmitted = false;
                         actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
@@ -6454,12 +6461,10 @@ function markAsDownloaded(materialId) {
     localStorage.setItem(`material-${materialId}-lastAccess`, new Date().toISOString());
 
     // Opcional: enviar analytics o tracking
-    console.log(`Material ${materialId} accedido`);
 }
 
 function isValidUrl(url) {
     if (!url || typeof url !== 'string') {
-        console.log('URL is null, undefined, or not a string:', url);
         return false;
     }
 
@@ -6467,19 +6472,16 @@ function isValidUrl(url) {
     url = url.trim();
 
     if (url === '') {
-        console.log('URL is empty after trimming');
         return false;
     }
 
     // Check if it's a relative URL (starts with /)
     if (url.startsWith('/')) {
-        console.log('URL is relative:', url);
         return true;
     }
 
     // Check if it's a protocol-relative URL (starts with //)
     if (url.startsWith('//')) {
-        console.log('URL is protocol-relative:', url);
         return true;
     }
 
@@ -6488,14 +6490,11 @@ function isValidUrl(url) {
 
         // Check if it has a valid protocol
         if (!['http:', 'https:', 'ftp:', 'mailto:'].includes(urlObj.protocol)) {
-            console.log('URL has invalid protocol:', urlObj.protocol, 'for URL:', url);
             return false;
         }
 
-        console.log('URL is valid:', url);
         return true;
     } catch (error) {
-        console.log('URL validation failed for:', url, 'Error:', error.message);
         return false;
     }
 }
@@ -6524,8 +6523,6 @@ function showModulosSelectorActividades() {
     } else if (programa.toLowerCase().includes('panadería') || programa.toLowerCase().includes('panaderia') || programa.toLowerCase().includes('pastelería') || programa.toLowerCase().includes('pasteleria')) {
         programaNormalizado = 'Panadería y Pastelería';
     }
-    
-    console.log('Programa del usuario:', programa, '-> Normalizado a:', programaNormalizado);
     
     // Definir módulos según el programa
     const modulosPorPrograma = {
@@ -6731,15 +6728,12 @@ async function loadClasesByModulo(selectedModulo) {
         });
 
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        console.log('Usuario actual:', currentUser);
-
         // Filtrar por acceso del usuario
         const filteredByAccess = filterByUserAccess(allClases);
         
         // Filtrar por módulo seleccionado
         const filteredByModulo = filteredByAccess.filter(clase => clase.modulo === selectedModulo);
         
-        console.log('Clases después del filtro:', filteredByModulo.length, 'de', allClases.length);
         filteredClases = filteredByModulo;
         
         // Mostrar contenido de clases
@@ -6777,8 +6771,6 @@ function showModulosSelectorEstudiante() {
     } else if (programa.toLowerCase().includes('panadería') || programa.toLowerCase().includes('panaderia') || programa.toLowerCase().includes('pastelería') || programa.toLowerCase().includes('pasteleria')) {
         programaNormalizado = 'Panadería y Pastelería';
     }
-    
-    console.log('Programa del usuario:', programa, '-> Normalizado a:', programaNormalizado);
     
     // Definir módulos según el programa
     const modulosPorPrograma = {
@@ -7887,9 +7879,11 @@ async function loadClaseDetail(id) {
 
             // Cambiar a la sección de clase-viewer
             // Guardar la sección actual antes de cambiar
-            const currentSection = sessionStorage.getItem('activeSection') || 'dashboard';
-            window.history.pushState({page: 'estudiante', section: currentSection}, 'Clases', 'estudiante.html');
-            showSection('clase-viewer');
+            const currentSection = sessionStorage.getItem('activeSection') || 'clases';
+            window.history.pushState({page: 'estudiante', section: currentSection, claseId: claseId}, 'Clases', 'estudiante.html');
+            showSectionV2('clase-viewer');
+            sessionStorage.setItem('activeSection', 'clase-viewer');
+            sessionStorage.setItem('currentClaseId', claseId);
 
             // Actualizar el menú de navegación para mostrar "Ver Clase"
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -8080,7 +8074,7 @@ function toggleBookmarkFromViewer() {
     }
 }
 
-function downloadClaseFromViewer() {
+async function downloadClaseFromViewer() {
     if (!currentClaseId) {
         showToast('No hay clase cargada', 'error');
         return;
@@ -8093,8 +8087,24 @@ function downloadClaseFromViewer() {
         return;
     }
     
+    // Cargar contenido usando la misma lógica que loadClaseDetail
+    let content = clase.contenido;
+    if (clase.hasChunks) {
+        try {
+            content = await loadContentFromChunks(currentClaseId);
+        } catch (error) {
+            console.error('Error cargando contenido desde chunks:', error);
+            content = clase.contenido || 'Error al cargar el contenido desde chunks.';
+        }
+    }
+    
+    // Si aún no hay contenido, usar mensaje por defecto
+    if (!content || content.trim().length === 0) {
+        content = 'No hay contenido disponible para esta clase.';
+    }
+    
     // Crear contenido HTML para descargar
-    const content = `
+    const htmlContent = `
         <!DOCTYPE html>
         <html>
         <head>
@@ -8116,14 +8126,14 @@ function downloadClaseFromViewer() {
             </div>
             ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
             <div class="content">
-                ${clase.contenido || 'Sin contenido'}
+                ${content}
             </div>
         </body>
         </html>
     `;
     
     // Crear blob y descargar
-    const blob = new Blob([content], { type: 'text/html' });
+    const blob = new Blob([htmlContent], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -8604,7 +8614,6 @@ async function submitCuestionario(cuestionarioId) {
 // =================== UTILIDADES PARA VALIDACIÓN DE URLs ===================
 async function validateAndFixMaterialUrls() {
     try {
-        console.log('🔍 Iniciando validación de URLs de materiales...');
 
         const materialesQuery = query(collection(db, 'materials'));
         const materialesSnapshot = await getDocs(materialesQuery);
@@ -8620,7 +8629,6 @@ async function validateAndFixMaterialUrls() {
                 const isValid = isValidUrl(material.url);
 
                 if (!isValid) {
-                    console.log(`❌ URL inválida en material ${materialId}:`, material.url);
 
                     // Intentar corregir URLs comunes
                     let fixedUrl = material.url.trim();
@@ -8631,7 +8639,6 @@ async function validateAndFixMaterialUrls() {
                         if (fixedUrl.includes('drive.google.com') || fixedUrl.includes('docs.google.com')) {
                             fixedUrl = 'https://' + fixedUrl;
                         } else {
-                            console.log(`⚠️ No se puede corregir automáticamente: ${fixedUrl}`);
                             invalidCount++;
                             continue;
                         }
@@ -8639,7 +8646,6 @@ async function validateAndFixMaterialUrls() {
 
                     // Verificar si la URL corregida es válida
                     if (isValidUrl(fixedUrl)) {
-                        console.log(`✅ Corrigiendo URL de ${material.url} a ${fixedUrl}`);
 
                         await updateDoc(doc.ref, {
                             url: fixedUrl,
@@ -8649,19 +8655,13 @@ async function validateAndFixMaterialUrls() {
 
                         fixedCount++;
                     } else {
-                        console.log(`❌ No se pudo corregir: ${fixedUrl}`);
                         invalidCount++;
                     }
                 }
             } else {
-                console.log(`⚠️ Material ${materialId} no tiene URL configurada`);
                 invalidCount++;
             }
         }
-
-        console.log(`📊 Resumen de validación:`);
-        console.log(`✅ URLs corregidas: ${fixedCount}`);
-        console.log(`❌ URLs que necesitan atención manual: ${invalidCount}`);
 
         if (fixedCount > 0) {
             alert(`Se corrigieron ${fixedCount} URLs automáticamente. ${invalidCount} URLs necesitan revisión manual.`);
@@ -8718,9 +8718,6 @@ async function actualizarNotasEvaluacionesPorModulo() {
     if (!currentUser) return;
 
     const programa = (currentUser.programa || '').toLowerCase();
-    console.log('=== INICIANDO CÁLCULO DE NOTAS ===');
-    console.log('Usuario:', currentUser.email, 'Programa:', programa);
-    console.log('Total evaluaciones en allEvaluaciones:', allEvaluaciones.length);
 
     // Mapeo de módulos dinámico según programa
     let moduloMap = {};
@@ -8760,12 +8757,6 @@ async function actualizarNotasEvaluacionesPorModulo() {
     
     // Calcular la nota promedio de evaluaciones por módulo
     allEvaluaciones.forEach(evaluacion => {
-        console.log('Procesando evaluación:', {
-            titulo: evaluacion.titulo,
-            modulo: evaluacion.modulo,
-            calificacionRecalculada: evaluacion.calificacionRecalculada
-        });
-        
         if (evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined) {
             // Determinar a qué módulo pertenece esta evaluación
             const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
@@ -8798,11 +8789,9 @@ async function actualizarNotasEvaluacionesPorModulo() {
             
             // Convertir calificación porcentual a escala de 2 puntos
             const notaEscala2 = (evaluacion.calificacionRecalculada / 100) * 2;
-            
+
             moduloNotas[moduloAsignado].total += notaEscala2;
             moduloNotas[moduloAsignado].count++;
-            
-            console.log(`Evaluación "${evaluacion.titulo}" -> ${moduloAsignado}: ${evaluacion.calificacionRecalculada}% = ${notaEscala2.toFixed(2)} pts`);
         }
     });
     
@@ -8823,7 +8812,6 @@ async function actualizarNotasEvaluacionesPorModulo() {
         
         // Si hay evaluaciones completadas, guardar/actualizar automáticamente en Firebase
         if (datos.count > 0) {
-            console.log(`Módulo ${moduloKey}: ${datos.count} evaluaciones, nota calculada: ${notaCalculada.toFixed(2)}, intentando guardar...`);
             // Validar que tenemos los datos necesarios
             if (!currentUser || !currentUser.email) {
                 console.error('Usuario no válido para guardar calificaciones');
@@ -8831,7 +8819,16 @@ async function actualizarNotasEvaluacionesPorModulo() {
             }
             
             try {
-                console.log(`Intentando guardar calificación para módulo ${moduloKey}, estudiante ${currentUser.email}, nota ${notaCalculada.toFixed(1)}`);
+                // Definir los datos de la calificación
+                const califData = {
+                    estudianteId: currentUser.email,
+                    modulo: moduloKey,
+                    evaluaciones: notaCalculada,
+                    actividades: 0, // Se actualizará desde otro lugar
+                    practica: 0, // Se actualizará desde otro lugar
+                    fechaActualizacion: new Date().toISOString(),
+                    programa: currentUser.programa || ''
+                };
                 
                 // Buscar si ya existe una calificación para este módulo y estudiante
                 const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
@@ -8839,32 +8836,13 @@ async function actualizarNotasEvaluacionesPorModulo() {
                     where('modulo', '==', moduloKey),
                     limit(1)
                 ));
-
-                console.log(`Query ejecutado, documentos encontrados: ${existingSnapshot.size}`);
-                if (existingSnapshot.size > 0) {
-                    console.log('Documento encontrado:', existingSnapshot.docs[0].data());
-                } else {
-                    console.log('No se encontró documento existente, se creará uno nuevo');
-                }
-
-                const califData = {
-                    estudianteId: currentUser.email,
-                    modulo: moduloKey,
-                    evaluaciones: notaCalculada,
-                    fechaActualizacion: new Date().toISOString(),
-                    actualizadoPor: 'auto-calculo'
-                };
-
                 if (!existingSnapshot.empty) {
                     // Actualizar existente
                     const docId = existingSnapshot.docs[0].id;
                     await updateDoc(doc(db, 'calificaciones_modulos', docId), califData);
-                    console.log(`Calificación evaluaciones actualizada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
                 } else {
                     // Crear nueva
-                    console.log('Creando nuevo documento con datos:', califData);
                     await addDoc(collection(db, 'calificaciones_modulos'), califData);
-                    console.log(`Calificación evaluaciones creada automáticamente para ${moduloKey}: ${notaCalculada.toFixed(1)}`);
                 }
                 
                 // Actualizar el valor guardado para evitar re-guardar en la misma sesión
@@ -8884,7 +8862,6 @@ async function actualizarNotasEvaluacionesPorModulo() {
         const elemento = document.getElementById(`${moduloKey}Evaluaciones`);
         if (elemento) {
             elemento.textContent = notaFinal.toFixed(1);
-            console.log(`${moduloKey}Evaluaciones: guardada=${notaGuardada.toFixed(1)}, calculada=${notaCalculada.toFixed(1)}, final=${notaFinal.toFixed(1)}`);
         }
         
         // También actualizar el score total del módulo
@@ -8933,7 +8910,7 @@ function actualizarScoreModulo(moduloNum) {
 
     // Actualizar color del valor de calificación
     if (scoreEl) {
-        scoreEl.className = 'final-grade';
+        scoreEl.className = 'new-final-grade';
         if (total >= 4.8) {
             scoreEl.classList.add('excellent');
         } else if (total >= 3.6) {
@@ -8962,9 +8939,9 @@ function actualizarTotalFinal() {
 
     const promedioFinal = modulosConDatos > 0 ? totalFinal / modulosConDatos : 0;
 
-    // Si no hay calificaciones, mostrar mensaje alternativo
+    // Si no hay calificaciones, mostrar mensaje alternativo SOLO si no hay interfaz nueva renderizada
     const container = document.getElementById('gradesContainer');
-    if (modulosConDatos === 0 && container) {
+    if (modulosConDatos === 0 && container && !container.querySelector('.grades-section')) {
         const noGradesHtml = `
             <div class="grades-section">
                 <div class="grades-header">
@@ -8982,7 +8959,6 @@ function actualizarTotalFinal() {
         return;
     }
 
-    console.log(`Total final: ${totalFinal.toFixed(1)}, Promedio: ${promedioFinal.toFixed(1)}, Módulos con datos: ${modulosConDatos}`);
     const totalScoreEl = document.getElementById('totalScore');
     const totalPonderadoEl = document.getElementById('totalPonderado');
 
@@ -9031,7 +9007,13 @@ function renderModulosCalificaciones() {
     }
 
     const container = document.getElementById('gradesContainer');
-    if (!container) return;
+    if (!container) {
+        console.error('Contenedor gradesContainer no encontrado');
+        return;
+    }
+
+    // Limpiar el contenedor antes de renderizar
+    container.innerHTML = '';
 
     let html = `
         <div class="grades-section">
@@ -9047,34 +9029,34 @@ function renderModulosCalificaciones() {
     modulos.forEach((modulo, index) => {
         const gradeClass = 'average'; // Esto se actualizará dinámicamente
         html += `
-            <div class="grade-card" style="animation-delay: ${index * 0.1}s">
-                <div class="grade-card-header">
-                    <div class="grade-card-icon" style="background: linear-gradient(135deg, ${modulo.color}, ${modulo.color}dd);">
+            <div class="new-grade-card" style="animation-delay: ${index * 0.1}s">
+                <div class="new-grade-card-header">
+                    <div class="new-grade-card-icon" style="background: linear-gradient(135deg, ${modulo.color}, ${modulo.color}dd);">
                         <i class="${modulo.icon}"></i>
                     </div>
-                    <h3 class="grade-card-title">${modulo.nombre}</h3>
+                    <h3 class="new-grade-card-title">${modulo.nombre}</h3>
                 </div>
 
-                <div class="grade-card-content">
-                    <div class="grade-item">
-                        <span class="grade-label">Actividades</span>
-                        <span class="grade-value" id="${modulo.id}Actividades">0.0</span>
+                <div class="new-grade-card-content">
+                    <div class="new-grade-item">
+                        <span class="new-grade-label">Actividades</span>
+                        <span class="new-grade-value" id="${modulo.id}Actividades">0.0</span>
                     </div>
-                    <div class="grade-item">
-                        <span class="grade-label">Evaluaciones</span>
-                        <span class="grade-value" id="${modulo.id}Evaluaciones">0.0</span>
+                    <div class="new-grade-item">
+                        <span class="new-grade-label">Evaluaciones</span>
+                        <span class="new-grade-value" id="${modulo.id}Evaluaciones">0.0</span>
                     </div>
-                    <div class="grade-item">
-                        <span class="grade-label">Práctica</span>
-                        <span class="grade-value" id="${modulo.id}Practica">0.0</span>
+                    <div class="new-grade-item">
+                        <span class="new-grade-label">Práctica</span>
+                        <span class="new-grade-value" id="${modulo.id}Practica">0.0</span>
                     </div>
                 </div>
 
-                <div class="grade-card-footer">
-                    <div class="final-grade" id="${modulo.id}ScoreMain">0.0</div>
-                    <div class="grade-percentage" id="${modulo.id}ProgressPercent">0%</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill ${gradeClass}" id="${modulo.id}ProgressFill"></div>
+                <div class="new-grade-card-footer">
+                    <div class="new-final-grade" id="${modulo.id}ScoreMain">0.0</div>
+                    <div class="new-grade-percentage" id="${modulo.id}ProgressPercent">0%</div>
+                    <div class="new-progress-bar">
+                        <div class="new-progress-fill ${gradeClass}" id="${modulo.id}ProgressFill"></div>
                     </div>
                 </div>
             </div>
@@ -9103,7 +9085,7 @@ function renderModulosCalificaciones() {
 
     // Agregar animación de entrada
     setTimeout(() => {
-        document.querySelectorAll('.grade-card').forEach(card => {
+        document.querySelectorAll('.new-grade-card').forEach(card => {
             card.classList.add('animate-in');
         });
     }, 100);
@@ -9121,18 +9103,12 @@ async function loadCalificaciones() {
         const modulosQuery = query(collection(db, 'calificaciones_modulos'), where('estudianteId', '==', currentUser.email));
         const modulosSnapshot = await getDocs(modulosQuery);
 
-        console.log('Query de calificaciones ejecutada para:', currentUser.email);
-        console.log('Documentos encontrados:', modulosSnapshot.size);
-
         // Crear mapa de calificaciones por módulo
         const modulosCalif = {};
         modulosSnapshot.forEach(doc => {
             const data = doc.data();
-            console.log('Documento de calificación:', doc.id, data);
             modulosCalif[data.modulo] = data;
         });
-
-        console.log('Calificaciones por módulo cargadas:', modulosCalif);
 
         // Guardar las calificaciones de evaluaciones existentes para usarlas después
         window.calificacionesEvaluacionesGuardadas = {};
@@ -9209,7 +9185,6 @@ async function cargarEvaluacionesParaCalificaciones(estudianteEmail) {
     try {
         // Si allEvaluaciones ya tiene datos con calificaciones, usarlos directamente
         if (allEvaluaciones && allEvaluaciones.length > 0 && allEvaluaciones.some(e => e.calificacionRecalculada !== undefined)) {
-            console.log('Usando evaluaciones ya cargadas');
             actualizarNotasEvaluacionesPorModulo();
             return;
         }
@@ -9242,7 +9217,6 @@ async function cargarEvaluacionesParaCalificaciones(estudianteEmail) {
                 const ultimaRespuesta = misRespuestas[misRespuestas.length - 1];
                 if (ultimaRespuesta.respuestas && evaluacion.preguntas) {
                     evaluacion.calificacionRecalculada = recalcularCalificacion(ultimaRespuesta.respuestas, evaluacion.preguntas);
-                    console.log(`Evaluación "${evaluacion.titulo}": calificación recalculada = ${evaluacion.calificacionRecalculada}%`);
                 }
             }
         });
@@ -9280,8 +9254,6 @@ async function loadIndividualActivities(email) {
             container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No tienes actividades calificadas aún.</p>';
             return;
         }
-
-        console.log('Entregas calificadas encontradas:', entregasCalificadas.length);
 
         let html = `
             <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 2rem;">
@@ -10319,22 +10291,16 @@ function openImageModal(imageUrl, title) {
         
         async function loadGamificacionStats() {
             try {
-                console.log('Starting loadGamificacionStats...');
                 
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                 if (!currentUser || !currentUser.id) {
-                    console.log('No currentUser found in sessionStorage');
                     return;
                 }
-
-                console.log('Current user:', currentUser);
 
                 // Verificar que Firebase esté disponible
                 if (!db) {
                     throw new Error('Firebase db not initialized');
                 }
-
-                console.log('Firebase db available, fetching user document...');
 
                 // Cargar datos del usuario con timeout
                 const userDocPromise = getDoc(doc(db, 'users', currentUser.id));
@@ -10343,9 +10309,6 @@ function openImageModal(imageUrl, title) {
                 );
                 
                 const userDoc = await Promise.race([userDocPromise, timeoutPromise]);
-                
-                console.log('User document exists:', userDoc.exists());
-                console.log('User document data:', userDoc.data());
                 
                 // Verificar que el documento existe
                 if (!userDoc.exists()) {
@@ -10356,7 +10319,6 @@ function openImageModal(imageUrl, title) {
                     const querySnapshot = await getDocs(q);
                     
                     if (!querySnapshot.empty) {
-                        console.log('User found by email search:', querySnapshot.docs[0].data());
                         throw new Error('Usuario encontrado por email pero no por ID. ID guardado: ' + currentUser.id);
                     } else {
                         console.error('User not found in users collection at all');
@@ -10365,8 +10327,6 @@ function openImageModal(imageUrl, title) {
                 }
                 
                 const userData = userDoc.data() || {};
-                
-                console.log('User data loaded:', userData);
                 
                 const misPuntos = userData.puntos || 0;
                 
@@ -10533,7 +10493,6 @@ function openImageModal(imageUrl, title) {
             // TODO: Implementar filtro por programa
             if (filter === 'program') {
                 // Filtrar por programa del usuario actual
-                console.log('Filtrando por programa...');
             }
             // Por ahora, volver a cargar todos
             loadLeaderboardPersonal();

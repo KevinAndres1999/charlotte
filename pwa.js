@@ -135,10 +135,17 @@ class CharlottePWA {
     // Registrar para push notifications
     async registerForPush() {
         try {
+            // Verificar si tenemos una clave VAPID válida
+            const vapidKey = 'YOUR_PUBLIC_VAPID_KEY';
+            if (vapidKey === 'YOUR_PUBLIC_VAPID_KEY') {
+                console.log('PWA: VAPID key not configured, skipping push registration');
+                return;
+            }
+
             const registration = await navigator.serviceWorker.ready;
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
-                applicationServerKey: this.urlBase64ToUint8Array('YOUR_PUBLIC_VAPID_KEY') // Necesitas configurar esto
+                applicationServerKey: this.urlBase64ToUint8Array(vapidKey)
             });
 
             console.log('PWA: Push subscription:', subscription);
