@@ -192,7 +192,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
         const firebaseConfig = window.FIREBASE_CONFIG;
@@ -213,16 +213,28 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const submitBtn = loginForm.querySelector('.btn-login');
+
+            // Deshabilitar botón y mostrar indicador de carga
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
             console.log('Login attempt for email:', email);
+            const startTime = performance.now();
 
             try {
+                console.log('Starting user query...');
+                const queryStartTime = performance.now();
+                
                 // Buscar usuario en users por email (tanto estudiantes como admin)
-                const q = query(collection(db, 'users'), where('email', '==', email));
+                // Agregar límite para optimizar la consulta
+                const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
                 const querySnapshot = await getDocs(q);
-
+                
+                const queryEndTime = performance.now();
+                console.log('Query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
                 console.log('Query snapshot size:', querySnapshot.size);
 
                 if (!querySnapshot.empty) {
@@ -234,6 +246,7 @@
 
                     // Verificar contraseña
                     if (userData.password === password) {
+                        console.log('Password verified, preparing user data...');
                         const currentUser = {
                             id: userDoc.id,  // Usar el ID real del documento
                             email: userData.email,
@@ -248,21 +261,38 @@
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                         console.log('User logged in successfully:', currentUser);
+                        const endTime = performance.now();
+                        console.log('User logged in successfully:', currentUser.name);
+                        const endTime = performance.now();
+                        console.log('Total login time:', (endTime - startTime).toFixed(2), 'ms');
 
-                        // Redirigir según el rol
-                        if (userData.role === 'admin') {
-                            sessionStorage.removeItem('adminActiveSection');
-                            window.location.href = 'admin.html';
-                        } else if (userData.role === 'student') {
-                            window.location.href = 'estudiante.html';
-                        } else {
-                            showMessage('Rol no reconocido', 'error');
-                        }
+                        // Mostrar mensaje de éxito antes de redirigir
+                        submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
+                        submitBtn.style.background = '#10b981';
+                        
+                        setTimeout(() => {
+                            // Redirigir según el rol
+                            if (userData.role === 'admin') {
+                                sessionStorage.removeItem('adminActiveSection');
+                                window.location.href = 'admin.html';
+                            } else if (userData.role === 'student') {
+                                window.location.href = 'estudiante.html';
+                            } else {
+                                showMessage('Rol no reconocido', 'error');
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Iniciar Sesión';
+                                submitBtn.style.background = '';
+                            }
+                        }, 500);
                     } else {
                         showMessage('Contraseña incorrecta.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Iniciar Sesión';
                     }
                 } else {
                     showMessage('Usuario no encontrado.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Iniciar Sesión';
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -275,6 +305,8 @@
                     errorMessage = 'Correo electrónico inválido.';
                 }
                 showMessage(errorMessage, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Iniciar Sesión';
             }
         });
     </script>
