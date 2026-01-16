@@ -7926,10 +7926,10 @@ async function loadClaseDetail(id) {
             // Cambiar a la sección de clase-viewer
             // Guardar la sección actual antes de cambiar
             const currentSection = sessionStorage.getItem('activeSection') || 'clases';
-            window.history.pushState({page: 'estudiante', section: currentSection, claseId: claseId}, 'Clases', 'estudiante.html');
+            window.history.pushState({page: 'estudiante', section: currentSection, claseId: id}, 'Clases', 'estudiante.html');
             showSectionV2('clase-viewer');
             sessionStorage.setItem('activeSection', 'clase-viewer');
-            sessionStorage.setItem('currentClaseId', claseId);
+            sessionStorage.setItem('currentClaseId', id);
 
             // Actualizar el menú de navegación para mostrar "Ver Clase"
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
