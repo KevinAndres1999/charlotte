@@ -18,10 +18,6 @@ const CRITICAL_RESOURCES = [
 
 // Recursos estáticos para cachear
 const STATIC_RESOURCES = [
-  '/firebase/firebase-app.js',
-  '/firebase/firebase-auth.js',
-  '/firebase/firebase-firestore.js',
-  '/firebase/firebase-storage.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
@@ -94,7 +90,12 @@ self.addEventListener('fetch', (event) => {
             if (response.status === 200) {
               const responseClone = response.clone();
               caches.open(STATIC_CACHE).then((cache) => {
-                cache.put(event.request, responseClone);
+                // Verificar que el request sea válido antes de cachear
+                if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
+                  cache.put(event.request, responseClone).catch((error) => {
+                    console.warn('Service Worker: Error cacheando recurso estático:', error);
+                  });
+                }
               });
             }
             return response;
@@ -116,7 +117,12 @@ self.addEventListener('fetch', (event) => {
           if (response.status === 200 && url.hostname.includes('firestore.googleapis.com')) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
+              // Verificar que el request sea válido antes de cachear
+              if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
+                cache.put(event.request, responseClone).catch((error) => {
+                  console.warn('Service Worker: Error cacheando respuesta API:', error);
+                });
+              }
             });
           }
           return response;
