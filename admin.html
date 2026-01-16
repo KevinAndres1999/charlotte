@@ -3012,8 +3012,11 @@
 
     <!-- Script para funciones de filtrado -->
     <script>
-        // Variables globales para filtrado
+        // Variables globales para filtrado y carga
         let allPendingUsers = [];
+        let dashboardLoaded = false;
+        let usuariosPendientesLoaded = false;
+        let usuariosAprobadosLoaded = false;
 
         function filterUsuarios() {
             renderPendingUsers();
@@ -6400,10 +6403,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             window.location.href = 'login.html';
         }
         
-        // Flag para evitar cargas duplicadas
-        let dashboardLoaded = false;
-        let usuariosPendientesLoaded = false;
-        let usuariosAprobadosLoaded = false;
+        // Flag para evitar cargas duplicadas (ya declaradas globalmente)
+        // let dashboardLoaded = false;
+        // let usuariosPendientesLoaded = false;
+        // let usuariosAprobadosLoaded = false;
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
