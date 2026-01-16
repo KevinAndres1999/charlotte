@@ -6313,6 +6313,19 @@ function showModulosSelectorActividades() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     const programa = currentUser.programa || '';
     
+    // Determinar el programa de manera más flexible
+    let programaNormalizado = 'Panadería y Pastelería'; // Default
+    
+    if (programa.toLowerCase().includes('belleza')) {
+        programaNormalizado = 'Belleza Integral';
+    } else if (programa.toLowerCase().includes('asesoría') || programa.toLowerCase().includes('asesoria')) {
+        programaNormalizado = 'Asesoría Técnica';
+    } else if (programa.toLowerCase().includes('panadería') || programa.toLowerCase().includes('panaderia') || programa.toLowerCase().includes('pastelería') || programa.toLowerCase().includes('pasteleria')) {
+        programaNormalizado = 'Panadería y Pastelería';
+    }
+    
+    console.log('Programa del usuario:', programa, '-> Normalizado a:', programaNormalizado);
+    
     // Definir módulos según el programa
     const modulosPorPrograma = {
         'Panadería y Pastelería': [
@@ -6335,7 +6348,7 @@ function showModulosSelectorActividades() {
         ]
     };
     
-    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+    const modulos = modulosPorPrograma[programaNormalizado] || modulosPorPrograma['Panadería y Pastelería'];
     
     const container = document.getElementById('modulosSelectorActividades');
     container.innerHTML = `
@@ -6380,6 +6393,17 @@ function getModuloName(moduloKey) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     const programa = currentUser.programa || '';
     
+    // Determinar el programa de manera más flexible
+    let programaNormalizado = 'Panadería y Pastelería'; // Default
+    
+    if (programa.toLowerCase().includes('belleza')) {
+        programaNormalizado = 'Belleza Integral';
+    } else if (programa.toLowerCase().includes('asesoría') || programa.toLowerCase().includes('asesoria')) {
+        programaNormalizado = 'Asesoría Técnica';
+    } else if (programa.toLowerCase().includes('panadería') || programa.toLowerCase().includes('panaderia') || programa.toLowerCase().includes('pastelería') || programa.toLowerCase().includes('pasteleria')) {
+        programaNormalizado = 'Panadería y Pastelería';
+    }
+    
     const modulosPorPrograma = {
         'Panadería y Pastelería': {
             'modulo1': 'Módulo 1: Panadería',
@@ -6388,10 +6412,10 @@ function getModuloName(moduloKey) {
             'modulo4': 'Módulo 4: Repostería'
         },
         'Belleza Integral': {
-            'modulo1': 'Módulo 1: Corte y Peinado',
-            'modulo2': 'Módulo 2: Colorimetría', 
-            'modulo3': 'Módulo 3: Tratamientos',
-            'modulo4': 'Módulo 4: Maquillaje'
+            'modulo1': 'Módulo 1: Diseño de Mirada',
+            'modulo2': 'Módulo 2: Maquillaje', 
+            'modulo3': 'Módulo 3: Estilismo',
+            'modulo4': 'Módulo 4: Nails Designer'
         },
         'Asesoría Técnica': {
             'modulo1': 'Módulo 1: Fundamentos',
@@ -6401,7 +6425,7 @@ function getModuloName(moduloKey) {
         }
     };
     
-    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+    const modulos = modulosPorPrograma[programaNormalizado] || modulosPorPrograma['Panadería y Pastelería'];
     return modulos[moduloKey] || moduloKey;
 }
 
@@ -6542,6 +6566,19 @@ function showModulosSelectorEstudiante() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     const programa = currentUser.programa || '';
     
+    // Determinar el programa de manera más flexible
+    let programaNormalizado = 'Panadería y Pastelería'; // Default
+    
+    if (programa.toLowerCase().includes('belleza')) {
+        programaNormalizado = 'Belleza Integral';
+    } else if (programa.toLowerCase().includes('asesoría') || programa.toLowerCase().includes('asesoria')) {
+        programaNormalizado = 'Asesoría Técnica';
+    } else if (programa.toLowerCase().includes('panadería') || programa.toLowerCase().includes('panaderia') || programa.toLowerCase().includes('pastelería') || programa.toLowerCase().includes('pasteleria')) {
+        programaNormalizado = 'Panadería y Pastelería';
+    }
+    
+    console.log('Programa del usuario:', programa, '-> Normalizado a:', programaNormalizado);
+    
     // Definir módulos según el programa
     const modulosPorPrograma = {
         'Panadería y Pastelería': [
@@ -6564,7 +6601,7 @@ function showModulosSelectorEstudiante() {
         ]
     };
     
-    const modulos = modulosPorPrograma[programa] || modulosPorPrograma['Panadería y Pastelería'];
+    const modulos = modulosPorPrograma[programaNormalizado] || modulosPorPrograma['Panadería y Pastelería'];
     
     const container = document.getElementById('modulosSelector');
     container.innerHTML = `
