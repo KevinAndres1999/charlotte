@@ -61,6 +61,7 @@
         window.updateDoc = (docRef, data) => docRef.update(data);
         window.deleteDoc = (docRef) => docRef.delete();
         window.onSnapshot = (query, callback) => query.onSnapshot(callback);
+        window.dashboardLoaded = false;
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -6411,6 +6412,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             window.location.href = 'login.html';
         }
 
+        // Make logout global
+        window.logout = logout;
+
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
             // Restaurar la sección activa al recargar la página
@@ -6535,6 +6539,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
+
+        // Make showSection global
+        window.showSection = showSection;
 
         function toggleMobileMenu() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -7136,17 +7143,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
 
                     // Mostrar preview de la evaluación antes de publicar
-                    showEvaluacionPreview({
-                        titulo: title,
-                        descripcion: desc,
-                        programa: programa,
-                        sedes: sedesSeleccionadas,
-                        horarios: horariosSeleccionados,
-                        tiempoLimite: tiempo ? parseInt(tiempo) : null,
-                        fechaInicio: fechaInicio || null,
-                        fechaFin: fechaFin || null,
-                        preguntas: questions
-                    });
+                    // showEvaluacionPreview({
+                    //     titulo: title,
+                    //     descripcion: desc,
+                    //     programa: programa,
+                    //     sedes: sedesSeleccionadas,
+                    //     horarios: horariosSeleccionados,
+                    //     tiempoLimite: tiempo ? parseInt(tiempo) : null,
+                    //     fechaInicio: fechaInicio || null,
+                    //     fechaFin: fechaFin || null,
+                    //     preguntas: questions
+                    // });
         });
 
         // Dashboard stats - con caché para evitar consultas repetidas
@@ -7374,6 +7381,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 window.dashboardLoaded = false;
             }
         }
+        
+        // Make loadDashboardStats global
+        window.loadDashboardStats = loadDashboardStats;
         
         function applyStatsToUI(stats) {
             document.getElementById('stat-videos').textContent = stats.videos;
@@ -8926,10 +8936,6 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             `;
         }
 
-        async function viewCuestionario(cuestionarioId) {
-            showContentPreview('cuestionario', cuestionarioId);
-        }
-
         async function viewVideo(videoId) {
             showContentPreview('video', videoId);
         }
@@ -9042,10 +9048,6 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             }
             
             alert('Edición cancelada. El formulario ha sido limpiado.');
-        }
-
-        async function viewEvaluacion(evaluacionId) {
-            showContentPreview('evaluacion', evaluacionId);
         }
 
         async function viewMaterial(materialId) {
@@ -9940,28 +9942,8 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             loadManagementContent();
         }
 
-        // Funciones individuales
-        function viewItem(type, id) {
-            if (type === 'evaluacion') {
-                viewEvaluacion(id);
-            } else {
-                viewCuestionario(id);
-            }
-        }
-
-        function editItem(type, id) {
-            alert(`Funcionalidad de edición próximamente disponible para ${type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}`);
-            // Aquí se podría implementar la edición inline o redireccionar a un modo de edición
-        }
-
-        function duplicateItem(type, id) {
-            selectedItems.clear();
-            selectedItems.add(id);
-            duplicateSelected();
-        }
-
         // Función para ver evaluación (reutilizar la existente)
-        async function viewEvaluacion(id) {
+        const viewEvaluacion = async function(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'evaluaciones', id));
                 if (docSnap.exists) {
@@ -9983,7 +9965,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         }
 
         // Función para ver cuestionario
-        async function viewCuestionario(id) {
+        const viewCuestionario = async function(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'cuestionarios', id));
                 if (docSnap.exists) {
@@ -9996,6 +9978,28 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                 alert('Error al cargar el cuestionario');
             }
         }
+
+        // Funciones individuales
+        function viewItem(type, id) {
+            if (type === 'evaluacion') {
+                viewEvaluacion(id);
+            } else {
+                viewCuestionario(id);
+            }
+        }
+
+        function editItem(type, id) {
+            alert(`Funcionalidad de edición próximamente disponible para ${type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}`);
+            // Aquí se podría implementar la edición inline o redireccionar a un modo de edición
+        }
+
+        function duplicateItem(type, id) {
+            selectedItems.clear();
+            selectedItems.add(id);
+            duplicateSelected();
+        }
+
+
 
         // Función para mostrar modal de cuestionario
         function showCuestionarioModal(data, id) {
@@ -15236,6 +15240,7 @@ REGLAS ESTRICTAS:
         let evaluacionPreviewData = null;
 
         // Función para mostrar preview de evaluación mejorado
+        /*
         function showEvaluacionPreview(evaluacionData) {
             evaluacionPreviewData = evaluacionData;
 
@@ -15273,6 +15278,7 @@ REGLAS ESTRICTAS:
             // Mostrar modal
             document.getElementById('evaluacionPreviewModal').style.display = 'block';
         }
+        */
 
         // Función para cambiar entre pestañas
         function switchPreviewTab(tabName) {
@@ -18540,7 +18546,7 @@ REGLAS ESTRICTAS:
             }, 100);
 
             // Cargar datos iniciales del dashboard (solo si no se han cargado)
-            if (!window.dashboardLoaded) loadDashboardStats();
+            if (typeof window.dashboardLoaded === 'undefined' || !window.dashboardLoaded) loadDashboardStats();
             if (!window.usuariosPendientesLoaded) {
                 window.usuariosPendientesLoaded = true;
                 loadUsuariosPendientes();
@@ -18554,7 +18560,7 @@ REGLAS ESTRICTAS:
             loadForosList();
             loadForosPendientes();
             loadGamificacionStats();
-        }); ;
+        });
     </script>
 
 </body>
