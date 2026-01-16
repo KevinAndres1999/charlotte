@@ -92,7 +92,12 @@ self.addEventListener('fetch', (event) => {
               caches.open(STATIC_CACHE).then((cache) => {
                 // Verificar que el request sea válido antes de cachear
                 if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
-                  cache.put(event.request, responseClone).catch((error) => {
+                  // Crear un nuevo Request object para asegurar que sea cacheable
+                  const requestToCache = new Request(event.request.url, {
+                    method: event.request.method,
+                    headers: event.request.headers
+                  });
+                  cache.put(requestToCache, responseClone).catch((error) => {
                     console.warn('Service Worker: Error cacheando recurso estático:', error);
                   });
                 }
@@ -119,7 +124,14 @@ self.addEventListener('fetch', (event) => {
             caches.open(CACHE_NAME).then((cache) => {
               // Verificar que el request sea válido antes de cachear
               if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
-                cache.put(event.request, responseClone).catch((error) => {
+                // Crear un nuevo Request object para asegurar que sea cacheable
+                const requestToCache = new Request(event.request.url, {
+                  method: event.request.method,
+                  headers: event.request.headers,
+                  mode: 'cors',
+                  credentials: 'same-origin'
+                });
+                cache.put(requestToCache, responseClone).catch((error) => {
                   console.warn('Service Worker: Error cacheando respuesta API:', error);
                 });
               }
