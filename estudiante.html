@@ -6257,11 +6257,20 @@ async function loadVideos() {
     if (!container) return;
 
     try {
-        const snapshot = await getDocs(collection(db, 'content'));
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || !currentUser.programa) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Usuario no válido</h3><p>Inicia sesión nuevamente</p></div>';
+            return;
+        }
+
+        // Usar consultas optimizadas con filtro de programa
+        const videosData = await window.queryOptimized('content', [
+            where('programa', '==', currentUser.programa)
+        ]);
+
         allVideos = [];
-        snapshot.forEach(doc => {
-            const video = { id: doc.id, ...doc.data() };
-            // Agregar campos calculados
+        videosData.forEach(video => {
+            // Agregar campos calculados desde localStorage
             video.isWatched = localStorage.getItem(`video-${video.id}-watched`) === 'true';
             video.lastWatched = localStorage.getItem(`video-${video.id}-lastWatched`);
             video.progress = parseInt(localStorage.getItem(`video-${video.id}-progress`) || '0');
@@ -6307,11 +6316,21 @@ async function loadActividadesContent(selectedModulo) {
     if (!container) return;
 
     try {
-        const snapshot = await getDocs(collection(db, 'activities'));
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || !currentUser.programa) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Usuario no válido</h3><p>Inicia sesión nuevamente</p></div>';
+            return;
+        }
+
+        // Usar consultas optimizadas con filtros de programa y módulo
+        const actividadesData = await window.queryOptimized('activities', [
+            where('programa', '==', currentUser.programa),
+            where('modulo', '==', selectedModulo)
+        ]);
+
         allActividades = [];
-        snapshot.forEach(doc => {
-            const actividad = { id: doc.id, ...doc.data() };
-            // Agregar campos calculados
+        actividadesData.forEach(actividad => {
+            // Agregar campos calculados desde localStorage
             actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
             actividad.lastCompleted = localStorage.getItem(`actividad-${actividad.id}-lastCompleted`);
             actividad.progress = parseInt(localStorage.getItem(`actividad-${actividad.id}-progress`) || '0');
@@ -6341,13 +6360,10 @@ async function loadActividadesContent(selectedModulo) {
                     }
                 });
 
-                // Filtrar por acceso del usuario y por módulo
+                // Filtrar por acceso del usuario (ya filtrado por programa y módulo en la consulta)
                 const filteredByAccess = filterByUserAccess(allActividades);
 
-                // Filtrar por módulo seleccionado
-                const filteredByModulo = filteredByAccess.filter(actividad => actividad.modulo === selectedModulo);
-
-                filteredActividades = filteredByModulo;
+                filteredActividades = filteredByAccess;
 
                 // Mostrar contenido de actividades
                 document.getElementById('modulosSelectorActividades').style.display = 'none';
@@ -6379,11 +6395,20 @@ async function loadMateriales() {
     if (!container) return;
 
     try {
-        const snapshot = await getDocs(collection(db, 'materials'));
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || !currentUser.programa) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Usuario no válido</h3><p>Inicia sesión nuevamente</p></div>';
+            return;
+        }
+
+        // Usar consultas optimizadas con filtro de programa
+        const materialesData = await window.queryOptimized('materials', [
+            where('programa', '==', currentUser.programa)
+        ]);
+
         allMateriales = [];
-        snapshot.forEach(doc => {
-            const material = { id: doc.id, ...doc.data() };
-            // Agregar campos calculados
+        materialesData.forEach(material => {
+            // Agregar campos calculados desde localStorage
             material.isDownloaded = localStorage.getItem(`material-${material.id}-downloaded`) === 'true';
             allMateriales.push(material);
         });
@@ -6730,11 +6755,21 @@ async function loadClasesByModulo(selectedModulo) {
     if (!container) return;
 
     try {
-        const snapshot = await getDocs(collection(db, 'classes'));
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser || !currentUser.programa) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Usuario no válido</h3><p>Inicia sesión nuevamente</p></div>';
+            return;
+        }
+
+        // Usar consultas optimizadas con filtros
+        const clasesData = await window.queryOptimized('classes', [
+            where('programa', '==', currentUser.programa),
+            where('modulo', '==', selectedModulo)
+        ]);
+
         allClases = [];
-        snapshot.forEach(doc => {
-            const clase = { id: doc.id, ...doc.data() };
-            // Agregar campos calculados
+        clasesData.forEach(clase => {
+            // Agregar campos calculados desde localStorage
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
             clase.isRead = localStorage.getItem(`clase-${clase.id}-read`) === 'true';
             clase.lastRead = localStorage.getItem(`clase-${clase.id}-lastRead`);
@@ -6742,26 +6777,22 @@ async function loadClasesByModulo(selectedModulo) {
             allClases.push(clase);
         });
 
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        // Filtrar por acceso del usuario
+        // Filtrar por acceso del usuario (sede, horario, etc.)
         const filteredByAccess = filterByUserAccess(allClases);
-        
-        // Filtrar por módulo seleccionado
-        const filteredByModulo = filteredByAccess.filter(clase => clase.modulo === selectedModulo);
-        
-        filteredClases = filteredByModulo;
-        
+
+        filteredClases = filteredByAccess;
+
         // Mostrar contenido de clases
         document.getElementById('modulosSelector').style.display = 'none';
         document.getElementById('clasesContent').style.display = 'block';
-        
+
         // Push history state for the selected module
         window.history.pushState({page: 'estudiante', section: 'clases', modulo: selectedModulo}, `${getModuloName(selectedModulo)} - Mis Clases`, 'estudiante.html');
-        
+
         // Actualizar título
         const tituloElement = document.querySelector('#clases .page-title');
         tituloElement.innerHTML = `<i class="fas fa-book-open"></i> ${getModuloName(selectedModulo)} - Mis Clases`;
-        
+
         sortClases();
         updateClasesStats();
         renderClases();
