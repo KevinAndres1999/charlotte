@@ -3,108 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recursos Educativos - ECE CHARLOTTE</title>
+    <title>Galería - ECE CHARLOTTE</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .materials-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .material-card { background: white; border-radius: 10px; padding: 30px; margin: 25px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .material-card h2 { color: #2196F3; border-bottom: 3px solid #90CAF9; padding-bottom: 15px; margin-bottom: 20px; }
-        .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-        .download-item { background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #2196F3; transition: transform 0.3s, box-shadow 0.3s; }
-        .download-item:hover { transform: translateY(-5px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-        .download-item h3 { color: #1565C0; margin-bottom: 10px; font-size: 1.2em; }
-        .download-item p { color: #666; margin-bottom: 15px; line-height: 1.6; }
-        .download-btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }
-        .download-btn:hover { background: #5568d3; }
-        .download-btn.pdf { background: #dc3545; }
-        .download-btn.pdf:hover { background: #c82333; }
-        .download-btn.docx { background: #28a745; }
-        .download-btn.docx:hover { background: #218838; }
-        .icon { font-size: 2em; margin-bottom: 10px; }
-        .nav-buttons { display: flex; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
-        .nav-buttons a { flex: 1; min-width: 200px; text-align: center; padding: 15px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
-        .nav-buttons a:hover { background: #5568d3; }
-        .info-box { background: #E3F2FD; padding: 20px; border-radius: 8px; border-left: 5px solid #2196F3; margin: 30px 0; }
+        .gallery-container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        .gallery-header { text-align: center; margin-bottom: 60px; }
+        .gallery-header h1 { font-size: 3em; color: #0a1628; margin-bottom: 16px; font-weight: 700; }
+        .gallery-header p { font-size: 18px; color: #475569; max-width: 600px; margin: 0 auto; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            background: white;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-image {
+            transform: scale(1.05);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(230, 57, 113, 0.9), rgba(139, 69, 172, 0.9));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .gallery-overlay i {
+            color: white;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .gallery-overlay h3 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .gallery-overlay p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid #e63971;
+            background: transparent;
+            color: #e63971;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: linear-gradient(135deg, #e63971, #8b45ac);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Modal */
+        .modal[aria-hidden="true"] { display: none; }
+        .modal[aria-hidden="false"] {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            text-align: center;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .modal-info {
+            position: absolute;
+            bottom: -80px;
+            left: 0;
+            right: 0;
+            color: white;
+            text-align: center;
+        }
+
+        .modal-info h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .modal-info p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 60px 0 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-buttons a {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #e63971, #8b45ac);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-buttons a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 16px;
+            }
+
+            .gallery-header h1 {
+                font-size: 2.5em;
+            }
+
+            .filter-buttons {
+                gap: 12px;
+            }
+
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
     <header class="site-header">
         <div class="container header-content">
             <div class="header-brand">
-                <h1>CHARLOTTE</h1>
-                <p>Centro Educativo</p>
+                <a href="index.html">
+                    <img src="fotos/logo.png" alt="CHARLOTTE" class="header-logo" onerror="this.src='Mesa de trabajo 3.png'">
+                    <span class="brand-name">CHARLOTTE</span>
+                </a>
+            </div>
+            <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Menú">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav class="main-nav" id="mainNav">
+                <a href="index.html">Inicio</a>
+                <a href="sobre.html">Sobre Nosotros</a>
+                <a href="cursos.html">Cursos</a>
+                <a href="recursos.html" class="active">Galería</a>
+                <a href="contacto.html">Contacto</a>
+                <a href="#admin" id="adminLink" class="nav-admin" hidden>Admin</a>
+                <div class="nav-social-mobile">
+                    <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/+593964245339" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <a href="login.html" class="btn btn-header nav-login-mobile">Acceso Estudiantes</a>
+            </nav>
+            <div class="header-actions" style="display:flex;align-items:center;gap:16px;">
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@cursoscharlotte/" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/+593964245339" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+                <button id="pwa-install-btn" class="btn btn-header" style="display: none; background: linear-gradient(135deg, #22c55e, #16a34a); margin-right: 8px;">
+                    <i class="fas fa-download" style="margin-right: 8px;"></i> Instalar App
+                </button>
+                <a href="login.html" class="btn btn-header">Acceso Estudiantes</a>
             </div>
         </div>
     </header>
 
-    <div class="materials-container">
+    <div class="gallery-container">
         <div class="nav-buttons">
             <a href="index.html">← Volver al Inicio</a>
         </div>
 
-        <h1 style="text-align: center; color: #2196F3; font-size: 2.5em; margin: 40px 0;">📚 Recursos Educativos</h1>
-
-        <div class="info-box">
-            <h3 style="color: #1565C0; margin-bottom: 10px;">📌 Instrucciones</h3>
-            <ul style="line-height: 1.8;">
-                <li>Descarga recursos adicionales para complementar tu aprendizaje</li>
-                <li>Los libros y materiales te ayudarán a profundizar en los temas</li>
-                <li>Puedes descargar en formato PDF (para leer) o DOCX (para editar)</li>
-                <li>Los videos son tutoriales prácticos para aplicar los conocimientos</li>
-            </ul>
+        <div class="gallery-header">
+            <h1>📸 Nuestra Galería</h1>
+            <p>Descubre los trabajos realizados por nuestros estudiantes en los diferentes programas de formación</p>
         </div>
 
-        <!-- Libros y Materiales -->
-        <div class="material-card">
-            <h2>📖 Libros y Materiales de Referencia</h2>
-            <p>Recursos bibliográficos para estudiantes</p>
-            
-            <div class="download-grid">
-                <div class="download-item">
-                    <div class="icon">📄</div>
-                    <h3>Guía de Belleza Profesional</h3>
-                    <p>Manual completo sobre técnicas de belleza</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="#" class="download-btn pdf" download>📕 PDF</a>
-                        <a href="#" class="download-btn docx" download>📗 DOCX</a>
-                    </div>
-                </div>
-
-                <div class="download-item">
-                    <div class="icon">🍞</div>
-                    <h3>Recetario de Panadería</h3>
-                    <p>Libro de recetas profesionales</p>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="#" class="download-btn pdf" download>📕 PDF</a>
-                    </div>
-                </div>
-            </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todas las Fotos</button>
+            <button class="filter-btn" data-filter="panaderia">🍞 Panadería</button>
+            <button class="filter-btn" data-filter="belleza">💄 Belleza</button>
+            <button class="filter-btn" data-filter="clases">📚 Clases</button>
+            <button class="filter-btn" data-filter="graduaciones">🎓 Graduaciones</button>
         </div>
 
-        <!-- Videos Educativos -->
-        <div class="material-card">
-            <h2>🎥 Videos Educativos</h2>
-            <p>Tutoriales prácticos para aplicar los conocimientos</p>
-            
-            <div class="download-grid">
-                <div class="download-item">
-                    <div class="icon">🎬</div>
-                    <h3>Tutorial de Maquillaje</h3>
-                    <p>Video paso a paso para técnicas básicas</p>
-                    <a href="#" class="download-btn">Ver Video →</a>
-                </div>
-
-                <div class="download-item">
-                    <div class="icon">🥖</div>
-                    <h3>Preparación de Masas</h3>
-                    <p>Tutorial sobre elaboración de panes</p>
-                    <a href="#" class="download-btn">Ver Video →</a>
-                </div>
-            </div>
+        <div class="gallery-grid" id="galleryGrid">
+            <!-- Las imágenes se cargarán dinámicamente con JavaScript -->
         </div>
 
         <div class="nav-buttons">
             <a href="index.html">← Volver al Inicio</a>
+            <a href="cursos.html">Ver Cursos →</a>
+        </div>
+    </div>
+
+    <!-- Modal para galería ampliada -->
+    <div id="galleryModal" class="modal" aria-hidden="true">
+        <div class="modal-content">
+            <button class="modal-close" aria-label="Cerrar">×</button>
+            <img id="galleryModalImg" src="" alt="">
+            <div class="modal-info">
+                <h3 id="modalTitle"></h3>
+                <p id="modalDescription"></p>
+            </div>
         </div>
     </div>
 
@@ -119,6 +325,153 @@
             nav.classList.toggle('active');
             hamburger.classList.toggle('active');
         }
+
+        // Datos de la galería
+        const galleryData = [
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03.jpeg',
+                title: 'Trabajos de Panadería',
+                description: 'Productos elaborados por estudiantes del programa de panadería',
+                category: 'panaderia'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (1).jpeg',
+                title: 'Clases Prácticas',
+                description: 'Sesiones de aprendizaje hands-on con instructores expertos',
+                category: 'clases'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (2).jpeg',
+                title: 'Panadería Profesional',
+                description: 'Técnicas avanzadas de panadería y pastelería',
+                category: 'panaderia'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (3).jpeg',
+                title: 'Belleza y Estilismo',
+                description: 'Trabajos de maquillaje y estilismo profesional',
+                category: 'belleza'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (4).jpeg',
+                title: 'Instalaciones Modernas',
+                description: 'Nuestras aulas equipadas con tecnología de vanguardia',
+                category: 'clases'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (5).jpeg',
+                title: 'Ceremonia de Graduación',
+                description: 'Momentos especiales de nuestros graduados',
+                category: 'graduaciones'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (6).jpeg',
+                title: 'Productos de Belleza',
+                description: 'Trabajos finales de estudiantes de cosmetología',
+                category: 'belleza'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (7).jpeg',
+                title: 'Panadería Creativa',
+                description: 'Creaciones artísticas en repostería',
+                category: 'panaderia'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (8).jpeg',
+                title: 'Sesiones de Estudio',
+                description: 'Ambiente de aprendizaje colaborativo',
+                category: 'clases'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.03 (9).jpeg',
+                title: 'Graduados Exitosos',
+                description: 'Nuestros estudiantes listos para el mundo laboral',
+                category: 'graduaciones'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.20.jpeg',
+                title: 'Técnicas de Belleza',
+                description: 'Demostración de procedimientos estéticos',
+                category: 'belleza'
+            },
+            {
+                src: 'fotos/whatsapp image 2025-04-12 at 12.06.20 (1).jpeg',
+                title: 'Panadería Artesanal',
+                description: 'Elaboración tradicional de productos de panadería',
+                category: 'panaderia'
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // Función para renderizar la galería
+        function renderGallery(filter = 'all') {
+            const galleryGrid = document.getElementById('galleryGrid');
+            const filteredData = filter === 'all' ? galleryData : galleryData.filter(item => item.category === filter);
+
+            galleryGrid.innerHTML = filteredData.map(item => `
+                <div class="gallery-item" data-category="${item.category}" onclick="openGalleryModal('${item.src}', '${item.title}', '${item.description}')">
+                    <img src="${item.src}" alt="${item.title}" class="gallery-image" loading="lazy">
+                    <div class="gallery-overlay">
+                        <i class="fas fa-search-plus"></i>
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función para abrir el modal
+        function openGalleryModal(src, title, description) {
+            const modal = document.getElementById('galleryModal');
+            const modalImg = document.getElementById('galleryModalImg');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+
+            modalImg.src = src;
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        // Función para cerrar el modal
+        function closeGalleryModal() {
+            const modal = document.getElementById('galleryModal');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            renderGallery();
+
+            // Filtros
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    renderGallery(currentFilter);
+                });
+            });
+
+            // Cerrar modal
+            document.querySelector('.modal-close').addEventListener('click', closeGalleryModal);
+
+            document.getElementById('galleryModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeGalleryModal();
+                }
+            });
+
+            // Cerrar con Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeGalleryModal();
+                }
+            });
+        });
     </script>
 </body>
 </html>
