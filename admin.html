@@ -15813,133 +15813,7 @@ REGLAS ESTRICTAS:
                     console.log('Error cargando calificaciones por módulo:', error);
                 }
 
-                // Calcular automáticamente las notas de evaluaciones del módulo 3 para cada estudiante
-                const evaluacionesModulo3 = {};
-                try {
-                    // Cargar preguntas originales para el cálculo de calificaciones
-                    const preguntasOriginalesMap = new Map();
-                    try {
-                        const preguntasOriginalesSnapshot = await getDocs(collection(db, 'preguntas_originales'));
-                        preguntasOriginalesSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            const key = (data.texto || data.pregunta || '').trim().toLowerCase();
-                            if (key) {
-                                preguntasOriginalesMap.set(key, {
-                                    correctaIdx: data.correctaIdx || data.correcta,
-                                    pregunta: data
-                                });
-                            }
-                        });
-                        console.log('Preguntas originales cargadas para cálculo:', preguntasOriginalesMap.size);
-                    } catch (error) {
-                        console.log('Error cargando preguntas originales:', error);
-                    }
 
-                    // Cargar todas las evaluaciones y respuestas para calcular notas del módulo 3
-                    const [evaluacionesSnapshot, respuestasSnapshot] = await Promise.all([
-                        getDocs(collection(db, 'evaluaciones')),
-                        getDocs(collection(db, 'respuestasEvaluaciones'))
-                    ]);
-
-                    // Crear mapa de evaluaciones por ID
-                    const evaluacionesMap = {};
-                    evaluacionesSnapshot.forEach(doc => {
-                        const evaluacion = doc.data();
-                        evaluacionesMap[doc.id] = evaluacion;
-                    });
-
-                    // Crear mapa de respuestas por estudiante y evaluación
-                    const respuestasPorEstudiante = {};
-                    respuestasSnapshot.forEach(doc => {
-                        const respuesta = doc.data();
-                        const estudianteId = respuesta.estudianteId;
-                        const evaluacionId = respuesta.evaluacionId;
-
-                        if (!respuestasPorEstudiante[estudianteId]) {
-                            respuestasPorEstudiante[estudianteId] = {};
-                        }
-
-                        // Mantener solo la respuesta más reciente por evaluación
-                        if (!respuestasPorEstudiante[estudianteId][evaluacionId] ||
-                            new Date(respuesta.fechaRespuesta) > new Date(respuestasPorEstudiante[estudianteId][evaluacionId].fechaRespuesta)) {
-                            respuestasPorEstudiante[estudianteId][evaluacionId] = respuesta;
-                        }
-                    });
-
-                    // Para cada estudiante, calcular la nota promedio de evaluaciones del módulo 3
-                    estudiantesFiltrados.forEach(estudianteInfo => {
-                        const estudianteId = estudianteInfo.data.email || estudianteInfo.id;
-
-                        if (respuestasPorEstudiante[estudianteId]) {
-                            const respuestasEstudiante = respuestasPorEstudiante[estudianteId];
-                            let totalNotas = 0;
-                            let countEvaluaciones = 0;
-
-                            // Procesar cada respuesta del estudiante
-                            Object.entries(respuestasEstudiante).forEach(([evaluacionId, respuesta]) => {
-                                const evaluacion = evaluacionesMap[evaluacionId];
-                                if (evaluacion) {
-                                    // Determinar si pertenece al módulo 3 (pastelería)
-                                    const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
-                                    const tituloEvaluacion = (evaluacion.titulo || '').toLowerCase();
-                                    const esModulo3 = moduloEvaluacion.includes('pasteleria') ||
-                                                     moduloEvaluacion.includes('pastelería') ||
-                                                     moduloEvaluacion.includes('pasteles') ||
-                                                     tituloEvaluacion.includes('pasteleria') ||
-                                                     tituloEvaluacion.includes('pastelería') ||
-                                                     tituloEvaluacion.includes('pasteles');
-
-                                    if (esModulo3) {
-                                        // Recalcular calificación
-                                        let calificacion = 0;
-                                        if (respuesta.respuestas && evaluacion.preguntas) {
-                                            let correctas = 0;
-                                            evaluacion.preguntas.forEach((pregunta, idx) => {
-                                                const respuestaEstudiante = respuesta.respuestas[idx];
-                                                if (respuestaEstudiante !== undefined && respuestaEstudiante !== null) {
-                                                    const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
-
-                                                    let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta :
-                                                                               (pregunta.correcta !== undefined ? pregunta.correcta : null);
-
-                                                    if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
-                                                        // Buscar en preguntas originales si existe
-                                                        const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
-                                                        if (preguntaOriginal) {
-                                                            respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
-                                                        }
-                                                    }
-
-                                                    if (respuestaCorrectaIdx !== null && respuestaCorrectaIdx !== undefined &&
-                                                        respuestaEstudiante === respuestaCorrectaIdx) {
-                                                        correctas++;
-                                                    }
-                                                }
-                                            });
-                                            calificacion = Math.round((correctas / evaluacion.preguntas.length) * 100);
-                                        } else if (respuesta.calificacion !== undefined) {
-                                            calificacion = respuesta.calificacion;
-                                        }
-
-                                        // Convertir a escala de 2 puntos (100% = 2.0 puntos)
-                                        const notaEscala2 = (calificacion / 100) * 2;
-                                        totalNotas += notaEscala2;
-                                        countEvaluaciones++;
-                                    }
-                                }
-                            });
-
-                            // Calcular promedio para el módulo 3
-                            if (countEvaluaciones > 0) {
-                                evaluacionesModulo3[estudianteId] = totalNotas / countEvaluaciones;
-                            }
-                        }
-                    });
-
-                    console.log('Evaluaciones del módulo 3 calculadas:', evaluacionesModulo3);
-                } catch (error) {
-                    console.log('Error calculando evaluaciones del módulo 3:', error);
-                }
 
                 let html = `
                     <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -15999,11 +15873,7 @@ REGLAS ESTRICTAS:
 
                         // Valores por defecto o existentes
                         const actividades = moduloData.actividades || 0;
-                        // Para el módulo 3, usar evaluaciones calculadas automáticamente si existen
-                        let evaluaciones = moduloData.evaluaciones || 0;
-                        if (moduloNum === 3 && evaluacionesModulo3[estudianteId] !== undefined) {
-                            evaluaciones = evaluacionesModulo3[estudianteId];
-                        }
+                        const evaluaciones = moduloData.evaluaciones || 0;
                         const practica = moduloData.practica || 0;
                         const moduloTotal = actividades + evaluaciones + practica;
 
