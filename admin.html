@@ -7161,20 +7161,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                 });
 
-                // Calcular promedio por evaluación usando solo las últimas respuestas
+                // Calcular promedio general directamente sobre todas las respuestas (como loadResultadosEvaluaciones)
+                let todasLasCalificaciones = [];
+                
                 Object.values(respuestasPorEvaluacion).forEach(respuestasEstudiantes => {
                     const calificaciones = Object.values(respuestasEstudiantes).map(r => r.calificacion).filter(c => c !== undefined);
-                    if (calificaciones.length > 0) {
-                        // Calcular promedio con el mismo método que calcularEstadisticasEvaluacion
-                        const promedioEvaluacion = Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10;
-                        sumaCalificaciones += promedioEvaluacion;
-                        countCalificaciones++;
-                    }
+                    todasLasCalificaciones.push(...calificaciones);
                 });
 
-                const promedioGeneralEvaluaciones = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
-
-                console.log('📊 loadDashboardStats RESULTADO:', promedioGeneralEvaluaciones, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones, 'respuestasPorEvaluacion keys:', Object.keys(respuestasPorEvaluacion));
+                const promedioGeneralEvaluaciones = todasLasCalificaciones.length > 0 
+                    ? Math.round(todasLasCalificaciones.reduce((a, b) => a + b, 0) / todasLasCalificaciones.length)
+                    : 0;
 
                 // Guardar métricas avanzadas en caché
                 statsCache = {
@@ -16309,11 +16306,6 @@ REGLAS ESTRICTAS:
                 const total = evaluacionesManagerData.length;
                 const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
 
-                console.log('📊 actualizarEstadisticasEvaluaciones - Total evaluaciones:', total);
-                console.log('📊 evaluacionesManagerData:', evaluacionesManagerData.map(e => ({ id: e.id, titulo: e.titulo })));
-                const evaluacionesIds = new Set(evaluacionesManagerData.map(e => e.id));
-                console.log('📊 evaluacionesIds (manager):', Array.from(evaluacionesIds));
-
                 // Cargar respuestas de evaluaciones usando el mismo método que loadDashboardStats
                 const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
                 
@@ -16345,25 +16337,19 @@ REGLAS ESTRICTAS:
                     }
                 });
 
-                // Calcular promedio por evaluación usando solo las últimas respuestas
-                let sumaCalificaciones = 0;
-                let countCalificaciones = 0;
+                // Calcular promedio general directamente sobre todas las respuestas (como loadResultadosEvaluaciones)
+                let todasLasCalificaciones = [];
                 let totalRespuestas = 0;
                 
                 Object.values(respuestasPorEvaluacion).forEach(respuestasEstudiantes => {
                     const calificaciones = Object.values(respuestasEstudiantes).map(r => r.calificacion).filter(c => c !== undefined);
                     totalRespuestas += Object.keys(respuestasEstudiantes).length;
-                    if (calificaciones.length > 0) {
-                        // Calcular promedio con el mismo método que calcularEstadisticasEvaluacion
-                        const promedioEvaluacion = Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 10) / 10;
-                        sumaCalificaciones += promedioEvaluacion;
-                        countCalificaciones++;
-                    }
+                    todasLasCalificaciones.push(...calificaciones);
                 });
 
-                const promedioGeneral = countCalificaciones > 0 ? Math.round((sumaCalificaciones / countCalificaciones) * 10) / 10 : 0;
-
-                console.log('📊 actualizarEstadisticasEvaluaciones RESULTADO:', promedioGeneral, 'sumaCalificaciones:', sumaCalificaciones, 'countCalificaciones:', countCalificaciones, 'respuestasPorEvaluacion keys:', Object.keys(respuestasPorEvaluacion));
+                const promedioGeneral = todasLasCalificaciones.length > 0 
+                    ? Math.round(todasLasCalificaciones.reduce((a, b) => a + b, 0) / todasLasCalificaciones.length)
+                    : 0;
 
                 document.getElementById('totalEvaluaciones').textContent = total;
                 document.getElementById('evaluacionesActivas').textContent = activos;
