@@ -7134,6 +7134,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 // Crear set de IDs de evaluaciones existentes para filtrar respuestas huérfanas
                 const evaluacionesIds = new Set(evaluacionesSnapshot.docs.map(doc => doc.id));
                 
+                console.log('📊 loadDashboardStats - Total evaluaciones:', evaluacionesSnapshot.size);
+                console.log('📊 evaluacionesSnapshot:', evaluacionesSnapshot.docs.map(doc => ({ id: doc.id, titulo: doc.data().titulo })));
+                console.log('📊 evaluacionesIds:', Array.from(evaluacionesIds));
+                
                 // Procesar respuestas agrupadas por evaluación, tomando solo la última por estudiante
                 const respuestasPorEvaluacion = {};
                 
@@ -16301,6 +16305,9 @@ REGLAS ESTRICTAS:
             try {
                 const total = evaluacionesManagerData.length;
                 const activos = evaluacionesManagerData.filter(c => getCuestionarioEstado(c) === 'activo').length;
+
+                console.log('📊 actualizarEstadisticasEvaluaciones - Total evaluaciones:', total, 'Activos:', activos);
+                console.log('📊 evaluacionesManagerData:', evaluacionesManagerData.map(e => ({ id: e.id, titulo: e.titulo })));
 
                 // Calcular total de respuestas (solo último intento por estudiante)
                 let totalRespuestas = 0;
