@@ -6338,7 +6338,6 @@ async function loadActividadesContent(selectedModulo) {
         });
 
         // Cargar estado de entregas con listener en tiempo real
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (currentUser) {
             const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', currentUser.email));
             onSnapshot(entregasQuery, (snapshot) => {
