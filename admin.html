@@ -15775,19 +15775,6 @@ REGLAS ESTRICTAS:
                     modulosCalificaciones[estudianteId][calif.modulo] = calif;
                 });
 
-                console.log('Calificaciones guardadas cargadas:', Object.keys(modulosCalificaciones));
-                console.log('Total calificaciones guardadas:', calificacionesSnapshot.size);
-
-                // Mostrar todas las calificaciones para debug
-                calificacionesSnapshot.forEach(doc => {
-                    const calif = doc.data();
-                    console.log('Calificación:', calif.estudianteId, calif.modulo, {
-                        actividades: calif.actividades,
-                        evaluaciones: calif.evaluaciones,
-                        practica: calif.practica
-                    });
-                });
-
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
                 const evaluacionesMap = {};
@@ -16030,19 +16017,23 @@ REGLAS ESTRICTAS:
 
                 for (const estudianteInfo of estudiantesFiltrados) {
                     const estudiante = estudianteInfo.data;
-                    const estudianteId = estudiante.email || estudianteInfo.id;
-
-                    console.log('=== ESTUDIANTE ===');
-                    console.log('Nombre:', estudiante.name);
-                    console.log('Email del estudiante:', estudiante.email);
-                    console.log('ID del documento:', estudianteInfo.id);
-                    console.log('ID usado para buscar:', estudianteId);
-
-                    // Obtener calificaciones específicas por módulo si existen
-                    const modulosCalif = modulosCalificaciones[estudianteId] || {};
-
-                    console.log('Calificaciones encontradas para este ID:', Object.keys(modulosCalif));
-                    console.log('¿Tiene calificaciones?', Object.keys(modulosCalif).length > 0);
+                    
+                    // Intentar múltiples estrategias para encontrar las calificaciones
+                    let modulosCalif = {};
+                    const posiblesIds = [
+                        estudiante.email,           // Email del documento de usuario
+                        estudianteInfo.id,          // ID del documento
+                        estudiante.email?.toLowerCase(), // Email en minúsculas
+                        estudiante.email?.trim()    // Email sin espacios
+                    ].filter(id => id); // Filtrar valores null/undefined
+                    
+                    // Buscar calificaciones con cualquiera de los IDs posibles
+                    for (const id of posiblesIds) {
+                        if (modulosCalificaciones[id]) {
+                            modulosCalif = modulosCalificaciones[id];
+                            break; // Usar las primeras calificaciones encontradas
+                        }
+                    }
 
                     let totalFinal = 0;
                     let modulosHtml = '';
