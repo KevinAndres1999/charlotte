@@ -1462,6 +1462,10 @@ window.submitQuiz = async function() {
             }
             
             // Agregar a preguntasDetalladas para mostrar en admin
+            // Para evaluaciones automáticas completas, marcar como correcta si se respondió
+            const marcarCorrecta = pregunta.tipo === 'multiple' ? esCorrecta : 
+                                   (pregunta.tipo === 'open' && respuestaEstudiante && respuestaEstudiante.trim() !== '');
+            
             preguntasDetalladas.push({
                 indice: index,
                 pregunta: pregunta.texto || pregunta.pregunta || `Pregunta ${index + 1}`,
@@ -1470,7 +1474,7 @@ window.submitQuiz = async function() {
                 respuestaEstudianteIndex: respuestaEstudiante,
                 respuestaCorrecta: textoRespuestaCorrecta,
                 respuestaCorrectaIndex: respuestaCorrectaIdx,
-                correcta: esCorrecta,
+                correcta: marcarCorrecta,
                 opciones: pregunta.opciones || []
             });
             
@@ -1480,6 +1484,10 @@ window.submitQuiz = async function() {
                     correctas++;
                 }
             } else if (pregunta.tipo === 'open') {
+                // Para preguntas abiertas, contar como correcta si tiene respuesta
+                if (respuestaEstudiante && respuestaEstudiante.trim() !== '') {
+                    correctas++;
+                }
                 preguntasAbiertas.push({
                     indice: index,
                     texto: pregunta.texto || pregunta.pregunta || 'Pregunta sin texto definido',
@@ -1495,7 +1503,8 @@ window.submitQuiz = async function() {
         respuestasData.preguntasDetalladas = preguntasDetalladas; // Guardar detalle completo
         respuestasData.totalCorrectas = correctas;
         respuestasData.totalPreguntas = currentQuiz.preguntas.length;
-        respuestasData.calificada = preguntasAbiertas.length === 0;
+        // Considerar calificada si todas las preguntas tienen respuesta (abiertas respondidas cuentan)
+        respuestasData.calificada = preguntasAbiertas.filter(p => !p.respuestaEstudiante || p.respuestaEstudiante.trim() === '').length === 0;
         respuestasData.calificacion = respuestasData.calificada ? respuestasData.calificacionAutomatica : null;
         respuestasData.fechaCalificacion = respuestasData.calificada ? new Date() : null;
 
