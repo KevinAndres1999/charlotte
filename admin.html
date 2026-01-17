@@ -61,7 +61,6 @@
         window.updateDoc = (docRef, data) => docRef.update(data);
         window.deleteDoc = (docRef) => docRef.delete();
         window.onSnapshot = (query, callback) => query.onSnapshot(callback);
-        window.dashboardLoaded = false;
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -3013,7 +3012,11 @@
 
     <!-- Script para funciones de filtrado -->
     <script>
-        // Variables globales para filtrado y carga (ya declaradas en el script principal)
+        // Variables globales para filtrado y carga
+        let allPendingUsers = [];
+        let dashboardLoaded = false;
+        let usuariosPendientesLoaded = false;
+        let usuariosAprobadosLoaded = false;
 
         function filterUsuarios() {
             renderPendingUsers();
@@ -3021,7 +3024,7 @@
 
         function renderPendingUsers() {
             const container = document.getElementById('usuarios-pendientes');
-            if (!window.allPendingUsers || window.allPendingUsers.length === 0) {
+            if (!allPendingUsers || allPendingUsers.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: white;">Cargando usuarios pendientes...</p>';
                 return;
             }
@@ -3031,7 +3034,7 @@
             const sedeFilter = document.getElementById('filterSedePendientes').value;
             const horarioFilter = document.getElementById('filterHorarioPendientes').value;
 
-            let filtered = window.allPendingUsers.filter(user => {
+            let filtered = allPendingUsers.filter(user => {
                 const matchesSearch = !searchTerm ||
                     user.name.toLowerCase().includes(searchTerm) ||
                     user.email.toLowerCase().includes(searchTerm);
@@ -6400,20 +6403,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             window.location.href = 'login.html';
         }
         
-        // Flags globales para evitar cargas duplicadas
-        window.dashboardLoaded = false;
-        window.usuariosPendientesLoaded = false;
-        window.usuariosAprobadosLoaded = false;
-        window.allPendingUsers = [];
-        window.allApprovedUsers = [];
-
-        function logout() {
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        }
-
-        // Make logout global
-        window.logout = logout;
+        // Flag para evitar cargas duplicadas (ya declaradas globalmente)
+        // let dashboardLoaded = false;
+        // let usuariosPendientesLoaded = false;
+        // let usuariosAprobadosLoaded = false;
 
         // Navegación
         document.addEventListener('DOMContentLoaded', function() {
@@ -6540,11 +6533,13 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
 
-        // Make showSection global
-        window.showSection = showSection;
-
         function toggleMobileMenu() {
             document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
         }
 
         // Función para poblar módulos según programa seleccionado
@@ -7083,44 +7078,28 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     const fechaInicio = document.getElementById('evaluacionFechaInicio').value;
                     const fechaFin = document.getElementById('evaluacionFechaFin').value;
 
-                    if (!title.trim()) {
-                        return alert('Ingresa un título para la evaluación');
-                    }
+                    if (!title.trim()) return alert('Ingresa un título para la evaluación');
 
                     if (fechaInicio && fechaFin && new Date(fechaInicio) >= new Date(fechaFin)) {
                         return alert('La fecha de inicio debe ser anterior a la fecha de fin.');
                     }
 
-                    if (!programa) {
-                        return alert('Selecciona un programa');
-                    }
-                    if (sedesSeleccionadas.length === 0) {
-                        return alert('Selecciona al menos una sede');
-                    }
-                    if (horariosSeleccionados.length === 0) {
-                        return alert('Selecciona al menos un horario');
-                    }
+                    if (!programa) return alert('Selecciona un programa');
+                    if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
+                    if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
 
                     let questions = [];
                     if (currentEvaluationMode === 'manual') {
                         questions = collectQuestions('evaluacion');
-                        if (questions.length === 0) {
-                            return alert('Agrega al menos una pregunta');
-                        }
+                        if (questions.length === 0) return alert('Agrega al menos una pregunta');
                     } else if (currentEvaluationMode === 'select') {
                         questions = await getSelectedQuestions();
-                        if (questions.length === 0) {
-                            return alert('Selecciona al menos una pregunta de los cuestionarios');
-                        }
+                        if (questions.length === 0) return alert('Selecciona al menos una pregunta de los cuestionarios');
                     } else if (currentEvaluationMode === 'auto') {
                         const cuestionarioId = document.getElementById('autoCuestionario').value;
                         const numPreguntas = parseInt(document.getElementById('autoNumPreguntas').value);
-                        if (!cuestionarioId) {
-                            return alert('Selecciona un cuestionario');
-                        }
-                        if (!numPreguntas || numPreguntas < 1) {
-                            return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
-                        }
+                        if (!cuestionarioId) return alert('Selecciona un cuestionario');
+                        if (!numPreguntas || numPreguntas < 1) return alert('Por favor, especifica el número de preguntas que deseas incluir en la evaluación (mínimo 1)');
 
                         // Verificar que no se pidan más preguntas de las disponibles
                         const cuestionarioDoc = await getDoc(doc(db, 'cuestionarios', cuestionarioId));
@@ -7134,27 +7113,26 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         questions = await getRandomQuestions(cuestionarioId, numPreguntas);
                         console.log(`Preguntas obtenidas: ${questions.length} de ${numPreguntas} solicitadas (${preguntasDisponibles} disponibles)`);
 
-                        if (questions.length === 0) {
-                            return alert('No se pudieron obtener preguntas del cuestionario');
-                        }
+                        if (questions.length === 0) return alert('No se pudieron obtener preguntas del cuestionario');
                         if (questions.length !== numPreguntas) {
                             console.warn(`Se solicitaron ${numPreguntas} preguntas pero se obtuvieron ${questions.length}`);
                         }
                     }
 
                     // Mostrar preview de la evaluación antes de publicar
-                    // showEvaluacionPreview({
-                    //     titulo: title,
-                    //     descripcion: desc,
-                    //     programa: programa,
-                    //     sedes: sedesSeleccionadas,
-                    //     horarios: horariosSeleccionados,
-                    //     tiempoLimite: tiempo ? parseInt(tiempo) : null,
-                    //     fechaInicio: fechaInicio || null,
-                    //     fechaFin: fechaFin || null,
-                    //     preguntas: questions
-                    // });
-        });
+                    showEvaluacionPreview({
+                        titulo: title,
+                        descripcion: desc,
+                        programa: programa,
+                        sedes: sedesSeleccionadas,
+                        horarios: horariosSeleccionados,
+                        tiempoLimite: tiempo ? parseInt(tiempo) : null,
+                        fechaInicio: fechaInicio || null,
+                        fechaFin: fechaFin || null,
+                        preguntas: questions
+                    });
+                });
+            }        });
 
         // Dashboard stats - con caché para evitar consultas repetidas
         let statsCache = null;
@@ -7163,13 +7141,13 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         
         async function loadDashboardStats(forceReload = false) {
             // Evitar cargas duplicadas simultáneas
-            if (window.dashboardLoaded && !forceReload && statsCache && (Date.now() - statsCacheTime < STATS_CACHE_DURATION)) {
+            if (dashboardLoaded && !forceReload && statsCache && (Date.now() - statsCacheTime < STATS_CACHE_DURATION)) {
                 console.log('Using cached dashboard stats');
                 applyStatsToUI(statsCache);
                 return;
             }
             
-            window.dashboardLoaded = true;
+            dashboardLoaded = true;
             console.log('Loading dashboard stats');
             
             try {
@@ -7275,7 +7253,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         c.preguntas.forEach((pregunta, idx) => {
                             const texto = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
                             if (texto) {
-                                preguntasOriginalesMap.set(texto, { correcta: pregunta.correctaIdx || pregunta.correcta || pregunta.respuesta, pregunta });
+                                preguntasOriginalesMap.set(texto, { correctaIdx: pregunta.correctaIdx || pregunta.correcta, pregunta });
                             }
                         });
                     }
@@ -7314,7 +7292,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                     const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                     if (preguntaOriginal) {
-                                        respuestaCorrectaIdx = preguntaOriginal.correcta;
+                                        respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
                                     }
                                 }
                                 
@@ -7378,12 +7356,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 applyStatsToUI(statsCache);
             } catch (error) {
                 console.error('Error loading stats:', error);
-                window.dashboardLoaded = false;
+                dashboardLoaded = false;
             }
         }
-        
-        // Make loadDashboardStats global
-        window.loadDashboardStats = loadDashboardStats;
         
         function applyStatsToUI(stats) {
             document.getElementById('stat-videos').textContent = stats.videos;
@@ -7463,9 +7438,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 console.log('Cargando usuarios pendientes...');
                 const snapshot = await getDocs(query(collection(db, 'pendingStudents'), orderBy('registeredDate', 'desc')));
                 console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
-                window.allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log('Usuarios pendientes cargados:', window.allPendingUsers.length);
-                document.getElementById('total-pendientes').textContent = window.allPendingUsers.length;
+                allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('Usuarios pendientes cargados:', allPendingUsers.length);
+                document.getElementById('total-pendientes').textContent = allPendingUsers.length;
                 renderPendingUsers();
             } catch (error) {
                 console.error('Error loading pending users:', error);
@@ -7488,8 +7463,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                 });
 
-                window.allApprovedUsers = Object.values(uniqueUsers);
-                document.getElementById('total-aprobados').textContent = window.allApprovedUsers.length;
+                allApprovedUsers = Object.values(uniqueUsers);
+                document.getElementById('total-aprobados').textContent = allApprovedUsers.length;
                 renderApprovedUsers();
             } catch (error) {
                 console.error('Error loading approved users:', error);
@@ -7498,7 +7473,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         function renderPendingUsers() {
             const container = document.getElementById('usuarios-pendientes');
-            if (!window.allPendingUsers || window.allPendingUsers.length === 0) {
+            if (!allPendingUsers || allPendingUsers.length === 0) {
                 container.innerHTML = '<p style="text-align: center; color: white;">Cargando usuarios pendientes...</p>';
                 return;
             }
@@ -7508,7 +7483,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             const sedeFilter = document.getElementById('filterSedePendientes').value;
             const horarioFilter = document.getElementById('filterHorarioPendientes').value;
 
-            let filtered = window.allPendingUsers.filter(user => {
+            let filtered = allPendingUsers.filter(user => {
                 const matchesSearch = !searchTerm ||
                     user.name.toLowerCase().includes(searchTerm) ||
                     user.email.toLowerCase().includes(searchTerm);
@@ -7589,7 +7564,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             const sedeFilter = document.getElementById('filterSedeAprobados').value;
             const horarioFilter = document.getElementById('filterHorarioAprobados').value;
 
-            let filtered = window.allApprovedUsers.filter(user => {
+            let filtered = allApprovedUsers.filter(user => {
                 const matchesPrograma = !programaFilter ||
                     user.programa === programaFilter;
                 const matchesSede = !sedeFilter ||
@@ -8936,6 +8911,10 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             `;
         }
 
+        async function viewCuestionario(cuestionarioId) {
+            showContentPreview('cuestionario', cuestionarioId);
+        }
+
         async function viewVideo(videoId) {
             showContentPreview('video', videoId);
         }
@@ -9048,6 +9027,10 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             }
             
             alert('Edición cancelada. El formulario ha sido limpiado.');
+        }
+
+        async function viewEvaluacion(evaluacionId) {
+            showContentPreview('evaluacion', evaluacionId);
         }
 
         async function viewMaterial(materialId) {
@@ -9942,8 +9925,28 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             loadManagementContent();
         }
 
+        // Funciones individuales
+        function viewItem(type, id) {
+            if (type === 'evaluacion') {
+                viewEvaluacion(id);
+            } else {
+                viewCuestionario(id);
+            }
+        }
+
+        function editItem(type, id) {
+            alert(`Funcionalidad de edición próximamente disponible para ${type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}`);
+            // Aquí se podría implementar la edición inline o redireccionar a un modo de edición
+        }
+
+        function duplicateItem(type, id) {
+            selectedItems.clear();
+            selectedItems.add(id);
+            duplicateSelected();
+        }
+
         // Función para ver evaluación (reutilizar la existente)
-        const viewEvaluacion = async function(id) {
+        async function viewEvaluacion(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'evaluaciones', id));
                 if (docSnap.exists) {
@@ -9965,7 +9968,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         }
 
         // Función para ver cuestionario
-        const viewCuestionario = async function(id) {
+        async function viewCuestionario(id) {
             try {
                 const docSnap = await getDoc(doc(db, 'cuestionarios', id));
                 if (docSnap.exists) {
@@ -9978,28 +9981,6 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                 alert('Error al cargar el cuestionario');
             }
         }
-
-        // Funciones individuales
-        function viewItem(type, id) {
-            if (type === 'evaluacion') {
-                viewEvaluacion(id);
-            } else {
-                viewCuestionario(id);
-            }
-        }
-
-        function editItem(type, id) {
-            alert(`Funcionalidad de edición próximamente disponible para ${type === 'evaluacion' ? 'evaluaciones' : 'cuestionarios'}`);
-            // Aquí se podría implementar la edición inline o redireccionar a un modo de edición
-        }
-
-        function duplicateItem(type, id) {
-            selectedItems.clear();
-            selectedItems.add(id);
-            duplicateSelected();
-        }
-
-
 
         // Función para mostrar modal de cuestionario
         function showCuestionarioModal(data, id) {
@@ -11337,7 +11318,8 @@ REGLAS:
             // Verificar tamaño del contenido (Firebase tiene límite de ~1MB)
             const contenidoBytes = new Blob([contenido]).size;
             const limiteBytes = 950000; // 950KB para dejar más margen para imágenes
-            
+            let hasChunks = false;
+
             if (contenidoBytes > limiteBytes) {
                 // Intentar comprimir imágenes base64 grandes en lugar de removerlas
                 const contenidoComprimido = contenido.replace(/data:image\/[^;]+;base64,[^"]+/g, (match) => {
@@ -11362,11 +11344,12 @@ REGLAS:
                 const contenidoComprimidoBytes = new Blob([contenidoComprimido]).size;
                 
                 if (contenidoComprimidoBytes > limiteBytes) {
-                    const confirmar = confirm(`El contenido es muy extenso (${Math.round(contenidoComprimidoBytes/1024)}KB). Firebase tiene un límite de ~1MB.\n\n¿Deseas guardar una versión reducida? Se truncará el contenido para que quepa.`);
+                    // Usar chunks para contenido muy grande
+                    const confirmar = confirm(`El contenido es muy extenso (${Math.round(contenidoComprimidoBytes/1024)}KB). Se guardará usando el sistema de chunks para manejar archivos grandes.\n\n¿Deseas continuar?`);
                     if (!confirmar) return;
                     
-                    // Truncar el contenido
-                    contenido = contenidoComprimido.substring(0, limiteBytes - 50000) + '\n\n<p style="color: red;"><strong>⚠️ Contenido truncado por límite de tamaño. Por favor, edita la clase para completar el contenido.</strong></p>';
+                    hasChunks = true;
+                    contenido = contenidoComprimido; // Mantener el contenido completo, se guardará en chunks
                 } else {
                     contenido = contenidoComprimido;
                     console.log('Contenido procesado, nuevo tamaño:', contenidoComprimidoBytes);
@@ -11383,7 +11366,7 @@ REGLAS:
                 const claseData = {
                     titulo: titulo,
                     descripcion: descripcion,
-                    contenido: contenido,
+                    contenido: hasChunks ? '' : contenido, // Si tiene chunks, no guardar contenido aquí
                     programa: programa,
                     modulo: modulo,
                     duracion: parseInt(document.getElementById('claseDuracionIA').value) || 60,
@@ -11392,10 +11375,17 @@ REGLAS:
                     fechaCreacion: new Date().toISOString(),
                     generadaConIA: true,
                     metodologia: 'constructivista',
-                    hasChunks: false
+                    hasChunks: hasChunks
                 };
 
-                await addDoc(collection(db, 'classes'), claseData);
+                const claseRef = await addDoc(collection(db, 'classes'), claseData);
+
+                // Si tiene chunks, guardar el contenido en chunks
+                if (hasChunks) {
+                    console.log('Guardando contenido en chunks...');
+                    await saveContentInChunks(claseRef.id, contenido);
+                    console.log('Contenido guardado en chunks');
+                }
                 
                 alert('✅ Clase guardada exitosamente!');
                 
@@ -11533,7 +11523,6 @@ REGLAS:
             const textarea = document.getElementById('autoContentText');
             const charCount = document.getElementById('charCount');
             const charWarning = document.getElementById('charWarning');
-            if (!textarea || !charCount || !charWarning) return;
             const count = textarea.value.length;
 
             charCount.textContent = count.toLocaleString();
@@ -15240,7 +15229,6 @@ REGLAS ESTRICTAS:
         let evaluacionPreviewData = null;
 
         // Función para mostrar preview de evaluación mejorado
-        /*
         function showEvaluacionPreview(evaluacionData) {
             evaluacionPreviewData = evaluacionData;
 
@@ -15278,7 +15266,6 @@ REGLAS ESTRICTAS:
             // Mostrar modal
             document.getElementById('evaluacionPreviewModal').style.display = 'block';
         }
-        */
 
         // Función para cambiar entre pestañas
         function switchPreviewTab(tabName) {
@@ -15778,24 +15765,12 @@ REGLAS ESTRICTAS:
                     return;
                 }
 
-                // Cargar TODAS las calificaciones específicas de una vez (optimización)
-                const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot, calificacionesSnapshot] = await Promise.all([
+                // Cargar todos los datos de calificaciones de una vez para optimizar
+                const [entregasSnapshot, evaluacionesSnapshot, practicasSnapshot] = await Promise.all([
                     getDocs(collection(db, 'entregas')),
                     getDocs(collection(db, 'resultados_evaluaciones')),
-                    getDocs(collection(db, 'calificaciones_practicas')),
-                    getDocs(collection(db, 'calificaciones_modulos'))
+                    getDocs(collection(db, 'calificaciones_practicas'))
                 ]);
-
-                // Crear mapa de calificaciones guardadas por estudiante y módulo
-                const modulosCalificaciones = {};
-                calificacionesSnapshot.forEach(doc => {
-                    const calif = doc.data();
-                    const estudianteId = calif.estudianteId;
-                    if (!modulosCalificaciones[estudianteId]) {
-                        modulosCalificaciones[estudianteId] = {};
-                    }
-                    modulosCalificaciones[estudianteId][calif.modulo] = calif;
-                });
 
                 // Crear mapas para acceso rápido
                 const actividadesMap = {};
@@ -15829,171 +15804,23 @@ REGLAS ESTRICTAS:
                     practicasMap[estudianteId] = practica;
                 });
 
-                // Calcular calificaciones de evaluaciones por módulo en tiempo real
-                const evaluacionesPorModulo = {};
+                // Cargar TODAS las calificaciones específicas por módulo de una vez (optimización)
+                const modulosCalificaciones = {};
                 try {
-                    // Cargar preguntas originales de la misma manera que estudiante.html
-                    const preguntasOriginalesMap = new Map();
-                    try {
-                        // Cargar preguntas de cuestionarios
-                        const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
-                        cuestionariosSnapshot.forEach(docSnap => {
-                            const cuest = docSnap.data();
-                            if (cuest.preguntas && Array.isArray(cuest.preguntas)) {
-                                cuest.preguntas.forEach(p => {
-                                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
-                                    if (texto) {
-                                        preguntasOriginalesMap.set(texto, {
-                                            opciones: p.opciones || [],
-                                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
-                                        });
-                                    }
-                                });
-                            }
-                        });
+                    const allModulosSnapshot = await getDocs(collection(db, 'calificaciones_modulos'));
+                    console.log('Total calificaciones por módulo cargadas:', allModulosSnapshot.size);
 
-                        // Cargar preguntas de evaluaciones
-                        const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
-                        evaluacionesSnapshot.forEach(docSnap => {
-                            const ev = docSnap.data();
-                            if (ev.preguntas && Array.isArray(ev.preguntas)) {
-                                ev.preguntas.forEach(p => {
-                                    const texto = (p.texto || p.pregunta || '').trim().toLowerCase();
-                                    if (texto && !preguntasOriginalesMap.has(texto)) {
-                                        preguntasOriginalesMap.set(texto, {
-                                            opciones: p.opciones || [],
-                                            correcta: p.correcta !== undefined ? p.correcta : (p.respuesta !== undefined ? p.respuesta : null)
-                                        });
-                                    }
-                                });
-                            }
-                        });
-
-                        console.log('Admin - Preguntas originales cargadas:', preguntasOriginalesMap.size);
-                    } catch (error) {
-                        console.log('Admin - Error cargando preguntas originales:', error);
-                    }
-
-                    // Cargar todas las evaluaciones y respuestas
-                    const [evaluacionesSnapshot, respuestasSnapshot] = await Promise.all([
-                        getDocs(collection(db, 'evaluaciones')),
-                        getDocs(collection(db, 'respuestasEvaluaciones'))
-                    ]);
-
-                    // Crear mapa de evaluaciones
-                    const evaluacionesMap = {};
-                    evaluacionesSnapshot.forEach(doc => {
-                        const evaluacion = doc.data();
-                        evaluacionesMap[doc.id] = evaluacion;
-                    });
-
-                    // Crear mapa de respuestas por estudiante
-                    const respuestasPorEstudiante = {};
-                    respuestasSnapshot.forEach(doc => {
-                        const respuesta = doc.data();
-                        const estudianteId = respuesta.estudianteId;
-                        const evaluacionId = respuesta.evaluacionId;
-
-                        if (!respuestasPorEstudiante[estudianteId]) {
-                            respuestasPorEstudiante[estudianteId] = {};
+                    allModulosSnapshot.forEach(doc => {
+                        const calif = doc.data();
+                        const estudianteId = calif.estudianteId;
+                        if (!modulosCalificaciones[estudianteId]) {
+                            modulosCalificaciones[estudianteId] = {};
                         }
-
-                        // Mantener solo la respuesta más reciente
-                        if (!respuestasPorEstudiante[estudianteId][evaluacionId] ||
-                            new Date(respuesta.fechaRespuesta) > new Date(respuestasPorEstudiante[estudianteId][evaluacionId].fechaRespuesta)) {
-                            respuestasPorEstudiante[estudianteId][evaluacionId] = respuesta;
-                        }
+                        modulosCalificaciones[estudianteId][calif.modulo] = calif;
                     });
-
-                    // Función para recalcular calificación
-                    function recalcularCalificacion(respuestas, preguntas) {
-                        if (!respuestas || !preguntas || preguntas.length === 0) return null;
-
-                        let correctas = 0;
-                        preguntas.forEach((pregunta, idx) => {
-                            const respuestaEstudiante = respuestas[idx];
-                            const textoPregunta = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
-
-                            let respuestaCorrectaIdx = pregunta.respuesta !== undefined ? pregunta.respuesta :
-                                                       (pregunta.correcta !== undefined ? pregunta.correcta : null);
-
-                            if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
-                                const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
-                                if (preguntaOriginal) {
-                                    respuestaCorrectaIdx = preguntaOriginal.correcta;
-                                }
-                            }
-
-                            console.log(`Admin - Pregunta ${idx}: estudiante=${respuestaEstudiante}, correcta=${respuestaCorrectaIdx}, texto="${textoPregunta}"`);
-
-                            if (respuestaEstudiante === respuestaCorrectaIdx) {
-                                correctas++;
-                            }
-                        });
-
-                        const resultado = Math.round((correctas / preguntas.length) * 100);
-                        console.log(`Admin - Calificación recalculada: ${correctas}/${preguntas.length} = ${resultado}%`);
-                        return resultado;
-                    }
-
-                    // Calcular notas por módulo para cada estudiante
-                    estudiantesFiltrados.forEach(estudianteInfo => {
-                        const estudianteId = estudianteInfo.data.email || estudianteInfo.id;
-
-                        if (respuestasPorEstudiante[estudianteId]) {
-                            const respuestasEstudiante = respuestasPorEstudiante[estudianteId];
-                            const moduloNotas = { modulo1: { total: 0, count: 0 }, modulo2: { total: 0, count: 0 }, modulo3: { total: 0, count: 0 }, modulo4: { total: 0, count: 0 } };
-
-                            Object.entries(respuestasEstudiante).forEach(([evaluacionId, respuesta]) => {
-                                const evaluacion = evaluacionesMap[evaluacionId];
-                                if (evaluacion && respuesta.respuestas && evaluacion.preguntas) {
-                                    const calificacionRecalculada = recalcularCalificacion(respuesta.respuestas, evaluacion.preguntas);
-
-                                    if (calificacionRecalculada !== null) {
-                                        // Determinar módulo
-                                        const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
-                                        const tituloEvaluacion = (evaluacion.titulo || '').toLowerCase();
-
-                                        let moduloAsignado = null;
-                                        if (moduloEvaluacion.includes('panaderia') || moduloEvaluacion.includes('panadería') || moduloEvaluacion.includes('panes') || tituloEvaluacion.includes('panaderia') || tituloEvaluacion.includes('panadería') || tituloEvaluacion.includes('panes')) {
-                                            moduloAsignado = 'modulo1';
-                                        } else if (moduloEvaluacion.includes('galleteria') || moduloEvaluacion.includes('galletería') || moduloEvaluacion.includes('galletas') || tituloEvaluacion.includes('galleteria') || tituloEvaluacion.includes('galletería') || tituloEvaluacion.includes('galletas')) {
-                                            moduloAsignado = 'modulo2';
-                                        } else if (moduloEvaluacion.includes('pasteleria') || moduloEvaluacion.includes('pastelería') || moduloEvaluacion.includes('pasteles') || tituloEvaluacion.includes('pasteleria') || tituloEvaluacion.includes('pastelería') || tituloEvaluacion.includes('pasteles')) {
-                                            moduloAsignado = 'modulo3';
-                                        } else if (moduloEvaluacion.includes('reposteria') || moduloEvaluacion.includes('repostería') || tituloEvaluacion.includes('reposteria') || tituloEvaluacion.includes('repostería')) {
-                                            moduloAsignado = 'modulo4';
-                                        }
-
-                                        console.log(`Admin - Evaluación "${evaluacion.titulo}" (modulo: "${evaluacion.modulo}", titulo: "${evaluacion.titulo}") -> asignado a ${moduloAsignado}, calificación: ${calificacionRecalculada}%`);
-
-                                        if (moduloAsignado) {
-                                            const notaEscala2 = (calificacionRecalculada / 100) * 2;
-                                            moduloNotas[moduloAsignado].total += notaEscala2;
-                                            moduloNotas[moduloAsignado].count++;
-                                            console.log(`Admin - Nota escala 2: ${notaEscala2} para ${moduloAsignado}`);
-                                        }
-                                    }
-                                }
-                            });
-
-                            // Calcular promedios
-                            evaluacionesPorModulo[estudianteId] = {};
-                            for (let i = 1; i <= 4; i++) {
-                                const moduloKey = `modulo${i}`;
-                                const datos = moduloNotas[moduloKey];
-                                evaluacionesPorModulo[estudianteId][moduloKey] = datos.count > 0 ? datos.total / datos.count : 0;
-                                console.log(`Admin - ${estudianteId} ${moduloKey}: ${datos.count} evaluaciones, promedio: ${evaluacionesPorModulo[estudianteId][moduloKey].toFixed(2)}`);
-                            }
-                        }
-                    });
-
-                    console.log('Evaluaciones calculadas por módulo:', evaluacionesPorModulo);
                 } catch (error) {
-                    console.log('Error calculando evaluaciones por módulo:', error);
+                    console.log('Error cargando calificaciones por módulo:', error);
                 }
-
-
 
                 let html = `
                     <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -16053,12 +15880,7 @@ REGLAS ESTRICTAS:
 
                         // Valores por defecto o existentes
                         const actividades = moduloData.actividades || 0;
-                        // Para el módulo 3, usar evaluaciones calculadas automáticamente, para otros módulos usar guardadas
-                        let evaluaciones = moduloData.evaluaciones || 0;
-                        if (moduloNum === 3 && evaluacionesPorModulo[estudianteId] && evaluacionesPorModulo[estudianteId][moduloKey] !== undefined) {
-                            // Solo para módulo 3, usar la evaluación calculada automáticamente
-                            evaluaciones = evaluacionesPorModulo[estudianteId][moduloKey];
-                        }
+                        const evaluaciones = moduloData.evaluaciones || 0;
                         const practica = moduloData.practica || 0;
                         const moduloTotal = actividades + evaluaciones + practica;
 
@@ -16074,8 +15896,7 @@ REGLAS ESTRICTAS:
                             <td style="padding: 0.5rem; text-align: center;">
                                 <input type="number" step="0.1" min="0" max="2.0" 
                                        value="${evaluaciones.toFixed(1)}" 
-                                       style="width: 50px; padding: 0.25rem; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 0.8rem; ${moduloNum === 3 ? 'background: #f5f5f5; cursor: not-allowed;' : ''}"
-                                       ${moduloNum === 3 ? 'readonly' : ''} 
+                                       style="width: 50px; padding: 0.25rem; border: 1px solid #ddd; border-radius: 3px; text-align: center; font-size: 0.8rem;"
                                        onchange="updateModuloGrade('${estudianteId}', ${moduloNum}, 'evaluaciones', this.value)">
                             </td>
                             <td style="padding: 0.5rem; text-align: center;">
@@ -16166,6 +15987,130 @@ REGLAS ESTRICTAS:
             } catch (error) {
                 console.error('Error loading calificaciones list:', error);
                 container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #dc3545;">Error al cargar calificaciones</div>';
+            }
+        }
+
+        // Función para calcular automáticamente las notas de evaluaciones sobre 2 y asignarlas al módulo 3
+        async function calcularNotasEvaluacionesModulo3(evaluacionesDocs, estudiantesFiltrados) {
+            try {
+                console.log('Calculando notas de evaluaciones sobre 2 para módulo 3...');
+
+                // Mapeo de módulos basado en el contenido de las evaluaciones
+                const moduloMap = {
+                    'modulo1': ['panaderia', 'panadería', 'panes'],
+                    'modulo2': ['galleteria', 'galletería', 'galletas', 'galleteria y bizcocheria', 'galleteriabizcocheria'],
+                    'modulo3': ['pasteleria', 'pastelería', 'pasteles'],
+                    'modulo4': ['reposteria', 'repostería', 'postres']
+                };
+
+                // Procesar cada estudiante
+                for (const estudianteInfo of estudiantesFiltrados) {
+                    const estudiante = estudianteInfo.data;
+                    const estudianteId = estudiante.email || estudianteInfo.id;
+
+                    // Inicializar contadores por módulo para este estudiante
+                    const moduloNotas = {
+                        'modulo1': { total: 0, count: 0 },
+                        'modulo2': { total: 0, count: 0 },
+                        'modulo3': { total: 0, count: 0 },
+                        'modulo4': { total: 0, count: 0 }
+                    };
+
+                    // Filtrar evaluaciones de este estudiante
+                    const evaluacionesEstudiante = evaluacionesDocs.filter(doc => {
+                        const data = doc.data();
+                        return data.estudianteId === estudianteId && data.calificada && data.calificacionRecalculada !== null && data.calificacionRecalculada !== undefined;
+                    });
+
+                    // Calcular la nota promedio de evaluaciones por módulo
+                    evaluacionesEstudiante.forEach(doc => {
+                        const evaluacion = doc.data();
+                        if (evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined) {
+                            // Determinar a qué módulo pertenece esta evaluación
+                            const moduloEvaluacion = (evaluacion.modulo || '').toLowerCase();
+                            const tituloEvaluacion = (evaluacion.titulo || '').toLowerCase();
+
+                            let moduloAsignado = null;
+
+                            // Primero buscar por campo modulo
+                            for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                                if (keywords.some(kw => moduloEvaluacion.includes(kw))) {
+                                    moduloAsignado = modulo;
+                                    break;
+                                }
+                            }
+
+                            // Si no se encontró, buscar por título
+                            if (!moduloAsignado) {
+                                for (const [modulo, keywords] of Object.entries(moduloMap)) {
+                                    if (keywords.some(kw => tituloEvaluacion.includes(kw))) {
+                                        moduloAsignado = modulo;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Si aún no se encontró, asignar a modulo3 (Pastelería) como default
+                            if (!moduloAsignado) {
+                                moduloAsignado = 'modulo3';
+                            }
+
+                            // Convertir calificación porcentual a escala de 2 puntos
+                            const notaEscala2 = (evaluacion.calificacionRecalculada / 100) * 2;
+
+                            moduloNotas[moduloAsignado].total += notaEscala2;
+                            moduloNotas[moduloAsignado].count++;
+
+                            console.log(`Evaluación "${evaluacion.titulo}" -> ${moduloAsignado}: ${evaluacion.calificacionRecalculada}% = ${notaEscala2.toFixed(2)} pts`);
+                        }
+                    });
+
+                    // Para cada módulo, calcular la nota final y guardarla
+                    for (let i = 1; i <= 4; i++) {
+                        const moduloKey = `modulo${i}`;
+                        const datos = moduloNotas[moduloKey];
+
+                        // Calcular nota de evaluaciones respondidas
+                        const notaCalculada = datos.count > 0 ? (datos.total / datos.count) : 0;
+
+                        // Solo actualizar si hay evaluaciones para este módulo
+                        if (datos.count > 0) {
+                            // Buscar calificación existente para este módulo
+                            const existingSnapshot = await getDocs(query(collection(db, 'calificaciones_modulos'),
+                                where('estudianteId', '==', estudianteId),
+                                where('modulo', '==', moduloKey),
+                                limit(1)
+                            ));
+
+                            const califData = {
+                                estudianteId: estudianteId,
+                                modulo: moduloKey,
+                                evaluaciones: notaCalculada,
+                                fechaActualizacion: new Date().toISOString(),
+                                actualizadoPor: 'sistema-auto'
+                            };
+
+                            if (!existingSnapshot.empty) {
+                                // Actualizar existente (solo el campo evaluaciones)
+                                const docId = existingSnapshot.docs[0].id;
+                                await doc(db, 'calificaciones_modulos', docId).update({
+                                    evaluaciones: notaCalculada,
+                                    fechaActualizacion: new Date().toISOString(),
+                                    actualizadoPor: 'sistema-auto'
+                                });
+                            } else {
+                                // Crear nueva
+                                await addDoc(collection(db, 'calificaciones_modulos'), califData);
+                            }
+
+                            console.log(`${moduloKey} - Estudiante ${estudiante.name}: calculada=${notaCalculada.toFixed(2)} (de ${datos.count} evaluaciones)`);
+                        }
+                    }
+                }
+
+                console.log('✅ Cálculo automático de notas de evaluaciones completado');
+            } catch (error) {
+                console.error('Error calculando notas de evaluaciones:', error);
             }
         }
 
@@ -16311,14 +16256,6 @@ REGLAS ESTRICTAS:
 
         async function updateModuloGrade(estudianteId, moduloNum, componente, valor) {
             try {
-                // No permitir editar evaluaciones del módulo 3 (son automáticas)
-                if (moduloNum === 3 && componente === 'evaluaciones') {
-                    alert('Las evaluaciones del módulo 3 son automáticas y no se pueden editar manualmente');
-                    // Recargar la lista para revertir cualquier cambio visual
-                    loadCalificacionesList();
-                    return;
-                }
-
                 const notaNum = parseFloat(valor);
                 if (isNaN(notaNum)) {
                     alert('El valor debe ser un número válido');
@@ -16685,7 +16622,7 @@ REGLAS ESTRICTAS:
                         evaluacion.preguntas.forEach((pregunta, idx) => {
                             const texto = (pregunta.texto || pregunta.pregunta || '').trim().toLowerCase();
                             if (texto) {
-                                preguntasOriginalesMap.set(texto, { correcta: pregunta.correctaIdx || pregunta.correcta || pregunta.respuesta, pregunta });
+                                preguntasOriginalesMap.set(texto, { correctaIdx: pregunta.correctaIdx || pregunta.correcta, pregunta });
                             }
                         });
                     }
@@ -16721,7 +16658,7 @@ REGLAS ESTRICTAS:
                                     if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                         const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                         if (preguntaOriginal) {
-                                            respuestaCorrectaIdx = preguntaOriginal.correcta;
+                                            respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
                                         }
                                     }
                                     
@@ -18054,7 +17991,7 @@ REGLAS ESTRICTAS:
                                 const correctaIdx = p.correcta !== undefined ? p.correcta : p.respuesta;
                                 if (correctaIdx !== undefined) {
                                     preguntasOriginalesMap.set(key, {
-                                        correcta: correctaIdx,
+                                        correctaIdx: correctaIdx,
                                         opciones: p.opciones || []
                                     });
                                 }
@@ -18100,7 +18037,7 @@ REGLAS ESTRICTAS:
                             if (respuestaCorrectaIdx === null || respuestaCorrectaIdx === undefined) {
                                 const preguntaOriginal = preguntasOriginalesMap.get(textoPregunta);
                                 if (preguntaOriginal) {
-                                    respuestaCorrectaIdx = preguntaOriginal.correcta;
+                                    respuestaCorrectaIdx = preguntaOriginal.correctaIdx;
                                 }
                             }
                             
@@ -18546,13 +18483,13 @@ REGLAS ESTRICTAS:
             }, 100);
 
             // Cargar datos iniciales del dashboard (solo si no se han cargado)
-            if (typeof window.dashboardLoaded === 'undefined' || !window.dashboardLoaded) loadDashboardStats();
-            if (!window.usuariosPendientesLoaded) {
-                window.usuariosPendientesLoaded = true;
+            if (!dashboardLoaded) loadDashboardStats();
+            if (!usuariosPendientesLoaded) {
+                usuariosPendientesLoaded = true;
                 loadUsuariosPendientes();
             }
-            if (!window.usuariosAprobadosLoaded) {
-                window.usuariosAprobadosLoaded = true;
+            if (!usuariosAprobadosLoaded) {
+                usuariosAprobadosLoaded = true;
                 loadUsuariosAprobados();
             }
             
