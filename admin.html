@@ -7,6 +7,7 @@
     <title>Panel Administrador | Charlotte</title>
     <!-- Actualizado: 11/12/2025 16:38:02 -->
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="admin-focus-fix.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/35.4.0/classic/ckeditor.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -126,6 +127,23 @@
             box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.1), 0 8px 25px rgba(66, 153, 225, 0.15);
             background: white;
             transform: translateY(-2px);
+        }
+
+        /* CORRECCIÓN: Reset de estilos para elementos no enfocados */
+        .form-group input:not(:focus),
+        .form-group textarea:not(:focus),
+        .form-group select:not(:focus) {
+            border-color: #e2e8f0 !important;
+            box-shadow: none !important;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%) !important;
+            transform: none !important;
+        }
+
+        /* CORRECCIÓN: Asegurar que todos los inputs vuelvan a su estado normal */
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            transition: all 0.3s ease;
         }
         .form-group textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
         .form-group input::placeholder, .form-group textarea::placeholder { color: #a0aec0; font-style: italic; }
@@ -742,11 +760,32 @@
         .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+
+        /* CORRECCIÓN: Reset de estilos hover para botones no hovered */
+        .btn-primary:not(:hover) {
+            transform: none !important;
+            box-shadow: none !important;
+        }
         .content-list { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .content-list-header { padding: 24px 32px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-bottom: 2px solid #e2e8f0; }
         .content-list-header h4 { margin: 0; color: #1e3a8a; font-size: 20px; }
         .content-item { padding: 24px 32px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s; }
         .content-item:hover { background: #f8fafc; }
+
+        /* CORRECCIÓN GENERAL: Reset de todos los estilos hover para elementos no hovered */
+        *:not(:hover) {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Excepciones específicas para elementos que deben mantener ciertos estilos */
+        .stat-card,
+        .quiz-form-card,
+        .cuestionario-card,
+        .evaluacion-card {
+            transform: none !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        }
         .content-item:last-child { border-bottom: none; }
         .content-info { flex: 1; }
         .content-info h5 { margin: 0 0 4px 0; color: #0a1628; font-size: 16px; }
@@ -755,6 +794,11 @@
         .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .btn-delete { background: #fee2e2; color: #dc2626; }
         .btn-delete:hover { background: #fecaca; }
+
+        /* CORRECCIÓN: Reset de estilos hover para botones icono */
+        .btn-delete:not(:hover) {
+            background: #fee2e2 !important;
+        }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 40px; }
         .stat-card { background: #fff; padding: 32px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .evaluation-mode-selector { display: flex; gap: 1rem; margin-bottom: 2rem; }
@@ -3185,12 +3229,34 @@
             }
         }
 
-        // Verificar autenticación al cargar la página
+        // CORRECCIÓN: Reset de estilos de foco al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            if (checkAuthentication()) {
-                // Usuario autenticado, inicializar el admin
-                initializeAdmin();
-            }
+            // Forzar reset de todos los elementos de formulario
+            const formElements = document.querySelectorAll('input, textarea, select');
+            formElements.forEach(element => {
+                element.blur(); // Quitar foco
+                element.style.borderColor = '#e2e8f0';
+                element.style.boxShadow = 'none';
+                element.style.background = 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)';
+                element.style.transform = 'none';
+            });
+
+            // Reset periódico cada 100ms durante los primeros 2 segundos
+            let resetCount = 0;
+            const resetInterval = setInterval(() => {
+                formElements.forEach(element => {
+                    if (!element.matches(':focus')) {
+                        element.style.borderColor = '#e2e8f0';
+                        element.style.boxShadow = 'none';
+                        element.style.background = 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)';
+                        element.style.transform = 'none';
+                    }
+                });
+                resetCount++;
+                if (resetCount >= 20) { // 2 segundos
+                    clearInterval(resetInterval);
+                }
+            }, 100);
         });
 
         // Función para inicializar el admin una vez que todo esté listo

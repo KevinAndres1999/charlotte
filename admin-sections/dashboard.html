@@ -171,7 +171,7 @@
                             window.db.collection('actividades').get(),
                             window.db.collection('materiales').get(),
                             window.db.collection('entregas').get(),
-                            window.db.collection('users').where('active', '==', true).get(),
+                            window.db.collection('users').get(), // Remove active filter - count all users
                             window.db.collection('cuestionarios').get(),
                             window.db.collection('evaluaciones').get()
                         ]);
@@ -194,9 +194,16 @@
                         const thirtyDaysAgo = new Date();
                         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-                        const usuariosRecientesSnap = await window.db.collection('users')
-                            .where('createdAt', '>=', thirtyDaysAgo)
-                            .get();
+                        // Usuarios recientes (intentamos con createdAt, pero si no existe, usamos todos)
+                        let usuariosRecientesSnap;
+                        try {
+                            usuariosRecientesSnap = await window.db.collection('users')
+                                .where('createdAt', '>=', thirtyDaysAgo)
+                                .get();
+                        } catch (error) {
+                            // Si no hay campo createdAt, contar todos como recientes
+                            usuariosRecientesSnap = usuariosSnap;
+                        }
 
                         // Calcular tasa de engagement (entregas por estudiante)
                         const engagementRate = usuariosSnap.size > 0 ?
@@ -207,9 +214,14 @@
                         const completionRate = evaluacionesSnap.size > 0 ?
                             Math.round((evaluacionesCompletadasSnap.size / evaluacionesSnap.size) * 100) : 0;
 
+                        // Estadísticas de respuestas
+                        const respuestasCuestionariosSnap = await window.db.collection('respuestasCuestionarios').get();
+
                         stats.usuariosRecientes = usuariosRecientesSnap.size;
                         stats.engagementRate = `${engagementRate}`;
                         stats.completionRate = `${completionRate}%`;
+                        stats.respuestasCuestionarios = respuestasCuestionariosSnap.size;
+                        stats.respuestasEvaluaciones = evaluacionesCompletadasSnap.size;
 
                         console.log('Stats calculated:', stats);
 
