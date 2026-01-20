@@ -400,15 +400,11 @@
 
                 // Función para rechazar usuario
                 async function rechazarUsuario(userId) {
-                    if (confirm('¿Estás seguro de que quieres rechazar esta solicitud?')) {
+                    if (confirm('¿Estás seguro de que quieres rechazar esta solicitud? Esta acción eliminará permanentemente al usuario.')) {
                         try {
-                            await window.db.collection('users').doc(userId).update({
-                                status: 'rejected',
-                                rejectedAt: new Date(),
-                                rejectedBy: 'admin'
-                            });
+                            await window.db.collection('users').doc(userId).delete();
                             
-                            alert('Solicitud rechazada');
+                            alert('Solicitud rechazada y usuario eliminado');
                             await loadUsuariosPendientes();
                         } catch (error) {
                             console.error('Error rejecting user:', error);
@@ -419,8 +415,95 @@
 
                 // Función para editar usuario
                 async function editarUsuario(userId) {
-                    // Implementar modal de edición
-                    alert('Función de edición próximamente disponible');
+                    try {
+                        // Obtener datos actuales del usuario
+                        const userDoc = await window.db.collection('users').doc(userId).get();
+                        if (!userDoc.exists) {
+                            alert('Usuario no encontrado');
+                            return;
+                        }
+                        const user = userDoc.data();
+
+                        // Crear modal de edición
+                        const modalHtml = `
+                            <div id="editUserModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+                                <div style="background: white; border-radius: 20px; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                                    <h3 style="margin: 0 0 1.5rem 0; color: #1f2937;">Editar Usuario</h3>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-size: 0.9rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                        <select id="editPrograma" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 10px; font-size: 0.9rem;">
+                                            <option value="Panadería y Pastelería" ${user.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                            <option value="Belleza Integral" ${user.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                            <option value="Asesoría Técnica" ${user.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-size: 0.9rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                        <select id="editSede" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 10px; font-size: 0.9rem;">
+                                            <option value="Carapungo" ${user.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
+                                            <option value="Sangolquí" ${user.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 2rem;">
+                                        <label style="display: block; font-size: 0.9rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                        <select id="editHorario" style="width: 100%; padding: 0.75rem; border: 2px solid #d1d5db; border-radius: 10px; font-size: 0.9rem;">
+                                            <option value="Sábado Matutina" ${user.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
+                                            <option value="Sábado Vespertina" ${user.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
+                                            <option value="Domingo Matutina" ${user.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                        <button onclick="closeEditModal()" style="padding: 0.75rem 1.5rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer;">Cancelar</button>
+                                        <button onclick="saveUserEdit('${userId}')" style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 10px; cursor: pointer;">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    } catch (error) {
+                        console.error('Error opening edit modal:', error);
+                        alert('Error al abrir el modal de edición');
+                    }
+                }
+
+                // Función para cerrar el modal de edición
+                function closeEditModal() {
+                    const modal = document.getElementById('editUserModal');
+                    if (modal) {
+                        modal.remove();
+                    }
+                }
+
+                // Función para guardar los cambios de edición
+                async function saveUserEdit(userId) {
+                    try {
+                        const programa = document.getElementById('editPrograma').value;
+                        const sede = document.getElementById('editSede').value;
+                        const horario = document.getElementById('editHorario').value;
+
+                        await window.db.collection('users').doc(userId).update({
+                            programa: programa,
+                            sede: sede,
+                            horario: horario,
+                            updatedAt: new Date(),
+                            updatedBy: 'admin'
+                        });
+
+                        alert('Usuario actualizado exitosamente');
+                        closeEditModal();
+                        
+                        // Recargar las listas para reflejar los cambios
+                        await loadUsuariosPendientes();
+                        await loadUsuariosAprobados();
+                    } catch (error) {
+                        console.error('Error saving user edit:', error);
+                        alert('Error al guardar los cambios');
+                    }
                 }
 
                 // Función para aprobar usuario
@@ -508,6 +591,8 @@
                 window.aprobarUsuario = aprobarUsuario;
                 window.rechazarUsuario = rechazarUsuario;
                 window.editarUsuario = editarUsuario;
+                window.closeEditModal = closeEditModal;
+                window.saveUserEdit = saveUserEdit;
                 window.desactivarUsuario = desactivarUsuario;
                 window.limpiarDuplicados = limpiarDuplicados;
             </script>
