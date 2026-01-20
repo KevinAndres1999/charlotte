@@ -256,11 +256,11 @@
                                             </div>
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                            <button onclick="toggleUserStatus('${doc.id}', ${user.active})" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                                <i class="fas fa-exchange-alt"></i> Cambiar Status
+                                            </button>
                                             <button onclick="editarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
                                                 <i class="fas fa-edit"></i> Editar
-                                            </button>
-                                            <button onclick="desactivarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
-                                                <i class="fas fa-ban"></i> Desactivar
                                             </button>
                                         </div>
                                     </div>
@@ -275,8 +275,27 @@
                     }
                 }
 
-                // Función para verificar estado de Firebase y debug
-                async function debugUsersStatus() {
+                // Función para cambiar manualmente el status de un usuario (para testing)
+                async function toggleUserStatus(userId, currentStatus) {
+                    try {
+                        const newStatus = !currentStatus;
+                        await window.db.collection('users').doc(userId).update({
+                            active: newStatus,
+                            updatedAt: new Date(),
+                            statusChangedBy: 'manual_toggle'
+                        });
+
+                        console.log(`User ${userId} status changed from ${currentStatus} to ${newStatus}`);
+                        alert(`Usuario ${newStatus ? 'aprobado' : 'marcado como pendiente'} exitosamente`);
+
+                        // Recargar ambas listas
+                        loadUsuariosPendientes();
+                        loadUsuariosAprobados();
+                    } catch (error) {
+                        console.error('Error toggling user status:', error);
+                        alert('Error al cambiar el status del usuario');
+                    }
+                }
                     try {
                         console.log('=== DEBUG: Checking users status ===');
 
@@ -453,5 +472,6 @@
                 window.loadUsuariosAprobados = loadUsuariosAprobados;
                 window.debugUsersStatus = debugUsersStatus;
                 window.showAllUsers = showAllUsers;
+                window.toggleUserStatus = toggleUserStatus;
             </script>
         </div>
