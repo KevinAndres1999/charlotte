@@ -6939,6 +6939,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         });
 
         function showSection(sectionId) {
+            console.log('showSection called with:', sectionId);
             // Guardar la sección activa en sessionStorage
             sessionStorage.setItem('activeSection', sectionId);
 
@@ -6949,6 +6950,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
             document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            console.log('Section activated:', sectionId);
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') {
                 try {
