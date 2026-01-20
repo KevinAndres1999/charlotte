@@ -5395,8 +5395,14 @@ async function loadDashboardStats() {
         ];
 
         // Ejecutar todas las consultas en paralelo
-        const [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData] =
-            await window.parallelQueries(queries);
+        let clasesData = [], videosData = [], actividadesData = [], materialesData = [], cuestionariosData = [], evaluacionesData = [];
+        try {
+            [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData] =
+                await window.parallelQueries(queries);
+        } catch (error) {
+            console.warn('Error loading dashboard stats, using cached/empty data:', error);
+            // Usar datos vacíos si falla la conexión
+        }
 
         // Procesar clases
         let filteredClasesCount = 0;
@@ -5694,6 +5700,12 @@ async function checkForNewContent() {
         // Solo verificar si han pasado al menos 5 minutos
         if (currentTime - parseInt(lastCheck) < 300000) return;
 
+        // Verificar conectividad antes de consultar
+        if (!navigator.onLine) {
+            console.log('Offline: skipping content check');
+            return;
+        }
+
         const snapshot = await getDocs(collection(db, 'classes'));
         let newContentCount = 0;
 
@@ -5715,6 +5727,7 @@ async function checkForNewContent() {
 
     } catch (error) {
         console.error('Error checking for new content:', error);
+        // No mostrar notificación de error para evitar spam
     }
 }
 
@@ -6409,6 +6422,7 @@ async function loadActividades(selectedModulo = null) {
 window.loadActividades = loadActividades;
 
 async function loadActividadesContent(selectedModulo) {
+    console.log(`loadActividadesContent called with selectedModulo: ${selectedModulo}`);
     const container = document.getElementById('actividadesContainer');
     if (!container) return;
 
@@ -6418,15 +6432,41 @@ async function loadActividadesContent(selectedModulo) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Usuario no válido</h3><p>Inicia sesión nuevamente</p></div>';
             return;
         }
+        console.log(`Usuario programa: ${currentUser.programa}`);
 
-        // Usar consultas optimizadas con filtros de programa y módulo
+        // Usar consultas optimizadas con filtros de programa (filtrar módulo en cliente para evitar problemas de índices)
         const actividadesData = await window.queryOptimized('activities', [
-            where('programa', '==', currentUser.programa),
-            where('modulo', '==', selectedModulo)
+            where('programa', '==', currentUser.programa)
         ]);
 
-        allActividades = [];
+        // Filtrar por módulo en cliente
+        const actividadesFiltradas = [];
         actividadesData.forEach(actividad => {
+            console.log(`Actividad: ${actividad.titulo}, programa: ${actividad.programa}, modulo: ${actividad.modulo}`);
+            // Si no tiene módulo asignado, mostrar en módulo 3 por defecto
+            let actividadModulo = actividad.modulo;
+            if (typeof actividadModulo === 'number') {
+                actividadModulo = `modulo${actividadModulo}`;
+            } else if (!actividadModulo) {
+                actividadModulo = 'modulo3';
+            }
+            const selectedModuloStr = selectedModulo.toString();
+            console.log(`ActividadModulo asignado: ${actividadModulo}, selectedModulo: ${selectedModuloStr}`);
+            if (actividadModulo === selectedModuloStr) {
+                actividadesFiltradas.push(actividad);
+                console.log('Actividad incluida en filtro');
+            } else {
+                console.log('Actividad excluida del filtro');
+            }
+        });
+
+        console.log(`Actividades filtradas para modulo ${selectedModulo}:`, actividadesFiltradas);
+
+        console.log(`Cargando actividades para programa: ${currentUser.programa}, modulo: ${selectedModulo}`);
+        console.log('Actividades encontradas:', actividadesFiltradas);
+
+        allActividades = [];
+        actividadesFiltradas.forEach(actividad => {
             // Agregar campos calculados desde localStorage
             actividad.isCompleted = localStorage.getItem(`actividad-${actividad.id}-completed`) === 'true';
             actividad.lastCompleted = localStorage.getItem(`actividad-${actividad.id}-lastCompleted`);

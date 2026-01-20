@@ -7,7 +7,7 @@ plugins = []
   [functions."*"]
 
 [build]
-publish = "."
+publish = "C:\\workspace"
 publishOrigin = "config"
 commandOrigin = "config"
 command = "node build.js"
@@ -69,6 +69,18 @@ for = "/pwa.js"
   [headers.values]
   Cache-Control = "public, max-age=0, must-revalidate"
   X-Content-Type-Options = "nosniff"
+
+[[redirects]]
+from = "/api/*"
+to = "https://api.example.com/:splat"
+status = 200
+force = false
+
+  [redirects.query]
+
+  [redirects.conditions]
+
+  [redirects.headers]
 
 [[redirects]]
 from = "/*"

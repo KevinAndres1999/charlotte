@@ -4147,6 +4147,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 <button class="btn-primary" onclick="nextEntrega()" id="nextEntregaBtn" style="display: none;">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
+                                <button class="btn-secondary" onclick="editarActividadEntrega()" style="background: #8b5cf6; border-color: #8b5cf6;">
+                                    <i class="fas fa-edit"></i> Editar Actividad
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -13808,6 +13811,264 @@ REGLAS ESTRICTAS:
                 // Si no hay actividad seleccionada, volver al grid de actividades
                 document.getElementById('actividadesGrid').style.display = 'block';
                 document.getElementById('entregaDetail').style.display = 'none';
+            }
+        }
+
+        // Función para poblar el select de módulos basado en el programa seleccionado
+        function populateModuloSelect(moduloSelectId, programaSelectId) {
+            const programaSelect = document.getElementById(programaSelectId);
+            const moduloSelect = document.getElementById(moduloSelectId);
+            
+            if (!programaSelect || !moduloSelect) return;
+            
+            const programa = programaSelect.value;
+            moduloSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+            
+            const modulosPorPrograma = {
+                'Panadería y Pastelería': [
+                    { value: 'modulo1', text: 'Módulo 1: Introducción a la Panadería' },
+                    { value: 'modulo2', text: 'Módulo 2: Técnicas Básicas de Panadería' },
+                    { value: 'modulo3', text: 'Módulo 3: Masas Fermentadas' },
+                    { value: 'modulo4', text: 'Módulo 4: Productos de Pastelería' },
+                    { value: 'modulo5', text: 'Módulo 5: Decoración y Presentación' },
+                    { value: 'modulo6', text: 'Módulo 6: Gestión y Emprendimiento' }
+                ],
+                'Belleza Integral': [
+                    { value: 'modulo1', text: 'Módulo 1: Introducción a la Belleza' },
+                    { value: 'modulo2', text: 'Módulo 2: Cuidado de la Piel' },
+                    { value: 'modulo3', text: 'Módulo 3: Maquillaje' },
+                    { value: 'modulo4', text: 'Módulo 4: Cuidado del Cabello' },
+                    { value: 'modulo5', text: 'Módulo 5: Uñas y Manicura' },
+                    { value: 'modulo6', text: 'Módulo 6: Gestión y Emprendimiento' }
+                ],
+                'Asesoría Técnica': [
+                    { value: 'modulo1', text: 'Módulo 1: Introducción a la Asesoría' },
+                    { value: 'modulo2', text: 'Módulo 2: Técnicas de Asesoramiento' },
+                    { value: 'modulo3', text: 'Módulo 3: Herramientas Digitales' },
+                    { value: 'modulo4', text: 'Módulo 4: Gestión de Clientes' },
+                    { value: 'modulo5', text: 'Módulo 5: Marketing y Ventas' },
+                    { value: 'modulo6', text: 'Módulo 6: Emprendimiento' }
+                ]
+            };
+            
+            if (modulosPorPrograma[programa]) {
+                modulosPorPrograma[programa].forEach(modulo => {
+                    const option = document.createElement('option');
+                    option.value = modulo.value;
+                    option.textContent = modulo.text;
+                    moduloSelect.appendChild(option);
+                });
+            }
+        }
+            try {
+                // Obtener la entrega actual
+                const entregaId = entregasData[currentEntregaIndex].id;
+                const entregaDoc = await getDoc(doc(db, 'entregas', entregaId));
+                if (!entregaDoc.exists()) return;
+                
+                const entrega = { id: entregaDoc.id, ...entregaDoc.data() };
+                
+                // Obtener la actividad
+                const actividadDoc = await getDoc(doc(db, 'activities', entrega.actividadId));
+                if (!actividadDoc.exists()) {
+                    alert('Actividad no encontrada');
+                    return;
+                }
+                
+                const actividad = { id: actividadDoc.id, ...actividadDoc.data() };
+                
+                // Mostrar modal de edición
+                mostrarModalEdicionActividad(actividad);
+                
+            } catch (error) {
+                console.error('Error al editar actividad:', error);
+                alert('Error al cargar la actividad para edición');
+            }
+        }
+
+        // Función para mostrar modal de edición de actividad
+        function mostrarModalEdicionActividad(actividad) {
+            const modal = document.createElement('div');
+            modal.id = 'modalEditarActividad';
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-edit"></i> Editar Actividad</h2>
+                        <span class="close" onclick="cerrarModalEditarActividad()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formEditarActividad">
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Título *</label>
+                                <input type="text" id="editActividadTitle" value="${actividad.titulo || ''}" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Programa *</label>
+                                <select id="editActividadPrograma" required onchange="populateModuloSelect('editActividadModulo', 'editActividadPrograma')" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                                    <option value="">Seleccionar programa</option>
+                                    <option value="Panadería y Pastelería" ${actividad.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                    <option value="Belleza Integral" ${actividad.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                    <option value="Asesoría Técnica" ${actividad.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Módulo *</label>
+                                <select id="editActividadModulo" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                                    <option value="">Seleccionar módulo</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Dificultad</label>
+                                <select id="editActividadDificultad" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                                    <option value="principiante" ${actividad.dificultad === 'principiante' ? 'selected' : ''}>Principiante</option>
+                                    <option value="intermedio" ${actividad.dificultad === 'intermedio' ? 'selected' : ''}>Intermedio</option>
+                                    <option value="avanzado" ${actividad.dificultad === 'avanzado' ? 'selected' : ''}>Avanzado</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Tiempo Estimado (minutos)</label>
+                                <input type="number" id="editActividadTiempo" value="${actividad.tiempoEstimado || ''}" min="1" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Sedes</label>
+                                <div id="editSedesContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Carapungo" ${actividad.sedes && actividad.sedes.includes('Carapungo') ? 'checked' : ''}>
+                                        Carapungo
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Centro" ${actividad.sedes && actividad.sedes.includes('Centro') ? 'checked' : ''}>
+                                        Centro
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Sur" ${actividad.sedes && actividad.sedes.includes('Sur') ? 'checked' : ''}>
+                                        Sur
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Norte" ${actividad.sedes && actividad.sedes.includes('Norte') ? 'checked' : ''}>
+                                        Norte
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Horarios</label>
+                                <div id="editHorariosContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Sábado Matutina" ${actividad.horarios && actividad.horarios.includes('Sábado Matutina') ? 'checked' : ''}>
+                                        Sábado Matutina
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Sábado Vespertina" ${actividad.horarios && actividad.horarios.includes('Sábado Vespertina') ? 'checked' : ''}>
+                                        Sábado Vespertina
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Domingo Matutina" ${actividad.horarios && actividad.horarios.includes('Domingo Matutina') ? 'checked' : ''}>
+                                        Domingo Matutina
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
+                                        <input type="checkbox" value="Domingo Vespertina" ${actividad.horarios && actividad.horarios.includes('Domingo Vespertina') ? 'checked' : ''}>
+                                        Domingo Vespertina
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Objetivos</label>
+                                <textarea id="editActividadObjetivos" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">${actividad.objetivos || ''}</textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Materiales</label>
+                                <textarea id="editActividadMateriales" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">${actividad.materiales || ''}</textarea>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Instrucciones</label>
+                                <textarea id="editActividadInstrucciones" rows="5" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">${actividad.instrucciones || ''}</textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="padding: 1rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button class="btn-secondary" onclick="cerrarModalEditarActividad()">Cancelar</button>
+                        <button class="btn-primary" onclick="guardarEdicionActividad('${actividad.id}')">Guardar Cambios</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Poblar módulo después de agregar al DOM
+            setTimeout(() => {
+                populateModuloSelect('editActividadModulo', 'editActividadPrograma');
+                // Establecer el módulo actual
+                document.getElementById('editActividadModulo').value = actividad.modulo || '';
+            }, 100);
+        }
+
+        // Función para cerrar modal de edición
+        function cerrarModalEditarActividad() {
+            const modal = document.getElementById('modalEditarActividad');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Función para guardar edición de actividad
+        async function guardarEdicionActividad(actividadId) {
+            try {
+                const title = document.getElementById('editActividadTitle').value;
+                const programa = document.getElementById('editActividadPrograma').value;
+                const modulo = document.getElementById('editActividadModulo').value;
+                const dificultad = document.getElementById('editActividadDificultad').value;
+                const tiempo = document.getElementById('editActividadTiempo').value;
+                const objetivos = document.getElementById('editActividadObjetivos').value;
+                const materiales = document.getElementById('editActividadMateriales').value;
+                const instrucciones = document.getElementById('editActividadInstrucciones').value;
+                
+                // Obtener sedes y horarios seleccionados
+                const sedesCheckboxes = document.querySelectorAll('#editSedesContainer input:checked');
+                const sedes = Array.from(sedesCheckboxes).map(cb => cb.value);
+                
+                const horariosCheckboxes = document.querySelectorAll('#editHorariosContainer input:checked');
+                const horarios = Array.from(horariosCheckboxes).map(cb => cb.value);
+
+                if (!programa || !modulo || !title.trim()) {
+                    alert('Completa todos los campos obligatorios');
+                    return;
+                }
+
+                await updateDoc(doc(db, 'activities', actividadId), {
+                    titulo: title,
+                    programa: programa,
+                    modulo: modulo,
+                    dificultad: dificultad || 'intermedio',
+                    tiempoEstimado: tiempo ? parseInt(tiempo) : null,
+                    objetivos: objetivos || null,
+                    materiales: materiales || null,
+                    instrucciones: instrucciones || null,
+                    sedes: sedes.length > 0 ? sedes : null,
+                    horarios: horarios.length > 0 ? horarios : null,
+                    fechaActualizacion: new Date().toISOString()
+                });
+
+                alert('Actividad actualizada exitosamente');
+                cerrarModalEditarActividad();
+                
+                // Recargar la vista de entregas
+                loadEntregaDetail(entregasData[currentEntregaIndex].id);
+                
+            } catch (error) {
+                console.error('Error al guardar edición:', error);
+                alert('Error al guardar los cambios');
             }
         }
 

@@ -118,8 +118,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cachear respuestas exitosas de API
-          if (response.status === 200 && url.hostname.includes('firestore.googleapis.com')) {
+          // Cachear respuestas exitosas de API, pero excluir todas las peticiones a Firestore
+          if (response.status === 200 && !url.hostname.includes('firestore.googleapis.com')) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               // Verificar que el request sea válido antes de cachear
