@@ -344,17 +344,25 @@
             } catch (error) {
                 console.error('Error:', error);
                 let errorMessage = 'Error al iniciar sesión.';
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = 'Usuario no encontrado.';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = 'Contraseña incorrecta.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Correo electrónico inválido.';
-                } else if (error.message === 'timeout') {
+
+                // Manejar errores de Firestore/timeout
+                if (error.message === 'timeout') {
                     errorMessage = 'Tiempo de espera agotado. Verifica tu conexión a internet e intenta nuevamente.';
-                } else if (error.message.includes('offline') || error.message.includes('network') || error.message.includes('unavailable')) {
+                } else if (error.message && error.message.includes('offline')) {
                     errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
+                } else if (error.message && error.message.includes('network')) {
+                    errorMessage = 'Error de red. Inténtalo nuevamente.';
+                } else if (error.message && error.message.includes('unavailable')) {
+                    errorMessage = 'Servicio temporalmente no disponible. Inténtalo más tarde.';
+                } else if (error.message && error.message.includes('permission-denied')) {
+                    errorMessage = 'Error de permisos. Contacta al administrador.';
+                } else if (error.message && error.message.includes('not-found')) {
+                    errorMessage = 'Usuario no encontrado.';
+                } else {
+                    // Errores genéricos
+                    errorMessage = 'Error al iniciar sesión. Inténtalo nuevamente.';
                 }
+
                 showMessage(errorMessage, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Iniciar Sesión';
