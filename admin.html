@@ -2957,6 +2957,162 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-header .close {
+            font-size: 2rem;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .modal-header .close:hover {
+            color: #374151;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .modal-footer button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Responsive modal styles */
+        @media (max-width: 768px) {
+            .modal-overlay {
+                padding: 0.5rem;
+                align-items: flex-start;
+                padding-top: 2rem;
+            }
+            
+            .modal-content {
+                max-width: 100% !important;
+                max-height: 95vh !important;
+                margin: 0 !important;
+                border-radius: 12px 12px 0 0 !important;
+                width: 100% !important;
+            }
+            
+            .modal-body {
+                max-height: calc(95vh - 140px) !important;
+                padding: 1rem !important;
+            }
+            
+            .modal-header {
+                padding: 1rem !important;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.25rem !important;
+            }
+            
+            .modal-footer {
+                padding: 1rem !important;
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .modal-footer button {
+                width: 100% !important;
+                padding: 0.875rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-overlay {
+                padding: 0;
+                padding-top: 1rem;
+            }
+            
+            .modal-content {
+                border-radius: 8px !important;
+                max-height: 98vh !important;
+            }
+            
+            .modal-body {
+                max-height: calc(98vh - 140px) !important;
+                padding: 0.75rem !important;
+            }
+            
+            .modal-header {
+                padding: 0.75rem !important;
+            }
+            
+            .modal-header h2 {
+                font-size: 1.1rem !important;
+            }
         }
     </style>
 
@@ -10709,7 +10865,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                     const entrega = docSnap.data();
 
                     // Obtener información de la actividad
-                    const actividadDoc = await getDoc(doc(db, 'activities', entrega.actividadId));
+                    const actividadDoc = await db.collection('activities').doc(entrega.actividadId).get();
                     const actividad = actividadDoc.exists ? actividadDoc.data() : { titulo: `Actividad ID: ${entrega.actividadId} (no encontrada)`, instrucciones: 'No se pudo cargar la información de la actividad' };
 
                     document.getElementById('modalTitle').textContent = calificar ? 'Calificar Entrega' : 'Detalle de Entrega';
@@ -11083,6 +11239,7 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         let claseEditor;
         let claseEditorIA; // Editor para la clase generada con IA
         let actividadEditor; // Editor para actividades
+        let editActividadEditor; // Editor para edición de actividades
 
         // =================== FUNCIONES PARA GENERACIÓN DE CLASES CON IA ===================
 
@@ -11722,6 +11879,55 @@ REGLAS:
                 })
                 .catch(error => {
                     console.error('Error inicializando editor de actividades:', error);
+                });
+        }
+
+        // Función para inicializar editor de edición de actividades
+        function initializeEditActividadEditor(initialData = '') {
+            // Destruir editor anterior si existe
+            if (editActividadEditor) {
+                try {
+                    editActividadEditor.destroy();
+                    editActividadEditor = null;
+                    console.log('Editor de edición de actividades anterior destruido');
+                } catch (error) {
+                    console.error('Error destruyendo editor anterior:', error);
+                }
+            }
+
+            // Verificar si CKEditor está disponible
+            if (typeof ClassicEditor === 'undefined') {
+                console.error('CKEditor no está cargado aún para edición de actividades, esperando...');
+                setTimeout(() => initializeEditActividadEditor(initialData), 200);
+                return;
+            }
+
+            const editorElement = document.getElementById('editActividadInstruccionesEditor');
+            console.log('Elemento #editActividadInstruccionesEditor encontrado:', editorElement);
+
+            if (!editorElement) {
+                console.error('Elemento #editActividadInstruccionesEditor no encontrado');
+                return;
+            }
+
+            ClassicEditor
+                .create(editorElement, {
+                    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                    extraPlugins: [Base64UploadAdapterPlugin],
+                    placeholder: 'Describe detalladamente las instrucciones de la actividad...',
+                    initialData: initialData
+                })
+                .then(editor => {
+                    editActividadEditor = editor;
+                    console.log('Editor de edición de actividades inicializado correctamente');
+                    
+                    // Sincronizar con textarea oculta
+                    editor.model.document.on('change:data', () => {
+                        document.getElementById('editActividadInstrucciones').value = editor.getData();
+                    });
+                })
+                .catch(error => {
+                    console.error('Error inicializando editor de edición de actividades:', error);
                 });
         }
 
@@ -13784,14 +13990,11 @@ REGLAS ESTRICTAS:
         async function loadEntregas() {
             try {
                 // Cargar actividades disponibles que aún existen
-                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
-                actividadesData = actividadesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
+                const actividadesSnapshot = await db.collection('activities').get();
                 // Actualizar estadísticas
                 await actualizarEstadisticasEntregas();
                 
-                // Mostrar actividades
-                loadActividades();
+                // Los datos ya se muestran en loadResultadosActividades() cuando se cambia a esa pestaña
                 
             } catch (error) {
                 console.error('Error loading entregas:', error);
@@ -13804,7 +14007,12 @@ REGLAS ESTRICTAS:
         // Función para cargar actividades disponibles
         async function loadActividades() {
             try {
-                const container = document.getElementById('actividadesGrid').querySelector('.clase-content-grid');
+                const container = document.getElementById('actividadesGrid')?.querySelector('.clase-content-grid');
+                if (!container) {
+                    console.log('Contenedor de actividades no encontrado, omitiendo carga de grid');
+                    return;
+                }
+
                 if (actividadesData.length === 0) {
                     container.innerHTML = '<div class="no-classes">No hay actividades disponibles</div>';
                     return;
@@ -13846,13 +14054,20 @@ REGLAS ESTRICTAS:
                 currentActividadId = actividadId;
                 const actividad = actividadesData.find(a => a.id === actividadId);
                 
-                // Mostrar sección de entregas
-                document.getElementById('actividadesGrid').style.display = 'none';
-                document.getElementById('entregasGrid').style.display = 'block';
-                document.getElementById('entregaDetail').style.display = 'none';
+                // Mostrar sección de entregas (solo si los elementos existen - código legacy)
+                const actividadesGrid = document.getElementById('actividadesGrid');
+                const entregasGrid = document.getElementById('entregasGrid');
+                const entregaDetail = document.getElementById('entregaDetail');
+                
+                if (actividadesGrid) actividadesGrid.style.display = 'none';
+                if (entregasGrid) entregasGrid.style.display = 'block';
+                if (entregaDetail) entregaDetail.style.display = 'none';
                 
                 // Actualizar título
-                document.getElementById('actividadSeleccionada').textContent = `Entregas: ${actividad.titulo}`;
+                const actividadSeleccionada = document.getElementById('actividadSeleccionada');
+                if (actividadSeleccionada) {
+                    actividadSeleccionada.textContent = `Entregas: ${actividad.titulo}`;
+                }
                 
                 // Cargar entregas de esta actividad
                 const entregasSnapshot = await getDocs(query(collection(db, 'entregas'), where('actividadId', '==', actividadId)));
@@ -13915,9 +14130,13 @@ REGLAS ESTRICTAS:
 
         // Función para volver al grid de actividades
         function volverAActividades() {
-            document.getElementById('actividadesGrid').style.display = 'block';
-            document.getElementById('entregasGrid').style.display = 'none';
-            document.getElementById('entregaDetail').style.display = 'none';
+            const actividadesGrid = document.getElementById('actividadesGrid');
+            const entregasGrid = document.getElementById('entregasGrid');
+            const entregaDetail = document.getElementById('entregaDetail');
+            
+            if (actividadesGrid) actividadesGrid.style.display = 'block';
+            if (entregasGrid) entregasGrid.style.display = 'none';
+            if (entregaDetail) entregaDetail.style.display = 'none';
             currentActividadId = null;
         }
 
@@ -14043,14 +14262,18 @@ REGLAS ESTRICTAS:
         }
 
         function backToEntregas() {
+            const entregasGrid = document.getElementById('entregasGrid');
+            const entregaDetail = document.getElementById('entregaDetail');
+            const actividadesGrid = document.getElementById('actividadesGrid');
+            
             if (currentActividadId) {
                 // Si estamos en una actividad específica, volver a las entregas de esa actividad
-                document.getElementById('entregasGrid').style.display = 'block';
-                document.getElementById('entregaDetail').style.display = 'none';
+                if (entregasGrid) entregasGrid.style.display = 'block';
+                if (entregaDetail) entregaDetail.style.display = 'none';
             } else {
                 // Si no hay actividad seleccionada, volver al grid de actividades
-                document.getElementById('actividadesGrid').style.display = 'block';
-                document.getElementById('entregaDetail').style.display = 'none';
+                if (actividadesGrid) actividadesGrid.style.display = 'block';
+                if (entregaDetail) entregaDetail.style.display = 'none';
             }
         }
 
@@ -14066,28 +14289,22 @@ REGLAS ESTRICTAS:
             
             const modulosPorPrograma = {
                 'Panadería y Pastelería': [
-                    { value: 'modulo1', text: 'Módulo 1: Introducción a la Panadería' },
-                    { value: 'modulo2', text: 'Módulo 2: Técnicas Básicas de Panadería' },
-                    { value: 'modulo3', text: 'Módulo 3: Masas Fermentadas' },
-                    { value: 'modulo4', text: 'Módulo 4: Productos de Pastelería' },
-                    { value: 'modulo5', text: 'Módulo 5: Decoración y Presentación' },
-                    { value: 'modulo6', text: 'Módulo 6: Gestión y Emprendimiento' }
+                    { value: 'modulo1', text: 'Módulo 1: Panadería' },
+                    { value: 'modulo2', text: 'Módulo 2: Galletaría' },
+                    { value: 'modulo3', text: 'Módulo 3: Pastelería' },
+                    { value: 'modulo4', text: 'Módulo 4: Repostería' }
                 ],
                 'Belleza Integral': [
-                    { value: 'modulo1', text: 'Módulo 1: Introducción a la Belleza' },
-                    { value: 'modulo2', text: 'Módulo 2: Cuidado de la Piel' },
-                    { value: 'modulo3', text: 'Módulo 3: Maquillaje' },
-                    { value: 'modulo4', text: 'Módulo 4: Cuidado del Cabello' },
-                    { value: 'modulo5', text: 'Módulo 5: Uñas y Manicura' },
-                    { value: 'modulo6', text: 'Módulo 6: Gestión y Emprendimiento' }
+                    { value: 'modulo1', text: 'Módulo 1: Diseño de Mirada' },
+                    { value: 'modulo2', text: 'Módulo 2: Maquillaje' },
+                    { value: 'modulo3', text: 'Módulo 3: Estilismo' },
+                    { value: 'modulo4', text: 'Módulo 4: Nails Designer' }
                 ],
                 'Asesoría Técnica': [
                     { value: 'modulo1', text: 'Módulo 1: Introducción a la Asesoría' },
                     { value: 'modulo2', text: 'Módulo 2: Técnicas de Asesoramiento' },
                     { value: 'modulo3', text: 'Módulo 3: Herramientas Digitales' },
-                    { value: 'modulo4', text: 'Módulo 4: Gestión de Clientes' },
-                    { value: 'modulo5', text: 'Módulo 5: Marketing y Ventas' },
-                    { value: 'modulo6', text: 'Módulo 6: Emprendimiento' }
+                    { value: 'modulo4', text: 'Módulo 4: Gestión de Clientes' }
                 ]
             };
             
@@ -14133,11 +14350,11 @@ REGLAS ESTRICTAS:
         function mostrarModalEdicionActividad(actividad) {
             const modal = document.createElement('div');
             modal.id = 'modalEditarActividad';
-            modal.className = 'modal';
-            modal.style.display = 'block';
+            modal.className = 'modal-overlay';
+            modal.style.display = 'flex';
             
             modal.innerHTML = `
-                <div class="modal-content" style="max-width: 800px;">
+                <div class="modal-content" style="width: 100%; max-width: 800px;">
                     <div class="modal-header">
                         <h2><i class="fas fa-edit"></i> Editar Actividad</h2>
                         <span class="close" onclick="cerrarModalEditarActividad()">&times;</span>
@@ -14188,16 +14405,8 @@ REGLAS ESTRICTAS:
                                         Carapungo
                                     </label>
                                     <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
-                                        <input type="checkbox" value="Centro" ${actividad.sedes && actividad.sedes.includes('Centro') ? 'checked' : ''}>
-                                        Centro
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
-                                        <input type="checkbox" value="Sur" ${actividad.sedes && actividad.sedes.includes('Sur') ? 'checked' : ''}>
-                                        Sur
-                                    </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
-                                        <input type="checkbox" value="Norte" ${actividad.sedes && actividad.sedes.includes('Norte') ? 'checked' : ''}>
-                                        Norte
+                                        <input type="checkbox" value="Sangolquí" ${actividad.sedes && actividad.sedes.includes('Sangolquí') ? 'checked' : ''}>
+                                        Sangolquí
                                     </label>
                                 </div>
                             </div>
@@ -14217,10 +14426,6 @@ REGLAS ESTRICTAS:
                                         <input type="checkbox" value="Domingo Matutina" ${actividad.horarios && actividad.horarios.includes('Domingo Matutina') ? 'checked' : ''}>
                                         Domingo Matutina
                                     </label>
-                                    <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 4px;">
-                                        <input type="checkbox" value="Domingo Vespertina" ${actividad.horarios && actividad.horarios.includes('Domingo Vespertina') ? 'checked' : ''}>
-                                        Domingo Vespertina
-                                    </label>
                                 </div>
                             </div>
                             
@@ -14236,11 +14441,12 @@ REGLAS ESTRICTAS:
                             
                             <div style="margin-bottom: 1.5rem;">
                                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Instrucciones</label>
-                                <textarea id="editActividadInstrucciones" rows="5" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">${actividad.instrucciones || ''}</textarea>
+                                <div id="editActividadInstruccionesEditor" style="width: 100%; border: 2px solid #e5e7eb; border-radius: 8px;"></div>
+                                <textarea id="editActividadInstrucciones" style="display: none;">${actividad.instrucciones || ''}</textarea>
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer" style="padding: 1rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 1rem;">
+                    <div class="modal-footer">
                         <button class="btn-secondary" onclick="cerrarModalEditarActividad()">Cancelar</button>
                         <button class="btn-primary" onclick="guardarEdicionActividad('${actividad.id}')">Guardar Cambios</button>
                     </div>
@@ -14254,11 +14460,25 @@ REGLAS ESTRICTAS:
                 populateModuloSelect('editActividadModulo', 'editActividadPrograma');
                 // Establecer el módulo actual
                 document.getElementById('editActividadModulo').value = actividad.modulo || '';
+                
+                // Inicializar CKEditor para instrucciones
+                initializeEditActividadEditor(actividad.instrucciones || '');
             }, 100);
         }
 
         // Función para cerrar modal de edición
         function cerrarModalEditarActividad() {
+            // Destruir editor si existe
+            if (editActividadEditor) {
+                try {
+                    editActividadEditor.destroy();
+                    editActividadEditor = null;
+                    console.log('Editor de edición de actividades destruido al cerrar modal');
+                } catch (error) {
+                    console.error('Error destruyendo editor al cerrar modal:', error);
+                }
+            }
+            
             const modal = document.getElementById('modalEditarActividad');
             if (modal) {
                 modal.remove();
@@ -14289,7 +14509,7 @@ REGLAS ESTRICTAS:
                     return;
                 }
 
-                await updateDoc(doc(db, 'activities', actividadId), {
+                await db.collection('activities').doc(actividadId).update({
                     titulo: title,
                     programa: programa,
                     modulo: modulo,
@@ -14306,8 +14526,8 @@ REGLAS ESTRICTAS:
                 alert('Actividad actualizada exitosamente');
                 cerrarModalEditarActividad();
                 
-                // Recargar la vista de entregas
-                loadEntregaDetail(entregasData[currentEntregaIndex].id);
+                // Recargar la lista de actividades
+                loadActividadesManager();
                 
             } catch (error) {
                 console.error('Error al guardar edición:', error);
@@ -17404,9 +17624,23 @@ REGLAS ESTRICTAS:
         }
 
         // Función para editar actividad
-        function editarActividad(actividadId) {
-            // Implementar edición de actividad
-            alert('Función de edición próximamente disponible');
+        async function editarActividad(actividadId) {
+            try {
+                // Obtener datos de la actividad desde Firebase
+                const actividadDoc = await db.collection('activities').doc(actividadId).get();
+                if (!actividadDoc.exists) {
+                    alert('Actividad no encontrada');
+                    return;
+                }
+
+                const actividad = { id: actividadDoc.id, ...actividadDoc.data() };
+
+                // Mostrar modal de edición con los datos de la actividad
+                mostrarModalEdicionActividad(actividad);
+            } catch (error) {
+                console.error('Error obteniendo actividad:', error);
+                alert('Error al cargar la actividad para edición');
+            }
         }
 
         // Función para eliminar actividad
@@ -17436,18 +17670,18 @@ REGLAS ESTRICTAS:
                 console.log('Cargando resultados de actividades...');
 
                 // Cargar entregas desde Firebase
-                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+                const entregasSnapshot = await db.collection('entregas').get();
                 const entregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 // Cargar actividades para referencia
-                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
+                const actividadesSnapshot = await db.collection('activities').get();
                 const actividadesMap = {};
                 actividadesSnapshot.docs.forEach(doc => {
                     actividadesMap[doc.id] = doc.data();
                 });
 
                 // Cargar usuarios para referencia
-                const usuariosSnapshot = await getDocs(collection(db, 'users'));
+                const usuariosSnapshot = await db.collection('users').get();
                 const usuariosMap = {};
                 usuariosSnapshot.docs.forEach(doc => {
                     usuariosMap[doc.id] = doc.data();
