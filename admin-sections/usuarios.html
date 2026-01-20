@@ -35,6 +35,22 @@
                             </div>
                         </div>
                     </div>
+                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.2);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #1e40af; font-weight: 600; text-transform: uppercase;">Debug</p>
+                                <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #1e40af;">Herramientas de diagnóstico</p>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <button onclick="debugUsersStatus()" style="padding: 0.25rem 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                                    🔍 Debug
+                                </button>
+                                <button onclick="showAllUsers()" style="padding: 0.25rem 0.5rem; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
+                                    👁️ Ver Todos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Nota informativa -->
@@ -145,54 +161,28 @@
                 async function loadUsuariosPendientes() {
                     try {
                         console.log('Loading pending users...');
-                        
-                        // Primero intentar con active == false
-                        let snapshot = await window.db.collection('users').where('active', '==', false).get();
-                        
-                        // Si no hay resultados, buscar usuarios sin campo active o con active == null
-                        if (snapshot.empty) {
-                            console.log('No users with active=false, checking for users without active field...');
-                            const allUsersSnapshot = await window.db.collection('users').get();
-                            const pendingUsers = [];
-                            
-                            allUsersSnapshot.forEach(doc => {
-                                const user = doc.data();
-                                // Considerar pendiente si active es false, null, undefined, o no existe
-                                if (user.active === false || user.active === null || user.active === undefined || !('active' in user)) {
-                                    pendingUsers.push({ id: doc.id, data: user });
-                                }
-                            });
-                            
-                            // Crear un snapshot-like object
-                            snapshot = {
-                                size: pendingUsers.length,
-                                empty: pendingUsers.length === 0,
-                                forEach: function(callback) {
-                                    pendingUsers.forEach(item => {
-                                        callback({
-                                            id: item.id,
-                                            data: () => item.data
-                                        });
-                                    });
-                                }
-                            };
-                        }
-                        
+
+                        // Buscar usuarios con active == false (pendientes)
+                        const snapshot = await window.db.collection('users').where('active', '==', false).get();
+
+                        console.log('Found pending users:', snapshot.size);
+
                         const container = document.getElementById('usuarios-pendientes');
                         const totalElement = document.getElementById('total-pendientes');
-                        
+
                         if (totalElement) {
                             totalElement.textContent = snapshot.size;
                         }
-                        
+
                         if (snapshot.empty) {
                             container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-inbox fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay solicitudes pendientes</p></div>';
                             return;
                         }
-                        
+
                         let html = '';
                         snapshot.forEach(doc => {
                             const user = doc.data();
+                            console.log('Pending user:', user.name, user.active);
                             html += `
                                 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
                                     <div style="display: flex; justify-content: space-between; align-items: start;">
@@ -218,7 +208,7 @@
                                 </div>
                             `;
                         });
-                        
+
                         container.innerHTML = html;
                     } catch (error) {
                         console.error('Error loading pending users:', error);
@@ -230,54 +220,28 @@
                 async function loadUsuariosAprobados() {
                     try {
                         console.log('Loading approved users...');
-                        
-                        // Primero intentar con active == true
-                        let snapshot = await window.db.collection('users').where('active', '==', true).get();
-                        
-                        // Si no hay resultados, buscar usuarios con active == true de manera más amplia
-                        if (snapshot.empty) {
-                            console.log('No users with active=true, checking all users for approved ones...');
-                            const allUsersSnapshot = await window.db.collection('users').get();
-                            const approvedUsers = [];
-                            
-                            allUsersSnapshot.forEach(doc => {
-                                const user = doc.data();
-                                // Considerar aprobado solo si active es explícitamente true
-                                if (user.active === true) {
-                                    approvedUsers.push({ id: doc.id, data: user });
-                                }
-                            });
-                            
-                            // Crear un snapshot-like object
-                            snapshot = {
-                                size: approvedUsers.length,
-                                empty: approvedUsers.length === 0,
-                                forEach: function(callback) {
-                                    approvedUsers.forEach(item => {
-                                        callback({
-                                            id: item.id,
-                                            data: () => item.data
-                                        });
-                                    });
-                                }
-                            };
-                        }
-                        
+
+                        // Buscar usuarios con active == true (aprobados)
+                        const snapshot = await window.db.collection('users').where('active', '==', true).get();
+
+                        console.log('Found approved users:', snapshot.size);
+
                         const container = document.getElementById('usuarios-aprobados');
                         const totalElement = document.getElementById('total-aprobados');
-                        
+
                         if (totalElement) {
                             totalElement.textContent = snapshot.size;
                         }
-                        
+
                         if (snapshot.empty) {
                             container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-users fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay usuarios aprobados</p></div>';
                             return;
                         }
-                        
+
                         let html = '';
                         snapshot.forEach(doc => {
                             const user = doc.data();
+                            console.log('Approved user:', user.name, user.active);
                             html += `
                                 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
                                     <div style="display: flex; justify-content: space-between; align-items: start;">
@@ -303,7 +267,7 @@
                                 </div>
                             `;
                         });
-                        
+
                         container.innerHTML = html;
                     } catch (error) {
                         console.error('Error loading approved users:', error);
@@ -311,21 +275,97 @@
                     }
                 }
 
-                // Función para aprobar usuario
-                async function aprobarUsuario(userId) {
+                // Función para verificar estado de Firebase y debug
+                async function debugUsersStatus() {
                     try {
-                        await window.db.collection('users').doc(userId).update({
-                            active: true,
-                            approvedAt: new Date(),
-                            approvedBy: 'admin'
+                        console.log('=== DEBUG: Checking users status ===');
+
+                        // Obtener todos los usuarios
+                        const allUsersSnapshot = await window.db.collection('users').get();
+                        console.log('Total users in collection:', allUsersSnapshot.size);
+
+                        // Obtener usuarios pendientes
+                        const pendingSnapshot = await window.db.collection('users').where('active', '==', false).get();
+                        console.log('Users with active=false:', pendingSnapshot.size);
+
+                        // Obtener usuarios aprobados
+                        const approvedSnapshot = await window.db.collection('users').where('active', '==', true).get();
+                        console.log('Users with active=true:', approvedSnapshot.size);
+
+                        // Mostrar detalles de todos los usuarios
+                        console.log('=== ALL USERS DETAILS ===');
+                        allUsersSnapshot.forEach(doc => {
+                            const user = doc.data();
+                            console.log(`User ${doc.id}:`, {
+                                name: user.name,
+                                email: user.email,
+                                active: user.active,
+                                programa: user.programa,
+                                sede: user.sede,
+                                horario: user.horario
+                            });
                         });
-                        
-                        alert('Usuario aprobado exitosamente');
-                        loadUsuariosPendientes();
-                        loadUsuariosAprobados();
+
+                        // Actualizar contadores en la UI
+                        const totalPendientes = document.getElementById('total-pendientes');
+                        const totalAprobados = document.getElementById('total-aprobados');
+
+                        if (totalPendientes) totalPendientes.textContent = pendingSnapshot.size;
+                        if (totalAprobados) totalAprobados.textContent = approvedSnapshot.size;
+
+                        console.log('=== DEBUG COMPLETE ===');
+
                     } catch (error) {
-                        console.error('Error approving user:', error);
-                        alert('Error al aprobar usuario');
+                        console.error('Error in debug function:', error);
+                    }
+                }
+
+                // Función para mostrar todos los usuarios (sin filtrar)
+                async function showAllUsers() {
+                    try {
+                        console.log('Showing all users...');
+                        const snapshot = await window.db.collection('users').get();
+
+                        const container = document.getElementById('usuarios-pendientes');
+                        if (!container) return;
+
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-users fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay usuarios registrados</p></div>';
+                            return;
+                        }
+
+                        let html = '<h3 style="color: #ef4444; margin-bottom: 1rem;">🔍 MODO DEBUG: Mostrando TODOS los usuarios</h3>';
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            const statusColor = user.active === true ? '#10b981' : user.active === false ? '#f59e0b' : '#6b7280';
+                            const statusText = user.active === true ? 'APROBADO' : user.active === false ? 'PENDIENTE' : 'SIN STATUS';
+
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid ${statusColor};">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <h4 style="margin: 0; color: #1f2937;">${user.name || 'Sin nombre'}</h4>
+                                                <span style="background: ${statusColor}; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">
+                                                    ${statusText}
+                                                </span>
+                                            </div>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-envelope"></i> ${user.email}</p>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Active value:</strong> ${user.active} (type: ${typeof user.active})</p>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.programa || 'Programa no especificado'}</span>
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.sede || 'Sede no especificada'}</span>
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.horario || 'Horario no especificado'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error showing all users:', error);
                     }
                 }
 
@@ -401,6 +441,8 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     // Pequeño delay para asegurar que Firebase esté inicializado
                     setTimeout(() => {
+                        console.log('Initializing users section...');
+                        debugUsersStatus(); // Ejecutar debug primero
                         loadUsuariosPendientes();
                         loadUsuariosAprobados();
                     }, 100);
@@ -409,5 +451,7 @@
                 // Exponer funciones globalmente para que admin.html pueda llamarlas
                 window.loadUsuariosPendientes = loadUsuariosPendientes;
                 window.loadUsuariosAprobados = loadUsuariosAprobados;
+                window.debugUsersStatus = debugUsersStatus;
+                window.showAllUsers = showAllUsers;
             </script>
         </div>
