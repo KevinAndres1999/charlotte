@@ -145,7 +145,38 @@
                 async function loadUsuariosPendientes() {
                     try {
                         console.log('Loading pending users...');
-                        const snapshot = await window.db.collection('users').where('active', '==', false).get();
+                        
+                        // Primero intentar con active == false
+                        let snapshot = await window.db.collection('users').where('active', '==', false).get();
+                        
+                        // Si no hay resultados, buscar usuarios sin campo active o con active == null
+                        if (snapshot.empty) {
+                            console.log('No users with active=false, checking for users without active field...');
+                            const allUsersSnapshot = await window.db.collection('users').get();
+                            const pendingUsers = [];
+                            
+                            allUsersSnapshot.forEach(doc => {
+                                const user = doc.data();
+                                // Considerar pendiente si active es false, null, undefined, o no existe
+                                if (user.active === false || user.active === null || user.active === undefined || !('active' in user)) {
+                                    pendingUsers.push({ id: doc.id, data: user });
+                                }
+                            });
+                            
+                            // Crear un snapshot-like object
+                            snapshot = {
+                                size: pendingUsers.length,
+                                empty: pendingUsers.length === 0,
+                                forEach: function(callback) {
+                                    pendingUsers.forEach(item => {
+                                        callback({
+                                            id: item.id,
+                                            data: () => item.data
+                                        });
+                                    });
+                                }
+                            };
+                        }
                         
                         const container = document.getElementById('usuarios-pendientes');
                         const totalElement = document.getElementById('total-pendientes');
@@ -199,24 +230,38 @@
                 async function loadUsuariosAprobados() {
                     try {
                         console.log('Loading approved users...');
-                        let query = window.db.collection('users').where('active', '==', true);
                         
-                        // Aplicar filtros si existen
-                        const programaFilter = document.getElementById('filterPrograma')?.value;
-                        const sedeFilter = document.getElementById('filterSedeAprobados')?.value;
-                        const horarioFilter = document.getElementById('filterHorarioAprobados')?.value;
+                        // Primero intentar con active == true
+                        let snapshot = await window.db.collection('users').where('active', '==', true).get();
                         
-                        if (programaFilter) {
-                            query = query.where('programa', '==', programaFilter);
+                        // Si no hay resultados, buscar usuarios con active == true de manera más amplia
+                        if (snapshot.empty) {
+                            console.log('No users with active=true, checking all users for approved ones...');
+                            const allUsersSnapshot = await window.db.collection('users').get();
+                            const approvedUsers = [];
+                            
+                            allUsersSnapshot.forEach(doc => {
+                                const user = doc.data();
+                                // Considerar aprobado solo si active es explícitamente true
+                                if (user.active === true) {
+                                    approvedUsers.push({ id: doc.id, data: user });
+                                }
+                            });
+                            
+                            // Crear un snapshot-like object
+                            snapshot = {
+                                size: approvedUsers.length,
+                                empty: approvedUsers.length === 0,
+                                forEach: function(callback) {
+                                    approvedUsers.forEach(item => {
+                                        callback({
+                                            id: item.id,
+                                            data: () => item.data
+                                        });
+                                    });
+                                }
+                            };
                         }
-                        if (sedeFilter) {
-                            query = query.where('sede', '==', sedeFilter);
-                        }
-                        if (horarioFilter) {
-                            query = query.where('horario', '==', horarioFilter);
-                        }
-                        
-                        const snapshot = await query.get();
                         
                         const container = document.getElementById('usuarios-aprobados');
                         const totalElement = document.getElementById('total-aprobados');
