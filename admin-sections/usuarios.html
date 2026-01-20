@@ -289,13 +289,16 @@
                         alert(`Usuario ${newStatus ? 'aprobado' : 'marcado como pendiente'} exitosamente`);
 
                         // Recargar ambas listas
-                        loadUsuariosPendientes();
-                        loadUsuariosAprobados();
+                        await loadUsuariosPendientes();
+                        await loadUsuariosAprobados();
                     } catch (error) {
                         console.error('Error toggling user status:', error);
                         alert('Error al cambiar el status del usuario');
                     }
                 }
+
+                // Función para debug de usuarios
+                async function debugUsersStatus() {
                     try {
                         console.log('=== DEBUG: Checking users status ===');
 
@@ -448,8 +451,8 @@
                         }
                         
                         alert(`Se eliminaron ${duplicates.length} usuarios duplicados`);
-                        loadUsuariosPendientes();
-                        loadUsuariosAprobados();
+                        await loadUsuariosPendientes();
+                        await loadUsuariosAprobados();
                     } catch (error) {
                         console.error('Error cleaning duplicates:', error);
                         alert('Error al limpiar duplicados');
@@ -457,13 +460,13 @@
                 }
 
                 // Cargar datos iniciales cuando se carga la sección
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', async function() {
                     // Pequeño delay para asegurar que Firebase esté inicializado
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         console.log('Initializing users section...');
-                        debugUsersStatus(); // Ejecutar debug primero
-                        loadUsuariosPendientes();
-                        loadUsuariosAprobados();
+                        await debugUsersStatus(); // Ejecutar debug primero
+                        await loadUsuariosPendientes();
+                        await loadUsuariosAprobados();
                     }, 100);
                 });
 
