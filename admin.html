@@ -6808,9 +6808,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
 
             const navItems = document.querySelectorAll('.nav-item');
+            console.log('Found nav items:', navItems.length);
             navItems.forEach(item => {
                 item.addEventListener('click', function() {
                     const section = this.getAttribute('data-section');
+                    console.log('Nav item clicked, section:', section);
                     showSection(section);
                 });
             });
@@ -6869,16 +6871,35 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         });
 
         function showSection(sectionId) {
+            console.log('showSection called with:', sectionId);
+
             // Guardar la sección activa en sessionStorage
             sessionStorage.setItem('activeSection', sectionId);
 
             // Cerrar modal de preview al cambiar de sección
             closeContentPreview();
 
+            // Verificar que los elementos existen
+            const sectionElement = document.getElementById(sectionId);
+            const navElement = document.querySelector(`[data-section="${sectionId}"]`);
+
+            console.log('Section element found:', !!sectionElement);
+            console.log('Nav element found:', !!navElement);
+
+            if (!sectionElement) {
+                console.error('Section element not found:', sectionId);
+                return;
+            }
+
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            sectionElement.classList.add('active');
+
+            if (navElement) {
+                navElement.classList.add('active');
+            }
+
+            console.log('Section activated:', sectionId);
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') {
                 try {
