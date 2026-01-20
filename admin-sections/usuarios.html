@@ -35,22 +35,6 @@
                             </div>
                         </div>
                     </div>
-                    <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #3b82f6; box-shadow: 0 4px 15px rgba(59,130,246,0.2);">
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <p style="margin: 0; font-size: 0.85rem; color: #1e40af; font-weight: 600; text-transform: uppercase;">Debug</p>
-                                <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #1e40af;">Herramientas de diagnóstico</p>
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                                <button onclick="debugUsersStatus()" style="padding: 0.25rem 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
-                                    🔍 Debug
-                                </button>
-                                <button onclick="showAllUsers()" style="padding: 0.25rem 0.5rem; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.7rem;">
-                                    👁️ Ver Todos
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Nota informativa -->
@@ -256,9 +240,6 @@
                                             </div>
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                            <button onclick="toggleUserStatus('${doc.id}', '${user.status}')" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
-                                                <i class="fas fa-exchange-alt"></i> Cambiar Status
-                                            </button>
                                             <button onclick="editarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
                                                 <i class="fas fa-edit"></i> Editar
                                             </button>
@@ -272,33 +253,6 @@
                     } catch (error) {
                         console.error('Error loading approved users:', error);
                         document.getElementById('usuarios-aprobados').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar usuarios aprobados</p></div>';
-                    }
-                }
-
-                // Función para cambiar manualmente el status de un usuario (para testing)
-                async function toggleUserStatus(userId, currentStatus) {
-                    try {
-                        const newStatus = currentStatus === 'active' ? 'pending' : 'active';
-                        const updateData = {
-                            status: newStatus,
-                            updatedAt: new Date(),
-                            statusChangedBy: 'manual_toggle'
-                        };
-                        if (newStatus === 'active') {
-                            updateData.approvedAt = new Date();
-                            updateData.approvedBy = 'admin';
-                        }
-                        await window.db.collection('users').doc(userId).update(updateData);
-
-                        console.log(`User ${userId} status changed from ${currentStatus} to ${newStatus}`);
-                        alert(`Usuario ${newStatus === 'active' ? 'aprobado' : 'marcado como pendiente'} exitosamente`);
-
-                        // Recargar ambas listas
-                        await loadUsuariosPendientes();
-                        await loadUsuariosAprobados();
-                    } catch (error) {
-                        console.error('Error toggling user status:', error);
-                        alert('Error al cambiar el status del usuario');
                     }
                 }
 
@@ -345,56 +299,6 @@
 
                     } catch (error) {
                         console.error('Error in debug function:', error);
-                    }
-                }
-
-                // Función para mostrar todos los usuarios (sin filtrar)
-                async function showAllUsers() {
-                    try {
-                        console.log('Showing all users...');
-                        const snapshot = await window.db.collection('users').get();
-
-                        const container = document.getElementById('usuarios-pendientes');
-                        if (!container) return;
-
-                        if (snapshot.empty) {
-                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-users fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay usuarios registrados</p></div>';
-                            return;
-                        }
-
-                        let html = '<h3 style="color: #ef4444; margin-bottom: 1rem;">🔍 MODO DEBUG: Mostrando TODOS los usuarios</h3>';
-                        snapshot.forEach(doc => {
-                            const user = doc.data();
-                            const statusColor = user.status === 'active' ? '#10b981' : user.status === 'pending' ? '#f59e0b' : '#6b7280';
-                            const statusText = user.status === 'active' ? 'APROBADO' : user.status === 'pending' ? 'PENDIENTE' : 'SIN STATUS';
-
-                            html += `
-                                <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid ${statusColor};">
-                                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                                        <div style="flex: 1;">
-                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                                <h4 style="margin: 0; color: #1f2937;">${user.name || 'Sin nombre'}</h4>
-                                                <span style="background: ${statusColor}; color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">
-                                                    ${statusText}
-                                                </span>
-                                            </div>
-                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-envelope"></i> ${user.email}</p>
-                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Status value:</strong> ${user.status} (type: ${typeof user.status})</p>
-                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Aprobado por:</strong> ${user.approvedBy || 'No aprobado'}</p>
-                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.programa || 'Programa no especificado'}</span>
-                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.sede || 'Sede no especificada'}</span>
-                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.horario || 'Horario no especificado'}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-
-                        container.innerHTML = html;
-                    } catch (error) {
-                        console.error('Error showing all users:', error);
                     }
                 }
 
@@ -576,7 +480,6 @@
                     // Pequeño delay para asegurar que Firebase esté inicializado
                     setTimeout(async () => {
                         console.log('Initializing users section...');
-                        await debugUsersStatus(); // Ejecutar debug primero
                         await loadUsuariosPendientes();
                         await loadUsuariosAprobados();
                     }, 100);
@@ -585,9 +488,6 @@
                 // Exponer funciones globalmente para que admin.html pueda llamarlas
                 window.loadUsuariosPendientes = loadUsuariosPendientes;
                 window.loadUsuariosAprobados = loadUsuariosAprobados;
-                window.debugUsersStatus = debugUsersStatus;
-                window.showAllUsers = showAllUsers;
-                window.toggleUserStatus = toggleUserStatus;
                 window.aprobarUsuario = aprobarUsuario;
                 window.rechazarUsuario = rechazarUsuario;
                 window.editarUsuario = editarUsuario;
