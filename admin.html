@@ -12,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Firebase configuration - values will be replaced by Netlify during build
         window.FIREBASE_CONFIG = {
@@ -4055,8 +4056,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     <button type="button" onclick="switchActividadesTab('gestion')" id="tabGestionActividades" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
                         <i class="fas fa-tasks"></i> Actividades
                     </button>
-                    <button type="button" onclick="switchActividadesTab('entregas')" id="tabEntregasActividades" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
-                        <i class="fas fa-inbox"></i> Entregas
+                    <button type="button" onclick="switchActividadesTab('resultados')" id="tabEntregasActividades" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-poll"></i> Resultados
                     </button>
                 </div>
 
@@ -4193,21 +4194,73 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 </div>
                 </div><!-- Fin del panelGestionActividades -->
 
-                <!-- Panel de Entregas de Actividades -->
+                <!-- Panel de Resultados de Actividades -->
                 <div id="panelEntregasActividades" style="display: none;">
-                    <!-- Panel de Estadísticas -->
+                    <!-- Header -->
                     <div class="quiz-builder-section">
-                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                            <h3><i class="fas fa-inbox"></i> Gestión de Entregas</h3>
-                            <p style="color: white;">Revisa y califica las entregas de tus estudiantes</p>
+                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                                        <i class="fas fa-poll"></i> Resultados de Actividades
+                                    </h3>
+                                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Visualiza estadísticas y resultados de actividades</p>
+                                </div>
+                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 1.25rem; font-weight: bold;" id="totalEntregasResultados">0</div>
+                                        <div style="font-size: 0.75rem; opacity: 0.9;">Entregas</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                        <div style="font-size: 1.25rem; font-weight: bold;" id="promedioActividadesResultados">0%</div>
+                                        <div style="font-size: 0.75rem; opacity: 0.9;">Promedio</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Estadísticas -->
-                        <div class="stats-grid" style="margin-bottom: 32px;">
+                        <!-- Filtros -->
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-graduation-cap"></i> Programa
+                                    </label>
+                                    <select id="filtroProgResultadosActividades" onchange="aplicarFiltrosResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los programas</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-tasks"></i> Actividad
+                                    </label>
+                                    <select id="filtroActividadResultados" onchange="aplicarFiltrosResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las actividades</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-calendar"></i> Período
+                                    </label>
+                                    <select id="filtroPeriodoResultadosActividades" onchange="aplicarFiltrosResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="todos">Todo el tiempo</option>
+                                        <option value="mes">Último mes</option>
+                                        <option value="semana">Última semana</option>
+                                        <option value="hoy">Hoy</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estadísticas Generales -->
+                        <div class="stats-grid" style="margin-bottom: 2rem;">
                             <div class="stat-card">
                                 <div class="stat-card-header">
                                     <div>
-                                        <h3 class="stat-value" id="total-entregas">0</h3>
+                                        <h3 class="stat-value" id="totalEntregasActividades">0</h3>
                                         <p class="stat-label">Total Entregas</p>
                                     </div>
                                     <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
@@ -4216,7 +4269,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             <div class="stat-card">
                                 <div class="stat-card-header">
                                     <div>
-                                        <h3 class="stat-value" id="pendientes-entregas">0</h3>
+                                        <h3 class="stat-value" id="entregasCalificadasActividades">0</h3>
+                                        <p class="stat-label">Calificadas</p>
+                                    </div>
+                                    <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-header">
+                                    <div>
+                                        <h3 class="stat-value" id="entregasPendientesActividades">0</h3>
                                         <p class="stat-label">Pendientes</p>
                                     </div>
                                     <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
@@ -4225,23 +4287,32 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             <div class="stat-card">
                                 <div class="stat-card-header">
                                     <div>
-                                        <h3 class="stat-value" id="calificadas-entregas">0</h3>
-                                        <p class="stat-label">Calificadas</p>
+                                        <h3 class="stat-value" id="promedioCalificacionesActividades">0%</h3>
+                                        <p class="stat-label">Promedio General</p>
                                     </div>
-                                    <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                                    <div class="stat-card-icon orange"><i class="fas fa-chart-line"></i></div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Grid de Actividades -->
-                    <div id="actividadesGrid" class="quiz-builder-section" style="display: block;">
-                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                            <h3><i class="fas fa-tasks"></i> Actividades Disponibles</h3>
-                            <p style="color: white;">Haz clic en una actividad para ver las entregas de estudiantes</p>
+                        <!-- Gráfico de Rendimiento por Actividad -->
+                        <div class="quiz-builder-section" style="margin-bottom: 2rem;">
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                                <h3 style="margin: 0;"><i class="fas fa-chart-bar"></i> Rendimiento por Actividad</h3>
+                            </div>
+                            <div id="actividadesChartContainer" style="height: 300px; background: #f8fafc; border-radius: 8px; padding: 1rem; border: 1px solid #e2e8f0;">
+                                <canvas id="actividadesChart"></canvas>
+                            </div>
                         </div>
-                        <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
-                            <!-- Las actividades se cargarán aquí -->
+
+                        <!-- Tabla de Resultados Detallados -->
+                        <div class="quiz-builder-section">
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                                <h3 style="margin: 0;"><i class="fas fa-table"></i> Resultados Detallados</h3>
+                            </div>
+                            <div id="resultadosActividadesTable" style="overflow-x: auto;">
+                                <!-- La tabla se cargará aquí -->
+                            </div>
                         </div>
                     </div>
 
@@ -14808,15 +14879,15 @@ REGLAS ESTRICTAS:
                 panelEntregas.style.display = 'none';
                 // Cargar gestión de actividades
                 loadActividadesManager();
-            } else if (tab === 'entregas') {
+            } else if (tab === 'resultados') {
                 tabEntregas.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
                 tabEntregas.style.color = 'white';
                 tabGestion.style.background = '#f1f5f9';
                 tabGestion.style.color = '#64748b';
                 panelGestion.style.display = 'none';
                 panelEntregas.style.display = 'block';
-                // Cargar entregas al cambiar a esa pestaña
-                loadEntregas();
+                // Cargar resultados al cambiar a esa pestaña
+                loadResultadosActividades();
             }
         }
 
@@ -17352,6 +17423,285 @@ REGLAS ESTRICTAS:
                 console.error('Error eliminando actividad:', error);
                 alert('Error al eliminar la actividad');
             }
+        }
+
+        // =================== FUNCIONES PARA RESULTADOS DE ACTIVIDADES ===================
+
+        let resultadosActividadesData = [];
+        let chartActividades = null;
+
+        // Función para cargar resultados de actividades
+        async function loadResultadosActividades() {
+            try {
+                console.log('Cargando resultados de actividades...');
+
+                // Cargar entregas desde Firebase
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+                const entregas = entregasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Cargar actividades para referencia
+                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
+                const actividadesMap = {};
+                actividadesSnapshot.docs.forEach(doc => {
+                    actividadesMap[doc.id] = doc.data();
+                });
+
+                // Cargar usuarios para referencia
+                const usuariosSnapshot = await getDocs(collection(db, 'users'));
+                const usuariosMap = {};
+                usuariosSnapshot.docs.forEach(doc => {
+                    usuariosMap[doc.id] = doc.data();
+                });
+
+                // Procesar datos
+                resultadosActividadesData = entregas.map(entrega => ({
+                    ...entrega,
+                    actividad: actividadesMap[entrega.actividadId] || { titulo: 'Actividad desconocida' },
+                    estudiante: usuariosMap[entrega.estudianteId] || { nombre: 'Estudiante desconocido', email: entrega.email || 'Sin email' }
+                }));
+
+                console.log(`Total resultados cargados: ${resultadosActividadesData.length}`);
+
+                // Llenar filtro de actividades
+                llenarFiltroActividades(actividadesMap);
+
+                // Aplicar filtros iniciales
+                aplicarFiltrosResultadosActividades();
+
+                // Actualizar estadísticas
+                actualizarEstadisticasResultadosActividades();
+
+                // Crear gráfico
+                crearGraficoActividades();
+
+                // Renderizar tabla
+                renderTablaResultadosActividades(resultadosActividadesData);
+
+            } catch (error) {
+                console.error('Error loading resultados actividades:', error);
+            }
+        }
+
+        // Función para llenar filtro de actividades
+        function llenarFiltroActividades(actividadesMap) {
+            const select = document.getElementById('filtroActividadResultados');
+            select.innerHTML = '<option value="">Todas las actividades</option>';
+
+            Object.entries(actividadesMap).forEach(([id, actividad]) => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = actividad.titulo || 'Sin título';
+                select.appendChild(option);
+            });
+        }
+
+        // Función para aplicar filtros de resultados
+        function aplicarFiltrosResultadosActividades() {
+            const programa = document.getElementById('filtroProgResultadosActividades').value;
+            const actividadId = document.getElementById('filtroActividadResultados').value;
+            const periodo = document.getElementById('filtroPeriodoResultadosActividades').value;
+
+            let filteredData = resultadosActividadesData.filter(resultado => {
+                // Filtro por programa
+                if (programa && resultado.actividad.programa !== programa) {
+                    return false;
+                }
+
+                // Filtro por actividad específica
+                if (actividadId && resultado.actividadId !== actividadId) {
+                    return false;
+                }
+
+                // Filtro por período
+                if (periodo !== 'todos') {
+                    const fechaEntrega = resultado.fechaEntrega ? new Date(resultado.fechaEntrega) : new Date();
+                    const ahora = new Date();
+
+                    switch (periodo) {
+                        case 'hoy':
+                            if (fechaEntrega.toDateString() !== ahora.toDateString()) return false;
+                            break;
+                        case 'semana':
+                            const semanaAtras = new Date(ahora.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            if (fechaEntrega < semanaAtras) return false;
+                            break;
+                        case 'mes':
+                            const mesAtras = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000);
+                            if (fechaEntrega < mesAtras) return false;
+                            break;
+                    }
+                }
+
+                return true;
+            });
+
+            // Actualizar estadísticas con datos filtrados
+            actualizarEstadisticasResultadosActividades(filteredData);
+
+            // Renderizar tabla con datos filtrados
+            renderTablaResultadosActividades(filteredData);
+
+            // Actualizar gráfico con datos filtrados
+            crearGraficoActividades(filteredData);
+        }
+
+        // Función para actualizar estadísticas de resultados
+        function actualizarEstadisticasResultadosActividades(data = null) {
+            const statsData = data || resultadosActividadesData;
+
+            const total = statsData.length;
+            const calificadas = statsData.filter(r => r.calificacion !== undefined && r.calificacion !== null).length;
+            const pendientes = total - calificadas;
+
+            // Calcular promedio
+            const calificaciones = statsData
+                .filter(r => r.calificacion !== undefined && r.calificacion !== null)
+                .map(r => parseFloat(r.calificacion));
+            const promedio = calificaciones.length > 0 ?
+                Math.round((calificaciones.reduce((a, b) => a + b, 0) / calificaciones.length) * 100) / 100 : 0;
+
+            // Actualizar elementos
+            document.getElementById('totalEntregasResultados').textContent = total;
+            document.getElementById('totalEntregasActividades').textContent = total;
+            document.getElementById('entregasCalificadasActividades').textContent = calificadas;
+            document.getElementById('entregasPendientesActividades').textContent = pendientes;
+            document.getElementById('promedioActividadesResultados').textContent = `${promedio}%`;
+            document.getElementById('promedioCalificacionesActividades').textContent = `${promedio}%`;
+        }
+
+        // Función para crear gráfico de actividades
+        function crearGraficoActividades(data = null) {
+            const chartData = data || resultadosActividadesData;
+
+            // Destruir gráfico anterior si existe
+            if (chartActividades) {
+                chartActividades.destroy();
+            }
+
+            // Agrupar por actividad
+            const actividadesStats = {};
+            chartData.forEach(resultado => {
+                const actividadNombre = resultado.actividad.titulo || 'Sin título';
+                if (!actividadesStats[actividadNombre]) {
+                    actividadesStats[actividadNombre] = {
+                        total: 0,
+                        calificadas: 0,
+                        promedio: 0
+                    };
+                }
+                actividadesStats[actividadNombre].total++;
+
+                if (resultado.calificacion !== undefined && resultado.calificacion !== null) {
+                    actividadesStats[actividadNombre].calificadas++;
+                    actividadesStats[actividadNombre].promedio += parseFloat(resultado.calificacion);
+                }
+            });
+
+            // Calcular promedios
+            Object.keys(actividadesStats).forEach(actividad => {
+                const stats = actividadesStats[actividad];
+                stats.promedio = stats.calificadas > 0 ? stats.promedio / stats.calificadas : 0;
+            });
+
+            const ctx = document.getElementById('actividadesChart').getContext('2d');
+            chartActividades = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(actividadesStats),
+                    datasets: [{
+                        label: 'Promedio de Calificaciones',
+                        data: Object.values(actividadesStats).map(stats => stats.promedio),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Total Entregas',
+                        data: Object.values(actividadesStats).map(stats => stats.total),
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Rendimiento por Actividad'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Función para renderizar tabla de resultados
+        function renderTablaResultadosActividades(data) {
+            const container = document.getElementById('resultadosActividadesTable');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: 16px; border: 2px dashed #cbd5e1;">
+                        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #94a3b8, #64748b); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-poll" style="font-size: 3rem; color: white;"></i>
+                        </div>
+                        <h3 style="color: #374151; margin-bottom: 0.5rem;">No hay resultados</h3>
+                        <p style="color: #64748b; margin-bottom: 2rem;">No se encontraron resultados con los filtros aplicados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <thead style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                        <tr>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600;">Estudiante</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600;">Actividad</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Calificación</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Estado</th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600;">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(resultado => `
+                            <tr style="border-bottom: 1px solid #e2e8f0; hover: background: #f8fafc;">
+                                <td style="padding: 1rem;">
+                                    <div style="font-weight: 600; color: #374151;">${resultado.estudiante.nombre || 'Sin nombre'}</div>
+                                    <div style="font-size: 0.875rem; color: #64748b;">${resultado.estudiante.email || resultado.email || 'Sin email'}</div>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <div style="font-weight: 600; color: #374151;">${resultado.actividad.titulo || 'Sin título'}</div>
+                                    <div style="font-size: 0.875rem; color: #64748b;">${resultado.actividad.programa || 'Sin programa'}</div>
+                                </td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    <span style="font-weight: 600; color: ${resultado.calificacion !== undefined && resultado.calificacion !== null ? '#059669' : '#6b7280'};">
+                                        ${resultado.calificacion !== undefined && resultado.calificacion !== null ? `${resultado.calificacion}%` : 'Pendiente'}
+                                    </span>
+                                </td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    <span style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; ${resultado.calificacion !== undefined && resultado.calificacion !== null ? 'background: #dcfce7; color: #166534;' : 'background: #fef3c7; color: #92400e;'}">
+                                        ${resultado.calificacion !== undefined && resultado.calificacion !== null ? 'Calificada' : 'Pendiente'}
+                                    </span>
+                                </td>
+                                <td style="padding: 1rem; text-align: center; color: #64748b;">
+                                    ${resultado.fechaEntrega ? new Date(resultado.fechaEntrega).toLocaleDateString('es-ES') : 'Sin fecha'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
         }
 
         // =================== FUNCIONES PARA FOROS ===================
