@@ -204,15 +204,29 @@
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
 
+        // Cache para usuarios recientes (mejora rendimiento)
+        const userCache = new Map();
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
         function showMessage(text, type) {
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
         }
 
+        // Función auxiliar para crear timeout
+        function withTimeout(promise, timeoutMs = 10000) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                )
+            ]);
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const submitBtn = loginForm.querySelector('.btn-login');
@@ -227,20 +241,50 @@
             try {
                 console.log('Starting user query...');
                 const queryStartTime = performance.now();
-                
-                // Buscar usuario en users por email (tanto estudiantes como admin)
-                // Agregar límite para optimizar la consulta
-                const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                const querySnapshot = await getDocs(q);
-                
+
+                // OPTIMIZACIÓN: Verificar cache primero
+                const cachedUser = userCache.get(email);
+                if (cachedUser && (Date.now() - cachedUser.timestamp) < CACHE_DURATION) {
+                    console.log('User found in cache');
+                    userData = cachedUser.data;
+                    userDoc = { id: cachedUser.id };
+                } else {
+                    // OPTIMIZACIÓN: Usar getDoc con ID conocido en lugar de query
+                    // Si el email es único, podemos usar el email como ID del documento
+                    const userDocRef = doc(db, 'users', email.replace(/[.#$\/\[\]]/g, '_'));
+                    const userDocSnap = await withTimeout(getDoc(userDocRef), 8000);
+
+                    if (userDocSnap.exists()) {
+                        userData = userDocSnap.data();
+                        userDoc = userDocSnap;
+
+                        // Guardar en cache
+                        userCache.set(email, {
+                            data: userData,
+                            id: userDoc.id,
+                            timestamp: Date.now()
+                        });
+                    } else {
+                        // Fallback: buscar con query si no se encuentra por ID
+                        console.log('User not found by ID, trying query...');
+                        const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
+                        const querySnapshot = await withTimeout(getDocs(q), 8000);
+
+                        if (!querySnapshot.empty) {
+                            userDoc = querySnapshot.docs[0];
+                            userData = userDoc.data();
+
+                            // Guardar en cache
+                            userCache.set(email, {
+                                data: userData,
+                                id: userDoc.id,
+                                timestamp: Date.now()
+                            });
+                        }
                 const queryEndTime = performance.now();
                 console.log('Query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
-                console.log('Query snapshot size:', querySnapshot.size);
 
-                if (!querySnapshot.empty) {
-                    const userDoc = querySnapshot.docs[0];
-                    const userData = userDoc.data();
-
+                if (userData) {
                     console.log('Login - User document ID:', userDoc.id);
                     console.log('Login - User data:', userData);
 
@@ -268,7 +312,7 @@
                         // Mostrar mensaje de éxito antes de redirigir
                         submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
                         submitBtn.style.background = '#10b981';
-                        
+
                         setTimeout(() => {
                             // Redirigir según el rol
                             if (userData.role === 'admin') {
@@ -302,6 +346,10 @@
                     errorMessage = 'Contraseña incorrecta.';
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = 'Correo electrónico inválido.';
+                } else if (error.message === 'timeout') {
+                    errorMessage = 'Tiempo de espera agotado. Verifica tu conexión a internet e intenta nuevamente.';
+                } else if (error.message.includes('offline') || error.message.includes('network') || error.message.includes('unavailable')) {
+                    errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
                 }
                 showMessage(errorMessage, 'error');
                 submitBtn.disabled = false;
