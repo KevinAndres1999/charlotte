@@ -7,7 +7,6 @@
     <title>Panel Administrador | Charlotte</title>
     <!-- Actualizado: 11/12/2025 16:38:02 -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="admin-focus-fix.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/35.4.0/classic/ckeditor.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -1872,126 +1871,6 @@
             margin: 0.5rem 0 0 0;
         }
 
-        /* === ESTILOS PARA LA INTERFAZ DE RESPUESTAS-VIEWER === */
-        .respuestas-viewer-banner {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .respuestas-viewer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .respuestas-viewer-nav {
-            flex-shrink: 0;
-        }
-
-        .respuestas-viewer-info {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .respuestas-viewer-info h2 {
-            margin: 0 0 1rem 0;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .respuestas-viewer-meta {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .respuestas-viewer-meta .program-badge {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .respuestas-viewer-meta .meta-item {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-        }
-
-        .respuestas-viewer-actions {
-            flex-shrink: 0;
-        }
-
-        .respuestas-viewer-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .respuestas-stats {
-            margin-bottom: 2rem;
-        }
-
-        .respuestas-content-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        .respuestas-description-card,
-        .respuestas-main-content-card,
-        .respuestas-calificacion-card {
-            border-top: 3px solid #8b5cf6;
-        }
-
-        .respuestas-description-content {
-            color: #475569;
-            line-height: 1.6;
-            font-size: 1.1rem;
-        }
-
-        .respuestas-content-viewer {
-            color: #374151;
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-
-        .respuestas-navigation-card {
-            border-top: 3px solid #8b5cf6;
-        }
-
-        .respuestas-actions-links {
-            margin-top: 1rem;
-        }
-
-        .respuestas-actions-links .quick-link {
-            background: white;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
-
-        .respuestas-actions-links .quick-link:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
-            border-color: #8b5cf6;
-        }
-
-        .respuestas-actions-links .quick-link i {
-            color: #8b5cf6;
-        }
-
-        .respuestas-actions-links .quick-link h4 {
-            color: #1e293b;
-            margin: 0.5rem 0 0 0;
-        }
-
         /* === ESTILOS COMUNES PARA VIEWERS === */
         .quick-link-grid {
             display: grid;
@@ -3155,7 +3034,6 @@
                 <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
                 <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Entregas</span></div>
-                <div class="nav-item" data-section="respuestas-viewer"><i class="fas fa-reply"></i><span>Respuestas</span></div>
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
                 <div class="nav-item" data-section="clase-viewer"><i class="fas fa-chalkboard-teacher"></i><span>Clase Viewer</span></div>
@@ -3257,6 +3135,11 @@
                     clearInterval(resetInterval);
                 }
             }, 100);
+
+            // Verificar autenticación e inicializar admin
+            if (checkAuthentication()) {
+                initializeAdmin();
+            }
         });
 
         // Función para inicializar el admin una vez que todo esté listo
@@ -3268,6 +3151,16 @@
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('open');
             }
+
+            // Agregar event listeners a los nav-items
+            const navItems = document.querySelectorAll('.nav-item[data-section]');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const sectionId = this.getAttribute('data-section');
+                    console.log('Nav item clicked:', sectionId);
+                    showSection(sectionId);
+                });
+            });
 
             // Cargar sección inicial (dashboard)
             loadSection('dashboard');
@@ -3295,6 +3188,12 @@
                 // Insertar el contenido
                 container.innerHTML = html;
 
+                // Agregar clase 'active' al content-section si existe
+                const contentSection = container.querySelector('.content-section');
+                if (contentSection) {
+                    contentSection.classList.add('active');
+                }
+
                 // Ejecutar scripts embebidos en el HTML cargado
                 const scripts = container.querySelectorAll('script');
                 scripts.forEach(script => {
@@ -3316,7 +3215,10 @@
                 // Ejecutar funciones específicas de la sección si existen
                 switch(sectionId) {
                     case 'dashboard':
-                        // El dashboard se auto-ejecuta
+                        // Cargar estadísticas del dashboard
+                        if (typeof window.loadDashboardStats === 'function') {
+                            window.loadDashboardStats();
+                        }
                         break;
                     case 'usuarios':
                         if (typeof loadUsuariosPendientes === 'function') loadUsuariosPendientes();
@@ -3351,9 +3253,6 @@
                         break;
                     case 'entregas-viewer':
                         if (typeof loadEntregas === 'function') loadEntregas();
-                        break;
-                    case 'respuestas-viewer':
-                        if (typeof loadRespuestas === 'function') loadRespuestas();
                         break;
                     case 'foros':
                         if (typeof loadForosList === 'function') loadForosList();

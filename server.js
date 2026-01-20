@@ -192,7 +192,7 @@ app.get('/api/admin/stats', requireAuth, async (req, res) => {
       evaluacionesSnap
     ] = await Promise.all([
       db.collection('videos').get(),
-      db.collection('clases').get(),
+      db.collection('classes').get(), // Corregido: usar 'classes' en lugar de 'clases'
       db.collection('actividades').get(),
       db.collection('materiales').get(),
       db.collection('entregas').get(),

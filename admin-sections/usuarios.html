@@ -139,3 +139,230 @@
                     <div id="usuarios-aprobados" style="padding: 1rem;"></div>
                 </div>
             </div>
+
+            <script>
+                // Función para cargar usuarios pendientes
+                async function loadUsuariosPendientes() {
+                    try {
+                        console.log('Loading pending users...');
+                        const snapshot = await window.db.collection('users').where('active', '==', false).get();
+                        
+                        const container = document.getElementById('usuarios-pendientes');
+                        const totalElement = document.getElementById('total-pendientes');
+                        
+                        if (totalElement) {
+                            totalElement.textContent = snapshot.size;
+                        }
+                        
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-inbox fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay solicitudes pendientes</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div style="flex: 1;">
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 1.1rem;">${user.name || 'Sin nombre'}</h4>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-envelope"></i> ${user.email}</p>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-calendar"></i> ${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : 'Fecha no disponible'}</p>
+                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.programa || 'Programa no especificado'}</span>
+                                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.sede || 'Sede no especificada'}</span>
+                                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.horario || 'Horario no especificado'}</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                            <button onclick="aprobarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                                <i class="fas fa-check"></i> Aprobar
+                                            </button>
+                                            <button onclick="rechazarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                                <i class="fas fa-times"></i> Rechazar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading pending users:', error);
+                        document.getElementById('usuarios-pendientes').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar usuarios pendientes</p></div>';
+                    }
+                }
+
+                // Función para cargar usuarios aprobados
+                async function loadUsuariosAprobados() {
+                    try {
+                        console.log('Loading approved users...');
+                        let query = window.db.collection('users').where('active', '==', true);
+                        
+                        // Aplicar filtros si existen
+                        const programaFilter = document.getElementById('filterPrograma')?.value;
+                        const sedeFilter = document.getElementById('filterSedeAprobados')?.value;
+                        const horarioFilter = document.getElementById('filterHorarioAprobados')?.value;
+                        
+                        if (programaFilter) {
+                            query = query.where('programa', '==', programaFilter);
+                        }
+                        if (sedeFilter) {
+                            query = query.where('sede', '==', sedeFilter);
+                        }
+                        if (horarioFilter) {
+                            query = query.where('horario', '==', horarioFilter);
+                        }
+                        
+                        const snapshot = await query.get();
+                        
+                        const container = document.getElementById('usuarios-aprobados');
+                        const totalElement = document.getElementById('total-aprobados');
+                        
+                        if (totalElement) {
+                            totalElement.textContent = snapshot.size;
+                        }
+                        
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-users fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay usuarios aprobados</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div style="flex: 1;">
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 1.1rem;">${user.name || 'Sin nombre'}</h4>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-envelope"></i> ${user.email}</p>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-calendar"></i> ${user.createdAt ? new Date(user.createdAt.toDate()).toLocaleDateString() : 'Fecha no disponible'}</p>
+                                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                                <span style="background: #dcfce7; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.programa || 'Programa no especificado'}</span>
+                                                <span style="background: #dcfce7; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.sede || 'Sede no especificada'}</span>
+                                                <span style="background: #dcfce7; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">${user.horario || 'Horario no especificado'}</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                            <button onclick="editarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            <button onclick="desactivarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                                <i class="fas fa-ban"></i> Desactivar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading approved users:', error);
+                        document.getElementById('usuarios-aprobados').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar usuarios aprobados</p></div>';
+                    }
+                }
+
+                // Función para aprobar usuario
+                async function aprobarUsuario(userId) {
+                    try {
+                        await window.db.collection('users').doc(userId).update({
+                            active: true,
+                            approvedAt: new Date(),
+                            approvedBy: 'admin'
+                        });
+                        
+                        alert('Usuario aprobado exitosamente');
+                        loadUsuariosPendientes();
+                        loadUsuariosAprobados();
+                    } catch (error) {
+                        console.error('Error approving user:', error);
+                        alert('Error al aprobar usuario');
+                    }
+                }
+
+                // Función para rechazar usuario
+                async function rechazarUsuario(userId) {
+                    if (confirm('¿Estás seguro de que quieres rechazar esta solicitud?')) {
+                        try {
+                            await window.db.collection('users').doc(userId).delete();
+                            
+                            alert('Solicitud rechazada');
+                            loadUsuariosPendientes();
+                        } catch (error) {
+                            console.error('Error rejecting user:', error);
+                            alert('Error al rechazar solicitud');
+                        }
+                    }
+                }
+
+                // Función para editar usuario
+                async function editarUsuario(userId) {
+                    // Implementar modal de edición
+                    alert('Función de edición próximamente disponible');
+                }
+
+                // Función para desactivar usuario
+                async function desactivarUsuario(userId) {
+                    if (confirm('¿Estás seguro de que quieres desactivar este usuario?')) {
+                        try {
+                            await window.db.collection('users').doc(userId).update({
+                                active: false,
+                                deactivatedAt: new Date()
+                            });
+                            
+                            alert('Usuario desactivado');
+                            loadUsuariosAprobados();
+                        } catch (error) {
+                            console.error('Error deactivating user:', error);
+                            alert('Error al desactivar usuario');
+                        }
+                    }
+                }
+
+                // Función para limpiar duplicados
+                async function limpiarDuplicados() {
+                    try {
+                        const snapshot = await window.db.collection('users').get();
+                        const emails = new Map();
+                        const duplicates = [];
+                        
+                        snapshot.forEach(doc => {
+                            const user = doc.data();
+                            if (emails.has(user.email)) {
+                                duplicates.push(doc.id);
+                            } else {
+                                emails.set(user.email, doc.id);
+                            }
+                        });
+                        
+                        for (const docId of duplicates) {
+                            await window.db.collection('users').doc(docId).delete();
+                        }
+                        
+                        alert(`Se eliminaron ${duplicates.length} usuarios duplicados`);
+                        loadUsuariosPendientes();
+                        loadUsuariosAprobados();
+                    } catch (error) {
+                        console.error('Error cleaning duplicates:', error);
+                        alert('Error al limpiar duplicados');
+                    }
+                }
+
+                // Cargar datos iniciales cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Pequeño delay para asegurar que Firebase esté inicializado
+                    setTimeout(() => {
+                        loadUsuariosPendientes();
+                        loadUsuariosAprobados();
+                    }, 100);
+                });
+
+                // Exponer funciones globalmente para que admin.html pueda llamarlas
+                window.loadUsuariosPendientes = loadUsuariosPendientes;
+                window.loadUsuariosAprobados = loadUsuariosAprobados;
+            </script>
+        </div>

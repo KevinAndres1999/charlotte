@@ -257,3 +257,222 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+                let currentActividadId = null;
+
+                // Función para cargar estadísticas de entregas
+                async function loadEntregasStats() {
+                    try {
+                        const entregasSnap = await window.db.collection('entregas').get();
+                        const totalEntregas = entregasSnap.size;
+                        
+                        let pendientes = 0;
+                        let calificadas = 0;
+                        
+                        entregasSnap.forEach(doc => {
+                            const entrega = doc.data();
+                            if (entrega.calificacion !== undefined && entrega.calificacion !== null) {
+                                calificadas++;
+                            } else {
+                                pendientes++;
+                            }
+                        });
+                        
+                        document.getElementById('total-entregas').textContent = totalEntregas;
+                        document.getElementById('pendientes-entregas').textContent = pendientes;
+                        document.getElementById('calificadas-entregas').textContent = calificadas;
+                        
+                    } catch (error) {
+                        console.error('Error loading entregas stats:', error);
+                    }
+                }
+
+                // Función para cargar actividades disponibles
+                async function loadActividadesDisponibles() {
+                    try {
+                        const actividadesSnap = await window.db.collection('actividades').orderBy('createdAt', 'desc').get();
+                        
+                        const container = document.querySelector('#actividadesGrid .clase-content-grid');
+                        
+                        if (actividadesSnap.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-tasks fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay actividades disponibles</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        actividadesSnap.forEach(doc => {
+                            const actividad = doc.data();
+                            html += `
+                                <div class="content-card" onclick="verEntregasActividad('${doc.id}')" style="cursor: pointer;">
+                                    <div class="card-header">
+                                        <h4>${actividad.titulo}</h4>
+                                        <div class="card-meta">
+                                            <span class="meta-item"><i class="fas fa-graduation-cap"></i> ${actividad.programa}</span>
+                                            <span class="meta-item"><i class="fas fa-clock"></i> ${actividad.tiempoEstimado} min</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-content">
+                                        <p>${actividad.descripcion ? actividad.descripcion.substring(0, 100) + '...' : 'Sin descripción'}</p>
+                                        <div class="card-tags">
+                                            ${actividad.horarios ? actividad.horarios.map(h => `<span class="tag">${h}</span>`).join('') : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading actividades:', error);
+                        document.querySelector('#actividadesGrid .clase-content-grid').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar actividades</p></div>';
+                    }
+                }
+
+                // Función para ver entregas de una actividad específica
+                async function verEntregasActividad(actividadId) {
+                    try {
+                        currentActividadId = actividadId;
+                        
+                        // Ocultar grid de actividades y mostrar entregas
+                        document.getElementById('actividadesGrid').style.display = 'none';
+                        document.getElementById('entregasContainer').style.display = 'block';
+                        
+                        // Obtener información de la actividad
+                        const actividadDoc = await window.db.collection('actividades').doc(actividadId).get();
+                        const actividad = actividadDoc.data();
+                        
+                        document.getElementById('actividadTitle').textContent = actividad.titulo;
+                        
+                        // Cargar entregas de esta actividad
+                        await loadEntregasActividad(actividadId);
+                        
+                    } catch (error) {
+                        console.error('Error loading actividad entregas:', error);
+                        alert('Error al cargar entregas de la actividad');
+                    }
+                }
+
+                // Función para cargar entregas de una actividad específica
+                async function loadEntregasActividad(actividadId) {
+                    try {
+                        const entregasSnap = await window.db.collection('entregas').where('actividadId', '==', actividadId).get();
+                        
+                        const container = document.getElementById('entregasList');
+                        
+                        if (entregasSnap.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-inbox fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay entregas para esta actividad</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        for (const doc of entregasSnap.docs) {
+                            const entrega = doc.data();
+                            
+                            // Obtener información del estudiante
+                            const userDoc = await window.db.collection('users').doc(entrega.userId).get();
+                            const user = userDoc.data();
+                            
+                            const statusColor = entrega.calificacion !== undefined && entrega.calificacion !== null ? '#10b981' : '#f59e0b';
+                            const statusText = entrega.calificacion !== undefined && entrega.calificacion !== null ? 'Calificada' : 'Pendiente';
+                            
+                            html += `
+                                <div class="content-card">
+                                    <div class="card-header">
+                                        <h4>${user ? user.name : 'Usuario desconocido'}</h4>
+                                        <div class="card-meta">
+                                            <span class="meta-item"><i class="fas fa-envelope"></i> ${user ? user.email : 'Sin email'}</span>
+                                            <span class="meta-item"><i class="fas fa-calendar"></i> ${entrega.fechaEntrega ? new Date(entrega.fechaEntrega.toDate()).toLocaleDateString() : 'Fecha no disponible'}</span>
+                                            <span class="meta-item" style="color: ${statusColor};"><i class="fas fa-circle"></i> ${statusText}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-content">
+                                        ${entrega.contenido ? `<p><strong>Entrega:</strong> ${entrega.contenido}</p>` : ''}
+                                        ${entrega.url ? `<p><strong>Enlace:</strong> <a href="${entrega.url}" target="_blank">${entrega.url}</a></p>` : ''}
+                                        
+                                        ${entrega.calificacion !== undefined && entrega.calificacion !== null ? `
+                                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                                                <h5 style="margin: 0 0 0.5rem 0; color: #166534;">Calificación: ${entrega.calificacion}/10</h5>
+                                                ${entrega.comentarios ? `<p style="margin: 0; color: #166534;"><strong>Comentarios:</strong> ${entrega.comentarios}</p>` : ''}
+                                            </div>
+                                        ` : `
+                                            <div style="background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                                                <h5 style="margin: 0 0 1rem 0; color: #92400e;">Calificar Entrega</h5>
+                                                <form onsubmit="calificarEntrega(event, '${doc.id}')">
+                                                    <div style="margin-bottom: 1rem;">
+                                                        <label style="display: block; margin-bottom: 0.5rem; color: #92400e; font-weight: 500;">Calificación (0-10):</label>
+                                                        <input type="number" name="calificacion" min="0" max="10" step="0.1" required style="width: 100%; padding: 0.5rem; border: 1px solid #d97706; border-radius: 6px;">
+                                                    </div>
+                                                    <div style="margin-bottom: 1rem;">
+                                                        <label style="display: block; margin-bottom: 0.5rem; color: #92400e; font-weight: 500;">Comentarios:</label>
+                                                        <textarea name="comentarios" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d97706; border-radius: 6px;"></textarea>
+                                                    </div>
+                                                    <button type="submit" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                        <i class="fas fa-check"></i> Calificar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        `}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading entregas:', error);
+                        document.getElementById('entregasList').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar entregas</p></div>';
+                    }
+                }
+
+                // Función para calificar una entrega
+                async function calificarEntrega(event, entregaId) {
+                    event.preventDefault();
+                    
+                    try {
+                        const formData = new FormData(event.target);
+                        const calificacion = parseFloat(formData.get('calificacion'));
+                        const comentarios = formData.get('comentarios');
+                        
+                        if (calificacion < 0 || calificacion > 10) {
+                            alert('La calificación debe estar entre 0 y 10');
+                            return;
+                        }
+                        
+                        await window.db.collection('entregas').doc(entregaId).update({
+                            calificacion,
+                            comentarios,
+                            fechaCalificacion: new Date(),
+                            calificadoPor: 'admin'
+                        });
+                        
+                        alert('Entrega calificada exitosamente');
+                        await loadEntregasActividad(currentActividadId);
+                        await loadEntregasStats();
+                        
+                    } catch (error) {
+                        console.error('Error calificando entrega:', error);
+                        alert('Error al calificar la entrega');
+                    }
+                }
+
+                // Función para volver al listado de actividades
+                function volverActividades() {
+                    document.getElementById('actividadesGrid').style.display = 'block';
+                    document.getElementById('entregasContainer').style.display = 'none';
+                    currentActividadId = null;
+                }
+
+                // Función para enviar mensaje a estudiante
+                function enviarMensaje(userId) {
+                    // Implementar funcionalidad de mensajería
+                    alert('Función de mensajería próximamente disponible');
+                }
+
+                // Cargar datos iniciales
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadEntregasStats();
+                    loadActividadesDisponibles();
+                });
+            </script>
+        </div>

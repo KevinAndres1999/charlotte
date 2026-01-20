@@ -127,3 +127,115 @@
                     </form>
                 </div>
             </div>
+
+            <script>
+                // Función para cambiar modo de evaluación
+                function setEvaluationMode(mode) {
+                    // Reset all buttons
+                    document.getElementById('manualModeBtn').classList.remove('active');
+                    document.getElementById('selectModeBtn').classList.remove('active');
+                    document.getElementById('autoModeBtn').classList.remove('active');
+                    
+                    // Hide all builders
+                    document.getElementById('manualQuestionsBuilder').style.display = 'none';
+                    document.getElementById('selectQuestionsBuilder').style.display = 'none';
+                    document.getElementById('autoQuestionsBuilder').style.display = 'none';
+                    
+                    // Show selected mode
+                    if (mode === 'manual') {
+                        document.getElementById('manualModeBtn').classList.add('active');
+                        document.getElementById('manualQuestionsBuilder').style.display = 'block';
+                    } else if (mode === 'select') {
+                        document.getElementById('selectModeBtn').classList.add('active');
+                        document.getElementById('selectQuestionsBuilder').style.display = 'block';
+                    } else if (mode === 'auto') {
+                        document.getElementById('autoModeBtn').classList.add('active');
+                        document.getElementById('autoQuestionsBuilder').style.display = 'block';
+                    }
+                }
+
+                // Función para cargar contenido de gestión (evaluaciones existentes)
+                async function loadManagementContent() {
+                    try {
+                        console.log('Loading management content for evaluaciones...');
+                        
+                        // Aquí podríamos cargar evaluaciones existentes o estadísticas
+                        // Por ahora, solo aseguramos que la interfaz esté lista
+                        
+                        // Cargar cuestionarios disponibles para los modos select y auto
+                        await loadCuestionariosForEvaluacion();
+                        
+                    } catch (error) {
+                        console.error('Error loading management content:', error);
+                    }
+                }
+
+                // Función para cargar cuestionarios disponibles para crear evaluaciones
+                async function loadCuestionariosForEvaluacion() {
+                    try {
+                        const snapshot = await window.db.collection('cuestionarios').get();
+                        
+                        // Para el modo select
+                        const selectorContainer = document.getElementById('cuestionariosSelector');
+                        if (selectorContainer) {
+                            if (snapshot.empty) {
+                                selectorContainer.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 2rem;">No hay cuestionarios disponibles</p>';
+                            } else {
+                                let html = '<div style="display: grid; gap: 1rem;">';
+                                snapshot.forEach(doc => {
+                                    const cuestionario = doc.data();
+                                    html += `
+                                        <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                                <div>
+                                                    <h5 style="margin: 0 0 0.5rem 0; color: #1f2937;">${cuestionario.titulo || 'Sin título'}</h5>
+                                                    <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">${cuestionario.preguntas ? cuestionario.preguntas.length : 0} preguntas</p>
+                                                </div>
+                                                <button onclick="selectCuestionario('${doc.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                    Seleccionar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `;
+                                });
+                                html += '</div>';
+                                selectorContainer.innerHTML = html;
+                            }
+                        }
+                        
+                        // Para el modo auto
+                        const autoSelect = document.getElementById('autoCuestionario');
+                        if (autoSelect) {
+                            autoSelect.innerHTML = '<option value="">Seleccionar cuestionario</option>';
+                            snapshot.forEach(doc => {
+                                const cuestionario = doc.data();
+                                autoSelect.innerHTML += `<option value="${doc.id}">${cuestionario.titulo || 'Sin título'}</option>`;
+                            });
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error loading cuestionarios for evaluacion:', error);
+                    }
+                }
+
+                // Funciones placeholder
+                function submitEvaluacion() {
+                    alert('Función de crear evaluación no implementada aún');
+                }
+
+                function selectCuestionario(id) {
+                    alert('Función de seleccionar cuestionario no implementada aún');
+                }
+
+                // Cargar datos iniciales cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Pequeño delay para asegurar que Firebase esté inicializado
+                    setTimeout(() => {
+                        loadManagementContent();
+                    }, 100);
+                });
+
+                // Exponer función globalmente para que admin.html pueda llamarla
+                window.loadManagementContent = loadManagementContent;
+            </script>
+        </div>
