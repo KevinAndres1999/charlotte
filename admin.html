@@ -12006,8 +12006,6 @@ REGLAS:
         window.editarPregunta = editarPregunta;
         window.eliminarPreguntaAuto = eliminarPreguntaAuto;
         window.testOpenAIConnection = testOpenAIConnection;
-        window.loadForosList = loadForosList;
-        window.loadGamificacionStats = loadGamificacionStats;
 
         // Función para actualizar el contador de caracteres
         function updateCharCount() {
@@ -18119,6 +18117,10 @@ REGLAS ESTRICTAS:
                 console.error('Error loading foros:', error);
             }
         }
+
+        // Exponer funciones globales para foros y gamificación
+        window.loadForosList = loadForosList;
+        window.loadGamificacionStats = loadGamificacionStats;
 
         async function loadForosPendientes() {
             try {
