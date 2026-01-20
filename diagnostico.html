@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Sistema</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Diagnóstico del Sistema de Autenticación</h1>
+
+    <div id="session-test" class="test">Verificando sessionStorage...</div>
+    <div id="firebase-test" class="test">Verificando Firebase...</div>
+
+    <button onclick="testLogin()">Probar Login</button>
+    <button onclick="clearSession()">Limpiar Sesión</button>
+    <button onclick="goToLogin()">Ir a Login</button>
+    <button onclick="goToAdmin()">Ir a Admin</button>
+    <button onclick="goToStudent()">Ir a Estudiante</button>
+
+    <script>
+        // Test sessionStorage
+        const currentUser = sessionStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                document.getElementById('session-test').innerHTML = `✅ Usuario en sesión: ${user.email} (${user.role})`;
+                document.getElementById('session-test').classList.add('success');
+            } catch (e) {
+                document.getElementById('session-test').innerHTML = `❌ Error parseando usuario: ${e.message}`;
+                document.getElementById('session-test').classList.add('error');
+            }
+        } else {
+            document.getElementById('session-test').innerHTML = `❌ No hay usuario en sesión`;
+            document.getElementById('session-test').classList.add('error');
+        }
+
+        // Test Firebase
+        setTimeout(() => {
+            if (window.db) {
+                document.getElementById('firebase-test').innerHTML = `✅ Firebase conectado`;
+                document.getElementById('firebase-test').classList.add('success');
+            } else {
+                document.getElementById('firebase-test').innerHTML = `❌ Firebase no conectado`;
+                document.getElementById('firebase-test').classList.add('error');
+            }
+        }, 1000);
+
+        function testLogin() {
+            // Simular login de admin
+            const testUser = {
+                id: 'test-admin',
+                email: 'admin@charlotte.com',
+                role: 'admin',
+                name: 'Admin Test'
+            };
+            sessionStorage.setItem('currentUser', JSON.stringify(testUser));
+            alert('Usuario admin simulado guardado. Recarga la página.');
+            location.reload();
+        }
+
+        function clearSession() {
+            sessionStorage.removeItem('currentUser');
+            alert('Sesión limpiada. Recarga la página.');
+            location.reload();
+        }
+
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        function goToAdmin() {
+            window.location.href = 'admin.html';
+        }
+
+        function goToStudent() {
+            window.location.href = 'estudiante.html';
+        }
+    </script>
+</body>
+</html>

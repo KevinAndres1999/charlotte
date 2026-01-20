@@ -130,3 +130,269 @@
                     </button>
                 </div>
             </div>
+
+            <script>
+                window.loadDashboardStats = async function() {
+                    try {
+                        console.log('loadDashboardStats function called successfully');
+
+                        // Esperar a que window.db esté disponible
+                        let attempts = 0;
+                        while (!window.db && attempts < 50) {
+                            console.log('Waiting for window.db...', attempts);
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            attempts++;
+                        }
+
+                        if (!window.db) {
+                            throw new Error('window.db not available after waiting');
+                        }
+
+                        console.log('window.db is available:', typeof window.db);
+                        console.log('Loading dashboard stats from Firebase...');
+
+                        // Mostrar mensaje de carga
+                        document.getElementById('stat-videos').textContent = 'Cargando...';
+                        document.getElementById('stat-videos').style.color = 'orange';
+
+                        // Obtener estadísticas directamente de Firebase
+                        const [
+                            videosSnap,
+                            clasesSnap,
+                            actividadesSnap,
+                            materialesSnap,
+                            entregasSnap,
+                            usuariosSnap,
+                            cuestionariosSnap,
+                            evaluacionesSnap
+                        ] = await Promise.all([
+                            window.db.collection('videos').get(),
+                            window.db.collection('clases').get(),
+                            window.db.collection('actividades').get(),
+                            window.db.collection('materiales').get(),
+                            window.db.collection('entregas').get(),
+                            window.db.collection('users').where('active', '==', true).get(),
+                            window.db.collection('cuestionarios').get(),
+                            window.db.collection('evaluaciones').get()
+                        ]);
+
+                        console.log('Firebase queries completed');
+
+                        // Estadísticas básicas
+                        const stats = {
+                            videos: videosSnap.size,
+                            clases: clasesSnap.size,
+                            actividades: actividadesSnap.size,
+                            materiales: materialesSnap.size,
+                            entregas: entregasSnap.size,
+                            usuarios: usuariosSnap.size,
+                            cuestionarios: cuestionariosSnap.size,
+                            evaluaciones: evaluacionesSnap.size
+                        };
+
+                        // Estadísticas avanzadas
+                        const thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+                        const usuariosRecientesSnap = await window.db.collection('users')
+                            .where('createdAt', '>=', thirtyDaysAgo)
+                            .get();
+
+                        // Calcular tasa de engagement (entregas por estudiante)
+                        const engagementRate = usuariosSnap.size > 0 ?
+                            Math.round((entregasSnap.size / usuariosSnap.size) * 100) / 100 : 0;
+
+                        // Calcular completitud de evaluaciones
+                        const evaluacionesCompletadasSnap = await window.db.collection('respuestasEvaluaciones').get();
+                        const completionRate = evaluacionesSnap.size > 0 ?
+                            Math.round((evaluacionesCompletadasSnap.size / evaluacionesSnap.size) * 100) : 0;
+
+                        stats.usuariosRecientes = usuariosRecientesSnap.size;
+                        stats.engagementRate = `${engagementRate}`;
+                        stats.completionRate = `${completionRate}%`;
+
+                        console.log('Stats calculated:', stats);
+
+                        // Actualizar UI
+                        document.getElementById('stat-videos').textContent = stats.videos || 0;
+                        document.getElementById('stat-clases').textContent = stats.clases || 0;
+                        document.getElementById('stat-actividades').textContent = stats.actividades || 0;
+                        document.getElementById('stat-materiales').textContent = stats.materiales || 0;
+                        document.getElementById('stat-entregas').textContent = stats.entregas || 0;
+                        document.getElementById('stat-usuarios').textContent = stats.usuarios || 0;
+                        document.getElementById('stat-cuestionarios').textContent = stats.cuestionarios || 0;
+                        document.getElementById('stat-evaluaciones').textContent = stats.evaluaciones || 0;
+
+                        // Estadísticas avanzadas
+                        document.getElementById('stat-usuarios-recientes').textContent = stats.usuariosRecientes || 0;
+                        document.getElementById('stat-engagement-rate').textContent = stats.engagementRate || '0%';
+                        document.getElementById('stat-completion-rate').textContent = stats.completionRate || '0%';
+
+                        // Cargar distribución por programa
+                        loadProgramDistribution();
+
+                    } catch (error) {
+                        console.error('Error cargando estadísticas:', error);
+                        // Mostrar valores por defecto en caso de error
+                        const elements = ['stat-videos', 'stat-clases', 'stat-actividades', 'stat-materiales',
+                                        'stat-entregas', 'stat-usuarios', 'stat-cuestionarios', 'stat-evaluaciones',
+                                        'stat-usuarios-recientes'];
+                        elements.forEach(id => {
+                            const element = document.getElementById(id);
+                            if (element) element.textContent = 'Error';
+                        });
+                        const engagementElement = document.getElementById('stat-engagement-rate');
+                        if (engagementElement) engagementElement.textContent = 'Error';
+                        const completionElement = document.getElementById('stat-completion-rate');
+                        if (completionElement) completionElement.textContent = 'Error';
+                    }
+                }
+
+                async function loadProgramDistribution() {
+                    try {
+                        console.log('Loading program distribution...');
+                        const usuariosSnap = await window.db.collection('users').where('active', '==', true).get();
+                        const programas = {};
+
+                        usuariosSnap.forEach(doc => {
+                            const data = doc.data();
+                            const programa = data.programa || 'Sin programa';
+                            programas[programa] = (programas[programa] || 0) + 1;
+                        });
+
+                        const distribution = Object.entries(programas).map(([programa, count]) => ({
+                            programa,
+                            count
+                        })).sort((a, b) => b.count - a.count);
+
+                        console.log('Program distribution:', distribution);
+
+                        const container = document.getElementById('program-distribution');
+                        if (!container) {
+                            console.error('Program distribution container not found');
+                            return;
+                        }
+
+                        if (distribution.length === 0) {
+                            container.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-chart-pie"></i>
+                                    <p>No hay datos de distribución disponibles</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        const total = distribution.reduce((sum, item) => sum + item.count, 0);
+                        container.innerHTML = distribution.map(item => {
+                            const percentage = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                            return `
+                                <div class="program-item">
+                                    <div class="program-info">
+                                        <span class="program-name">${item.programa}</span>
+                                        <span class="program-count">${item.count} estudiantes</span>
+                                    </div>
+                                    <div class="program-bar">
+                                        <div class="program-bar-fill" style="width: ${percentage}%"></div>
+                                    </div>
+                                    <span class="program-percentage">${percentage}%</span>
+                                </div>
+                            `;
+                        }).join('');
+
+                    } catch (error) {
+                        console.error('Error cargando distribución:', error);
+                        const container = document.getElementById('program-distribution');
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <p>Error al cargar distribución</p>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+
+                async function limpiarDatosHuerfanos() {
+                    if (!confirm('¿Estás seguro de que quieres limpiar los datos huérfanos? Esta acción no se puede deshacer.')) {
+                        return;
+                    }
+
+                    try {
+                        console.log('Starting orphaned data cleanup...');
+                        const button = event.target;
+                        const originalText = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Limpiando...';
+                        button.disabled = true;
+
+                        let cleanedCount = 0;
+
+                        // Obtener todas las entregas
+                        const entregasSnap = await window.db.collection('entregas').get();
+
+                        for (const entregaDoc of entregasSnap.docs) {
+                            const entregaData = entregaDoc.data();
+                            const actividadId = entregaData.actividadId;
+                            const cuestionarioId = entregaData.cuestionarioId;
+
+                            let exists = false;
+
+                            // Verificar si la actividad existe
+                            if (actividadId) {
+                                const actividadDoc = await window.db.collection('actividades').doc(actividadId).get();
+                                if (actividadDoc.exists) exists = true;
+                            }
+
+                            // Verificar si el cuestionario existe
+                            if (cuestionarioId) {
+                                const cuestionarioDoc = await window.db.collection('cuestionarios').doc(cuestionarioId).get();
+                                if (cuestionarioDoc.exists) exists = true;
+                            }
+
+                            // Si no existe ni actividad ni cuestionario, eliminar la entrega
+                            if (!exists) {
+                                await entregaDoc.ref.delete();
+                                cleanedCount++;
+                            }
+                        }
+
+                        // Limpiar respuestas de evaluaciones huérfanas
+                        const respuestasEvaluacionesSnap = await window.db.collection('respuestasEvaluaciones').get();
+
+                        for (const respuestaDoc of respuestasEvaluacionesSnap.docs) {
+                            const respuestaData = respuestaDoc.data();
+                            const evaluacionId = respuestaData.evaluacionId;
+
+                            if (evaluacionId) {
+                                const evaluacionDoc = await window.db.collection('evaluaciones').doc(evaluacionId).get();
+                                if (!evaluacionDoc.exists) {
+                                    await respuestaDoc.ref.delete();
+                                    cleanedCount++;
+                                }
+                            }
+                        }
+
+                        console.log(`Cleanup completed, ${cleanedCount} orphaned records removed`);
+                        alert(`Datos huérfanos limpiados exitosamente. Se eliminaron ${cleanedCount} registros.`);
+
+                        // Recargar estadísticas
+                        loadDashboardStats();
+
+                    } catch (error) {
+                        console.error('Error limpiando datos:', error);
+                        alert('Error al limpiar datos huérfanos. Inténtalo de nuevo.');
+                    } finally {
+                        const button = event.target;
+                        button.innerHTML = '<i class="fas fa-broom"></i> Limpiar Datos Huérfanos';
+                        button.disabled = false;
+                    }
+                }
+
+                // Cargar estadísticas cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof window.loadDashboardStats === 'function') {
+                        window.loadDashboardStats();
+                    }
+                });
+            </script>

@@ -28,7 +28,25 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        // Exponer db globalmente para que esté disponible en secciones cargadas dinámicamente
+        window.db = db;
+
+        // Configurar persistencia de autenticación
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {
+            console.error('Error setting auth persistence:', error);
+        });
+
         console.log('Firebase initialized in head, db:', db);
+
+        // Estado de inicialización
+        let isFirebaseReady = false;
+        let isUserAuthenticated = false;
+
+        // Marcar Firebase como listo cuando se inicialice
+        firebase.auth().onAuthStateChanged(() => {
+            isFirebaseReady = true;
+        });
 
         // Helper functions to map modular API to compat API
         window.collection = (db, path) => db.collection(path);
@@ -3107,12 +3125,91 @@
         </div>
     </div>
 
+    <!-- Script para carga dinámica de secciones -->
+    <script>
+        // Función de logout
+        function logout() {
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                // Limpiar sessionStorage
+                sessionStorage.removeItem('currentUser');
+                sessionStorage.removeItem('adminActiveSection');
+                console.log('Sesión cerrada exitosamente');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Función para toggle del menú móvil
+        function toggleMobileMenu() {
+            console.log('toggleMobileMenu called');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+                console.log('Sidebar toggled, open class:', sidebar.classList.contains('open'));
+            } else {
+                console.error('Sidebar element not found');
+            }
+        }
+
+        // Verificar autenticación usando sessionStorage (como el resto de la app)
+        function checkAuthentication() {
+            console.log('Checking authentication...');
+
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser) {
+                console.log('No user in sessionStorage, redirecting to login');
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            try {
+                const userData = JSON.parse(currentUser);
+                console.log('User found in sessionStorage:', userData.email);
+
+                if (userData.role !== 'admin') {
+                    console.log('User is not admin, access denied');
+                    alert('Acceso denegado. Solo administradores pueden acceder a esta sección.');
+                    sessionStorage.removeItem('currentUser');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                console.log('Admin user authenticated:', userData.email);
+                isUserAuthenticated = true;
+                return true;
+
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+        // Verificar autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuthentication()) {
+                // Usuario autenticado, inicializar el admin
+                initializeAdmin();
+            }
+        });
+
+        // Función para inicializar el admin una vez que todo esté listo
+        function initializeAdmin() {
+            console.log('Initializing admin panel...');
+
+            // Asegurar que el sidebar esté oculto en móviles por defecto
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+
             // Cargar sección inicial (dashboard)
             loadSection('dashboard');
-        });
+        }
 
         // Función para cargar secciones dinámicamente
         async function loadSection(sectionId) {
+            console.log('loadSection called with:', sectionId);
             const container = document.getElementById('dynamic-content');
 
             try {
@@ -3120,20 +3217,40 @@
                 container.innerHTML = '<div style="text-align: center; padding: 60px; color: #64748b;"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Cargando sección...</div>';
 
                 // Cargar el archivo HTML de la sección
+                console.log('Fetching section:', `admin-sections/${sectionId}.html`);
                 const response = await fetch(`admin-sections/${sectionId}.html`);
                 if (!response.ok) {
                     throw new Error(`Error al cargar la sección: ${response.status}`);
                 }
 
                 const html = await response.text();
+                console.log('Section HTML loaded, length:', html.length);
 
                 // Insertar el contenido
                 container.innerHTML = html;
 
+                // Ejecutar scripts embebidos en el HTML cargado
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(script => {
+                    if (script.src) {
+                        // Script externo - cargar dinámicamente
+                        const newScript = document.createElement('script');
+                        newScript.src = script.src;
+                        document.head.appendChild(newScript);
+                    } else {
+                        // Script inline - ejecutar directamente
+                        try {
+                            eval(script.textContent);
+                        } catch (error) {
+                            console.error('Error ejecutando script inline:', error);
+                        }
+                    }
+                });
+
                 // Ejecutar funciones específicas de la sección si existen
                 switch(sectionId) {
                     case 'dashboard':
-                        if (typeof loadDashboardStats === 'function') loadDashboardStats();
+                        // El dashboard se auto-ejecuta
                         break;
                     case 'usuarios':
                         if (typeof loadUsuariosPendientes === 'function') loadUsuariosPendientes();
@@ -3200,8 +3317,22 @@
             }
         }
 
+        // Exponer funciones globalmente para que estén disponibles en las secciones cargadas dinámicamente
+        window.showSection = showSection;
+        window.loadSection = loadSection;
+        window.logout = logout;
+        window.toggleMobileMenu = toggleMobileMenu;
+
         // Modificar la función showSection para usar carga dinámica
         function showSection(sectionId) {
+            console.log('showSection called with:', sectionId);
+
+            // Verificar si el usuario está autenticado
+            if (!isUserAuthenticated) {
+                console.log('User not authenticated, cannot show section');
+                return;
+            }
+
             // Guardar la sección activa en sessionStorage
             sessionStorage.setItem('activeSection', sectionId);
 
@@ -3212,7 +3343,10 @@
 
             // Actualizar navegación visual
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            const activeNavItem = document.querySelector(`[data-section="${sectionId}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
 
             // Cargar la sección dinámicamente
             loadSection(sectionId);
