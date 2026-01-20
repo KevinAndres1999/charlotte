@@ -1474,3 +1474,334 @@ img.lazy-loading.error {
 
 /* ===== FIN ESTILOS PARA LAZY LOADING ===== */
 
+/* ===== ESTILOS RESPONSIVE GLOBALES MEJORADOS ===== */
+
+/* Mejoras generales para móviles */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  /* Headers responsive */
+  .site-header .container,
+  .admin-header .container,
+  .header-content {
+    padding: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logo, .admin-header h1, .header h1 {
+    font-size: 18px !important;
+  }
+
+  /* Navegación móvil */
+  .main-nav {
+    display: none;
+  }
+
+  .mobile-menu-toggle,
+  .hamburger-menu,
+  .menu-toggle {
+    display: block !important;
+  }
+
+  /* Sidebar responsive */
+  .sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -100%;
+    width: 280px !important;
+    height: 100vh !important;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Main content responsive */
+  .main-content,
+  .dashboard-container > .main-content {
+    margin-left: 0 !important;
+    padding: 20px 12px !important;
+    margin-top: 0 !important;
+  }
+
+  /* Cards responsive */
+  .course,
+  .content-card,
+  .stat-card,
+  .upload-card,
+  .quiz-form-card {
+    padding: 16px !important;
+  }
+
+  /* Grid responsive */
+  .grid,
+  .grid-3,
+  .grid-responsive,
+  .stat-cards,
+  .progress-cards,
+  .quick-links,
+  .features-grid,
+  .programs-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Tables responsive */
+  .admin-table {
+    font-size: 14px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 4px;
+  }
+
+  /* Forms responsive */
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+
+  /* Buttons responsive */
+  .btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    min-height: 44px; /* Touch-friendly */
+  }
+
+  /* Modal responsive */
+  .modal-content {
+    margin: 10px;
+    max-width: none;
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  .modal-header,
+  .modal-footer {
+    padding: 16px;
+  }
+
+  /* Hero responsive */
+  .hero {
+    padding: 40px 0;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  .hero-inner {
+    grid-template-columns: 1fr !important;
+    gap: 24px;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-stats {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  /* Welcome banner responsive */
+  .welcome-banner {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .welcome-banner h2 {
+    font-size: 20px;
+  }
+
+  /* Page titles responsive */
+  .page-title {
+    font-size: 24px;
+  }
+
+  .page-subtitle {
+    font-size: 16px;
+  }
+
+  /* Content improvements */
+  .content-card h4 {
+    font-size: 16px;
+  }
+
+  .content-card p {
+    font-size: 14px;
+  }
+
+  .meta {
+    font-size: 12px;
+  }
+
+  /* Video cards responsive */
+  .video-card iframe {
+    height: 200px;
+  }
+
+  /* Touch-friendly elements */
+  .nav-item,
+  .stat-card,
+  .quick-link,
+  .content-card {
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  /* Better spacing */
+  .section {
+    padding: 20px 0;
+  }
+
+  .card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Mejoras para tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sidebar {
+    width: 240px;
+  }
+
+  .main-content {
+    padding: 24px;
+  }
+}
+
+/* Mejoras para pantallas pequeñas */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .site-header .container,
+  .admin-header .container,
+  .header-content {
+    padding: 8px;
+  }
+
+  .logo, .admin-header h1, .header h1 {
+    font-size: 16px !important;
+  }
+
+  .sidebar {
+    width: 260px !important;
+  }
+
+  .main-content,
+  .dashboard-container > .main-content {
+    padding: 16px 8px !important;
+  }
+
+  /* Extra small cards */
+  .course,
+  .content-card,
+  .stat-card {
+    padding: 12px !important;
+  }
+
+  .stat-card h3 {
+    font-size: 20px;
+  }
+
+  .stat-card p {
+    font-size: 12px;
+  }
+
+  /* Compact navigation */
+  .nav-item {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .nav-item span {
+    display: inline;
+  }
+
+  /* Compact forms */
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  /* Compact modals */
+  .modal-content {
+    margin: 5px;
+    width: calc(100vw - 10px);
+  }
+
+  /* Compact hero */
+  .hero {
+    padding: 24px 0;
+  }
+
+  .hero h1 {
+    font-size: 24px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  /* Compact welcome */
+  .welcome-banner {
+    padding: 16px;
+  }
+
+  .welcome-banner h2 {
+    font-size: 18px;
+  }
+
+  /* Compact titles */
+  .page-title {
+    font-size: 20px;
+  }
+
+  /* Better button spacing */
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Compact grids */
+  .grid,
+  .stat-cards,
+  .progress-cards {
+    gap: 12px !important;
+  }
+}
+
+/* ===== FIN ESTILOS RESPONSIVE GLOBALES ===== */
+

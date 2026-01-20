@@ -44,6 +44,17 @@
         .profile-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 0.25rem; }
         .profile-value { color: #0a1628; font-weight: 500; }
         .nav-menu { padding: 0; }
+        .nav-section-title {
+            padding: 12px 24px 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e8f0fe;
+            margin: 8px 0 4px 0;
+            background: #f8fafc;
+        }
         .nav-item { padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.8rem; cursor: pointer; transition: all 0.3s; border-left: 3px solid transparent; color: #0a1628; }
         .nav-item:hover { background: #f8fafc; border-left-color: #3b82f6; }
         .nav-item.active { background: linear-gradient(90deg, rgba(59,130,246,0.1), transparent); border-left-color: #3b82f6; color: #1e3a8a; font-weight: 600; }
@@ -4028,7 +4039,7 @@
         </div>
     </header>
 
-    <button class="menu-toggle" id="menuToggle">
+    <button class="menu-toggle" id="menuToggle" onclick="toggleMobileMenu()">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -4205,25 +4216,29 @@
             </script>
             </div>
             <nav class="nav-menu">
-                <!-- Dashboard -->
+                <!-- Dashboard Principal -->
                 <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
 
-                <!-- Contenido Educativo -->
+                <!-- Mi Aprendizaje -->
+                <div class="nav-section-title">📚 Mi Aprendizaje</div>
                 <div class="nav-item" data-section="clases"><i class="fas fa-book-open"></i><span>Mis Clases</span></div>
                 <div class="nav-item" data-section="videos"><i class="fas fa-play-circle"></i><span>Videos</span></div>
                 <div class="nav-item" data-section="actividades"><i class="fas fa-tasks"></i><span>Actividades</span></div>
                 <div class="nav-item" data-section="materiales"><i class="fas fa-folder-open"></i><span>Materiales</span></div>
 
-                <!-- Evaluaciones -->
+                <!-- Evaluaciones y Calificaciones -->
+                <div class="nav-section-title">📝 Evaluaciones</div>
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
 
                 <!-- Comunicación y Colaboración -->
+                <div class="nav-section-title">💬 Colaboración</div>
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
 
                 <!-- Motivación y Recursos -->
+                <div class="nav-section-title">🎯 Recursos</div>
                 <div class="nav-item" data-section="gamificacion"><i class="fas fa-trophy"></i><span>Gamificación</span></div>
                 <div class="nav-item" data-section="recursos"><i class="fas fa-info-circle"></i><span>Recursos</span></div>
 
@@ -10967,6 +10982,12 @@ function openImageModal(imageUrl, title) {
         window.downloadClaseFromViewer = downloadClaseFromViewer;
         window.showCreateForoModal = showCreateForoModal;
         window.verificarPagosYAcceder = verificarPagosYAcceder;
+
+        // Función para toggle del menú móvil
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('menuToggle').classList.toggle('open');
+        }
         
     } catch (error) {
         console.error('Error initializing Firebase:', error);
