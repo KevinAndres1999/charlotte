@@ -412,6 +412,24 @@
                     alert('Función de edición próximamente disponible');
                 }
 
+                // Función para aprobar usuario
+                async function aprobarUsuario(userId) {
+                    try {
+                        await window.db.collection('users').doc(userId).update({
+                            active: true,
+                            approvedAt: new Date(),
+                            approvedBy: 'admin'
+                        });
+
+                        alert('Usuario aprobado exitosamente');
+                        await loadUsuariosPendientes();
+                        await loadUsuariosAprobados();
+                    } catch (error) {
+                        console.error('Error approving user:', error);
+                        alert('Error al aprobar usuario');
+                    }
+                }
+
                 // Función para desactivar usuario
                 async function desactivarUsuario(userId) {
                     if (confirm('¿Estás seguro de que quieres desactivar este usuario?')) {
@@ -476,5 +494,10 @@
                 window.debugUsersStatus = debugUsersStatus;
                 window.showAllUsers = showAllUsers;
                 window.toggleUserStatus = toggleUserStatus;
+                window.aprobarUsuario = aprobarUsuario;
+                window.rechazarUsuario = rechazarUsuario;
+                window.editarUsuario = editarUsuario;
+                window.desactivarUsuario = desactivarUsuario;
+                window.limpiarDuplicados = limpiarDuplicados;
             </script>
         </div>
