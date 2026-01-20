@@ -1,0 +1,256 @@
+            <div id="respuestas-viewer" class="content-section">
+                <!-- Panel de Estadísticas -->
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-clipboard-list"></i> Respuestas de Cuestionarios y Evaluaciones</h3>
+                        <p style="color: white;">Revisa y califica las respuestas de tus estudiantes</p>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="stats-grid" style="margin-bottom: 32px;">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="total-respuestas">0</h3>
+                                    <p class="stat-label">Total Respuestas</p>
+                                </div>
+                                <div class="stat-card-icon blue"><i class="fas fa-clipboard-list"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="pendientes-respuestas">0</h3>
+                                    <p class="stat-label">Pendientes</p>
+                                </div>
+                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <div>
+                                    <h3 class="stat-value" id="calificadas-respuestas">0</h3>
+                                    <p class="stat-label">Calificadas</p>
+                                </div>
+                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Cuestionarios/Evaluaciones -->
+                <div id="cuestionariosGrid" class="quiz-builder-section" style="display: block;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-question-circle"></i> Cuestionarios y Evaluaciones</h3>
+                        <p style="color: white;">Haz clic en un cuestionario/evaluación para ver las respuestas de estudiantes</p>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Los cuestionarios/evaluaciones se cargarán aquí -->
+                    </div>
+                </div>
+
+                <!-- Grid de Respuestas de un Cuestionario/Evaluación -->
+                <div id="respuestasGrid" class="quiz-builder-section" style="display: none;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div>
+                                <h3><i class="fas fa-clipboard-check"></i> <span id="cuestionarioSeleccionado">Respuestas</span></h3>
+                                <p style="color: white;">Respuestas de estudiantes para este cuestionario/evaluación</p>
+                            </div>
+                            <button class="btn-secondary" onclick="volverACuestionarios()" style="margin: 0;">
+                                <i class="fas fa-arrow-left"></i> Volver a Cuestionarios
+                            </button>
+                        </div>
+                    </div>
+                    <div class="clase-content-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <!-- Las respuestas se cargarán aquí -->
+                    </div>
+                </div>
+
+                <!-- Vista de Detalle de Respuesta -->
+                <div id="respuestaDetail" style="display: none;">
+                    <!-- Banner -->
+                    <div class="respuestas-viewer-banner">
+                        <div class="respuestas-viewer-header">
+                            <div class="respuestas-viewer-nav">
+                                <button class="btn-secondary" onclick="backToRespuestas()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </button>
+                            </div>
+                            <div class="respuestas-viewer-info">
+                                <h2 id="respuestaBannerTitle">Respuesta de Cuestionario</h2>
+                                <div class="respuestas-viewer-meta">
+                                    <div class="program-badge" id="respuestaBannerPrograma">Programa</div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-user"></i> <span id="respuestaBannerEstudiante">Estudiante</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar"></i> <span id="respuestaBannerFecha">Fecha</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="respuestas-viewer-actions">
+                                <button class="btn-primary" onclick="prevRespuesta()" id="prevRespuestaBtn" style="display: none;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="btn-primary" onclick="nextRespuesta()" id="nextRespuestaBtn" style="display: none;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas -->
+                    <div class="respuestas-stats">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-card-header">
+                                    <div>
+                                        <h3 class="stat-value" id="respuestaEstado">Pendiente</h3>
+                                        <p class="stat-label">Estado</p>
+                                    </div>
+                                    <div class="stat-card-icon" id="respuestaEstadoIcon" style="background: #fbbf24; color: white;"><i class="fas fa-clock"></i></div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-header">
+                                    <div>
+                                        <h3 class="stat-value" id="respuestaCalificacion">-</h3>
+                                        <p class="stat-label">Calificación</p>
+                                    </div>
+                                    <div class="stat-card-icon" style="background: #6b7280; color: white;"><i class="fas fa-star"></i></div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-card-header">
+                                    <div>
+                                        <h3 class="stat-value" id="respuestaTiempo">0 min</h3>
+                                        <p class="stat-label">Tiempo Empleado</p>
+                                    </div>
+                                    <div class="stat-card-icon blue"><i class="fas fa-clock"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenido -->
+                    <div class="respuestas-viewer-content">
+                        <div class="respuestas-content-grid">
+                            <!-- Información del Cuestionario -->
+                            <div class="card respuestas-description-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-question-circle"></i> Información del Cuestionario</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="respuestas-description-content" id="respuestaCuestionarioInfo">
+                                        Cargando información del cuestionario...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Respuestas del Estudiante -->
+                            <div class="card respuestas-main-content-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-clipboard-check"></i> Respuestas del Estudiante</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="respuestas-content-viewer" id="respuestaContenido">
+                                        Cargando respuestas del estudiante...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Calificación -->
+                            <div class="card respuestas-calificacion-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-star"></i> Calificación y Comentarios</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div id="respuestaCalificacionSection">
+                                        <div style="margin-bottom: 1.5rem;">
+                                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Calificación (0-100)</label>
+                                            <input type="number" id="respuestaCalificacionInput" min="0" max="100" placeholder="Ingresa calificación" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem;">
+                                        </div>
+                                        <div style="margin-bottom: 1.5rem;">
+                                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Comentarios</label>
+                                            <textarea id="respuestaComentariosInput" placeholder="Escribe tus comentarios sobre las respuestas..." rows="4" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+                                        </div>
+                                        <div style="display: flex; gap: 1rem;">
+                                            <button class="btn-primary" onclick="guardarCalificacionRespuesta()">
+                                                <i class="fas fa-save"></i> Guardar Calificación
+                                            </button>
+                                            <button class="btn-secondary" onclick="resetCalificacionRespuesta()">
+                                                <i class="fas fa-undo"></i> Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="respuestaCalificacionGuardada" style="display: none; padding: 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534;">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <i class="fas fa-check-circle"></i>
+                                            <strong>Calificación guardada exitosamente</strong>
+                                        </div>
+                                        <div style="margin-top: 0.5rem;">
+                                            <span id="respuestaCalificacionMostrada"></span>
+                                        </div>
+                                        <div id="respuestaComentariosMostrados" style="margin-top: 0.5rem; font-style: italic;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Navegación -->
+                            <div class="card respuestas-navigation-card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-route"></i> Navegación</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="navigation-controls">
+                                        <button class="btn-secondary" onclick="prevRespuesta()" id="prevRespuestaBtnBottom">
+                                            <i class="fas fa-chevron-left"></i> Respuesta Anterior
+                                        </button>
+                                        <div class="navigation-indicator" id="respuestaIndicator">
+                                            Respuesta 1 de X
+                                        </div>
+                                        <button class="btn-secondary" onclick="nextRespuesta()" id="nextRespuestaBtnBottom">
+                                            Respuesta Siguiente <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Acciones Rápidas -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
+                                </div>
+                                <div class="card-content">
+                                    <div class="respuestas-actions-links">
+                                        <div class="quick-link-grid">
+                                            <div class="quick-link" onclick="marcarRespuestaComoRevisada()">
+                                                <div class="quick-link-icon">
+                                                    <i class="fas fa-eye"></i>
+                                                </div>
+                                                <h4>Marcar como Revisada</h4>
+                                                <p style="color: white;">Sin calificación específica</p>
+                                            </div>
+                                            <div class="quick-link" onclick="descargarRespuestas()">
+                                                <div class="quick-link-icon">
+                                                    <i class="fas fa-download"></i>
+                                                </div>
+                                                <h4>Descargar Respuestas</h4>
+                                                <p style="color: white;">Guardar como archivo</p>
+                                            </div>
+                                            <div class="quick-link" onclick="contactarEstudianteRespuesta()">
+                                                <div class="quick-link-icon">
+                                                    <i class="fas fa-envelope"></i>
+                                                </div>
+                                                <h4>Contactar Estudiante</h4>
+                                                <p style="color: white;">Enviar mensaje directo</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

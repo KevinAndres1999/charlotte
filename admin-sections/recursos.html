@@ -1,0 +1,77 @@
+            <div id="recursos" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-star"></i> Constructor de Recursos Premium</h3>
+                        <p style="color: white;">Sube y gestiona recursos premium para tus estudiantes</p>
+                    </div>
+
+                    <form id="recursoForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información del Recurso</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTipo">Tipo de Recurso</label>
+                                    <select id="recursoTipo" required>
+                                        <option value="">Seleccionar tipo</option>
+                                        <option value="foto">📸 Foto</option>
+                                        <option value="recurso">📄 Recurso</option>
+                                        <option value="contacto">👤 Contacto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTitle">Título</label>
+                                    <input type="text" id="recursoTitle" placeholder="Ej: Foto de Producto Final" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoDesc">Descripción</label>
+                                    <textarea id="recursoDesc" placeholder="Describe el recurso..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoPrograma">Programa</label>
+                                    <select id="recursoPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoUrl">URL del Archivo</label>
+                                    <input type="text" id="recursoUrl" placeholder="https://..." required>
+                                    <small style="color: #64748b; display: block; margin-top: 5px;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Fotos:</strong> Sube a Google Drive o Imgur → Comparte públicamente<br>
+                                        <strong>Recursos:</strong> PDFs, documentos, enlaces<br>
+                                        <strong>Contactos:</strong> Información de contacto o enlaces<br>
+                                        <strong>Importante:</strong> Asegúrate de que sea accesible públicamente
+                                    </small>
+                                </div>
+                                <div class="form-group" id="contactFields" style="display: none; border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="recursoTelefono">Teléfono (opcional)</label>
+                                    <input type="tel" id="recursoTelefono" placeholder="+57 300 123 4567">
+                                    <label for="recursoEmail">Email (opcional)</label>
+                                    <input type="email" id="recursoEmail" placeholder="contacto@ejemplo.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-cloud-upload-alt"></i> Publicar Recurso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-list"></i> Recursos Publicados</h3>
+                        <p style="color: white;">Gestiona y administra tus recursos subidos</p>
+                    </div>
+                    <div id="recursosList"></div>
+                </div>
+            </div>

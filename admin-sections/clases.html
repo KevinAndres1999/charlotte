@@ -1,0 +1,397 @@
+            <div id="clases" class="content-section">
+                <!-- Selector de modo de creación -->
+                <div class="quiz-builder-section" style="margin-bottom: 2rem;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-book-open"></i> Gestión de Clases</h3>
+                        <p style="color: white;">Crea clases de forma manual o genera automáticamente con IA</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                        <button type="button" id="btnClaseManual" onclick="mostrarModoClase('manual')" class="btn-modo-clase active" style="flex: 1; min-width: 200px; padding: 1.5rem; border: 2px solid #667eea; border-radius: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-edit" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                            <strong style="font-size: 1.1rem;">Crear Manual</strong>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.9;">Escribe el contenido tú mismo</p>
+                        </button>
+                        <button type="button" id="btnClaseIA" onclick="mostrarModoClase('ia')" class="btn-modo-clase" style="flex: 1; min-width: 200px; padding: 1.5rem; border: 2px solid #10b981; border-radius: 12px; background: white; color: #10b981; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-robot" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                            <strong style="font-size: 1.1rem;">Generar con IA</strong>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; opacity: 0.8;">Metodología constructivista automática</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modo Manual -->
+                <div id="claseManualSection" class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-edit"></i> Crear Clase Manual</h3>
+                        <p style="color: white;">Escribe el contenido de la clase manualmente</p>
+                    </div>
+
+                    <form id="claseForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información de la Clase</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseTitle">Título de la Clase</label>
+                                    <input type="text" id="claseTitle" placeholder="Ej: Introducción a Técnicas de Panadería" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseDesc">Descripción</label>
+                                    <textarea id="claseDesc" placeholder="Describe brevemente el contenido y objetivos de la clase..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="clasePrograma">Programa</label>
+                                    <select id="clasePrograma" required onchange="populateModuloSelect('claseModulo', 'clasePrograma')">
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseModulo">Módulo</label>
+                                    <select id="claseModulo" required>
+                                        <option value="">Seleccionar módulo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="claseSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseDuracion">Duración Estimada</label>
+                                    <select id="claseDuracion">
+                                        <option value="30">30 minutos</option>
+                                        <option value="45">45 minutos</option>
+                                        <option value="60" selected>1 hora</option>
+                                        <option value="90">1 hora 30 minutos</option>
+                                        <option value="120">2 horas</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-content-section" style="margin-top: 20px; margin-bottom: 20px;">
+                            <div class="quiz-form-card" style="width: 100%;">
+                                <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseContent">Contenido Detallado</label>
+                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                                    <button type="button" onclick="initializeClaseEditor()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Inicializar Editor</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-upload"></i> Subir Clase
+                            </button>
+                            <button type="button" id="cancelEditBtn" class="btn-submit-quiz" style="background: #6b7280; display: none;" onclick="cancelClaseEdit()">
+                                <i class="fas fa-times"></i> Cancelar Edición
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Modo IA -->
+                <div id="claseIASection" class="quiz-builder-section" style="display: none;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-robot"></i> Generar Clase con IA</h3>
+                        <p style="color: white;">Genera clases automáticamente con IA - elige metodología constructivista o tu propio prompt</p>
+                    </div>
+
+                    <!-- API Key para Clases -->
+                    <div class="quiz-form-card" style="margin-bottom: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #10b981;">
+                        <h4><i class="fas fa-key"></i> Configuración de IA (OpenRouter)</h4>
+                        <div class="form-group" style="border: 1px solid #10b981; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: white;">
+                            <label for="apiKeyClases">API Key de OpenRouter</label>
+                            <input type="password" id="apiKeyClases" placeholder="sk-or-v1-..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <small style="color: #666; display: block; margin-top: 8px;">
+                                <i class="fas fa-info-circle"></i> Obtén tu API key gratuita en <a href="https://openrouter.ai/keys" target="_blank" style="color: #10b981;">openrouter.ai/keys</a>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="quiz-form-grid">
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-info-circle"></i> Información Básica</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="claseTitleIA">Título de la Clase</label>
+                                <input type="text" id="claseTitleIA" placeholder="Ej: Técnicas de Fermentación en Panadería" required>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="claseProgramaIA">Programa</label>
+                                <select id="claseProgramaIA" required onchange="populateModuloSelect('claseModuloIA', 'claseProgramaIA')">
+                                    <option value="">Seleccionar programa</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="claseModuloIA">Módulo</label>
+                                <select id="claseModuloIA" required>
+                                    <option value="">Seleccionar módulo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label>Horarios</label>
+                                <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="claseHorariosIA" value="Sábado Matutina">
+                                        Sábado Matutina
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="claseHorariosIA" value="Sábado Vespertina">
+                                        Sábado Vespertina
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="claseHorariosIA" value="Domingo Matutina">
+                                        Domingo Matutina
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label>Sedes</label>
+                                <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="claseSedesIA" value="Carapungo">
+                                        Carapungo
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" name="claseSedesIA" value="Sangolquí">
+                                        Sangolquí
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="claseDuracionIA">Duración Estimada</label>
+                                <select id="claseDuracionIA">
+                                    <option value="30">30 minutos</option>
+                                    <option value="45">45 minutos</option>
+                                    <option value="60" selected>1 hora</option>
+                                    <option value="90">1 hora 30 minutos</option>
+                                    <option value="120">2 horas</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selector de Modo de Generación -->
+                    <div class="quiz-form-card" style="margin-top: 20px;">
+                        <h4><i class="fas fa-magic"></i> Modo de Generación</h4>
+                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <label style="flex: 1; min-width: 200px; padding: 15px; border: 2px solid #10b981; border-radius: 8px; cursor: pointer; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; text-align: center;" id="labelModoConstructivista">
+                                    <input type="radio" name="modoGeneracionClase" value="constructivista" checked onchange="cambiarModoGeneracionClase()" style="display: none;">
+                                    <i class="fas fa-graduation-cap" style="font-size: 1.5rem; display: block; margin-bottom: 8px;"></i>
+                                    <strong>Metodología Constructivista</strong>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.9;">Anticipación, Construcción, Consolidación</p>
+                                </label>
+                                <label style="flex: 1; min-width: 200px; padding: 15px; border: 2px solid #8b5cf6; border-radius: 8px; cursor: pointer; background: white; color: #8b5cf6; text-align: center;" id="labelModoPersonalizado">
+                                    <input type="radio" name="modoGeneracionClase" value="personalizado" onchange="cambiarModoGeneracionClase()" style="display: none;">
+                                    <i class="fas fa-pencil-alt" style="font-size: 1.5rem; display: block; margin-bottom: 8px;"></i>
+                                    <strong>Prompt Personalizado</strong>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; opacity: 0.8;">Escribe exactamente lo que necesitas</p>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenido para Modo Constructivista -->
+                    <div id="modoConstructivistaContent" class="quiz-form-card" style="margin-top: 20px;">
+                        <h4><i class="fas fa-file-alt"></i> Contenido Base para la IA</h4>
+                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                            <label for="claseTextoBaseIA">Texto o Tema Base</label>
+                            <textarea id="claseTextoBaseIA" placeholder="Ingresa el tema, conceptos clave, o un texto base que la IA usará para generar la clase con metodología constructivista...
+
+Ejemplo: 
+- Tema: Fermentación del pan
+- Conceptos: levadura, gluten, temperatura, tiempos de reposo
+- O pega aquí un texto o apuntes que quieras convertir en una clase estructurada" style="min-height: 200px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                        </div>
+                        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+                            <p style="margin: 0; color: #166534; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i> <strong>Metodología Constructivista:</strong> La IA generará una clase estructurada en tres fases:
+                                <br>🎯 <strong>Anticipación</strong> - Activar conocimientos previos
+                                <br>🔨 <strong>Construcción</strong> - Desarrollo del contenido
+                                <br>✅ <strong>Consolidación</strong> - Resumen y aplicación
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Contenido para Modo Personalizado -->
+                    <div id="modoPersonalizadoContent" class="quiz-form-card" style="margin-top: 20px; display: none;">
+                        <h4><i class="fas fa-pencil-alt"></i> Tu Prompt Personalizado</h4>
+                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                            <label for="clasePromptPersonalizado">Escribe exactamente lo que necesitas que la IA genere</label>
+                            <textarea id="clasePromptPersonalizado" placeholder="Escribe tu prompt personalizado aquí. Por ejemplo:
+
+'Genera una clase sobre técnicas de amasado que incluya:
+- Una introducción motivadora
+- 5 técnicas de amasado con descripción detallada
+- Errores comunes y cómo evitarlos
+- Tips profesionales
+- Un ejercicio práctico para cada técnica'
+
+O cualquier estructura que necesites para tu clase..." style="min-height: 250px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit;"></textarea>
+                        </div>
+                        <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                            <label for="claseTextoBasePersonalizado">Contenido/Información Base (opcional)</label>
+                            <textarea id="claseTextoBasePersonalizado" placeholder="Si tienes información o apuntes que la IA debe usar como base, pégalos aquí..." style="min-height: 150px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                        </div>
+                        <div style="background: #f5f3ff; padding: 15px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+                            <p style="margin: 0; color: #5b21b6; font-size: 0.9rem;">
+                                <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Sé específico en tu prompt. Describe la estructura, secciones, estilo y cualquier detalle que necesites. La IA seguirá tus instrucciones exactas.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="submit-section" style="margin-top: 1.5rem;">
+                        <button type="button" onclick="generarClaseConIA()" class="btn-submit-quiz" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="fas fa-magic"></i> Generar Clase con IA
+                        </button>
+                    </div>
+
+                    <!-- Vista previa y editor de la clase generada -->
+                    <div id="claseGeneradaPreview" style="display: none; margin-top: 2rem;">
+                        <div class="quiz-form-card">
+                            <h4><i class="fas fa-eye"></i> Vista Previa de la Clase Generada</h4>
+                            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                                <i class="fas fa-info-circle"></i> Revisa y edita el contenido. Puedes agregar imágenes y videos usando los botones del editor.
+                            </p>
+                            
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                                <label for="claseTitleGenerada">Título</label>
+                                <input type="text" id="claseTitleGenerada" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                                <label for="claseDescGenerada">Descripción</label>
+                                <textarea id="claseDescGenerada" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                            </div>
+
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
+                                <label>Contenido de la Clase</label>
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                                    <button type="button" onclick="insertarImagenEnClaseIA()" style="padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-image"></i> Insertar Imagen
+                                    </button>
+                                    <button type="button" onclick="insertarVideoEnClaseIA()" style="padding: 8px 15px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-video"></i> Insertar Video
+                                    </button>
+                                    <button type="button" onclick="insertarEnlaceEnClaseIA()" style="padding: 8px 15px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                        <i class="fas fa-link"></i> Insertar Enlace
+                                    </button>
+                                </div>
+                                <div id="claseContentGeneradaEditor" style="min-height: 400px; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white;"></div>
+                                <textarea id="claseContentGenerada" style="display: none;"></textarea>
+                            </div>
+
+                            <div class="submit-section" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button type="button" onclick="regenerarClaseIA()" class="btn-submit-quiz" style="background: #f59e0b; flex: 1;">
+                                    <i class="fas fa-sync"></i> Regenerar
+                                </button>
+                                <button type="button" onclick="guardarClaseGenerada()" class="btn-submit-quiz" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); flex: 2;">
+                                    <i class="fas fa-save"></i> Guardar Clase
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Clases Subidas</h3>
+                        <p style="color: white;">Gestiona y administra tus clases publicadas</p>
+                    </div>
+                    
+                    <!-- Filtros de búsqueda -->
+                    <div id="clasesFilters" style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                                <select id="filterProgramaClases" onchange="filtrarClases()" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                                    <option value="">Todos los programas</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-layer-group"></i> Módulo</label>
+                                <select id="filterModuloClases" onchange="filtrarClases()" style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                                    <option value="">Todos los módulos</option>
+                                    <option value="modulo1">Módulo 1</option>
+                                    <option value="modulo2">Módulo 2</option>
+                                    <option value="modulo3">Módulo 3</option>
+                                    <option value="modulo4">Módulo 4</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 200px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;"><i class="fas fa-search"></i> Buscar</label>
+                                <input type="text" id="filterBuscarClases" onkeyup="filtrarClases()" placeholder="Buscar por título..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
+                            </div>
+                            <button onclick="limpiarFiltrosClases()" style="padding: 0.75rem 1.5rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de clases -->
+                    <div id="clasesResumen" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
+                    
+                    <!-- Herramientas de administración -->
+                    <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #f59e0b;">
+                        <h4 style="margin: 0 0 0.75rem 0; color: #92400e;"><i class="fas fa-tools"></i> Herramientas de Administración</h4>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button onclick="asignarModuloClasesSinModulo()" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-layer-group"></i> Asignar Módulo 3 a clases sin módulo
+                            </button>
+                            <button onclick="migrarClasesDeColeccionVieja()" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-exchange-alt"></i> Migrar clases de colección antigua
+                            </button>
+                            <button onclick="verClasesEnAmbosColecciones()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                <i class="fas fa-search"></i> Diagnóstico de colecciones
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de clases -->
+                    <div id="clasesList" class="grid"></div>
+                </div>
+            </div>

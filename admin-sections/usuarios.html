@@ -1,0 +1,141 @@
+            <div id="usuarios" class="content-section">
+                <!-- Header Premium -->
+                <div style="background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4c1d95 100%); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; color: white; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem; font-weight: 700;">
+                            <i class="fas fa-users-cog"></i> Centro de Gestión de Usuarios
+                        </h2>
+                        <p style="margin: 0; opacity: 0.9;">Administra solicitudes, aprueba estudiantes y gestiona sus datos</p>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Premium -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #92400e; font-weight: 600; text-transform: uppercase;">Pendientes</p>
+                                <h3 id="total-pendientes" style="margin: 0.25rem 0 0 0; font-size: 2.5rem; font-weight: 700; color: #78350f;">0</h3>
+                            </div>
+                            <div style="width: 60px; height: 60px; background: rgba(245,158,11,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-clock" style="font-size: 1.5rem; color: #f59e0b;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 16px; padding: 1.5rem; border-left: 4px solid #10b981; box-shadow: 0 4px 15px rgba(16,185,129,0.2);">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #065f46; font-weight: 600; text-transform: uppercase;">Aprobados</p>
+                                <h3 id="total-aprobados" style="margin: 0.25rem 0 0 0; font-size: 2.5rem; font-weight: 700; color: #064e3b;">0</h3>
+                            </div>
+                            <div style="width: 60px; height: 60px; background: rgba(16,185,129,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-check" style="font-size: 1.5rem; color: #10b981;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nota informativa -->
+                <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 4px solid #3b82f6; padding: 1rem 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <p style="margin: 0; color: #1e40af; font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> <strong>Tip:</strong> Puedes editar el programa, sede y horario de cualquier estudiante usando el botón <i class="fas fa-edit"></i>
+                    </p>
+                </div>
+
+                <!-- Solicitudes Pendientes -->
+                <div style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 2rem;">
+                    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1.5rem 2rem; color: white;">
+                        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">
+                            <i class="fas fa-user-clock"></i> Solicitudes Pendientes
+                        </h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Usuarios esperando aprobación</p>
+                    </div>
+                    
+                    <!-- Filtros de pendientes -->
+                    <div style="padding: 1.5rem 2rem; background: #fffbeb; border-bottom: 1px solid #fde68a;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 2; min-width: 200px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Buscar</label>
+                                <input type="text" id="usuariosSearch" placeholder="Nombre o email..." onkeyup="filterUsuarios()" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                            </div>
+                            <div style="flex: 1; min-width: 150px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                <select id="filterProgramaPendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Panadería y Pastelería">Panadería</option>
+                                    <option value="Belleza Integral">Belleza</option>
+                                    <option value="Asesoría Técnica">Asesoría</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                <select id="filterSedePendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todas</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 140px;">
+                                <label style="display: block; font-size: 0.8rem; color: #92400e; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                <select id="filterHorarioPendientes" onchange="filterUsuarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #fde68a; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Sábado Matutina">Sáb. Mat.</option>
+                                    <option value="Sábado Vespertina">Sáb. Vesp.</option>
+                                    <option value="Domingo Matutina">Dom. Mat.</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="usuarios-pendientes" style="padding: 1rem;"></div>
+                </div>
+
+                <!-- Usuarios Aprobados -->
+                <div style="background: white; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; color: white;">
+                        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;">
+                            <i class="fas fa-user-check"></i> Usuarios Aprobados
+                        </h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Gestiona estudiantes activos</p>
+                    </div>
+                    
+                    <!-- Filtros de aprobados -->
+                    <div style="padding: 1.5rem 2rem; background: #ecfdf5; border-bottom: 1px solid #a7f3d0;">
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                            <div style="flex: 1; min-width: 150px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                <select id="filterPrograma" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Panadería y Pastelería">Panadería</option>
+                                    <option value="Belleza Integral">Belleza</option>
+                                    <option value="Asesoría Técnica">Asesoría</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 120px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                <select id="filterSedeAprobados" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todas</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1; min-width: 140px;">
+                                <label style="display: block; font-size: 0.8rem; color: #065f46; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                <select id="filterHorarioAprobados" onchange="loadUsuariosAprobados()" style="width: 100%; padding: 0.75rem; border: 2px solid #a7f3d0; border-radius: 10px; font-size: 0.9rem; background: white;">
+                                    <option value="">Todos</option>
+                                    <option value="Sábado Matutina">Sáb. Mat.</option>
+                                    <option value="Sábado Vespertina">Sáb. Vesp.</option>
+                                    <option value="Domingo Matutina">Dom. Mat.</option>
+                                </select>
+                            </div>
+                            <button onclick="limpiarDuplicados()" style="padding: 0.75rem 1.25rem; background: #fef3c7; color: #92400e; border: 2px solid #fde68a; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <i class="fas fa-broom"></i> Limpiar Duplicados
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="usuarios-aprobados" style="padding: 1rem;"></div>
+                </div>
+            </div>

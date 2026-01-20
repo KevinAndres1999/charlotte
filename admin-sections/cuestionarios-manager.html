@@ -1,0 +1,240 @@
+            <div id="cuestionarios-manager" class="content-section">
+
+                <!-- Pestañas de navegación -->
+                <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                    <button type="button" onclick="switchCuestionariosTab('gestion')" id="tabGestion" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-list"></i> Cuestionarios
+                    </button>
+                    <button type="button" onclick="switchCuestionariosTab('resultados')" id="tabResultados" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-poll"></i> Resultados
+                    </button>
+                </div>
+
+                <!-- Panel de Gestión -->
+                <div id="panelGestionCuestionarios">
+
+                <!-- Header con estadísticas integradas -->
+                <div class="quiz-builder-section" style="margin-bottom: 1.5rem;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1.5rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                                    <i class="fas fa-file-alt"></i> Gestión de Cuestionarios
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Administra, edita y elimina cuestionarios</p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="totalCuestionariosBadge">Cargando...</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Total</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="cuestionariosActivosBadge">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Activos</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros compactos -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterProgramaCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Programa</label>
+                            <select id="filterProgramaCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterSedeCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Sede</label>
+                            <select id="filterSedeCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todas</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterHorarioCuestionarios" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Horario</label>
+                            <select id="filterHorarioCuestionarios" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterEstado" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Estado</label>
+                            <select id="filterEstado" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="searchCuestionario" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Buscar</label>
+                            <input type="text" id="searchCuestionario" placeholder="Título o descripción..." style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; align-items: flex-end; gap: 0.5rem;">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosCuestionarios()">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosCuestionarios()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalCuestionarios">Cargando...</h3>
+                                <p class="stat-label">Total Cuestionarios</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-file-alt"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="cuestionariosActivos">0</h3>
+                                <p class="stat-label">Activos</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalRespuestasCuest">Cargando...</h3>
+                                <p class="stat-label">Estudiantes</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="promedioCalificacionesCuest">Cargando...</h3>
+                                <p class="stat-label">Promedio General</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Cuestionarios -->
+                <div class="quiz-builder-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="margin: 0; color: #374151; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-list"></i> Lista de Cuestionarios
+                        </h4>
+                        <button type="button" class="btn-secondary" onclick="recargarCuestionarios()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                    </div>
+                    <div id="cuestionariosManagerGrid" class="cuestionarios-grid">
+                        <!-- Los cuestionarios se cargarán aquí -->
+                    </div>
+                </div>
+                </div><!-- Fin del panelGestionCuestionarios -->
+
+                <!-- Panel de Resultados -->
+                <div id="panelResultadosCuestionarios" style="display: none;">
+                    <div class="quiz-builder-section">
+                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.8rem; color: white;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
+                                    <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-graduation-cap"></i> Programa
+                                    </label>
+                                    <select id="filtroProgResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los programas</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-map-marker-alt"></i> Sede
+                                    </label>
+                                    <select id="filtroSedeResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las sedes</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-clock"></i> Horario
+                                    </label>
+                                    <select id="filtroHorarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los horarios</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-file-alt"></i> Cuestionario
+                                    </label>
+                                    <select id="filtroCuestionarioResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los cuestionarios</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-search"></i> Buscar estudiante
+                                    </label>
+                                    <input type="text" id="buscarEstudianteResultados" placeholder="Nombre o email..." onkeyup="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-sort"></i> Ordenar por
+                                    </label>
+                                    <select id="ordenResultados" onchange="loadResultadosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="fecha-desc">Más recientes primero</option>
+                                        <option value="fecha-asc">Más antiguos primero</option>
+                                        <option value="calificacion-desc">Mayor calificación</option>
+                                        <option value="calificacion-asc">Menor calificación</option>
+                                        <option value="nombre-asc">Nombre A-Z</option>
+                                        <option value="nombre-desc">Nombre Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de resultados -->
+                        <div id="resultadosCuestionariosList" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 100%;">
+                            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                                <p style="margin-top: 1rem;">Cargando resultados...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Fin del panelResultadosCuestionarios -->
+            </div>

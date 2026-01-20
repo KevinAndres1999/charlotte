@@ -1,0 +1,129 @@
+            <div id="evaluaciones" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-clipboard-check"></i> Constructor de Evaluaciones</h3>
+                        <p style="color: white;">Crea evaluaciones interactivas con preguntas de opción múltiple y abiertas</p>
+                    </div>
+
+                    <div class="evaluation-mode-selector">
+                        <button type="button" class="mode-btn active" onclick="setEvaluationMode('manual')" id="manualModeBtn">
+                            <i class="fas fa-edit"></i> Crear desde cero
+                        </button>
+                        <button type="button" class="mode-btn" onclick="setEvaluationMode('select')" id="selectModeBtn">
+                            <i class="fas fa-copy"></i> Seleccionar de cuestionarios
+                        </button>
+                        <button type="button" class="mode-btn" onclick="setEvaluationMode('auto')" id="autoModeBtn">
+                            <i class="fas fa-magic"></i> Generar automáticamente
+                        </button>
+                    </div>
+
+                    <form id="evaluacionForm" style="display: block;">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información General</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionTitle">Título de la Evaluación</label>
+                                    <input type="text" id="evaluacionTitle" placeholder="Ej: Evaluación Final de Técnicas Avanzadas" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionDesc">Descripción</label>
+                                    <textarea id="evaluacionDesc" placeholder="Describe el propósito y contenido de la evaluación..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionPrograma">Programa</label>
+                                    <select id="evaluacionPrograma" required>
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="evaluacionSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="evaluacionSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="evaluacionHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="evaluacionHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="evaluacionHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionTiempo">Tiempo Disponible (minutos)</label>
+                                    <input type="number" id="evaluacionTiempo" placeholder="60" min="1">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionFechaInicio">Fecha de Inicio</label>
+                                    <input type="datetime-local" id="evaluacionFechaInicio" title="Fecha y hora en que los estudiantes podrán acceder a la evaluación">
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="evaluacionFechaFin">Fecha de Fin</label>
+                                    <input type="datetime-local" id="evaluacionFechaFin" title="Fecha y hora límite para resolver la evaluación">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="questions-builder" id="manualQuestionsBuilder">
+                            <h4><i class="fas fa-list-ol"></i> Preguntas de la Evaluación</h4>
+                            <div id="evaluacionQuestionsContainer">
+                                <!-- Questions will be added here -->
+                            </div>
+                            <button type="button" class="btn-submit-quiz" onclick="agregarPreguntaEvaluacion()" style="width: auto; margin-top: 1.5rem; padding: 0.75rem 2rem;">
+                                <i class="fas fa-plus"></i> Agregar Nueva Pregunta
+                            </button>
+                        </div>
+
+                        <div class="questions-builder" id="selectQuestionsBuilder" style="display: none;">
+                            <h4><i class="fas fa-list-ol"></i> Seleccionar Preguntas de Cuestionarios</h4>
+                            <div id="cuestionariosSelector">
+                                <!-- Cuestionarios will be loaded here -->
+                            </div>
+                        </div>
+
+                        <div class="questions-builder" id="autoQuestionsBuilder" style="display: none;">
+                            <h4><i class="fas fa-magic"></i> Generar Evaluación Automática</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="autoCuestionario">Seleccionar Cuestionario</label>
+                                <select id="autoCuestionario">
+                                    <option value="">Seleccionar cuestionario</option>
+                                    <!-- Options will be loaded -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="autoNumPreguntas">Número de Preguntas</label>
+                                <input type="number" id="autoNumPreguntas" min="1" placeholder="Ej: 10">
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="button" class="btn-submit-quiz" onclick="submitEvaluacion()">
+                                <i class="fas fa-arrow-right"></i> Siguiente
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>

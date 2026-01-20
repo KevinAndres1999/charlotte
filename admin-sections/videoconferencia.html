@@ -1,0 +1,59 @@
+            <div id="videoconferencia" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header">
+                        <h3><i class="fas fa-video"></i> Gestión de Videoconferencias</h3>
+                        <p style="color: white;">Administra salas de videoconferencia para clases en vivo</p>
+                    </div>
+
+                    <div class="card">
+                        <h4>Salas Disponibles</h4>
+                        <div class="conference-rooms-grid">
+                            <div class="conference-room-card">
+                                <h5>Sala General</h5>
+                                <p>Sala abierta para consultas y tutorías generales.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('sala-general')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('sala-general')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="conference-room-card">
+                                <h5>Sala de Panadería</h5>
+                                <p>Dedicada a cursos de panadería y pastelería.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('panaderia')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('panaderia')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="conference-room-card">
+                                <h5>Sala de Belleza</h5>
+                                <p>Dedicada a cursos de belleza integral.</p>
+                                <div class="room-actions">
+                                    <button class="btn btn-primary" onclick="joinConference('belleza')">
+                                        <i class="fas fa-video"></i> Unirse como Admin
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="copyRoomLink('belleza')">
+                                        <i class="fas fa-copy"></i> Copiar Enlace
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="conference-container" style="display: none; margin-top: 2rem;">
+                        <div class="conference-header">
+                            <button class="btn btn-secondary" onclick="closeConference()">
+                                <i class="fas fa-times"></i> Cerrar Videoconferencia
+                            </button>
+                        </div>
+                        <iframe id="jitsi-iframe" src="" width="100%" height="600" frameborder="0" allowfullscreen allow="camera; microphone; display-capture; autoplay; encrypted-media"></iframe>
+                    </div>
+                </div>
+            </div>

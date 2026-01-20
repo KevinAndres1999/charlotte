@@ -1,0 +1,287 @@
+            <section id="clase-viewer" class="content-section">
+                <div class="welcome-banner clase-viewer-banner">
+                    <div class="clase-viewer-header">
+                        <div class="clase-viewer-nav">
+                            <button class="btn btn-secondary" onclick="showSection('clases')">
+                                <i class="fas fa-arrow-left"></i> Volver a Clases
+                            </button>
+                        </div>
+                        <div class="clase-viewer-info">
+                            <h2 id="clase-viewer-title">Cargando clase...</h2>
+                            <div class="clase-viewer-meta">
+                                <span class="program-badge" id="clase-viewer-programa"></span>
+                                <span class="meta-item" id="clase-viewer-fecha"></span>
+                                <span class="meta-item" id="clase-viewer-duracion"></span>
+                            </div>
+                        </div>
+                        <div class="clase-viewer-actions">
+                            <button class="btn btn-primary" id="clase-viewer-complete-btn">
+                                <i class="fas fa-check"></i> Marcar como Completada
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clase-viewer-content">
+                    <!-- Barra de progreso -->
+                    <div class="card clase-progress-card">
+                        <div class="progress-header">
+                            <h3><i class="fas fa-chart-line"></i> Tu Progreso</h3>
+                            <span class="progress-text" id="clase-viewer-progress">0% completado</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="clase-viewer-progress-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas rápidas -->
+                    <div class="stat-cards clase-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-eye"></i>
+                            <h3 id="clase-viewer-status">En Progreso</h3>
+                            <p style="color: white;">Estado de la Clase</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #10b981;">
+                            <i class="fas fa-clock" style="color: #10b981;"></i>
+                            <h3 id="clase-viewer-time">0 min</h3>
+                            <p style="color: white;">Tiempo de Lectura</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #f59e0b;">
+                            <i class="fas fa-bookmark" style="color: #f59e0b;"></i>
+                            <h3 id="clase-viewer-bookmark">No</h3>
+                            <p style="color: white;">Favorito</p>
+                        </div>
+                        <div class="stat-card" style="border-left-color: #8b5cf6;">
+                            <i class="fas fa-share-alt" style="color: #8b5cf6;"></i>
+                            <h3>Compartir</h3>
+                            <p style="color: white;">Clase</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenido de la clase -->
+                    <div class="clase-content-grid">
+                        <!-- Descripción -->
+                        <div class="content-card clase-description-card">
+                            <h3><i class="fas fa-info-circle"></i> Descripción</h3>
+                            <div class="clase-description-content" id="clase-viewer-description">
+                                Cargando descripción...
+                            </div>
+                        </div>
+
+                        <!-- Contenido principal -->
+                        <div class="content-card clase-main-content-card">
+                            <h3><i class="fas fa-book-open"></i> Contenido de la Clase</h3>
+                            <div class="clase-content-viewer" id="clase-viewer-content">
+                                Cargando contenido...
+                            </div>
+                        </div>
+
+                        <!-- Tags y etiquetas -->
+                        <div class="content-card clase-tags-card" id="clase-tags-section" style="display: none;">
+                            <h3><i class="fas fa-tags"></i> Etiquetas</h3>
+                            <div class="clase-tags-list" id="clase-viewer-tags"></div>
+                        </div>
+                    </div>
+
+                    <!-- Consejos de lectura -->
+                    <div class="content-card clase-tips-card">
+                        <h3><i class="fas fa-lightbulb"></i> Consejos para Mejorar tu Aprendizaje</h3>
+                        <div class="tips-grid">
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>Toma Notas</h4>
+                                <p style="color: white;">Anota los conceptos clave mientras lees para mejor retención.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4>Pausa Activa</h4>
+                                <p style="color: white;">Haz pausas cada 25-30 minutos para procesar la información.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-question"></i>
+                                </div>
+                                <h4>Reflexiona</h4>
+                                <p style="color: white;">Después de leer, pregúntate qué aprendiste y cómo aplicarlo.</p>
+                            </div>
+                            <div class="tip-item">
+                                <div class="tip-icon">
+                                    <i class="fas fa-share-alt"></i>
+                                </div>
+                                <h4>Comparte</h4>
+                                <p style="color: white;">Comparte lo aprendido con compañeros para reforzar el conocimiento.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navegación entre clases -->
+                    <div class="content-card clase-navigation-card">
+                        <h3><i class="fas fa-route"></i> Navegación</h3>
+                        <div class="navigation-controls">
+                            <button class="btn btn-secondary" id="clase-prev-btn" disabled>
+                                <i class="fas fa-chevron-left"></i> Clase Anterior
+                            </button>
+                            <div class="navigation-indicator">
+                                <span>Clase <span id="clase-current-number">1</span> de <span id="clase-total-number">1</span></span>
+                            </div>
+                            <button class="btn btn-secondary" id="clase-next-btn" disabled>
+                                Clase Siguiente <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Acciones adicionales -->
+                    <div class="quick-links clase-actions-links">
+                        <div class="quick-link" onclick="printClaseFromViewer()">
+                            <i class="fas fa-print"></i>
+                            <h4>Imprimir Clase</h4>
+                        </div>
+                        <div class="quick-link" onclick="shareClaseFromViewer()">
+                            <i class="fas fa-share-alt"></i>
+                            <h4>Compartir</h4>
+                        </div>
+                        <div class="quick-link" onclick="toggleBookmarkFromViewer()">
+                            <i class="fas fa-bookmark"></i>
+                            <h4 id="bookmark-text">Agregar a Favoritos</h4>
+                        </div>
+                        <div class="quick-link" onclick="downloadClaseFromViewer()">
+                            <i class="fas fa-download"></i>
+                            <h4>Descargar</h4>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </style>
+        <style>
+            /* Estilos para el contenido de clases en el modal */
+            .class-content-section {
+                margin-top: 24px;
+            }
+
+            .class-content-section h4 {
+                color: #1e3a8a;
+                font-size: 18px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .class-content-display {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                border: 1px solid #e2e8f0;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                line-height: 1.6;
+                color: #374151;
+            }
+
+            .class-content-display h1,
+            .class-content-display h2,
+            .class-content-display h3,
+            .class-content-display h4,
+            .class-content-display h5,
+            .class-content-display h6 {
+                color: #1e3a8a;
+                margin-top: 1.5em;
+                margin-bottom: 0.5em;
+            }
+
+            .class-content-display p {
+                margin-bottom: 1em;
+            }
+
+            .class-content-display ul,
+            .class-content-display ol {
+                margin-bottom: 1em;
+                padding-left: 2em;
+            }
+
+            .class-content-display li {
+                margin-bottom: 0.5em;
+            }
+
+            .class-content-display blockquote {
+                border-left: 4px solid #3b82f6;
+                padding-left: 16px;
+                margin: 16px 0;
+                font-style: italic;
+                color: #64748b;
+            }
+
+            .class-content-display img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 8px;
+                margin: 16px 0;
+            }
+
+            .class-content-display table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+            }
+
+            .class-content-display th,
+            .class-content-display td {
+                border: 1px solid #e2e8f0;
+                padding: 8px 12px;
+                text-align: left;
+            }
+
+            .class-content-display th {
+                background: #f8fafc;
+                font-weight: 600;
+                color: #1e3a8a;
+            }
+
+        /* =================== ESTILOS PARA VIDEOCONFERENCIA =================== */
+        .conference-rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .conference-room-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .conference-room-card h5 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+        .conference-room-card p {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        .room-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .room-actions .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+        #conference-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .conference-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+    </style>

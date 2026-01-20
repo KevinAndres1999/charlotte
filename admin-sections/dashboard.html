@@ -1,0 +1,132 @@
+            <div id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card" onclick="showSection('videos')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-videos">Cargando...</h3>
+                                <p class="stat-label">Videos Publicados</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-video"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('clases')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-clases">Cargando...</h3>
+                                <p class="stat-label">Clases Subidas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-book-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('actividades')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-actividades">Cargando...</h3>
+                                <p class="stat-label">Actividades Creadas</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-tasks"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('materiales')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-materiales">Cargando...</h3>
+                                <p class="stat-label">Materiales Adicionales</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-folder-open"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('entregas-viewer')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-entregas">Cargando...</h3>
+                                <p class="stat-label">Entregas Recibidas</p>
+                            </div>
+                            <div class="stat-card-icon red"><i class="fas fa-inbox"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('usuarios')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-usuarios">Cargando...</h3>
+                                <p class="stat-label">Estudiantes Activos</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('cuestionarios')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-cuestionarios">Cargando...</h3>
+                                <p class="stat-label">Cuestionarios</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-question-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" onclick="showSection('evaluaciones')" style="cursor: pointer;">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-evaluaciones">Cargando...</h3>
+                                <p class="stat-label">Evaluaciones</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-clipboard-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Avanzadas -->
+                <div class="stats-grid" style="margin-top: 30px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-usuarios-recientes">Cargando...</h3>
+                                <p class="stat-label">Nuevos Estudiantes (30 días)</p>
+                            </div>
+                            <div class="stat-card-icon teal"><i class="fas fa-user-plus"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-engagement-rate">Cargando...</h3>
+                                <p class="stat-label">Tasa de Engagement</p>
+                                <small style="color: rgba(255,255,255,0.7); font-size: 12px;">Entregas por estudiante</small>
+                            </div>
+                            <div class="stat-card-icon indigo"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card advanced-stat">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="stat-completion-rate">Cargando...</h3>
+                                <p class="stat-label">Completitud Evaluaciones</p>
+                                <small style="color: rgba(255,255,255,0.7); font-size: 12px;">Evaluaciones finalizadas</small>
+                            </div>
+                            <div class="stat-card-icon emerald"><i class="fas fa-trophy"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribución por Programa -->
+                <div class="stats-section" style="margin-top: 30px;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> Distribución por Programa</h3>
+                    <div class="program-distribution" id="program-distribution">
+                        <div class="empty-state">
+                            <i class="fas fa-chart-pie"></i>
+                            <p>Cargando distribución...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón de limpieza de datos huérfanos -->
+                <div style="margin-top: 40px; padding: 20px; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px;">
+                    <h4 style="margin: 0 0 10px 0; color: #92400e;"><i class="fas fa-broom"></i> Mantenimiento del Sistema</h4>
+                    <p style="margin: 0 0 15px 0; color: #92400e; font-size: 14px;">
+                        Si notas inconsistencias en las estadísticas o problemas al cargar datos, puedes limpiar registros huérfanos
+                        (entregas/respuestas de actividades/cuestionarios eliminados).
+                    </p>
+                    <button onclick="limpiarDatosHuerfanos()" class="btn-primary" style="background: #f59e0b; border-color: #f59e0b;">
+                        <i class="fas fa-broom"></i> Limpiar Datos Huérfanos
+                    </button>
+                </div>
+            </div>

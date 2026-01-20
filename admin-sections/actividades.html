@@ -1,0 +1,121 @@
+            <div id="actividades" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-tasks"></i> Gestión de Actividades</h3>
+                        <p style="color: white;">Sube y administra las actividades prácticas para tus estudiantes</p>
+                    </div>
+
+                    <form id="actividadForm">
+                        <div class="quiz-form-grid">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-info-circle"></i> Información Básica</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadTitle">Título de la Actividad *</label>
+                                    <input type="text" id="actividadTitle" placeholder="Ej: Práctica de Corte en Capas" required>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadObjetivos">Objetivos de Aprendizaje</label>
+                                    <textarea id="actividadObjetivos" placeholder="¿Qué aprenderán los estudiantes con esta actividad?" rows="3"></textarea>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadDificultad">Nivel de Dificultad</label>
+                                    <select id="actividadDificultad">
+                                        <option value="principiante">Principiante</option>
+                                        <option value="intermedio">Intermedio</option>
+                                        <option value="avanzado">Avanzado</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadTiempo">Tiempo Estimado (minutos)</label>
+                                    <input type="number" id="actividadTiempo" placeholder="60" min="1">
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cogs"></i> Configuración y Asignación</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadPrograma">Programa *</label>
+                                    <select id="actividadPrograma" required onchange="populateModuloSelect('actividadModulo', 'actividadPrograma')">
+                                        <option value="">Seleccionar programa</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="actividadModulo">Módulo *</label>
+                                    <select id="actividadModulo" required>
+                                        <option value="">Seleccionar módulo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Sedes (selecciona una o más)</label>
+                                    <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadSedes" value="Carapungo">
+                                            Carapungo
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadSedes" value="Sangolquí">
+                                            Sangolquí
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label>Horarios (selecciona uno o más)</label>
+                                    <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Sábado Matutina">
+                                            Sábado Matutina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Sábado Vespertina">
+                                            Sábado Vespertina
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px;">
+                                            <input type="checkbox" name="actividadHorarios" value="Domingo Matutina">
+                                            Domingo Matutina
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card" style="margin-top: 20px;">
+                            <h4><i class="fas fa-tools"></i> Materiales y Recursos</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadMateriales">Materiales Necesarios</label>
+                                <textarea id="actividadMateriales" placeholder="Lista los materiales, herramientas y equipos necesarios..." rows="4"></textarea>
+                            </div>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadUrl">Enlaces y Recursos Adicionales</label>
+                                <input type="url" id="actividadUrl" placeholder="https://drive.google.com/..." title="Enlace a material adicional, plantilla o recurso de apoyo">
+                                <small style="color: #666; display: block; margin-top: 5px;">Puedes agregar múltiples enlaces separados por comas</small>
+                            </div>
+                        </div>
+
+                        <div class="quiz-form-card" style="margin-top: 20px;">
+                            <h4><i class="fas fa-edit"></i> Instrucciones Detalladas</h4>
+                            <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <label for="actividadDesc">Descripción e Instrucciones *</label>
+                                <div id="actividadDescEditor"></div>
+                                <textarea id="actividadDesc" style="display: none;"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit-quiz">
+                                <i class="fas fa-upload"></i> Crear Actividad
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-list"></i> Actividades Subidas</h3>
+                        <p style="color: white;">Gestiona y administra tus actividades publicadas</p>
+                    </div>
+                    <div id="actividadesList" class="grid"></div>
+                </div>
+            </div>
