@@ -242,6 +242,10 @@
                 console.log('Starting user query...');
                 const queryStartTime = performance.now();
 
+                // Declarar variables
+                let userData = null;
+                let userDoc = null;
+
                 // OPTIMIZACIÓN: Verificar cache primero
                 const cachedUser = userCache.get(email);
                 if (cachedUser && (Date.now() - cachedUser.timestamp) < CACHE_DURATION) {
