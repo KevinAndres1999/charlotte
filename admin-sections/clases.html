@@ -395,3 +395,353 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     <div id="clasesList" class="grid"></div>
                 </div>
             </div>
+
+            <script>
+                // Función para mostrar modo de creación de clase
+                function mostrarModoClase(modo) {
+                    const manualSection = document.getElementById('modoManual');
+                    const iaSection = document.getElementById('modoIA');
+                    
+                    if (modo === 'manual') {
+                        manualSection.style.display = 'block';
+                        iaSection.style.display = 'none';
+                        document.getElementById('btnClaseManual').classList.add('active');
+                        document.getElementById('btnClaseIA').classList.remove('active');
+                    } else {
+                        manualSection.style.display = 'none';
+                        iaSection.style.display = 'block';
+                        document.getElementById('btnClaseManual').classList.remove('active');
+                        document.getElementById('btnClaseIA').classList.add('active');
+                    }
+                }
+
+                // Función para crear clase manualmente
+                async function crearClaseManual() {
+                    try {
+                        const titulo = document.getElementById('claseTitulo').value;
+                        const descripcion = document.getElementById('claseDesc').value;
+                        const programa = document.getElementById('clasePrograma').value;
+                        const modulo = document.getElementById('claseModulo').value;
+                        const objetivos = document.getElementById('claseObjetivos').value;
+                        const materiales = document.getElementById('claseMateriales').value;
+                        const duracion = document.getElementById('claseDuracion').value;
+                        
+                        // Obtener horarios seleccionados
+                        const horariosCheckboxes = document.querySelectorAll('input[name="claseHorarios"]:checked');
+                        const horarios = Array.from(horariosCheckboxes).map(cb => cb.value);
+                        
+                        if (!titulo || !programa || !descripcion) {
+                            alert('Por favor completa los campos obligatorios');
+                            return;
+                        }
+                        
+                        const claseData = {
+                            titulo,
+                            descripcion,
+                            programa,
+                            modulo,
+                            objetivos,
+                            materiales,
+                            duracion: parseInt(duracion),
+                            horarios,
+                            tipo: 'manual',
+                            createdAt: new Date(),
+                            active: true
+                        };
+                        
+                        await window.db.collection('classes').add(claseData);
+                        
+                        alert('Clase creada exitosamente');
+                        document.getElementById('claseFormManual').reset();
+                        loadClasesList();
+                        
+                    } catch (error) {
+                        console.error('Error creating class:', error);
+                        alert('Error al crear clase');
+                    }
+                }
+
+                // Función para generar clase con IA
+                async function generarClaseIA() {
+                    try {
+                        const tema = document.getElementById('temaIA').value;
+                        const programa = document.getElementById('programaIA').value;
+                        const modulo = document.getElementById('moduloIA').value;
+                        const nivel = document.getElementById('nivelIA').value;
+                        const duracion = document.getElementById('duracionIA').value;
+                        
+                        if (!tema || !programa) {
+                            alert('Por favor completa los campos obligatorios');
+                            return;
+                        }
+                        
+                        // Mostrar loading
+                        const button = document.querySelector('#modoIA button');
+                        const originalText = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
+                        button.disabled = true;
+                        
+                        // Simular generación con IA (aquí iría la llamada real a la API de IA)
+                        const claseGenerada = {
+                            titulo: `Clase: ${tema}`,
+                            descripcion: `Clase generada automáticamente sobre ${tema} para el programa de ${programa}.`,
+                            programa,
+                            modulo,
+                            objetivos: `Al finalizar esta clase, los estudiantes podrán:\n- Comprender los conceptos básicos de ${tema}\n- Aplicar técnicas prácticas\n- Desarrollar habilidades específicas`,
+                            materiales: 'Material didáctico digital, ejercicios prácticos, recursos multimedia',
+                            duracion: parseInt(duracion),
+                            horarios: ['Sábado Matutina', 'Sábado Vespertina', 'Domingo Matutina'],
+                            tipo: 'ia',
+                            createdAt: new Date(),
+                            active: true
+                        };
+                        
+                        await window.db.collection('classes').add(claseGenerada);
+                        
+                        alert('Clase generada con IA exitosamente');
+                        document.getElementById('claseFormIA').reset();
+                        loadClasesList();
+                        
+                        // Restaurar botón
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                        
+                    } catch (error) {
+                        console.error('Error generating class with AI:', error);
+                        alert('Error al generar clase con IA');
+                        
+                        // Restaurar botón
+                        const button = document.querySelector('#modoIA button');
+                        button.innerHTML = '<i class="fas fa-magic"></i> Generar con IA';
+                        button.disabled = false;
+                    }
+                }
+
+                // Función para cargar lista de clases
+                async function loadClasesList() {
+                    try {
+                        console.log('Loading classes list...');
+                        const snapshot = await window.db.collection('classes').orderBy('createdAt', 'desc').get();
+                        
+                        const container = document.getElementById('clasesList');
+                        
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-book-open fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay clases creadas</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const clase = doc.data();
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <h4 style="margin: 0; color: #1f2937;">${clase.titulo}</h4>
+                                                <span style="background: ${clase.tipo === 'ia' ? '#e0e7ff' : '#dcfce7'}; color: ${clase.tipo === 'ia' ? '#3730a3' : '#065f46'}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">
+                                                    ${clase.tipo === 'ia' ? 'IA' : 'Manual'}
+                                                </span>
+                                            </div>
+                                            <p style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem;">${clase.descripcion}</p>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${clase.programa}</span>
+                                                ${clase.modulo ? `<span style="background: #f3e8ff; color: #6b21a8; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${clase.modulo}</span>` : ''}
+                                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${clase.duracion} min</span>
+                                            </div>
+                                            ${clase.horarios ? `<div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">${clase.horarios.map(h => `<span style="background: #dbeafe; color: #1e40af; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">${h}</span>`).join('')}</div>` : ''}
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button onclick="editClase('${doc.id}')" style="padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteClase('${doc.id}')" style="padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    ${clase.objetivos ? `
+                                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 3px solid #3b82f6; margin-bottom: 0.5rem;">
+                                            <h5 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 0.9rem;">Objetivos:</h5>
+                                            <p style="margin: 0; color: #4b5563; font-size: 0.85rem; white-space: pre-line;">${clase.objetivos}</p>
+                                        </div>
+                                    ` : ''}
+                                    ${clase.materiales ? `
+                                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border-left: 3px solid #10b981;">
+                                            <h5 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 0.9rem;">Materiales:</h5>
+                                            <p style="margin: 0; color: #4b5563; font-size: 0.85rem;">${clase.materiales}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading classes:', error);
+                        document.getElementById('clasesList').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar clases</p></div>';
+                    }
+                }
+
+                // Función para editar clase
+                async function editClase(claseId) {
+                    alert('Función de edición próximamente disponible');
+                }
+
+                // Función para eliminar clase
+                async function deleteClase(claseId) {
+                    if (confirm('¿Estás seguro de que quieres eliminar esta clase?')) {
+                        try {
+                            await window.db.collection('classes').doc(claseId).delete();
+                            alert('Clase eliminada exitosamente');
+                            loadClasesList();
+                        } catch (error) {
+                            console.error('Error deleting class:', error);
+                            alert('Error al eliminar clase');
+                        }
+                    }
+                }
+
+                // Función para poblar select de módulos basado en programa
+                function populateModuloSelect(moduloSelectId, programaSelectId) {
+                    const programaSelect = document.getElementById(programaSelectId);
+                    const moduloSelect = document.getElementById(moduloSelectId);
+                    
+                    if (!programaSelect || !moduloSelect) return;
+                    
+                    const programa = programaSelect.value;
+                    moduloSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+                    
+                    const modulos = {
+                        'Belleza Integral': [
+                            'Módulo 1: Diseño de Mirada',
+                            'Módulo 2: Maquillaje',
+                            'Módulo 3: Estilismo',
+                            'Módulo 4: Nails Designer'
+                        ],
+                        'Panadería y Pastelería': [
+                            'Módulo 1: Panadería',
+                            'Módulo 2: Galletaría',
+                            'Módulo 3: Pastelería',
+                            'Módulo 4: Repostería'
+                        ],
+                        'Asesoría Técnica': [
+                            'Módulo 1: Fundamentos',
+                            'Módulo 2: Estrategias',
+                            'Módulo 3: Gestión',
+                            'Módulo 4: Especialización'
+                        ]
+                    };
+                    
+                    if (modulos[programa]) {
+                        modulos[programa].forEach(modulo => {
+                            const option = document.createElement('option');
+                            option.value = modulo;
+                            option.textContent = modulo;
+                            moduloSelect.appendChild(option);
+                        });
+                    }
+                }
+
+                // Función para limpiar filtros
+                function limpiarFiltrosClases() {
+                    document.getElementById('filterProgramaClases').value = '';
+                    document.getElementById('filterModuloClases').value = '';
+                    document.getElementById('filterBuscarClases').value = '';
+                    loadClasesList();
+                }
+
+                // Función para asignar módulo 3 a clases sin módulo
+                async function asignarModuloClasesSinModulo() {
+                    try {
+                        const snapshot = await window.db.collection('classes').where('modulo', '==', null).get();
+                        const batch = window.db.batch();
+                        
+                        snapshot.forEach(doc => {
+                            const claseRef = window.db.collection('classes').doc(doc.id);
+                            batch.update(claseRef, { modulo: 'Módulo 3: Pastelería' });
+                        });
+                        
+                        await batch.commit();
+                        alert(`Se asignó módulo 3 a ${snapshot.size} clases sin módulo`);
+                        loadClasesList();
+                    } catch (error) {
+                        console.error('Error asignando módulos:', error);
+                        alert('Error al asignar módulos');
+                    }
+                }
+
+                // Función para migrar clases de colección antigua
+                async function migrarClasesDeColeccionVieja() {
+                    try {
+                        // Esta función migraría datos de una colección antigua si existiera
+                        alert('Función de migración - verificar si hay datos antiguos que migrar');
+                        loadClasesList();
+                    } catch (error) {
+                        console.error('Error en migración:', error);
+                        alert('Error en migración');
+                    }
+                }
+
+                // Función para ver clases en ambas colecciones
+                async function verClasesEnAmbosColecciones() {
+                    try {
+                        const clasesSnapshot = await window.db.collection('classes').get();
+                        console.log('Clases en colección classes:', clasesSnapshot.size);
+                        
+                        // Mostrar información en consola para debugging
+                        clasesSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            console.log(`${doc.id}: ${data.titulo} - ${data.programa} - ${data.modulo || 'Sin módulo'}`);
+                        });
+                        
+                        alert(`Total de clases: ${clasesSnapshot.size}\nRevisa la consola para más detalles`);
+                    } catch (error) {
+                        console.error('Error verificando colecciones:', error);
+                        alert('Error al verificar colecciones');
+                    }
+                }
+
+                // Funciones básicas para evitar errores (placeholders)
+                function initializeClaseEditor() {
+                    alert('Editor de clases no implementado aún');
+                }
+
+                function cancelClaseEdit() {
+                    // Reset form
+                    document.getElementById('claseForm').reset();
+                    document.getElementById('cancelEditBtn').style.display = 'none';
+                }
+
+                function insertarImagenEnClaseIA() {
+                    alert('Función de insertar imagen no implementada');
+                }
+
+                function insertarVideoEnClaseIA() {
+                    alert('Función de insertar video no implementada');
+                }
+
+                function insertarEnlaceEnClaseIA() {
+                    alert('Función de insertar enlace no implementada');
+                }
+
+                function regenerarClaseIA() {
+                    alert('Función de regenerar clase IA no implementada');
+                }
+
+                function guardarClaseGenerada() {
+                    alert('Función de guardar clase generada no implementada');
+                }
+
+                // Cargar datos iniciales cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Pequeño delay para asegurar que Firebase esté inicializado
+                    setTimeout(() => {
+                        loadClasesList();
+                    }, 100);
+                });
+
+                // También exponer la función globalmente para que admin.html pueda llamarla
+                window.loadClasesList = loadClasesList;
+            </script>
+        </div>

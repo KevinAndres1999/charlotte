@@ -119,3 +119,196 @@
                     <div id="actividadesList" class="grid"></div>
                 </div>
             </div>
+
+            <script>
+                // Función para crear actividad
+                async function crearActividad() {
+                    try {
+                        const titulo = document.getElementById('actividadTitulo').value;
+                        const descripcion = document.getElementById('actividadDesc').value;
+                        const programa = document.getElementById('actividadPrograma').value;
+                        const modulo = document.getElementById('actividadModulo').value;
+                        const tipo = document.getElementById('actividadTipo').value;
+                        const dificultad = document.getElementById('actividadDificultad').value;
+                        const tiempoEstimado = document.getElementById('actividadTiempo').value;
+                        const url = document.getElementById('actividadUrl').value;
+                        
+                        // Obtener horarios seleccionados
+                        const horariosCheckboxes = document.querySelectorAll('input[name="actividadHorarios"]:checked');
+                        const horarios = Array.from(horariosCheckboxes).map(cb => cb.value);
+                        
+                        if (!titulo || !programa || !descripcion) {
+                            alert('Por favor completa los campos obligatorios');
+                            return;
+                        }
+                        
+                        const actividadData = {
+                            titulo,
+                            descripcion,
+                            programa,
+                            modulo,
+                            tipo,
+                            dificultad,
+                            tiempoEstimado: parseInt(tiempoEstimado),
+                            url,
+                            horarios,
+                            createdAt: new Date(),
+                            active: true
+                        };
+                        
+                        await window.db.collection('actividades').add(actividadData);
+                        
+                        alert('Actividad creada exitosamente');
+                        document.getElementById('actividadForm').reset();
+                        loadActividadesList();
+                        
+                    } catch (error) {
+                        console.error('Error creating activity:', error);
+                        alert('Error al crear actividad');
+                    }
+                }
+
+                // Función para cargar lista de actividades
+                async function loadActividadesList() {
+                    try {
+                        console.log('Loading activities list...');
+                        const snapshot = await window.db.collection('actividades').orderBy('createdAt', 'desc').get();
+                        
+                        const container = document.getElementById('actividadesList');
+                        
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-tasks fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay actividades creadas</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const actividad = doc.data();
+                            const dificultadColor = {
+                                'Principiante': '#dcfce7',
+                                'Intermedio': '#fef3c7', 
+                                'Avanzado': '#fee2e2'
+                            };
+                            const dificultadTextColor = {
+                                'Principiante': '#065f46',
+                                'Intermedio': '#92400e',
+                                'Avanzado': '#991b1b'
+                            };
+                            
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                                <h4 style="margin: 0; color: #1f2937;">${actividad.titulo}</h4>
+                                                <span style="background: ${dificultadColor[actividad.dificultad] || '#e5e7eb'}; color: ${dificultadTextColor[actividad.dificultad] || '#374151'}; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">
+                                                    ${actividad.dificultad || 'Sin nivel'}
+                                                </span>
+                                            </div>
+                                            <p style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem;">${actividad.descripcion}</p>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${actividad.programa}</span>
+                                                ${actividad.modulo ? `<span style="background: #f3e8ff; color: #6b21a8; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${actividad.modulo}</span>` : ''}
+                                                <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${actividad.tipo}</span>
+                                                <span style="background: #f0fdf4; color: #166534; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${actividad.tiempoEstimado} min</span>
+                                            </div>
+                                            ${actividad.horarios ? `<div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">${actividad.horarios.map(h => `<span style="background: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">${h}</span>`).join('')}</div>` : ''}
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button onclick="editActividad('${doc.id}')" style="padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteActividad('${doc.id}')" style="padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    ${actividad.url ? `
+                                        <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <h5 style="margin: 0 0 0.5rem 0; color: #1f2937; font-size: 0.9rem;">Recursos adicionales:</h5>
+                                            <p style="margin: 0; color: #374151; font-family: monospace; font-size: 0.9rem; word-break: break-all;">${actividad.url}</p>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading activities:', error);
+                        document.getElementById('actividadesList').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar actividades</p></div>';
+                    }
+                }
+
+                // Función para editar actividad
+                async function editActividad(actividadId) {
+                    alert('Función de edición próximamente disponible');
+                }
+
+                // Función para eliminar actividad
+                async function deleteActividad(actividadId) {
+                    if (confirm('¿Estás seguro de que quieres eliminar esta actividad?')) {
+                        try {
+                            await window.db.collection('actividades').doc(actividadId).delete();
+                            alert('Actividad eliminada exitosamente');
+                            loadActividadesList();
+                        } catch (error) {
+                            console.error('Error deleting activity:', error);
+                            alert('Error al eliminar actividad');
+                        }
+                    }
+                }
+
+                // Función para poblar select de módulos basado en programa
+                function populateModuloSelect(moduloSelectId, programaSelectId) {
+                    const programaSelect = document.getElementById(programaSelectId);
+                    const moduloSelect = document.getElementById(moduloSelectId);
+                    
+                    if (!programaSelect || !moduloSelect) return;
+                    
+                    const programa = programaSelect.value;
+                    moduloSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+                    
+                    const modulos = {
+                        'Belleza Integral': [
+                            'Módulo 1: Diseño de Mirada',
+                            'Módulo 2: Maquillaje',
+                            'Módulo 3: Estilismo',
+                            'Módulo 4: Nails Designer'
+                        ],
+                        'Panadería y Pastelería': [
+                            'Módulo 1: Panadería',
+                            'Módulo 2: Galletaría',
+                            'Módulo 3: Pastelería',
+                            'Módulo 4: Repostería'
+                        ],
+                        'Asesoría Técnica': [
+                            'Módulo 1: Fundamentos',
+                            'Módulo 2: Estrategias',
+                            'Módulo 3: Gestión',
+                            'Módulo 4: Especialización'
+                        ]
+                    };
+                    
+                    if (modulos[programa]) {
+                        modulos[programa].forEach(modulo => {
+                            const option = document.createElement('option');
+                            option.value = modulo;
+                            option.textContent = modulo;
+                            moduloSelect.appendChild(option);
+                        });
+                    }
+                }
+
+                // Cargar datos iniciales cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Pequeño delay para asegurar que Firebase esté inicializado
+                    setTimeout(() => {
+                        loadActividadesList();
+                    }, 100);
+                });
+
+                // También exponer la función globalmente para que admin.html pueda llamarla
+                window.loadActividadesList = loadActividadesList;
+            </script>
+        </div>

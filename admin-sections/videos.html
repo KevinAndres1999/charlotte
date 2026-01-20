@@ -83,3 +83,170 @@
                     <div id="videosList" class="grid"></div>
                 </div>
             </div>
+
+            <script>
+                // Función para subir video
+                async function submitVideo() {
+                    try {
+                        const title = document.getElementById('videoTitle').value;
+                        const description = document.getElementById('videoDesc').value;
+                        const programa = document.getElementById('videoPrograma').value;
+                        const modulo = document.getElementById('videoModulo').value;
+                        const url = document.getElementById('videoUrl').value;
+                        
+                        // Obtener horarios seleccionados
+                        const horariosCheckboxes = document.querySelectorAll('input[name="videoHorarios"]:checked');
+                        const horarios = Array.from(horariosCheckboxes).map(cb => cb.value);
+                        
+                        if (!title || !programa || !url) {
+                            alert('Por favor completa todos los campos obligatorios');
+                            return;
+                        }
+                        
+                        const videoData = {
+                            title,
+                            description,
+                            programa,
+                            modulo,
+                            url,
+                            horarios,
+                            createdAt: new Date(),
+                            active: true
+                        };
+                        
+                        await window.db.collection('videos').add(videoData);
+                        
+                        alert('Video subido exitosamente');
+                        document.getElementById('videoForm').reset();
+                        loadVideosList();
+                        
+                    } catch (error) {
+                        console.error('Error uploading video:', error);
+                        alert('Error al subir video');
+                    }
+                }
+
+                // Función para cargar lista de videos
+                async function loadVideosList() {
+                    try {
+                        console.log('Loading videos list...');
+                        const snapshot = await window.db.collection('videos').orderBy('createdAt', 'desc').get();
+                        
+                        const container = document.getElementById('videosList');
+                        
+                        if (snapshot.empty) {
+                            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #6b7280;"><i class="fas fa-video fa-3x" style="margin-bottom: 1rem; opacity: 0.5;"></i><p>No hay videos subidos</p></div>';
+                            return;
+                        }
+                        
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const video = doc.data();
+                            html += `
+                                <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                        <div style="flex: 1;">
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #1f2937;">${video.title}</h4>
+                                            <p style="margin: 0 0 0.5rem 0; color: #6b7280; font-size: 0.9rem;">${video.description || 'Sin descripción'}</p>
+                                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                                <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${video.programa}</span>
+                                                ${video.modulo ? `<span style="background: #f3e8ff; color: #6b21a8; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${video.modulo}</span>` : ''}
+                                                ${video.horarios ? video.horarios.map(h => `<span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${h}</span>`).join('') : ''}
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button onclick="editVideo('${doc.id}')" style="padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button onclick="deleteVideo('${doc.id}')" style="padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                        <p style="margin: 0; color: #374151; font-family: monospace; font-size: 0.9rem; word-break: break-all;">${video.url}</p>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        container.innerHTML = html;
+                    } catch (error) {
+                        console.error('Error loading videos:', error);
+                        document.getElementById('videosList').innerHTML = '<div style="text-align: center; padding: 3rem; color: #ef4444;"><i class="fas fa-exclamation-triangle fa-3x"></i><p>Error al cargar videos</p></div>';
+                    }
+                }
+
+                // Función para editar video
+                async function editVideo(videoId) {
+                    // Implementar edición de video
+                    alert('Función de edición próximamente disponible');
+                }
+
+                // Función para eliminar video
+                async function deleteVideo(videoId) {
+                    if (confirm('¿Estás seguro de que quieres eliminar este video?')) {
+                        try {
+                            await window.db.collection('videos').doc(videoId).delete();
+                            alert('Video eliminado exitosamente');
+                            loadVideosList();
+                        } catch (error) {
+                            console.error('Error deleting video:', error);
+                            alert('Error al eliminar video');
+                        }
+                    }
+                }
+
+                // Función para poblar select de módulos basado en programa
+                function populateModuloSelect(moduloSelectId, programaSelectId) {
+                    const programaSelect = document.getElementById(programaSelectId);
+                    const moduloSelect = document.getElementById(moduloSelectId);
+                    
+                    if (!programaSelect || !moduloSelect) return;
+                    
+                    const programa = programaSelect.value;
+                    moduloSelect.innerHTML = '<option value="">Seleccionar módulo</option>';
+                    
+                    const modulos = {
+                        'Belleza Integral': [
+                            'Módulo 1: Diseño de Mirada',
+                            'Módulo 2: Maquillaje',
+                            'Módulo 3: Estilismo',
+                            'Módulo 4: Nails Designer'
+                        ],
+                        'Panadería y Pastelería': [
+                            'Módulo 1: Panadería',
+                            'Módulo 2: Galletaría',
+                            'Módulo 3: Pastelería',
+                            'Módulo 4: Repostería'
+                        ],
+                        'Asesoría Técnica': [
+                            'Módulo 1: Fundamentos',
+                            'Módulo 2: Estrategias',
+                            'Módulo 3: Gestión',
+                            'Módulo 4: Especialización'
+                        ]
+                    };
+                    
+                    if (modulos[programa]) {
+                        modulos[programa].forEach(modulo => {
+                            const option = document.createElement('option');
+                            option.value = modulo;
+                            option.textContent = modulo;
+                            moduloSelect.appendChild(option);
+                        });
+                    }
+                }
+
+                // Cargar datos iniciales cuando se carga la sección
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Pequeño delay para asegurar que Firebase esté inicializado
+                    setTimeout(() => {
+                        loadVideosList();
+                    }, 100);
+                });
+
+                // También exponer la función globalmente para que admin.html pueda llamarla
+                window.loadVideosList = loadVideosList;
+            </script>
+        </div>
