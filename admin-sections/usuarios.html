@@ -162,8 +162,8 @@
                     try {
                         console.log('Loading pending users...');
 
-                        // Buscar usuarios con active == false (pendientes)
-                        const snapshot = await window.db.collection('users').where('active', '==', false).get();
+                        // Buscar usuarios con status != 'active' (pendientes)
+                        const snapshot = await window.db.collection('users').where('status', '!=', 'active').get();
 
                         console.log('Found pending users:', snapshot.size);
 
@@ -182,7 +182,7 @@
                         let html = '';
                         snapshot.forEach(doc => {
                             const user = doc.data();
-                            console.log('Pending user:', user.name, user.active);
+                            console.log('Pending user:', user.name, user.status);
                             html += `
                                 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
                                     <div style="display: flex; justify-content: space-between; align-items: start;">
@@ -221,8 +221,8 @@
                     try {
                         console.log('Loading approved users...');
 
-                        // Buscar usuarios con active == true (aprobados)
-                        const snapshot = await window.db.collection('users').where('active', '==', true).get();
+                        // Buscar usuarios con status == 'active' (aprobados)
+                        const snapshot = await window.db.collection('users').where('status', '==', 'active').get();
 
                         console.log('Found approved users:', snapshot.size);
 
@@ -241,7 +241,7 @@
                         let html = '';
                         snapshot.forEach(doc => {
                             const user = doc.data();
-                            console.log('Approved user:', user.name, user.active);
+                            console.log('Approved user:', user.name, user.status);
                             html += `
                                 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
                                     <div style="display: flex; justify-content: space-between; align-items: start;">
@@ -256,7 +256,7 @@
                                             </div>
                                         </div>
                                         <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                            <button onclick="toggleUserStatus('${doc.id}', ${user.active})" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                            <button onclick="toggleUserStatus('${doc.id}', '${user.status}')" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
                                                 <i class="fas fa-exchange-alt"></i> Cambiar Status
                                             </button>
                                             <button onclick="editarUsuario('${doc.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
@@ -278,15 +278,20 @@
                 // Función para cambiar manualmente el status de un usuario (para testing)
                 async function toggleUserStatus(userId, currentStatus) {
                     try {
-                        const newStatus = !currentStatus;
-                        await window.db.collection('users').doc(userId).update({
-                            active: newStatus,
+                        const newStatus = currentStatus === 'active' ? 'pending' : 'active';
+                        const updateData = {
+                            status: newStatus,
                             updatedAt: new Date(),
                             statusChangedBy: 'manual_toggle'
-                        });
+                        };
+                        if (newStatus === 'active') {
+                            updateData.approvedAt = new Date();
+                            updateData.approvedBy = 'admin';
+                        }
+                        await window.db.collection('users').doc(userId).update(updateData);
 
                         console.log(`User ${userId} status changed from ${currentStatus} to ${newStatus}`);
-                        alert(`Usuario ${newStatus ? 'aprobado' : 'marcado como pendiente'} exitosamente`);
+                        alert(`Usuario ${newStatus === 'active' ? 'aprobado' : 'marcado como pendiente'} exitosamente`);
 
                         // Recargar ambas listas
                         await loadUsuariosPendientes();
@@ -307,12 +312,12 @@
                         console.log('Total users in collection:', allUsersSnapshot.size);
 
                         // Obtener usuarios pendientes
-                        const pendingSnapshot = await window.db.collection('users').where('active', '==', false).get();
-                        console.log('Users with active=false:', pendingSnapshot.size);
+                        const pendingSnapshot = await window.db.collection('users').where('status', '!=', 'active').get();
+                        console.log('Users with status!=active:', pendingSnapshot.size);
 
                         // Obtener usuarios aprobados
-                        const approvedSnapshot = await window.db.collection('users').where('active', '==', true).get();
-                        console.log('Users with active=true:', approvedSnapshot.size);
+                        const approvedSnapshot = await window.db.collection('users').where('status', '==', 'active').get();
+                        console.log('Users with status=active:', approvedSnapshot.size);
 
                         // Mostrar detalles de todos los usuarios
                         console.log('=== ALL USERS DETAILS ===');
@@ -321,10 +326,11 @@
                             console.log(`User ${doc.id}:`, {
                                 name: user.name,
                                 email: user.email,
-                                active: user.active,
+                                status: user.status,
                                 programa: user.programa,
                                 sede: user.sede,
-                                horario: user.horario
+                                horario: user.horario,
+                                approvedBy: user.approvedBy
                             });
                         });
 
@@ -359,8 +365,8 @@
                         let html = '<h3 style="color: #ef4444; margin-bottom: 1rem;">🔍 MODO DEBUG: Mostrando TODOS los usuarios</h3>';
                         snapshot.forEach(doc => {
                             const user = doc.data();
-                            const statusColor = user.active === true ? '#10b981' : user.active === false ? '#f59e0b' : '#6b7280';
-                            const statusText = user.active === true ? 'APROBADO' : user.active === false ? 'PENDIENTE' : 'SIN STATUS';
+                            const statusColor = user.status === 'active' ? '#10b981' : user.status === 'pending' ? '#f59e0b' : '#6b7280';
+                            const statusText = user.status === 'active' ? 'APROBADO' : user.status === 'pending' ? 'PENDIENTE' : 'SIN STATUS';
 
                             html += `
                                 <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid ${statusColor};">
@@ -373,7 +379,8 @@
                                                 </span>
                                             </div>
                                             <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><i class="fas fa-envelope"></i> ${user.email}</p>
-                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Active value:</strong> ${user.active} (type: ${typeof user.active})</p>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Status value:</strong> ${user.status} (type: ${typeof user.status})</p>
+                                            <p style="margin: 0 0 0.25rem 0; color: #6b7280;"><strong>Aprobado por:</strong> ${user.approvedBy || 'No aprobado'}</p>
                                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
                                                 <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.programa || 'Programa no especificado'}</span>
                                                 <span style="background: #e0e7ff; color: #3730a3; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">${user.sede || 'Sede no especificada'}</span>
@@ -395,10 +402,14 @@
                 async function rechazarUsuario(userId) {
                     if (confirm('¿Estás seguro de que quieres rechazar esta solicitud?')) {
                         try {
-                            await window.db.collection('users').doc(userId).delete();
+                            await window.db.collection('users').doc(userId).update({
+                                status: 'rejected',
+                                rejectedAt: new Date(),
+                                rejectedBy: 'admin'
+                            });
                             
                             alert('Solicitud rechazada');
-                            loadUsuariosPendientes();
+                            await loadUsuariosPendientes();
                         } catch (error) {
                             console.error('Error rejecting user:', error);
                             alert('Error al rechazar solicitud');
@@ -416,7 +427,7 @@
                 async function aprobarUsuario(userId) {
                     try {
                         await window.db.collection('users').doc(userId).update({
-                            active: true,
+                            status: 'active',
                             approvedAt: new Date(),
                             approvedBy: 'admin'
                         });
@@ -435,12 +446,12 @@
                     if (confirm('¿Estás seguro de que quieres desactivar este usuario?')) {
                         try {
                             await window.db.collection('users').doc(userId).update({
-                                active: false,
+                                status: 'inactive',
                                 deactivatedAt: new Date()
                             });
                             
                             alert('Usuario desactivado');
-                            loadUsuariosAprobados();
+                            await loadUsuariosAprobados();
                         } catch (error) {
                             console.error('Error deactivating user:', error);
                             alert('Error al desactivar usuario');
