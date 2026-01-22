@@ -112,6 +112,90 @@
         .form-group textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
         .form-group input::placeholder, .form-group textarea::placeholder { color: #a0aec0; font-style: italic; }
 
+        /* Estilos mejorados para filtros de entregas */
+        .filtro-entregas-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .filtro-entregas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .filtro-entregas-group {
+            position: relative;
+        }
+
+        .filtro-entregas-group label {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+            display: block;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .filtro-entregas-group label i {
+            margin-right: 0.5rem;
+            width: 16px;
+        }
+
+        .filtro-entregas-group select,
+        .filtro-entregas-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-family: inherit;
+        }
+
+        .filtro-entregas-group select:focus,
+        .filtro-entregas-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .filtro-entregas-group input::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        /* Responsive para filtros */
+        @media (max-width: 768px) {
+            .filtro-entregas-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .filtro-entregas-container {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .filtro-entregas-group label {
+                font-size: 0.85rem;
+            }
+
+            .filtro-entregas-group select,
+            .filtro-entregas-group input {
+                padding: 0.75rem 0.875rem;
+                font-size: 0.85rem;
+            }
+        }
+
         /* Estilos premium para la sección de cuestionarios */
         .quiz-builder-section {
             background: white;
@@ -1023,6 +1107,14 @@
         }
 
         .clase-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #64748b;
+            flex-wrap: wrap;
+        }
+
+        .meta-info {
             display: flex;
             gap: 1rem;
             font-size: 0.875rem;
@@ -4473,59 +4565,59 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             </div>
                         </div>
 
-                        <!-- Filtros -->
-                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-graduation-cap"></i> Programa
+                        <!-- Filtros Mejorados -->
+                        <div class="filtro-entregas-container">
+                            <div class="filtro-entregas-grid">
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-graduation-cap" style="color: #667eea;"></i> Programa
                                     </label>
-                                    <select id="filtroProgResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <select id="filtroProgResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#667eea'; this.style.boxShadow='0 0 0 3px rgba(102, 126, 234, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                         <option value="">Todos los programas</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-map-marker-alt"></i> Sede
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-map-marker-alt" style="color: #10b981;"></i> Sede
                                     </label>
-                                    <select id="filtroSedeResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <select id="filtroSedeResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16, 185, 129, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                         <option value="">Todas las sedes</option>
                                         <option value="Carapungo">Carapungo</option>
                                         <option value="Sangolquí">Sangolquí</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-clock"></i> Horario
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-clock" style="color: #f59e0b;"></i> Horario
                                     </label>
-                                    <select id="filtroHorarioResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <select id="filtroHorarioResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#f59e0b'; this.style.boxShadow='0 0 0 3px rgba(245, 158, 11, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                         <option value="">Todos los horarios</option>
                                         <option value="Sábado Matutina">Sábado Matutina</option>
                                         <option value="Sábado Vespertina">Sábado Vespertina</option>
                                         <option value="Domingo Matutina">Domingo Matutina</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-tasks"></i> Actividad
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-tasks" style="color: #8b5cf6;"></i> Actividad
                                     </label>
-                                    <select id="filtroActividadResultados" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <select id="filtroActividadResultados" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#8b5cf6'; this.style.boxShadow='0 0 0 3px rgba(139, 92, 246, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                         <option value="">Todas las actividades</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-search"></i> Buscar estudiante
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-search" style="color: #ef4444;"></i> Buscar estudiante
                                     </label>
-                                    <input type="text" id="buscarEstudianteResultadosActiv" placeholder="Nombre o email..." onkeyup="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <input type="text" id="buscarEstudianteResultadosActiv" placeholder="Nombre o email..." onkeyup="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#ef4444'; this.style.boxShadow='0 0 0 3px rgba(239, 68, 68, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                 </div>
-                                <div class="form-group">
-                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
-                                        <i class="fas fa-sort"></i> Ordenar por
+                                <div class="filtro-entregas-group">
+                                    <label>
+                                        <i class="fas fa-sort" style="color: #06b6d4;"></i> Ordenar por
                                     </label>
-                                    <select id="ordenResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    <select id="ordenResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; background: white; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);" onfocus="this.style.borderColor='#06b6d4'; this.style.boxShadow='0 0 0 3px rgba(6, 182, 212, 0.1)'" onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 1px 3px rgba(0, 0, 0, 0.1)'">
                                         <option value="fecha-desc">Más recientes primero</option>
                                         <option value="fecha-asc">Más antiguos primero</option>
                                         <option value="calificacion-desc">Mayor calificación</option>
@@ -4537,11 +4629,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             </div>
                         </div>
 
-                        <!-- Lista de resultados -->
-                        <div id="resultadosActividadesList" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 100%;">
-                            <div style="text-align: center; padding: 3rem; color: #64748b;">
-                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
-                                <p style="margin-top: 1rem;">Cargando entregas...</p>
+                        <!-- Lista de resultados mejorada -->
+                        <div id="resultadosActividadesList" style="background: white; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); overflow: hidden;">
+                            <div style="text-align: center; padding: 4rem 2rem; color: #64748b;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 3rem; color: #e2e8f0;"></i>
+                                <p style="margin-top: 1.5rem; font-size: 1.1rem;">Cargando entregas...</p>
                             </div>
                         </div>
                     </div>
@@ -6749,13 +6841,20 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         function showSection(sectionId) {
             // Verificar si la sección existe
-            const sectionElement = document.getElementById(sectionId);
-            const navElement = document.querySelector(`[data-section="${sectionId}"]`);
-            
+            let sectionElement = document.getElementById(sectionId);
+            let navElement = document.querySelector(`[data-section="${sectionId}"]`);
+
             if (!sectionElement || !navElement) {
                 console.warn(`Sección '${sectionId}' no encontrada, mostrando dashboard por defecto`);
                 sectionId = 'dashboard';
-                sessionStorage.setItem('activeSection', sectionId);
+                sectionElement = document.getElementById(sectionId);
+                navElement = document.querySelector(`[data-section="${sectionId}"]`);
+
+                // Si ni siquiera existe el dashboard, hay un problema grave
+                if (!sectionElement || !navElement) {
+                    console.error('Error crítico: No se puede encontrar la sección dashboard');
+                    return;
+                }
             }
 
             // Guardar la sección activa en sessionStorage
@@ -6766,8 +6865,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            sectionElement.classList.add('active');
+            navElement.classList.add('active');
             if (sectionId === 'videos') try { loadVideosList(); } catch (e) { console.error('Error loading videos:', e); }
             else if (sectionId === 'clases') {
                 try {
@@ -13850,12 +13949,12 @@ REGLAS ESTRICTAS:
                         <div class="clase-info">
                             <h3 class="clase-title">${actividad.titulo || 'Actividad'}</h3>
                             <p class="clase-programa">${actividad.programa || 'Sin programa'}</p>
-                            <div class="clase-meta">
+                            <div class="meta-info">
                                 <span class="meta-item">
                                     <i class="fas fa-calendar"></i> ${new Date(actividad.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
                                 </span>
                             </div>
-                            <div class="clase-meta">
+                            <div class="meta-info">
                                 <span class="meta-item">
                                     <i class="fas fa-users"></i> Entregas pendientes
                                 </span>
@@ -13923,12 +14022,12 @@ REGLAS ESTRICTAS:
                         <div class="clase-info">
                             <h3 class="clase-title">${entrega.estudianteNombre || 'Estudiante'}</h3>
                             <p class="clase-programa">${actividad.programa || 'Sin programa'}</p>
-                            <div class="clase-meta">
+                            <div class="meta-info">
                                 <span class="meta-item">
                                     <i class="fas fa-calendar"></i> ${new Date(entrega.fechaEntrega || Date.now()).toLocaleDateString('es-ES')}
                                 </span>
                             </div>
-                            <div class="clase-meta">
+                            <div class="meta-info">
                                 <span class="meta-item" style="color: ${entrega.calificacion ? '#10b981' : '#f59e0b'};">
                                     <i class="fas fa-${entrega.calificacion ? 'check-circle' : 'clock'}"></i> ${entrega.calificacion ? 'Calificada' : 'Pendiente'}
                                 </span>
@@ -19104,57 +19203,168 @@ REGLAS ESTRICTAS:
                     return;
                 }
 
-                // Renderizar tabla
+                // Renderizar vista responsive
                 container.innerHTML = `
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
-                            <tr>
-                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
-                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Actividad</th>
-                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
-                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Calificación</th>
-                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Fecha</th>
-                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <!-- Vista Desktop (Tabla) -->
+                    <div class="entregas-desktop-view" style="display: block;">
+                        <div style="padding: 1.5rem; border-bottom: 2px solid #f1f5f9; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fas fa-list" style="color: #667eea;"></i>
+                                Lista de Entregas (${filtradas.length})
+                            </h4>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                    <tr>
+                                        <th style="padding: 1.25rem 1rem; text-align: left; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Estudiante</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: left; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Actividad</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: center; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Programa</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: center; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Calificación</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: center; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Estado</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: center; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Fecha</th>
+                                        <th style="padding: 1.25rem 1rem; text-align: center; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filtradas.map((e, index) => {
+                                        const calificacion = e.calificacion !== undefined && e.calificacion !== null ? e.calificacion : null;
+                                        const calificacionColor = calificacion >= 80 ? '#10b981' : calificacion >= 60 ? '#f59e0b' : '#ef4444';
+                                        const estado = calificacion !== null ? 'Calificada' : 'Pendiente';
+                                        const estadoColor = calificacion !== null ? '#10b981' : '#f59e0b';
+                                        const estadoIcon = calificacion !== null ? 'fas fa-check-circle' : 'fas fa-clock';
+                                        
+                                        return `
+                                            <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='${index % 2 === 0 ? '#f1f5f9' : '#f0f4f8'}'" onmouseout="this.style.background='${index % 2 === 0 ? '#ffffff' : '#f8fafc'}'" onclick="loadEntregaDetail('${e.id}')">
+                                                <td style="padding: 1.25rem 1rem;">
+                                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem;">
+                                                            ${e.estudianteNombre.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">${e.estudianteNombre}</div>
+                                                            <div style="font-size: 0.8rem; color: #64748b;">${e.estudianteId}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem;">
+                                                    <div style="font-weight: 600; color: #374151; margin-bottom: 0.25rem;">${e.actividad.titulo || 'Sin título'}</div>
+                                                    <div style="font-size: 0.8rem; color: #64748b;">
+                                                        <i class="fas fa-map-marker-alt" style="margin-right: 0.25rem;"></i>${e.actividad.sede || 'Sin sede'} • 
+                                                        <i class="fas fa-clock" style="margin-left: 0.5rem; margin-right: 0.25rem;"></i>${e.actividad.horario || 'Sin horario'}
+                                                    </div>
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem; text-align: center;">
+                                                    <span style="background: linear-gradient(135deg, #e0f2fe, #b3e5fc); color: #0277bd; padding: 0.375rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${e.actividad.programa || 'Sin programa'}</span>
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem; text-align: center;">
+                                                    ${calificacion !== null ? 
+                                                        `<span style="color: ${calificacionColor}; font-weight: 800; font-size: 1.1rem; background: ${calificacionColor}20; padding: 0.25rem 0.5rem; border-radius: 6px;">${calificacion}%</span>` : 
+                                                        `<span style="color: #64748b; font-style: italic;">Sin calificar</span>`
+                                                    }
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem; text-align: center;">
+                                                    <span style="background: ${estadoColor}20; color: ${estadoColor}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                                        <i class="${estadoIcon}"></i>${estado}
+                                                    </span>
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem; text-align: center;">
+                                                    <div style="color: #374151; font-weight: 600; font-size: 0.9rem;">${new Date(e.fechaEntrega).toLocaleDateString('es-ES')}</div>
+                                                    <div style="font-size: 0.75rem; color: #64748b;">${new Date(e.fechaEntrega).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</div>
+                                                </td>
+                                                <td style="padding: 1.25rem 1rem; text-align: center;">
+                                                    <button onclick="event.stopPropagation(); loadEntregaDetail('${e.id}')" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 0.625rem 1.25rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(102, 126, 234, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(102, 126, 234, 0.2)'">
+                                                        <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>Ver Detalle
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Vista Móvil (Cards) -->
+                    <div class="entregas-mobile-view" style="display: none;">
+                        <div style="padding: 1.5rem; border-bottom: 2px solid #f1f5f9; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
+                            <h4 style="margin: 0; color: #1e293b; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem;">
+                                <i class="fas fa-mobile-alt" style="color: #10b981;"></i>
+                                Entregas (${filtradas.length})
+                            </h4>
+                        </div>
+                        <div style="padding: 1rem;">
                             ${filtradas.map((e, index) => {
-                                const calificacion = e.calificacion !== undefined && e.calificacion !== null ? e.calificacion : '-';
+                                const calificacion = e.calificacion !== undefined && e.calificacion !== null ? e.calificacion : null;
                                 const calificacionColor = calificacion >= 80 ? '#10b981' : calificacion >= 60 ? '#f59e0b' : '#ef4444';
+                                const estado = calificacion !== null ? 'Calificada' : 'Pendiente';
+                                const estadoColor = calificacion !== null ? '#10b981' : '#f59e0b';
+                                const estadoIcon = calificacion !== null ? 'fas fa-check-circle' : 'fas fa-clock';
                                 
                                 return `
-                                    <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0;">
-                                        <td style="padding: 1rem; text-align: left;">
-                                            <div style="font-weight: 600; color: #1e3a8a;">${e.estudianteNombre}</div>
-                                            <div style="font-size: 0.85rem; color: #64748b;">${e.estudianteId}</div>
-                                        </td>
-                                        <td style="padding: 1rem; text-align: left;">
-                                            <div style="font-weight: 600; color: #374151;">${e.actividad.titulo || 'Sin título'}</div>
-                                            <div style="font-size: 0.85rem; color: #64748b;">${e.actividad.sede || ''} - ${e.actividad.horario || ''}</div>
-                                        </td>
-                                        <td style="padding: 1rem; text-align: center;">
-                                            <span style="background: #e0f2fe; color: #0277bd; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">${e.actividad.programa || 'Sin programa'}</span>
-                                        </td>
-                                        <td style="padding: 1rem; text-align: center;">
-                                            <span style="color: ${calificacion === '-' ? '#64748b' : calificacionColor}; font-weight: bold; font-size: 1.1rem;">
-                                                ${calificacion}${calificacion !== '-' ? '%' : ''}
-                                            </span>
-                                        </td>
-                                        <td style="padding: 1rem; text-align: center;">
-                                            <div style="color: #374151;">${new Date(e.fechaEntrega).toLocaleDateString('es-ES')}</div>
-                                            <div style="font-size: 0.85rem; color: #64748b;">${new Date(e.fechaEntrega).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</div>
-                                        </td>
-                                        <td style="padding: 1rem; text-align: center;">
-                                            <button onclick="loadEntregaDetail('${e.id}')" style="background: #667eea; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
-                                                <i class="fas fa-eye"></i> Ver
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    <div style="background: white; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); overflow: hidden; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(0, 0, 0, 0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.08)'" onclick="loadEntregaDetail('${e.id}')">
+                                        <div style="padding: 1.25rem;">
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1rem;">
+                                                        ${e.estudianteNombre.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: 700; color: #1e293b; font-size: 1rem;">${e.estudianteNombre}</div>
+                                                        <div style="font-size: 0.8rem; color: #64748b;">${e.estudianteId}</div>
+                                                    </div>
+                                                </div>
+                                                <span style="background: ${estadoColor}20; color: ${estadoColor}; padding: 0.375rem 0.875rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.375rem;">
+                                                    <i class="${estadoIcon}"></i>${estado}
+                                                </span>
+                                            </div>
+                                            
+                                            <div style="margin-bottom: 1rem;">
+                                                <div style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.95rem;">${e.actividad.titulo || 'Sin título'}</div>
+                                                <div style="display: flex; align-items: center; gap: 1rem; font-size: 0.8rem; color: #64748b;">
+                                                    <span><i class="fas fa-map-marker-alt" style="margin-right: 0.25rem;"></i>${e.actividad.sede || 'Sin sede'}</span>
+                                                    <span><i class="fas fa-clock" style="margin-right: 0.25rem;"></i>${e.actividad.horario || 'Sin horario'}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                                                <span style="background: linear-gradient(135deg, #e0f2fe, #b3e5fc); color: #0277bd; padding: 0.375rem 0.875rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${e.actividad.programa || 'Sin programa'}</span>
+                                                ${calificacion !== null ? 
+                                                    `<span style="color: ${calificacionColor}; font-weight: 800; font-size: 1.2rem; background: ${calificacionColor}20; padding: 0.25rem 0.5rem; border-radius: 6px;">${calificacion}%</span>` : 
+                                                    `<span style="color: #64748b; font-style: italic; font-size: 0.9rem;">Sin calificar</span>`
+                                                }
+                                            </div>
+                                            
+                                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                                <div style="color: #64748b; font-size: 0.8rem;">
+                                                    <i class="fas fa-calendar" style="margin-right: 0.25rem;"></i>
+                                                    ${new Date(e.fechaEntrega).toLocaleDateString('es-ES')} ${new Date(e.fechaEntrega).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}
+                                                </div>
+                                                <button onclick="event.stopPropagation(); loadEntregaDetail('${e.id}')" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;">
+                                                    <i class="fas fa-eye" style="margin-right: 0.5rem;"></i>Ver
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 `;
                             }).join('')}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 `;
+
+                // Agregar CSS responsive
+                const style = document.createElement('style');
+                style.textContent = `
+                    @media (max-width: 768px) {
+                        .entregas-desktop-view { display: none !important; }
+                        .entregas-mobile-view { display: block !important; }
+                    }
+                    @media (min-width: 769px) {
+                        .entregas-desktop-view { display: block !important; }
+                        .entregas-mobile-view { display: none !important; }
+                    }
+                `;
+                container.appendChild(style);
 
             } catch (error) {
                 console.error('Error loading resultados actividades:', error);
