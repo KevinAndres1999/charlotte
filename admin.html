@@ -864,29 +864,6 @@
         .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
         .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
         .alert i { font-size: 20px; }
-        @media (max-width: 768px) {
-            .dashboard-container { flex-direction: column; }
-            .sidebar { position: fixed; left: -100%; top: 60px; width: 250px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); }
-            .sidebar.open { left: 0; }
-            .mobile-menu-toggle { display: block; }
-            .main-content { padding: 20px 16px; }
-            .page-header h2 { font-size: 24px; }
-            .upload-card { padding: 20px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .content-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .content-actions { width: 100%; justify-content: flex-end; }
-
-            /* Touch-friendly elements */
-            .btn, button, .nav-item { min-height: 44px; }
-            .nav-item { padding: 12px; font-size: 16px; }
-            .stat-card { padding: 16px; }
-            .upload-form input, .upload-form textarea, .upload-form select { font-size: 16px; }
-
-            /* Better spacing */
-            .admin-header .container { padding: 12px; }
-            .admin-header h1 { font-size: 18px; }
-            .sidebar-header { padding: 16px; }
-            .sidebar-header h3 { font-size: 16px; }
             
             /* Estadísticas avanzadas responsive */
             .advanced-stat { padding: 20px; }
@@ -3053,7 +3030,14 @@
 
         /* ===== MEDIA QUERIES RESPONSIVE PARA ADMIN ===== */
 
-        /* Tablets (768px) */
+        /* Tablets (1024px - 769px) - Layout horizontal mantenido */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .sidebar { width: 220px; }
+            .main-content { padding: 30px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Tablets pequeñas (768px - 481px) - Layout apilado */
         @media (max-width: 768px) {
             .dashboard-container { flex-direction: column; }
             .sidebar { width: 100%; min-height: auto; position: relative; }
@@ -3071,27 +3055,30 @@
             .nav-item { padding: 12px; }
         }
 
-        /* Móviles (480px) */
+        /* Móviles (480px y menos) - Menú hamburguesa */
         @media (max-width: 480px) {
-            .admin-header { padding: 15px 0; }
-            .admin-header h1 { font-size: 18px; }
-            .logout-btn { padding: 8px 16px; font-size: 14px; }
-            .main-content { padding: 0.5rem; }
-            .page-header { margin-bottom: 1rem; }
+            .dashboard-container { flex-direction: column; }
+            .sidebar { position: fixed; left: -100%; top: 60px; width: 280px; height: calc(100vh - 60px); z-index: 99; transition: left 0.3s ease; box-shadow: 2px 0 8px rgba(0,0,0,0.1); background: #fff; }
+            .sidebar.open { left: 0; }
+            .mobile-menu-toggle { display: block; }
+            .main-content { padding: 20px 16px; }
             .page-header h2 { font-size: 24px; }
+            .upload-card { padding: 20px; }
             .stats-grid { grid-template-columns: 1fr; }
-            .stat-card { padding: 1rem; text-align: center; }
-            .stat-value { font-size: 1.2rem; }
-            .upload-card { padding: 1rem; }
-            .form-group { margin-bottom: 1rem; }
-            .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
-            .btn { padding: 10px 16px; font-size: 16px; }
-            .modal-content { width: 98%; padding: 0.5rem; }
-            .sidebar { padding: 1rem 0; }
-            .nav-item { padding: 10px 15px; font-size: 14px; }
-            .quiz-builder-section { padding: 1rem; }
-            .questions-builder { padding: 1rem; }
-        }
+            .content-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .content-actions { width: 100%; justify-content: flex-end; }
+
+            /* Touch-friendly elements */
+            .btn, button, .nav-item { min-height: 44px; }
+            .nav-item { padding: 12px; font-size: 16px; }
+            .stat-card { padding: 16px; }
+            .upload-form input, .upload-form textarea, .upload-form select { font-size: 16px; }
+
+            /* Better spacing */
+            .admin-header .container { padding: 12px; }
+            .admin-header h1 { font-size: 18px; }
+            .sidebar-header { padding: 16px; }
+            .sidebar-header h3 { font-size: 16px; }
 
         /* ===== FIN MEDIA QUERIES ===== */
     </style>
