@@ -6654,10 +6654,23 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             // Restaurar la sección activa al recargar la página
             const savedSection = sessionStorage.getItem('activeSection');
             if (savedSection && savedSection !== 'dashboard') {
-                // Esperar un poco para que el DOM esté completamente listo
-                setTimeout(() => {
-                    showSection(savedSection);
-                }, 100);
+                // Mapear secciones renombradas
+                let mappedSection = savedSection;
+                if (savedSection === 'entregas-viewer') {
+                    mappedSection = 'actividades-manager';
+                }
+                
+                // Verificar si la sección mapeada existe
+                const sectionExists = document.getElementById(mappedSection) && document.querySelector(`[data-section="${mappedSection}"]`);
+                if (sectionExists) {
+                    // Esperar un poco para que el DOM esté completamente listo
+                    setTimeout(() => {
+                        showSection(mappedSection);
+                    }, 100);
+                } else {
+                    // Si la sección no existe, mostrar dashboard
+                    sessionStorage.setItem('activeSection', 'dashboard');
+                }
             } else if (!savedSection) {
                 // Si no hay sección guardada, establecer dashboard por defecto
                 sessionStorage.setItem('activeSection', 'dashboard');
@@ -6735,6 +6748,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         });
 
         function showSection(sectionId) {
+            // Verificar si la sección existe
+            const sectionElement = document.getElementById(sectionId);
+            const navElement = document.querySelector(`[data-section="${sectionId}"]`);
+            
+            if (!sectionElement || !navElement) {
+                console.warn(`Sección '${sectionId}' no encontrada, mostrando dashboard por defecto`);
+                sectionId = 'dashboard';
+                sessionStorage.setItem('activeSection', sectionId);
+            }
+
             // Guardar la sección activa en sessionStorage
             sessionStorage.setItem('activeSection', sectionId);
 
@@ -6754,7 +6777,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 } catch (e) { console.error('Error loading clases:', e); }
             }
             else if (sectionId === 'clase-viewer') try { loadClases(); } catch (e) { console.error('Error loading clase-viewer:', e); }
-            else if (sectionId === 'entregas-viewer') try { loadEntregas(); } catch (e) { console.error('Error loading entregas-viewer:', e); }
+            else if (sectionId === 'actividades-manager') try { loadActividadesManager(); } catch (e) { console.error('Error loading actividades-manager:', e); }
             else if (sectionId === 'respuestas-viewer') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas-viewer:', e); }
             else if (sectionId === 'actividades') {
                 try { 
