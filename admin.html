@@ -2958,6 +2958,50 @@
             justify-content: center;
             z-index: 1000;
         }
+
+        /* ===== MEDIA QUERIES RESPONSIVE PARA ADMIN ===== */
+
+        /* Tablets (768px) */
+        @media (max-width: 768px) {
+            .dashboard-container { flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; position: relative; }
+            .main-content { padding: 1rem; }
+            .admin-header .container { flex-wrap: wrap; gap: 10px; }
+            .admin-header h1 { font-size: 20px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .stat-card { padding: 1rem; }
+            .stat-value { font-size: 1.5rem; }
+            .upload-card { padding: 1rem; }
+            .form-group input, .form-group textarea, .form-group select { padding: 12px; }
+            .quiz-form-grid { grid-template-columns: 1fr; }
+            .modal-content { max-width: 95%; padding: 1rem; }
+            .nav-menu { display: flex; flex-wrap: wrap; }
+            .nav-item { padding: 12px; }
+        }
+
+        /* Móviles (480px) */
+        @media (max-width: 480px) {
+            .admin-header { padding: 15px 0; }
+            .admin-header h1 { font-size: 18px; }
+            .logout-btn { padding: 8px 16px; font-size: 14px; }
+            .main-content { padding: 0.5rem; }
+            .page-header { margin-bottom: 1rem; }
+            .page-header h2 { font-size: 24px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-card { padding: 1rem; text-align: center; }
+            .stat-value { font-size: 1.2rem; }
+            .upload-card { padding: 1rem; }
+            .form-group { margin-bottom: 1rem; }
+            .form-group input, .form-group textarea, .form-group select { font-size: 16px; }
+            .btn { padding: 10px 16px; font-size: 16px; }
+            .modal-content { width: 98%; padding: 0.5rem; }
+            .sidebar { padding: 1rem 0; }
+            .nav-item { padding: 10px 15px; font-size: 14px; }
+            .quiz-builder-section { padding: 1rem; }
+            .questions-builder { padding: 1rem; }
+        }
+
+        /* ===== FIN MEDIA QUERIES ===== */
     </style>
 
     <!-- PWA Manifest -->

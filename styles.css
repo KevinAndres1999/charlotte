@@ -1474,3 +1474,127 @@ img.lazy-loading.error {
 
 /* ===== FIN ESTILOS PARA LAZY LOADING ===== */
 
+/* ===== MEDIA QUERIES RESPONSIVE ===== */
+
+/* Tablets y móviles grandes (768px - 1024px) */
+@media (max-width: 1024px) {
+  .container { padding: 0 15px; }
+  .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+  .hero h1 { font-size: 36px; }
+  .hero-stats { gap: 30px; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .grid-responsive { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+}
+
+/* Tablets (768px) */
+@media (max-width: 768px) {
+  :root { --container: 100%; }
+  .container { padding: 0 12px; }
+  
+  /* Header */
+  .site-header .container { padding: 10px 12px; flex-wrap: wrap; }
+  .logo { font-size: 16px; }
+  .main-nav { gap: 8px; }
+  .main-nav a { padding: 6px 8px; font-size: 14px; }
+  .actions .btn { margin-left: 4px; padding: 8px 12px; }
+  
+  /* Hero */
+  .hero { padding: 40px 0; }
+  .hero h1 { font-size: 28px; line-height: 1.2; }
+  .hero-subtitle { font-size: 16px; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .hero-cta .btn { margin-bottom: 10px; }
+  .hero-stats { flex-direction: column; gap: 20px; align-items: center; }
+  .stat-item { min-width: auto; text-align: center; }
+  .stat-item strong { font-size: 28px; }
+  
+  /* Grid layouts */
+  .grid-3, .grid-responsive { grid-template-columns: 1fr; gap: 20px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .feature-card { padding: 20px; text-align: center; }
+  .programs-grid { grid-template-columns: 1fr; }
+  
+  /* Cards */
+  .course { padding: 16px; }
+  
+  /* Sections */
+  .section { padding: 24px 0; }
+  
+  /* Modals */
+  .modal-content { max-width: 95%; margin: 20px; padding: 16px; }
+  .modal-tabs { flex-wrap: wrap; }
+  
+  /* Tables */
+  .admin-table { font-size: 14px; }
+  .admin-table th, .admin-table td { padding: 6px; }
+  
+  /* Buttons */
+  .btn { padding: 8px 14px; font-size: 14px; }
+  .btn-large { padding: 12px 20px; font-size: 15px; }
+}
+
+/* Móviles pequeños (480px) */
+@media (max-width: 480px) {
+  .container { padding: 0 8px; }
+  
+  /* Header */
+  .site-header .container { padding: 8px; }
+  .logo { font-size: 14px; }
+  .main-nav { display: none; } /* Ocultar navegación en móvil, usar menú hamburguesa si existe */
+  .actions { flex: 1; justify-content: flex-end; }
+  
+  /* Hero */
+  .hero { padding: 30px 0; }
+  .hero h1 { font-size: 24px; }
+  .hero-subtitle { font-size: 14px; }
+  .badge-hero { padding: 6px 12px; font-size: 12px; }
+  .hero-cta { gap: 8px; }
+  .hero-stats { gap: 15px; }
+  .stat-item strong { font-size: 24px; }
+  .stat-item span { font-size: 12px; }
+  
+  /* Cards */
+  .course { padding: 12px; }
+  .course h4 { font-size: 16px; }
+  
+  /* Sections */
+  .section { padding: 20px 0; }
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 16px; }
+  
+  /* Modals */
+  .modal { padding: 16px; }
+  .modal-content { padding: 12px; }
+  .modal-close { right: 8px; top: 6px; }
+  
+  /* Forms */
+  input[type='text'], input[type='email'], input[type='password'], textarea { padding: 8px; font-size: 16px; }
+  label { font-size: 14px; }
+  
+  /* Buttons */
+  .btn { padding: 10px 16px; font-size: 16px; } /* Evitar zoom en iOS */
+  .btn-large { padding: 12px 24px; }
+  
+  /* Tables - hacer scroll horizontal */
+  .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
+  .admin-table th, .admin-table td { display: inline-block; width: 120px; text-align: left; }
+  
+  /* Grid responsive */
+  .grid-responsive { grid-template-columns: 1fr; }
+}
+
+/* Móviles muy pequeños (360px) */
+@media (max-width: 360px) {
+  .container { padding: 0 6px; }
+  .hero h1 { font-size: 20px; }
+  .hero-subtitle { font-size: 13px; }
+  .stat-item strong { font-size: 20px; }
+  .btn { padding: 8px 12px; font-size: 14px; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 14px; }
+}
+
+/* ===== FIN MEDIA QUERIES ===== */
+
