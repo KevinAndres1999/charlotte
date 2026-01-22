@@ -3190,7 +3190,7 @@
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluaciones-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Evaluaciones</span></div>
                 <div class="nav-item" data-section="evaluacion-practica"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
-                <div class="nav-item" data-section="entregas-viewer"><i class="fas fa-inbox"></i><span>Gestión de Actividades</span></div>
+                <div class="nav-item" data-section="actividades-manager"><i class="fas fa-clipboard-list"></i><span>Gestión Actividades</span></div>
 
                 <!-- Comunidad e Interacción -->
                 <div class="nav-item" data-section="foros"><i class="fas fa-comments"></i><span>Foros</span></div>
@@ -3245,7 +3245,7 @@
                             <div class="stat-card-icon orange"><i class="fas fa-folder-open"></i></div>
                         </div>
                     </div>
-                    <div class="stat-card" onclick="showSection('entregas-viewer')" style="cursor: pointer;">
+                    <div class="stat-card" onclick="showSection('actividades-manager')" style="cursor: pointer;">
                         <div class="stat-card-header">
                             <div>
                                 <h3 class="stat-value" id="stat-entregas">Cargando...</h3>
@@ -4094,45 +4094,148 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
             <!-- Gestión de Actividades -->
             <!-- Entregas Viewer -->
-            <div id="entregas-viewer" class="content-section">
-                <!-- Panel de Estadísticas -->
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                        <h3><i class="fas fa-inbox"></i> Gestión de Actividades</h3>
-                        <p style="color: white;">Revisa y califica las entregas de tus estudiantes</p>
+            <div id="actividades-manager" class="content-section">
+
+                <!-- Pestañas de navegación -->
+                <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                    <button type="button" onclick="switchActividadesTab('gestion')" id="tabGestionActiv" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-tasks"></i> Actividades
+                    </button>
+                    <button type="button" onclick="switchActividadesTab('resultados')" id="tabResultadosActiv" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                        <i class="fas fa-poll"></i> Entregas
+                    </button>
+                </div>
+
+                <!-- Panel de Gestión -->
+                <div id="panelGestionActividades">
+                <!-- Header con estadísticas integradas -->
+                <div class="quiz-builder-section" style="margin-bottom: 1.5rem;">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 1.5rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                                    <i class="fas fa-tasks"></i> Gestión de Actividades
+                                </h3>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Administra, edita y elimina actividades</p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="totalActividadesBadge">Cargando...</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Total</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.25rem; font-weight: bold;" id="actividadesActivasBadge">0</div>
+                                    <div style="font-size: 0.75rem; opacity: 0.9;">Activas</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Estadísticas -->
-                    <div class="stats-grid" style="margin-bottom: 32px;">
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="total-entregas">0</h3>
-                                    <p class="stat-label">Total Entregas</p>
-                                </div>
-                                <div class="stat-card-icon blue"><i class="fas fa-inbox"></i></div>
-                            </div>
+                    <!-- Filtros compactos -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterProgramaActividades" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Programa</label>
+                            <select id="filterProgramaActividades" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="Belleza Integral">Belleza Integral</option>
+                                <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                            </select>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="pendientes-entregas">0</h3>
-                                    <p class="stat-label">Pendientes</p>
-                                </div>
-                                <div class="stat-card-icon yellow"><i class="fas fa-clock"></i></div>
-                            </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterSedeActividades" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Sede</label>
+                            <select id="filterSedeActividades" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todas</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-card-header">
-                                <div>
-                                    <h3 class="stat-value" id="calificadas-entregas">0</h3>
-                                    <p class="stat-label">Calificadas</p>
-                                </div>
-                                <div class="stat-card-icon green"><i class="fas fa-check-circle"></i></div>
-                            </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterHorarioActividades" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Horario</label>
+                            <select id="filterHorarioActividades" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="filterEstadoActividades" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Estado</label>
+                            <select id="filterEstadoActividades" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                                <option value="">Todos</option>
+                                <option value="activo">Activos</option>
+                                <option value="inactivo">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label for="searchActividad" style="font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.25rem; display: block;">Buscar</label>
+                            <input type="text" id="searchActividad" placeholder="Título o descripción..." style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
+                        </div>
+                        <div class="form-group" style="margin: 0; display: flex; align-items: flex-end; gap: 0.5rem;">
+                            <button type="button" class="btn-secondary" onclick="aplicarFiltrosActividades()">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <button type="button" class="btn-secondary" onclick="limpiarFiltrosActividades()">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalActividades">Cargando...</h3>
+                                <p class="stat-label">Total Actividades</p>
+                            </div>
+                            <div class="stat-card-icon blue"><i class="fas fa-tasks"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="actividadesActivas">0</h3>
+                                <p class="stat-label">Activas</p>
+                            </div>
+                            <div class="stat-card-icon green"><i class="fas fa-play-circle"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="totalEntregasActiv">Cargando...</h3>
+                                <p class="stat-label">Estudiantes</p>
+                            </div>
+                            <div class="stat-card-icon purple"><i class="fas fa-users"></i></div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div>
+                                <h3 class="stat-value" id="promedioCalificacionesActiv">Cargando...</h3>
+                                <p class="stat-label">Promedio General</p>
+                            </div>
+                            <div class="stat-card-icon orange"><i class="fas fa-chart-line"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Actividades -->
+                <div class="quiz-builder-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0;">
+                        <h4 style="margin: 0; color: #374151; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-list"></i> Lista de Actividades
+                        </h4>
+                        <button type="button" class="btn-secondary" onclick="recargarActividades()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                    </div>
+                    <div id="actividadesManagerGrid" class="cuestionarios-grid">
+                        <!-- Las actividades se cargarán aquí -->
+                    </div>
+                </div>
+                </div><!-- Fin del panelGestionActividades -->
 
                 <!-- Grid de Actividades -->
                 <div id="actividadesGrid" class="quiz-builder-section" style="display: block;">
@@ -4338,12 +4441,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                                 <h4>Descargar Entrega</h4>
                                                 <p style="color: white;">Guardar como archivo</p>
                                             </div>
-                                            <div class="quick-link" onclick="contactarEstudiante()">
-                                                <div class="quick-link-icon">
-                                                    <i class="fas fa-envelope"></i>
-                                                </div>
-                                                <h4>Contactar Estudiante</h4>
-                                                <p style="color: white;">Enviar mensaje directo</p>
                                             </div>
                                         </div>
                                     </div>
@@ -4352,6 +4449,103 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         </div>
                     </div>
                 </div>
+                </div><!-- Fin del panelGestionActividades -->
+
+                <!-- Panel de Resultados -->
+                <div id="panelResultadosActividades" style="display: none;">
+                    <div class="quiz-builder-section">
+                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.8rem; color: white;"><i class="fas fa-poll"></i> Entregas de Actividades</h3>
+                                    <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada actividad y sus calificaciones</p>
+                                </div>
+                                <div style="display: flex; gap: 1rem;">
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="totalEntregasActividades">0</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Total Entregas</div>
+                                    </div>
+                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                        <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralActividades">0%</div>
+                                        <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros -->
+                        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-graduation-cap"></i> Programa
+                                    </label>
+                                    <select id="filtroProgResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los programas</option>
+                                        <option value="Belleza Integral">Belleza Integral</option>
+                                        <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-map-marker-alt"></i> Sede
+                                    </label>
+                                    <select id="filtroSedeResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las sedes</option>
+                                        <option value="Carapungo">Carapungo</option>
+                                        <option value="Sangolquí">Sangolquí</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-clock"></i> Horario
+                                    </label>
+                                    <select id="filtroHorarioResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todos los horarios</option>
+                                        <option value="Sábado Matutina">Sábado Matutina</option>
+                                        <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                        <option value="Domingo Matutina">Domingo Matutina</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-tasks"></i> Actividad
+                                    </label>
+                                    <select id="filtroActividadResultados" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="">Todas las actividades</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-search"></i> Buscar estudiante
+                                    </label>
+                                    <input type="text" id="buscarEstudianteResultadosActiv" placeholder="Nombre o email..." onkeyup="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                        <i class="fas fa-sort"></i> Ordenar por
+                                    </label>
+                                    <select id="ordenResultadosActiv" onchange="loadResultadosActividades()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                        <option value="fecha-desc">Más recientes primero</option>
+                                        <option value="fecha-asc">Más antiguos primero</option>
+                                        <option value="calificacion-desc">Mayor calificación</option>
+                                        <option value="calificacion-asc">Menor calificación</option>
+                                        <option value="nombre-asc">Nombre A-Z</option>
+                                        <option value="nombre-desc">Nombre Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de resultados -->
+                        <div id="resultadosActividadesList" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 100%;">
+                            <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                                <p style="margin-top: 1rem;">Cargando entregas...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Fin del panelResultadosActividades -->
             </div>
 
             <!-- Ver Respuestas de Cuestionarios -->
@@ -6572,6 +6766,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             else if (sectionId === 'cuestionarios') try { loadCuestionariosList(); } catch (e) { console.error('Error loading cuestionarios:', e); }
             else if (sectionId === 'cuestionarios-manager') try { loadCuestionariosManager(); } catch (e) { console.error('Error loading cuestionarios-manager:', e); }
             else if (sectionId === 'evaluaciones-manager') try { loadEvaluacionesManager(); } catch (e) { console.error('Error loading evaluaciones-manager:', e); }
+            else if (sectionId === 'actividades-manager') try { loadActividadesManager(); } catch (e) { console.error('Error loading actividades-manager:', e); }
             else if (sectionId === 'evaluaciones') try { loadManagementContent(); } catch (e) { console.error('Error loading management content:', e); }
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
@@ -14674,6 +14869,32 @@ REGLAS ESTRICTAS:
             }
         }
 
+        // Función para cambiar tabs en Gestión de Actividades
+        function switchActividadesTab(tab) {
+            const tabGestion = document.getElementById('tabGestionActiv');
+            const tabResultados = document.getElementById('tabResultadosActiv');
+            const panelGestion = document.getElementById('panelGestionActividades');
+            const panelResultados = document.getElementById('panelResultadosActividades');
+            
+            if (tab === 'gestion') {
+                tabGestion.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                tabGestion.style.color = 'white';
+                tabResultados.style.background = '#f1f5f9';
+                tabResultados.style.color = '#64748b';
+                panelGestion.style.display = 'block';
+                panelResultados.style.display = 'none';
+            } else if (tab === 'resultados') {
+                tabResultados.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                tabResultados.style.color = 'white';
+                tabGestion.style.background = '#f1f5f9';
+                tabGestion.style.color = '#64748b';
+                panelGestion.style.display = 'none';
+                panelResultados.style.display = 'block';
+                // Cargar resultados al cambiar a esa pestaña
+                loadResultadosActividades();
+            }
+        }
+
         // Función para cargar cuestionarios en el manager
         async function loadCuestionariosManager() {
             try {
@@ -15537,6 +15758,23 @@ REGLAS ESTRICTAS:
         // Función para recargar cuestionarios
         function recargarCuestionarios() {
             loadCuestionariosManager();
+        }
+
+        function recargarActividades() {
+            loadActividadesManager();
+        }
+
+        function verDetalleActividad(actividadId) {
+            // Por ahora, mostrar la actividad en la sección de actividades existente
+            showSection('actividades');
+            // Aquí se podría implementar un modal de detalle
+            alert('Función de detalle de actividad próximamente disponible');
+        }
+
+        function editarActividad(actividadId) {
+            // Redirigir a la sección de subir actividades
+            showSection('actividades');
+            alert('Para editar, ve a la sección "Actividades" y sube una versión actualizada');
         }
 
         // ===== FUNCIONES PARA PREVIEW DE EVALUACIÓN =====
@@ -16743,6 +16981,7 @@ REGLAS ESTRICTAS:
 
         // =================== FUNCIONES PARA GESTIÓN DE EVALUACIONES ===================
         let evaluacionesManagerData = [];
+        let actividadesManagerData = [];
 
         async function loadEvaluacionesManager() {
             try {
@@ -16771,6 +17010,169 @@ REGLAS ESTRICTAS:
                 console.error('Error loading evaluaciones manager:', error);
                 document.getElementById('evaluacionesManagerGrid').innerHTML = '<p style="color: white;">Error al cargar las evaluaciones</p>';
             }
+        }
+
+        async function loadActividadesManager() {
+            try {
+                console.log('Cargando actividades para gestión...');
+                const snapshot = await getDocs(collection(db, 'actividades'));
+                console.log('Actividades encontradas en Firestore:', snapshot.size);
+
+                actividadesManagerData = snapshot.docs
+                    .map(doc => {
+                        const data = doc.data();
+                        console.log('Actividad:', data.titulo);
+                        return {
+                            id: doc.id,
+                            ...data,
+                            tipo: 'actividad'
+                        };
+                    });
+
+                console.log('📊 loadActividadesManager - actividadesManagerData IDs:', actividadesManagerData.map(a => a.id));
+
+                console.log(`Total actividades cargadas: ${actividadesManagerData.length}`);
+                aplicarFiltrosActividades();
+                actualizarEstadisticasActividades();
+
+            } catch (error) {
+                console.error('Error loading actividades manager:', error);
+                document.getElementById('actividadesManagerGrid').innerHTML = '<p style="color: white;">Error al cargar las actividades</p>';
+            }
+        }
+
+        // Función para aplicar filtros de actividades
+        async function aplicarFiltrosActividades() {
+            const programa = document.getElementById('filterProgramaActividades').value;
+            const sede = document.getElementById('filterSedeActividades').value;
+            const horario = document.getElementById('filterHorarioActividades').value;
+            const estado = document.getElementById('filterEstadoActividades').value;
+            const search = document.getElementById('searchActividad').value.toLowerCase();
+
+            currentActividadManagerFilter = { programa, sede, horario, estado, search };
+
+            let filteredData = actividadesManagerData.filter(actividad => {
+                const matchPrograma = !programa || actividad.programa === programa;
+                const matchSede = !sede || actividad.sede === sede;
+                const matchHorario = !horario || actividad.horario === horario;
+                const matchEstado = !estado || (actividad.activa !== false) === (estado === 'activo');
+                const matchSearch = !search ||
+                    actividad.titulo?.toLowerCase().includes(search) ||
+                    actividad.descripcion?.toLowerCase().includes(search);
+
+                return matchPrograma && matchSede && matchHorario && matchEstado && matchSearch;
+            });
+
+            await renderActividadesGrid(filteredData);
+        }
+
+        // Función para limpiar filtros de actividades
+        async function limpiarFiltrosActividades() {
+            document.getElementById('filterProgramaActividades').value = '';
+            document.getElementById('filterSedeActividades').value = '';
+            document.getElementById('filterHorarioActividades').value = '';
+            document.getElementById('filterEstadoActividades').value = '';
+            document.getElementById('searchActividad').value = '';
+            currentActividadManagerFilter = { programa: '', sede: '', horario: '', estado: '', search: '' };
+            await renderActividadesGrid(actividadesManagerData);
+        }
+
+        // Función para actualizar estadísticas de actividades
+        async function actualizarEstadisticasActividades() {
+            try {
+                const total = actividadesManagerData.length;
+                const activas = actividadesManagerData.filter(a => a.activa !== false).length;
+
+                document.getElementById('totalActividades').textContent = total;
+                document.getElementById('actividadesActivas').textContent = activas;
+                document.getElementById('totalActividadesBadge').textContent = total;
+                document.getElementById('actividadesActivasBadge').textContent = activas;
+
+                // Cargar estadísticas de entregas
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+                const entregas = entregasSnapshot.docs.map(doc => doc.data());
+                
+                document.getElementById('totalEntregasActiv').textContent = entregas.length;
+                
+                const calificaciones = entregas.filter(e => e.calificacion !== undefined && e.calificacion !== null);
+                const promedio = calificaciones.length > 0 
+                    ? Math.round(calificaciones.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificaciones.length)
+                    : 0;
+                document.getElementById('promedioCalificacionesActiv').textContent = promedio + '%';
+
+            } catch (error) {
+                console.error('Error updating actividades stats:', error);
+            }
+        }
+
+        // Función para renderizar el grid de actividades
+        async function renderActividadesGrid(data) {
+            const container = document.getElementById('actividadesManagerGrid');
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <h3>No se encontraron actividades</h3>
+                        <p style="color: white;">Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map((actividad, index) => {
+                const estado = actividad.activa !== false ? 'activo' : 'inactivo';
+                const estadoClass = `status-${estado}`;
+                const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                return `
+                    <div class="cuestionario-card">
+                        <div class="cuestionario-header">
+                            <div class="cuestionario-title">
+                                <i class="fas fa-tasks"></i>
+                                ${actividad.titulo || 'Sin título'}
+                                <span class="tipo-badge badge-actividad">
+                                    Actividad
+                                </span>
+                            </div>
+                            <div class="cuestionario-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    ${new Date(actividad.fechaCreacion || actividad.fechaSubida || Date.now()).toLocaleDateString('es-ES')}
+                                </span>
+                                <span class="cuestionario-status ${estadoClass}">${estadoText}</span>
+                            </div>
+                        </div>
+                        <div class="cuestionario-content">
+                            <div class="cuestionario-description">
+                                ${actividad.descripcion || 'Sin descripción'}
+                            </div>
+                            <div class="cuestionario-info">
+                                <div class="info-item">
+                                    <strong>Programa:</strong> ${actividad.programa || 'No especificado'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Sede:</strong> ${actividad.sede || 'No especificada'}
+                                </div>
+                                <div class="info-item">
+                                    <strong>Horario:</strong> ${actividad.horario || 'No especificado'}
+                                </div>
+                            </div>
+                            <div class="cuestionario-actions">
+                                <button class="btn-icon" onclick="verDetalleActividad('${actividad.id}')" title="Ver Actividad">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon" onclick="editarActividad('${actividad.id}')" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteItem('actividades', '${actividad.id}')" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Función para aplicar filtros de evaluaciones
@@ -18565,6 +18967,178 @@ REGLAS ESTRICTAS:
                     <div style="text-align: center; padding: 3rem; color: #ef4444;">
                         <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
                         <p style="margin-top: 1rem;">Error al cargar resultados: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadResultadosActividades() {
+            const container = document.getElementById('resultadosActividadesList');
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando entregas...</p></div>';
+
+            try {
+                // Cargar actividades para el filtro
+                const actividadesSnapshot = await getDocs(collection(db, 'actividades'));
+                const selectActividad = document.getElementById('filtroActividadResultados');
+                const currentValue = selectActividad.value;
+                selectActividad.innerHTML = '<option value="">Todas las actividades</option>';
+                actividadesSnapshot.forEach(docSnap => {
+                    const a = docSnap.data();
+                    selectActividad.innerHTML += `<option value="${docSnap.id}">${a.titulo || 'Sin título'}</option>`;
+                });
+                selectActividad.value = currentValue;
+
+                // Cargar todas las entregas
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+
+                // Crear un mapa de actividades
+                const actividadesMap = {};
+                actividadesSnapshot.forEach(docSnap => {
+                    actividadesMap[docSnap.id] = docSnap.data();
+                });
+
+                // Cargar usuarios para obtener nombres
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const usersMap = {};
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    usersMap[userData.email] = userData.name || userData.email;
+                });
+
+                // Procesar entregas
+                let entregas = entregasSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const actividad = actividadesMap[data.actividadId] || {};
+                    const estudianteEmail = data.estudianteId;
+                    const nombreEstudiante = usersMap[estudianteEmail] || data.nombre || estudianteEmail || 'Estudiante';
+
+                    return {
+                        id: doc.id,
+                        ...data,
+                        actividad: actividad,
+                        estudianteNombre: nombreEstudiante,
+                        fechaEntrega: data.fechaEntrega || data.timestamp || Date.now()
+                    };
+                });
+
+                // Aplicar filtros
+                const filtroProg = document.getElementById('filtroProgResultadosActiv').value;
+                const filtroSede = document.getElementById('filtroSedeResultadosActiv').value;
+                const filtroHorario = document.getElementById('filtroHorarioResultadosActiv').value;
+                const filtroActividad = document.getElementById('filtroActividadResultados').value;
+                const buscarEstudiante = document.getElementById('buscarEstudianteResultadosActiv').value.toLowerCase();
+                const orden = document.getElementById('ordenResultadosActiv').value;
+
+                let filtradas = entregas.filter(e => {
+                    if (filtroProg && e.actividad.programa !== filtroProg) return false;
+                    if (filtroSede && e.actividad.sede !== filtroSede) return false;
+                    if (filtroHorario && e.actividad.horario !== filtroHorario) return false;
+                    if (filtroActividad && e.actividadId !== filtroActividad) return false;
+                    if (buscarEstudiante && !e.estudianteNombre.toLowerCase().includes(buscarEstudiante) && 
+                        !e.estudianteId.toLowerCase().includes(buscarEstudiante)) return false;
+                    return true;
+                });
+
+                // Ordenar
+                filtradas.sort((a, b) => {
+                    switch (orden) {
+                        case 'fecha-desc':
+                            return new Date(b.fechaEntrega) - new Date(a.fechaEntrega);
+                        case 'fecha-asc':
+                            return new Date(a.fechaEntrega) - new Date(b.fechaEntrega);
+                        case 'calificacion-desc':
+                            return (b.calificacion || 0) - (a.calificacion || 0);
+                        case 'calificacion-asc':
+                            return (a.calificacion || 0) - (b.calificacion || 0);
+                        case 'nombre-asc':
+                            return a.estudianteNombre.localeCompare(b.estudianteNombre);
+                        case 'nombre-desc':
+                            return b.estudianteNombre.localeCompare(a.estudianteNombre);
+                        default:
+                            return new Date(b.fechaEntrega) - new Date(a.fechaEntrega);
+                    }
+                });
+
+                // Actualizar estadísticas
+                const totalBadge = document.getElementById('totalEntregasActividades');
+                if (totalBadge) totalBadge.textContent = filtradas.length;
+
+                const calificaciones = filtradas.filter(e => e.calificacion !== undefined && e.calificacion !== null);
+                const promedio = calificaciones.length > 0 
+                    ? Math.round(calificaciones.reduce((sum, e) => sum + (e.calificacion || 0), 0) / calificaciones.length)
+                    : 0;
+                const promedioBadge = document.getElementById('promedioGeneralActividades');
+                if (promedioBadge) promedioBadge.textContent = promedio + '%';
+
+                if (filtradas.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; color: #cbd5e1;"></i>
+                            <h3 style="margin-top: 1rem; color: #374151;">No hay entregas</h3>
+                            <p>No se encontraron entregas con los filtros seleccionados.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar tabla
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Actividad</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Calificación</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Fecha</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtradas.map((e, index) => {
+                                const calificacion = e.calificacion !== undefined && e.calificacion !== null ? e.calificacion : '-';
+                                const calificacionColor = calificacion >= 80 ? '#10b981' : calificacion >= 60 ? '#f59e0b' : '#ef4444';
+                                
+                                return `
+                                    <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0;">
+                                        <td style="padding: 1rem; text-align: left;">
+                                            <div style="font-weight: 600; color: #1e3a8a;">${e.estudianteNombre}</div>
+                                            <div style="font-size: 0.85rem; color: #64748b;">${e.estudianteId}</div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: left;">
+                                            <div style="font-weight: 600; color: #374151;">${e.actividad.titulo || 'Sin título'}</div>
+                                            <div style="font-size: 0.85rem; color: #64748b;">${e.actividad.sede || ''} - ${e.actividad.horario || ''}</div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <span style="background: #e0f2fe; color: #0277bd; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;">${e.actividad.programa || 'Sin programa'}</span>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <span style="color: ${calificacion === '-' ? '#64748b' : calificacionColor}; font-weight: bold; font-size: 1.1rem;">
+                                                ${calificacion}${calificacion !== '-' ? '%' : ''}
+                                            </span>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <div style="color: #374151;">${new Date(e.fechaEntrega).toLocaleDateString('es-ES')}</div>
+                                            <div style="font-size: 0.85rem; color: #64748b;">${new Date(e.fechaEntrega).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})}</div>
+                                        </td>
+                                        <td style="padding: 1rem; text-align: center;">
+                                            <button onclick="loadEntregaDetail('${e.id}')" style="background: #667eea; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Error loading resultados actividades:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Error al cargar entregas: ${error.message}</p>
                     </div>
                 `;
             }
