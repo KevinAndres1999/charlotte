@@ -214,15 +214,15 @@
             messageDiv.style.display = 'block';
         }
 
-                // Función auxiliar para crear timeout con mejor manejo
-                function withTimeout(promise, timeoutMs = 15000) {
-                    return Promise.race([
-                        promise,
-                        new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('timeout')), timeoutMs)
-                        )
-                    ]);
-                }
+        // Función auxiliar para crear timeout
+        function withTimeout(promise, timeoutMs = 10000) {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                )
+            ]);
+        }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -239,15 +239,6 @@
             const startTime = performance.now();
 
             try {
-                // Verificar conectividad de Firebase antes de proceder
-                console.log('Checking Firebase connectivity...');
-                try {
-                    await db.enableNetwork();
-                    console.log('Firebase network enabled');
-                } catch (networkError) {
-                    console.warn('Firebase network enable failed:', networkError);
-                }
-
                 console.log('Starting user query...');
                 const queryStartTime = performance.now();
 
@@ -265,17 +256,7 @@
                     // OPTIMIZACIÓN: Usar getDoc con ID conocido en lugar de query
                     // Si el email es único, podemos usar el email como ID del documento
                     const userDocRef = doc(db, 'users', email.replace(/[.#$\/\[\]]/g, '_'));
-                    console.log('Trying to get user document with ID:', email.replace(/[.#$\/\[\]]/g, '_'));
-                    console.log('Firebase db object:', db);
-                    console.log('Firebase app:', db.app);
-                    let userDocSnap = await withTimeout(getDoc(userDocRef), 12000);
-
-                    // Si no se encuentra con ID modificado, intentar con email original
-                    if (!userDocSnap.exists()) {
-                        console.log('User not found with modified ID, trying original email as ID');
-                        const originalUserDocRef = doc(db, 'users', email);
-                        userDocSnap = await withTimeout(getDoc(originalUserDocRef), 12000);
-                    }
+                    const userDocSnap = await withTimeout(getDoc(userDocRef), 8000);
 
                     if (userDocSnap.exists()) {
                         userData = userDocSnap.data();
@@ -291,7 +272,7 @@
                         // Fallback: buscar con query si no se encuentra por ID
                         console.log('User not found by ID, trying query...');
                         const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                        const querySnapshot = await withTimeout(getDocs(q), 12000);
+                        const querySnapshot = await withTimeout(getDocs(q), 8000);
 
                         if (!querySnapshot.empty) {
                             userDoc = querySnapshot.docs[0];
@@ -364,37 +345,25 @@
                     submitBtn.innerHTML = 'Iniciar Sesión';
                 }
             } catch (error) {
-                console.error('Login error details:', error);
-                console.error('Error message:', error.message);
-                console.error('Error code:', error.code);
+                console.error('Error:', error);
                 let errorMessage = 'Error al iniciar sesión.';
 
-                // Manejar errores específicos de Firebase
+                // Manejar errores de Firestore/timeout
                 if (error.message === 'timeout') {
                     errorMessage = 'Tiempo de espera agotado. Verifica tu conexión a internet e intenta nuevamente.';
-                    // Mostrar opción de reintentar
-                    setTimeout(() => {
-                        if (confirm('¿Quieres intentar nuevamente?')) {
-                            submitBtn.click();
-                        }
-                    }, 1000);
                 } else if (error.message && error.message.includes('offline')) {
                     errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
                 } else if (error.message && error.message.includes('network')) {
-                    errorMessage = 'Error de red. Verifica tu conexión a internet.';
+                    errorMessage = 'Error de red. Inténtalo nuevamente.';
                 } else if (error.message && error.message.includes('unavailable')) {
                     errorMessage = 'Servicio temporalmente no disponible. Inténtalo más tarde.';
                 } else if (error.message && error.message.includes('permission-denied')) {
                     errorMessage = 'Error de permisos. Contacta al administrador.';
                 } else if (error.message && error.message.includes('not-found')) {
                     errorMessage = 'Usuario no encontrado.';
-                } else if (error.code === 'unavailable') {
-                    errorMessage = 'Servicio de base de datos no disponible. Inténtalo más tarde.';
-                } else if (error.code === 'failed-precondition') {
-                    errorMessage = 'Error en la configuración de la base de datos.';
                 } else {
-                    // Errores genéricos con más información
-                    errorMessage = `Error al iniciar sesión: ${error.message || 'Error desconocido'}`;
+                    // Errores genéricos
+                    errorMessage = 'Error al iniciar sesión. Inténtalo nuevamente.';
                 }
 
                 showMessage(errorMessage, 'error');
