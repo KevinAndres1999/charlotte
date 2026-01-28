@@ -183,15 +183,6 @@ function hideStudentArea(){
   studentArea.hidden = true;
 }
 
-logoutBtn.addEventListener('click', ()=>{
-  localStorage.removeItem('student');
-  localStorage.removeItem('authToken');
-  hideStudentArea();
-  loginMessage.textContent = 'Sesión cerrada.';
-  const adminLink = document.getElementById('adminLink');
-  if(adminLink) adminLink.setAttribute('hidden', '');
-});
-
 // Al cargar, si hay token válido, solicitar perfil
 window.addEventListener('DOMContentLoaded', async ()=>{
   // Animación de inicio: overlay con logo que se atenúa y oculta
