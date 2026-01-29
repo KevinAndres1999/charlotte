@@ -5272,9 +5272,39 @@ function filterByUserAccess(items) {
     console.log('🔍 filterByUserAccess: Usuario actual:', currentUser);
     console.log('🔍 filterByUserAccess: Items totales:', items.length);
 
+    // PRIMERO: Obtener todos los reintentos disponibles para este estudiante
+    let reintentosDisponibles = [];
+    try {
+        const reintentosQuery = query(
+            collection(db, 'reintentosEvaluaciones'), 
+            where('estudianteId', '==', currentUser.email)
+        );
+        const reintentosSnapshot = await getDocs(reintentosQuery);
+        reintentosDisponibles = reintentosSnapshot.docs
+            .filter(doc => {
+                const data = doc.data();
+                return data.usado === false || data.usado === undefined;
+            })
+            .map(doc => doc.data());
+        console.log('🎯 Reintentos disponibles encontrados:', reintentosDisponibles.length);
+    } catch (error) {
+        console.log('Error obteniendo reintentos:', error);
+    }
+
     const filtered = items.filter(item => {
         console.log('🔍 Evaluando item:', item.id, item.titulo || item.nombre);
 
+        // PRIMERO: Verificar si hay reintento concedido para este item (caso especial)
+        const tieneReintento = reintentosDisponibles.some(reintento => {
+            return reintento.evaluacionId === item.id || reintento.cuestionarioId === item.id;
+        });
+
+        if (tieneReintento) {
+            console.log('🎯 Item aprobado por reintento concedido (caso especial)');
+            return true;
+        }
+
+        // SEGUNDO: Aplicar restricciones normales si no hay reintento
         // Filtrar por programa
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
@@ -5339,7 +5369,7 @@ function filterByUserAccess(items) {
             return false;
         }
 
-        console.log('✅ Item aprobado:', item.id);
+        console.log('✅ Item aprobado por restricciones normales');
         return true;
     });
 
@@ -11013,6 +11043,35 @@ function openImageModal(imageUrl, title) {
                     return;
                 }
 
+                // PRIMERO: Verificar si hay reintento concedido (caso especial)
+                try {
+                    const campoId = tipo === 'evaluacion' ? 'evaluacionId' : 'cuestionarioId';
+                    const reintentosQuery = query(
+                        collection(db, 'reintentosEvaluaciones'), 
+                        where('estudianteId', '==', currentUser.email),
+                        where(campoId, '==', id)
+                    );
+                    const reintentosSnapshot = await getDocs(reintentosQuery);
+                    
+                    // Filtrar reintentos que no han sido usados
+                    const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
+                        const data = doc.data();
+                        return data.usado === false || data.usado === undefined;
+                    });
+                    
+                    if (reintentosDisponibles.length > 0) {
+                        console.log('🎯 Reintento encontrado! Acceso concedido por caso especial');
+                        const url = tipo === 'cuestionario' 
+                            ? `responder-cuestionario.html?id=${id}` 
+                            : `responder-evaluacion.html?id=${id}`;
+                        window.location.href = url;
+                        return; // Salir aquí, no verificar restricciones normales
+                    }
+                } catch (error) {
+                    console.log('Error verificando reintentos (continuando con verificación normal):', error);
+                }
+
+                // SEGUNDO: Verificar restricciones normales si no hay reintento
                 // Verificar estado de pagos del usuario
                 const q = query(collection(db, 'users'), where('email', '==', currentUser.email), where('role', '==', 'student'));
                 const userDoc = await getDocs(q);
