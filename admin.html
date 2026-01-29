@@ -19040,57 +19040,78 @@ REGLAS ESTRICTAS:
 
         // Función para cargar evaluaciones en el filtro de no respondidos
         async function loadEvaluacionesForNoRespondidos() {
+            console.log('loadEvaluacionesForNoRespondidos: Iniciando función');
             try {
-                console.log('Cargando evaluaciones para no respondidos...');
+                console.log('loadEvaluacionesForNoRespondidos: Firebase db:', db);
+                console.log('loadEvaluacionesForNoRespondidos: collection function:', collection);
+                console.log('loadEvaluacionesForNoRespondidos: getDocs function:', getDocs);
+                
                 const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                console.log('loadEvaluacionesForNoRespondidos: Snapshot obtenido:', evaluacionesSnapshot);
+                console.log('loadEvaluacionesForNoRespondidos: Número de documentos:', evaluacionesSnapshot.size);
+                
                 const select = document.getElementById('filtroEvaluacionNoRespondidos');
+                console.log('loadEvaluacionesForNoRespondidos: Elemento select encontrado:', select);
                 
                 if (!select) {
-                    console.error('Elemento filtroEvaluacionNoRespondidos no encontrado');
+                    console.error('loadEvaluacionesForNoRespondidos: Elemento filtroEvaluacionNoRespondidos no encontrado');
                     return;
                 }
                 
                 const currentValue = select.value;
-                console.log('Evaluaciones encontradas:', evaluacionesSnapshot.size);
+                console.log('loadEvaluacionesForNoRespondidos: Valor actual del select:', currentValue);
                 
                 select.innerHTML = '<option value="">Seleccionar evaluación</option>';
+                
                 evaluacionesSnapshot.forEach(docSnap => {
                     const evaluacion = docSnap.data();
+                    console.log('loadEvaluacionesForNoRespondidos: Procesando evaluación:', docSnap.id, evaluacion.titulo);
                     select.innerHTML += `<option value="${docSnap.id}">${evaluacion.titulo || 'Sin título'}</option>`;
                 });
                 
                 select.value = currentValue;
-                console.log('Evaluaciones cargadas exitosamente');
+                console.log('loadEvaluacionesForNoRespondidos: Función completada exitosamente');
             } catch (error) {
-                console.error('Error cargando evaluaciones para no respondidos:', error);
+                console.error('loadEvaluacionesForNoRespondidos: Error:', error);
+                console.error('loadEvaluacionesForNoRespondidos: Stack trace:', error.stack);
             }
         }
 
         // Función para cargar cuestionarios en el filtro de no respondidos
         async function loadCuestionariosForNoRespondidos() {
+            console.log('loadCuestionariosForNoRespondidos: Iniciando función');
             try {
-                console.log('Cargando cuestionarios para no respondidos...');
+                console.log('loadCuestionariosForNoRespondidos: Firebase db:', db);
+                console.log('loadCuestionariosForNoRespondidos: collection function:', collection);
+                console.log('loadCuestionariosForNoRespondidos: getDocs function:', getDocs);
+                
                 const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                console.log('loadCuestionariosForNoRespondidos: Snapshot obtenido:', cuestionariosSnapshot);
+                console.log('loadCuestionariosForNoRespondidos: Número de documentos:', cuestionariosSnapshot.size);
+                
                 const select = document.getElementById('filtroCuestionarioNoRespondidos');
+                console.log('loadCuestionariosForNoRespondidos: Elemento select encontrado:', select);
                 
                 if (!select) {
-                    console.error('Elemento filtroCuestionarioNoRespondidos no encontrado');
+                    console.error('loadCuestionariosForNoRespondidos: Elemento filtroCuestionarioNoRespondidos no encontrado');
                     return;
                 }
                 
                 const currentValue = select.value;
-                console.log('Cuestionarios encontrados:', cuestionariosSnapshot.size);
+                console.log('loadCuestionariosForNoRespondidos: Valor actual del select:', currentValue);
                 
                 select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
                 cuestionariosSnapshot.forEach(docSnap => {
                     const cuestionario = docSnap.data();
+                    console.log('loadCuestionariosForNoRespondidos: Procesando cuestionario:', docSnap.id, cuestionario.titulo);
                     select.innerHTML += `<option value="${docSnap.id}">${cuestionario.titulo || 'Sin título'}</option>`;
                 });
                 
                 select.value = currentValue;
-                console.log('Cuestionarios cargados exitosamente');
+                console.log('loadCuestionariosForNoRespondidos: Función completada exitosamente');
             } catch (error) {
-                console.error('Error cargando cuestionarios para no respondidos:', error);
+                console.error('loadCuestionariosForNoRespondidos: Error:', error);
+                console.error('loadCuestionariosForNoRespondidos: Stack trace:', error.stack);
             }
         }
 
