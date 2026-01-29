@@ -18503,9 +18503,14 @@ REGLAS ESTRICTAS:
                                             ${fechaFormateada}
                                         </td>
                                         <td style="padding: 1rem; text-align: center;">
-                                            <button onclick="verDetalleRespuestaEvaluacion('${r.id}')" style="background: #667eea; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
-                                                <i class="fas fa-eye"></i> Ver
-                                            </button>
+                                            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                                <button onclick="verDetalleRespuestaEvaluacion('${r.id}')" style="background: #667eea; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#764ba2'" onmouseout="this.style.background='#667eea'">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                                <button onclick="permitirReintentoEvaluacion('${r.id}', '${r.estudianteId}', '${r.evaluacionId || r.cuestionarioId}')" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">
+                                                    <i class="fas fa-redo"></i> Reintento
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 `;
@@ -18741,33 +18746,41 @@ REGLAS ESTRICTAS:
             }
         }
 
-        // Inicializar mejoras de accesibilidad
-        document.addEventListener('DOMContentLoaded', function() {
-            mejorarAccesibilidad();
-
-            // Inicializar contador de caracteres para cuestionarios automáticos con delay
-            setTimeout(() => {
-                if (typeof updateCharCount === 'function') {
-                    updateCharCount();
-                }
-            }, 100);
-
-            // Cargar datos iniciales del dashboard (solo si no se han cargado)
-            if (!dashboardLoaded) loadDashboardStats();
-            if (!usuariosPendientesLoaded) {
-                usuariosPendientesLoaded = true;
-                loadUsuariosPendientes();
+        async function permitirReintentoEvaluacion(respuestaId, estudianteId, evaluacionId) {
+            if (!confirm('¿Está seguro de que desea permitir que este estudiante vuelva a realizar esta evaluación? Esto eliminará su respuesta anterior y le permitirá intentarlo nuevamente.')) {
+                return;
             }
-            if (!usuariosAprobadosLoaded) {
-                usuariosAprobadosLoaded = true;
-                loadUsuariosAprobados();
+
+            try {
+                // Crear documento de reintento permitido
+                const reintentoData = {
+                    estudianteId: estudianteId,
+                    evaluacionId: evaluacionId,
+                    respuestaOriginalId: respuestaId,
+                    permitidoPor: 'admin', // Podrías usar el email del admin si está disponible
+                    fechaPermiso: new Date(),
+                    usado: false
+                };
+
+                // Agregar a colección de reintentos permitidos
+                await addDoc(collection(db, 'reintentosEvaluaciones'), reintentoData);
+
+                // Opcional: Marcar la respuesta original como "reintento permitido"
+                await updateDoc(doc(db, 'respuestasEvaluaciones', respuestaId), {
+                    reintentoPermitido: true,
+                    fechaReintentoPermitido: new Date()
+                });
+
+                alert('Reintento permitido exitosamente. El estudiante ahora podrá volver a realizar esta evaluación.');
+                
+                // Recargar los resultados para mostrar el cambio
+                loadResultadosEvaluaciones();
+
+            } catch (error) {
+                console.error('Error al permitir reintento:', error);
+                alert('Error al permitir el reintento: ' + error.message);
             }
-            
-            // Cargar otros datos (solo una vez)
-            loadForosList();
-            loadForosPendientes();
-            loadGamificacionStats();
-        });
+        }
     </script>
 
 </body>

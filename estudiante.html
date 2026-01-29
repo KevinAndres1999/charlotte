@@ -1297,6 +1297,15 @@
             color: #fbbf24;
         }
 
+        .calificacion-badge.reintento {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .calificacion-badge.reintento i {
+            color: #34d399;
+        }
+
         /* Vista de lista */
         .clase-card.list-view {
             display: flex;
@@ -6038,8 +6047,9 @@ function renderEvaluaciones() {
         const intentosRealizados = evaluacion.intentosRealizados || 0;
         const maxIntentos = evaluacion.intentosMaximos || evaluacion.numeroIntentos || evaluacion.intentos || 1; // Evaluaciones pueden tener múltiples intentos
         const intentosRestantes = maxIntentos - intentosRealizados;
-        const puedeResponder = disponible && !vencido && intentosRestantes > 0;
-        const isCompleted = intentosRealizados > 0;
+        const tieneReintentoPermitido = evaluacion.reintentoPermitido === true;
+        const puedeResponder = disponible && !vencido && (intentosRestantes > 0 || tieneReintentoPermitido);
+        const isCompleted = intentosRealizados > 0 && !tieneReintentoPermitido;
         const progress = isCompleted ? 100 : 0;
 
         const lapsoDisponibilidad = fechaInicio && fechaFin ? `Disponible del ${fechaInicio.toLocaleString('es-ES')} al ${fechaFin.toLocaleString('es-ES')}` : '';
@@ -6074,16 +6084,23 @@ function renderEvaluaciones() {
                 </div>` : ''}
                 <div class="clase-actions">
                     <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${evaluacion.id}', 'evaluacion')" ${!puedeResponder ? 'disabled' : ''}>
-                        <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
+                        <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : tieneReintentoPermitido ? 'Reintentar Evaluación' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
                     </button>
-                    ${isCompleted ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver respuestas detalladas">
+                    ${isCompleted && !tieneReintentoPermitido ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver respuestas detalladas">
                         <i class="fas fa-eye"></i>
                     </button>` : ''}
                 </div>
-                ${evaluacion.respuestas && evaluacion.respuestas.length > 0 ? `
+                ${(evaluacion.respuestas && evaluacion.respuestas.length > 0 && !tieneReintentoPermitido) ? `
                 <div class="clase-calificacion">
                     <div class="calificacion-badge">
                         <i class="fas fa-star"></i> Calificación: ${evaluacion.calificacionRecalculada !== null && evaluacion.calificacionRecalculada !== undefined ? evaluacion.calificacionRecalculada + '%' : 'Pendiente'}
+                    </div>
+                </div>
+                ` : ''}
+                ${tieneReintentoPermitido ? `
+                <div class="clase-calificacion">
+                    <div class="calificacion-badge reintento">
+                        <i class="fas fa-redo"></i> Reintento permitido por el administrador
                     </div>
                 </div>
                 ` : ''}
@@ -7762,6 +7779,16 @@ async function loadEvaluaciones() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (currentUser) {
             const respuestasQuery = query(collection(db, 'respuestasEvaluaciones'), where('estudianteId', '==', currentUser.email));
+            const reintentosQuery = query(collection(db, 'reintentosEvaluaciones'), where('estudianteId', '==', currentUser.email), where('usado', '==', false));
+            
+            // Cargar reintentos permitidos
+            const reintentosSnapshot = await getDocs(reintentosQuery);
+            const reintentosPermitidos = {};
+            reintentosSnapshot.forEach(doc => {
+                const reintento = doc.data();
+                reintentosPermitidos[reintento.evaluacionId] = { id: doc.id, ...reintento };
+            });
+            
             onSnapshot(respuestasQuery, (snapshot) => {
                 const respuestasMap = {};
                 snapshot.forEach(doc => {
@@ -7774,7 +7801,17 @@ async function loadEvaluaciones() {
                     const clave = `${currentUser.email}_${evaluacion.id}`;
                     const misRespuestas = respuestasMap[clave] || [];
                     evaluacion.intentosRealizados = misRespuestas.length;
-                    if (misRespuestas.length > 0) {
+                    
+                    // Verificar si hay reintento permitido
+                    const reintentoPermitido = reintentosPermitidos[evaluacion.id];
+                    if (reintentoPermitido) {
+                        evaluacion.reintentoPermitido = true;
+                        evaluacion.reintentoData = reintentoPermitido;
+                        evaluacion.isCompleted = false; // Permitir reintento
+                        evaluacion.progress = 0;
+                        evaluacion.respuestas = null;
+                        evaluacion.calificacionRecalculada = null;
+                    } else if (misRespuestas.length > 0) {
                         evaluacion.isCompleted = true;
                         evaluacion.respuestas = misRespuestas;
                         evaluacion.progress = 100;
@@ -10946,6 +10983,30 @@ function openImageModal(imageUrl, title) {
                 }
 
                 // Si los pagos están al día, proceder con el acceso normal
+                // Verificar si hay reintento permitido y marcarlo como usado
+                if (tipo === 'evaluacion') {
+                    try {
+                        const reintentosQuery = query(
+                            collection(db, 'reintentosEvaluaciones'), 
+                            where('estudianteId', '==', currentUser.email),
+                            where('evaluacionId', '==', id),
+                            where('usado', '==', false)
+                        );
+                        const reintentosSnapshot = await getDocs(reintentosQuery);
+                        if (!reintentosSnapshot.empty) {
+                            // Marcar el reintento como usado
+                            const reintentoDoc = reintentosSnapshot.docs[0];
+                            await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
+                                usado: true,
+                                fechaUsado: new Date()
+                            });
+                            console.log('Reintento marcado como usado');
+                        }
+                    } catch (error) {
+                        console.error('Error marcando reintento como usado:', error);
+                    }
+                }
+
                 const url = tipo === 'cuestionario' ?
                     `responder-cuestionario.html?id=${id}` :
                     `responder-evaluacion.html?id=${id}`;
