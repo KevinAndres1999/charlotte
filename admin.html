@@ -18966,6 +18966,7 @@ REGLAS ESTRICTAS:
 
         // Funciones para cambiar pestañas en resultados de cuestionarios
         function switchCuestionariosResultadosTab(tab) {
+            console.log('switchCuestionariosResultadosTab llamado con tab:', tab);
             // Cambiar estilos de botones
             document.getElementById('tabRespondidosCuestionarios').classList.remove('active');
             document.getElementById('tabNoRespondidosCuestionarios').classList.remove('active');
@@ -18985,19 +18986,24 @@ REGLAS ESTRICTAS:
                 document.getElementById('panelRespondidosCuestionarios').style.display = 'block';
                 loadResultadosCuestionarios();
             } else if (tab === 'noRespondidos') {
+                console.log('Cambiando a pestaña No Respondidos de cuestionarios');
                 document.getElementById('tabNoRespondidosCuestionarios').classList.add('active');
                 document.getElementById('tabNoRespondidosCuestionarios').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
                 document.getElementById('tabNoRespondidosCuestionarios').style.color = 'white';
                 document.getElementById('panelNoRespondidosCuestionarios').style.display = 'block';
                 
-                // Cargar cuestionarios en el filtro
-                loadCuestionariosForNoRespondidos();
-                loadNoRespondidosCuestionarios();
+                // Esperar un poco para asegurar que el DOM esté listo
+                setTimeout(() => {
+                    // Cargar cuestionarios en el filtro
+                    loadCuestionariosForNoRespondidos();
+                    loadNoRespondidosCuestionarios();
+                }, 100);
             }
         }
 
         // Funciones para cambiar pestañas en resultados de evaluaciones
         function switchEvaluacionesResultadosTab(tab) {
+            console.log('switchEvaluacionesResultadosTab llamado con tab:', tab);
             // Cambiar estilos de botones
             document.getElementById('tabRespondidosEvaluaciones').classList.remove('active');
             document.getElementById('tabNoRespondidosEvaluaciones').classList.remove('active');
@@ -19017,23 +19023,35 @@ REGLAS ESTRICTAS:
                 document.getElementById('panelRespondidosEvaluaciones').style.display = 'block';
                 loadResultadosEvaluaciones();
             } else if (tab === 'noRespondidos') {
+                console.log('Cambiando a pestaña No Respondidos de evaluaciones');
                 document.getElementById('tabNoRespondidosEvaluaciones').classList.add('active');
                 document.getElementById('tabNoRespondidosEvaluaciones').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
                 document.getElementById('tabNoRespondidosEvaluaciones').style.color = 'white';
                 document.getElementById('panelNoRespondidosEvaluaciones').style.display = 'block';
                 
-                // Cargar evaluaciones en el filtro
-                loadEvaluacionesForNoRespondidos();
-                loadNoRespondidosEvaluaciones();
+                // Esperar un poco para asegurar que el DOM esté listo
+                setTimeout(() => {
+                    // Cargar evaluaciones en el filtro
+                    loadEvaluacionesForNoRespondidos();
+                    loadNoRespondidosEvaluaciones();
+                }, 100);
             }
         }
 
         // Función para cargar evaluaciones en el filtro de no respondidos
         async function loadEvaluacionesForNoRespondidos() {
             try {
+                console.log('Cargando evaluaciones para no respondidos...');
                 const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
                 const select = document.getElementById('filtroEvaluacionNoRespondidos');
+                
+                if (!select) {
+                    console.error('Elemento filtroEvaluacionNoRespondidos no encontrado');
+                    return;
+                }
+                
                 const currentValue = select.value;
+                console.log('Evaluaciones encontradas:', evaluacionesSnapshot.size);
                 
                 select.innerHTML = '<option value="">Seleccionar evaluación</option>';
                 evaluacionesSnapshot.forEach(docSnap => {
@@ -19042,6 +19060,7 @@ REGLAS ESTRICTAS:
                 });
                 
                 select.value = currentValue;
+                console.log('Evaluaciones cargadas exitosamente');
             } catch (error) {
                 console.error('Error cargando evaluaciones para no respondidos:', error);
             }
@@ -19050,9 +19069,17 @@ REGLAS ESTRICTAS:
         // Función para cargar cuestionarios en el filtro de no respondidos
         async function loadCuestionariosForNoRespondidos() {
             try {
+                console.log('Cargando cuestionarios para no respondidos...');
                 const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
                 const select = document.getElementById('filtroCuestionarioNoRespondidos');
+                
+                if (!select) {
+                    console.error('Elemento filtroCuestionarioNoRespondidos no encontrado');
+                    return;
+                }
+                
                 const currentValue = select.value;
+                console.log('Cuestionarios encontrados:', cuestionariosSnapshot.size);
                 
                 select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
                 cuestionariosSnapshot.forEach(docSnap => {
@@ -19061,6 +19088,7 @@ REGLAS ESTRICTAS:
                 });
                 
                 select.value = currentValue;
+                console.log('Cuestionarios cargados exitosamente');
             } catch (error) {
                 console.error('Error cargando cuestionarios para no respondidos:', error);
             }
