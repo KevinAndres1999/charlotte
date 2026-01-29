@@ -1078,8 +1078,7 @@ async function loadQuiz(quizId) {
         const reintentosQuery = query(
             collection(db, 'reintentosEvaluaciones'), 
             where('estudianteId', '==', currentUser.email),
-            where('evaluacionId', '==', quizId),
-            where('usado', '==', false)
+            where('evaluacionId', '==', quizId)
         );
         let reintentosSnapshot = await getDocs(reintentosQuery);
         
@@ -1088,13 +1087,23 @@ async function loadQuiz(quizId) {
             const reintentosQuery2 = query(
                 collection(db, 'reintentosEvaluaciones'), 
                 where('estudianteId', '==', currentUser.email),
-                where('cuestionarioId', '==', quizId),
-                where('usado', '==', false)
+                where('cuestionarioId', '==', quizId)
             );
             reintentosSnapshot = await getDocs(reintentosQuery2);
         }
         
-        const tieneReintentoPermitido = !reintentosSnapshot.empty;
+        // Filtrar reintentos que no han sido usados (usado == false o campo no existe)
+        const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
+            const data = doc.data();
+            return data.usado === false || data.usado === undefined;
+        });
+        
+        const tieneReintentoPermitido = reintentosDisponibles.length > 0;
+        
+        console.log('Reintentos encontrados después del filtro:', reintentosDisponibles.length);
+        reintentosDisponibles.forEach(doc => {
+            console.log('Reintento disponible:', doc.id, doc.data());
+        });
         
         console.log('Reintentos encontrados:', reintentosSnapshot.size);
         reintentosSnapshot.forEach(doc => {
@@ -1464,13 +1473,19 @@ window.submitQuiz = async function() {
         const reintentosQuery = query(
             collection(db, 'reintentosEvaluaciones'), 
             where('estudianteId', '==', currentUser.email),
-            where('evaluacionId', '==', currentQuiz.id),
-            where('usado', '==', false)
+            where('evaluacionId', '==', currentQuiz.id)
         );
         const reintentosSnapshot = await getDocs(reintentosQuery);
-        if (!reintentosSnapshot.empty) {
-            // Marcar el reintento como usado
-            const reintentoDoc = reintentosSnapshot.docs[0];
+        
+        // Filtrar reintentos que no han sido usados (usado == false o campo no existe)
+        const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
+            const data = doc.data();
+            return data.usado === false || data.usado === undefined;
+        });
+        
+        if (reintentosDisponibles.length > 0) {
+            // Marcar el primer reintento disponible como usado
+            const reintentoDoc = reintentosDisponibles[0];
             await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
                 usado: true,
                 fechaUsado: new Date()

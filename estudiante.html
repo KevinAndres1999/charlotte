@@ -11070,29 +11070,6 @@ function openImageModal(imageUrl, title) {
                 }
 
                 // Si los pagos están al día, proceder con el acceso normal
-                // Verificar si hay reintento permitido y marcarlo como usado
-                try {
-                    const campoId = actualTipo === 'evaluacion' ? 'evaluacionId' : 'cuestionarioId';
-                    const reintentosQuery = query(
-                        collection(db, 'reintentosEvaluaciones'), 
-                        where('estudianteId', '==', currentUser.email),
-                        where(campoId, '==', id),
-                        where('usado', '==', false)
-                    );
-                    const reintentosSnapshot = await getDocs(reintentosQuery);
-                    if (!reintentosSnapshot.empty) {
-                        // Marcar el reintento como usado
-                        const reintentoDoc = reintentosSnapshot.docs[0];
-                        await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
-                            usado: true,
-                            fechaUsado: new Date()
-                        });
-                        console.log('Reintento marcado como usado');
-                    }
-                } catch (error) {
-                    console.error('Error marcando reintento como usado:', error);
-                }
-
                 const url = actualTipo === 'cuestionario' 
                     ? `responder-cuestionario.html?id=${id}` 
                     : `responder-evaluacion.html?id=${id}`;

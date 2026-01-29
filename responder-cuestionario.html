@@ -1069,11 +1069,17 @@ async function loadQuiz(quizId) {
             const reintentosQuery = query(
                 collection(db, 'reintentosEvaluaciones'), // Usamos la misma colección por ahora
                 where('estudianteId', '==', currentUser.email),
-                where('cuestionarioId', '==', quizId), // Buscar por cuestionarioId para cuestionarios
-                where('usado', '==', false)
+                where('cuestionarioId', '==', quizId) // Buscar por cuestionarioId para cuestionarios
             );
             const reintentosSnapshot = await getDocs(reintentosQuery);
-            tieneReintentoPermitido = !reintentosSnapshot.empty;
+            
+            // Filtrar reintentos que no han sido usados (usado == false o campo no existe)
+            const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
+                const data = doc.data();
+                return data.usado === false || data.usado === undefined;
+            });
+            
+            tieneReintentoPermitido = reintentosDisponibles.length > 0;
         } catch (error) {
             console.log('Error verificando reintentos:', error);
         }
@@ -1441,13 +1447,19 @@ window.submitQuiz = async function() {
         const reintentosQuery = query(
             collection(db, 'reintentosEvaluaciones'), // Usamos la misma colección por ahora
             where('estudianteId', '==', currentUser.email),
-            where('cuestionarioId', '==', currentQuiz.id), // Buscar por cuestionarioId
-            where('usado', '==', false)
+            where('cuestionarioId', '==', currentQuiz.id) // Buscar por cuestionarioId
         );
         const reintentosSnapshot = await getDocs(reintentosQuery);
-        if (!reintentosSnapshot.empty) {
-            // Marcar el reintento como usado
-            const reintentoDoc = reintentosSnapshot.docs[0];
+        
+        // Filtrar reintentos que no han sido usados (usado == false o campo no existe)
+        const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
+            const data = doc.data();
+            return data.usado === false || data.usado === undefined;
+        });
+        
+        if (reintentosDisponibles.length > 0) {
+            // Marcar el primer reintento disponible como usado
+            const reintentoDoc = reintentosDisponibles[0];
             await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
                 usado: true,
                 fechaUsado: new Date()
