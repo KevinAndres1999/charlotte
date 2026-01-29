@@ -2957,6 +2957,224 @@
             justify-content: center;
             z-index: 1000;
         }
+
+        /* =================== SECCIÓN USUARIOS RESPONSIVE =================== */
+        @media (max-width: 768px) {
+            /* Header de usuarios */
+            #usuarios > div:first-child {
+                padding: 1.5rem 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            #usuarios > div:first-child h2 {
+                font-size: 1.5rem !important;
+            }
+
+            #usuarios > div:first-child p {
+                font-size: 0.9rem !important;
+            }
+
+            /* Estadísticas de usuarios */
+            #usuarios > div:nth-child(2) {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            #usuarios > div:nth-child(2) > div {
+                padding: 1.25rem !important;
+            }
+
+            #usuarios > div:nth-child(2) h3 {
+                font-size: 2rem !important;
+            }
+
+            /* Nota informativa */
+            #usuarios > div:nth-child(3) {
+                padding: 0.75rem 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            /* Secciones de pendientes y aprobados */
+            #usuarios > div:nth-child(4),
+            #usuarios > div:nth-child(5) {
+                margin-bottom: 1.5rem !important;
+            }
+
+            #usuarios > div:nth-child(4) > div:first-child,
+            #usuarios > div:nth-child(5) > div:first-child {
+                padding: 1.25rem 1rem !important;
+            }
+
+            #usuarios > div:nth-child(4) > div:first-child h3,
+            #usuarios > div:nth-child(5) > div:first-child h3 {
+                font-size: 1.1rem !important;
+            }
+
+            /* Filtros */
+            #usuarios > div:nth-child(4) > div:nth-child(2) {
+                padding: 1rem !important;
+            }
+
+            #usuarios > div:nth-child(4) > div:nth-child(2) > div {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            #usuarios > div:nth-child(4) > div:nth-child(2) > div > div {
+                min-width: auto !important;
+                width: 100% !important;
+            }
+
+            /* Contenedores de usuarios */
+            #usuarios-pendientes,
+            #usuarios-aprobados {
+                padding: 0.75rem !important;
+            }
+
+            /* Grid de usuarios */
+            #usuarios-pendientes > div,
+            #usuarios-aprobados > div {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+                padding: 0.5rem !important;
+            }
+
+            /* Tarjetas de usuario */
+            #usuarios-pendientes > div > div,
+            #usuarios-aprobados > div > div {
+                padding: 1rem !important;
+                border-radius: 12px !important;
+            }
+
+            /* Contenido de tarjetas */
+            #usuarios-pendientes > div > div > div,
+            #usuarios-aprobados > div > div > div {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.75rem !important;
+            }
+
+            /* Avatar y contenido */
+            #usuarios-pendientes > div > div > div > div:first-child,
+            #usuarios-aprobados > div > div > div > div:first-child {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            #usuarios-pendientes > div > div > div > div:last-child,
+            #usuarios-aprobados > div > div > div > div:last-child {
+                width: 100% !important;
+                text-align: center !important;
+            }
+
+            /* Información del usuario */
+            #usuarios-pendientes > div > div > div > div:last-child h4,
+            #usuarios-aprobados > div > div > div > div:last-child h4 {
+                font-size: 1rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+
+            #usuarios-pendientes > div > div > div > div:last-child p,
+            #usuarios-aprobados > div > div > div > div:last-child p {
+                font-size: 0.85rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            /* Badges */
+            #usuarios-pendientes > div > div > div > div:last-child > div,
+            #usuarios-aprobados > div > div > div > div:last-child > div {
+                justify-content: center !important;
+                flex-wrap: wrap !important;
+                gap: 0.25rem !important;
+            }
+
+            #usuarios-pendientes > div > div > div > div:last-child > div > span,
+            #usuarios-aprobados > div > div > div > div:last-child > div > span {
+                font-size: 0.7rem !important;
+                padding: 0.2rem 0.5rem !important;
+            }
+
+            /* Botones de acción */
+            #usuarios-pendientes > div > div > div:last-child,
+            #usuarios-aprobados > div > div > div:last-child {
+                width: 100% !important;
+                justify-content: center !important;
+                gap: 0.5rem !important;
+                margin-top: 1rem !important;
+            }
+
+            #usuarios-pendientes > div > div > div:last-child button,
+            #usuarios-aprobados > div > div > div:last-child button {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.8rem !important;
+                min-width: 80px !important;
+            }
+
+            /* Filtros de aprobados */
+            #usuarios > div:nth-child(5) > div:nth-child(2) {
+                padding: 1rem !important;
+            }
+
+            #usuarios > div:nth-child(5) > div:nth-child(2) > div {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            #usuarios > div:nth-child(5) > div:nth-child(2) > div > div {
+                min-width: auto !important;
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Header aún más compacto */
+            #usuarios > div:first-child {
+                padding: 1rem 0.75rem !important;
+            }
+
+            #usuarios > div:first-child h2 {
+                font-size: 1.25rem !important;
+            }
+
+            /* Estadísticas más pequeñas */
+            #usuarios > div:nth-child(2) > div {
+                padding: 1rem !important;
+            }
+
+            #usuarios > div:nth-child(2) h3 {
+                font-size: 1.75rem !important;
+            }
+
+            #usuarios > div:nth-child(2) p {
+                font-size: 0.8rem !important;
+            }
+
+            /* Tarjetas de usuario más compactas */
+            #usuarios-pendientes > div > div,
+            #usuarios-aprobados > div > div {
+                padding: 0.75rem !important;
+            }
+
+            /* Botones más pequeños */
+            #usuarios-pendientes > div > div > div:last-child button,
+            #usuarios-aprobados > div > div > div:last-child button {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.75rem !important;
+                min-width: 70px !important;
+            }
+
+            /* Headers de secciones */
+            #usuarios > div:nth-child(4) > div:first-child,
+            #usuarios > div:nth-child(5) > div:first-child {
+                padding: 1rem 0.75rem !important;
+            }
+
+            #usuarios > div:nth-child(4) > div:first-child h3,
+            #usuarios > div:nth-child(5) > div:first-child h3 {
+                font-size: 1rem !important;
+            }
+        }
     </style>
 
     <!-- PWA Manifest -->
