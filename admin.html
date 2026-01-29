@@ -6715,10 +6715,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
             else if (sectionId === 'usuarios') {
+                console.log('🎯 Cambiando a sección usuarios - iniciando carga automática');
                 try {
                     loadUsuariosPendientes();
                     loadUsuariosAprobados();
-                } catch (e) { console.error('Error loading usuarios:', e); }
+                    console.log('✅ Funciones de carga de usuarios llamadas exitosamente');
+                } catch (e) { console.error('❌ Error loading usuarios:', e); }
             }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
@@ -7632,23 +7634,49 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         // Usuarios pendientes
         async function loadUsuariosPendientes() {
             try {
-                console.log('Cargando usuarios pendientes...');
+                console.log('🔄 Iniciando carga de usuarios pendientes...');
+                console.log('📡 Firebase db:', db);
+                console.log('📡 db.collection:', typeof db.collection);
+
                 const snapshot = await db.collection('pendingStudents').orderBy('registeredDate', 'desc').get();
-                console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
-                allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log('Usuarios pendientes cargados:', allPendingUsers.length);
+                console.log('✅ Snapshot obtenido:', snapshot);
+                console.log('📊 Tamaño del snapshot:', snapshot.size);
+
+                allPendingUsers = snapshot.docs.map(doc => {
+                    console.log('👤 Documento:', doc.id, doc.data());
+                    return { id: doc.id, ...doc.data() };
+                });
+
+                console.log('📋 Usuarios pendientes procesados:', allPendingUsers.length);
+                console.log('📋 Lista de usuarios:', allPendingUsers);
+
                 document.getElementById('total-pendientes').textContent = allPendingUsers.length;
+                console.log('✏️ Actualizado contador de pendientes:', allPendingUsers.length);
+
                 renderPendingUsers();
+                console.log('🎨 Renderizado de usuarios pendientes completado');
             } catch (error) {
-                console.error('Error loading pending users:', error);
+                console.error('❌ Error loading pending users:', error);
+                console.error('❌ Detalles del error:', error.message);
+                console.error('❌ Stack trace:', error.stack);
             }
         }
 
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
             try {
+                console.log('🔄 Iniciando carga de usuarios aprobados...');
+
                 const snapshot = await db.collection('users').where('role', '==', 'student').get();
-                let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log('✅ Snapshot de users obtenido:', snapshot);
+                console.log('📊 Tamaño del snapshot:', snapshot.size);
+
+                let users = snapshot.docs.map(doc => {
+                    console.log('👤 Usuario encontrado:', doc.id, doc.data());
+                    return { id: doc.id, ...doc.data() };
+                });
+
+                console.log('📋 Usuarios crudos:', users.length);
 
                 // Filtrar duplicados basados en email, manteniendo el más reciente
                 const uniqueUsers = {};
@@ -7660,10 +7688,18 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 });
 
                 allApprovedUsers = Object.values(uniqueUsers);
+                console.log('📋 Usuarios únicos procesados:', allApprovedUsers.length);
+                console.log('📋 Lista de usuarios aprobados:', allApprovedUsers);
+
                 document.getElementById('total-aprobados').textContent = allApprovedUsers.length;
+                console.log('✏️ Actualizado contador de aprobados:', allApprovedUsers.length);
+
                 renderApprovedUsers();
+                console.log('🎨 Renderizado de usuarios aprobados completado');
             } catch (error) {
-                console.error('Error loading approved users:', error);
+                console.error('❌ Error loading approved users:', error);
+                console.error('❌ Detalles del error:', error.message);
+                console.error('❌ Stack trace:', error.stack);
             }
         }
 
@@ -19401,6 +19437,9 @@ REGLAS ESTRICTAS:
             }
         }
     </script>
+
+    <!-- Script de diagnóstico Firebase -->
+    <script src="firebase-test.js"></script>
 
 </body>
 </html>
