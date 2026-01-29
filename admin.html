@@ -6714,6 +6714,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             else if (sectionId === 'evaluacion-practica') try { loadCalificacionesList(); } catch (e) { console.error('Error loading evaluacion-practica:', e); }
             else if (sectionId === 'materiales') try { loadMaterialesList(); } catch (e) { console.error('Error loading materiales:', e); }
             else if (sectionId === 'recursos') try { loadRecursosList(); } catch (e) { console.error('Error loading recursos:', e); }
+            else if (sectionId === 'usuarios') {
+                try {
+                    loadUsuariosPendientes();
+                    loadUsuariosAprobados();
+                } catch (e) { console.error('Error loading usuarios:', e); }
+            }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
         }
@@ -7627,7 +7633,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         async function loadUsuariosPendientes() {
             try {
                 console.log('Cargando usuarios pendientes...');
-                const snapshot = await getDocs(query(collection(db, 'pendingStudents'), orderBy('registeredDate', 'desc')));
+                const snapshot = await db.collection('pendingStudents').orderBy('registeredDate', 'desc').get();
                 console.log('Snapshot de pendingStudents:', snapshot.size, 'documentos');
                 allPendingUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 console.log('Usuarios pendientes cargados:', allPendingUsers.length);
@@ -7641,8 +7647,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         // Usuarios aprobados
         async function loadUsuariosAprobados() {
             try {
-                const q = query(collection(db, 'users'), where('role', '==', 'student'));
-                const snapshot = await getDocs(q);
+                const snapshot = await db.collection('users').where('role', '==', 'student').get();
                 let users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 // Filtrar duplicados basados en email, manteniendo el más reciente
