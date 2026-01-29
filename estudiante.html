@@ -5260,14 +5260,24 @@ function loadStudentInfo() {
 
 function filterByUserAccess(items) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    if (!currentUser) return [];
+    if (!currentUser) {
+        console.log('❌ filterByUserAccess: No hay usuario logueado');
+        return [];
+    }
+
+    console.log('🔍 filterByUserAccess: Usuario actual:', currentUser);
+    console.log('🔍 filterByUserAccess: Items totales:', items.length);
 
     const filtered = items.filter(item => {
+        console.log('🔍 Evaluando item:', item.id, item.titulo || item.nombre);
 
         // Filtrar por programa
         const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
         const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
+        console.log('🔍 Programa - Item:', itemPrograma, 'Usuario:', userPrograma);
+
         if (!itemPrograma || itemPrograma !== userPrograma) {
+            console.log('❌ Rechazado por programa diferente');
             return false;
         }
 
@@ -5275,21 +5285,30 @@ function filterByUserAccess(items) {
         if (item.combinacionesPermitidas && Array.isArray(item.combinacionesPermitidas) && item.combinacionesPermitidas.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
             const userHorario = (currentUser.horario || '').toString().trim();
+            console.log('🔍 Combinaciones permitidas:', item.combinacionesPermitidas);
+            console.log('🔍 Usuario - Sede:', userSede, 'Horario:', userHorario);
 
-            const combinacionPermitida = item.combinacionesPermitidas.some(combo =>
-                combo.sede === userSede && combo.horario === userHorario
-            );
+            const combinacionPermitida = item.combinacionesPermitidas.some(combo => {
+                const match = combo.sede === userSede && combo.horario === userHorario;
+                console.log('🔍 Comparando combo:', combo, 'Match:', match);
+                return match;
+            });
 
             if (!combinacionPermitida) {
+                console.log('❌ Rechazado por combinación no permitida');
                 return false;
             }
         }
         // Compatibilidad con sistema anterior (sedes y horarios separados)
         else {
+            console.log('🔍 Usando sistema anterior (sedes/horarios separados)');
+
             // Filtrar por sede (solo si el item tiene sedes definidas)
             if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
                 const userSede = (currentUser.sede || '').toString().trim();
+                console.log('🔍 Sedes del item:', item.sedes, 'Sede usuario:', userSede);
                 if (!userSede || !item.sedes.includes(userSede)) {
+                    console.log('❌ Rechazado por sede no incluida');
                     return false;
                 }
             }
@@ -5297,7 +5316,9 @@ function filterByUserAccess(items) {
             // Filtrar por horario (solo si el item tiene horarios definidos)
             if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').toString().trim();
+                console.log('🔍 Horarios del item:', item.horarios, 'Horario usuario:', userHorario);
                 if (!userHorario || !item.horarios.includes(userHorario)) {
+                    console.log('❌ Rechazado por horario no incluido');
                     return false;
                 }
             }
@@ -5306,15 +5327,19 @@ function filterByUserAccess(items) {
         // Filtrar por fechas de disponibilidad
         const now = new Date();
         if (item.fechaInicio && new Date(item.fechaInicio) > now) {
+            console.log('❌ Rechazado por fecha de inicio futura');
             return false;
         }
         if (item.fechaFin && new Date(item.fechaFin) < now) {
+            console.log('❌ Rechazado por fecha de fin pasada');
             return false;
         }
 
+        console.log('✅ Item aprobado:', item.id);
         return true;
     });
 
+    console.log('📊 Resultado filtrado:', filtered.length, 'de', items.length);
     return filtered;
 }
 
