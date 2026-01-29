@@ -1023,6 +1023,7 @@ async function loadRespuestasParaRevision(quizId, estudianteEmail) {
 
 // =================== FUNCIONES PRINCIPALES ===================
 async function loadQuiz(quizId) {
+    console.log('🔍 loadQuiz in responder-evaluacion.html called with ID:', quizId);
     try {
         console.log('Loading quiz with ID:', quizId);
         console.log('Firebase db object:', db);
@@ -1062,23 +1063,66 @@ async function loadQuiz(quizId) {
         // Guardar en variable global
         window.intentosRealizados = intentosRealizados;
         
+        // Verificar si hay reintento permitido
+        // Primero buscar todos los reintentos para este estudiante (debug)
+        const debugQuery = query(
+            collection(db, 'reintentosEvaluaciones'), 
+            where('estudianteId', '==', currentUser.email)
+        );
+        const debugSnapshot = await getDocs(debugQuery);
+        console.log('DEBUG - Todos los reintentos para este estudiante:', debugSnapshot.size);
+        debugSnapshot.forEach(doc => {
+            console.log('DEBUG - Reintento:', doc.id, doc.data());
+        });
+        
+        const reintentosQuery = query(
+            collection(db, 'reintentosEvaluaciones'), 
+            where('estudianteId', '==', currentUser.email),
+            where('evaluacionId', '==', quizId),
+            where('usado', '==', false)
+        );
+        let reintentosSnapshot = await getDocs(reintentosQuery);
+        
+        // Si no encuentra por evaluacionId, buscar por cuestionarioId (por compatibilidad)
+        if (reintentosSnapshot.empty) {
+            const reintentosQuery2 = query(
+                collection(db, 'reintentosEvaluaciones'), 
+                where('estudianteId', '==', currentUser.email),
+                where('cuestionarioId', '==', quizId),
+                where('usado', '==', false)
+            );
+            reintentosSnapshot = await getDocs(reintentosQuery2);
+        }
+        
+        const tieneReintentoPermitido = !reintentosSnapshot.empty;
+        
+        console.log('Reintentos encontrados:', reintentosSnapshot.size);
+        reintentosSnapshot.forEach(doc => {
+            console.log('Reintento doc:', doc.id, doc.data());
+        });
+        
         // Verificar si puede responder
         const fechaLimite = currentQuiz.fechaLimite ? new Date(currentQuiz.fechaLimite) : null;
         const vencido = fechaLimite && new Date() > fechaLimite;
         const maxIntentos = currentQuiz.intentosMaximos || currentQuiz.numeroIntentos || currentQuiz.intentos || 1;
-        const intentosAgotados = intentosRealizados >= maxIntentos;
+        const intentosAgotados = intentosRealizados >= maxIntentos && !tieneReintentoPermitido;
+        
+        console.log('Intentos realizados:', intentosRealizados, 'Máximo:', maxIntentos, 'Agotados:', intentosAgotados, 'Reintento permitido:', tieneReintentoPermitido);
         
         if (vencido) {
             showError('Esta evaluación ha expirado');
             return;
         }
         
-        if (intentosAgotados) {
-            // Si ya completó la evaluación, permitir revisar respuestas
-            console.log('Usuario ya completó la evaluación, cargando respuestas para revisión');
+        if (intentosAgotados && !tieneReintentoPermitido) {
+            // Si ya completó la evaluación y NO tiene reintento permitido, permitir revisar respuestas
+            console.log('Usuario ya completó la evaluación y no tiene reintento, cargando respuestas para revisión');
             await loadRespuestasParaRevision(quizId, currentUser.email);
             return;
         }
+
+        // Si tiene reintento permitido o no ha agotado intentos, permitir responder
+        console.log('Usuario puede responder la evaluación (reintento permitido o intentos disponibles)');
 
         // Inicializar respuestas
         answers = new Array(currentQuiz.preguntas.length).fill(null);
@@ -1416,6 +1460,24 @@ window.submitQuiz = async function() {
     }
 
     try {
+        // Si es un reintento, marcarlo como usado
+        const reintentosQuery = query(
+            collection(db, 'reintentosEvaluaciones'), 
+            where('estudianteId', '==', currentUser.email),
+            where('evaluacionId', '==', currentQuiz.id),
+            where('usado', '==', false)
+        );
+        const reintentosSnapshot = await getDocs(reintentosQuery);
+        if (!reintentosSnapshot.empty) {
+            // Marcar el reintento como usado
+            const reintentoDoc = reintentosSnapshot.docs[0];
+            await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
+                usado: true,
+                fechaUsado: new Date()
+            });
+            console.log('Reintento marcado como usado al enviar evaluación');
+        }
+
         // Preparar datos para enviar
         const respuestasData = {
             estudianteId: currentUser.email,
@@ -1630,14 +1692,19 @@ async function actualizarCalificacionModulo(estudianteId, evaluacion, calificaci
         };
 
         if (!existingSnapshot.empty) {
-            // Actualizar existente
+            // Actualizar existente - SOLO el campo evaluacion, preservar otros campos
             const docId = existingSnapshot.docs[0].id;
-            await updateDoc(doc(db, 'calificaciones_modulos', docId), califData);
-            console.log(`Calificación de evaluación actualizada en ${moduloKey} para ${estudianteId}`);
+            const updateData = {
+                evaluacion: calificacion,
+                fechaActualizacion: new Date().toISOString(),
+                actualizadoPor: 'sistema_auto'
+            };
+            await updateDoc(doc(db, 'calificaciones_modulos', docId), updateData);
+            console.log(`✅ Calificación de evaluación actualizada en ${moduloKey} para ${estudianteId} (solo campo evaluacion)`);
         } else {
             // Crear nueva
             await addDoc(collection(db, 'calificaciones_modulos'), califData);
-            console.log(`Nueva calificación de evaluación creada en ${moduloKey} para ${estudianteId}`);
+            console.log(`🆕 Nueva calificación de evaluación creada en ${moduloKey} para ${estudianteId}`);
         }
 
     } catch (error) {

@@ -16970,6 +16970,8 @@ REGLAS ESTRICTAS:
 
         async function updateModuloGrade(estudianteId, moduloNum, componente, valor) {
             try {
+                console.log(`🔄 Actualizando calificación: estudiante=${estudianteId}, modulo=${moduloNum}, componente=${componente}, valor=${valor}`);
+
                 const notaNum = parseFloat(valor);
                 if (isNaN(notaNum)) {
                     alert('El valor debe ser un número válido');
@@ -16997,6 +16999,8 @@ REGLAS ESTRICTAS:
                     limit(1)
                 ));
 
+                console.log(`📋 Documentos encontrados para ${estudianteId} - ${moduloKey}:`, existingSnapshot.size);
+
                 const califData = {
                     estudianteId: estudianteId,
                     modulo: moduloKey,
@@ -17006,20 +17010,33 @@ REGLAS ESTRICTAS:
                 };
 
                 if (!existingSnapshot.empty) {
-                    // Actualizar existente
+                    // Actualizar existente - solo el campo específico
                     const docId = existingSnapshot.docs[0].id;
-                    await doc(db, 'calificaciones_modulos', docId).update(califData);
+                    const existingData = existingSnapshot.docs[0].data();
+                    console.log(`📝 Actualizando documento existente ${docId}:`, existingData);
+
+                    // Solo actualizar el campo específico, preservar los demás
+                    const updateData = {
+                        [componente]: notaNum,
+                        fechaActualizacion: new Date().toISOString(),
+                        actualizadoPor: sessionStorage.getItem('userId') || 'admin'
+                    };
+
+                    await updateDoc(doc(db, 'calificaciones_modulos', docId), updateData);
+                    console.log(`✅ Campo ${componente} actualizado a ${notaNum} en documento ${docId}`);
                 } else {
-                    // Crear nueva
+                    // Crear nueva - incluir todos los campos necesarios
+                    console.log(`🆕 Creando nuevo documento para ${estudianteId} - ${moduloKey}`);
                     await addDoc(collection(db, 'calificaciones_modulos'), califData);
+                    console.log(`✅ Nuevo documento creado con ${componente}: ${notaNum}`);
                 }
 
                 // Actualizar los totales en la interfaz sin recargar toda la tabla
                 updateRowTotals(estudianteId);
 
-                console.log(`Calificación ${componente} del módulo ${moduloNum} actualizada para estudiante ${estudianteId}`);
+                console.log(`🎯 Calificación ${componente} del módulo ${moduloNum} actualizada exitosamente para estudiante ${estudianteId}`);
             } catch (error) {
-                console.error('Error updating modulo grade:', error);
+                console.error('❌ Error updating modulo grade:', error);
                 alert('Error al actualizar calificación: ' + error.message);
                 // Recargar la lista para revertir el cambio
                 loadCalificacionesList();
@@ -18548,9 +18565,14 @@ REGLAS ESTRICTAS:
                                             ${fechaFormateada}
                                         </td>
                                         <td style="padding: 1rem; text-align: center;">
-                                            <button onclick="verDetalleRespuestaCuestionario('${r.id}')" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#3b82f6'">
-                                                <i class="fas fa-eye"></i> Ver
-                                            </button>
+                                            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                                <button onclick="verDetalleRespuestaCuestionario('${r.id}')" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#1e3a8a'" onmouseout="this.style.background='#3b82f6'">
+                                                    <i class="fas fa-eye"></i> Ver
+                                                </button>
+                                                <button onclick="permitirReintentoCuestionario('${r.id}', '${r.estudianteId}', '${r.cuestionarioId}')" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">
+                                                    <i class="fas fa-redo"></i> Reintento
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 `;
@@ -19208,6 +19230,7 @@ REGLAS ESTRICTAS:
 
                 // Agregar a colección de reintentos permitidos
                 await addDoc(collection(db, 'reintentosEvaluaciones'), reintentoData);
+                console.log('Reintento creado:', reintentoData);
 
                 // Opcional: Marcar la respuesta original como "reintento permitido"
                 await updateDoc(doc(db, 'respuestasEvaluaciones', respuestaId), {
@@ -19220,6 +19243,38 @@ REGLAS ESTRICTAS:
                 // Recargar los resultados para mostrar el cambio
                 loadResultadosEvaluaciones();
 
+            } catch (error) {
+                console.error('Error al permitir reintento:', error);
+                alert('Error al permitir el reintento: ' + error.message);
+            }
+        }
+
+        async function permitirReintentoCuestionario(respuestaId, estudianteId, cuestionarioId) {
+            if (!confirm('¿Está seguro de que desea permitir que este estudiante vuelva a realizar este cuestionario? Esto eliminará su respuesta anterior y le permitirá intentarlo nuevamente.')) {
+                return;
+            }
+
+            try {
+                // Crear documento de reintento permitido
+                const reintentoData = {
+                    estudianteId: estudianteId,
+                    cuestionarioId: cuestionarioId,
+                    respuestaOriginalId: respuestaId,
+                    permitidoPor: 'admin',
+                    fechaPermiso: new Date(),
+                    usado: false
+                };
+
+                // Agregar a colección de reintentos permitidos (usamos la misma colección por ahora)
+                await addDoc(collection(db, 'reintentosEvaluaciones'), reintentoData);
+
+                // Opcional: Marcar la respuesta original como "reintento permitido"
+                await updateDoc(doc(db, 'respuestasCuestionarios', respuestaId), {
+                    reintentoPermitido: true,
+                    fechaReintentoPermitido: new Date()
+                });
+
+                alert('Reintento permitido exitosamente. El estudiante ahora podrá volver a realizar este cuestionario.');
             } catch (error) {
                 console.error('Error al permitir reintento:', error);
                 alert('Error al permitir el reintento: ' + error.message);

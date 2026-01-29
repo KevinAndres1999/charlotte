@@ -6031,10 +6031,10 @@ function renderCuestionarios() {
                     ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
                 </div>` : ''}
                 <div class="clase-actions">
-                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${cuestionario.id}', 'cuestionario')" ${!puedeResponder ? 'disabled' : ''}>
+                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${cuestionario.id.replace(/'/g, '\\\'')}', 'cuestionario')" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
                     </button>
-                    ${isCompleted ? `<button class="btn-eye-clase" onclick="mostrarRespuestasModal('${cuestionario.id}', 'cuestionario')" title="Ver respuestas detalladas">
+                    ${isCompleted ? `<button class="btn-eye-clase" onclick="mostrarRespuestasModal('${cuestionario.id.replace(/'/g, '\\\'')}', 'cuestionario')" title="Ver respuestas detalladas">
                         <i class="fas fa-eye"></i>
                     </button>` : ''}
                 </div>
@@ -6128,10 +6128,10 @@ function renderEvaluaciones() {
                     ${vencido ? ' <strong>(VENCIDO)</strong>' : ''}
                 </div>` : ''}
                 <div class="clase-actions">
-                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${evaluacion.id}', 'evaluacion')" ${!puedeResponder ? 'disabled' : ''}>
+                    <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${evaluacion.id.replace(/'/g, '\\\'')}', 'evaluacion')" ${!puedeResponder ? 'disabled' : ''}>
                         <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : tieneReintentoPermitido ? 'Reintentar Evaluación' : isCompleted && !puedeResponder ? 'Ya has realizado la evaluación' : isCompleted ? 'Revisar Respuesta' : 'Responder Evaluación'}
                     </button>
-                    ${isCompleted && !tieneReintentoPermitido ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id}', 'evaluacion')" title="Ver respuestas detalladas">
+                    ${isCompleted && !tieneReintentoPermitido ? `<button class="btn-eye-clase" onclick="verRespuestasCuestionario('${evaluacion.id.replace(/'/g, '\\\'')}', 'evaluacion')" title="Ver respuestas detalladas">
                         <i class="fas fa-eye"></i>
                     </button>` : ''}
                 </div>
@@ -7826,12 +7826,18 @@ async function loadEvaluaciones() {
             const respuestasQuery = query(collection(db, 'respuestasEvaluaciones'), where('estudianteId', '==', currentUser.email));
             const reintentosQuery = query(collection(db, 'reintentosEvaluaciones'), where('estudianteId', '==', currentUser.email), where('usado', '==', false));
             
-            // Cargar reintentos permitidos
+            // Cargar reintentos permitidos (tanto para evaluaciones como cuestionarios)
             const reintentosSnapshot = await getDocs(reintentosQuery);
             const reintentosPermitidos = {};
             reintentosSnapshot.forEach(doc => {
                 const reintento = doc.data();
-                reintentosPermitidos[reintento.evaluacionId] = { id: doc.id, ...reintento };
+                // Guardar tanto por evaluacionId como por cuestionarioId
+                if (reintento.evaluacionId) {
+                    reintentosPermitidos[reintento.evaluacionId] = { id: doc.id, ...reintento, tipo: 'evaluacion' };
+                }
+                if (reintento.cuestionarioId) {
+                    reintentosPermitidos[reintento.cuestionarioId] = { id: doc.id, ...reintento, tipo: 'cuestionario' };
+                }
             });
             
             onSnapshot(respuestasQuery, (snapshot) => {
@@ -9105,13 +9111,31 @@ async function actualizarNotasEvaluacionesPorModulo() {
                     where('modulo', '==', moduloKey),
                     limit(1)
                 ));
+
+                const updateData = {
+                    evaluaciones: notaCalculada,
+                    fechaActualizacion: new Date().toISOString(),
+                    programa: currentUser.programa || ''
+                };
+
                 if (!existingSnapshot.empty) {
-                    // Actualizar existente
+                    // Actualizar existente - SOLO el campo evaluaciones
                     const docId = existingSnapshot.docs[0].id;
-                    await updateDoc(doc(db, 'calificaciones_modulos', docId), califData);
+                    await updateDoc(doc(db, 'calificaciones_modulos', docId), updateData);
+                    console.log(`✅ Calificación de evaluaciones actualizada en ${moduloKey} para ${currentUser.email}`);
                 } else {
-                    // Crear nueva
+                    // Crear nueva con valores por defecto
+                    const califData = {
+                        estudianteId: currentUser.email,
+                        modulo: moduloKey,
+                        evaluaciones: notaCalculada,
+                        actividades: 0,
+                        practica: 0,
+                        fechaActualizacion: new Date().toISOString(),
+                        programa: currentUser.programa || ''
+                    };
                     await addDoc(collection(db, 'calificaciones_modulos'), califData);
+                    console.log(`🆕 Nueva calificación creada en ${moduloKey} para ${currentUser.email}`);
                 }
                 
                 // Actualizar el valor guardado para evitar re-guardar en la misma sesión
@@ -10981,6 +11005,7 @@ function openImageModal(imageUrl, title) {
         
         // Función para verificar pagos antes de acceder a cuestionarios/evaluaciones
         async function verificarPagosYAcceder(id, tipo) {
+            console.log('🔍 verificarPagosYAcceder called with:', { id, tipo });
             try {
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                 if (!currentUser) {
@@ -11027,34 +11052,51 @@ function openImageModal(imageUrl, title) {
                     return;
                 }
 
-                // Si los pagos están al día, proceder con el acceso normal
-                // Verificar si hay reintento permitido y marcarlo como usado
-                if (tipo === 'evaluacion') {
-                    try {
-                        const reintentosQuery = query(
-                            collection(db, 'reintentosEvaluaciones'), 
-                            where('estudianteId', '==', currentUser.email),
-                            where('evaluacionId', '==', id),
-                            where('usado', '==', false)
-                        );
-                        const reintentosSnapshot = await getDocs(reintentosQuery);
-                        if (!reintentosSnapshot.empty) {
-                            // Marcar el reintento como usado
-                            const reintentoDoc = reintentosSnapshot.docs[0];
-                            await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
-                                usado: true,
-                                fechaUsado: new Date()
-                            });
-                            console.log('Reintento marcado como usado');
-                        }
-                    } catch (error) {
-                        console.error('Error marcando reintento como usado:', error);
+                // Verificar que la actividad existe en la colección correcta
+                let actualTipo = tipo;
+                try {
+                    const collectionName = tipo === 'evaluacion' ? 'evaluaciones' : 'cuestionarios';
+                    const docSnap = await getDoc(doc(db, collectionName, id));
+                    if (!docSnap.exists()) {
+                        console.error('Documento no encontrado en', collectionName, ':', id);
+                        alert('Actividad no encontrada');
+                        return;
                     }
+                    console.log('Actividad encontrada en', collectionName);
+                } catch (error) {
+                    console.error('Error verificando existencia de la actividad:', error);
+                    alert('Error al verificar la actividad');
+                    return;
                 }
 
-                const url = tipo === 'cuestionario' ?
-                    `responder-cuestionario.html?id=${id}` :
-                    `responder-evaluacion.html?id=${id}`;
+                // Si los pagos están al día, proceder con el acceso normal
+                // Verificar si hay reintento permitido y marcarlo como usado
+                try {
+                    const campoId = actualTipo === 'evaluacion' ? 'evaluacionId' : 'cuestionarioId';
+                    const reintentosQuery = query(
+                        collection(db, 'reintentosEvaluaciones'), 
+                        where('estudianteId', '==', currentUser.email),
+                        where(campoId, '==', id),
+                        where('usado', '==', false)
+                    );
+                    const reintentosSnapshot = await getDocs(reintentosQuery);
+                    if (!reintentosSnapshot.empty) {
+                        // Marcar el reintento como usado
+                        const reintentoDoc = reintentosSnapshot.docs[0];
+                        await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
+                            usado: true,
+                            fechaUsado: new Date()
+                        });
+                        console.log('Reintento marcado como usado');
+                    }
+                } catch (error) {
+                    console.error('Error marcando reintento como usado:', error);
+                }
+
+                const url = actualTipo === 'cuestionario' 
+                    ? `responder-cuestionario.html?id=${id}` 
+                    : `responder-evaluacion.html?id=${id}`;
+                console.log('� Tipo recibido:', tipo, 'URL generada:', url);
                 window.location.href = url;
 
             } catch (error) {

@@ -159,12 +159,6 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
-            }
-          });
-        })
-    );
-  }
-});
 
 // Manejar Push Notifications
 self.addEventListener('push', (event) => {
@@ -240,7 +234,10 @@ self.addEventListener('notificationclick', (event) => {
 
 // Manejar mensajes del cliente
 self.addEventListener('message', (event) => {
-  console.log('Service Worker: Mensaje recibido', event.data);
+  // Solo loguear mensajes importantes, no los ruidosos de Firebase
+  if (event.data && (event.data.type === 'SKIP_WAITING' || event.data.type === 'GET_VERSION' || event.data.type === 'background-sync')) {
+    console.log('Service Worker: Mensaje recibido', event.data);
+  }
 
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -253,7 +250,7 @@ self.addEventListener('message', (event) => {
 
 // Background Sync (para futuras implementaciones)
 self.addEventListener('sync', (event) => {
-  console.log('Service Worker: Background sync', event.tag);
+  // console.log('Service Worker: Background sync', event.tag);
 
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
@@ -262,7 +259,7 @@ self.addEventListener('sync', (event) => {
 
 async function doBackgroundSync() {
   // Implementar sincronización en background cuando sea necesario
-  console.log('Service Worker: Ejecutando background sync');
+  // console.log('Service Worker: Ejecutando background sync');
 }
 
 // Periodic Background Sync (para futuras implementaciones)

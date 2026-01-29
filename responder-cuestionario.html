@@ -1023,6 +1023,7 @@ async function loadRespuestasParaRevision(quizId, estudianteEmail) {
 
 // =================== FUNCIONES PRINCIPALES ===================
 async function loadQuiz(quizId) {
+    console.log('🔍 loadQuiz in responder-cuestionario.html called with ID:', quizId);
     try {
         console.log('Loading quiz with ID:', quizId);
         console.log('Firebase db object:', db);
@@ -1062,11 +1063,28 @@ async function loadQuiz(quizId) {
         // Guardar en variable global
         window.intentosRealizados = intentosRealizados;
         
+        // Verificar si hay reintento permitido
+        let tieneReintentoPermitido = false;
+        try {
+            const reintentosQuery = query(
+                collection(db, 'reintentosEvaluaciones'), // Usamos la misma colección por ahora
+                where('estudianteId', '==', currentUser.email),
+                where('cuestionarioId', '==', quizId), // Buscar por cuestionarioId para cuestionarios
+                where('usado', '==', false)
+            );
+            const reintentosSnapshot = await getDocs(reintentosQuery);
+            tieneReintentoPermitido = !reintentosSnapshot.empty;
+        } catch (error) {
+            console.log('Error verificando reintentos:', error);
+        }
+        
         // Verificar si puede responder
         const fechaLimite = currentQuiz.fechaLimite ? new Date(currentQuiz.fechaLimite) : null;
         const vencido = fechaLimite && new Date() > fechaLimite;
         const maxIntentos = currentQuiz.intentosMaximos || currentQuiz.numeroIntentos || currentQuiz.intentos || 1;
-        const intentosAgotados = intentosRealizados >= maxIntentos;
+        const intentosAgotados = intentosRealizados >= maxIntentos && !tieneReintentoPermitido;
+        
+        console.log('Intentos realizados:', intentosRealizados, 'Máximo:', maxIntentos, 'Agotados:', intentosAgotados, 'Reintento permitido:', tieneReintentoPermitido);
         
         if (vencido) {
             showError('Este cuestionario ha expirado');
@@ -1074,11 +1092,14 @@ async function loadQuiz(quizId) {
         }
         
         if (intentosAgotados) {
-            // Si ya completó el cuestionario, permitir revisar respuestas
-            console.log('Usuario ya completó el cuestionario, cargando respuestas para revisión');
+            // Si ya completó el cuestionario y NO tiene reintento permitido, permitir revisar respuestas
+            console.log('Usuario ya completó el cuestionario y no tiene reintento, cargando respuestas para revisión');
             await loadRespuestasParaRevision(quizId, currentUser.email);
             return;
         }
+
+        // Si tiene reintento permitido o no ha agotado intentos, permitir responder
+        console.log('Usuario puede responder el cuestionario (reintento permitido o intentos disponibles)');
 
         // Inicializar respuestas
         answers = new Array(currentQuiz.preguntas.length).fill(null);
@@ -1416,6 +1437,24 @@ window.submitQuiz = async function() {
     }
 
     try {
+        // Si es un reintento, marcarlo como usado
+        const reintentosQuery = query(
+            collection(db, 'reintentosEvaluaciones'), // Usamos la misma colección por ahora
+            where('estudianteId', '==', currentUser.email),
+            where('cuestionarioId', '==', currentQuiz.id), // Buscar por cuestionarioId
+            where('usado', '==', false)
+        );
+        const reintentosSnapshot = await getDocs(reintentosQuery);
+        if (!reintentosSnapshot.empty) {
+            // Marcar el reintento como usado
+            const reintentoDoc = reintentosSnapshot.docs[0];
+            await updateDoc(doc(db, 'reintentosEvaluaciones', reintentoDoc.id), {
+                usado: true,
+                fechaUsado: new Date()
+            });
+            console.log('Reintento marcado como usado al enviar cuestionario');
+        }
+
         // Preparar datos para enviar
         const respuestasData = {
             estudianteId: currentUser.email,

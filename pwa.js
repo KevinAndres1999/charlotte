@@ -2,6 +2,7 @@
 class CharlottePWA {
     constructor() {
         this.deferredPrompt = null;
+        this.backgroundSyncRegistered = false;
         this.init();
     }
 
@@ -179,12 +180,20 @@ class CharlottePWA {
     async syncPendingData() {
         console.log('PWA: Sincronizando datos pendientes...');
 
+        // Evitar registrar múltiples veces
+        if (this.backgroundSyncRegistered) {
+            console.log('PWA: Background sync ya registrado, omitiendo');
+            return;
+        }
+
         // Aquí implementarías la lógica para sincronizar datos pendientes
         // Por ejemplo, enviar entregas guardadas localmente, etc.
 
         if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
             const registration = await navigator.serviceWorker.ready;
             await registration.sync.register('background-sync');
+            this.backgroundSyncRegistered = true;
+            console.log('PWA: Background sync registrado');
         }
     }
 
@@ -216,6 +225,59 @@ class CharlottePWA {
             channel.port1.onmessage = (event) => resolve(event.data.version);
             controller.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
         });
+    }
+
+    // Manejar actualizaciones del Service Worker
+    setupServiceWorkerUpdates() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('PWA: Service Worker registrado');
+
+                    // Verificar actualizaciones cada vez que se carga la página
+                    registration.update();
+
+                    // Escuchar por nuevas versiones
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        if (newWorker) {
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nueva versión disponible - solo mostrar si no se mostró recientemente
+                                    const lastShown = localStorage.getItem('sw-update-notification-shown');
+                                    const now = Date.now();
+                                    if (!lastShown || (now - parseInt(lastShown)) > 300000) { // 5 minutos
+                                        showUpdateNotification();
+                                        localStorage.setItem('sw-update-notification-shown', now.toString());
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    // Si ya hay un service worker esperando, mostrar notificación (solo una vez por sesión)
+                    if (registration.waiting && !localStorage.getItem('sw-update-shown-session')) {
+                        showUpdateNotification();
+                        localStorage.setItem('sw-update-shown-session', 'true');
+                    }
+                })
+                .catch((error) => {
+                    console.error('PWA: Error registrando Service Worker:', error);
+                });
+
+            // Escuchar mensajes del service worker
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                    // Solo mostrar si no se mostró recientemente
+                    const lastShown = localStorage.getItem('sw-update-notification-shown');
+                    const now = Date.now();
+                    if (!lastShown || (now - parseInt(lastShown)) > 300000) { // 5 minutos
+                        showUpdateNotification();
+                        localStorage.setItem('sw-update-notification-shown', now.toString());
+                    }
+                }
+            });
+        }
     }
 }
 
@@ -251,49 +313,8 @@ async function requestNotificationPermission() {
     return permission === 'granted';
 }
 
-// Manejar actualizaciones del Service Worker
-setupServiceWorkerUpdates() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-                console.log('PWA: Service Worker registrado');
-
-                // Verificar actualizaciones cada vez que se carga la página
-                registration.update();
-
-                // Escuchar por nuevas versiones
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    if (newWorker) {
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nueva versión disponible
-                                this.showUpdateNotification();
-                            }
-                        });
-                    }
-                });
-
-                // Si ya hay un service worker esperando, mostrar notificación
-                if (registration.waiting) {
-                    this.showUpdateNotification();
-                }
-            })
-            .catch((error) => {
-                console.error('PWA: Error registrando Service Worker:', error);
-            });
-
-        // Escuchar mensajes del service worker
-        navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
-                this.showUpdateNotification();
-            }
-        });
-    }
-}
-
 // Mostrar notificación de actualización
-showUpdateNotification() {
+function showUpdateNotification() {
     // Crear notificación toast
     const toast = document.createElement('div');
     toast.id = 'sw-update-toast';
@@ -360,13 +381,17 @@ showUpdateNotification() {
 }
 
 // Actualizar Service Worker
-updateServiceWorker() {
+function updateServiceWorker() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then((registration) => {
             if (registration.waiting) {
                 registration.waiting.postMessage({ type: 'SKIP_WAITING' });
             }
         });
+
+        // Limpiar indicadores de notificación antes de recargar
+        localStorage.removeItem('sw-update-notification-shown');
+        localStorage.removeItem('sw-update-shown-session');
 
         // Recargar la página después de un breve delay
         setTimeout(() => {
