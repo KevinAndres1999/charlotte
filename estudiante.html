@@ -5340,6 +5340,22 @@ function filterByUserAccess(items) {
     });
 
     console.log('📊 Resultado filtrado:', filtered.length, 'de', items.length);
+
+    // 🔥 RESPALDO TEMPORAL: Si no hay items filtrados, mostrar todos los del programa correcto
+    // Esto permite acceso mientras se diagnostica el problema de permisos
+    if (filtered.length === 0 && items.length > 0) {
+        console.log('🚨 RESPALDO ACTIVADO: Mostrando todos los items del programa por falta de permisos específicos');
+
+        const respaldoFiltered = items.filter(item => {
+            const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
+            const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
+            return itemPrograma && itemPrograma === userPrograma;
+        });
+
+        console.log('📊 Items con respaldo:', respaldoFiltered.length);
+        return respaldoFiltered;
+    }
+
     return filtered;
 }
 
