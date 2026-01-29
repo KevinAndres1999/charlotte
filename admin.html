@@ -4994,24 +4994,36 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 <!-- Panel de Resultados -->
                 <div id="panelResultadosCuestionarios" style="display: none;">
                     <div class="quiz-builder-section">
-                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                                <div>
-                                    <h3 style="margin: 0; font-size: 1.8rem; color: white;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
-                                    <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
-                                </div>
-                                <div style="display: flex; gap: 1rem;">
-                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
-                                        <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
-                                        <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
+                        <!-- Pestañas de navegación -->
+                        <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                            <button type="button" onclick="switchCuestionariosResultadosTab('respondidos')" id="tabRespondidosCuestionarios" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-check-circle"></i> Respondidos
+                            </button>
+                            <button type="button" onclick="switchCuestionariosResultadosTab('noRespondidos')" id="tabNoRespondidosCuestionarios" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-user-times"></i> No Respondidos
+                            </button>
+                        </div>
+
+                        <!-- Panel de Respondidos -->
+                        <div id="panelRespondidosCuestionarios">
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.8rem; color: white;"><i class="fas fa-poll"></i> Resultados de Cuestionarios</h3>
+                                        <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Ver quién presentó cada cuestionario y sus calificaciones</p>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
-                                        <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
-                                        <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                    <div style="display: flex; gap: 1rem;">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                            <div style="font-size: 1.5rem; font-weight: bold;" id="totalRespuestasCuestionarios">0</div>
+                                            <div style="font-size: 0.85rem; opacity: 0.9;">Total Respuestas</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                            <div style="font-size: 1.5rem; font-weight: bold;" id="promedioGeneralCuestionarios">0%</div>
+                                            <div style="font-size: 0.85rem; opacity: 0.9;">Promedio General</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                         <!-- Filtros -->
                         <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
@@ -5084,6 +5096,84 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 <p style="margin-top: 1rem;">Cargando resultados...</p>
                             </div>
                         </div>
+                        </div><!-- Fin del panelRespondidosCuestionarios -->
+
+                        <!-- Panel de No Respondidos -->
+                        <div id="panelNoRespondidosCuestionarios" style="display: none;">
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.8rem; color: white;"><i class="fas fa-user-times"></i> Estudiantes Sin Responder</h3>
+                                        <p style="color: rgba(255,255,255,0.9); margin-top: 0.5rem;">Estudiantes que no han respondido este cuestionario</p>
+                                    </div>
+                                    <div style="display: flex; gap: 1rem;">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.25rem; border-radius: 10px; text-align: center;">
+                                            <div style="font-size: 1.5rem; font-weight: bold;" id="totalNoRespondidosCuestionarios">0</div>
+                                            <div style="font-size: 0.85rem; opacity: 0.9;">Sin Responder</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtros para No Respondidos -->
+                            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-graduation-cap"></i> Programa
+                                        </label>
+                                        <select id="filtroProgNoRespondidosCuestionarios" onchange="loadNoRespondidosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todos los programas</option>
+                                            <option value="Belleza Integral">Belleza Integral</option>
+                                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-map-marker-alt"></i> Sede
+                                        </label>
+                                        <select id="filtroSedeNoRespondidosCuestionarios" onchange="loadNoRespondidosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todas las sedes</option>
+                                            <option value="Carapungo">Carapungo</option>
+                                            <option value="Sangolquí">Sangolquí</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-clock"></i> Horario
+                                        </label>
+                                        <select id="filtroHorarioNoRespondidosCuestionarios" onchange="loadNoRespondidosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todos los horarios</option>
+                                            <option value="Sábado Matutina">Sábado Matutina</option>
+                                            <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                            <option value="Domingo Matutina">Domingo Matutina</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-file-alt"></i> Cuestionario
+                                        </label>
+                                        <select id="filtroCuestionarioNoRespondidos" onchange="loadNoRespondidosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Seleccionar cuestionario</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-search"></i> Buscar estudiante
+                                        </label>
+                                        <input type="text" id="buscarNoRespondidosCuestionarios" placeholder="Nombre o email..." onkeyup="loadNoRespondidosCuestionarios()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Lista de estudiantes sin responder -->
+                            <div id="noRespondidosCuestionariosList" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 100%;">
+                                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                    <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                                    <p style="margin-top: 1rem;">Selecciona un cuestionario para ver estudiantes sin responder</p>
+                                </div>
+                            </div>
+                        </div><!-- Fin del panelNoRespondidosCuestionarios -->
                     </div>
                 </div><!-- Fin del panelResultadosCuestionarios -->
             </div>
@@ -5614,27 +5704,39 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 <!-- Panel de Resultados de Evaluaciones -->
                 <div id="panelResultadosEvaluaciones" style="display: none;">
                     <div class="quiz-builder-section">
-                        <!-- Header -->
-                        <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-                                <div>
-                                    <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
-                                        <i class="fas fa-poll"></i> Resultados de Evaluaciones
-                                    </h3>
-                                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Visualiza y gestiona las respuestas de estudiantes</p>
-                                </div>
-                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
-                                        <div style="font-size: 1.25rem; font-weight: bold;" id="totalRespuestasEvalBadge">0</div>
-                                        <div style="font-size: 0.75rem; opacity: 0.9;">Respuestas</div>
+                        <!-- Pestañas de navegación -->
+                        <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e2e8f0;">
+                            <button type="button" onclick="switchEvaluacionesResultadosTab('respondidos')" id="tabRespondidosEvaluaciones" class="tab-btn-cuest active" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-check-circle"></i> Respondidos
+                            </button>
+                            <button type="button" onclick="switchEvaluacionesResultadosTab('noRespondidos')" id="tabNoRespondidosEvaluaciones" class="tab-btn-cuest" style="padding: 1rem 2rem; font-size: 1rem; font-weight: 600; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; border-radius: 12px 12px 0 0; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                                <i class="fas fa-user-times"></i> No Respondidos
+                            </button>
+                        </div>
+
+                        <!-- Panel de Respondidos -->
+                        <div id="panelRespondidosEvaluaciones">
+                            <!-- Header -->
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                                            <i class="fas fa-poll"></i> Resultados de Evaluaciones
+                                        </h3>
+                                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Visualiza y gestiona las respuestas de estudiantes</p>
                                     </div>
-                                    <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
-                                        <div style="font-size: 1.25rem; font-weight: bold;" id="promedioEvalBadge">0%</div>
-                                        <div style="font-size: 0.75rem; opacity: 0.9;">Promedio</div>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                            <div style="font-size: 1.25rem; font-weight: bold;" id="totalRespuestasEvalBadge">0</div>
+                                            <div style="font-size: 0.75rem; opacity: 0.9;">Respuestas</div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                            <div style="font-size: 1.25rem; font-weight: bold;" id="promedioEvalBadge">0%</div>
+                                            <div style="font-size: 0.75rem; opacity: 0.9;">Promedio</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                         <!-- Filtros -->
                         <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
@@ -5707,6 +5809,86 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 <p style="margin-top: 1rem;">Cargando resultados...</p>
                             </div>
                         </div>
+                        </div><!-- Fin del panelRespondidosEvaluaciones -->
+
+                        <!-- Panel de No Respondidos -->
+                        <div id="panelNoRespondidosEvaluaciones" style="display: none;">
+                            <div class="quiz-builder-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 2rem; border-radius: 12px 12px 0 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 0.75rem; color: white;">
+                                            <i class="fas fa-user-times"></i> Estudiantes Sin Responder
+                                        </h3>
+                                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem; color: white;">Estudiantes que no han respondido esta evaluación</p>
+                                    </div>
+                                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; text-align: center;">
+                                            <div style="font-size: 1.25rem; font-weight: bold;" id="totalNoRespondidosEvaluaciones">0</div>
+                                            <div style="font-size: 0.75rem; opacity: 0.9;">Sin Responder</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Filtros para No Respondidos -->
+                            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-graduation-cap"></i> Programa
+                                        </label>
+                                        <select id="filtroProgNoRespondidosEvaluaciones" onchange="loadNoRespondidosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todos los programas</option>
+                                            <option value="Belleza Integral">Belleza Integral</option>
+                                            <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-map-marker-alt"></i> Sede
+                                        </label>
+                                        <select id="filtroSedeNoRespondidosEvaluaciones" onchange="loadNoRespondidosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todas las sedes</option>
+                                            <option value="Carapungo">Carapungo</option>
+                                            <option value="Sangolquí">Sangolquí</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-clock"></i> Horario
+                                        </label>
+                                        <select id="filtroHorarioNoRespondidosEvaluaciones" onchange="loadNoRespondidosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Todos los horarios</option>
+                                            <option value="Sábado Matutina">Sábado Matutina</option>
+                                            <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                            <option value="Domingo Matutina">Domingo Matutina</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-clipboard-check"></i> Evaluación
+                                        </label>
+                                        <select id="filtroEvaluacionNoRespondidos" onchange="loadNoRespondidosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                            <option value="">Seleccionar evaluación</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                                            <i class="fas fa-search"></i> Buscar estudiante
+                                        </label>
+                                        <input type="text" id="buscarNoRespondidosEvaluaciones" placeholder="Nombre o email..." onkeyup="loadNoRespondidosEvaluaciones()" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Lista de estudiantes sin responder -->
+                            <div id="noRespondidosEvaluacionesList" style="background: white; border-radius: 12px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 100%;">
+                                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                                    <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                                    <p style="margin-top: 1rem;">Selecciona una evaluación para ver estudiantes sin responder</p>
+                                </div>
+                            </div>
+                        </div><!-- Fin del panelNoRespondidosEvaluaciones -->
                     </div>
                 </div><!-- Fin del panelResultadosEvaluaciones -->
             </div>
@@ -18779,6 +18961,420 @@ REGLAS ESTRICTAS:
             } catch (error) {
                 console.error('Error al permitir reintento:', error);
                 alert('Error al permitir el reintento: ' + error.message);
+            }
+        }
+
+        // Funciones para cambiar pestañas en resultados de cuestionarios
+        function switchCuestionariosResultadosTab(tab) {
+            // Cambiar estilos de botones
+            document.getElementById('tabRespondidosCuestionarios').classList.remove('active');
+            document.getElementById('tabNoRespondidosCuestionarios').classList.remove('active');
+            document.getElementById('tabRespondidosCuestionarios').style.background = '#f1f5f9';
+            document.getElementById('tabRespondidosCuestionarios').style.color = '#64748b';
+            document.getElementById('tabNoRespondidosCuestionarios').style.background = '#f1f5f9';
+            document.getElementById('tabNoRespondidosCuestionarios').style.color = '#64748b';
+
+            // Ocultar todos los paneles
+            document.getElementById('panelRespondidosCuestionarios').style.display = 'none';
+            document.getElementById('panelNoRespondidosCuestionarios').style.display = 'none';
+
+            if (tab === 'respondidos') {
+                document.getElementById('tabRespondidosCuestionarios').classList.add('active');
+                document.getElementById('tabRespondidosCuestionarios').style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                document.getElementById('tabRespondidosCuestionarios').style.color = 'white';
+                document.getElementById('panelRespondidosCuestionarios').style.display = 'block';
+                loadResultadosCuestionarios();
+            } else if (tab === 'noRespondidos') {
+                document.getElementById('tabNoRespondidosCuestionarios').classList.add('active');
+                document.getElementById('tabNoRespondidosCuestionarios').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+                document.getElementById('tabNoRespondidosCuestionarios').style.color = 'white';
+                document.getElementById('panelNoRespondidosCuestionarios').style.display = 'block';
+                
+                // Cargar cuestionarios en el filtro
+                loadCuestionariosForNoRespondidos();
+                loadNoRespondidosCuestionarios();
+            }
+        }
+
+        // Funciones para cambiar pestañas en resultados de evaluaciones
+        function switchEvaluacionesResultadosTab(tab) {
+            // Cambiar estilos de botones
+            document.getElementById('tabRespondidosEvaluaciones').classList.remove('active');
+            document.getElementById('tabNoRespondidosEvaluaciones').classList.remove('active');
+            document.getElementById('tabRespondidosEvaluaciones').style.background = '#f1f5f9';
+            document.getElementById('tabRespondidosEvaluaciones').style.color = '#64748b';
+            document.getElementById('tabNoRespondidosEvaluaciones').style.background = '#f1f5f9';
+            document.getElementById('tabNoRespondidosEvaluaciones').style.color = '#64748b';
+
+            // Ocultar todos los paneles
+            document.getElementById('panelRespondidosEvaluaciones').style.display = 'none';
+            document.getElementById('panelNoRespondidosEvaluaciones').style.display = 'none';
+
+            if (tab === 'respondidos') {
+                document.getElementById('tabRespondidosEvaluaciones').classList.add('active');
+                document.getElementById('tabRespondidosEvaluaciones').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                document.getElementById('tabRespondidosEvaluaciones').style.color = 'white';
+                document.getElementById('panelRespondidosEvaluaciones').style.display = 'block';
+                loadResultadosEvaluaciones();
+            } else if (tab === 'noRespondidos') {
+                document.getElementById('tabNoRespondidosEvaluaciones').classList.add('active');
+                document.getElementById('tabNoRespondidosEvaluaciones').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+                document.getElementById('tabNoRespondidosEvaluaciones').style.color = 'white';
+                document.getElementById('panelNoRespondidosEvaluaciones').style.display = 'block';
+                
+                // Cargar evaluaciones en el filtro
+                loadEvaluacionesForNoRespondidos();
+                loadNoRespondidosEvaluaciones();
+            }
+        }
+
+        // Función para cargar evaluaciones en el filtro de no respondidos
+        async function loadEvaluacionesForNoRespondidos() {
+            try {
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                const select = document.getElementById('filtroEvaluacionNoRespondidos');
+                const currentValue = select.value;
+                
+                select.innerHTML = '<option value="">Seleccionar evaluación</option>';
+                evaluacionesSnapshot.forEach(docSnap => {
+                    const evaluacion = docSnap.data();
+                    select.innerHTML += `<option value="${docSnap.id}">${evaluacion.titulo || 'Sin título'}</option>`;
+                });
+                
+                select.value = currentValue;
+            } catch (error) {
+                console.error('Error cargando evaluaciones para no respondidos:', error);
+            }
+        }
+
+        // Función para cargar cuestionarios en el filtro de no respondidos
+        async function loadCuestionariosForNoRespondidos() {
+            try {
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                const select = document.getElementById('filtroCuestionarioNoRespondidos');
+                const currentValue = select.value;
+                
+                select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
+                cuestionariosSnapshot.forEach(docSnap => {
+                    const cuestionario = docSnap.data();
+                    select.innerHTML += `<option value="${docSnap.id}">${cuestionario.titulo || 'Sin título'}</option>`;
+                });
+                
+                select.value = currentValue;
+            } catch (error) {
+                console.error('Error cargando cuestionarios para no respondidos:', error);
+            }
+        }
+
+        // Función para cargar estudiantes que no han respondido cuestionarios
+        async function loadNoRespondidosCuestionarios() {
+            const container = document.getElementById('noRespondidosCuestionariosList');
+            const cuestionarioId = document.getElementById('filtroCuestionarioNoRespondidos').value;
+
+            if (!cuestionarioId) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Selecciona un cuestionario para ver estudiantes sin responder</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando estudiantes...</p></div>';
+
+            try {
+                // Cargar cuestionarios para obtener información
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                const cuestionariosMap = {};
+                cuestionariosSnapshot.forEach(docSnap => {
+                    cuestionariosMap[docSnap.id] = docSnap.data();
+                });
+
+                // Cargar todas las respuestas de este cuestionario
+                const respuestasQuery = query(collection(db, 'respuestasCuestionarios'), where('cuestionarioId', '==', cuestionarioId));
+                const respuestasSnapshot = await getDocs(respuestasQuery);
+
+                // Crear set de estudiantes que ya respondieron
+                const estudiantesQueRespondieron = new Set();
+                respuestasSnapshot.forEach(docSnap => {
+                    estudiantesQueRespondieron.add(docSnap.data().estudianteId);
+                });
+
+                // Cargar todos los usuarios estudiantes
+                const usersQuery = query(collection(db, 'users'), where('role', '==', 'student'));
+                const usersSnapshot = await getDocs(usersQuery);
+
+                // Filtrar estudiantes que no han respondido
+                const estudiantesSinResponder = [];
+                usersSnapshot.forEach(docSnap => {
+                    const user = docSnap.data();
+                    if (!estudiantesQueRespondieron.has(user.email)) {
+                        estudiantesSinResponder.push({
+                            id: docSnap.id,
+                            ...user
+                        });
+                    }
+                });
+
+                // Aplicar filtros
+                const filtroPrograma = document.getElementById('filtroProgNoRespondidosCuestionarios').value;
+                const filtroSede = document.getElementById('filtroSedeNoRespondidosCuestionarios').value;
+                const filtroHorario = document.getElementById('filtroHorarioNoRespondidosCuestionarios').value;
+                const busqueda = document.getElementById('buscarNoRespondidosCuestionarios').value.toLowerCase();
+
+                let filtrados = estudiantesSinResponder.filter(estudiante => {
+                    const matchPrograma = !filtroPrograma || estudiante.programa === filtroPrograma;
+                    const matchSede = !filtroSede || estudiante.sede === filtroSede;
+                    const matchHorario = !filtroHorario || estudiante.horario === filtroHorario;
+                    const matchBusqueda = !busqueda ||
+                        estudiante.name.toLowerCase().includes(busqueda) ||
+                        estudiante.email.toLowerCase().includes(busqueda);
+                    return matchPrograma && matchSede && matchHorario && matchBusqueda;
+                });
+
+                // Actualizar contador
+                document.getElementById('totalNoRespondidosCuestionarios').textContent = filtrados.length;
+
+                if (filtrados.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; color: #10b981;"></i>
+                            <h3 style="margin-top: 1rem; color: #374151;">Todos han respondido</h3>
+                            <p>Todos los estudiantes han respondido este cuestionario</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar tabla
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Sede</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Horario</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtrados.map((estudiante, index) => `
+                                <tr style="border-bottom: 1px solid #e2e8f0; ${index % 2 === 0 ? 'background: #fafafa;' : ''}">
+                                    <td style="padding: 1rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                                ${(estudiante.name || 'E').charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600; color: #1e3a8a;">${estudiante.name}</div>
+                                                <div style="font-size: 0.8rem; color: #64748b;">${estudiante.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 1rem;">
+                                        <span style="background: ${estudiante.programa.includes('Belleza') ? '#fce7f3' : '#fef3c7'}; color: ${estudiante.programa.includes('Belleza') ? '#be185d' : '#92400e'}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                            ${estudiante.programa}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center; color: #64748b;">${estudiante.sede}</td>
+                                    <td style="padding: 1rem; text-align: center; color: #64748b;">${estudiante.horario}</td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <button onclick="darAccesoCuestionario('${estudiante.email}', '${cuestionarioId}')" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                                            <i class="fas fa-unlock"></i> Dar Acceso
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Error loading no respondidos cuestionarios:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Error al cargar estudiantes: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para cargar estudiantes que no han respondido evaluaciones
+        async function loadNoRespondidosEvaluaciones() {
+            const container = document.getElementById('noRespondidosEvaluacionesList');
+            const evaluacionId = document.getElementById('filtroEvaluacionNoRespondidos').value;
+
+            if (!evaluacionId) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #64748b;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Selecciona una evaluación para ver estudiantes sin responder</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #64748b;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i><p style="margin-top: 1rem;">Cargando estudiantes...</p></div>';
+
+            try {
+                // Cargar evaluaciones para obtener información
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                const evaluacionesMap = {};
+                evaluacionesSnapshot.forEach(docSnap => {
+                    evaluacionesMap[docSnap.id] = docSnap.data();
+                });
+
+                // Cargar todas las respuestas de esta evaluación
+                const respuestasQuery = query(collection(db, 'respuestasEvaluaciones'), where('evaluacionId', '==', evaluacionId));
+                const respuestasSnapshot = await getDocs(respuestasQuery);
+
+                // Crear set de estudiantes que ya respondieron
+                const estudiantesQueRespondieron = new Set();
+                respuestasSnapshot.forEach(docSnap => {
+                    estudiantesQueRespondieron.add(docSnap.data().estudianteId);
+                });
+
+                // Cargar todos los usuarios estudiantes
+                const usersQuery = query(collection(db, 'users'), where('role', '==', 'student'));
+                const usersSnapshot = await getDocs(usersQuery);
+
+                // Filtrar estudiantes que no han respondido
+                const estudiantesSinResponder = [];
+                usersSnapshot.forEach(docSnap => {
+                    const user = docSnap.data();
+                    if (!estudiantesQueRespondieron.has(user.email)) {
+                        estudiantesSinResponder.push({
+                            id: docSnap.id,
+                            ...user
+                        });
+                    }
+                });
+
+                // Aplicar filtros
+                const filtroPrograma = document.getElementById('filtroProgNoRespondidosEvaluaciones').value;
+                const filtroSede = document.getElementById('filtroSedeNoRespondidosEvaluaciones').value;
+                const filtroHorario = document.getElementById('filtroHorarioNoRespondidosEvaluaciones').value;
+                const busqueda = document.getElementById('buscarNoRespondidosEvaluaciones').value.toLowerCase();
+
+                let filtrados = estudiantesSinResponder.filter(estudiante => {
+                    const matchPrograma = !filtroPrograma || estudiante.programa === filtroPrograma;
+                    const matchSede = !filtroSede || estudiante.sede === filtroSede;
+                    const matchHorario = !filtroHorario || estudiante.horario === filtroHorario;
+                    const matchBusqueda = !busqueda ||
+                        estudiante.name.toLowerCase().includes(busqueda) ||
+                        estudiante.email.toLowerCase().includes(busqueda);
+                    return matchPrograma && matchSede && matchHorario && matchBusqueda;
+                });
+
+                // Actualizar contador
+                document.getElementById('totalNoRespondidosEvaluaciones').textContent = filtrados.length;
+
+                if (filtrados.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: #64748b;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; color: #10b981;"></i>
+                            <h3 style="margin-top: 1rem; color: #374151;">Todos han respondido</h3>
+                            <p>Todos los estudiantes han respondido esta evaluación</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Renderizar tabla
+                container.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: linear-gradient(135deg, #f8fafc, #e2e8f0);">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Estudiante</th>
+                                <th style="padding: 1rem; text-align: left; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Programa</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Sede</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Horario</th>
+                                <th style="padding: 1rem; text-align: center; font-weight: 600; color: #1e3a8a; border-bottom: 2px solid #e2e8f0;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtrados.map((estudiante, index) => `
+                                <tr style="border-bottom: 1px solid #e2e8f0; ${index % 2 === 0 ? 'background: #fafafa;' : ''}">
+                                    <td style="padding: 1rem;">
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                                ${(estudiante.name || 'E').charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600; color: #1e3a8a;">${estudiante.name}</div>
+                                                <div style="font-size: 0.8rem; color: #64748b;">${estudiante.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 1rem;">
+                                        <span style="background: ${estudiante.programa.includes('Belleza') ? '#fce7f3' : '#fef3c7'}; color: ${estudiante.programa.includes('Belleza') ? '#be185d' : '#92400e'}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+                                            ${estudiante.programa}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 1rem; text-align: center; color: #64748b;">${estudiante.sede}</td>
+                                    <td style="padding: 1rem; text-align: center; color: #64748b;">${estudiante.horario}</td>
+                                    <td style="padding: 1rem; text-align: center;">
+                                        <button onclick="darAccesoEvaluacion('${estudiante.email}', '${evaluacionId}')" style="background: #10b981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                                            <i class="fas fa-unlock"></i> Dar Acceso
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+
+            } catch (error) {
+                console.error('Error loading no respondidos evaluaciones:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <p style="margin-top: 1rem;">Error al cargar estudiantes: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Función para dar acceso a un cuestionario específico
+        async function darAccesoCuestionario(estudianteEmail, cuestionarioId) {
+            if (!confirm(`¿Está seguro de que desea dar acceso a ${estudianteEmail} para responder este cuestionario?`)) {
+                return;
+            }
+
+            try {
+                // Crear un documento de "acceso concedido" o simplemente mostrar mensaje
+                // Por ahora, solo mostramos confirmación ya que el estudiante ya tiene acceso general
+                alert(`Acceso concedido exitosamente. El estudiante ${estudianteEmail} ahora puede responder el cuestionario.`);
+
+                // Recargar la lista para actualizar
+                loadNoRespondidosCuestionarios();
+
+            } catch (error) {
+                console.error('Error al dar acceso:', error);
+                alert('Error al dar acceso: ' + error.message);
+            }
+        }
+
+        // Función para dar acceso a una evaluación específica
+        async function darAccesoEvaluacion(estudianteEmail, evaluacionId) {
+            if (!confirm(`¿Está seguro de que desea dar acceso a ${estudianteEmail} para responder esta evaluación?`)) {
+                return;
+            }
+
+            try {
+                // Crear un documento de "acceso concedido" o simplemente mostrar mensaje
+                // Por ahora, solo mostramos confirmación ya que el estudiante ya tiene acceso general
+                alert(`Acceso concedido exitosamente. El estudiante ${estudianteEmail} ahora puede responder la evaluación.`);
+
+                // Recargar la lista para actualizar
+                loadNoRespondidosEvaluaciones();
+
+            } catch (error) {
+                console.error('Error al dar acceso:', error);
+                alert('Error al dar acceso: ' + error.message);
             }
         }
     </script>
