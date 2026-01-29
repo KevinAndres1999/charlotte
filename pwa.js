@@ -9,6 +9,7 @@ class CharlottePWA {
         this.setupInstallPrompt();
         this.setupNetworkStatus();
         this.setupPushNotifications();
+        this.setupServiceWorkerUpdates();
     }
 
     // Manejar el prompt de instalación
@@ -248,6 +249,130 @@ async function requestNotificationPermission() {
 
     const permission = await Notification.requestPermission();
     return permission === 'granted';
+}
+
+// Manejar actualizaciones del Service Worker
+setupServiceWorkerUpdates() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+                console.log('PWA: Service Worker registrado');
+
+                // Verificar actualizaciones cada vez que se carga la página
+                registration.update();
+
+                // Escuchar por nuevas versiones
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nueva versión disponible
+                                this.showUpdateNotification();
+                            }
+                        });
+                    }
+                });
+
+                // Si ya hay un service worker esperando, mostrar notificación
+                if (registration.waiting) {
+                    this.showUpdateNotification();
+                }
+            })
+            .catch((error) => {
+                console.error('PWA: Error registrando Service Worker:', error);
+            });
+
+        // Escuchar mensajes del service worker
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'UPDATE_AVAILABLE') {
+                this.showUpdateNotification();
+            }
+        });
+    }
+}
+
+// Mostrar notificación de actualización
+showUpdateNotification() {
+    // Crear notificación toast
+    const toast = document.createElement('div');
+    toast.id = 'sw-update-toast';
+    toast.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 400px;
+            text-align: center;
+        ">
+            <div style="font-weight: 600; margin-bottom: 8px;">🎉 Actualización Disponible</div>
+            <div style="font-size: 14px; margin-bottom: 12px; opacity: 0.9;">
+                Hay una nueva versión disponible. Haz clic para actualizar.
+            </div>
+            <button id="update-btn" style="
+                background: white;
+                color: #10b981;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-right: 8px;
+            ">Actualizar</button>
+            <button id="dismiss-btn" style="
+                background: transparent;
+                color: white;
+                border: 1px solid rgba(255,255,255,0.3);
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+            ">Después</button>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Event listeners
+    document.getElementById('update-btn').addEventListener('click', () => {
+        this.updateServiceWorker();
+        toast.remove();
+    });
+
+    document.getElementById('dismiss-btn').addEventListener('click', () => {
+        toast.remove();
+    });
+
+    // Auto-remover después de 10 segundos
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 10000);
+}
+
+// Actualizar Service Worker
+updateServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((registration) => {
+            if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
+        });
+
+        // Recargar la página después de un breve delay
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
 }
 
 // Inicializar PWA cuando el DOM esté listo

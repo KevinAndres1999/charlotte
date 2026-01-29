@@ -37,10 +37,20 @@ for = "/*"
   Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[headers]]
+for = "*.html"
+
+  [headers.values]
+  Cache-Control = "public, max-age=0, must-revalidate"
+  Pragma = "no-cache"
+  Expires = "0"
+
+[[headers]]
 for = "*.js"
 
   [headers.values]
   Cache-Control = "public, max-age=0, must-revalidate"
+  Pragma = "no-cache"
+  Expires = "0"
   X-Content-Type-Options = "nosniff"
 
 [[headers]]
@@ -48,6 +58,8 @@ for = "*.css"
 
   [headers.values]
   Cache-Control = "public, max-age=0, must-revalidate"
+  Pragma = "no-cache"
+  Expires = "0"
 
 [[headers]]
 for = "/sw.js"

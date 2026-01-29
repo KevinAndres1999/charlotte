@@ -1,6 +1,6 @@
 // Service Worker para PWA Charlotte
-const CACHE_NAME = 'charlotte-v1.0.0';
-const STATIC_CACHE = 'charlotte-static-v1.0.0';
+const CACHE_NAME = 'charlotte-v1.0.1';
+const STATIC_CACHE = 'charlotte-static-v1.0.1';
 
 // Recursos críticos para cachear
 const CRITICAL_RESOURCES = [
@@ -75,79 +75,90 @@ self.addEventListener('fetch', (event) => {
   // Solo manejar requests GET
   if (event.request.method !== 'GET') return;
 
-  // Estrategia de cache: Cache First para recursos estáticos, Network First para contenido dinámico
-  if (STATIC_RESOURCES.some(resource => url.href.includes(resource)) ||
+  // Para archivos HTML, CSS, JS - Network First (siempre validar con servidor)
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('.css') || url.pathname.endsWith('.js') ||
       CRITICAL_RESOURCES.some(resource => url.pathname === resource)) {
-    // Cache First para recursos estáticos
+    event.respondWith(
+      fetch(event.request, {
+        cache: 'no-cache' // Forzar validación con servidor
+      })
+        .then((response) => {
+          // Solo cachear si la respuesta es exitosa
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Si falla la red, servir desde cache
+          return caches.match(event.request);
+        })
+    );
+  }
+  // Para otros recursos - Cache First pero con validación
+  else if (STATIC_RESOURCES.some(resource => url.href.includes(resource))) {
     event.respondWith(
       caches.match(event.request)
         .then((response) => {
           if (response) {
-            return response;
+            // Verificar si el cache está fresco (menos de 1 hora)
+            const cacheTime = new Date(response.headers.get('sw-cache-time') || 0);
+            const now = new Date();
+            const cacheAge = now - cacheTime;
+
+            if (cacheAge < 60 * 60 * 1000) { // 1 hora
+              return response;
+            }
           }
+
+          // Si no hay cache o está viejo, fetch y cachear
           return fetch(event.request).then((response) => {
-            // Cachear la respuesta para futuras requests
             if (response.status === 200) {
               const responseClone = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => {
-                // Verificar que el request sea válido antes de cachear
-                if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
-                  // Crear un nuevo Request object para asegurar que sea cacheable
-                  const requestToCache = new Request(event.request.url, {
-                    method: event.request.method,
-                    headers: event.request.headers
-                  });
-                  cache.put(requestToCache, responseClone).catch((error) => {
-                    console.warn('Service Worker: Error cacheando recurso estático:', error);
-                  });
+              // Agregar timestamp al header
+              const responseWithTime = new Response(responseClone.body, {
+                status: responseClone.status,
+                statusText: responseClone.statusText,
+                headers: {
+                  ...Object.fromEntries(responseClone.headers),
+                  'sw-cache-time': new Date().toISOString()
                 }
+              });
+
+              caches.open(STATIC_CACHE).then((cache) => {
+                cache.put(event.request, responseWithTime);
               });
             }
             return response;
           });
         })
-        .catch(() => {
-          // Si falla, intentar servir página offline básica
-          if (event.request.destination === 'document') {
-            return caches.match('/index.html');
-          }
-        })
     );
-  } else {
-    // Network First para contenido dinámico
+  }
+  // Para APIs y contenido dinámico - Network First
+  else {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cachear respuestas exitosas de API, pero excluir todas las peticiones a Firestore
-          if (response.status === 200 && !url.hostname.includes('firestore.googleapis.com')) {
+          // Cachear respuestas exitosas de API, pero excluir Firestore
+          if (response.status === 200 && !url.hostname.includes('firestore.googleapis.com') &&
+              !url.hostname.includes('googleapis.com')) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              // Verificar que el request sea válido antes de cachear
-              if (event.request.url && !event.request.url.startsWith('chrome-extension://')) {
-                // Crear un nuevo Request object para asegurar que sea cacheable
-                const requestToCache = new Request(event.request.url, {
-                  method: event.request.method,
-                  headers: event.request.headers,
-                  mode: 'cors',
-                  credentials: 'same-origin'
-                });
-                cache.put(requestToCache, responseClone).catch((error) => {
-                  console.warn('Service Worker: Error cacheando respuesta API:', error);
-                });
-              }
+              cache.put(event.request, responseClone);
             });
           }
           return response;
         })
         .catch(() => {
           // Si falla la red, intentar servir desde cache
-          return caches.match(event.request).then((response) => {
-            if (response) {
-              return response;
-            }
-            // Si no hay cache, servir página offline
-            if (event.request.destination === 'document') {
-              return caches.match('/index.html');
+          return caches.match(event.request);
+        })
+    );
+  }
+});
             }
           });
         })
