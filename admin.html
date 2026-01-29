@@ -18966,7 +18966,6 @@ REGLAS ESTRICTAS:
 
         // Funciones para cambiar pestañas en resultados de cuestionarios
         function switchCuestionariosResultadosTab(tab) {
-            console.log('switchCuestionariosResultadosTab llamado con tab:', tab);
             // Cambiar estilos de botones
             document.getElementById('tabRespondidosCuestionarios').classList.remove('active');
             document.getElementById('tabNoRespondidosCuestionarios').classList.remove('active');
@@ -18986,7 +18985,6 @@ REGLAS ESTRICTAS:
                 document.getElementById('panelRespondidosCuestionarios').style.display = 'block';
                 loadResultadosCuestionarios();
             } else if (tab === 'noRespondidos') {
-                console.log('Cambiando a pestaña No Respondidos de cuestionarios');
                 document.getElementById('tabNoRespondidosCuestionarios').classList.add('active');
                 document.getElementById('tabNoRespondidosCuestionarios').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
                 document.getElementById('tabNoRespondidosCuestionarios').style.color = 'white';
@@ -19003,7 +19001,6 @@ REGLAS ESTRICTAS:
 
         // Funciones para cambiar pestañas en resultados de evaluaciones
         function switchEvaluacionesResultadosTab(tab) {
-            console.log('switchEvaluacionesResultadosTab llamado con tab:', tab);
             // Cambiar estilos de botones
             document.getElementById('tabRespondidosEvaluaciones').classList.remove('active');
             document.getElementById('tabNoRespondidosEvaluaciones').classList.remove('active');
@@ -19023,7 +19020,6 @@ REGLAS ESTRICTAS:
                 document.getElementById('panelRespondidosEvaluaciones').style.display = 'block';
                 loadResultadosEvaluaciones();
             } else if (tab === 'noRespondidos') {
-                console.log('Cambiando a pestaña No Respondidos de evaluaciones');
                 document.getElementById('tabNoRespondidosEvaluaciones').classList.add('active');
                 document.getElementById('tabNoRespondidosEvaluaciones').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
                 document.getElementById('tabNoRespondidosEvaluaciones').style.color = 'white';
@@ -19040,72 +19036,51 @@ REGLAS ESTRICTAS:
 
         // Función para cargar evaluaciones en el filtro de no respondidos
         async function loadEvaluacionesForNoRespondidos() {
-            console.log('loadEvaluacionesForNoRespondidos: Iniciando función');
             try {
-                console.log('loadEvaluacionesForNoRespondidos: Usando db.collection directamente');
                 const evaluacionesSnapshot = await db.collection('evaluaciones').get();
-                console.log('loadEvaluacionesForNoRespondidos: Snapshot obtenido:', evaluacionesSnapshot);
-                console.log('loadEvaluacionesForNoRespondidos: Número de documentos:', evaluacionesSnapshot.size);
-                
                 const select = document.getElementById('filtroEvaluacionNoRespondidos');
-                console.log('loadEvaluacionesForNoRespondidos: Elemento select encontrado:', select);
                 
                 if (!select) {
-                    console.error('loadEvaluacionesForNoRespondidos: Elemento filtroEvaluacionNoRespondidos no encontrado');
+                    console.error('Elemento filtroEvaluacionNoRespondidos no encontrado');
                     return;
                 }
                 
                 const currentValue = select.value;
-                console.log('loadEvaluacionesForNoRespondidos: Valor actual del select:', currentValue);
-                
                 select.innerHTML = '<option value="">Seleccionar evaluación</option>';
                 
                 evaluacionesSnapshot.forEach(docSnap => {
                     const evaluacion = docSnap.data();
-                    console.log('loadEvaluacionesForNoRespondidos: Procesando evaluación:', docSnap.id, evaluacion.titulo);
                     select.innerHTML += `<option value="${docSnap.id}">${evaluacion.titulo || 'Sin título'}</option>`;
                 });
                 
                 select.value = currentValue;
-                console.log('loadEvaluacionesForNoRespondidos: Función completada exitosamente');
             } catch (error) {
-                console.error('loadEvaluacionesForNoRespondidos: Error:', error);
-                console.error('loadEvaluacionesForNoRespondidos: Stack trace:', error.stack);
+                console.error('Error cargando evaluaciones para no respondidos:', error);
             }
         }
 
         // Función para cargar cuestionarios en el filtro de no respondidos
         async function loadCuestionariosForNoRespondidos() {
-            console.log('loadCuestionariosForNoRespondidos: Iniciando función');
             try {
-                console.log('loadCuestionariosForNoRespondidos: Usando db.collection directamente');
                 const cuestionariosSnapshot = await db.collection('cuestionarios').get();
-                console.log('loadCuestionariosForNoRespondidos: Snapshot obtenido:', cuestionariosSnapshot);
-                console.log('loadCuestionariosForNoRespondidos: Número de documentos:', cuestionariosSnapshot.size);
-                
                 const select = document.getElementById('filtroCuestionarioNoRespondidos');
-                console.log('loadCuestionariosForNoRespondidos: Elemento select encontrado:', select);
                 
                 if (!select) {
-                    console.error('loadCuestionariosForNoRespondidos: Elemento filtroCuestionarioNoRespondidos no encontrado');
+                    console.error('Elemento filtroCuestionarioNoRespondidos no encontrado');
                     return;
                 }
                 
                 const currentValue = select.value;
-                console.log('loadCuestionariosForNoRespondidos: Valor actual del select:', currentValue);
-                
                 select.innerHTML = '<option value="">Seleccionar cuestionario</option>';
+                
                 cuestionariosSnapshot.forEach(docSnap => {
                     const cuestionario = docSnap.data();
-                    console.log('loadCuestionariosForNoRespondidos: Procesando cuestionario:', docSnap.id, cuestionario.titulo);
                     select.innerHTML += `<option value="${docSnap.id}">${cuestionario.titulo || 'Sin título'}</option>`;
                 });
                 
                 select.value = currentValue;
-                console.log('loadCuestionariosForNoRespondidos: Función completada exitosamente');
             } catch (error) {
-                console.error('loadCuestionariosForNoRespondidos: Error:', error);
-                console.error('loadCuestionariosForNoRespondidos: Stack trace:', error.stack);
+                console.error('Error cargando cuestionarios para no respondidos:', error);
             }
         }
 
