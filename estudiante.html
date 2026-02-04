@@ -11769,11 +11769,13 @@ function openImageModal(imageUrl, title) {
         
         try {
             // Obtener API key de OpenRouter (debería estar configurada en admin)
-            const apiKey = localStorage.getItem('openrouter_api_key');
-            
+            let apiKey = localStorage.getItem('openrouter_api_key');
+
+            // Configuración temporal automática de API key si no existe
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
-                replaceLastMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de administración.', 'ai');
-                return;
+                apiKey = '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';
+                localStorage.setItem('openrouter_api_key', apiKey);
+                console.log('✅ API key de OpenRouter configurada automáticamente');
             }
             
             const prompt = `Eres un experto consultor empresarial especializado en ${getUserProgram()}. 
