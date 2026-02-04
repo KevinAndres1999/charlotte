@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta http-equiv="Permissions-Policy" content="accelerometer=(), gyroscope=(), magnetometer=(), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), geolocation=(), payment=(), interest-cohort=(), autoplay=(), encrypted-media=(), fullscreen=(), picture-in-picture=(), sync-xhr=(), cross-origin-isolated=(), disabled-depth=(), disabled-width=(), disabled-height=(), unload=(), browsing-topics=()" />
+  <meta http-equiv="Permissions-Policy" content="accelerometer=(), gyroscope=(), magnetometer=(), microphone=(), camera=(), speaker=(), usb=(), bluetooth=(), geolocation=(), payment=(), interest-cohort=(), autoplay=(), encrypted-media=(), fullscreen=(), picture-in-picture=(), sync-xhr=(), cross-origin-isolated=(), disabled-depth=(), disabled-width=(), disabled-height=(), browsing-topics=()" />
   <title>Cursos de Panadería, Pastelería, Belleza, Maquillaje y Uñas | ECE Charlotte</title>
   <meta name="description" content="Aprende panadería, pastelería, belleza, maquillaje y uñas con ECE Charlotte. Cursos profesionales online y presenciales. Conviértete en experto en galletería y técnicas de belleza. ¡Inscríbete ahora!">
   <meta name="keywords" content="cursos panadería, cursos pastelería, cursos belleza, cursos maquillaje, cursos uñas, cursos galletería, panadería profesional, pastelería online, belleza integral, asesoría imagen, ECE Charlotte">
@@ -311,44 +311,64 @@
     <img src="fotos/logo.png" alt="Escuela Charlotte" onerror="this.src='Mesa de trabajo 3.png'">
   </div>
   <header class="site-header">
-    <div class="container">
-      <div class="header-brand">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="header-logo">
         <a href='/'>
-          <img src="fotos/logo.png" alt="CHARLOTTE" class="header-logo" onerror="this.src='Mesa de trabajo 3.png'">
-          <span class="brand-name">CHARLOTTE</span>
+          <img src="fotos/logo.png" alt="CHARLOTTE" onerror="this.src='Mesa de trabajo 3.png'">
+          <span class="logo-text">CHARLOTTE</span>
         </a>
       </div>
-      <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Menú">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <nav class="main-nav" id="mainNav">
+
+      <!-- Navegación Desktop -->
+      <nav class="header-nav">
         <a href='/'>Inicio</a>
         <a href='/sobre'>Sobre Nosotros</a>
         <a href='/cursos'>Cursos</a>
         <a href='/recursos'>Galería</a>
         <a href='/contacto'>Contacto</a>
-        <a href="#admin" id="adminLink" class="nav-admin" hidden>Admin</a>
-        <div class="nav-social-mobile">
-          <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" rel="noopener" title="Facebook"><i class="fab fa-facebook"></i></a>
-          <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" rel="noopener" title="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" rel="noopener" title="TikTok"><i class="fab fa-tiktok"></i></a>
-          <a href="https://wa.me/+593964245339" target="_blank" rel="noopener" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        </div>
-        <a class='btn btn-header nav-login-mobile' href='/login'>Acceso Estudiantes</a>
       </nav>
-      <div class="header-actions" style="display:flex;align-items:center;gap:16px;">
-        <div style="display:flex;gap:12px;align-items:center;">
-          <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="Facebook"><i class="fab fa-facebook"></i></a>
-          <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="TikTok"><i class="fab fa-tiktok"></i></a>
-          <a href="https://wa.me/+593964245339" target="_blank" rel="noopener" style="font-size:20px;color:var(--accent-2);transition:all 0.2s;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+      <!-- Acciones Desktop -->
+      <div class="header-actions">
+        <div class="social-links">
+          <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+593964245339" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         </div>
-        <button id="pwa-install-btn" class="btn btn-header" style="display: none; background: linear-gradient(135deg, #22c55e, #16a34a); margin-right: 8px;">
-          <i class="fas fa-download" style="margin-right: 8px;"></i> Instalar App
+        <a class='btn btn-primary' href='/login'>Acceso Estudiantes</a>
+        <button id="pwa-install-btn" class="btn btn-secondary" style="display: none;">
+          <i class="fas fa-download"></i> Instalar App
         </button>
-        <a class='btn btn-header' href='/login'>Acceso Estudiantes</a>
+      </div>
+
+      <!-- Botón Hamburguesa Móvil -->
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menú">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+
+    <!-- Menú Móvil -->
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="mobile-menu-content">
+        <button class="close-menu" onclick="toggleMobileMenu()">&times;</button>
+        <nav class="mobile-nav">
+          <a href='/' onclick="toggleMobileMenu()">Inicio</a>
+          <a href='/sobre' onclick="toggleMobileMenu()">Sobre Nosotros</a>
+          <a href='/cursos' onclick="toggleMobileMenu()">Cursos</a>
+          <a href='/recursos' onclick="toggleMobileMenu()">Galería</a>
+          <a href='/contacto' onclick="toggleMobileMenu()">Contacto</a>
+          <a class='btn btn-primary mobile-login' href='/login' onclick="toggleMobileMenu()">Acceso Estudiantes</a>
+        </nav>
+        <div class="mobile-social">
+          <a href="https://m.facebook.com/cursoscharlotte/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://wa.me/+593964245339" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
       </div>
     </div>
   </header>
@@ -454,8 +474,8 @@
             </div>
           </a>
           <a class='program-card' href='/asesoria'>
-            <div class="program-image" style="position:relative;overflow:hidden;">
-              <iframe src="https://www.tiktok.com/embed/v2/7581632549806427399" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen scrolling="no"></iframe>
+            <div class="program-image" style="background-image:url('fotos/logo.png'); background-size: cover; background-position: center;">
+              <!-- Video de TikTok reemplazado por imagen estática para evitar errores de CORS -->
             </div>
             <div class="program-content">
               <h3>Asesoría Técnica</h3>
@@ -625,18 +645,45 @@
 
 <script>
 function toggleMobileMenu() {
-    const nav = document.getElementById('mainNav');
-    const hamburger = document.querySelector('.hamburger-menu');
-    nav.classList.toggle('active');
-    hamburger.classList.toggle('active');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const body = document.body;
+
+    if (mobileMenu.classList.contains('active')) {
+        // Cerrar menú
+        mobileMenu.classList.remove('active');
+        body.style.overflow = '';
+    } else {
+        // Abrir menú
+        mobileMenu.classList.add('active');
+        body.style.overflow = 'hidden';
+    }
 }
+
+// Cerrar menú al hacer clic fuera
+document.addEventListener('click', function(event) {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+
+    if (!mobileMenu.contains(event.target) && !menuToggle.contains(event.target) && mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
+// Cerrar menú con tecla Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu.classList.contains('active')) {
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+});
 
 // Agregar event listener al cargar
 document.addEventListener('DOMContentLoaded', function() {
-    const hamburgerMenu = document.getElementById('hamburgerMenu');
-    if (hamburgerMenu) {
-        hamburgerMenu.addEventListener('click', toggleMobileMenu);
-    }
+    // El onclick ya está en el HTML, no necesitamos añadir listener adicional
 });
 </script></body>
 </html>

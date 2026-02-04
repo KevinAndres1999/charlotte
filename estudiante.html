@@ -5133,6 +5133,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Usuario válido, cargar datos iniciales
         updateDashboard();
         
+        // Inicializar cache de reintentos
+        initializeReintentosCache();
+        
         // Inicializar sistema de notificaciones después de que Firebase esté listo
         setTimeout(() => {
             if (window.initializeNotifications) {
@@ -5262,7 +5265,7 @@ function loadStudentInfo() {
     if (welcomeNameEl) welcomeNameEl.textContent = currentUser.name;
 }
 
-function filterByUserAccess(items) {
+function filterByUserAccess(items, reintentosDisponibles = []) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) {
         console.log('❌ filterByUserAccess: No hay usuario logueado');
@@ -5271,35 +5274,41 @@ function filterByUserAccess(items) {
 
     console.log('🔍 filterByUserAccess: Usuario actual:', currentUser);
     console.log('🔍 filterByUserAccess: Items totales:', items.length);
-
-    // PRIMERO: Obtener todos los reintentos disponibles para este estudiante
-    let reintentosDisponibles = [];
-    try {
-        const reintentosQuery = query(
-            collection(db, 'reintentosEvaluaciones'), 
-            where('estudianteId', '==', currentUser.email)
-        );
-        const reintentosSnapshot = await getDocs(reintentosQuery);
-        reintentosDisponibles = reintentosSnapshot.docs
-            .filter(doc => {
-                const data = doc.data();
-                return data.usado === false || data.usado === undefined;
-            })
-            .map(doc => doc.data());
-        console.log('🎯 Reintentos disponibles encontrados:', reintentosDisponibles.length);
-    } catch (error) {
-        console.log('Error obteniendo reintentos:', error);
-    }
+    console.log('🎯 Reintentos disponibles:', reintentosDisponibles.length);
 
     const filtered = items.filter(item => {
         console.log('🔍 Evaluando item:', item.id, item.titulo || item.nombre);
 
         // PRIMERO: Verificar si hay reintento concedido para este item (caso especial)
-        const tieneReintento = reintentosDisponibles.some(reintento => {
-            return reintento.evaluacionId === item.id || reintento.cuestionarioId === item.id;
+        const reintentoValido = reintentosDisponibles.find(reintento => {
+            const esParaEsteItem = reintento.evaluacionId === item.id || reintento.cuestionarioId === item.id;
+            if (!esParaEsteItem) return false;
+            
+            // Verificar si el reintento tiene fecha de expiración
+            if (reintento.fechaExpiracion) {
+                const ahora = new Date();
+                const fechaExpiracion = new Date(reintento.fechaExpiracion);
+                if (ahora > fechaExpiracion) {
+                    console.log('⏰ Reintento expirado:', reintento.fechaExpiracion);
+                    return false;
+                }
+            }
+            
+            // Verificar si tiene días de validez desde la creación
+            if (reintento.diasValidez && reintento.fechaCreacion) {
+                const fechaCreacion = new Date(reintento.fechaCreacion);
+                const ahora = new Date();
+                const diasTranscurridos = Math.floor((ahora - fechaCreacion) / (1000 * 60 * 60 * 24));
+                if (diasTranscurridos > reintento.diasValidez) {
+                    console.log('⏰ Reintento expirado por días de validez:', reintento.diasValidez, 'días transcurridos:', diasTranscurridos);
+                    return false;
+                }
+            }
+            
+            return true;
         });
-
-        if (tieneReintento) {
+        
+        if (reintentoValido) {
             console.log('🎯 Item aprobado por reintento concedido (caso especial)');
             return true;
         }
@@ -5923,6 +5932,62 @@ async function cargarPreguntasOriginales() {
     }
 }
 
+// Variable global para almacenar reintentos disponibles
+let reintentosCache = [];
+
+// Función para inicializar cache de reintentos al cargar la página
+async function initializeReintentosCache() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (currentUser && currentUser.email) {
+        await getReintentosDisponibles(currentUser.email);
+        console.log('🎯 Cache de reintentos inicializada:', reintentosCache.length, 'reintentos');
+    }
+}
+
+// Función helper para obtener reintentos disponibles
+async function getReintentosDisponibles(email) {
+    try {
+        const reintentosQuery = query(
+            collection(db, 'reintentosEvaluaciones'), 
+            where('estudianteId', '==', email)
+        );
+        const reintentosSnapshot = await getDocs(reintentosQuery);
+        const ahora = new Date();
+        
+        reintentosCache = reintentosSnapshot.docs
+            .map(doc => doc.data())
+            .filter(reintento => {
+                // Filtrar por usado
+                if (reintento.usado === true) return false;
+                if (reintento.usado === undefined) return true; // Considerar undefined como no usado
+                
+                // Verificar fecha de expiración
+                if (reintento.fechaExpiracion) {
+                    const fechaExpiracion = new Date(reintento.fechaExpiracion);
+                    if (ahora > fechaExpiracion) return false;
+                }
+                
+                // Verificar días de validez
+                if (reintento.diasValidez && reintento.fechaCreacion) {
+                    const fechaCreacion = new Date(reintento.fechaCreacion);
+                    const diasTranscurridos = Math.floor((ahora - fechaCreacion) / (1000 * 60 * 60 * 24));
+                    if (diasTranscurridos > reintento.diasValidez) return false;
+                }
+                
+                return true;
+            });
+        return reintentosCache;
+    } catch (error) {
+        console.log('Error obteniendo reintentos:', error);
+        return [];
+    }
+}
+
+// Función para obtener reintentos de cache (síncrona)
+function getReintentosFromCache() {
+    return reintentosCache;
+}
+
 async function loadCuestionarios() {
     const container = document.getElementById('cuestionariosContainer');
     if (!container) return;
@@ -5944,6 +6009,9 @@ async function loadCuestionarios() {
         // Cargar estado de respuestas con listener en tiempo real
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (currentUser) {
+            // Obtener reintentos disponibles para este estudiante
+            const reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+            
             const respuestasQuery = query(collection(db, 'respuestasCuestionarios'), where('estudianteId', '==', currentUser.email));
             onSnapshot(respuestasQuery, (snapshot) => {
                 const respuestasMap = {};
@@ -5973,7 +6041,8 @@ async function loadCuestionarios() {
                         cuestionario.calificacionRecalculada = null;
                     }
                 });
-        const filtered = filterByUserAccess(allCuestionarios);
+        
+        const filtered = filterByUserAccess(allCuestionarios, reintentosDisponibles);
                 filteredCuestionarios = filtered;
                 sortCuestionarios();
                 updateCuestionariosStats();
@@ -6026,7 +6095,26 @@ function renderCuestionarios() {
         const intentosRealizados = cuestionario.intentosRealizados || 0;
         const maxIntentos = cuestionario.intentosMaximos || cuestionario.numeroIntentos || cuestionario.intentos || 1;
         const intentosRestantes = maxIntentos - intentosRealizados;
-        const puedeResponder = disponible && !vencido && intentosRestantes > 0;
+        
+        // Verificar si hay reintento válido para este cuestionario
+        const reintentosDisponibles = getReintentosFromCache();
+        const tieneReintentoValido = reintentosDisponibles.some(reintento => {
+            if (reintento.cuestionarioId !== cuestionario.id) return false;
+            
+            // Verificar expiración
+            if (reintento.fechaExpiracion) {
+                const fechaExpiracion = new Date(reintento.fechaExpiracion);
+                if (ahora > fechaExpiracion) return false;
+            }
+            if (reintento.diasValidez && reintento.fechaCreacion) {
+                const fechaCreacion = new Date(reintento.fechaCreacion);
+                const diasTranscurridos = Math.floor((ahora - fechaCreacion) / (1000 * 60 * 60 * 24));
+                if (diasTranscurridos > reintento.diasValidez) return false;
+            }
+            return true;
+        });
+        
+        const puedeResponder = (disponible || tieneReintentoValido) && !vencido && (intentosRestantes > 0 || tieneReintentoValido);
         const isCompleted = intentosRealizados > 0;
         const progress = isCompleted ? 100 : 0;
 
@@ -6062,7 +6150,7 @@ function renderCuestionarios() {
                 </div>` : ''}
                 <div class="clase-actions">
                     <button class="btn-primary-clase" onclick="verificarPagosYAcceder('${cuestionario.id.replace(/'/g, '\\\'')}', 'cuestionario')" ${!puedeResponder ? 'disabled' : ''}>
-                        <i class="fas fa-play"></i> ${!disponible ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : 'Responder Cuestionario'}
+                        <i class="fas fa-play"></i> ${!disponible && !tieneReintentoValido ? 'No disponible en este momento' : isCompleted && !puedeResponder ? 'Ya has realizado todos los intentos posibles' : isCompleted ? 'Revisar Respuesta' : tieneReintentoValido ? 'Reintentar Cuestionario' : 'Responder Cuestionario'}
                     </button>
                     ${isCompleted ? `<button class="btn-eye-clase" onclick="mostrarRespuestasModal('${cuestionario.id.replace(/'/g, '\\\'')}', 'cuestionario')" title="Ver respuestas detalladas">
                         <i class="fas fa-eye"></i>
@@ -6479,7 +6567,10 @@ async function loadVideos() {
             allVideos.push(video);
         });
 
-        const filtered = filterByUserAccess(allVideos);
+        // Obtener reintentos disponibles para este estudiante
+        const reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+
+        const filtered = filterByUserAccess(allVideos, reintentosDisponibles);
         filteredVideos = filtered;
         sortVideos();
         updateVideosStats();
@@ -6568,6 +6659,9 @@ async function loadActividadesContent(selectedModulo) {
 
         // Cargar estado de entregas con listener en tiempo real
         if (currentUser) {
+            // Obtener reintentos disponibles para este estudiante
+            const reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+            
             const entregasQuery = query(collection(db, 'entregas'), where('estudianteId', '==', currentUser.email));
             onSnapshot(entregasQuery, (snapshot) => {
                 const entregasMap = {};
@@ -6589,7 +6683,7 @@ async function loadActividadesContent(selectedModulo) {
                 });
 
                 // Filtrar por acceso del usuario (ya filtrado por programa y módulo en la consulta)
-                const filteredByAccess = filterByUserAccess(allActividades);
+                const filteredByAccess = filterByUserAccess(allActividades, reintentosDisponibles);
 
                 filteredActividades = filteredByAccess;
 
@@ -6641,7 +6735,10 @@ async function loadMateriales() {
             allMateriales.push(material);
         });
 
-        const filtered = filterByUserAccess(allMateriales);
+        // Obtener reintentos disponibles para este estudiante
+        const reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+
+        const filtered = filterByUserAccess(allMateriales, reintentosDisponibles);
         filteredMateriales = filtered;
         sortMateriales();
         updateMaterialesStats();
@@ -6896,7 +6993,7 @@ function getModuloName(moduloKey) {
 }
 
 // =================== FUNCIONES DE MATERIALES ===================
-function filterMaterialesByCategory(category) {
+async function filterMaterialesByCategory(category) {
     switch (category) {
         case 'recientes':
             filteredMateriales = allMateriales.filter(material =>
@@ -6916,13 +7013,16 @@ function filterMaterialesByCategory(category) {
             filteredMateriales = [...allMateriales];
     }
 
+    // Obtener reintentos disponibles para este estudiante
+    const reintentosDisponibles = getReintentosFromCache();
+
     // Aplicar filtro de programa
-    filteredMateriales = filterByUserAccess(filteredMateriales);
+    filteredMateriales = filterByUserAccess(filteredMateriales, reintentosDisponibles);
     sortMateriales();
     renderMateriales();
 }
 
-function filterMateriales() {
+async function filterMateriales() {
     const searchTerm = document.getElementById('materialesSearch')?.value.toLowerCase() || '';
 
     if (!searchTerm) {
@@ -6934,8 +7034,11 @@ function filterMateriales() {
         );
     }
 
+    // Obtener reintentos disponibles para este estudiante
+    const reintentosDisponibles = getReintentosFromCache();
+
     // Aplicar filtro de programa
-    filteredMateriales = filterByUserAccess(filteredMateriales);
+    filteredMateriales = filterByUserAccess(filteredMateriales, reintentosDisponibles);
     sortMateriales();
     renderMateriales();
 }
@@ -7005,8 +7108,11 @@ async function loadClasesByModulo(selectedModulo) {
             allClases.push(clase);
         });
 
+        // Obtener reintentos disponibles para este estudiante
+        const reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+
         // Filtrar por acceso del usuario (sede, horario, etc.)
-        const filteredByAccess = filterByUserAccess(allClases);
+        const filteredByAccess = filterByUserAccess(allClases, reintentosDisponibles);
 
         filteredClases = filteredByAccess;
 
@@ -7870,6 +7976,9 @@ async function loadEvaluaciones() {
                 }
             });
             
+            // Actualizar cache global de reintentos
+            reintentosCache = Object.values(reintentosPermitidos);
+            
             onSnapshot(respuestasQuery, (snapshot) => {
                 const respuestasMap = {};
                 snapshot.forEach(doc => {
@@ -7908,7 +8017,11 @@ async function loadEvaluaciones() {
                         evaluacion.calificacionRecalculada = null;
                     }
                 });
-                const filtered = filterByUserAccess(allEvaluaciones);
+                
+                // Convertir reintentosPermitidos al formato esperado por filterByUserAccess
+                const reintentosDisponibles = Object.values(reintentosPermitidos).filter(r => !r.usado);
+                
+                const filtered = filterByUserAccess(allEvaluaciones, reintentosDisponibles);
                 filteredEvaluaciones = filtered;
                 sortEvaluaciones();
                 updateEvaluacionesStats();
@@ -11043,47 +11156,76 @@ function openImageModal(imageUrl, title) {
                     return;
                 }
 
-                // PRIMERO: Verificar si hay reintento concedido (caso especial)
-                try {
-                    const campoId = tipo === 'evaluacion' ? 'evaluacionId' : 'cuestionarioId';
-                    const reintentosQuery = query(
-                        collection(db, 'reintentosEvaluaciones'), 
-                        where('estudianteId', '==', currentUser.email),
-                        where(campoId, '==', id)
-                    );
-                    const reintentosSnapshot = await getDocs(reintentosQuery);
+                // PRIMERO: Verificar si hay reintento concedido (caso especial) usando cache global
+                let reintentosDisponibles = getReintentosFromCache();
+                
+                // Si la cache está vacía, intentar obtener reintentos directamente
+                if (reintentosDisponibles.length === 0) {
+                    console.log('📝 Cache vacía, obteniendo reintentos directamente...');
+                    reintentosDisponibles = await getReintentosDisponibles(currentUser.email);
+                }
+                
+                const reintentoValido = reintentosDisponibles.find(reintento => {
+                    const esParaEsteItem = reintento.evaluacionId === id || reintento.cuestionarioId === id;
+                    if (!esParaEsteItem) return false;
                     
-                    // Filtrar reintentos que no han sido usados
-                    const reintentosDisponibles = reintentosSnapshot.docs.filter(doc => {
-                        const data = doc.data();
-                        return data.usado === false || data.usado === undefined;
-                    });
-                    
-                    if (reintentosDisponibles.length > 0) {
-                        console.log('🎯 Reintento encontrado! Acceso concedido por caso especial');
-                        const url = tipo === 'cuestionario' 
-                            ? `responder-cuestionario.html?id=${id}` 
-                            : `responder-evaluacion.html?id=${id}`;
-                        window.location.href = url;
-                        return; // Salir aquí, no verificar restricciones normales
+                    // Verificar si el reintento tiene fecha de expiración
+                    if (reintento.fechaExpiracion) {
+                        const ahora = new Date();
+                        const fechaExpiracion = new Date(reintento.fechaExpiracion);
+                        if (ahora > fechaExpiracion) {
+                            console.log('⏰ Reintento expirado:', reintento.fechaExpiracion);
+                            return false;
+                        }
                     }
-                } catch (error) {
-                    console.log('Error verificando reintentos (continuando con verificación normal):', error);
+                    
+                    // Verificar si tiene días de validez desde la creación
+                    if (reintento.diasValidez && reintento.fechaCreacion) {
+                        const fechaCreacion = new Date(reintento.fechaCreacion);
+                        const ahora = new Date();
+                        const diasTranscurridos = Math.floor((ahora - fechaCreacion) / (1000 * 60 * 60 * 24));
+                        if (diasTranscurridos > reintento.diasValidez) {
+                            console.log('⏰ Reintento expirado por días de validez:', reintento.diasValidez, 'días transcurridos:', diasTranscurridos);
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                if (reintentoValido) {
+                    console.log('🎯 Reintento válido encontrado! Acceso concedido por caso especial');
+                    const url = tipo === 'cuestionario' 
+                        ? `responder-cuestionario.html?id=${id}` 
+                        : `responder-evaluacion.html?id=${id}`;
+                    window.location.href = url;
+                    return; // Salir aquí, no verificar restricciones normales
                 }
 
-                // SEGUNDO: Verificar restricciones normales si no hay reintento
-                // Verificar estado de pagos del usuario
-                const q = query(collection(db, 'users'), where('email', '==', currentUser.email), where('role', '==', 'student'));
-                const userDoc = await getDocs(q);
-                if (userDoc.empty) {
-                    alert('Usuario no encontrado');
+                // SEGUNDO: Verificar si es intento inicial o reintento
+                const collectionName = tipo === 'cuestionario' ? 'respuestasCuestionarios' : 'respuestasEvaluaciones';
+                const respuestasQuery = query(collection(db, collectionName), 
+                    where('estudianteId', '==', currentUser.email),
+                    where(tipo === 'cuestionario' ? 'cuestionarioId' : 'evaluacionId', '==', id)
+                );
+                const respuestasSnapshot = await getDocs(respuestasQuery);
+                console.log(`📊 Verificando respuestas previas para ${tipo} ${id}:`, respuestasSnapshot.size, 'respuestas encontradas');
+                
+                if (respuestasSnapshot.empty) {
+                    // Es un intento inicial - permitir acceso sin restricciones
+                    console.log('📝 Intento inicial - acceso permitido');
+                    const url = tipo === 'cuestionario' 
+                        ? `responder-cuestionario.html?id=${id}` 
+                        : `responder-evaluacion.html?id=${id}`;
+                    window.location.href = url;
                     return;
-                }
+                } else {
+                    // Ya tiene respuestas - verificar pagos para reintento
+                    console.log('🔄 Reintento detectado - verificando pagos');
+                    const userData = userDoc.docs[0].data();
+                    const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
 
-                const userData = userDoc.docs[0].data();
-                const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
-
-                if (estadoPagos === 'pagos_pendientes') {
+                    if (estadoPagos === 'pagos_pendientes') {
                     // Mostrar modal de advertencia
                     const modalHtml = `
                         <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
@@ -11129,12 +11271,12 @@ function openImageModal(imageUrl, title) {
                 }
 
                 // Si los pagos están al día, proceder con el acceso normal
-                const url = actualTipo === 'cuestionario' 
+                const url = tipo === 'cuestionario' 
                     ? `responder-cuestionario.html?id=${id}` 
                     : `responder-evaluacion.html?id=${id}`;
-                console.log('� Tipo recibido:', tipo, 'URL generada:', url);
+                console.log('Tipo recibido:', tipo, 'URL generada:', url);
                 window.location.href = url;
-
+                }
             } catch (error) {
                 console.error('Error verificando pagos:', error);
                 alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
