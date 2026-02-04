@@ -5045,14 +5045,14 @@
             <section id="recursos" class="section">
                 <h2 class="page-title"><i class="fas fa-folder-open"></i> Recursos de Estudio</h2>
                 <div class="search-container">
-                    <input type="text" id="recursosSearch" placeholder="Buscar materiales..." onkeyup="filterRecursos()">
+                    <input type="text" id="recursosSearch" placeholder="Buscar materiales...">
                 </div>
                 <div class="filter-tabs">
-                    <button class="filter-tab active" onclick="filterRecursosByCategory('all')">Todos</button>
-                    <button class="filter-tab" onclick="filterRecursosByCategory('recientes')">Recientes</button>
-                    <button class="filter-tab" onclick="filterRecursosByCategory('pdf')">PDFs</button>
-                    <button class="filter-tab" onclick="filterRecursosByCategory('video')">Videos</button>
-                    <button class="filter-tab" onclick="filterRecursosByCategory('documento')">Documentos</button>
+                    <button class="filter-tab active" data-category="all">Todos</button>
+                    <button class="filter-tab" data-category="recientes">Recientes</button>
+                    <button class="filter-tab" data-category="pdf">PDFs</button>
+                    <button class="filter-tab" data-category="video">Videos</button>
+                    <button class="filter-tab" data-category="documento">Documentos</button>
                 </div>
                 <div id="recursosList" class="grid">
                     <!-- El contenido se carga dinámicamente -->
@@ -10708,6 +10708,14 @@ function filterRecursos() {
 }
 
 window.filterRecursos = filterRecursos;
+
+// Configurar event listener para búsqueda de recursos
+document.addEventListener('DOMContentLoaded', function() {
+    const recursosSearchInput = document.getElementById('recursosSearch');
+    if (recursosSearchInput) {
+        recursosSearchInput.addEventListener('keyup', filterRecursos);
+    }
+});
 
 function openContactModal(nombre, email, telefono, rol) {
     const modal = document.getElementById('detailModal');
