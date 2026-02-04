@@ -6148,34 +6148,59 @@ window.logout = logout;
 
 // Agregar event listeners después de que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando página del estudiante...');
+
     try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        console.log('👤 Usuario actual:', currentUser);
+
+        if (!currentUser) {
+            console.log('❌ No hay usuario logueado, redirigiendo a login...');
+            window.location.href = 'login.html';
+            return;
+        }
+
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', logout);
+            console.log('✅ Event listener para logout configurado');
+        } else {
+            console.log('⚠️ Botón de logout no encontrado');
         }
 
         const menuToggle = document.getElementById('menuToggle');
         if (menuToggle) {
             menuToggle.addEventListener('click', toggleMenu);
+            console.log('✅ Event listener para menú configurado');
+        } else {
+            console.log('⚠️ Botón de menú no encontrado');
         }
 
         // Event listeners para navegación
         const navItems = document.querySelectorAll('.nav-item[data-section]');
+        console.log('🔍 Nav items encontrados:', navItems.length);
         navItems.forEach(item => {
             item.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                if (typeof showSection === 'function') {
+                console.log('🖱️ Click en nav item:', sectionId);
+                if (typeof showSectionV2 === 'function') {
                     showSectionV2(sectionId);
+                } else {
+                    console.log('❌ Función showSectionV2 no encontrada');
                 }
             });
         });
 
         const statCards = document.querySelectorAll('.stat-card[data-section]');
+        console.log('🔍 Stat cards encontradas:', statCards.length);
         statCards.forEach(card => {
             card.addEventListener('click', function() {
                 const sectionId = this.getAttribute('data-section');
-                if (typeof showSection === 'function') {
+                console.log('🖱️ Click en stat card:', sectionId);
+                if (typeof showSectionV2 === 'function') {
                     showSectionV2(sectionId);
+                } else {
+                    console.log('❌ Función showSectionV2 no encontrada');
                 }
             });
         });
@@ -6205,17 +6230,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Cargar datos iniciales
+        console.log('📊 Iniciando carga de datos...');
         updateDashboard();
-        
+
         // Cargar secciones que deberían estar disponibles inicialmente
-        window.loadClases();
-        loadVideos();
-        window.loadActividades();
-        loadMateriales();
-        loadCuestionarios();
-        
+        console.log('📚 Cargando secciones iniciales...');
+        if (typeof window.loadClases === 'function') {
+            window.loadClases();
+        } else {
+            console.log('❌ Función loadClases no encontrada');
+        }
+
+        if (typeof loadVideos === 'function') {
+            loadVideos();
+        } else {
+            console.log('❌ Función loadVideos no encontrada');
+        }
+
+        if (typeof window.loadActividades === 'function') {
+            window.loadActividades();
+        } else {
+            console.log('❌ Función loadActividades no encontrada');
+        }
+
+        if (typeof loadMateriales === 'function') {
+            loadMateriales();
+        } else {
+            console.log('❌ Función loadMateriales no encontrada');
+        }
+
+        if (typeof loadCuestionarios === 'function') {
+            loadCuestionarios();
+        } else {
+            console.log('❌ Función loadCuestionarios no encontrada');
+        }
+
         // Mostrar sección inicial (dashboard)
-        showSectionV2('dashboard');
+        console.log('🏠 Mostrando sección dashboard...');
+        if (typeof showSectionV2 === 'function') {
+            showSectionV2('dashboard');
+        } else {
+            console.log('❌ Función showSectionV2 no encontrada');
+        }
 
     } catch (error) {
         console.error('Error in DOMContentLoaded:', error);
@@ -10715,6 +10771,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (recursosSearchInput) {
         recursosSearchInput.addEventListener('keyup', filterRecursos);
     }
+
+    // Configurar event listeners para botones de filtro
+    const filterButtons = document.querySelectorAll('.filter-tab[data-category]');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.getAttribute('data-category');
+            filterRecursosByCategory(category);
+        });
+    });
 });
 
 function openContactModal(nombre, email, telefono, rol) {
