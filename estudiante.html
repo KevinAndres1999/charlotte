@@ -11975,7 +11975,7 @@ function openImageModal(imageUrl, title) {
         try {
             const q = window.query(
                 window.collection(window.db, 'projects'),
-                window.where('userId', '==', currentUser.uid)
+                window.where('userId', '==', currentUser.email || currentUser.id)
             );
             const snapshot = await window.getDocs(q);
             
@@ -12009,8 +12009,8 @@ function openImageModal(imageUrl, title) {
 
         try {
             const projectData = {
-                userId: currentUser.uid,
-                userName: currentUser.displayName || currentUser.email,
+                userId: currentUser.email || currentUser.id,
+                userName: currentUser.displayName || currentUser.name || currentUser.email,
                 completedAt: new Date().toISOString(),
                 conversations: projectConversations,
                 summary: generateProjectSummary(),
