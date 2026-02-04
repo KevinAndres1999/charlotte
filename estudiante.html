@@ -5831,10 +5831,16 @@ function filterByUserAccess(items, reintentosDisponibles = []) {
 
 async function loadDashboardStats() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-    if (!currentUser) return;
+    console.log('🔍 Debug loadDashboardStats - currentUser:', currentUser);
+
+    if (!currentUser) {
+        console.log('❌ No hay usuario en sessionStorage');
+        return;
+    }
 
     try {
         if (!currentUser.programa) {
+            console.log('⚠️ Usuario sin programa asignado:', currentUser);
             // Si no tiene programa asignado, mostrar 0
             const elements = ['totalClases', 'totalVideos', 'totalActividades', 'totalMateriales', 'totalCuestionarios', 'totalEvaluaciones',
                             'progressClasesPercent', 'progressVideosPercent', 'progressActividadesPercent', 'progressMaterialesPercent', 'progressCuestionariosPercent', 'progressEvaluacionesPercent',
@@ -5845,6 +5851,8 @@ async function loadDashboardStats() {
             });
             return;
         }
+
+        console.log('✅ Usuario con programa:', currentUser.programa);
 
         // Obtener completados desde localStorage (usando el sistema existente)
         function isCompleted(type, id) {
@@ -5919,8 +5927,16 @@ async function loadDashboardStats() {
         try {
             [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData] =
                 await window.parallelQueries(queries);
+            console.log('📊 Datos obtenidos de Firebase:', {
+                clases: clasesData.length,
+                videos: videosData.length,
+                actividades: actividadesData.length,
+                materiales: materialesData.length,
+                cuestionarios: cuestionariosData.length,
+                evaluaciones: evaluacionesData.length
+            });
         } catch (error) {
-            console.warn('Error loading dashboard stats, using cached/empty data:', error);
+            console.warn('❌ Error loading dashboard stats, using cached/empty data:', error);
             // Usar datos vacíos si falla la conexión
         }
 
@@ -5941,6 +5957,8 @@ async function loadDashboardStats() {
                       document.getElementById('progressClasesPercent'),
                       document.getElementById('progressClasesText'),
                       document.getElementById('progressClasesFill'));
+
+        console.log('📚 Clases procesadas:', { total: filteredClasesCount, completadas: completedClasesCount });
 
         // Procesar videos
         let filteredVideosCount = 0;
