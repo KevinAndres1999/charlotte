@@ -193,13 +193,336 @@
             }
         }
 
-        /* === ESTILOS PARA LA NUEVA INTERFAZ DE CLASE-VIEWER === */
-        .clase-viewer-banner {
-            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
-            color: white;
-            padding: 2rem;
+        /* =================== ESTILOS PARA MI PROYECTO =================== */
+        .project-wizard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .wizard-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            padding: 1rem;
             border-radius: 12px;
-            margin-bottom: 2rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.1);
+        }
+
+        .step.active {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05));
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .step.active .step-number {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .wizard-content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .ai-chat-container {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-message {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .chat-message.ai {
+            background: #f1f5f9;
+            align-self: flex-start;
+        }
+
+        .chat-message.user {
+            background: #3b82f6;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .chat-input-container input:focus {
+            border-color: #3b82f6;
+        }
+
+        .project-summary {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .project-summary h3 {
+            margin-bottom: 1rem;
+            color: #1e3a8a;
+        }
+
+        .summary-step {
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8fafc;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .summary-step.completed {
+            background: #f0f9ff;
+            border-left-color: #3b82f6;
+        }
+
+        .summary-step h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1e3a8a;
+            font-size: 0.9rem;
+        }
+
+        .step-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .summary-step.completed .step-progress {
+            color: #10b981;
+        }
+
+        .project-complete {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 12px;
+        }
+
+        .project-complete h3 {
+            margin-bottom: 1rem;
+        }
+
+        .btn-print {
+            background: white;
+            color: #10b981;
+            border: 2px solid white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-print:hover {
+            background: #f8fafc;
+            color: #059669;
+        }
+
+        /* =================== ESTILOS DE IMPRESIÓN =================== */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .project-book, .project-book * {
+                visibility: visible;
+            }
+            
+            .project-book {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                font-family: 'Times New Roman', serif;
+                font-size: 12pt;
+                line-height: 1.5;
+                color: #000;
+                background: white;
+            }
+            
+            .book-cover {
+                page-break-after: always;
+                text-align: center;
+                padding: 3in 1in;
+                border: 2px solid #000;
+                margin: 0.5in;
+                height: 8.5in;
+            }
+            
+            .book-title {
+                font-size: 24pt;
+                font-weight: bold;
+                margin: 2in 0 1in 0;
+                text-transform: uppercase;
+            }
+            
+            .book-author {
+                font-size: 18pt;
+                margin: 1in 0;
+            }
+            
+            .book-institution {
+                font-size: 14pt;
+                margin: 1in 0;
+            }
+            
+            .book-date {
+                font-size: 14pt;
+                margin: 1in 0;
+            }
+            
+            .book-content {
+                padding: 1in;
+                counter-reset: page;
+            }
+            
+            .book-chapter {
+                page-break-before: always;
+                margin-top: 2in;
+            }
+            
+            .chapter-title {
+                font-size: 18pt;
+                font-weight: bold;
+                margin-bottom: 0.5in;
+                text-align: center;
+                text-transform: uppercase;
+                border-bottom: 1px solid #000;
+                padding-bottom: 0.25in;
+            }
+            
+            .chapter-content {
+                text-align: justify;
+                margin-bottom: 1in;
+            }
+            
+            .conversation-print {
+                margin: 0.5in 0;
+                padding: 0.25in;
+                border-left: 3px solid #3b82f6;
+                background: #f8fafc;
+            }
+            
+            .conversation-print.user {
+                border-left-color: #10b981;
+                background: #f0fdf4;
+            }
+            
+            .page-number {
+                position: fixed;
+                bottom: 0.5in;
+                right: 0.5in;
+                font-size: 10pt;
+            }
+            
+            .page-number::after {
+                counter-increment: page;
+                content: counter(page);
+            }
+            
+            .book-references {
+                page-break-before: always;
+                margin-top: 2in;
+            }
+            
+            .references-title {
+                font-size: 18pt;
+                font-weight: bold;
+                margin-bottom: 0.5in;
+                text-align: center;
+                text-transform: uppercase;
+            }
+        }
+
+        @media(max-width: 1024px) {
+            .project-wizard {
+                grid-template-columns: 1fr;
+            }
+            
+            .wizard-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .wizard-steps {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 1rem;
+            }
+            
+            .step {
+                min-width: 200px;
+            }
         }
 
         .clase-viewer-header {
@@ -4231,6 +4554,7 @@
                 <div class="nav-item" data-section="cuestionarios"><i class="fas fa-file-alt"></i><span>Cuestionarios</span></div>
                 <div class="nav-item" data-section="evaluaciones"><i class="fas fa-clipboard-check"></i><span>Evaluaciones</span></div>
                 <div class="nav-item" data-section="calificaciones"><i class="fas fa-graduation-cap"></i><span>Calificaciones</span></div>
+                <div class="nav-item" data-section="proyecto"><i class="fas fa-lightbulb"></i><span>Mi Proyecto</span></div>
 
                 <!-- Comunicación y Colaboración -->
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
@@ -4517,6 +4841,69 @@
                     <!-- Los módulos se renderizarán dinámicamente aquí -->
                 </div>
 
+            </section>
+
+            <!-- =================== MI PROYECTO =================== -->
+            <section id="proyecto" class="section">
+                <h2 class="page-title"><i class="fas fa-lightbulb"></i> Mi Proyecto Empresarial</h2>
+                <p class="page-subtitle">Crea tu plan de negocio paso a paso con la ayuda de IA</p>
+
+                <div class="project-wizard">
+                    <div class="wizard-steps">
+                        <div class="step" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-title">¿A qué te dedicarás?</div>
+                            <div class="step-description">Define tu especialización basada en tu curso</div>
+                        </div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Objetivos del negocio</div>
+                            <div class="step-description">Establece metas claras y realistas</div>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Análisis de mercado</div>
+                            <div class="step-description">Estudia tu competencia y clientes</div>
+                        </div>
+                        <div class="step" data-step="4">
+                            <div class="step-number">4</div>
+                            <div class="step-title">Plan financiero</div>
+                            <div class="step-description">Calcula costos, precios y proyecciones</div>
+                        </div>
+                        <div class="step" data-step="5">
+                            <div class="step-number">5</div>
+                            <div class="step-title">Marketing y ventas</div>
+                            <div class="step-description">Estrategias para atraer clientes</div>
+                        </div>
+                    </div>
+
+                    <div class="wizard-content">
+                        <div class="ai-chat-container">
+                            <div class="chat-messages" id="projectChat"></div>
+                            <div class="chat-input-container">
+                                <input type="text" id="projectInput" placeholder="Describe tu idea o pregunta..." />
+                                <button id="sendProjectBtn" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="project-summary">
+                            <h3>Resumen de tu proyecto</h3>
+                            <div id="projectSummary"></div>
+                            <div class="project-actions" style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button onclick="completeProject()" class="btn btn-primary" id="completeProjectBtn" style="display: none;">
+                                    <i class="fas fa-check"></i> Completar Proyecto
+                                </button>
+                                <button onclick="previewProjectBook()" class="btn btn-secondary" id="previewProjectBtn" style="display: none;">
+                                    <i class="fas fa-eye"></i> Vista Previa
+                                </button>
+                                <button onclick="printProjectBook()" class="btn btn-print" id="printProjectBtn" style="display: none;">
+                                    <i class="fas fa-print"></i> Imprimir Proyecto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- =================== FOROS =================== -->
@@ -11297,6 +11684,593 @@ function openImageModal(imageUrl, title) {
     } catch (error) {
         console.error('Error initializing Firebase:', error);
     }
+
+    // =================== FUNCIONES PARA MI PROYECTO ===================
+    let currentProjectStep = 1;
+    let projectData = {};
+    let projectChat = [];
+    let projectConversations = [];
+
+    // Hacer las funciones globales inmediatamente
+    // (las funciones se definirán después pero se asignarán aquí)
+    window.sendProjectMessage = null; // placeholder
+    window.addChatMessage = null;
+    window.replaceLastMessage = null;
+    window.saveProjectData = null;
+    window.updateProjectSummary = null;
+    window.loadProjectData = null;
+    window.getStepDescription = null;
+    window.completeProject = null;
+    window.previewProjectBook = null;
+    window.printProjectBook = null;
+    window.loadExistingProjects = null;
+    window.updateProjectChat = null;
+
+    function initProjectWizard() {
+        // Cargar datos del proyecto si existen
+        loadProjectData();
+        loadExistingProjects();
+        
+        // Configurar event listeners para los pasos
+        document.querySelectorAll('.step').forEach(step => {
+            step.addEventListener('click', () => {
+                const stepNum = parseInt(step.dataset.step);
+                setProjectStep(stepNum);
+            });
+        });
+        
+        // Configurar event listener para el botón de enviar mensaje
+        const sendBtn = document.getElementById('sendProjectBtn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', sendProjectMessage);
+        }
+        
+        // Configurar input del chat
+        document.getElementById('projectInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendProjectMessage();
+            }
+        });
+    }
+
+    function setProjectStep(step) {
+        currentProjectStep = step;
+        
+        // Actualizar UI de pasos
+        document.querySelectorAll('.step').forEach(s => {
+            s.classList.remove('active');
+        });
+        document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
+        
+        // Mostrar mensaje inicial del paso
+        const stepMessages = {
+            1: "¡Hola! Soy tu asistente de IA para crear tu proyecto empresarial. Primero, cuéntame ¿a qué te dedicarás? Por ejemplo: 'Quiero vender pasteles personalizados' o 'Me especializaré en diseño de uñas'.",
+            2: "Excelente elección. Ahora hablemos de los objetivos de tu negocio. ¿Qué metas tienes a corto y largo plazo? ¿Cuánto quieres ganar mensualmente?",
+            3: "Perfecto. Ahora analicemos el mercado. ¿Quiénes serán tus clientes? ¿Qué hace tu competencia? ¿Cómo te diferenciarás?",
+            4: "Muy bien. Ahora el plan financiero. ¿Cuánto necesitas para empezar? ¿Cómo calcularás tus precios? ¿Qué gastos tendrás?",
+            5: "¡Último paso! Estrategias de marketing y ventas. ¿Cómo atraerás clientes? ¿Dónde venderás? ¿Cómo promocionarás tu negocio?"
+        };
+        
+        addChatMessage(stepMessages[step], 'ai');
+        updateProjectSummary();
+    }
+
+    async function sendProjectMessage() {
+        const input = document.getElementById('projectInput');
+        const message = input.value.trim();
+        
+        if (!message) return;
+        
+        addChatMessage(message, 'user');
+        input.value = '';
+        
+        // Mostrar loading
+        addChatMessage('Pensando...', 'ai');
+        
+        try {
+            // Obtener API key de OpenRouter (debería estar configurada en admin)
+            const apiKey = localStorage.getItem('openrouter_api_key');
+            
+            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+                replaceLastMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de administración.', 'ai');
+                return;
+            }
+            
+            const prompt = `Eres un experto consultor empresarial especializado en ${getUserProgram()}. 
+            El estudiante está en el paso ${currentProjectStep} de crear su proyecto.
+            Paso actual: ${getStepDescription(currentProjectStep)}
+            
+            Mensaje del estudiante: "${message}"
+            
+            Responde de manera útil, práctica y motivadora. Ayuda al estudiante a desarrollar su idea de negocio paso a paso.
+            Mantén la respuesta concisa pero completa.`;
+            
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'microsoft/wizardlm-2-8x22b',
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 500
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error en la API de IA');
+            }
+            
+            const data = await response.json();
+            const aiResponse = data.choices[0].message.content;
+            
+            // Reemplazar mensaje de loading
+            replaceLastMessage(aiResponse, 'ai');
+            
+            // Agregar a conversaciones globales
+            projectConversations.push({ role: 'user', content: message });
+            projectConversations.push({ role: 'assistant', content: aiResponse });
+            
+            // Guardar en projectData
+            saveProjectData(message, aiResponse);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            replaceLastMessage('Lo siento, hubo un error. Inténtalo de nuevo.', 'ai');
+        }
+    }
+
+    function addChatMessage(message, type) {
+        const chat = document.getElementById('projectChat');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${type}`;
+        messageDiv.textContent = message;
+        chat.appendChild(messageDiv);
+        chat.scrollTop = chat.scrollHeight;
+        projectChat.push({ message, type });
+    }
+
+    function replaceLastMessage(newMessage, type) {
+        const chat = document.getElementById('projectChat');
+        const lastMessage = chat.lastElementChild;
+        if (lastMessage) {
+            lastMessage.textContent = newMessage;
+            lastMessage.className = `chat-message ${type}`;
+        }
+    }
+
+    function getUserProgram() {
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        return user.program || 'negocios';
+    }
+
+    function getStepDescription(step) {
+        const descriptions = {
+            1: 'Definir especialización y tipo de negocio',
+            2: 'Establecer objetivos del negocio',
+            3: 'Análisis de mercado y competencia',
+            4: 'Plan financiero y costos',
+            5: 'Estrategias de marketing y ventas'
+        };
+        return descriptions[step] || '';
+    }
+
+    function saveProjectData(userMessage, aiResponse) {
+        if (!projectData[currentProjectStep]) {
+            projectData[currentProjectStep] = [];
+        }
+        projectData[currentProjectStep].push({
+            user: userMessage,
+            ai: aiResponse,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Guardar en localStorage y Firebase
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const projectKey = `project_${user.email}`;
+        
+        localStorage.setItem(projectKey, JSON.stringify(projectData));
+        
+        // También guardar en Firebase
+        if (db && user.email) {
+            setDoc(doc(db, 'projects', user.email), {
+                data: projectData,
+                lastUpdated: new Date(),
+                userEmail: user.email,
+                program: user.program
+            });
+        }
+        
+        updateProjectSummary();
+    }
+
+    function loadProjectData() {
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const projectKey = `project_${user.email}`;
+        
+        const saved = localStorage.getItem(projectKey);
+        if (saved) {
+            projectData = JSON.parse(saved);
+            updateProjectSummary();
+        }
+        
+        // Cargar mensajes del chat del paso actual
+        if (projectData[currentProjectStep]) {
+            projectData[currentProjectStep].forEach(item => {
+                addChatMessage(item.user, 'user');
+                addChatMessage(item.ai, 'ai');
+            });
+        } else {
+            // Mensaje inicial
+            setProjectStep(1);
+        }
+    }
+
+    function updateProjectSummary() {
+        const summary = document.getElementById('projectSummary');
+        let html = '';
+        let allStepsCompleted = true;
+        
+        for (let step = 1; step <= 5; step++) {
+            const stepData = projectData[step] || [];
+            const completed = stepData.length > 0;
+            if (!completed) allStepsCompleted = false;
+            
+            html += `
+                <div class="summary-step ${completed ? 'completed' : ''}">
+                    <h4>Paso ${step}: ${getStepDescription(step)}</h4>
+                    <div class="step-progress">
+                        ${completed ? '<i class="fas fa-check-circle"></i> Completado' : '<i class="fas fa-circle"></i> Pendiente'}
+                    </div>
+                    ${stepData.length > 0 ? `<p>Conversaciones: ${stepData.length}</p>` : ''}
+                </div>
+            `;
+        }
+        
+        summary.innerHTML = html;
+        
+        // Mostrar botón de completar si todos los pasos están completados
+        const completeBtn = document.getElementById('completeProjectBtn');
+        if (allStepsCompleted && completeBtn) {
+            completeBtn.style.display = 'inline-block';
+        }
+    }
+
+    // Inicializar cuando se carga la sección
+    document.addEventListener('DOMContentLoaded', () => {
+        // El wizard se inicializa cuando se hace clic en "Mi Proyecto"
+        const projectNav = document.querySelector('.nav-item[data-section="proyecto"]');
+        if (projectNav) {
+            projectNav.addEventListener('click', () => {
+                setTimeout(initProjectWizard, 100);
+            });
+        }
+    });
+
+    // =================== FUNCIONES PARA IMPRIMIR PROYECTO ===================
+
+    function updateProjectChat() {
+        const chat = document.getElementById('projectChat');
+        chat.innerHTML = '';
+        
+        projectConversations.forEach(conv => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${conv.role === 'user' ? 'user' : 'ai'}`;
+            messageDiv.textContent = conv.content;
+            chat.appendChild(messageDiv);
+        });
+        
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function loadExistingProjects() {
+        if (!currentUser) return;
+        
+        // No cargar proyectos existentes si ya hay datos locales (proyecto en progreso)
+        const hasLocalData = Object.keys(projectData).some(key => projectData[key].length > 0);
+        if (hasLocalData) return;
+        
+        try {
+            const q = window.query(
+                window.collection(window.db, 'projects'),
+                window.where('userId', '==', currentUser.uid)
+            );
+            const snapshot = await window.getDocs(q);
+            
+            if (!snapshot.empty) {
+                const project = snapshot.docs[0].data();
+                projectConversations = project.conversations || [];
+                
+                // Mostrar botones de vista previa e impresión
+                document.getElementById('previewProjectBtn').style.display = 'inline-block';
+                document.getElementById('printProjectBtn').style.display = 'inline-block';
+                document.getElementById('completeProjectBtn').style.display = 'none';
+                
+                // Actualizar el chat con las conversaciones existentes
+                updateProjectChat();
+                updateProjectSummary();
+                
+                // Mensaje informativo
+                addChatMessage('Proyecto cargado exitosamente. Puedes ver el resumen o imprimirlo.', 'ai');
+            }
+        } catch (error) {
+            console.error('Error al cargar proyectos existentes:', error);
+        }
+    }
+
+    async function completeProject() {
+        if (!currentUser) {
+            alert('Debes iniciar sesión para completar el proyecto');
+            return;
+        }
+
+        try {
+            const projectData = {
+                userId: currentUser.uid,
+                userName: currentUser.displayName || currentUser.email,
+                completedAt: new Date().toISOString(),
+                conversations: projectConversations,
+                summary: generateProjectSummary(),
+                status: 'completed'
+            };
+
+            await window.addDoc(window.collection(window.db, 'projects'), projectData);
+            
+            // Mostrar botones de vista previa e impresión
+            document.getElementById('previewProjectBtn').style.display = 'inline-block';
+            document.getElementById('printProjectBtn').style.display = 'inline-block';
+            document.getElementById('completeProjectBtn').style.display = 'none';
+            
+            alert('¡Proyecto completado exitosamente! Ahora puedes imprimirlo.');
+        } catch (error) {
+            console.error('Error al completar proyecto:', error);
+            alert('Error al guardar el proyecto. Inténtalo de nuevo.');
+        }
+    }
+
+    function generateProjectSummary() {
+        const summary = {};
+        projectConversations.forEach((conv, index) => {
+            const step = Math.floor(index / 10) + 1;
+            if (!summary[step]) summary[step] = [];
+            summary[step].push(conv);
+        });
+        return summary;
+    }
+
+    function previewProjectBook() {
+        const printWindow = window.open('', '_blank');
+        const projectContent = generateProjectBookHTML();
+        
+        printWindow.document.write(projectContent);
+        printWindow.document.close();
+        // No imprimir automáticamente, solo mostrar vista previa
+    }
+
+    function printProjectBook() {
+        const printWindow = window.open('', '_blank');
+        const projectContent = generateProjectBookHTML();
+        
+        printWindow.document.write(projectContent);
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    function generateProjectBookHTML() {
+        const userName = currentUser ? (currentUser.displayName || currentUser.email) : 'Estudiante';
+        const currentDate = new Date().toLocaleDateString('es-ES');
+        
+        let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Mi Proyecto Empresarial - ${userName}</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 2.5cm 2cm 2.5cm 2cm;
+                    @bottom-right {
+                        content: "Página " counter(page);
+                    }
+                }
+                
+                body {
+                    font-family: 'Times New Roman', serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: none;
+                    margin: 0;
+                    padding: 0;
+                }
+                
+                .book-header {
+                    text-align: center;
+                    border-bottom: 2px solid #1e3a8a;
+                    padding-bottom: 2rem;
+                    margin-bottom: 3rem;
+                }
+                
+                .book-title {
+                    font-size: 28pt;
+                    font-weight: bold;
+                    color: #1e3a8a;
+                    margin-bottom: 1rem;
+                }
+                
+                .book-subtitle {
+                    font-size: 14pt;
+                    color: #64748b;
+                    margin-bottom: 2rem;
+                }
+                
+                .book-author {
+                    font-size: 12pt;
+                    color: #64748b;
+                }
+                
+                .chapter {
+                    page-break-before: always;
+                    margin-bottom: 3rem;
+                }
+                
+                .chapter:first-child {
+                    page-break-before: avoid;
+                }
+                
+                .chapter-title {
+                    font-size: 18pt;
+                    font-weight: bold;
+                    color: #1e3a8a;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .conversation {
+                    margin-bottom: 2rem;
+                    border-left: 3px solid #e5e7eb;
+                    padding-left: 1rem;
+                }
+                
+                .conversation.user {
+                    border-left-color: #3b82f6;
+                    background-color: #f0f9ff;
+                    padding: 1rem;
+                    border-radius: 0 8px 8px 0;
+                }
+                
+                .conversation.assistant {
+                    border-left-color: #10b981;
+                    background-color: #f0fdf4;
+                    padding: 1rem;
+                    border-radius: 0 8px 8px 0;
+                }
+                
+                .conversation-header {
+                    font-weight: bold;
+                    margin-bottom: 0.5rem;
+                    font-size: 10pt;
+                    color: #64748b;
+                }
+                
+                .conversation-content {
+                    font-size: 11pt;
+                    line-height: 1.5;
+                }
+                
+                .summary-section {
+                    background-color: #f8fafc;
+                    padding: 1.5rem;
+                    border-radius: 8px;
+                    margin: 2rem 0;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .summary-title {
+                    font-size: 14pt;
+                    font-weight: bold;
+                    color: #1e3a8a;
+                    margin-bottom: 1rem;
+                }
+                
+                .footer {
+                    margin-top: 4rem;
+                    padding-top: 2rem;
+                    border-top: 1px solid #e5e7eb;
+                    text-align: center;
+                    font-size: 10pt;
+                    color: #64748b;
+                }
+                
+                @media print {
+                    body { print-color-adjust: exact; }
+                    .conversation { break-inside: avoid; }
+                    .chapter { break-inside: avoid; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="book-header">
+                <div class="book-title">Mi Proyecto Empresarial</div>
+                <div class="book-subtitle">Plan de Negocio Desarrollado con Asistencia de IA</div>
+                <div class="book-author">
+                    Elaborado por: ${userName}<br>
+                    Fecha: ${currentDate}
+                </div>
+            </div>
+        `;
+
+        // Generar contenido por pasos
+        const steps = [
+            { title: '¿A qué te dedicarás?', description: 'Definición de especialización y nicho de mercado' },
+            { title: 'Objetivos del negocio', description: 'Metas claras y realistas para el emprendimiento' },
+            { title: 'Análisis de mercado', description: 'Estudio de competencia y clientes potenciales' },
+            { title: 'Plan financiero', description: 'Cálculos de costos, precios y proyecciones económicas' },
+            { title: 'Marketing y ventas', description: 'Estrategias para atraer y fidelizar clientes' }
+        ];
+
+        steps.forEach((step, index) => {
+            const stepNumber = index + 1;
+            const stepConversations = projectConversations.filter((_, i) => 
+                Math.floor(i / 10) === index
+            );
+
+            if (stepConversations.length > 0) {
+                html += `
+                <div class="chapter">
+                    <div class="chapter-title">Capítulo ${stepNumber}: ${step.title}</div>
+                    <div class="summary-section">
+                        <div class="summary-title">Descripción del Paso</div>
+                        <p>${step.description}</p>
+                    </div>
+                `;
+
+                stepConversations.forEach(conv => {
+                    const isUser = conv.role === 'user';
+                    html += `
+                    <div class="conversation ${isUser ? 'user' : 'assistant'}">
+                        <div class="conversation-header">
+                            ${isUser ? 'Pregunta del Estudiante' : 'Respuesta de la IA Asesora'}
+                        </div>
+                        <div class="conversation-content">
+                            ${conv.content.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `</div>`;
+            }
+        });
+
+        html += `
+            <div class="footer">
+                <p>Este documento fue generado automáticamente por la plataforma educativa.</p>
+                <p>Proyecto completado el ${currentDate}</p>
+            </div>
+        </body>
+        </html>
+        `;
+
+        return html;
+    }
+
+    // Hacer las funciones globales (reasignar después de definirlas)
+    window.completeProject = completeProject;
+    window.previewProjectBook = previewProjectBook;
+    window.printProjectBook = printProjectBook;
+    window.loadExistingProjects = loadExistingProjects;
+    window.updateProjectChat = updateProjectChat;
+    window.sendProjectMessage = sendProjectMessage;
+    window.addChatMessage = addChatMessage;
+    window.replaceLastMessage = replaceLastMessage;
+    window.saveProjectData = saveProjectData;
+    window.updateProjectSummary = updateProjectSummary;
+    window.loadProjectData = loadProjectData;
+    window.getStepDescription = getStepDescription;
     </script>
 
 </body>

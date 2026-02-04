@@ -10,6 +10,7 @@
   <meta name="author" content="ECE Charlotte">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://cursoscharlotte.com/">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <!-- Open Graph -->
   <meta property="og:title" content="Cursos de Panadería, Pastelería, Belleza, Maquillaje y Uñas | ECE Charlotte">
   <meta property="og:description" content="Aprende panadería, pastelería, belleza, maquillaje y uñas con ECE Charlotte. Cursos profesionales online y presenciales.">
@@ -353,6 +354,50 @@
     </div>
   </header>
 
+  <!-- Header Móvil -->
+  <header class="mobile-header">
+    <div class="container">
+      <div class="mobile-header-content">
+        <div class="mobile-logo">
+          <a href='/'>
+            <img src="fotos/logo.png" alt="CHARLOTTE" onerror="this.src='Mesa de trabajo 3.png'">
+          </a>
+        </div>
+        <div class="mobile-title">CHARLOTTE</div>
+        <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Menú">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Menú Móvil -->
+  <div id="mobile-menu" class="mobile-menu">
+    <div class="mobile-menu-content">
+      <button class="close-menu" onclick="toggleMobileMenu()">&times;</button>
+      <a href="/cursos" onclick="toggleMobileMenu()">Cursos</a>
+      <a href="/sobre" onclick="toggleMobileMenu()">Sobre Nosotros</a>
+      <a href="/contacto" onclick="toggleMobileMenu()">Contacto</a>
+      <a href="/recursos" onclick="toggleMobileMenu()">Recursos</a>
+      <a href="/asesoria" onclick="toggleMobileMenu()">Asesoría</a>
+      <a href="/login" onclick="toggleMobileMenu()" class="menu-student-access">Acceso Estudiantes</a>
+      <div class="menu-section">
+        <h4>Descargar App</h4>
+        <a href="#" onclick="installPWA(); toggleMobileMenu()">Instalar PWA</a>
+      </div>
+      <div class="menu-section">
+        <h4>Síguenos</h4>
+        <div class="social-links">
+          <a href="https://www.facebook.com/cursoscharlotte" target="_blank"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com/cursoscharlotte" target="_blank"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank"><i class="fab fa-tiktok"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Video de fondo -->
   <video autoplay muted loop playsinline id="bgVideo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; object-fit: cover; z-index: 0;">
     <source src="video inicio.mp4" type="video/mp4">
@@ -625,19 +670,29 @@
 
 <script>
 function toggleMobileMenu() {
-    const nav = document.getElementById('mainNav');
+    const menu = document.getElementById('mobile-menu');
     const hamburger = document.querySelector('.hamburger-menu');
-    nav.classList.toggle('active');
-    hamburger.classList.toggle('active');
+    if (menu && hamburger) {
+        menu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+        document.body.classList.toggle('menu-open');
+    }
 }
 
-// Agregar event listener al cargar
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburgerMenu = document.getElementById('hamburgerMenu');
-    if (hamburgerMenu) {
-        hamburgerMenu.addEventListener('click', toggleMobileMenu);
+function installPWA() {
+    // Trigger PWA install prompt if available
+    if ('serviceWorker' in navigator && window.deferredPrompt) {
+        window.deferredPrompt.prompt();
+        window.deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            window.deferredPrompt = null;
+        });
+    } else {
+        alert('La app ya está instalada o no es compatible con tu navegador.');
     }
-});
+}
 </script></body>
 </html>
 
