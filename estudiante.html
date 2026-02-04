@@ -11965,6 +11965,7 @@ function openImageModal(imageUrl, title) {
     }
 
     async function loadExistingProjects() {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser) return;
         
         // No cargar proyectos existentes si ya hay datos locales (proyecto en progreso)
@@ -12000,6 +12001,7 @@ function openImageModal(imageUrl, title) {
     }
 
     async function completeProject() {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser) {
             alert('Debes iniciar sesión para completar el proyecto');
             return;
@@ -12058,7 +12060,8 @@ function openImageModal(imageUrl, title) {
     }
 
     function generateProjectBookHTML() {
-        const userName = currentUser ? (currentUser.displayName || currentUser.email) : 'Estudiante';
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
         const currentDate = new Date().toLocaleDateString('es-ES');
         
         let html = `
