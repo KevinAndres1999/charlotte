@@ -10413,6 +10413,12 @@ function renderRecursos() {
     const container = document.getElementById('recursosList');
     if (!container) return;
 
+    // Verificar si los datos están cargados
+    if (!filteredRecursos || filteredRecursos.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Cargando recursos...</h3><p>Por favor espera mientras se cargan los materiales.</p></div>';
+        return;
+    }
+
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) {
         container.innerHTML = '<div class="empty-state"><i class="fas fa-user-times"></i><h3>Acceso requerido</h3><p>Inicia sesión para ver los recursos disponibles.</p></div>';
@@ -10649,12 +10655,22 @@ function filterRecursosByCategory(category) {
     currentRecursosCategory = category;
     document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.filter-tab[onclick*="filterRecursosByCategory('${category}')"]`).classList.add('active');
-    renderRecursos();
+
+    // Solo renderizar si los datos están cargados
+    if (filteredRecursos && filteredRecursos.length > 0) {
+        renderRecursos();
+    }
 }
 
 window.filterRecursosByCategory = filterRecursosByCategory;
 
 function filterRecursos() {
+    // Verificar si los datos están cargados
+    if (!recursosData || (!recursosData.fotos.length && !recursosData.recursos.length && !recursosData.contactos.length)) {
+        console.log('Datos de recursos aún no cargados, ignorando filtro');
+        return;
+    }
+
     const searchTerm = document.getElementById('recursosSearch').value.toLowerCase();
 
     if (!searchTerm) {
