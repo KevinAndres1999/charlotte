@@ -12071,8 +12071,65 @@ function openImageModal(imageUrl, title) {
 
     function initProjectWizard() {
         // Cargar datos del proyecto si existen
-        loadProjectData();
+        const hasExistingData = loadProjectData();
+
+        if (hasExistingData) {
+            // Usuario tiene progreso guardado - mostrar resumen y continuar
+            showProgressSummary();
+        } else {
+            // Primer ingreso - mostrar bienvenida
+            showWelcomeMessage();
+        }
+
         loadExistingProjects();
+    }
+
+    function showWelcomeMessage() {
+        addChatMessage('¡Hola! Soy Charlotte, tu tutora especializada en emprendimiento. Te voy a guiar paso a paso para crear un proyecto empresarial sólido en el sector de panadería y pastelería.', 'ai');
+        addChatMessage('Vamos a empezar definiendo los fundamentos de tu negocio. ¿Estás listo para comenzar?', 'ai');
+
+        // Mostrar primera pregunta después de un breve delay
+        setTimeout(() => {
+            askCurrentQuestion();
+        }, 2000);
+    }
+
+    function showProgressSummary() {
+        // Calcular estadísticas del progreso
+        let totalQuestions = 0;
+        let completedQuestions = 0;
+        let lastCompletedStep = 1;
+
+        for (let step = 1; step <= 6; step++) {
+            const stepData = projectData[step] || {};
+            const stepQuestions = projectQuestions[step]?.questions || [];
+            const stepCompletedQuestions = Object.values(stepData).filter(q => q.approved).length;
+
+            totalQuestions += stepQuestions.length;
+            completedQuestions += stepCompletedQuestions;
+
+            if (stepCompletedQuestions > 0) {
+                lastCompletedStep = step;
+            }
+        }
+
+        const progressPercent = Math.round((completedQuestions / totalQuestions) * 100);
+
+        addChatMessage(`¡Bienvenido de vuelta! Veo que has estado trabajando en tu proyecto.`, 'ai');
+        addChatMessage(`📊 Progreso actual: ${completedQuestions}/${totalQuestions} preguntas completadas (${progressPercent}%)`, 'ai');
+        addChatMessage(`📍 Estás en el MÓDULO ${currentProjectStep}`, 'ai');
+
+        if (awaitingApproval && currentSuggestion) {
+            // Restaurar estado de sugerencias pendientes
+            addChatMessage('Tenías una sugerencia pendiente. Te la muestro de nuevo:', 'ai');
+            showSuggestionWithApproval(currentSuggestion.suggestion, currentSuggestion.originalResponse, currentSuggestion.question);
+        } else {
+            // Continuar con la pregunta actual
+            addChatMessage('¿Quieres continuar desde donde te quedaste o revisar algo anterior?', 'ai');
+            setTimeout(() => {
+                askCurrentQuestion();
+            }, 1500);
+        }
     }
 
     function handleNavigationCommand(command) {
@@ -12982,18 +13039,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
             if (completedInStep >= stepQuestions.length) {
                 // Módulo completado, esperar confirmación para siguiente
-                addChatMessage(`¡Hola de nuevo! Has completado el MÓDULO ${lastCompletedStep}. Escribe "siguiente" para continuar con el siguiente módulo.`, 'ai');
+                // No mostrar mensaje aquí, lo hará showProgressSummary()
             } else {
-                // Mostrar la siguiente pregunta
-                setTimeout(() => {
-                    askCurrentQuestion();
-                }, 1000);
+                // No mostrar pregunta automáticamente, lo hará showProgressSummary()
             }
 
             updateProjectSummary();
+            return true; // Encontró datos guardados
         } else {
             // Si no hay datos guardados, comenzar desde el principio
             setProjectStep(1);
+            return false; // No encontró datos guardados
         }
     }
 
