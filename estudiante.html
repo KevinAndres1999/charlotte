@@ -11927,14 +11927,14 @@ function openImageModal(imageUrl, title) {
                     question: 'MÓDULO 1: IDEA Y NICHOS\n\nVamos a definir los fundamentos de tu negocio.\n\nPaso 1.1: ¿Cuál será el nombre de tu negocio?',
                     category: 'nombre_negocio',
                     validation: (answer) => answer.length >= 3,
-                    improvementPrompt: 'Analiza brevemente este nombre de negocio. Si necesita mejoras, sugiere 2-3 alternativas cortas y específicas para el sector {sector}. Si está bien, confirma que es adecuado. Responde SOLO con el nombre elegido o las alternativas, sin explicaciones largas.'
+                    improvementPrompt: 'Primero explica brevemente los criterios importantes para elegir un buen nombre de negocio en el sector {sector}. Luego, sugiere 2-3 alternativas específicas. Finalmente, indica claramente cuál recomiendas guardar. Formato: Explicación | Alternativas | Recomendación final'
                 },
                 {
                     id: 'business_slogan',
                     question: 'Paso 1.2: Ahora crea un eslogan atractivo para tu negocio. Debe ser corto, memorable y transmitir el valor único de tu marca.',
                     category: 'eslogan',
                     validation: (answer) => answer.length >= 5 && answer.length <= 50,
-                    improvementPrompt: 'Analiza brevemente este eslogan. Si necesita mejoras, sugiere 2-3 alternativas cortas y impactantes para el sector {sector}. Si está bien, confirma que es adecuado. Responde SOLO con el eslogan elegido o las alternativas.'
+                    improvementPrompt: 'Primero explica brevemente qué hace un buen eslogan en el sector {sector}. Luego, sugiere 2-3 alternativas impactantes. Finalmente, indica claramente cuál recomiendas guardar. Formato: Explicación | Alternativas | Recomendación final'
                 },
                 {
                     id: 'business_description',
@@ -11966,7 +11966,7 @@ function openImageModal(imageUrl, title) {
                     question: 'Paso 2.2: Menciona 3 competidores principales en tu zona. Para cada uno indica: nombre, fortalezas, debilidades y precio promedio.',
                     category: 'analisis_competencia',
                     validation: (answer) => answer.length >= 150 && (answer.toLowerCase().includes('competidor') || answer.toLowerCase().includes('pan y mas') || answer.match(/\d+\./g) || []).length >= 1,
-                    improvementPrompt: 'Revisa este análisis de competencia. Si necesita mejoras, sugiere una versión más completa con al menos 3 competidores. Si está bien, confirma que es adecuado. Responde SOLO con el análisis final formateado.'
+                    improvementPrompt: 'Primero explica brevemente por qué es importante analizar la competencia en el sector {sector}. Luego, sugiere un análisis completo con al menos 3 competidores. Finalmente, indica claramente el análisis final a guardar. Formato: Explicación | Análisis completo | Versión final'
                 },
                 {
                     id: 'unique_value',
@@ -12239,13 +12239,11 @@ IMPORTANTE - CALIDAD DE REDACCIÓN:
 - Estructura tus respuestas de manera clara y lógica
 
 INSTRUCCIONES DE CONTENIDO:
-- Sé conversacional pero CONCISO - no des respuestas largas
-- Cuando des sugerencias, sé directo y específico
-- Si la respuesta es buena, elógiala brevemente y continúa
-- Si necesita mejoras, sugiere cambios específicos pero no análisis largos
-- Mantén el hilo de la conversación pero no te extiendas
-- Usa un tono motivador pero práctico
-- Limita las explicaciones teóricas - enfócate en lo práctico
+- Sé educativo pero estructurado: explica conceptos teóricos primero, luego da recomendaciones prácticas
+- Cuando des sugerencias, separa claramente: explicación teórica | opciones concretas | recomendación final
+- Usa el formato "Explicación | Alternativas | Recomendación final" para que sea fácil extraer la información a guardar
+- Mantén el tono motivador pero enfócate en enseñar conceptos importantes
+- Las explicaciones teóricas ayudan al aprendizaje, pero la recomendación final es lo que se guarda
 
 Recuerda el contexto del proyecto: ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}`
                         },
@@ -12529,6 +12527,13 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
     function extractImprovedVersion(suggestion) {
         // Extraer la versión mejorada de manera más inteligente
         const lines = suggestion.split('\n');
+
+        // Buscar formato estructurado: Explicación | Alternativas | Recomendación final
+        const finalSection = suggestion.split('|').pop()?.trim();
+        if (finalSection && finalSection !== suggestion) {
+            // Si hay secciones separadas por |, tomar la última (recomendación final)
+            return finalSection;
+        }
 
         // Buscar patrones específicos según el tipo de pregunta
         const currentQuestion = projectQuestions[currentProjectStep]?.questions[currentQuestionIndex];
