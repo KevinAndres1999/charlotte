@@ -12242,6 +12242,7 @@ INSTRUCCIONES DE CONTENIDO:
 - Sé educativo pero estructurado: explica conceptos teóricos primero, luego da recomendaciones prácticas
 - Cuando des sugerencias, separa claramente: explicación teórica | opciones concretas | recomendación final
 - Usa el formato "Explicación | Alternativas | Recomendación final" para que sea fácil extraer la información a guardar
+- Si el estudiante pide más opciones después de ver sugerencias, genera alternativas completamente diferentes
 - Mantén el tono motivador pero enfócate en enseñar conceptos importantes
 - Las explicaciones teóricas ayudan al aprendizaje, pero la recomendación final es lo que se guarda
 
@@ -12434,6 +12435,20 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
 
     async function handleApprovalResponse(message) {
         if (!currentSuggestion) return;
+
+        // Detectar si el usuario está pidiendo más opciones/alternativas
+        const lowerMessage = message.toLowerCase();
+        const isRequestingMore = lowerMessage.includes('más') || lowerMessage.includes('otras') ||
+                                lowerMessage.includes('opciones') || lowerMessage.includes('alternativas') ||
+                                lowerMessage.includes('dame') || lowerMessage.includes('quiero') ||
+                                lowerMessage.includes('puedes') || lowerMessage.includes('podrías');
+
+        if (isRequestingMore) {
+            // Generar nuevas sugerencias en lugar de guardar
+            addChatMessage('¡Claro! Te doy más opciones. Déjame pensar en alternativas adicionales...', 'ai');
+            await generateImprovementSuggestions(currentSuggestion.originalResponse, currentSuggestion.question);
+            return;
+        }
 
         // El usuario está proporcionando una versión modificada
         const { question } = currentSuggestion;
