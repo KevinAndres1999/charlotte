@@ -12337,16 +12337,7 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
                     <i class="fas fa-lightbulb"></i> Sugerencias de Charlotte
                 </div>
                 <div class="suggestion-content">
-                    ${suggestion
-                        .replace(/\n/g, '<br>')
-                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                        .replace(/^### (.*$)/gm, '<h4>$1</h4>')
-                        .replace(/^## (.*$)/gm, '<h3>$1</h3>')
-                        .replace(/^# (.*$)/gm, '<h2>$1</h2>')
-                        .replace(/^- (.*$)/gm, '<li>$1</li>')
-                        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-                    }
+                    ${processMarkdown(suggestion)}
                 </div>
                 <div class="suggestion-actions">
                     <button onclick="approveSuggestion()" class="btn-approve">
@@ -12760,16 +12751,34 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         }
     }
 
+    function processMarkdown(text) {
+        return text
+            .replace(/\n/g, '<br>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^###+\s*(.*$)/gm, '<h4>$1</h4>')
+            .replace(/^##+\s*(.*$)/gm, '<h3>$1</h3>')
+            .replace(/^#+\s*(.*$)/gm, '<h2>$1</h2>')
+            .replace(/^- (.*$)/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    }
+
     function addChatMessage(message, type, messageType) {
         const chat = document.getElementById('projectChat');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${type}`;
 
-        // Si es una sugerencia o contiene HTML, usar innerHTML para renderizar las etiquetas
-        if (messageType === 'suggestion' || message.includes('<div') || message.includes('<br>') || message.includes('<strong>')) {
-            messageDiv.innerHTML = message;
+        // Procesar markdown para respuestas de IA
+        let processedMessage = message;
+        if (type === 'ai') {
+            processedMessage = processMarkdown(message);
+        }
+
+        // Si es una sugerencia, ya viene procesada
+        if (messageType === 'suggestion' || processedMessage.includes('<div') || processedMessage.includes('<br>') || processedMessage.includes('<strong>') || processedMessage.includes('<h4>')) {
+            messageDiv.innerHTML = processedMessage;
         } else {
-            messageDiv.textContent = message;
+            messageDiv.textContent = processedMessage;
         }
 
         chat.appendChild(messageDiv);
