@@ -12477,10 +12477,14 @@ FORMATO DE RESPUESTA:
 - Si APRUEBAS (solo respuestas perfectas): "APROBADO: [respuesta del estudiante]"
 - Si RECHAZAS: Explica amablemente pero FIRMEMENTE qué mejorar, da EJEMPLOS concretos, y sugiere una versión mejorada específica.
 
-Ejemplos de respuestas que NO aprobar:
-- "Nuestra Receta" → Muy genérico, sugiere: "Dulce Hogar" o "Artesanos del Sabor"
-- "el arte de l apasteria en tu hogar" → Errores ortográficos + falta de creatividad
-- Respuestas vagas o copiadas
+Ejemplos de respuestas que NO aprobar ${userProgram === 'panaderia' ? '(para Panadería y Pastelería)' : '(para Belleza Integral)'}:
+${userProgram === 'panaderia' ? 
+`- "Nuestra Receta" → Muy genérico, sugiere: "Dulce Hogar" o "Artesanos del Sabor"
+- "el arte de l apasteria en tu hogar" → Errores ortográficos + falta de creatividad` :
+`- "Belleza Natural" → Muy genérico, sugiere: "Glow Studio" o "Belleza Premium"
+- "cortes de pelo y uñas" → Falta creatividad + no es memorable`}
+
+Respuestas vagas o copiadas
 
 Sé constructivo pero EXIGENTE - tu objetivo es crear proyectos PROFESIONALES de calidad.`;
 
@@ -13428,6 +13432,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
             currentQuestionIndex: currentQuestionIndex,
             awaitingApproval: awaitingApproval,
             currentSuggestion: currentSuggestion,
+            userProgram: userProgram,
             lastSaved: new Date().toISOString()
         };
         
@@ -13439,6 +13444,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 data: projectData,
                 currentStep: currentProjectStep,
                 currentQuestion: currentQuestionIndex,
+                userProgram: userProgram,
                 lastUpdated: new Date(),
                 userEmail: user.email,
                 program: user.programa || 'negocios'
@@ -13473,6 +13479,9 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
             }
             if (progressData.currentSuggestion) {
                 currentSuggestion = progressData.currentSuggestion;
+            }
+            if (progressData.userProgram) {
+                userProgram = progressData.userProgram;
             }
 
             // Determinar el último paso completado
