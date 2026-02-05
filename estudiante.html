@@ -11934,7 +11934,20 @@ function openImageModal(imageUrl, title) {
                     conversationFlow: [
                         {
                             type: 'info',
-                            message: 'MÓDULO 1: LA IDEA Y SU CORAZÓN\n\n📚 INFORMACIÓN IMPORTANTE:\n\nEl nombre de tu negocio es lo primero que verán tus clientes. Debe ser:\n\n✅ MEMORABLE: Fácil de recordar y pronunciar\n✅ DESCRIPTIVO: Que indique qué haces\n✅ ÚNICO: Que se diferencie de la competencia\n✅ PROFESIONAL: Que transmita confianza\n\nEjemplos en panadería: "Dulce Hogar", "Pan Artesanal", "Sabor Casero"\nEjemplos en belleza: "Belleza Natural", "Estilo Perfecto", "Glow Studio"'
+                            message: () => `MÓDULO 1: LA IDEA Y SU CORAZÓN
+
+📚 INFORMACIÓN IMPORTANTE:
+
+El nombre de tu negocio es lo primero que verán tus clientes. Debe ser:
+
+✅ MEMORABLE: Fácil de recordar y pronunciar
+✅ DESCRIPTIVO: Que indique qué haces
+✅ ÚNICO: Que se diferencie de la competencia
+✅ PROFESIONAL: Que transmita confianza
+
+${userProgram === 'panaderia' ?
+'Ejemplos en panadería: "Dulce Hogar", "Pan Artesanal", "Sabor Casero"' :
+'Ejemplos en belleza: "Belleza Natural", "Estilo Perfecto", "Glow Studio"'}`
                         },
                         {
                             type: 'question',
@@ -13055,7 +13068,8 @@ O dime directamente qué estilo o características buscas, ¡y genero opciones e
 
             if (currentStep.type === 'info') {
                 // Mostrar información educativa
-                addChatMessage(currentStep.message, 'ai');
+                const message = typeof currentStep.message === 'function' ? currentStep.message() : currentStep.message;
+                addChatMessage(message, 'ai');
                 // Pasar automáticamente al siguiente step después de un delay
                 setTimeout(() => {
                     currentConversationStep++;
