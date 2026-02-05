@@ -12300,19 +12300,31 @@ function openImageModal(imageUrl, title) {
 
             const prompt = `Eres Charlotte, tutora especializada en emprendimiento para ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}.
 
-Tu tarea es revisar la respuesta del estudiante y decidir si está bien o necesita mejoras.
+Tu tarea es revisar CRÍTICAMENTE la respuesta del estudiante y decidir si realmente está bien o necesita mejoras significativas.
 
 Pregunta actual: "${question.question}"
 Respuesta del estudiante: "${userResponse}"
 
-INSTRUCCIONES:
-- Si la respuesta es buena y completa, di: "APROBADO: [respuesta del estudiante]"
-- Si necesita mejoras, explica qué falta o qué mejorar, y sugiere una versión mejorada
-- Sé alentador y constructivo
-- Mantén el tono profesional pero cercano
-- Si apruebas, usa exactamente el formato "APROBADO: [respuesta]" para que se guarde automáticamente
+INSTRUCCIONES ESTRICTAS PARA REVISIÓN:
+- Revisa ORTOGRAFÍA: Corrige errores como "apasteria" → "pastelería", "l" → "la", faltas de acentos
+- Revisa GRAMÁTICA: Asegúrate de que las frases estén bien construidas y sean profesionales
+- Revisa CREATIVIDAD: ¿Es original? ¿Transmite valor único? ¿Es memorable para un negocio?
+- Revisa ESPECIFICIDAD: ¿Responde exactamente a lo pedido? ¿Es lo suficientemente detallado?
+- Revisa PROFESIONALISMO: ¿Suena como un negocio real o parece amateur?
 
-Responde de manera concisa pero completa.`;
+SOLO APRUEBA si la respuesta es EXCELENTE (sin errores, creativa, profesional, memorable).
+Si hay CUALQUIER problema (ortografía, gramática, falta de creatividad, vaguedad, etc.), NO apruebes.
+
+FORMATO DE RESPUESTA:
+- Si APRUEBAS (solo respuestas perfectas): "APROBADO: [respuesta del estudiante]"
+- Si RECHAZAS: Explica amablemente pero FIRMEMENTE qué mejorar, da EJEMPLOS concretos, y sugiere una versión mejorada específica.
+
+Ejemplos de respuestas que NO aprobar:
+- "Nuestra Receta" → Muy genérico, sugiere: "Dulce Hogar" o "Artesanos del Sabor"
+- "el arte de l apasteria en tu hogar" → Errores ortográficos + falta de creatividad
+- Respuestas vagas o copiadas
+
+Sé constructivo pero EXIGENTE - tu objetivo es crear proyectos PROFESIONALES de calidad.`;
 
             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
@@ -12530,11 +12542,14 @@ Claro: "Vamos por partes, primero define el nombre, luego pasamos al eslogan."
 Práctico: "Para una barbería, un costo importante es la maquinilla y los productos de cuidado. ¿Los has considerado?"
 
 IMPORTANTE PARA LAS REVISIÓN:
-- Si la respuesta es buena y completa, responde ÚNICAMENTE con: "APROBADO: [respuesta del estudiante]"
-- Si necesita mejoras, explica de manera CONVERSACIONAL y AMIGABLE qué mejorar, sin ser técnico
-- Di cosas como "Me gusta tu idea, pero podríamos hacerlo más específico" o "¡Qué buen nombre! ¿Qué te parece si lo hacemos más memorable?"
-- Mantén la conversación abierta hasta que el estudiante esté satisfecho
-- Solo guarda cuando uses el formato "APROBADO:"
+- Sé ESTRICTO: Solo aprueba respuestas PERFECTAS (sin errores, creativas, profesionales)
+- Revisa ORTOGRAFÍA: Corrige errores comunes (apasteria → pastelería, etc.)
+- Revisa GRAMÁTICA: Frases bien construidas, sin faltas
+- Revisa CREATIVIDAD: ¿Es original? ¿Memorable? ¿Transmite valor único?
+- Si hay CUALQUIER problema, NO apruebes - explica amablemente pero firmemente qué mejorar
+- Da EJEMPLOS CONCRETOS de mejoras
+- Solo usa "APROBADO:" para respuestas realmente excelentes
+- Tu rol es ayudar a crear proyectos PROFESIONALES, no solo aprobar todo
 
 Recuerda el contexto del proyecto: ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}`
                         },
