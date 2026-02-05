@@ -11899,29 +11899,14 @@ function openImageModal(imageUrl, title) {
             questions: [
                 {
                     id: 'user_name',
-                    question: '¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre?',
+                    question: '¿Me podrías confirmar tu nombre para personalizar mejor nuestra conversación?',
                     category: 'informacion_personal',
                     validation: (answer) => answer.length >= 2,
                     followUp: (answer) => {
                         const nameMatch = answer.match(/([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/);
                         userName = nameMatch ? nameMatch[0] : answer.trim();
-                        return `¡Hola, ${userName}! Es un placer conocerte. Ahora dime, ¿en qué área te gustaría emprender: Panadería y Pastelería, o Belleza Integral?`;
-                    }
-                },
-                {
-                    id: 'user_sector',
-                    question: '¿En qué área te gustaría emprender: Panadería y Pastelería, o Belleza Integral?',
-                    category: 'sector',
-                    validation: (answer) => {
-                        const lowerAnswer = answer.toLowerCase();
-                        return lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') ||
-                               lowerAnswer.includes('belleza') || lowerAnswer.includes('integral') ||
-                               lowerAnswer.includes('pan') || lowerAnswer.includes('bellez');
-                    },
-                    followUp: (answer) => {
-                        const lowerAnswer = answer.toLowerCase();
-                        userProgram = (lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') || lowerAnswer.includes('pan')) ? 'panaderia' : 'belleza';
-                        return `¡Excelente elección! Vamos a crear un proyecto increíble en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}. Comenzaremos con el MÓDULO 1.`;
+                        const programName = userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral';
+                        return `¡Perfecto, ${userName}! Ya tengo toda la información necesaria de tu perfil. Tu programa es ${programName}, así que nos enfocaremos específicamente en eso. Comenzaremos con el MÓDULO 1: LA IDEA Y SU CORAZÓN.`;
                     }
                 }
             ]
@@ -12148,7 +12133,25 @@ ${userProgram === 'panaderia' ?
     }
 
     function showWelcomeMessage() {
-        addChatMessage('¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre y si tu emprendimiento será de Panadería y Pastelería o de Belleza Integral?', 'ai');
+        // Obtener información del usuario registrado
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (currentUser && currentUser.programa) {
+            // Determinar automáticamente el programa basado en el registro del usuario
+            const programa = currentUser.programa.toLowerCase();
+            if (programa.includes('panader') || programa.includes('pasteler')) {
+                userProgram = 'panaderia';
+            } else if (programa.includes('bellez') || programa.includes('estetic')) {
+                userProgram = 'belleza';
+            } else {
+                userProgram = 'belleza'; // default
+            }
+
+            const programName = userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral';
+            addChatMessage(`¡Hola ${currentUser.name}! Soy Charlotte, tu tutora especializada en ${programName}. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Comenzaremos creando juntos el proyecto perfecto para tu emprendimiento.`, 'ai');
+        } else {
+            // Fallback si no hay información del usuario
+            addChatMessage('¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre?', 'ai');
+        }
 
         // Mostrar primera pregunta después de un breve delay
         setTimeout(() => {
@@ -13029,9 +13032,12 @@ O dime directamente qué estilo o características buscas, ¡y genero opciones e
         const moduleName = moduleNames[currentProjectStep] || `MÓDULO ${currentProjectStep}`;
         addChatMessage(`🎉 ¡Felicitaciones! Has completado el ${moduleName}.`, 'ai');
 
-        // Pequeña pausa antes de preguntar por el siguiente módulo
+        // Pequeña pausa antes de continuar
         setTimeout(() => {
-            if (currentProjectStep < 7) {
+            if (currentProjectStep === 1) {
+                // Módulo 0 completado - pasar automáticamente al módulo 1
+                setProjectStep(2);
+            } else if (currentProjectStep < 7) {
                 const nextModuleName = moduleNames[currentProjectStep + 1] || `MÓDULO ${currentProjectStep + 1}`;
                 addChatMessage(`¿Quieres continuar con el ${nextModuleName}? Escribe "sí" para comenzar.`, 'ai');
             } else {
