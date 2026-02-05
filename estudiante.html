@@ -11897,20 +11897,30 @@ function openImageModal(imageUrl, title) {
         1: { // MÓDULO 0: PRESENTACIÓN
             questions: [
                 {
-                    id: 'user_info',
-                    question: '¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre y si tu emprendimiento será de Panadería y Pastelería o de Belleza Integral?',
+                    id: 'user_name',
+                    question: '¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre?',
                     category: 'informacion_personal',
+                    validation: (answer) => answer.length >= 2,
+                    followUp: (answer) => {
+                        const nameMatch = answer.match(/([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/);
+                        userName = nameMatch ? nameMatch[0] : answer.trim();
+                        return `¡Hola, ${userName}! Es un placer conocerte. Ahora dime, ¿en qué área te gustaría emprender: Panadería y Pastelería, o Belleza Integral?`;
+                    }
+                },
+                {
+                    id: 'user_sector',
+                    question: '¿En qué área te gustaría emprender: Panadería y Pastelería, o Belleza Integral?',
+                    category: 'sector',
                     validation: (answer) => {
                         const lowerAnswer = answer.toLowerCase();
-                        return (lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') || lowerAnswer.includes('belleza') || lowerAnswer.includes('integral')) &&
-                               answer.length >= 10; // Asegurar que incluya nombre y sector
+                        return lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') ||
+                               lowerAnswer.includes('belleza') || lowerAnswer.includes('integral') ||
+                               lowerAnswer.includes('pan') || lowerAnswer.includes('bellez');
                     },
                     followUp: (answer) => {
                         const lowerAnswer = answer.toLowerCase();
                         userProgram = (lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') || lowerAnswer.includes('pan')) ? 'panaderia' : 'belleza';
-                        const nameMatch = answer.match(/([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)*)/);
-                        userName = nameMatch ? nameMatch[0] : 'Estudiante';
-                        return `¡Excelente elección, ${userName}! Vamos a crear un proyecto increíble en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}. Comenzaremos con el MÓDULO 1.`;
+                        return `¡Excelente elección! Vamos a crear un proyecto increíble en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}. Comenzaremos con el MÓDULO 1.`;
                     }
                 }
             ]
@@ -12514,9 +12524,9 @@ Claro: "Vamos por partes, primero define el nombre, luego pasamos al eslogan."
 Práctico: "Para una barbería, un costo importante es la maquinilla y los productos de cuidado. ¿Los has considerado?"
 
 IMPORTANTE PARA LAS REVISIÓN:
-- Si la respuesta es buena y completa, responde con: "APROBADO: [respuesta del estudiante]"
-- Si necesita mejoras, explica constructivamente qué mejorar y por qué
-- Sé específico en tus sugerencias de mejora
+- Si la respuesta es buena y completa, responde ÚNICAMENTE con: "APROBADO: [respuesta del estudiante]"
+- Si necesita mejoras, explica de manera CONVERSACIONAL y AMIGABLE qué mejorar, sin ser técnico
+- Di cosas como "Me gusta tu idea, pero podríamos hacerlo más específico" o "¡Qué buen nombre! ¿Qué te parece si lo hacemos más memorable?"
 - Mantén la conversación abierta hasta que el estudiante esté satisfecho
 - Solo guarda cuando uses el formato "APROBADO:"
 
