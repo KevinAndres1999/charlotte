@@ -11962,7 +11962,7 @@ function openImageModal(imageUrl, title) {
                     id: 'competitor_analysis',
                     question: 'Paso 2.2: Menciona 3 competidores principales en tu zona. Para cada uno indica: nombre, fortalezas, debilidades y precio promedio.',
                     category: 'analisis_competencia',
-                    validation: (answer) => (answer.match(/\d+\./g) || []).length >= 3,
+                    validation: (answer) => answer.length >= 150 && (answer.toLowerCase().includes('competidor') || answer.toLowerCase().includes('pan y mas') || answer.match(/\d+\./g) || []).length >= 1,
                     improvementPrompt: 'Analiza este análisis de competencia y sugiere mejoras. Debe incluir al menos 3 competidores con fortalezas, debilidades y precios. Para el sector {sector}. Responde con el análisis mejorado o confirma que está bien.'
                 },
                 {
