@@ -12280,6 +12280,12 @@ function openImageModal(imageUrl, title) {
     }
 
     async function reviewStudentResponse(userResponse, question) {
+        // Para el módulo 0 (presentación), guardar directamente sin revisión
+        if (currentProjectStep === 1) {
+            saveResponseAndContinue(userResponse, question);
+            return;
+        }
+
         try {
             const apiKey = localStorage.getItem('openrouter_api_key');
 
