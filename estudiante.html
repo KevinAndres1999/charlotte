@@ -12300,6 +12300,11 @@ INSTRUCCIONES DE CONTENIDO:
 - Cuando des sugerencias, separa claramente: explicación teórica | opciones concretas | recomendación final
 - Usa el formato "Explicación | Alternativas | Recomendación final" para que sea fácil extraer la información a guardar
 - Si el estudiante pide más opciones después de ver sugerencias, genera alternativas completamente diferentes
+- Si el estudiante rechaza todas las opciones, NO las guardes como respuesta final. En su lugar:
+  * Pregunta qué tipo de alternativas prefiere (más moderno, tradicional, corto, largo, en inglés, en español, etc.)
+  * O genera nuevas opciones basadas en diferentes criterios
+  * Mantén la conversación abierta hasta encontrar algo que le guste
+- Si la respuesta del estudiante incluye una preferencia específica (moderno, tradicional, corto, inglés, etc.), genera opciones que sigan exactamente ese criterio
 - Mantén el tono motivador pero enfócate en enseñar conceptos importantes
 - Las explicaciones teóricas ayudan al aprendizaje, pero la recomendación final es lo que se guarda
 
@@ -12500,10 +12505,41 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
                                 lowerMessage.includes('dame') || lowerMessage.includes('quiero') ||
                                 lowerMessage.includes('puedes') || lowerMessage.includes('podrías');
 
+        // Detectar si el usuario elige un criterio específico para nuevas sugerencias
+        const isChoosingCriteria = lowerMessage.includes('moderno') || lowerMessage.includes('tradicional') ||
+                                  lowerMessage.includes('corto') || lowerMessage.includes('inglés') ||
+                                  lowerMessage.includes('personalizado') || lowerMessage.includes('creativo') ||
+                                  lowerMessage.includes('confiable') || lowerMessage.includes('memorable') ||
+                                  lowerMessage.includes('internacional') || lowerMessage.includes('clásico');
+
         if (isRequestingMore) {
             // Generar nuevas sugerencias en lugar de guardar
             addChatMessage('¡Claro! Te doy más opciones. Déjame pensar en alternativas adicionales...', 'ai');
             await generateImprovementSuggestions(currentSuggestion.originalResponse, currentSuggestion.question);
+            return;
+        } else if (isRejectingAll) {
+            // El usuario rechaza todas las opciones - ofrecer diferentes enfoques
+            addChatMessage('Entiendo que ninguna de estas opciones te convence. Te propongo diferentes enfoques para encontrar el nombre perfecto:', 'ai');
+
+            // Mostrar opciones de criterios para generar nuevas sugerencias
+            setTimeout(() => {
+                addChatMessage(`¿Qué tipo de nombre prefieres?
+
+🔸 **Más moderno y creativo**: Nombres innovadores y actuales
+🔸 **Tradicional y confiable**: Nombres clásicos que transmiten experiencia
+🔸 **Corto y memorable**: Nombres fáciles de recordar
+🔸 **En inglés**: Nombres internacionales
+🔸 **Personalizado**: Basado en tus gustos específicos
+
+O dime directamente qué estilo o características buscas, ¡y genero opciones específicas para ti!`, 'ai');
+            }, 1000);
+
+            // No guardar, mantener esperando respuesta
+            return;
+        } else if (isChoosingCriteria) {
+            // El usuario elige un criterio - generar sugerencias específicas
+            addChatMessage('¡Excelente elección! Generando opciones basadas en tu preferencia...', 'ai');
+            await generateImprovementSuggestions(`${currentSuggestion.originalResponse} - Preferencia del usuario: ${message}`, currentSuggestion.question);
             return;
         }
 
