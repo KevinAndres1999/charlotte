@@ -435,15 +435,18 @@
             gap: 0.5rem;
         }
 
-        .chat-input-container input {
+        .chat-input-container textarea {
             flex: 1;
             padding: 0.75rem;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             outline: none;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5;
         }
 
-        .chat-input-container input:focus {
+        .chat-input-container textarea:focus {
             border-color: #3b82f6;
         }
 
@@ -5070,7 +5073,7 @@
                                 </div>
                             </div>
                             <div class="chat-input-container">
-                                <input type="text" id="projectInput" placeholder="Escribe tu respuesta aquí..." />
+                                <textarea id="projectInput" placeholder="Escribe tu respuesta aquí..." rows="3" style="resize: vertical; min-height: 60px; max-height: 150px;"></textarea>
                                 <button id="sendProjectBtn" class="btn-primary">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
@@ -12167,6 +12170,9 @@ function openImageModal(imageUrl, title) {
             timestamp: new Date().toISOString()
         };
 
+        // Guardar automáticamente el progreso
+        saveProjectProgress();
+
         // Generar sugerencias de mejora usando IA
         await generateImprovementSuggestions(message, currentQuestion);
     }
@@ -12375,15 +12381,8 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
             timestamp: new Date().toISOString()
         };
 
-        // Guardar en Firebase
-        saveToFirebase(question.category, {
-            original: currentSuggestion.originalResponse,
-            improved: improvedVersion,
-            approved: true,
-            step: currentProjectStep,
-            questionId: question.id,
-            timestamp: new Date().toISOString()
-        });
+        // Guardar automáticamente
+        saveProjectProgress();
 
         // Limpiar estado
         awaitingApproval = false;
@@ -12401,8 +12400,18 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
     }
 
     function modifySuggestion() {
+        if (!currentSuggestion) return;
+
         awaitingApproval = false;
-        addChatMessage('Entendido. Por favor, escribe tu versión modificada de la respuesta:', 'ai');
+
+        // Poner la sugerencia de la IA en el textarea para edición
+        const textarea = document.getElementById('projectInput');
+        const improvedVersion = extractImprovedVersion(currentSuggestion.suggestion);
+        textarea.value = improvedVersion;
+        textarea.focus();
+        textarea.setSelectionRange(improvedVersion.length, improvedVersion.length);
+
+        addChatMessage('Aquí tienes la sugerencia de Charlotte. Edítala como prefieras y envíala cuando esté lista:', 'ai');
     }
 
     function keepOriginal() {
@@ -12417,14 +12426,8 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
             timestamp: new Date().toISOString()
         };
 
-        // Guardar en Firebase
-        saveToFirebase(question.category, {
-            original: originalResponse,
-            approved: true,
-            step: currentProjectStep,
-            questionId: question.id,
-            timestamp: new Date().toISOString()
-        });
+        // Guardar automáticamente
+        saveProjectProgress();
 
         // Limpiar estado
         awaitingApproval = false;
@@ -12816,19 +12819,36 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
             timestamp: new Date().toISOString()
         });
         
-        // Guardar en localStorage y Firebase
+        // Guardar automáticamente
+        saveProjectProgress();
+    }
+
+    // Función para guardar el progreso automáticamente
+    function saveProjectProgress() {
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!user.email) return;
+
         const projectKey = `project_${user.email}`;
+        const progressData = {
+            projectData: projectData,
+            currentProjectStep: currentProjectStep,
+            currentQuestionIndex: currentQuestionIndex,
+            awaitingApproval: awaitingApproval,
+            currentSuggestion: currentSuggestion,
+            lastSaved: new Date().toISOString()
+        };
         
-        localStorage.setItem(projectKey, JSON.stringify(projectData));
+        localStorage.setItem(projectKey, JSON.stringify(progressData));
         
         // También guardar en Firebase
         if (db && user.email) {
             setDoc(doc(db, 'projects', user.email), {
                 data: projectData,
+                currentStep: currentProjectStep,
+                currentQuestion: currentQuestionIndex,
                 lastUpdated: new Date(),
                 userEmail: user.email,
-                program: user.programa || 'negocios' // Valor por defecto si no existe
+                program: user.programa || 'negocios'
             });
         }
         
@@ -12841,7 +12861,26 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
         const saved = localStorage.getItem(projectKey);
         if (saved) {
-            projectData = JSON.parse(saved);
+            const progressData = JSON.parse(saved);
+            
+            // Cargar datos del proyecto
+            if (progressData.projectData) {
+                projectData = progressData.projectData;
+            }
+            
+            // Restaurar estado actual
+            if (progressData.currentProjectStep) {
+                currentProjectStep = progressData.currentProjectStep;
+            }
+            if (progressData.currentQuestionIndex !== undefined) {
+                currentQuestionIndex = progressData.currentQuestionIndex;
+            }
+            if (progressData.awaitingApproval !== undefined) {
+                awaitingApproval = progressData.awaitingApproval;
+            }
+            if (progressData.currentSuggestion) {
+                currentSuggestion = progressData.currentSuggestion;
+            }
 
             // Determinar el último paso completado
             let lastCompletedStep = 1;
@@ -13364,12 +13403,26 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 message === 'claro' || message === 'por supuesto' || message === 'adelante' || message === 'siguiente módulo' ||
                 message === 'no' || message === 'detener' || message === 'parar' || message === 'terminar') {
                 e.preventDefault();
+            const message = input.value.trim().toLowerCase();
+            if (message === 'siguiente' || message === 'continuar' || message === 'ok' || message === 'sí' || message === 'si' ||
+                message === 'claro' || message === 'por supuesto' || message === 'adelante' || message === 'siguiente módulo' ||
+                message === 'no' || message === 'detener' || message === 'parar' || message === 'terminar') {
+                e.preventDefault();
                 handleNavigationCommand(message);
                 return;
             }
             // Si no es un comando especial, enviar mensaje normal
             sendProjectMessage();
         }
+    });
+
+    // Guardado automático cuando el usuario escribe
+    let autoSaveTimeout;
+    input.addEventListener('input', () => {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = setTimeout(() => {
+            saveProjectProgress();
+        }, 2000); // Guardar automáticamente después de 2 segundos sin escribir
     });
 
     </script>
