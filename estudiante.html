@@ -11927,21 +11927,21 @@ function openImageModal(imageUrl, title) {
                     question: 'MÓDULO 1: IDEA Y NICHOS\n\nVamos a definir los fundamentos de tu negocio.\n\nPaso 1.1: ¿Cuál será el nombre de tu negocio?',
                     category: 'nombre_negocio',
                     validation: (answer) => answer.length >= 3,
-                    improvementPrompt: 'Analiza este nombre de negocio y sugiere mejoras si es necesario. Considera: ¿Es memorable? ¿Refleja el sector? ¿Está disponible? Responde con el nombre mejorado o confirma que está bien.'
+                    improvementPrompt: 'Analiza brevemente este nombre de negocio. Si necesita mejoras, sugiere 2-3 alternativas cortas y específicas para el sector {sector}. Si está bien, confirma que es adecuado. Responde SOLO con el nombre elegido o las alternativas, sin explicaciones largas.'
                 },
                 {
                     id: 'business_slogan',
                     question: 'Paso 1.2: Ahora crea un eslogan atractivo para tu negocio. Debe ser corto, memorable y transmitir el valor único de tu marca.',
                     category: 'eslogan',
                     validation: (answer) => answer.length >= 5 && answer.length <= 50,
-                    improvementPrompt: 'Analiza este eslogan y sugiere mejoras. Considera: ¿Es memorable? ¿Transmite valor? ¿Es único? ¿Funciona para el sector {sector}? Responde con el eslogan mejorado o confirma que está bien.'
+                    improvementPrompt: 'Analiza brevemente este eslogan. Si necesita mejoras, sugiere 2-3 alternativas cortas y impactantes para el sector {sector}. Si está bien, confirma que es adecuado. Responde SOLO con el eslogan elegido o las alternativas.'
                 },
                 {
                     id: 'business_description',
                     question: 'Paso 1.3: Describe claramente tu negocio en 2-3 oraciones. ¿Qué productos o servicios ofrecerás? ¿Cuál es tu propuesta de valor?',
                     category: 'descripcion_negocio',
                     validation: (answer) => answer.length >= 50,
-                    improvementPrompt: 'Analiza esta descripción de negocio y sugiere mejoras. Debe ser clara, atractiva y específica del sector {sector}. Incluye productos/servicios concretos. Responde con la descripción mejorada o confirma que está bien.'
+                    improvementPrompt: 'Analiza brevemente esta descripción de negocio. Si necesita mejoras, sugiere una versión más clara y atractiva para el sector {sector}. Si está bien, confirma que es adecuada. Responde SOLO con la descripción final.'
                 },
                 {
                     id: 'market_niche',
@@ -11966,7 +11966,7 @@ function openImageModal(imageUrl, title) {
                     question: 'Paso 2.2: Menciona 3 competidores principales en tu zona. Para cada uno indica: nombre, fortalezas, debilidades y precio promedio.',
                     category: 'analisis_competencia',
                     validation: (answer) => answer.length >= 150 && (answer.toLowerCase().includes('competidor') || answer.toLowerCase().includes('pan y mas') || answer.match(/\d+\./g) || []).length >= 1,
-                    improvementPrompt: 'Analiza este análisis de competencia y sugiere mejoras. Debe incluir al menos 3 competidores con fortalezas, debilidades y precios. Para el sector {sector}. Responde con el análisis mejorado o confirma que está bien.'
+                    improvementPrompt: 'Revisa este análisis de competencia. Si necesita mejoras, sugiere una versión más completa con al menos 3 competidores. Si está bien, confirma que es adecuado. Responde SOLO con el análisis final formateado.'
                 },
                 {
                     id: 'unique_value',
@@ -12239,14 +12239,13 @@ IMPORTANTE - CALIDAD DE REDACCIÓN:
 - Estructura tus respuestas de manera clara y lógica
 
 INSTRUCCIONES DE CONTENIDO:
-- Sé conversacional y natural, no robótico
-- Adapta tu respuesta al contexto y nivel del estudiante
-- Si la respuesta es buena, elógiala y motiva a continuar
-- Si necesita mejoras, sugiere cambios específicos pero constructivos
-- Mantén el hilo de la conversación y recuerda el contexto del proyecto
-- Usa un tono motivador, profesional pero cercano
-- Si es apropiado, haz preguntas para profundizar en el tema
-- No seas demasiado técnico si el estudiante es principiante
+- Sé conversacional pero CONCISO - no des respuestas largas
+- Cuando des sugerencias, sé directo y específico
+- Si la respuesta es buena, elógiala brevemente y continúa
+- Si necesita mejoras, sugiere cambios específicos pero no análisis largos
+- Mantén el hilo de la conversación pero no te extiendas
+- Usa un tono motivador pero práctico
+- Limita las explicaciones teóricas - enfócate en lo práctico
 
 Recuerda el contexto del proyecto: ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}`
                         },
@@ -12528,10 +12527,40 @@ INSTRUCCIONES ADICIONALES PARA CALIDAD:
     }
 
     function extractImprovedVersion(suggestion) {
-        // Lógica simple para extraer la versión mejorada
-        // Asume que la sugerencia termina con la versión mejorada
+        // Extraer la versión mejorada de manera más inteligente
         const lines = suggestion.split('\n');
-        return lines[lines.length - 1] || suggestion;
+
+        // Buscar patrones específicos según el tipo de pregunta
+        const currentQuestion = projectQuestions[currentProjectStep]?.questions[currentQuestionIndex];
+
+        if (currentQuestion) {
+            const questionText = currentQuestion.question.toLowerCase();
+
+            // Para preguntas sobre nombres
+            if (questionText.includes('nombre') || questionText.includes('name')) {
+                // Buscar líneas que parezcan nombres (sin ###, sin -, sin números)
+                for (let i = lines.length - 1; i >= 0; i--) {
+                    const line = lines[i].trim();
+                    // Ignorar líneas que empiecen con ###, -, números, o sean preguntas
+                    if (!line.startsWith('###') && !line.startsWith('-') &&
+                        !/^\d+\./.test(line) && !line.includes('?') &&
+                        !line.toLowerCase().includes('recomendación') &&
+                        !line.toLowerCase().includes('alternativas') &&
+                        line.length > 3 && line.length < 50) {
+                        return line;
+                    }
+                }
+            }
+
+            // Para preguntas sobre análisis de competencia
+            if (questionText.includes('competidor') || questionText.includes('competencia')) {
+                // Devolver la sugerencia completa pero formateada
+                return suggestion.replace(/^### .*$/gm, '').replace(/^## .*$/gm, '').trim();
+            }
+        }
+
+        // Fallback: devolver la sugerencia completa
+        return suggestion;
     }
 
     function saveToFirebase(category, data) {
