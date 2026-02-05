@@ -142,19 +142,40 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
+          // Validar que la respuesta sea válida
+          if (!response || response.status === 0) {
+            throw new Error('Invalid response');
+          }
+
           // Cachear respuestas exitosas de API, pero excluir Firestore
           if (response.status === 200 && !url.hostname.includes('firestore.googleapis.com') &&
               !url.hostname.includes('googleapis.com')) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseClone);
-            });
+            }).catch(error => console.warn('Error cacheando respuesta:', error));
           }
           return response;
         })
-        .catch(() => {
+        .catch((error) => {
+          console.warn('Network request failed:', error.message, 'for URL:', event.request.url);
+
           // Si falla la red, intentar servir desde cache
-          return caches.match(event.request);
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+
+            // Si no hay cache, devolver una respuesta de error controlada
+            return new Response(JSON.stringify({
+              error: 'Offline',
+              message: 'No hay conexión a internet y no hay datos cacheados'
+            }), {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: { 'Content-Type': 'application/json' }
+            });
+          });
         })
     );
   }

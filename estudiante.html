@@ -244,6 +244,11 @@
             color: white;
         }
 
+        .step.hidden {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
         .step-title {
             font-weight: 600;
             color: #1e3a8a;
@@ -277,23 +282,150 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            background: #e5e5e5;
         }
 
         .chat-message {
             padding: 0.75rem 1rem;
-            border-radius: 8px;
+            border-radius: 18px;
             max-width: 80%;
-        }
-
-        .chat-message.ai {
-            background: #f1f5f9;
-            align-self: flex-start;
+            word-wrap: break-word;
+            position: relative;
+            animation: fadeIn 0.3s ease-in;
         }
 
         .chat-message.user {
-            background: #3b82f6;
-            color: white;
+            background: #dcf8c6;
             align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.ai {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .chat-message.suggestion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .suggestion-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .suggestion-header {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .suggestion-content {
+            line-height: 1.4;
+            opacity: 0.95;
+        }
+
+        .suggestion-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .suggestion-actions button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-modify {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-modify:hover {
+            background: #d97706;
+            transform: translateY(-1px);
+        }
+
+        .btn-keep {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-keep:hover {
+            background: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .typing {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #9ca3af;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .chat-input-container {
@@ -320,7 +452,8 @@
             border-radius: 12px;
             border: 1px solid #e2e8f0;
             padding: 1.5rem;
-            height: fit-content;
+            max-height: 400px;
+            overflow-y: auto;
         }
 
         .project-summary h3 {
@@ -328,12 +461,64 @@
             color: #1e3a8a;
         }
 
+        .overall-progress {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .progress-bar {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #1e3a8a);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
         .summary-step {
             padding: 1rem;
+            margin-bottom: 0.75rem;
             border-radius: 8px;
             background: #f8fafc;
-            margin-bottom: 0.5rem;
-            border-left: 4px solid #e2e8f0;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .summary-step.completed {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+
+        .summary-step.current {
+            background: #fefce8;
+            border-color: #f59e0b;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+        }
+
+        .summary-step h4 {
+            margin: 0 0 0.5rem 0;
+            color: #1e3a8a;
+            font-size: 0.9rem;
+        }
+
+        .step-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .step-count {
+            font-weight: 600;
+            color: #3b82f6;
         }
 
         .summary-step.completed {
@@ -4850,27 +5035,27 @@
 
                 <div class="project-wizard">
                     <div class="wizard-steps">
-                        <div class="step" data-step="1">
+                        <div class="step active" data-step="1">
                             <div class="step-number">1</div>
                             <div class="step-title">¿A qué te dedicarás?</div>
                             <div class="step-description">Define tu especialización basada en tu curso</div>
                         </div>
-                        <div class="step" data-step="2">
+                        <div class="step hidden" data-step="2">
                             <div class="step-number">2</div>
                             <div class="step-title">Objetivos del negocio</div>
                             <div class="step-description">Establece metas claras y realistas</div>
                         </div>
-                        <div class="step" data-step="3">
+                        <div class="step hidden" data-step="3">
                             <div class="step-number">3</div>
                             <div class="step-title">Análisis de mercado</div>
                             <div class="step-description">Estudia tu competencia y clientes</div>
                         </div>
-                        <div class="step" data-step="4">
+                        <div class="step hidden" data-step="4">
                             <div class="step-number">4</div>
                             <div class="step-title">Plan financiero</div>
                             <div class="step-description">Calcula costos, precios y proyecciones</div>
                         </div>
-                        <div class="step" data-step="5">
+                        <div class="step hidden" data-step="5">
                             <div class="step-number">5</div>
                             <div class="step-title">Marketing y ventas</div>
                             <div class="step-description">Estrategias para atraer clientes</div>
@@ -4879,18 +5064,28 @@
 
                     <div class="wizard-content">
                         <div class="ai-chat-container">
-                            <div class="chat-messages" id="projectChat"></div>
+                            <div class="chat-messages" id="projectChat">
+                                <div class="chat-message ai">
+                                    <strong>Charlotte:</strong> ¡Hola! Soy tu tutora para el proyecto empresarial. Vamos a crear un plan de negocio paso a paso. ¿Estás listo para comenzar?
+                                </div>
+                            </div>
                             <div class="chat-input-container">
-                                <input type="text" id="projectInput" placeholder="Describe tu idea o pregunta..." />
+                                <input type="text" id="projectInput" placeholder="Escribe tu respuesta aquí..." />
                                 <button id="sendProjectBtn" class="btn-primary">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
+                            </div>
+                            <div class="chat-help" style="font-size: 0.85rem; color: #64748b; margin-top: 8px; text-align: center;">
+                                💡 <strong>Comandos:</strong> "siguiente" para continuar, "reiniciar" para empezar de nuevo
                             </div>
                         </div>
                         <div class="project-summary">
                             <h3>Resumen de tu proyecto</h3>
                             <div id="projectSummary"></div>
                             <div class="project-actions" style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button onclick="resetProject()" class="btn btn-danger" style="background-color: #dc2626; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    <i class="fas fa-trash"></i> Reiniciar Proyecto
+                                </button>
                                 <button onclick="completeProject()" class="btn btn-primary" id="completeProjectBtn" style="display: none;">
                                     <i class="fas fa-check"></i> Completar Proyecto
                                 </button>
@@ -5377,9 +5572,8 @@
     </div>
 
     <script type="module">
-// =================== IMPORTS ===================
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
 // =================== CONFIGURACIÓN ===================
@@ -11685,11 +11879,177 @@ function openImageModal(imageUrl, title) {
         console.error('Error initializing Firebase:', error);
     }
 
-    // =================== FUNCIONES PARA MI PROYECTO ===================
+    // =================== SISTEMA DE CHAT CONVERSACIONAL ===================
     let currentProjectStep = 1;
+    let currentQuestionIndex = 0;
     let projectData = {};
     let projectChat = [];
     let projectConversations = [];
+    let awaitingApproval = false;
+    let currentSuggestion = null;
+    let userProgram = null;
+
+    // Definir todas las preguntas por módulo
+    const projectQuestions = {
+        1: { // MÓDULO 0: Inicio
+            questions: [
+                {
+                    id: 'user_info',
+                    question: '¡Hola! Soy Charlotte, tu tutor para el proyecto final. ¿Cuál es tu nombre completo?',
+                    category: 'informacion_personal',
+                    validation: (answer) => answer.length >= 2
+                },
+                {
+                    id: 'sector_choice',
+                    question: 'Perfecto {name}! Ahora dime, ¿en qué área te estás capacitando: Panadería y Pastelería, o Belleza Integral?',
+                    category: 'sector',
+                    validation: (answer) => {
+                        const lowerAnswer = answer.toLowerCase();
+                        return lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') ||
+                               lowerAnswer.includes('belleza') || lowerAnswer.includes('integral') ||
+                               lowerAnswer.includes('pan') || lowerAnswer.includes('bellez');
+                    },
+                    followUp: (answer) => {
+                        const lowerAnswer = answer.toLowerCase();
+                        userProgram = (lowerAnswer.includes('panader') || lowerAnswer.includes('pasteler') || lowerAnswer.includes('pan')) ? 'panaderia' : 'belleza';
+                        return `¡Excelente elección! Vamos a crear un proyecto increíble en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}. Comenzaremos con el MÓDULO 1.`;
+                    }
+                }
+            ]
+        },
+        2: { // MÓDULO 2: IDEA Y NICHOS
+            questions: [
+                {
+                    id: 'business_name',
+                    question: 'MÓDULO 1: IDEA Y NICHOS\n\nVamos a definir los fundamentos de tu negocio.\n\nPaso 1.1: ¿Cuál será el nombre de tu negocio?',
+                    category: 'nombre_negocio',
+                    validation: (answer) => answer.length >= 3,
+                    improvementPrompt: 'Analiza este nombre de negocio y sugiere mejoras si es necesario. Considera: ¿Es memorable? ¿Refleja el sector? ¿Está disponible? Responde con el nombre mejorado o confirma que está bien.'
+                },
+                {
+                    id: 'business_slogan',
+                    question: 'Paso 1.2: Ahora crea un eslogan atractivo para tu negocio. Debe ser corto, memorable y transmitir el valor único de tu marca.',
+                    category: 'eslogan',
+                    validation: (answer) => answer.length >= 5 && answer.length <= 50,
+                    improvementPrompt: 'Analiza este eslogan y sugiere mejoras. Considera: ¿Es memorable? ¿Transmite valor? ¿Es único? ¿Funciona para el sector {sector}? Responde con el eslogan mejorado o confirma que está bien.'
+                },
+                {
+                    id: 'business_description',
+                    question: 'Paso 1.3: Describe claramente tu negocio en 2-3 oraciones. ¿Qué productos o servicios ofrecerás? ¿Cuál es tu propuesta de valor?',
+                    category: 'descripcion_negocio',
+                    validation: (answer) => answer.length >= 50,
+                    improvementPrompt: 'Analiza esta descripción de negocio y sugiere mejoras. Debe ser clara, atractiva y específica del sector {sector}. Incluye productos/servicios concretos. Responde con la descripción mejorada o confirma que está bien.'
+                },
+                {
+                    id: 'market_niche',
+                    question: 'Paso 1.4: Define tu nicho específico. ¿A qué público objetivo te dirigirás? (ej: madres jóvenes, profesionales ejecutivos, estudiantes universitarios, etc.)',
+                    category: 'nicho_mercado',
+                    validation: (answer) => answer.length >= 20,
+                    improvementPrompt: 'Analiza este nicho de mercado y sugiere mejoras. Debe ser específico, alcanzable y con potencial de crecimiento en el sector {sector}. Responde con el nicho mejorado o confirma que está bien.'
+                }
+            ]
+        },
+        3: { // MÓDULO 2: ANÁLISIS DE MERCADO
+            questions: [
+                {
+                    id: 'ideal_customer',
+                    question: 'MÓDULO 2: ANÁLISIS DE MERCADO Y CLIENTE\n\nPaso 2.1: Describe a tu cliente ideal. Incluye: edad, género, ingresos, ubicación, intereses, problemas que enfrenta.',
+                    category: 'cliente_ideal',
+                    validation: (answer) => answer.length >= 100,
+                    improvementPrompt: 'Analiza este perfil de cliente ideal y sugiere mejoras. Debe ser específico y detallado para poder crear estrategias de marketing efectivas en el sector {sector}. Responde con el perfil mejorado o confirma que está bien.'
+                },
+                {
+                    id: 'competitor_analysis',
+                    question: 'Paso 2.2: Menciona 3 competidores principales en tu zona. Para cada uno indica: nombre, fortalezas, debilidades y precio promedio.',
+                    category: 'analisis_competencia',
+                    validation: (answer) => (answer.match(/\d+\./g) || []).length >= 3,
+                    improvementPrompt: 'Analiza este análisis de competencia y sugiere mejoras. Debe incluir al menos 3 competidores con fortalezas, debilidades y precios. Para el sector {sector}. Responde con el análisis mejorado o confirma que está bien.'
+                },
+                {
+                    id: 'unique_value',
+                    question: 'Paso 2.3: ¿Cuál es tu Propuesta Única de Valor? ¿Qué te diferencia de la competencia? ¿Por qué te elegirían a ti?',
+                    category: 'propuesta_valor',
+                    validation: (answer) => answer.length >= 50,
+                    improvementPrompt: 'Analiza esta propuesta de valor único y sugiere mejoras. Debe ser clara, diferenciadora y atractiva para el sector {sector}. Responde con la propuesta mejorada o confirma que está bien.'
+                }
+            ]
+        },
+        4: { // MÓDULO 3: OPERACIONES Y PROCESOS
+            questions: [
+                {
+                    id: 'products_services',
+                    question: 'MÓDULO 3: OPERACIONES Y PROCESOS\n\nPaso 3.1: Lista tus productos o servicios principales con precios estimados.',
+                    category: 'productos_servicios',
+                    validation: (answer) => answer.length >= 30,
+                    improvementPrompt: 'Analiza esta lista de productos/servicios y sugiere mejoras. Debe incluir precios realistas para el sector {sector} y ser específica. Responde con la lista mejorada o confirma que está bien.'
+                },
+                {
+                    id: 'production_process',
+                    question: 'Paso 3.2: Describe el proceso de producción o atención al cliente paso a paso.',
+                    category: 'proceso_produccion',
+                    validation: (answer) => answer.length >= 100,
+                    improvementPrompt: 'Analiza este proceso de producción/atención y sugiere mejoras. Debe ser detallado y realista para el sector {sector}. Responde con el proceso mejorado o confirma que está bien.'
+                },
+                {
+                    id: 'required_resources',
+                    question: 'Paso 3.3: ¿Qué recursos necesitas? Lista equipos, insumos, mobiliario y personal requerido.',
+                    category: 'recursos_necesarios',
+                    validation: (answer) => answer.length >= 50,
+                    improvementPrompt: 'Analiza esta lista de recursos y sugiere mejoras. Debe ser completa y realista para el sector {sector}. Responde con la lista mejorada o confirma que está bien.'
+                }
+            ]
+        },
+        5: { // MÓDULO 4: MARKETING Y VENTAS
+            questions: [
+                {
+                    id: 'sales_channels',
+                    question: 'MÓDULO 4: MARKETING Y VENTAS\n\nPaso 4.1: ¿Cómo venderás tus productos/servicios? Menciona canales de venta (tienda física, online, redes sociales, etc.)',
+                    category: 'canales_venta',
+                    validation: (answer) => answer.length >= 30,
+                    improvementPrompt: 'Analiza estos canales de venta y sugiere mejoras. Deben ser apropiados y realistas para el sector {sector}. Responde con los canales mejorados o confirma que están bien.'
+                },
+                {
+                    id: 'social_media_strategy',
+                    question: 'Paso 4.2: Describe tu estrategia en redes sociales. ¿Qué plataformas usarás? ¿Qué contenido publicarás?',
+                    category: 'estrategia_redes',
+                    validation: (answer) => answer.length >= 50,
+                    improvementPrompt: 'Analiza esta estrategia de redes sociales y sugiere mejoras. Debe ser específica y efectiva para el sector {sector}. Responde con la estrategia mejorada o confirma que está bien.'
+                },
+                {
+                    id: 'launch_promotion',
+                    question: 'Paso 3.3: Ideas de promoción para el lanzamiento. ¿Cómo darás a conocer tu negocio inicialmente?',
+                    category: 'promocion_lanzamiento',
+                    validation: (answer) => answer.length >= 50,
+                    improvementPrompt: 'Analiza estas ideas de promoción y sugiere mejoras. Deben ser creativas y efectivas para el sector {sector}. Responde con las ideas mejoradas o confirma que están bien.'
+                }
+            ]
+        },
+        6: { // MÓDULO 5: FINANZAS BÁSICAS
+            questions: [
+                {
+                    id: 'initial_investment',
+                    question: 'MÓDULO 5: FINANZAS BÁSICAS\n\nPaso 5.1: ¿Cuánto necesitas para iniciar? Estima inversión inicial (equipos, local, mercadería, etc.)',
+                    category: 'inversion_inicial',
+                    validation: (answer) => answer.length >= 30,
+                    improvementPrompt: 'Analiza esta estimación de inversión inicial y sugiere mejoras. Debe ser realista para el sector {sector}. Responde con la estimación mejorada o confirma que está bien.'
+                },
+                {
+                    id: 'final_price',
+                    question: 'Paso 5.2: Define tus precios de venta finales. ¿Cuánto cobrarás por cada producto/servicio?',
+                    category: 'precios_venta',
+                    validation: (answer) => answer.length >= 30,
+                    improvementPrompt: 'Analiza estos precios de venta y sugiere mejoras. Deben ser competitivos y rentables para el sector {sector}. Responde con los precios mejorados o confirma que están bien.'
+                },
+                {
+                    id: 'sales_projection',
+                    question: 'Paso 5.3: Proyección de ventas mensual. ¿Cuántas ventas esperas los primeros 3 meses?',
+                    category: 'proyeccion_ventas',
+                    validation: (answer) => answer.length >= 30,
+                    improvementPrompt: 'Analiza esta proyección de ventas y sugiere mejoras. Debe ser realista para el sector {sector}. Responde con la proyección mejorada o confirma que está bien.'
+                }
+            ]
+        }
+    };
 
     // Hacer las funciones globales inmediatamente
     // (las funciones se definirán después pero se asignarán aquí)
@@ -11710,81 +12070,148 @@ function openImageModal(imageUrl, title) {
         // Cargar datos del proyecto si existen
         loadProjectData();
         loadExistingProjects();
-        
-        // Configurar event listeners para los pasos
-        document.querySelectorAll('.step').forEach(step => {
-            step.addEventListener('click', () => {
-                const stepNum = parseInt(step.dataset.step);
-                setProjectStep(stepNum);
-            });
-        });
-        
-        // Configurar event listener para el botón de enviar mensaje
-        const sendBtn = document.getElementById('sendProjectBtn');
-        if (sendBtn) {
-            sendBtn.addEventListener('click', sendProjectMessage);
-        }
-        
-        // Configurar input del chat
-        document.getElementById('projectInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendProjectMessage();
+    }
+
+    function handleNavigationCommand(command) {
+        const input = document.getElementById('projectInput');
+        const message = input.value.trim();
+        input.value = '';
+
+        if (command === 'siguiente' || command === 'continuar' || command === 'ok' || command === 'sí' || command === 'si' ||
+            command === 'claro' || command === 'por supuesto' || command === 'adelante' || command === 'siguiente módulo') {
+            if (currentProjectStep < 6) {
+                currentProjectStep++;
+                setProjectStep(currentProjectStep);
+                addChatMessage(`✅ Avanzando al MÓDULO ${currentProjectStep}...`, 'ai');
+            } else {
+                addChatMessage('🎉 ¡Felicitaciones! Has completado todos los módulos de tu proyecto empresarial.', 'ai');
             }
-        });
+        } else if (command === 'no' || command === 'detener' || command === 'parar' || command === 'terminar') {
+            addChatMessage('Entendido. Puedes continuar cuando estés listo escribiendo "siguiente" o "continuar".', 'ai');
+        }
     }
 
     function setProjectStep(step) {
         currentProjectStep = step;
-        
+        currentQuestionIndex = 0; // Reset question index when changing steps
+
         // Actualizar UI de pasos
         document.querySelectorAll('.step').forEach(s => {
             s.classList.remove('active');
+            // Mostrar solo los pasos hasta el actual
+            const stepNum = parseInt(s.dataset.step);
+            if (stepNum <= step) {
+                s.classList.remove('hidden');
+            } else {
+                s.classList.add('hidden');
+            }
         });
         document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
-        
-        // Mostrar mensaje inicial del paso
-        const stepMessages = {
-            1: "¡Hola! Soy tu asistente de IA para crear tu proyecto empresarial. Primero, cuéntame ¿a qué te dedicarás? Por ejemplo: 'Quiero vender pasteles personalizados' o 'Me especializaré en diseño de uñas'.",
-            2: "Excelente elección. Ahora hablemos de los objetivos de tu negocio. ¿Qué metas tienes a corto y largo plazo? ¿Cuánto quieres ganar mensualmente?",
-            3: "Perfecto. Ahora analicemos el mercado. ¿Quiénes serán tus clientes? ¿Qué hace tu competencia? ¿Cómo te diferenciarás?",
-            4: "Muy bien. Ahora el plan financiero. ¿Cuánto necesitas para empezar? ¿Cómo calcularás tus precios? ¿Qué gastos tendrás?",
-            5: "¡Último paso! Estrategias de marketing y ventas. ¿Cómo atraerás clientes? ¿Dónde venderás? ¿Cómo promocionarás tu negocio?"
-        };
-        
-        addChatMessage(stepMessages[step], 'ai');
+
+        // Iniciar conversación del módulo
+        if (step === 1) {
+            // Primer módulo - comenzar con la primera pregunta
+            setTimeout(() => {
+                askCurrentQuestion();
+            }, 500);
+        } else {
+            // Módulos siguientes - comenzar directamente con las preguntas
+            setTimeout(() => {
+                askCurrentQuestion();
+            }, 500);
+        }
+
         updateProjectSummary();
     }
 
     async function sendProjectMessage() {
         const input = document.getElementById('projectInput');
         const message = input.value.trim();
-        
+
         if (!message) return;
-        
-        addChatMessage(message, 'user');
+
+        // Limpiar input inmediatamente
         input.value = '';
-        
-        // Mostrar loading
-        addChatMessage('Pensando...', 'ai');
-        
+
+        // Si estamos esperando aprobación de una sugerencia
+        if (awaitingApproval) {
+            await handleApprovalResponse(message);
+            return;
+        }
+
+        // Agregar mensaje del usuario al chat
+        addChatMessage(message, 'user');
+
+        // Obtener la pregunta actual
+        const currentQuestions = projectQuestions[currentProjectStep]?.questions || [];
+        const currentQuestion = currentQuestions[currentQuestionIndex];
+
+        if (!currentQuestion) {
+            addChatMessage('No hay más preguntas en este módulo. Escribe "siguiente" para continuar.', 'ai');
+            return;
+        }
+
+        // Validar respuesta básica
+        if (!currentQuestion.validation(message)) {
+            addChatMessage('Tu respuesta parece muy corta o incompleta. Por favor, proporciona más detalles para que pueda ayudarte mejor.', 'ai');
+            return;
+        }
+
+        // Guardar respuesta temporal
+        if (!projectData[currentProjectStep]) {
+            projectData[currentProjectStep] = {};
+        }
+        projectData[currentProjectStep][currentQuestion.id] = {
+            original: message,
+            approved: !question.improvementPrompt, // Marcar como aprobado si no necesita mejora
+            timestamp: new Date().toISOString()
+        };
+
+        // Generar sugerencias de mejora usando IA
+        await generateImprovementSuggestions(message, currentQuestion);
+    }
+
+    async function generateImprovementSuggestions(userResponse, question) {
         try {
-            // Obtener API key de OpenRouter (debería estar configurada en admin)
             const apiKey = localStorage.getItem('openrouter_api_key');
-            
+
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
-                replaceLastMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de administración.', 'ai');
+                addChatMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter.', 'ai');
                 return;
             }
-            
-            const prompt = `Eres un experto consultor empresarial especializado en ${getUserProgram()}. 
-            El estudiante está en el paso ${currentProjectStep} de crear su proyecto.
-            Paso actual: ${getStepDescription(currentProjectStep)}
-            
-            Mensaje del estudiante: "${message}"
-            
-            Responde de manera útil, práctica y motivadora. Ayuda al estudiante a desarrollar su idea de negocio paso a paso.
-            Mantén la respuesta concisa pero completa.`;
-            
+
+            // Mostrar indicador de escritura
+            showTypingIndicator();
+
+            // Verificar que la pregunta tenga un prompt de mejora
+            if (!question.improvementPrompt) {
+                addChatMessage('✅ Respuesta registrada correctamente.', 'ai');
+                hideTypingIndicator();
+                
+                // Actualizar el progreso del proyecto
+                updateProjectSummary();
+                
+                // Si la pregunta tiene followUp, ejecutarlo
+                if (question.followUp) {
+                    const userMessage = userResponse; // Capturar el mensaje del usuario
+                    setTimeout(() => {
+                        const followUpMessage = question.followUp(userMessage);
+                        addChatMessage(followUpMessage, 'ai');
+                    }, 1000);
+                }
+                
+                // Avanzar a la siguiente pregunta después de un breve delay
+                setTimeout(() => {
+                    nextQuestion();
+                }, question.followUp ? 2500 : 1500);
+                
+                return;
+            }
+
+            const prompt = question.improvementPrompt
+                .replace('{sector}', userProgram === 'panaderia' ? 'Panadería/Pastelería' : 'Belleza Integral')
+                .replace('{name}', getUserName());
+
             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -11792,66 +12219,589 @@ function openImageModal(imageUrl, title) {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'microsoft/wizardlm-2-8x22b',
-                    messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 500
+                    model: 'xiaomi/mimo-v2-flash:free',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Eres Charlotte, una tutora experta y autónoma en emprendimiento especializada en el sector de panadería/pastelería y belleza integral. Tu objetivo es guiar al estudiante de manera natural y conversacional, como un mentor experimentado.
+
+IMPORTANTE - CALIDAD DE REDACCIÓN:
+- Responde ÚNICAMENTE en español correcto, formal pero cercano
+- Revisa ortografía y gramática antes de responder
+- Evita errores tipográficos y faltas de acentos
+- Usa un vocabulario apropiado para emprendedores
+- Estructura tus respuestas de manera clara y lógica
+
+INSTRUCCIONES DE CONTENIDO:
+- Sé conversacional y natural, no robótico
+- Adapta tu respuesta al contexto y nivel del estudiante
+- Si la respuesta es buena, elógiala y motiva a continuar
+- Si necesita mejoras, sugiere cambios específicos pero constructivos
+- Mantén el hilo de la conversación y recuerda el contexto del proyecto
+- Usa un tono motivador, profesional pero cercano
+- Si es apropiado, haz preguntas para profundizar en el tema
+- No seas demasiado técnico si el estudiante es principiante
+
+Recuerda el contexto del proyecto: ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}`
+                        },
+                        {
+                            role: 'user',
+                            content: `Pregunta actual: ${question.question}
+
+Respuesta del estudiante: "${userResponse}"
+
+Contexto del proyecto:
+- Área: ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}
+- Módulo actual: ${currentProjectStep}
+- Progreso: ${projectData[currentProjectStep] ? Object.keys(projectData[currentProjectStep]).length : 0} respuestas en este módulo
+
+${prompt}
+
+INSTRUCCIONES ADICIONALES PARA CALIDAD:
+- Escribe en español perfecto: revisa ortografía, gramática y acentos
+- Sé específico y constructivo en tus sugerencias
+- Mantén un tono profesional pero cercano y motivador
+- Si sugieres cambios, explica claramente por qué y cómo mejorar
+- Termina con una pregunta o motivación para continuar
+- Recuerda que eres Charlotte, tutora experta en emprendimiento`
+                        }
+                    ],
+                    max_tokens: 800,
+                    temperature: 0.8
                 })
             });
-            
+
+            hideTypingIndicator();
+
+            if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error('Demasiadas solicitudes a la IA. Espera un momento antes de continuar.');
+                } else if (response.status === 401 || response.status === 403) {
+                    throw new Error('API key inválida o expirada. Contacta al administrador.');
+                } else if (response.status >= 500) {
+                    throw new Error('Error del servidor de IA. Inténtalo de nuevo en unos momentos.');
+                } else {
+                    throw new Error(`Error de conexión: ${response.status}`);
+                }
+            }
+
+            const data = await response.json();
+            if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+                throw new Error('Respuesta inválida del servidor de IA');
+            }
+
+            const suggestion = data.choices[0].message.content;
+
+            // Mostrar sugerencia con botones de aprobación
+            showSuggestionWithApproval(suggestion, userResponse, question);
+
+        } catch (error) {
+            console.error('Error en generateImprovementSuggestions:', error);
+            hideTypingIndicator();
+
+            let errorMessage = 'Lo siento, hubo un error al procesar tu respuesta.';
+            if (error.message.includes('API key')) {
+                errorMessage = '❌ Error de configuración: La IA no está disponible temporalmente.';
+            } else if (error.message.includes('Demasiadas solicitudes')) {
+                errorMessage = '⏳ Espera un momento antes de continuar. La IA está procesando otras solicitudes.';
+            } else if (error.message.includes('servidor')) {
+                errorMessage = '🔧 Los servidores de IA están temporalmente fuera de servicio. Inténtalo más tarde.';
+            }
+
+            addChatMessage(errorMessage + ' Puedes continuar con la siguiente pregunta.', 'ai');
+
+            // Permitir continuar sin sugerencias
+            setTimeout(() => {
+                addChatMessage('💡 Si deseas continuar sin mejoras, escribe "siguiente" para pasar a la siguiente pregunta.', 'ai');
+            }, 2000);
+        }
+    }
+
+    function showSuggestionWithApproval(suggestion, originalResponse, question) {
+        awaitingApproval = true;
+        currentSuggestion = {
+            suggestion,
+            originalResponse,
+            question
+        };
+
+        const suggestionHTML = `
+            <div class="suggestion-container">
+                <div class="suggestion-header">
+                    <i class="fas fa-lightbulb"></i> Sugerencias de Charlotte
+                </div>
+                <div class="suggestion-content">
+                    ${suggestion
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                        .replace(/^### (.*$)/gm, '<h4>$1</h4>')
+                        .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+                        .replace(/^# (.*$)/gm, '<h2>$1</h2>')
+                        .replace(/^- (.*$)/gm, '<li>$1</li>')
+                        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+                    }
+                </div>
+                <div class="suggestion-actions">
+                    <button onclick="approveSuggestion()" class="btn-approve">
+                        <i class="fas fa-check"></i> Aprobar y Continuar
+                    </button>
+                    <button onclick="modifySuggestion()" class="btn-modify">
+                        <i class="fas fa-edit"></i> Modificar
+                    </button>
+                    <button onclick="keepOriginal()" class="btn-keep">
+                        <i class="fas fa-undo"></i> Mantener Original
+                    </button>
+                </div>
+            </div>
+        `;
+
+        addChatMessage(suggestionHTML, 'ai', 'suggestion');
+    }
+
+    function approveSuggestion() {
+        if (!currentSuggestion) return;
+
+        const { suggestion, question } = currentSuggestion;
+
+        // Extraer la versión mejorada de la sugerencia (asumiendo que está al final)
+        const improvedVersion = extractImprovedVersion(suggestion);
+
+        // Guardar en projectData
+        projectData[currentProjectStep][question.id] = {
+            original: currentSuggestion.originalResponse,
+            improved: improvedVersion,
+            approved: true,
+            timestamp: new Date().toISOString()
+        };
+
+        // Guardar en Firebase
+        saveToFirebase(question.category, {
+            original: currentSuggestion.originalResponse,
+            improved: improvedVersion,
+            approved: true,
+            step: currentProjectStep,
+            questionId: question.id,
+            timestamp: new Date().toISOString()
+        });
+
+        // Limpiar estado
+        awaitingApproval = false;
+        currentSuggestion = null;
+
+        addChatMessage('✅ ¡Excelente! Tu respuesta ha sido guardada. Vamos a la siguiente pregunta.', 'ai');
+
+        // Actualizar el progreso del proyecto
+        updateProjectSummary();
+
+        // Avanzar a la siguiente pregunta
+        setTimeout(() => {
+            nextQuestion();
+        }, 1500);
+    }
+
+    function modifySuggestion() {
+        awaitingApproval = false;
+        addChatMessage('Entendido. Por favor, escribe tu versión modificada de la respuesta:', 'ai');
+    }
+
+    function keepOriginal() {
+        if (!currentSuggestion) return;
+
+        const { originalResponse, question } = currentSuggestion;
+
+        // Guardar versión original
+        projectData[currentProjectStep][question.id] = {
+            original: originalResponse,
+            approved: true,
+            timestamp: new Date().toISOString()
+        };
+
+        // Guardar en Firebase
+        saveToFirebase(question.category, {
+            original: originalResponse,
+            approved: true,
+            step: currentProjectStep,
+            questionId: question.id,
+            timestamp: new Date().toISOString()
+        });
+
+        // Limpiar estado
+        awaitingApproval = false;
+        currentSuggestion = null;
+
+        addChatMessage('✅ Perfecto, mantendremos tu respuesta original. Vamos a la siguiente pregunta.', 'ai');
+
+        // Actualizar el progreso del proyecto
+        updateProjectSummary();
+
+        // Avanzar a la siguiente pregunta
+        setTimeout(() => {
+            nextQuestion();
+        }, 1500);
+    }
+
+    async function handleApprovalResponse(message) {
+        if (!currentSuggestion) return;
+
+        // El usuario está proporcionando una versión modificada
+        const { question } = currentSuggestion;
+
+        // Validar la modificación
+        if (!question.validation(message)) {
+            addChatMessage('Tu modificación parece muy corta. Por favor, proporciona más detalles.', 'ai');
+            return;
+        }
+
+        // Guardar versión modificada
+        projectData[currentProjectStep][question.id] = {
+            original: currentSuggestion.originalResponse,
+            improved: message,
+            approved: true,
+            timestamp: new Date().toISOString()
+        };
+
+        // Guardar en Firebase
+        saveToFirebase(question.category, {
+            original: currentSuggestion.originalResponse,
+            improved: message,
+            approved: true,
+            step: currentProjectStep,
+            questionId: question.id,
+            timestamp: new Date().toISOString()
+        });
+
+        awaitingApproval = false;
+        currentSuggestion = null;
+
+        addChatMessage('✅ ¡Perfecto! Tu versión modificada ha sido guardada. Continuamos...', 'ai');
+
+        // Actualizar el progreso del proyecto
+        updateProjectSummary();
+
+        // Avanzar a la siguiente pregunta
+        setTimeout(() => {
+            nextQuestion();
+        }, 1500);
+    }
+
+    function nextQuestion() {
+        const currentQuestions = projectQuestions[currentProjectStep]?.questions || [];
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex >= currentQuestions.length) {
+            // Módulo completado
+            completeModule();
+        } else {
+            // Siguiente pregunta del módulo
+            askCurrentQuestion();
+        }
+    }
+
+    function completeModule() {
+        addChatMessage(`🎉 ¡Felicitaciones! Has completado el MÓDULO ${currentProjectStep}.`, 'ai');
+
+        // Pequeña pausa antes de preguntar por el siguiente módulo
+        setTimeout(() => {
+            if (currentProjectStep < 6) {
+                addChatMessage(`¿Quieres continuar con el MÓDULO ${currentProjectStep + 1}? Escribe "sí" para comenzar.`, 'ai');
+            } else {
+                addChatMessage('🎉 ¡Felicitaciones! Has completado todos los módulos de tu proyecto empresarial.', 'ai');
+            }
+        }, 1000);
+
+        // Reset question index para el siguiente módulo
+        currentQuestionIndex = 0;
+
+        // Actualizar UI
+        updateProjectSummary();
+    }
+
+    function askCurrentQuestion() {
+        const currentQuestions = projectQuestions[currentProjectStep]?.questions || [];
+        const question = currentQuestions[currentQuestionIndex];
+
+        if (question) {
+            let questionText = question.question;
+
+            // Reemplazar placeholders
+            if (question.id === 'sector_choice') {
+                questionText = questionText.replace('{name}', getUserName());
+            }
+
+            addChatMessage(questionText, 'ai');
+        }
+    }
+
+    function extractImprovedVersion(suggestion) {
+        // Lógica simple para extraer la versión mejorada
+        // Asume que la sugerencia termina con la versión mejorada
+        const lines = suggestion.split('\n');
+        return lines[lines.length - 1] || suggestion;
+    }
+
+    function saveToFirebase(category, data) {
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        if (db && user.email) {
+            try {
+                const projectRef = doc(db, 'projects', user.email);
+                const updateData = {};
+                updateData[`${category}`] = data;
+
+                setDoc(projectRef, updateData, { merge: true })
+                    .then(() => {
+                        console.log(`✅ Datos guardados en Firebase: ${category}`);
+                    })
+                    .catch(error => {
+                        console.warn('⚠️ Error guardando en Firebase (continuando sin guardar):', error.message);
+                        // No mostrar error al usuario, solo log
+                    });
+            } catch (error) {
+                console.warn('⚠️ Error al preparar datos para Firebase:', error.message);
+            }
+        }
+    }
+
+    function getUserName() {
+        // Primero intentar obtener el nombre de las respuestas del proyecto
+        if (projectData[1] && projectData[1].user_info && projectData[1].user_info.original) {
+            return projectData[1].user_info.original.trim();
+        }
+
+        // Si no hay respuesta del proyecto, usar el nombre del usuario logueado
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        return user.displayName || user.name || user.email || 'Estudiante';
+    }
+
+    function showTypingIndicator() {
+        const chat = document.getElementById('projectChat');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message ai typing';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <small>Charlotte está escribiendo...</small>
+        `;
+        chat.appendChild(typingDiv);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        const typingDiv = document.getElementById('typingIndicator');
+        if (typingDiv) {
+            typingDiv.remove();
+        }
+    }
+
+    // Definir los prompts específicos para cada módulo
+    const stepPrompts = {
+                2: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando al estudiante en el MÓDULO 1: IDEA Y NICHOS (Capítulo 1 del Proyecto).
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Paso 1.1: Nombre del Negocio y Eslogan
+2. Paso 1.2: Descripción Clara del Negocio (¿Qué vas a vender? ¿Servicios concretos?)
+3. Paso 1.3: Definición de tu Nicho Específico
+
+EJEMPLOS PARA ${getUserProgram().toUpperCase()}:
+${getUserProgram().includes('panader') ? 
+'- Pastelería especializada en tortas personalizadas sin azúcar\n- Panadería artesanal con entregas a domicilio\n- Repostería vegana y saludable' :
+'- Salón de belleza integral con servicios completos\n- Barbería especializada en hombres\n- Maquillaje profesional para eventos'}
+
+TAREA: El estudiante debe escribir una página con estos tres puntos.
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Charlotte'}: ${msg.content}`).join('\n')}
+
+Responde de manera académica y práctica. Incluye ejemplos específicos del sector y guía paso a paso.`,
+
+                3: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando en el MÓDULO 2: ANÁLISIS DE MERCADO Y CLIENTE (Capítulo 2).
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Paso 2.1: Perfil de tu Cliente Ideal (edad, gustos, hábitos, ubicación)
+2. Paso 2.2: Análisis de la Competencia (¿Quiénes son? ¿Qué hacen bien/mal?)
+3. Paso 2.3: Propuesta Única de Valor (¿Por qué te elegirían?)
+
+TAREA: Realizar un cuadro comparativo con 3 competidores y definir la PUV.
+
+EJEMPLOS DE PUV PARA ${getUserProgram().toUpperCase()}:
+${getUserProgram().includes('panader') ?
+'- Ingredientes 100% naturales y orgánicos\n- Personalización total de diseños\n- Entregas gratuitas en zona local' :
+'- Servicio completo en un solo lugar\n- Productos premium y profesionales\n- Ambiente relajante y moderno'}
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Charlotte'}: ${msg.content}`).join('\n')}
+
+Ayuda al estudiante a crear un análisis de mercado profesional. Incluye ejemplos específicos y guía para el cuadro comparativo.`,
+
+                4: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando en el MÓDULO 3: OPERACIONES Y PROCESOS (Capítulo 3 - MUY IMPORTANTE).
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Paso 3.1: Lista de Productos/Servicios Principal con precios estimados
+2. Paso 3.2: Descripción del Proceso de Producción/Atención (paso a paso)
+3. Paso 3.3: Recursos Necesarios (equipos, insumos, mobiliario)
+
+TAREA: Lista de ingredientes/insumos clave y diagrama de flujo del proceso principal.
+
+EJEMPLOS PARA ${getUserProgram().toUpperCase()}:
+${getUserProgram().includes('panader') ?
+'Proceso de producción de torta:\n1. Recepción de pedido\n2. Selección de ingredientes\n3. Preparación de masa\n4. Horneado\n5. Decoración\n6. Empaque y entrega' :
+'Proceso de manicure:\n1. Consulta inicial\n2. Preparación de uñas\n3. Aplicación de esmalte\n4. Secado y acabado\n5. Consejos de cuidado'}
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Charlotte'}: ${msg.content}`).join('\n')}
+
+Enfócate en los aspectos operativos específicos del sector. Este módulo es crucial para el éxito del negocio.`,
+
+                5: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando en el MÓDULO 4: MARKETING Y VENTAS (Capítulo 4).
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Paso 4.1: Canales de Venta (tienda física, redes sociales, WhatsApp)
+2. Paso 4.2: Estrategia en Redes Sociales (plataformas y contenido)
+3. Paso 4.3: Ideas de Promoción para el Lanzamiento
+
+TAREA: Crear un calendario de contenidos para la primera semana.
+
+EJEMPLOS PARA ${getUserProgram().toUpperCase()}:
+${getUserProgram().includes('panader') ?
+'Contenido en redes:\n- Reels mostrando decoración de tortas\n- Stories con proceso de horneado\n- Fotos de productos terminados\n- Testimonios de clientes' :
+'Contenido en redes:\n- Videos tutoriales de peinados\n- Before/after de tratamientos\n- Tips de belleza diarios\n- Historias de clientes'}
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Charlotte'}: ${msg.content}`).join('\n')}
+
+Ayuda al estudiante a crear estrategias de marketing efectivas y realistas para su sector.`,
+
+                6: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando en el MÓDULO 5: FINANZAS BÁSICAS (Capítulo 5).
+
+INSTRUCCIONES ESPECÍFICAS:
+1. Paso 5.1: Inversión Inicial Estimada
+2. Paso 5.2: Precio de Venta Definitivo (costo + % ganancia)
+3. Paso 5.3: Proyección de Ventas Mensual (primeros 3 meses)
+
+TAREA: Completar tabla simple con costos, precios y proyección.
+
+CÁLCULOS BÁSICOS PARA ${getUserProgram().toUpperCase()}:
+${getUserProgram().includes('panader') ?
+'Ejemplo torta personalizada:\n- Costo ingredientes: $15.000\n- Costo mano de obra: $10.000\n- Costo empaque/entrega: $5.000\n- Total costo: $30.000\n- Precio venta: $60.000 (100% ganancia)' :
+'Ejemplo manicure:\n- Costo productos: $3.000\n- Costo mano de obra: $7.000\n- Costo alquiler/local: $5.000\n- Total costo: $15.000\n- Precio venta: $25.000 (67% ganancia)'}
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Charlotte'}: ${msg.content}`).join('\n')}
+
+Enseña conceptos financieros básicos de manera práctica. Incluye cálculos realistas para el sector.`
+            };
+
+    async function sendProjectChatMessage(message) {
+        try {
+            const apiKey = localStorage.getItem('openrouter_api_key');
+
+            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+                addChatMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter.', 'ai');
+                return;
+            }
+
+            // Mostrar indicador de escritura
+            showTypingIndicator();
+
+            const prompt = stepPrompts[currentProjectStep] || `Eres un consultor empresarial especializado en ${getUserProgram()}. Estás en el paso ${currentProjectStep}: ${getStepDescription(currentProjectStep)}
+
+CONVERSACIÓN ACTUAL:
+${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Tú'}: ${msg.content}`).join('\n')}
+
+Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'xiaomi/mimo-v2-flash:free',
+                    messages: [
+                        { role: 'system', content: 'Eres Charlotte, un tutor especializado en emprendimiento práctico para estudiantes de formación técnica en Panadería/Pastelería y Belleza Integral. Tu rol es guiar a cada estudiante, paso a paso, en la creación de un documento de proyecto de negocio completo y viable (su "tesis" práctica), que será el entregable final de su capacitación. Debes adaptar tu guía a cada sector específico (Panadería o Belleza). Sé académica, paciente, motivadora y muy estructurada. Incluye ejemplos específicos del sector correspondiente.' },
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 800,
+                    temperature: 0.7
+                })
+            });
+
+            hideTypingIndicator();
+
             if (!response.ok) {
                 throw new Error('Error en la API de IA');
             }
-            
+
             const data = await response.json();
             const aiResponse = data.choices[0].message.content;
-            
+
             // Reemplazar mensaje de loading
             replaceLastMessage(aiResponse, 'ai');
-            
+
             // Agregar a conversaciones globales
             projectConversations.push({ role: 'user', content: message });
             projectConversations.push({ role: 'assistant', content: aiResponse });
-            
+
             // Guardar en projectData
             saveProjectData(message, aiResponse);
-            
+
         } catch (error) {
             console.error('Error:', error);
             replaceLastMessage('Lo siento, hubo un error. Inténtalo de nuevo.', 'ai');
         }
     }
 
-    function addChatMessage(message, type) {
+    function addChatMessage(message, type, messageType) {
         const chat = document.getElementById('projectChat');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${type}`;
-        messageDiv.textContent = message;
+
+        // Si es una sugerencia o contiene HTML, usar innerHTML para renderizar las etiquetas
+        if (messageType === 'suggestion' || message.includes('<div') || message.includes('<br>') || message.includes('<strong>')) {
+            messageDiv.innerHTML = message;
+        } else {
+            messageDiv.textContent = message;
+        }
+
         chat.appendChild(messageDiv);
         chat.scrollTop = chat.scrollHeight;
-        projectChat.push({ message, type });
+        projectConversations.push({ message, type });
     }
 
-    function replaceLastMessage(newMessage, type) {
+    function replaceLastMessage(newMessage, type, messageType) {
         const chat = document.getElementById('projectChat');
         const lastMessage = chat.lastElementChild;
         if (lastMessage) {
-            lastMessage.textContent = newMessage;
             lastMessage.className = `chat-message ${type}`;
+
+            // Si es una sugerencia o contiene HTML, usar innerHTML para renderizar las etiquetas
+            if (messageType === 'suggestion' || newMessage.includes('<div') || newMessage.includes('<br>') || newMessage.includes('<strong>')) {
+                lastMessage.innerHTML = newMessage;
+            } else {
+                lastMessage.textContent = newMessage;
+            }
         }
     }
 
     function getUserProgram() {
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        return user.program || 'negocios';
+        return user.programa || 'negocios';
     }
 
     function getStepDescription(step) {
         const descriptions = {
-            1: 'Definir especialización y tipo de negocio',
-            2: 'Establecer objetivos del negocio',
-            3: 'Análisis de mercado y competencia',
-            4: 'Plan financiero y costos',
-            5: 'Estrategias de marketing y ventas'
+            1: 'MÓDULO 0: Inicio - Presentación y sector',
+            2: 'MÓDULO 1: Idea y Nichos',
+            3: 'MÓDULO 2: Análisis de Mercado y Cliente',
+            4: 'MÓDULO 3: Operaciones y Procesos',
+            5: 'MÓDULO 4: Marketing y Ventas',
+            6: 'MÓDULO 5: Finanzas Básicas'
         };
         return descriptions[step] || '';
     }
@@ -11878,7 +12828,7 @@ function openImageModal(imageUrl, title) {
                 data: projectData,
                 lastUpdated: new Date(),
                 userEmail: user.email,
-                program: user.program
+                program: user.programa || 'negocios' // Valor por defecto si no existe
             });
         }
         
@@ -11888,21 +12838,64 @@ function openImageModal(imageUrl, title) {
     function loadProjectData() {
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
         const projectKey = `project_${user.email}`;
-        
+
         const saved = localStorage.getItem(projectKey);
         if (saved) {
             projectData = JSON.parse(saved);
-            updateProjectSummary();
-        }
-        
-        // Cargar mensajes del chat del paso actual
-        if (projectData[currentProjectStep]) {
-            projectData[currentProjectStep].forEach(item => {
-                addChatMessage(item.user, 'user');
-                addChatMessage(item.ai, 'ai');
+
+            // Determinar el último paso completado
+            let lastCompletedStep = 1;
+            let totalQuestions = 0;
+            let completedQuestions = 0;
+
+            for (let step = 1; step <= 6; step++) {
+                const stepData = projectData[step] || {};
+                const stepQuestions = projectQuestions[step]?.questions || [];
+                const stepCompletedQuestions = Object.values(stepData).filter(q => q.approved).length;
+
+                totalQuestions += stepQuestions.length;
+                completedQuestions += stepCompletedQuestions;
+
+                if (stepCompletedQuestions > 0) {
+                    lastCompletedStep = step;
+                }
+            }
+
+            // Actualizar UI de pasos para mostrar progreso
+            document.querySelectorAll('.step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'hidden');
+                if (stepNum <= lastCompletedStep) {
+                    step.classList.remove('hidden');
+                } else {
+                    step.classList.add('hidden');
+                }
             });
+
+            // Restaurar el estado de la conversación
+            currentProjectStep = lastCompletedStep;
+            document.querySelector(`.step[data-step="${lastCompletedStep}"]`).classList.add('active');
+
+            // Calcular qué pregunta mostrar
+            const currentStepData = projectData[lastCompletedStep] || {};
+            const stepQuestions = projectQuestions[lastCompletedStep]?.questions || [];
+            const completedInStep = Object.values(currentStepData).filter(q => q.approved).length;
+
+            currentQuestionIndex = completedInStep;
+
+            if (completedInStep >= stepQuestions.length) {
+                // Módulo completado, esperar confirmación para siguiente
+                addChatMessage(`¡Hola de nuevo! Has completado el MÓDULO ${lastCompletedStep}. Escribe "siguiente" para continuar con el siguiente módulo.`, 'ai');
+            } else {
+                // Mostrar la siguiente pregunta
+                setTimeout(() => {
+                    askCurrentQuestion();
+                }, 1000);
+            }
+
+            updateProjectSummary();
         } else {
-            // Mensaje inicial
+            // Si no hay datos guardados, comenzar desde el principio
             setProjectStep(1);
         }
     }
@@ -11910,45 +12903,110 @@ function openImageModal(imageUrl, title) {
     function updateProjectSummary() {
         const summary = document.getElementById('projectSummary');
         let html = '';
-        let allStepsCompleted = true;
-        
-        for (let step = 1; step <= 5; step++) {
-            const stepData = projectData[step] || [];
-            const completed = stepData.length > 0;
-            if (!completed) allStepsCompleted = false;
-            
+        let totalQuestions = 0;
+        let completedQuestions = 0;
+
+        for (let step = 1; step <= 6; step++) {
+            const stepData = projectData[step] || {};
+            const stepQuestions = projectQuestions[step]?.questions || [];
+            const stepCompletedQuestions = Object.values(stepData).filter(q => q.approved).length;
+
+            totalQuestions += stepQuestions.length;
+            completedQuestions += stepCompletedQuestions;
+
+            const isCompleted = stepCompletedQuestions >= stepQuestions.length;
+            const isCurrent = step === currentProjectStep;
+
             html += `
-                <div class="summary-step ${completed ? 'completed' : ''}">
-                    <h4>Paso ${step}: ${getStepDescription(step)}</h4>
+                <div class="summary-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                    <h4>Módulo ${step}: ${getStepDescription(step)}</h4>
                     <div class="step-progress">
-                        ${completed ? '<i class="fas fa-check-circle"></i> Completado' : '<i class="fas fa-circle"></i> Pendiente'}
+                        ${isCompleted ? '<i class="fas fa-check-circle"></i> Completado' : isCurrent ? '<i class="fas fa-play-circle"></i> En progreso' : '<i class="fas fa-circle"></i> Pendiente'}
+                        <span class="step-count">(${stepCompletedQuestions}/${stepQuestions.length})</span>
                     </div>
-                    ${stepData.length > 0 ? `<p>Conversaciones: ${stepData.length}</p>` : ''}
+                    ${stepCompletedQuestions > 0 ? `<p>Preguntas respondidas: ${stepCompletedQuestions}</p>` : ''}
                 </div>
             `;
         }
-        
+
+        // Agregar progreso general
+        const overallProgress = totalQuestions > 0 ? Math.round((completedQuestions / totalQuestions) * 100) : 0;
+        html = `
+            <div class="overall-progress">
+                <h4>Progreso General</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${overallProgress}%"></div>
+                </div>
+                <p>${completedQuestions} de ${totalQuestions} preguntas completadas (${overallProgress}%)</p>
+            </div>
+            ${html}
+        `;
+
         summary.innerHTML = html;
-        
-        // Mostrar botón de completar si todos los pasos están completados
+
+        // Mostrar botón de completar si todos los módulos están completados
         const completeBtn = document.getElementById('completeProjectBtn');
-        if (allStepsCompleted && completeBtn) {
+        if (completedQuestions >= totalQuestions && totalQuestions > 0) {
             completeBtn.style.display = 'inline-block';
         }
     }
 
-    // Inicializar cuando se carga la sección
-    document.addEventListener('DOMContentLoaded', () => {
-        // El wizard se inicializa cuando se hace clic en "Mi Proyecto"
-        const projectNav = document.querySelector('.nav-item[data-section="proyecto"]');
-        if (projectNav) {
-            projectNav.addEventListener('click', () => {
-                setTimeout(initProjectWizard, 100);
-            });
+    function resetProject() {
+        if (!confirm('¿Estás seguro de que quieres reiniciar el proyecto? Se perderán todos los datos y conversaciones actuales.')) {
+            return;
         }
-    });
 
-    // =================== FUNCIONES PARA IMPRIMIR PROYECTO ===================
+        // Limpiar variables globales
+        projectData = {};
+        projectChat = [];
+        projectConversations = [];
+        currentProjectStep = 1;
+        currentQuestionIndex = 0;
+        awaitingApproval = false;
+        currentSuggestion = null;
+        userProgram = null;
+
+        // Limpiar localStorage
+        const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        const projectKey = `project_${user.email}`;
+        localStorage.removeItem(projectKey);
+
+        // Limpiar Firebase - eliminar documento completo
+        if (db && user.email) {
+            try {
+                const docRef = doc(db, 'projects', user.email);
+                deleteDoc(docRef)
+                    .then(() => console.log('✅ Proyecto eliminado de Firebase'))
+                    .catch(error => console.warn('⚠️ Error eliminando proyecto de Firebase (continuando):', error.message));
+            } catch (error) {
+                console.warn('⚠️ Error al preparar eliminación en Firebase:', error.message);
+            }
+        }
+
+        // Limpiar UI
+        document.getElementById('projectChat').innerHTML = '';
+        document.getElementById('projectSummary').innerHTML = '';
+
+        // Ocultar botones de acciones
+        document.getElementById('completeProjectBtn').style.display = 'none';
+        document.getElementById('previewProjectBtn').style.display = 'none';
+        document.getElementById('printProjectBtn').style.display = 'none';
+
+        // Reinicializar pasos
+        document.querySelectorAll('.step').forEach((step, index) => {
+            step.classList.remove('active', 'hidden');
+            if (index === 0) {
+                step.classList.add('active');
+            } else {
+                step.classList.add('hidden');
+            }
+        });
+
+        // Comenzar desde el principio
+        setProjectStep(1);
+
+        alert('Proyecto reiniciado exitosamente. Puedes comenzar de nuevo.');
+    }
 
     function updateProjectChat() {
         const chat = document.getElementById('projectChat');
@@ -12274,6 +13332,46 @@ function openImageModal(imageUrl, title) {
     window.updateProjectSummary = updateProjectSummary;
     window.loadProjectData = loadProjectData;
     window.getStepDescription = getStepDescription;
+    window.resetProject = resetProject;
+    window.approveSuggestion = approveSuggestion;
+    window.modifySuggestion = modifySuggestion;
+    window.keepOriginal = keepOriginal;
+
+    // Configurar event listeners después de que todas las funciones estén disponibles
+    // Configurar event listeners para los pasos
+    document.querySelectorAll('.step').forEach(step => {
+        step.addEventListener('click', () => {
+            const stepNum = parseInt(step.dataset.step);
+            // Solo permitir hacer clic en pasos que ya están desbloqueados
+            if (!step.classList.contains('hidden')) {
+                setProjectStep(stepNum);
+            }
+        });
+    });
+
+    // Configurar event listener para el botón de enviar mensaje
+    const sendBtn = document.getElementById('sendProjectBtn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', sendProjectMessage);
+    }
+
+    // Configurar input del chat con navegación especial
+    const input = document.getElementById('projectInput');
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const message = input.value.trim().toLowerCase();
+            if (message === 'siguiente' || message === 'continuar' || message === 'ok' || message === 'sí' || message === 'si' ||
+                message === 'claro' || message === 'por supuesto' || message === 'adelante' || message === 'siguiente módulo' ||
+                message === 'no' || message === 'detener' || message === 'parar' || message === 'terminar') {
+                e.preventDefault();
+                handleNavigationCommand(message);
+                return;
+            }
+            // Si no es un comando especial, enviar mensaje normal
+            sendProjectMessage();
+        }
+    });
+
     </script>
 
 </body>
