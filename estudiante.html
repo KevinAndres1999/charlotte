@@ -13620,10 +13620,55 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         printWindow.print();
     }
 
+    function extractBusinessInfo(type) {
+        // Extract business information from projectData or conversations
+        // This is a simplified version - in a real implementation, you'd parse AI responses
+        
+        const moduleMap = {
+            'name': 1,
+            'description': 1,
+            'mission': 1,
+            'vision': 1,
+            'introduction': 1,
+            'market_analysis': 2,
+            'operations': 3,
+            'marketing': 4,
+            'finance': 5,
+            'conclusion': 5
+        };
+        
+        const module = moduleMap[type];
+        if (!module || !projectData[module]) return null;
+        
+        // Look for the last AI response in the module that might contain the information
+        const conversations = projectData[module];
+        for (let i = conversations.length - 1; i >= 0; i--) {
+            const conv = conversations[i];
+            if (conv.ai && conv.ai.toLowerCase().includes(type.toLowerCase())) {
+                return conv.ai;
+            }
+        }
+        
+        // Fallback: return the last AI response from the module
+        const lastConv = conversations[conversations.length - 1];
+        return lastConv && lastConv.ai ? lastConv.ai : null;
+    }
+
     function generateProjectBookHTML() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
+        const userProgram = currentUser ? currentUser.programa || 'emprendimiento' : 'emprendimiento';
+        const instituteName = 'INSTITUTO TÉCNICO SUPERIOR'; // Placeholder, can be customized
+        const courseName = userProgram === 'panaderia' ? 'CAPACITACIÓN EN PANADERÍA Y PASTELERÍA' : 
+                          userProgram === 'belleza' ? 'CAPACITACIÓN EN BELLEZA INTEGRAL' : 
+                          'CAPACITACIÓN EN EMPRENDIMIENTO';
         const currentDate = new Date().toLocaleDateString('es-ES');
+        
+        // Extract project information from projectData
+        const businessName = extractBusinessInfo('name') || 'Nombre del Negocio';
+        const businessDescription = extractBusinessInfo('description') || 'Descripción del negocio...';
+        const mission = extractBusinessInfo('mission') || 'Misión del negocio...';
+        const vision = extractBusinessInfo('vision') || 'Visión del negocio...';
         
         let html = `
         <!DOCTYPE html>
@@ -13631,7 +13676,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Mi Proyecto Empresarial - ${userName}</title>
+            <title>Proyecto de Creación de Negocio - ${userName}</title>
             <style>
                 @page {
                     size: A4;
@@ -13650,34 +13695,75 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                     padding: 0;
                 }
                 
-                .book-header {
+                .cover-page {
+                    page-break-after: always;
                     text-align: center;
-                    border-bottom: 2px solid #1e3a8a;
-                    padding-bottom: 2rem;
-                    margin-bottom: 3rem;
+                    padding: 2cm;
+                    height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
                 }
                 
-                .book-title {
-                    font-size: 28pt;
+                .cover-title {
+                    font-size: 24pt;
                     font-weight: bold;
-                    color: #1e3a8a;
-                    margin-bottom: 1rem;
+                    margin-bottom: 2cm;
                 }
                 
-                .book-subtitle {
+                .institute-name {
+                    font-size: 18pt;
+                    font-weight: bold;
+                    margin-bottom: 1cm;
+                }
+                
+                .course-name {
+                    font-size: 16pt;
+                    margin-bottom: 2cm;
+                }
+                
+                .project-title {
+                    font-size: 20pt;
+                    font-weight: bold;
+                    margin-bottom: 2cm;
+                }
+                
+                .presented-by {
                     font-size: 14pt;
-                    color: #64748b;
-                    margin-bottom: 2rem;
+                    margin-bottom: 1cm;
                 }
                 
-                .book-author {
+                .student-name {
+                    font-size: 16pt;
+                    font-weight: bold;
+                    margin-bottom: 1cm;
+                }
+                
+                .tutor-info {
                     font-size: 12pt;
-                    color: #64748b;
+                    margin-top: 2cm;
+                }
+                
+                .table-of-contents {
+                    page-break-before: always;
+                    padding: 2cm;
+                }
+                
+                .toc-title {
+                    font-size: 18pt;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 2cm;
+                }
+                
+                .toc-item {
+                    margin-bottom: 0.5cm;
                 }
                 
                 .chapter {
                     page-break-before: always;
-                    margin-bottom: 3rem;
+                    padding: 2cm;
+                    margin-bottom: 2cm;
                 }
                 
                 .chapter:first-child {
@@ -13685,139 +13771,127 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 }
                 
                 .chapter-title {
-                    font-size: 18pt;
+                    font-size: 16pt;
                     font-weight: bold;
-                    color: #1e3a8a;
-                    border-bottom: 1px solid #e5e7eb;
-                    padding-bottom: 0.5rem;
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 1cm;
+                    border-bottom: 1px solid #333;
+                    padding-bottom: 0.5cm;
                 }
                 
-                .conversation {
-                    margin-bottom: 2rem;
-                    border-left: 3px solid #e5e7eb;
-                    padding-left: 1rem;
+                .chapter-content {
+                    text-align: justify;
                 }
                 
-                .conversation.user {
-                    border-left-color: #3b82f6;
-                    background-color: #f0f9ff;
-                    padding: 1rem;
-                    border-radius: 0 8px 8px 0;
+                .conclusion {
+                    page-break-before: always;
+                    padding: 2cm;
                 }
                 
-                .conversation.assistant {
-                    border-left-color: #10b981;
-                    background-color: #f0fdf4;
-                    padding: 1rem;
-                    border-radius: 0 8px 8px 0;
+                .annexes {
+                    page-break-before: always;
+                    padding: 2cm;
                 }
                 
-                .conversation-header {
+                .annex-title {
+                    font-size: 16pt;
                     font-weight: bold;
-                    margin-bottom: 0.5rem;
-                    font-size: 10pt;
-                    color: #64748b;
-                }
-                
-                .conversation-content {
-                    font-size: 11pt;
-                    line-height: 1.5;
-                }
-                
-                .summary-section {
-                    background-color: #f8fafc;
-                    padding: 1.5rem;
-                    border-radius: 8px;
-                    margin: 2rem 0;
-                    border: 1px solid #e2e8f0;
-                }
-                
-                .summary-title {
-                    font-size: 14pt;
-                    font-weight: bold;
-                    color: #1e3a8a;
-                    margin-bottom: 1rem;
-                }
-                
-                .footer {
-                    margin-top: 4rem;
-                    padding-top: 2rem;
-                    border-top: 1px solid #e5e7eb;
-                    text-align: center;
-                    font-size: 10pt;
-                    color: #64748b;
-                }
-                
-                @media print {
-                    body { print-color-adjust: exact; }
-                    .conversation { break-inside: avoid; }
-                    .chapter { break-inside: avoid; }
+                    margin-bottom: 1cm;
                 }
             </style>
         </head>
         <body>
-            <div class="book-header">
-                <div class="book-title">Mi Proyecto Empresarial</div>
-                <div class="book-subtitle">Plan de Negocio Desarrollado con Asistencia de IA</div>
-                <div class="book-author">
-                    Elaborado por: ${userName}<br>
-                    Fecha: ${currentDate}
+            <!-- Portada -->
+            <div class="cover-page">
+                <div class="cover-title">EJEMPLO DE PROYECTO FINAL - DOCUMENTO ENTREGABLE</div>
+                <div class="cover-title">PORTADA</div>
+                <div class="institute-name">${instituteName}</div>
+                <div class="course-name">${courseName}</div>
+                <div class="project-title">PROYECTO DE CREACIÓN DE NEGOCIO:<br>"${businessName}"</div>
+                <div class="presented-by">Presentado por:</div>
+                <div class="student-name">${userName}</div>
+                <div class="presented-by">Para optar por el título de:<br>Técnica en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : userProgram === 'belleza' ? 'Belleza Integral' : 'Emprendimiento'}</div>
+                <div class="tutor-info">Tutora Virtual: Charlotte<br>[Ciudad, ${currentDate}]</div>
+            </div>
+            
+            <!-- Índice -->
+            <div class="table-of-contents">
+                <div class="toc-title">ÍNDICE</div>
+                <div class="toc-item">Introducción</div>
+                <div class="toc-item">Capítulo 1: Identificación del Negocio</div>
+                <div class="toc-item">Capítulo 2: Análisis de Mercado y Clientes</div>
+                <div class="toc-item">Capítulo 3: Operaciones y Procesos</div>
+                <div class="toc-item">Capítulo 4: Plan de Marketing y Ventas</div>
+                <div class="toc-item">Capítulo 5: Finanzas Básicas</div>
+                <div class="toc-item">Conclusión</div>
+                <div class="toc-item">Anexos (Opcional)</div>
+            </div>
+            
+            <!-- Introducción -->
+            <div class="chapter">
+                <div class="chapter-title">1. INTRODUCCIÓN</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('introduction') || `Este documento presenta el plan de negocio para "${businessName}", ${businessDescription}. El proyecto nace de la pasión por el área y la observación de una demanda creciente. A continuación, se detallan todos los aspectos necesarios para su puesta en marcha y operación inicial.`}
                 </div>
             </div>
-        `;
-
-        // Generar contenido por pasos
-        const steps = [
-            { title: '¿A qué te dedicarás?', description: 'Definición de especialización y nicho de mercado' },
-            { title: 'Objetivos del negocio', description: 'Metas claras y realistas para el emprendimiento' },
-            { title: 'Análisis de mercado', description: 'Estudio de competencia y clientes potenciales' },
-            { title: 'Plan financiero', description: 'Cálculos de costos, precios y proyecciones económicas' },
-            { title: 'Marketing y ventas', description: 'Estrategias para atraer y fidelizar clientes' }
-        ];
-
-        steps.forEach((step, index) => {
-            const stepNumber = index + 1;
-            const stepConversations = projectConversations.filter((_, i) => 
-                Math.floor(i / 10) === index
-            );
-
-            if (stepConversations.length > 0) {
-                html += `
-                <div class="chapter">
-                    <div class="chapter-title">Capítulo ${stepNumber}: ${step.title}</div>
-                    <div class="summary-section">
-                        <div class="summary-title">Descripción del Paso</div>
-                        <p>${step.description}</p>
-                    </div>
-                `;
-
-                stepConversations.forEach(conv => {
-                    const isUser = conv.role === 'user';
-                    const content = conv.content || conv.message || 'Contenido no disponible';
-                    html += `
-                    <div class="conversation ${isUser ? 'user' : 'assistant'}">
-                        <div class="conversation-header">
-                            ${isUser ? 'Pregunta del Estudiante' : 'Respuesta de la IA Asesora'}
-                        </div>
-                        <div class="conversation-content">
-                            ${content.replace(/\n/g, '<br>')}
-                        </div>
-                    </div>
-                    `;
-                });
-
-                html += `</div>`;
-            }
-        });
-
-        html += `
-            <div class="footer">
-                <p>Este documento fue generado automáticamente por la plataforma educativa.</p>
-                <p>Proyecto completado el ${currentDate}</p>
+            
+            <!-- Capítulo 1 -->
+            <div class="chapter">
+                <div class="chapter-title">2. CAPÍTULO 1: IDENTIFICACIÓN DEL NEGOCIO</div>
+                <div class="chapter-content">
+                    <p><strong>Nombre Comercial:</strong> ${businessName}.</p>
+                    <p><strong>Descripción:</strong> ${businessDescription}</p>
+                    <p><strong>Misión:</strong> ${mission}</p>
+                    <p><strong>Visión:</strong> ${vision}</p>
+                </div>
             </div>
-        </body>
-        </html>
+            
+            <!-- Capítulo 2 -->
+            <div class="chapter">
+                <div class="chapter-title">3. CAPÍTULO 2: ANÁLISIS DE MERCADO Y CLIENTES</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('market_analysis') || 'Análisis de mercado y clientes potenciales...'}
+                </div>
+            </div>
+            
+            <!-- Capítulo 3 -->
+            <div class="chapter">
+                <div class="chapter-title">4. CAPÍTULO 3: OPERACIONES Y PROCESOS</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('operations') || 'Descripción de operaciones y procesos del negocio...'}
+                </div>
+            </div>
+            
+            <!-- Capítulo 4 -->
+            <div class="chapter">
+                <div class="chapter-title">5. CAPÍTULO 4: PLAN DE MARKETING Y VENTAS</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('marketing') || 'Estrategia de marketing y ventas...'}
+                </div>
+            </div>
+            
+            <!-- Capítulo 5 -->
+            <div class="chapter">
+                <div class="chapter-title">6. CAPÍTULO 5: FINANZAS BÁSICAS</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('finance') || 'Análisis financiero básico...'}
+                </div>
+            </div>
+            
+            <!-- Conclusión -->
+            <div class="conclusion">
+                <div class="chapter-title">7. CONCLUSIÓN</div>
+                <div class="chapter-content">
+                    ${extractBusinessInfo('conclusion') || 'Conclusión del proyecto...'}
+                </div>
+            </div>
+            
+            <!-- Anexos -->
+            <div class="annexes">
+                <div class="annex-title">8. ANEXOS (Opcional)</div>
+                <div class="chapter-content">
+                    <p>Anexo A: Información adicional del proyecto.</p>
+                    <p>Anexo B: Datos de respaldo.</p>
+                </div>
         `;
 
         return html;
