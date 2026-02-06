@@ -13497,19 +13497,18 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         if (!currentUser) return;
         
-        // No cargar proyectos existentes si ya hay datos locales (proyecto en progreso)
-        const hasLocalData = Object.keys(projectData).some(key => projectData[key] && Object.keys(projectData[key]).length > 0);
-        if (hasLocalData) return;
+        // Siempre intentar cargar desde Firebase para asegurar datos actualizados
+        // const hasLocalData = Object.keys(projectData).some(key => projectData[key] && Object.keys(projectData[key]).length > 0);
+        // if (hasLocalData) return;
         
         try {
-            const q = window.query(
-                window.collection(window.db, 'projects'),
-                window.where('userEmail', '==', currentUser.email || currentUser.id)
-            );
-            const snapshot = await window.getDocs(q);
+            // Intentar cargar directamente por ID del documento (user.email)
+            const docRef = window.doc(window.db, 'projects', currentUser.email || currentUser.id);
+            const docSnap = await window.getDoc(docRef);
             
-            if (!snapshot.empty) {
-                const project = snapshot.docs[0].data();
+            if (docSnap.exists()) {
+                const project = docSnap.data();
+                console.log('Proyecto cargado desde Firebase:', project);
                 
                 // Cargar datos del proyecto de consultoría si existen
                 if (project.data) {
