@@ -13183,7 +13183,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
         chat.appendChild(messageDiv);
         chat.scrollTop = chat.scrollHeight;
-        projectConversations.push({ message, type });
+        projectConversations.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
     }
 
     function replaceLastMessage(newMessage, type, messageType) {
@@ -13527,7 +13527,16 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                     projectData.finalDocument = project.finalDocument;
                 }
                 
-                projectConversations = project.conversations || [];
+                projectConversations = (project.conversations || []).map(conv => {
+                    // Normalize conversation format
+                    if (conv.message && conv.type) {
+                        return {
+                            role: conv.type === 'user' ? 'user' : 'assistant',
+                            content: conv.message
+                        };
+                    }
+                    return conv; // Already in correct format
+                });
                 
                 // Mostrar botones de vista previa e impresión
                 document.getElementById('previewProjectBtn').style.display = 'inline-block';
@@ -13785,13 +13794,14 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 stepConversations.forEach(conv => {
                     const isUser = conv.role === 'user';
+                    const content = conv.content || conv.message || 'Contenido no disponible';
                     html += `
                     <div class="conversation ${isUser ? 'user' : 'assistant'}">
                         <div class="conversation-header">
                             ${isUser ? 'Pregunta del Estudiante' : 'Respuesta de la IA Asesora'}
                         </div>
                         <div class="conversation-content">
-                            ${conv.content.replace(/\n/g, '<br>')}
+                            ${content.replace(/\n/g, '<br>')}
                         </div>
                     </div>
                     `;
