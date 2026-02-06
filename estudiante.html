@@ -13621,25 +13621,48 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function extractBusinessName() {
-        // Extract business name from student responses in module 1
+        // Extract business name from student responses and AI responses in module 1
         if (!projectData || !projectData[1] || !Array.isArray(projectData[1])) return null;
         
         const conversations = projectData[1];
         
-        // Look for student responses that might contain the business name
+        // Look for business name in both user and AI responses
         for (let conv of conversations) {
+            // Check user responses first
             if (conv.user) {
-                // Look for quoted text or common business name patterns
+                // Look for quoted text
                 const quotes = conv.user.match(/"([^"]+)"/g);
                 if (quotes && quotes.length > 0) {
                     return quotes[0].replace(/"/g, '');
                 }
                 
-                // Look for responses that seem to be naming the business
-                const namePatterns = /(se llama|llamarse|nombre.*es|mi negocio.*es)\s*([^.!?]+)/i;
+                // Look for naming patterns
+                const namePatterns = /(se llama|llamarse|nombre.*es|mi negocio.*es|negocio.*es)\s*([^.!?]+)/i;
                 const match = conv.user.match(namePatterns);
                 if (match) {
                     return match[2].trim();
+                }
+            }
+            
+            // Check AI responses
+            if (conv.ai) {
+                // Look for AI confirming the name
+                const aiPatterns = /(tu negocio se llamará|el nombre.*será|negocio.*"|llamarse)\s*["']([^"']+)["']/i;
+                const match = conv.ai.match(aiPatterns);
+                if (match) {
+                    return match[2].trim();
+                }
+                
+                // Look for quoted names in AI responses
+                const quotes = conv.ai.match(/"([^"]+)"/g);
+                if (quotes && quotes.length > 0) {
+                    // Filter out common phrases, look for business-like names
+                    for (let quote of quotes) {
+                        const name = quote.replace(/"/g, '');
+                        if (name.length > 3 && !name.toLowerCase().includes('charlotte') && !name.toLowerCase().includes('tutora')) {
+                            return name;
+                        }
+                    }
                 }
             }
         }
@@ -13658,62 +13681,82 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 module = 1;
                 break;
             case 'description':
-                searchText = 'descripción|qué hace|servicio|producto|ofrece';
+                searchText = 'descripción|qué hace|servicio|producto|ofrece|actividad|especialidad|dedicarse';
                 module = 1;
                 break;
             case 'mission':
-                searchText = 'misión|propósito|objetivo.*negocio';
+                searchText = 'misión|propósito|objetivo.*negocio|buscamos|ofrecemos|brindar|proporcionar';
                 module = 1;
                 break;
             case 'vision':
-                searchText = 'visión|meta.*largo.*plazo|convertirse.*en|ser.*referencia';
+                searchText = 'visión|meta.*largo.*plazo|convertirse.*en|ser.*referencia|alcanzar|llegar.*a|convertirnos';
                 module = 1;
                 break;
             case 'introduction':
-                searchText = 'plan.*negocio|proyecto.*nace|pasión|demanda|puesta.*marcha';
+                searchText = 'plan.*negocio|proyecto.*nace|pasión|demanda|puesta.*marcha|emprender|presenta';
                 module = 1;
                 break;
             case 'market_analysis':
-                searchText = 'cliente.*ideal|competencia|mercado|análisis.*mercado|cliente.*potencial';
+                searchText = 'cliente.*ideal|competencia|mercado|análisis.*mercado|cliente.*potencial|público|segmento|nicho|estudio|competidores';
                 module = 2;
                 break;
             case 'operations':
-                searchText = 'operaciones|procesos|servicio.*principal|producto.*estrella|recursos|equipos';
+                searchText = 'operaciones|procesos|servicio.*principal|producto.*estrella|recursos|equipos|instalaciones|local|materiales|proveedores';
                 module = 3;
                 break;
             case 'marketing':
-                searchText = 'marketing|ventas|canal.*venta|estrategia.*redes|campaña|precio|venta';
+                searchText = 'marketing|ventas|canal.*venta|estrategia.*redes|campaña|precio|venta|promoción|publicidad|instagram|facebook|redes';
                 module = 4;
                 break;
             case 'finance':
-                searchText = 'inversión|finanzas|costo|precio|utilidad|proyección|venta|ingreso';
+                searchText = 'inversión|finanzas|costo|precio|utilidad|proyección|venta|ingreso|presupuesto|capital|ganancia|beneficio';
                 module = 5;
                 break;
             case 'conclusion':
-                searchText = 'conclusión|aprendí|siguiente.*paso|emocionado|confiado|éxito';
+                searchText = 'conclusión|aprendí|siguiente.*paso|emocionado|confiado|éxito|lograr|alcanzar|finalmente|resumiendo';
                 module = 5;
                 break;
         }
         
         if (!projectData || !projectData[module] || !Array.isArray(projectData[module])) return null;
         
-        // Search through AI responses in the specified module
+        // Search through AI and user responses in the specified module
         const conversations = projectData[module];
         const regex = new RegExp(searchText, 'i');
         
         for (let i = conversations.length - 1; i >= 0; i--) {
             const conv = conversations[i];
+            
+            // Check AI responses first (more likely to have structured information)
             if (conv.ai && regex.test(conv.ai)) {
                 // Extract a meaningful paragraph or sentence
                 const sentences = conv.ai.split(/[.!?]+/).filter(s => s.trim().length > 10);
                 const relevantSentence = sentences.find(s => regex.test(s)) || sentences[0];
-                return relevantSentence ? relevantSentence.trim() : conv.ai.substring(0, 300) + '...';
+                if (relevantSentence) {
+                    return relevantSentence.trim();
+                }
+            }
+            
+            // Also check user responses
+            if (conv.user && regex.test(conv.user)) {
+                const sentences = conv.user.split(/[.!?]+/).filter(s => s.trim().length > 10);
+                const relevantSentence = sentences.find(s => regex.test(s)) || sentences[0];
+                if (relevantSentence) {
+                    return relevantSentence.trim();
+                }
             }
         }
         
-        // Fallback: return the last AI response from the module
+        // Fallback: return the last AI or user response from the module
         const lastConv = conversations[conversations.length - 1];
-        return lastConv && lastConv.ai ? lastConv.ai.substring(0, 300) + '...' : null;
+        if (lastConv && lastConv.ai) {
+            return lastConv.ai.substring(0, 400) + '...';
+        }
+        if (lastConv && lastConv.user) {
+            return lastConv.user.substring(0, 400) + '...';
+        }
+        
+        return null;
     }
 
     function generateProjectBookHTML() {
