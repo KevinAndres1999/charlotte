@@ -13603,21 +13603,128 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function previewProjectBook() {
-        const printWindow = window.open('', '_blank');
-        const projectContent = generateProjectBookHTML();
+        // Show loading message
+        const loadingModal = document.createElement('div');
+        loadingModal.id = 'loadingModal';
+        loadingModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: white;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+        `;
+        loadingModal.innerHTML = `
+            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 20px;">Estamos creando tu plan de negocio...</div>
+                <div style="font-size: 16px;">Esto puede tomar unos momentos</div>
+                <div style="margin-top: 20px;">
+                    <div style="width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingModal);
         
-        printWindow.document.write(projectContent);
-        printWindow.document.close();
-        // No imprimir automáticamente, solo mostrar vista previa
+        // Simulate progress
+        const progressBar = loadingModal.querySelector('#progressBar');
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (progress >= 90) clearInterval(progressInterval);
+        }, 200);
+        
+        // Process the project data
+        setTimeout(() => {
+            try {
+                const projectContent = generateProjectBookHTML();
+                if (document.body.contains(loadingModal)) {
+                    document.body.removeChild(loadingModal);
+                }
+                
+                // Open preview in new window
+                const previewWindow = window.open('', '_blank');
+                previewWindow.document.write(projectContent);
+                previewWindow.document.close();
+            } catch (error) {
+                if (document.body.contains(loadingModal)) {
+                    document.body.removeChild(loadingModal);
+                }
+                alert('Error al generar el proyecto: ' + error.message);
+            }
+        }, 2000); // Give it 2 seconds to process
     }
 
     function printProjectBook() {
-        const printWindow = window.open('', '_blank');
-        const projectContent = generateProjectBookHTML();
+        // Show loading message
+        const loadingModal = document.createElement('div');
+        loadingModal.id = 'loadingModal';
+        loadingModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            color: white;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+        `;
+        loadingModal.innerHTML = `
+            <div style="text-align: center;">
+                <div style="font-size: 24px; margin-bottom: 20px;">Estamos creando tu plan de negocio...</div>
+                <div style="font-size: 16px;">Esto puede tomar unos momentos</div>
+                <div style="margin-top: 20px;">
+                    <div style="width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingModal);
         
-        printWindow.document.write(projectContent);
-        printWindow.document.close();
-        printWindow.print();
+        // Simulate progress
+        const progressBar = loadingModal.querySelector('#progressBar');
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (progress >= 90) clearInterval(progressInterval);
+        }, 200);
+        
+        // Process the project data
+        setTimeout(() => {
+            try {
+                const projectContent = generateProjectBookHTML();
+                if (document.body.contains(loadingModal)) {
+                    document.body.removeChild(loadingModal);
+                }
+                
+                // Open print window
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(projectContent);
+                printWindow.document.close();
+                printWindow.print();
+            } catch (error) {
+                if (document.body.contains(loadingModal)) {
+                    document.body.removeChild(loadingModal);
+                }
+                alert('Error al generar el proyecto: ' + error.message);
+            }
+        }, 2000); // Give it 2 seconds to process
     }
 
     function extractBusinessName() {
@@ -13698,24 +13805,21 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         
         if (!projectData || !projectData[module] || !Array.isArray(projectData[module])) return null;
         
-        // Collect all relevant responses from this module and combine them
+        // Collect ALL relevant responses from this module and combine them
         const conversations = projectData[module];
         let relevantResponses = [];
         
         conversations.forEach(conv => {
-            if (conv.ai && conv.ai.length > 50) { // Only substantial AI responses
+            if (conv.ai && conv.ai.length > 20) { // Include substantial AI responses
                 relevantResponses.push(conv.ai);
             }
-            if (conv.user && conv.user.length > 20) { // Student input can also be relevant
+            if (conv.user && conv.user.length > 10) { // Include student input
                 relevantResponses.push(conv.user);
             }
         });
         
-        // Take the most recent substantial responses (last 3-4 responses)
-        const recentResponses = relevantResponses.slice(-4);
-        
-        // Combine them into coherent content
-        const content = recentResponses.join(' ').substring(0, 800) + (recentResponses.length > 0 ? '...' : '');
+        // Combine ALL responses into coherent content (limit to reasonable length)
+        const content = relevantResponses.join(' ').substring(0, 1500) + (relevantResponses.length > 0 ? '...' : '');
         
         return content || null;
     }
