@@ -13886,8 +13886,68 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         // Extract project information from projectData
         const businessName = extractBusinessName() || 'Nuestra Receta';
         const businessDescription = extractBusinessInfo('description') || 'la elaboración de tortas artesanales personalizadas para celebraciones especiales';
-        const mission = extractBusinessInfo('mission') || '"Ser tu aliado en las fiestas, brindando tortas y postres de calidad superior, versátiles y a precio justo, totalmente personalizados a tu gusto."';
-        const vision = extractBusinessInfo('vision') || 'Implementar un sistema integral de pedidos donde cualquier persona pueda solicitar, personalizar y recibir su torta ideal directamente en su hogar, estableciendo un estándar de excelencia en pastelería personalizada.';
+
+        // Extract and improve mission and vision based on student responses
+        const rawMission = extractBusinessInfo('mission') || '';
+        const rawVision = extractBusinessInfo('vision') || '';
+
+        // Function to improve mission statement
+        function improveMission(rawMission, businessName, businessDescription) {
+            if (!rawMission || rawMission.trim() === '') {
+                return `Ser el referente en ${businessDescription}, ofreciendo productos/servicios de calidad superior que satisfagan las necesidades de nuestros clientes con excelencia y compromiso.`;
+            }
+
+            // Improve the mission by making it more professional and complete
+            let improved = rawMission.trim();
+
+            // Add business name if not present
+            if (!improved.toLowerCase().includes(businessName.toLowerCase())) {
+                improved = `${businessName} se compromete a ${improved.toLowerCase()}`;
+            }
+
+            // Ensure it starts with action verb
+            const actionVerbs = ['ser', 'ofrecer', 'brindar', 'proporcionar', 'desarrollar', 'crear', 'entregar'];
+            const startsWithAction = actionVerbs.some(verb => improved.toLowerCase().startsWith(verb));
+            if (!startsWithAction) {
+                improved = `Ser ${improved.toLowerCase()}`;
+            }
+
+            // Capitalize first letter
+            improved = improved.charAt(0).toUpperCase() + improved.slice(1);
+
+            return improved;
+        }
+
+        // Function to improve vision statement
+        function improveVision(rawVision, businessName, businessDescription) {
+            if (!rawVision || rawVision.trim() === '') {
+                return `Convertirnos en el líder del sector, reconocido por la innovación, calidad y satisfacción total de nuestros clientes.`;
+            }
+
+            // Improve the vision by making it more aspirational and forward-looking
+            let improved = rawVision.trim();
+
+            // Add future-oriented language if not present
+            const futureWords = ['convertirnos', 'ser', 'liderar', 'expandir', 'crecer', 'desarrollar', 'implementar', 'establecer'];
+            const hasFutureLanguage = futureWords.some(word => improved.toLowerCase().includes(word));
+            if (!hasFutureLanguage) {
+                improved = `Convertirnos en ${improved.toLowerCase()}`;
+            }
+
+            // Add time frame if not present
+            if (!improved.toLowerCase().includes('202') && !improved.toLowerCase().includes('futuro') && !improved.toLowerCase().includes('líder')) {
+                improved += ', estableciendo un estándar de excelencia en el mercado.';
+            }
+
+            // Capitalize first letter
+            improved = improved.charAt(0).toUpperCase() + improved.slice(1);
+
+            return improved;
+        }
+
+        const mission = improveMission(rawMission, businessName, businessDescription);
+        const vision = improveVision(rawVision, businessName, businessDescription);
+
         const slogan = projectData && projectData[1] && projectData[1].eslogan ? projectData[1].eslogan.answer : '"Pastelería de calidad en la mesa de tu hogar"';
 
         // Extract additional information with more specific mappings
