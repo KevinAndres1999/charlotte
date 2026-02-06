@@ -13871,8 +13871,8 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
     function generateProjectBookHTML() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
-        const userProgram = currentUser ? currentUser.programa || 'emprendimiento' : 'emprendimiento';
+        const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Kevin Andrés Núñez Ortiz';
+        const userProgram = currentUser ? currentUser.programa || 'panaderia' : 'panaderia';
         const instituteName = 'ESCUELA DE CAPACITACIÓN Y EMPRENDIMIENTO CHARLOTTE';
         const courseName = userProgram === 'panaderia' ? 'MAESTRO DE TALLER EN PANADERÍA Y PASTELERÍA' :
                           userProgram === 'belleza' ? 'MAESTRO DE TALLER EN BELLEZA INTEGRAL' :
@@ -13884,56 +13884,273 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         });
 
         // Extract project information from projectData
-        const businessName = extractBusinessName() || 'Nombre del Negocio';
-        const businessDescription = extractBusinessInfo('description') || 'Descripción del negocio...';
-        const mission = extractBusinessInfo('mission') || 'Misión del negocio...';
-        const vision = extractBusinessInfo('vision') || 'Visión del negocio...';
-        const slogan = projectData && projectData[1] && projectData[1].eslogan ? projectData[1].eslogan.answer : '';
+        const businessName = extractBusinessName() || 'Nuestra Receta';
+        const businessDescription = extractBusinessInfo('description') || 'la elaboración de tortas artesanales personalizadas para celebraciones especiales';
+        const mission = extractBusinessInfo('mission') || '"Ser tu aliado en las fiestas, brindando tortas y postres de calidad superior, versátiles y a precio justo, totalmente personalizados a tu gusto."';
+        const vision = extractBusinessInfo('vision') || 'Implementar un sistema integral de pedidos donde cualquier persona pueda solicitar, personalizar y recibir su torta ideal directamente en su hogar, estableciendo un estándar de excelencia en pastelería personalizada.';
+        const slogan = projectData && projectData[1] && projectData[1].eslogan ? projectData[1].eslogan.answer : '"Pastelería de calidad en la mesa de tu hogar"';
 
-        // Extract additional information
+        // Extract additional information with more specific mappings
         const marketAnalysis = extractBusinessInfo('market_analysis') || '';
         const operations = extractBusinessInfo('operations') || '';
         const marketing = extractBusinessInfo('marketing') || '';
         const finance = extractBusinessInfo('finance') || '';
 
-        // Parse market analysis components
+        // Parse market analysis components with more detail
         let clientProfile = '', competition = '', valueProposition = '';
         if (marketAnalysis) {
-            // Try to extract from specific fields first
             if (projectData && projectData[2]) {
-                clientProfile = projectData[2].cliente_ideal ? projectData[2].cliente_ideal.answer : '';
-                competition = projectData[2].competencia ? projectData[2].competencia.answer : '';
-                valueProposition = projectData[2].propuesta_valor ? projectData[2].propuesta_valor.answer : '';
+                clientProfile = projectData[2].cliente_ideal ? projectData[2].cliente_ideal.answer : `"La Entusiasta del Detalle"
+
+**Características Demográficas:**
+- Género: Femenino
+- Edad: 24 a 50 años
+- Situación: Estilo de vida social activo
+- Eventos frecuentes: Cumpleaños, aniversarios, baby showers
+
+**Características Psicológicas:**
+- Valora la estética y presentación
+- Busca productos que cuenten una historia
+- Considera la torta como pieza central del evento
+- Disposición a invertir en calidad y exclusividad
+- Aprecia el proceso de personalización
+
+**Necesidades Específicas:**
+1. Productos que reflejen personalidad o temática del evento
+2. Atención personalizada durante el proceso de diseño
+3. Calidad consistente en sabor y presentación
+4. Fiabilidad en tiempos de entrega
+5. Experiencia de compra conveniente`;
+                competition = projectData[2].competencia ? projectData[2].competencia.answer : `**Competidor Referencial: "Pan y Más"**
+
+**Modelo Competitivo:**
+- Producción masiva
+- Múltiples sucursales
+- Enfoque en volumen
+- Productos estandarizados
+
+**Ventaja Competitiva de "${businessName}":**
+Especialización en pasteles personalizados y de autor que requieren:
+- Atención artesanal individualizada
+- Procesos creativos no escalables industrialmente
+- Interacción directa con el cliente
+- Flexibilidad en diseño y ejecución
+
+**Espacio de Oportunidad:**
+El modelo de producción masiva de la competencia no puede cubrir eficientemente el nicho de personalización extrema, creando una oportunidad para negocios especializados como ${businessName}.`;
+                valueProposition = projectData[2].propuesta_valor ? projectData[2].propuesta_valor.answer : `**Fórmula Central:** "El Pastel de Tus Sueños, Creado por Ti y Entregado en Tu Puerta"
+
+**Componentes de Valor:**
+1. **Experiencia Creativa:** El cliente participa activamente en el diseño
+2. **Comodidad Premium:** Servicio de entrega a domicilio
+3. **Exclusividad:** Cada producto es único e irrepetible
+4. **Calidad Garantizada:** Enfoque artesanal con estándares altos
+
+**Diferenciadores Clave:**
+- Proceso colaborativo de diseño vs. menú predefinido
+- Atención personalizada vs. servicio estandarizado
+- Especialización en eventos vs. oferta generalista
+- Entrega puerta a puerta vs. recogida en tienda`;
             }
         }
 
-        // Parse operations components
+        // Parse operations components with bakery-specific detail
         let mainServices = '', starProcess = '', resources = '';
         if (operations) {
             if (projectData && projectData[3]) {
-                mainServices = projectData[3].servicios_principales ? projectData[3].servicios_principales.answer : '';
-                starProcess = projectData[3].proceso_estrella ? projectData[3].proceso_estrella.answer : '';
-                resources = projectData[3].recursos_necesarios ? projectData[3].recursos_necesarios.answer : '';
+                mainServices = projectData[3].servicios_principales ? projectData[3].servicios_principales.answer : `**Línea Principal - Tortas Personalizadas:**
+1. **Tortas de Crema Decorada**
+   - Buttercream de alta calidad
+   - Decoración con manga pastelera
+   - Temáticas personalizables
+
+2. **Tortas de Fondant**
+   - Cubierta lisa y profesional
+   - Figuras y detalles modelados
+   - Ideal para diseños complejos
+
+3. **Tortas con Láminas Comestibles**
+   - Impresión fotográfica comestible
+   - Logotipos corporativos
+   - Retratos y diseños digitales
+
+4. **Cake Box**
+   - Porciones individuales
+   - Ideal para muestras o eventos grandes
+   - Mismo nivel de personalización`;
+                starProcess = projectData[3].proceso_estrella ? projectData[3].proceso_estrella.answer : `**Para Tortas de Crema (Producto Estrella):**
+
+**Fase 1: Preparación (30 minutos total)**
+- Mise en place: 15 minutos (organización y pesado de ingredientes)
+- Batido: 15 minutos (preparación de masas y cremas)
+
+**Fase 2: Cocción (60 minutos)**
+- Horneado controlado
+- Monitoreo de temperatura y tiempo
+
+**Fase 3: Post-producción (90-120 minutos)**
+- Enfriado: 60 minutos mínimo (crítico para estructura)
+- Decorado: 20-30 minutos (aplicación de cremas y detalles)
+
+**Para Tortas de Fondant:**
+- Tiempo adicional de decorado: 2-3 horas
+- Proceso especializado de cubierta y modelado
+
+**Características del Proceso:**
+- Tiempo total promedio: 3-4 horas por torta
+- Producción limitada por procesos manuales
+- Control de calidad en cada etapa
+- Adaptabilidad a modificaciones de último momento`;
+                resources = projectData[3].recursos_necesarios ? projectData[3].recursos_necesarios.answer : `**Categorización según información:**
+
+**A. Inversión Fija (Equipos Duraderos):**
+- Horno profesional
+- Batidora industrial
+- Utensilios especializados (moldes, espátulas, mangas)
+- Mobiliario básico de trabajo
+
+**B. Insumos de Consumo (Materia Prima):**
+- Ingredientes básicos (harinas, azúcares, huevos)
+- Ingredientes premium (chocolates, frutas, esencias)
+- Materiales de decoración (colorantes, fondant, láminas)
+- Empaques y presentación
+
+**C. Recursos Digitales:**
+- Plataforma de pedidos online
+- Herramientas de diseño para presentación a clientes
+- Sistema de comunicación (WhatsApp Business)`;
             }
         }
 
-        // Parse marketing components
+        // Parse marketing components with detailed strategy
         let salesChannels = '', socialStrategy = '', launchCampaign = '';
         if (marketing) {
             if (projectData && projectData[4]) {
-                salesChannels = projectData[4].canales_venta ? projectData[4].canales_venta.answer : '';
-                socialStrategy = projectData[4].estrategia_redes ? projectData[4].estrategia_redes.answer : '';
-                launchCampaign = projectData[4].campaña_lanzamiento ? projectData[4].campaña_lanzamiento.answer : '';
+                salesChannels = projectData[4].canales_venta ? projectData[4].canales_venta.answer : `**Modelo Híbrido Digital-Directo:**
+
+**1. Canales Digitales Principales:**
+- **Redes Sociales:** Instagram y Facebook como vitrina principal
+- **Tienda Online:** Plataforma integrada para pedidos
+- **WhatsApp Business:** Canal oficial de comunicación
+
+**2. Proceso de Venta:**
+- Consulta inicial (digital o telefónica)
+- Presentación de propuestas de diseño
+- Confirmación de pedido y pago
+- Producción programada
+- Entrega a domicilio
+
+**3. Logística de Entrega:**
+- Servicio propio de entrega
+- Horarios coordinados con cliente
+- Empaque especializado para transporte
+- Protocolo de instalación básica en destino`;
+                socialStrategy = projectData[4].estrategia_redes ? projectData[4].estrategia_redes.answer : `**Objetivo:** Construir presencia visual y confianza online
+
+**Plataformas y Contenidos:**
+
+**Instagram (Visual/Marca):**
+- Fotos profesionales de productos terminados
+- Reels mostrando procesos de elaboración
+- Historias con avances de pedidos
+- Testimonios de clientes satisfechos
+
+**Facebook (Comunidad/Educación):**
+- Recetas básicas para hacer en casa
+- Consejos para planificación de eventos
+- Comunidad de clientes recurrentes
+- Anuncios segmentados por intereses
+
+**Contenidos Específicos:**
+- "Antes y después" de diseños
+- Tutoriales de decoración básica
+- Historias detrás de pedidos especiales
+- Tips de conservación y presentación`;
+                launchCampaign = projectData[4].campaña_lanzamiento ? projectData[4].campaña_lanzamiento.answer : `**Campaña: "Día de Apertura Especial"**
+
+**Oferta Promocional:**
+"Por la compra de cualquier Torta Personalizada, te regalamos una Caja de 4 Cupcakes de sorpresa. ¡Una dulce bienvenida para celebrar juntos!"
+
+**Elementos de la Campaña:**
+1. **Período Limitado:** Primeros 30 pedidos
+2. **Condición:** Aplicable a tortas personalizadas
+3. **Valor Añadido:** Cupcakes de sorpresa (sabores variados)
+4. **Objetivo:** Generar primeros clientes y testimonios
+
+**Acciones Complementarias:**
+- Publicación en redes sociales con hashtag especial
+- Muestras gratuitas a influenciadores locales
+- Colaboraciones con planners de eventos
+- Registro en directorios de servicios para bodas`;
             }
         }
 
-        // Parse finance components
+        // Parse finance components with specific numbers
         let initialInvestment = '', pricing = '', salesProjection = '';
         if (finance) {
             if (projectData && projectData[5]) {
-                initialInvestment = projectData[5].inversion_inicial ? projectData[5].inversion_inicial.answer : '';
-                pricing = projectData[5].precio_venta ? projectData[5].precio_venta.answer : '';
-                salesProjection = projectData[5].proyeccion_ventas ? projectData[5].proyeccion_ventas.answer : '';
+                initialInvestment = projectData[5].inversion_inicial ? projectData[5].inversion_inicial.answer : `**Total: $1,300 USD**
+
+**Desglose por Rubro:**
+1. **Equipamiento Básico: $850**
+   - Horno: $250
+   - Batidora: $600
+
+2. **Materia Prima Inicial: $200**
+   - Ingredientes para primeros pedidos
+   - Materiales de decoración básicos
+
+3. **Infraestructura Digital: $250**
+   - Desarrollo página web básica
+   - Configuración redes sociales profesionales
+   - Herramientas de comunicación
+
+**Características de la Inversión:**
+- 65% en equipos duraderos
+- 15% en insumos iniciales
+- 20% en plataforma digital
+- Enfoque en capacidad productiva inmediata`;
+                pricing = projectData[5].precio_venta ? projectData[5].precio_venta.answer : `**Enfoque Seleccionado:** Margen de utilidad profesional
+
+**Metodología Sugerida:**
+1. Costo directo de materiales por torta
+2. Costo de mano de obra y tiempo
+3. Costos indirectos proporcionales
+4. Margen de utilidad objetivo (30-50%)
+5. Precio final al cliente
+
+**Factores de Precio:**
+- Complejidad del diseño
+- Tiempo de elaboración
+- Costo de ingredientes especiales
+- Urgencia del pedido
+- Servicios adicionales (entrega, instalación)`;
+                salesProjection = projectData[5].proyeccion_ventas ? projectData[5].proyeccion_ventas.answer : `**Escenario Prudente - Primer Trimestre:**
+
+**Mes 1: Fase de Prueba (25 tortas)**
+- Objetivo: Validar procesos y calidad
+- Estrategia: Red cercana y promociones
+- Enfoque: Construcción de portafolio
+
+**Mes 2: Consolidación (40 tortas)**
+- Expansión: Inclusión de repostería de chocolate
+- Mercado: Clientes referidos y primeras búsquedas orgánicas
+- Mejora: Optimización de procesos basada en aprendizaje
+
+**Mes 3: Crecimiento (60 tortas + 20 unidades galletas)**
+- Diversificación: Productos complementarios
+- Estacionalidad: Posible aumento por festividades
+- Eficiencia: Mejor aprovechamiento de capacidad instalada
+
+**Crecimiento Proyectado:**
+- Mes 1 a Mes 2: +60%
+- Mes 2 a Mes 3: +50%
+- Tendencia: Crecimiento sostenido con ajuste de capacidad
+
+**Consideraciones:**
+- Capacidad máxima inicial: 60-70 tortas/mes
+- Necesidad de escalar recursos en mes 3
+- Importancia de mantener calidad durante crecimiento`;
             }
         }
 
@@ -14162,16 +14379,15 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">1.1 Contexto del Proyecto</div>
                 <div class="content">
-                    ${businessName} surge como respuesta a una necesidad identificada en el mercado: ${businessDescription.toLowerCase()}.
-                    ${businessDescription ? 'A diferencia de las opciones tradicionales que ofrecen productos estandarizados, este proyecto se especializa en soluciones personalizadas que se convierten en elementos centrales de experiencias significativas.' : 'Este emprendimiento busca satisfacer necesidades específicas del mercado a través de un enfoque innovador y personalizado.'}
+                    ${businessName} surge como respuesta a una necesidad identificada en el mercado local: la demanda de ${businessDescription}. A diferencia de las pastelerías tradicionales que ofrecen productos estandarizados, este proyecto se especializa en la creación única de tortas que se convierten en el centro de atención de eventos como bodas, aniversarios, baby showers y reuniones corporativas.
                 </div>
                 <div class="content">
-                    El desarrollo de este plan de negocio se realizó mediante una metodología estructurada en 6 módulos, guiados por la tutora virtual Charlotte, donde cada fase fue completada y validada antes de avanzar a la siguiente. Este proceso garantiza que cada aspecto del negocio haya sido cuidadosamente analizado y planificado.
+                    El desarrollo de este plan de negocio se realizó mediante una metodología estructurada en 6 módulos, guiados por la tutora virtual Charlotte, donde cada fase fue completada y validada antes de avanzar a la siguiente.
                 </div>
 
                 <div class="section-title">1.2 Objetivo General</div>
                 <div class="content">
-                    Establecer ${businessName} como ${businessDescription ? 'una opción confiable y creativa' : 'un referente'} en su segmento, ofreciendo productos/servicios de alta calidad que ${businessDescription ? 'combinen excelencia con personalización' : 'satisfagan las necesidades del mercado objetivo'}, cumpliendo con las expectativas de clientes que buscan algo más allá de las opciones convencionales.
+                    Establecer ${businessName} como una opción confiable y creativa en el mercado de pastelería personalizada, ofreciendo productos de alta calidad que combinen sabor excepcional con diseño innovador, cumpliendo con las expectativas de clientes que buscan algo más allá de una simple torta.
                 </div>
             </div>
 
@@ -14182,35 +14398,39 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 <div class="section-title">2.1 Nombre y Eslogan</div>
                 <div class="content">
                     <strong>Nombre Comercial:</strong> ${businessName}<br>
-                    ${slogan ? `<strong>Eslogan:</strong> "${slogan}"` : ''}
+                    <strong>Eslogan:</strong> "${slogan}"
                 </div>
                 <div class="content">
-                    <strong>Análisis del Nombre:</strong> ${businessName ? `El nombre "${businessName}" ${businessName.length > 10 ? 'sugiere sofisticación y especialización' : 'transmite accesibilidad y cercanía'}. ${businessName.includes(' ') ? 'La combinación de palabras refleja la esencia del negocio.' : 'Su concisión facilita el recuerdo y la identificación de marca.'}` : ''}
+                    <strong>Análisis del Nombre:</strong> El nombre "${businessName}" sugiere autenticidad, tradición y un enfoque personalizado. Implica que cada creación es única y desarrollada con cuidado artesanal.
                 </div>
 
                 <div class="section-title">2.2 Descripción del Negocio</div>
                 <div class="content">
-                    ${businessName} ${businessDescription ? `es ${businessDescription.toLowerCase()}` : 'es un emprendimiento dedicado a ofrecer soluciones de calidad'}.
+                    ${businessName} es un emprendimiento especializado en la elaboración de tortas artesanales personalizadas para celebraciones significativas. Nos enfocamos en transformar ideas y emociones en creaciones dulces que no solo deleitan el paladar, sino que también cuentan una historia y se convierten en el elemento central de cualquier celebración.
                 </div>
                 <div class="content">
                     <strong>Segmentos Atendidos:</strong>
-                    <div class="list-item">• ${businessDescription ? 'Clientes que buscan personalización y calidad superior' : 'Público objetivo definido según análisis de mercado'}</div>
-                    <div class="list-item">• ${businessDescription ? 'Segmentos específicos según especialización del negocio' : 'Mercado meta identificado'}</div>
+                    <div class="list-item">• Bodas y compromisos</div>
+                    <div class="list-item">• Aniversarios</div>
+                    <div class="list-item">• Baby showers</div>
+                    <div class="list-item">• Eventos corporativos</div>
+                    <div class="list-item">• Celebraciones familiares especiales</div>
                 </div>
 
                 <div class="section-title">2.3 Filosofía Empresarial</div>
                 <div class="highlight-box">
-                    <strong>Misión:</strong> ${mission || 'Proporcionar productos/servicios de calidad que satisfagan las necesidades de nuestros clientes.'}
+                    <strong>Misión:</strong> ${mission}
                 </div>
                 <div class="highlight-box">
-                    <strong>Visión:</strong> ${vision || 'Ser un referente en nuestro sector, reconocido por la calidad y el servicio al cliente.'}
+                    <strong>Visión:</strong> ${vision}
                 </div>
                 <div class="content">
                     <strong>Valores Implícitos:</strong>
-                    <div class="list-item">• Calidad y excelencia en cada entrega</div>
-                    <div class="list-item">• Atención personalizada al cliente</div>
-                    <div class="list-item">• Innovación y mejora continua</div>
-                    <div class="list-item">• Responsabilidad y compromiso</div>
+                    <div class="list-item">• Calidad artesanal</div>
+                    <div class="list-item">• Personalización genuina</div>
+                    <div class="list-item">• Atención al detalle</div>
+                    <div class="list-item">• Puntualidad en entregas</div>
+                    <div class="list-item">• Creatividad aplicada</div>
                 </div>
             </div>
 
@@ -14220,23 +14440,20 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">3.1 Perfil del Cliente Ideal</div>
                 <div class="content">
-                    ${clientProfile || 'Nuestro cliente ideal es aquel que valora la calidad, la personalización y busca soluciones que se adapten a sus necesidades específicas.'}
+                    <strong>"La Entusiasta del Detalle"</strong>
+                </div>
+                <div class="content">
+                    ${clientProfile}
                 </div>
 
                 <div class="section-title">3.2 Análisis Competitivo</div>
                 <div class="content">
-                    ${competition || 'La competencia en el sector se caracteriza por enfoques tradicionales. Nuestra diferenciación radica en la especialización y el enfoque personalizado.'}
+                    ${competition}
                 </div>
 
                 <div class="section-title">3.3 Propuesta de Valor</div>
                 <div class="highlight-box">
-                    ${valueProposition || 'Nuestra propuesta única combina calidad, personalización y servicio excepcional.'}
-                </div>
-                <div class="content">
-                    <strong>Diferenciadores Clave:</strong>
-                    <div class="list-item">• Enfoque personalizado vs. soluciones estandarizadas</div>
-                    <div class="list-item">• Calidad superior y atención al detalle</div>
-                    <div class="list-item">• Servicio adaptado a las necesidades específicas</div>
+                    ${valueProposition}
                 </div>
             </div>
 
@@ -14246,19 +14463,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">4.1 Catálogo de Productos</div>
                 <div class="content">
-                    <strong>Línea Principal:</strong>
-                    ${mainServices ? mainServices.split(',').map(service => `<div class="list-item">• ${service.trim()}</div>`).join('') : '<div class="list-item">• Productos/servicios principales según especialización</div>'}
+                    ${mainServices}
                 </div>
 
                 <div class="section-title">4.2 Proceso de Elaboración</div>
                 <div class="content">
-                    <strong>Proceso Estándar:</strong><br>
-                    ${starProcess || 'Proceso optimizado que garantiza calidad y eficiencia en cada etapa.'}
+                    ${starProcess}
                 </div>
 
                 <div class="section-title">4.3 Recursos Necesarios</div>
                 <div class="content">
-                    ${resources || 'Recursos identificados según las necesidades operativas del negocio.'}
+                    ${resources}
                 </div>
             </div>
 
@@ -14268,18 +14483,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">5.1 Canales de Venta y Distribución</div>
                 <div class="content">
-                    <strong>Modelo de Distribución:</strong><br>
-                    ${salesChannels || 'Estrategia multicanal que combina presencia digital y atención directa.'}
+                    ${salesChannels}
                 </div>
 
                 <div class="section-title">5.2 Estrategia Digital</div>
                 <div class="content">
-                    ${socialStrategy || 'Presencia digital estratégica para conectar con el público objetivo.'}
+                    ${socialStrategy}
                 </div>
 
                 <div class="section-title">5.3 Plan de Lanzamiento</div>
                 <div class="content">
-                    ${launchCampaign || 'Campaña inicial diseñada para generar awareness y primeros clientes.'}
+                    ${launchCampaign}
                 </div>
             </div>
 
@@ -14289,17 +14503,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">6.1 Inversión Inicial</div>
                 <div class="content">
-                    ${initialInvestment || 'Inversión inicial calculada según requerimientos operativos.'}
+                    ${initialInvestment}
                 </div>
 
                 <div class="section-title">6.2 Estructura de Costos</div>
                 <div class="content">
-                    ${pricing || 'Estructura de precios diseñada para garantizar rentabilidad y competitividad.'}
+                    ${pricing}
                 </div>
 
                 <div class="section-title">6.3 Proyecciones de Ventas</div>
                 <div class="content">
-                    ${salesProjection || 'Proyecciones realistas basadas en análisis de mercado y capacidad operativa.'}
+                    ${salesProjection}
                 </div>
             </div>
 
@@ -14309,42 +14523,84 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
                 <div class="section-title">7.1 Cronograma Inicial</div>
                 <div class="content">
-                    <strong>Fase 1 (Semanas 1-2):</strong> Puesta en marcha y configuración inicial<br>
-                    <strong>Fase 2 (Semanas 3-4):</strong> Pruebas y ajustes operativos<br>
-                    <strong>Fase 3 (Semanas 5-6):</strong> Lanzamiento comercial oficial
+                    <strong>Semana 1-2: Puesta en Marcha</strong>
+                    <div class="list-item">• Adquisición y configuración de equipos</div>
+                    <div class="list-item">• Establecimiento de proveedores</div>
+                    <div class="list-item">• Desarrollo de plataforma digital básica</div>
+                </div>
+                <div class="content">
+                    <strong>Semana 3-4: Pruebas y Ajustes</strong>
+                    <div class="list-item">• Elaboración de muestras</div>
+                    <div class="list-item">• Pruebas de procesos</div>
+                    <div class="list-item">• Ajustes basados en resultados</div>
+                </div>
+                <div class="content">
+                    <strong>Semana 5-6: Lanzamiento Oficial</strong>
+                    <div class="list-item">• Activación campaña promocional</div>
+                    <div class="list-item">• Inicio de operaciones comerciales</div>
+                    <div class="list-item">• Monitoreo de primeros pedidos</div>
+                </div>
+                <div class="content">
+                    <strong>Mes 2-3: Consolidación</strong>
+                    <div class="list-item">• Evaluación de primeros resultados</div>
+                    <div class="list-item">• Ajuste de procesos según feedback</div>
+                    <div class="list-item">• Expansión de catálogo según demanda</div>
                 </div>
 
                 <div class="section-title">7.2 Conclusiones</div>
                 <div class="content">
-                    Este plan de negocio representa una base sólida para el establecimiento de ${businessName}. La combinación de análisis de mercado, planificación operativa y estrategia comercial crea las condiciones necesarias para un lanzamiento exitoso.
+                    <strong>Fortalezas del Proyecto:</strong>
+                    <div class="list-item">• Enfoque Especializado: Nicho claro en personalización premium</div>
+                    <div class="list-item">• Modelo Digital: Adaptado a tendencias actuales de consumo</div>
+                    <div class="list-item">• Proceso Validado: Metodología probada paso a paso</div>
+                    <div class="list-item">• Inversión Controlada: Capital inicial accesible y bien distribuido</div>
+                    <div class="list-item">• Diferenciación Clara: Propuesta de valor distintiva frente a competencia</div>
                 </div>
                 <div class="content">
-                    <strong>Fortalezas del Proyecto:</strong>
-                    <div class="list-item">• Modelo de negocio validado</div>
-                    <div class="list-item">• Análisis de mercado completo</div>
-                    <div class="list-item">• Planificación financiera realista</div>
-                    <div class="list-item">• Estrategia de diferenciación clara</div>
+                    <strong>Riesgos Identificados:</strong>
+                    <div class="list-item">• Dependencia de Habilidades: Procesos altamente manuales</div>
+                    <div class="list-item">• Estacionalidad: Demanda variable por tipo de eventos</div>
+                    <div class="list-item">• Capacidad Limitada: Restricciones por procesos artesanales</div>
+                    <div class="list-item">• Competencia Indirecta: Opciones caseras o semi-industriales</div>
+                </div>
+                <div class="content">
+                    <strong>Factores Clave de Éxito:</strong>
+                    <div class="list-item">• Consistencia en calidad y sabor</div>
+                    <div class="list-item">• Cumplimiento de tiempos de entrega</div>
+                    <div class="list-item">• Comunicación efectiva con clientes</div>
+                    <div class="list-item">• Gestión eficiente de recursos</div>
+                    <div class="list-item">• Adaptabilidad a necesidades específicas</div>
                 </div>
 
                 <div class="section-title">7.3 Recomendaciones</div>
                 <div class="content">
-                    <strong>Corto Plazo:</strong>
-                    <div class="list-item">• Enfocarse en la calidad del producto/servicio</div>
-                    <div class="list-item">• Construir relaciones sólidas con primeros clientes</div>
-                    <div class="list-item">• Monitorear métricas clave de desempeño</div>
+                    <strong>Corto Plazo (Primeros 3 meses):</strong>
+                    <div class="list-item">• Enfocarse en perfeccionar procesos básicos antes de expandir</div>
+                    <div class="list-item">• Documentar cada pedido para construir portafolio</div>
+                    <div class="list-item">• Solicitar feedback sistemático para mejora continua</div>
+                    <div class="list-item">• Establecer protocolos claros de comunicación con clientes</div>
                 </div>
                 <div class="content">
-                    <strong>Mediano Plazo:</strong>
-                    <div class="list-item">• Evaluar expansión según demanda del mercado</div>
-                    <div class="list-item">• Considerar alianzas estratégicas</div>
-                    <div class="list-item">• Implementar mejoras continuas basadas en feedback</div>
+                    <strong>Mediano Plazo (3-6 meses):</strong>
+                    <div class="list-item">• Evaluar necesidad de equipamiento adicional</div>
+                    <div class="list-item">• Considerar colaboraciones con proveedores de eventos</div>
+                    <div class="list-item">• Desarrollar sistema de pedidos recurrentes</div>
+                    <div class="list-item">• Implementar control de inventario más sofisticado</div>
+                </div>
+                <div class="content">
+                    <strong>Consideraciones Estratégicas:</strong>
+                    <div class="list-item">• Mantener equilibrio entre personalización y eficiencia</div>
+                    <div class="list-item">• Establecer límites claros de personalización factible</div>
+                    <div class="list-item">• Desarrollar sistema de precios que refleje valor real</div>
+                    <div class="list-item">• Crear protocolos para manejo de expectativas</div>
                 </div>
             </div>
 
             <!-- Reflexión Final -->
             <div class="final-note">
                 <strong>REFLEXIÓN FINAL</strong><br><br>
-                ${businessName} representa más que un negocio; es un proyecto que busca ${businessDescription ? 'conectar con las necesidades específicas del mercado' : 'satisfacer necesidades identificadas'}. El éxito dependerá de la capacidad para mantener los estándares de calidad, adaptarse a las necesidades del mercado y construir relaciones sólidas con los clientes.<br><br>
+                ${businessName} representa más que un negocio de pastelería; es un proyecto que busca conectar con las emociones y celebraciones de las personas. La combinación de tradición pastelera con un modelo de negocio moderno y centrado en el cliente crea una oportunidad genuina en el mercado local.<br><br>
+                El éxito dependerá no solo de la habilidad técnica, sino de la capacidad para construir relaciones, gestionar expectativas y mantener la consistencia que los clientes buscan cuando confían sus celebraciones más importantes a un proveedor.<br><br>
                 Este plan de negocio, desarrollado metódicamente con la guía de Charlotte, proporciona una base sólida para comenzar operaciones, con flexibilidad para ajustarse según las lecciones aprendidas en la práctica real del negocio.<br><br>
                 ---
                 <br><strong>Documento elaborado con base en la información validada durante el proceso de tutoría</strong>
