@@ -13622,7 +13622,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
     function extractBusinessName() {
         // Extract business name from student responses in module 1
-        if (!projectData[1]) return null;
+        if (!projectData || !projectData[1] || !Array.isArray(projectData[1])) return null;
         
         const conversations = projectData[1];
         
@@ -13695,7 +13695,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 break;
         }
         
-        if (!projectData[module]) return null;
+        if (!projectData || !projectData[module] || !Array.isArray(projectData[module])) return null;
         
         // Search through AI responses in the specified module
         const conversations = projectData[module];
