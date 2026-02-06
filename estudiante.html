@@ -13900,57 +13900,9 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         let clientProfile = '', competition = '', valueProposition = '';
         if (marketAnalysis) {
             if (projectData && projectData[2]) {
-                clientProfile = projectData[2].cliente_ideal ? projectData[2].cliente_ideal.answer : `"La Entusiasta del Detalle"
-
-**Características Demográficas:**
-- Género: Femenino
-- Edad: 24 a 50 años
-- Situación: Estilo de vida social activo
-- Eventos frecuentes: Cumpleaños, aniversarios, baby showers
-
-**Características Psicológicas:**
-- Valora la estética y presentación
-- Busca productos que cuenten una historia
-- Considera la torta como pieza central del evento
-- Disposición a invertir en calidad y exclusividad
-- Aprecia el proceso de personalización
-
-**Necesidades Específicas:**
-1. Productos que reflejen personalidad o temática del evento
-2. Atención personalizada durante el proceso de diseño
-3. Calidad consistente en sabor y presentación
-4. Fiabilidad en tiempos de entrega
-5. Experiencia de compra conveniente`;
-                competition = projectData[2].competencia ? projectData[2].competencia.answer : `**Competidor Referencial: "Pan y Más"**
-
-**Modelo Competitivo:**
-- Producción masiva
-- Múltiples sucursales
-- Enfoque en volumen
-- Productos estandarizados
-
-**Ventaja Competitiva de "${businessName}":**
-Especialización en pasteles personalizados y de autor que requieren:
-- Atención artesanal individualizada
-- Procesos creativos no escalables industrialmente
-- Interacción directa con el cliente
-- Flexibilidad en diseño y ejecución
-
-**Espacio de Oportunidad:**
-El modelo de producción masiva de la competencia no puede cubrir eficientemente el nicho de personalización extrema, creando una oportunidad para negocios especializados como ${businessName}.`;
-                valueProposition = projectData[2].propuesta_valor ? projectData[2].propuesta_valor.answer : `**Fórmula Central:** "El Pastel de Tus Sueños, Creado por Ti y Entregado en Tu Puerta"
-
-**Componentes de Valor:**
-1. **Experiencia Creativa:** El cliente participa activamente en el diseño
-2. **Comodidad Premium:** Servicio de entrega a domicilio
-3. **Exclusividad:** Cada producto es único e irrepetible
-4. **Calidad Garantizada:** Enfoque artesanal con estándares altos
-
-**Diferenciadores Clave:**
-- Proceso colaborativo de diseño vs. menú predefinido
-- Atención personalizada vs. servicio estandarizado
-- Especialización en eventos vs. oferta generalista
-- Entrega puerta a puerta vs. recogida en tienda`;
+                clientProfile = projectData[2].cliente_ideal ? projectData[2].cliente_ideal.answer : `Nuestro cliente ideal es aquel que valora la calidad, la personalización y busca soluciones que se adapten a sus necesidades específicas. Es un cliente que entiende el valor de los productos/servicios diferenciados y está dispuesto a invertir en experiencias únicas.`;
+                competition = projectData[2].competencia ? projectData[2].competencia.answer : `La competencia en el sector se caracteriza por enfoques tradicionales centrados en volumen y estandarización. Nuestra diferenciación radica en la especialización, la atención personalizada y el enfoque en la calidad artesanal.`;
+                valueProposition = projectData[2].propuesta_valor ? projectData[2].propuesta_valor.answer : `Nuestra propuesta única combina calidad superior, personalización genuina y un servicio excepcional que va más allá de las expectativas convencionales.`;
             }
         }
 
@@ -13958,67 +13910,15 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
         let mainServices = '', starProcess = '', resources = '';
         if (operations) {
             if (projectData && projectData[3]) {
-                mainServices = projectData[3].servicios_principales ? projectData[3].servicios_principales.answer : `**Línea Principal - Tortas Personalizadas:**
-1. **Tortas de Crema Decorada**
-   - Buttercream de alta calidad
-   - Decoración con manga pastelera
-   - Temáticas personalizables
+                mainServices = projectData[3].servicios_principales ? projectData[3].servicios_principales.answer : `**Línea Principal de Productos/Servicios:**
 
-2. **Tortas de Fondant**
-   - Cubierta lisa y profesional
-   - Figuras y detalles modelados
-   - Ideal para diseños complejos
+Nuestros productos/servicios principales están diseñados para satisfacer las necesidades específicas de nuestro mercado objetivo, combinando calidad, innovación y personalización.`;
+                starProcess = projectData[3].proceso_estrella ? projectData[3].proceso_estrella.answer : `**Proceso Principal:**
 
-3. **Tortas con Láminas Comestibles**
-   - Impresión fotográfica comestible
-   - Logotipos corporativos
-   - Retratos y diseños digitales
+Contamos con un proceso optimizado que garantiza la calidad y consistencia en cada entrega. Este proceso ha sido desarrollado considerando las mejores prácticas del sector y las necesidades específicas de nuestros clientes.`;
+                resources = projectData[3].recursos_necesarios ? projectData[3].recursos_necesarios.answer : `**Recursos Identificados:**
 
-4. **Cake Box**
-   - Porciones individuales
-   - Ideal para muestras o eventos grandes
-   - Mismo nivel de personalización`;
-                starProcess = projectData[3].proceso_estrella ? projectData[3].proceso_estrella.answer : `**Para Tortas de Crema (Producto Estrella):**
-
-**Fase 1: Preparación (30 minutos total)**
-- Mise en place: 15 minutos (organización y pesado de ingredientes)
-- Batido: 15 minutos (preparación de masas y cremas)
-
-**Fase 2: Cocción (60 minutos)**
-- Horneado controlado
-- Monitoreo de temperatura y tiempo
-
-**Fase 3: Post-producción (90-120 minutos)**
-- Enfriado: 60 minutos mínimo (crítico para estructura)
-- Decorado: 20-30 minutos (aplicación de cremas y detalles)
-
-**Para Tortas de Fondant:**
-- Tiempo adicional de decorado: 2-3 horas
-- Proceso especializado de cubierta y modelado
-
-**Características del Proceso:**
-- Tiempo total promedio: 3-4 horas por torta
-- Producción limitada por procesos manuales
-- Control de calidad en cada etapa
-- Adaptabilidad a modificaciones de último momento`;
-                resources = projectData[3].recursos_necesarios ? projectData[3].recursos_necesarios.answer : `**Categorización según información:**
-
-**A. Inversión Fija (Equipos Duraderos):**
-- Horno profesional
-- Batidora industrial
-- Utensilios especializados (moldes, espátulas, mangas)
-- Mobiliario básico de trabajo
-
-**B. Insumos de Consumo (Materia Prima):**
-- Ingredientes básicos (harinas, azúcares, huevos)
-- Ingredientes premium (chocolates, frutas, esencias)
-- Materiales de decoración (colorantes, fondant, láminas)
-- Empaques y presentación
-
-**C. Recursos Digitales:**
-- Plataforma de pedidos online
-- Herramientas de diseño para presentación a clientes
-- Sistema de comunicación (WhatsApp Business)`;
+Hemos identificado los recursos necesarios para operar eficientemente, incluyendo equipos, insumos, tecnología y talento humano especializado.`;
             }
         }
 
@@ -14026,62 +13926,15 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
         let salesChannels = '', socialStrategy = '', launchCampaign = '';
         if (marketing) {
             if (projectData && projectData[4]) {
-                salesChannels = projectData[4].canales_venta ? projectData[4].canales_venta.answer : `**Modelo Híbrido Digital-Directo:**
+                salesChannels = projectData[4].canales_venta ? projectData[4].canales_venta.answer : `**Estrategia Multicanal:**
 
-**1. Canales Digitales Principales:**
-- **Redes Sociales:** Instagram y Facebook como vitrina principal
-- **Tienda Online:** Plataforma integrada para pedidos
-- **WhatsApp Business:** Canal oficial de comunicación
+Implementamos una estrategia de distribución que combina canales digitales y tradicionales para maximizar el alcance y facilitar el acceso a nuestros productos/servicios.`;
+                socialStrategy = projectData[4].estrategia_redes ? projectData[4].estrategia_redes.answer : `**Presencia Digital Estratégica:**
 
-**2. Proceso de Venta:**
-- Consulta inicial (digital o telefónica)
-- Presentación de propuestas de diseño
-- Confirmación de pedido y pago
-- Producción programada
-- Entrega a domicilio
+Desarrollamos una presencia digital sólida que nos permite conectar con nuestro público objetivo, compartir nuestro valor y construir una comunidad alrededor de nuestra marca.`;
+                launchCampaign = projectData[4].campaña_lanzamiento ? projectData[4].campaña_lanzamiento.answer : `**Campaña de Lanzamiento:**
 
-**3. Logística de Entrega:**
-- Servicio propio de entrega
-- Horarios coordinados con cliente
-- Empaque especializado para transporte
-- Protocolo de instalación básica en destino`;
-                socialStrategy = projectData[4].estrategia_redes ? projectData[4].estrategia_redes.answer : `**Objetivo:** Construir presencia visual y confianza online
-
-**Plataformas y Contenidos:**
-
-**Instagram (Visual/Marca):**
-- Fotos profesionales de productos terminados
-- Reels mostrando procesos de elaboración
-- Historias con avances de pedidos
-- Testimonios de clientes satisfechos
-
-**Facebook (Comunidad/Educación):**
-- Recetas básicas para hacer en casa
-- Consejos para planificación de eventos
-- Comunidad de clientes recurrentes
-- Anuncios segmentados por intereses
-
-**Contenidos Específicos:**
-- "Antes y después" de diseños
-- Tutoriales de decoración básica
-- Historias detrás de pedidos especiales
-- Tips de conservación y presentación`;
-                launchCampaign = projectData[4].campaña_lanzamiento ? projectData[4].campaña_lanzamiento.answer : `**Campaña: "Día de Apertura Especial"**
-
-**Oferta Promocional:**
-"Por la compra de cualquier Torta Personalizada, te regalamos una Caja de 4 Cupcakes de sorpresa. ¡Una dulce bienvenida para celebrar juntos!"
-
-**Elementos de la Campaña:**
-1. **Período Limitado:** Primeros 30 pedidos
-2. **Condición:** Aplicable a tortas personalizadas
-3. **Valor Añadido:** Cupcakes de sorpresa (sabores variados)
-4. **Objetivo:** Generar primeros clientes y testimonios
-
-**Acciones Complementarias:**
-- Publicación en redes sociales con hashtag especial
-- Muestras gratuitas a influenciadores locales
-- Colaboraciones con planners de eventos
-- Registro en directorios de servicios para bodas`;
+Hemos diseñado una campaña inicial que busca generar awareness, atraer primeros clientes y posicionar nuestra marca en el mercado.`;
             }
         }
 
@@ -14089,68 +13942,15 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
         let initialInvestment = '', pricing = '', salesProjection = '';
         if (finance) {
             if (projectData && projectData[5]) {
-                initialInvestment = projectData[5].inversion_inicial ? projectData[5].inversion_inicial.answer : `**Total: $1,300 USD**
+                initialInvestment = projectData[5].inversion_inicial ? projectData[5].inversion_inicial.answer : `**Inversión Inicial Estimada:**
 
-**Desglose por Rubro:**
-1. **Equipamiento Básico: $850**
-   - Horno: $250
-   - Batidora: $600
+La inversión inicial ha sido calculada considerando todos los aspectos necesarios para iniciar operaciones de manera eficiente y segura.`;
+                pricing = projectData[5].precio_venta ? projectData[5].precio_venta.answer : `**Estructura de Precios:**
 
-2. **Materia Prima Inicial: $200**
-   - Ingredientes para primeros pedidos
-   - Materiales de decoración básicos
+Nuestra estrategia de precios está diseñada para garantizar rentabilidad mientras mantenemos la competitividad y el valor percibido por nuestros clientes.`;
+                salesProjection = projectData[5].proyeccion_ventas ? projectData[5].proyeccion_ventas.answer : `**Proyecciones de Ventas:**
 
-3. **Infraestructura Digital: $250**
-   - Desarrollo página web básica
-   - Configuración redes sociales profesionales
-   - Herramientas de comunicación
-
-**Características de la Inversión:**
-- 65% en equipos duraderos
-- 15% en insumos iniciales
-- 20% en plataforma digital
-- Enfoque en capacidad productiva inmediata`;
-                pricing = projectData[5].precio_venta ? projectData[5].precio_venta.answer : `**Enfoque Seleccionado:** Margen de utilidad profesional
-
-**Metodología Sugerida:**
-1. Costo directo de materiales por torta
-2. Costo de mano de obra y tiempo
-3. Costos indirectos proporcionales
-4. Margen de utilidad objetivo (30-50%)
-5. Precio final al cliente
-
-**Factores de Precio:**
-- Complejidad del diseño
-- Tiempo de elaboración
-- Costo de ingredientes especiales
-- Urgencia del pedido
-- Servicios adicionales (entrega, instalación)`;
-                salesProjection = projectData[5].proyeccion_ventas ? projectData[5].proyeccion_ventas.answer : `**Escenario Prudente - Primer Trimestre:**
-
-**Mes 1: Fase de Prueba (25 tortas)**
-- Objetivo: Validar procesos y calidad
-- Estrategia: Red cercana y promociones
-- Enfoque: Construcción de portafolio
-
-**Mes 2: Consolidación (40 tortas)**
-- Expansión: Inclusión de repostería de chocolate
-- Mercado: Clientes referidos y primeras búsquedas orgánicas
-- Mejora: Optimización de procesos basada en aprendizaje
-
-**Mes 3: Crecimiento (60 tortas + 20 unidades galletas)**
-- Diversificación: Productos complementarios
-- Estacionalidad: Posible aumento por festividades
-- Eficiencia: Mejor aprovechamiento de capacidad instalada
-
-**Crecimiento Proyectado:**
-- Mes 1 a Mes 2: +60%
-- Mes 2 a Mes 3: +50%
-- Tendencia: Crecimiento sostenido con ajuste de capacidad
-
-**Consideraciones:**
-- Capacidad máxima inicial: 60-70 tortas/mes
-- Necesidad de escalar recursos en mes 3
-- Importancia de mantener calidad durante crecimiento`;
+Las proyecciones han sido elaboradas considerando el análisis de mercado, la capacidad operativa y las tendencias del sector.`;
             }
         }
 
@@ -14401,20 +14201,17 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                     <strong>Eslogan:</strong> "${slogan}"
                 </div>
                 <div class="content">
-                    <strong>Análisis del Nombre:</strong> El nombre "${businessName}" sugiere autenticidad, tradición y un enfoque personalizado. Implica que cada creación es única y desarrollada con cuidado artesanal.
+                    <strong>Análisis del Nombre:</strong> ${businessName ? `El nombre "${businessName}" ${businessName.length > 10 ? 'sugiere sofisticación y especialización' : 'transmite accesibilidad y cercanía'}. ${businessName.includes(' ') ? 'La combinación de palabras refleja la esencia del negocio.' : 'Su concisión facilita el recuerdo y la identificación de marca.'}` : ''}
                 </div>
 
                 <div class="section-title">2.2 Descripción del Negocio</div>
                 <div class="content">
-                    ${businessName} es un emprendimiento especializado en la elaboración de tortas artesanales personalizadas para celebraciones significativas. Nos enfocamos en transformar ideas y emociones en creaciones dulces que no solo deleitan el paladar, sino que también cuentan una historia y se convierten en el elemento central de cualquier celebración.
+                    ${businessName} ${businessDescription ? `es ${businessDescription.toLowerCase()}` : 'es un emprendimiento dedicado a ofrecer soluciones de calidad'}.
                 </div>
                 <div class="content">
                     <strong>Segmentos Atendidos:</strong>
-                    <div class="list-item">• Bodas y compromisos</div>
-                    <div class="list-item">• Aniversarios</div>
-                    <div class="list-item">• Baby showers</div>
-                    <div class="list-item">• Eventos corporativos</div>
-                    <div class="list-item">• Celebraciones familiares especiales</div>
+                    <div class="list-item">• ${businessDescription ? 'Clientes que buscan personalización y calidad superior' : 'Público objetivo definido según análisis de mercado'}</div>
+                    <div class="list-item">• ${businessDescription ? 'Segmentos específicos según especialización del negocio' : 'Mercado meta identificado'}</div>
                 </div>
 
                 <div class="section-title">2.3 Filosofía Empresarial</div>
@@ -14426,11 +14223,10 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                 </div>
                 <div class="content">
                     <strong>Valores Implícitos:</strong>
-                    <div class="list-item">• Calidad artesanal</div>
-                    <div class="list-item">• Personalización genuina</div>
-                    <div class="list-item">• Atención al detalle</div>
-                    <div class="list-item">• Puntualidad en entregas</div>
-                    <div class="list-item">• Creatividad aplicada</div>
+                    <div class="list-item">• Calidad y excelencia en cada entrega</div>
+                    <div class="list-item">• Atención personalizada al cliente</div>
+                    <div class="list-item">• Innovación y mejora continua</div>
+                    <div class="list-item">• Responsabilidad y compromiso</div>
                 </div>
             </div>
 
@@ -14439,9 +14235,6 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                 <div class="chapter-title">3. ESTUDIO DE MERCADO</div>
 
                 <div class="section-title">3.1 Perfil del Cliente Ideal</div>
-                <div class="content">
-                    <strong>"La Entusiasta del Detalle"</strong>
-                </div>
                 <div class="content">
                     ${clientProfile}
                 </div>
@@ -14550,7 +14343,7 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                 <div class="section-title">7.2 Conclusiones</div>
                 <div class="content">
                     <strong>Fortalezas del Proyecto:</strong>
-                    <div class="list-item">• Enfoque Especializado: Nicho claro en personalización premium</div>
+                    <div class="list-item">• Enfoque Especializado: Nicho claro según especialización del negocio</div>
                     <div class="list-item">• Modelo Digital: Adaptado a tendencias actuales de consumo</div>
                     <div class="list-item">• Proceso Validado: Metodología probada paso a paso</div>
                     <div class="list-item">• Inversión Controlada: Capital inicial accesible y bien distribuido</div>
@@ -14558,14 +14351,14 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                 </div>
                 <div class="content">
                     <strong>Riesgos Identificados:</strong>
-                    <div class="list-item">• Dependencia de Habilidades: Procesos altamente manuales</div>
-                    <div class="list-item">• Estacionalidad: Demanda variable por tipo de eventos</div>
-                    <div class="list-item">• Capacidad Limitada: Restricciones por procesos artesanales</div>
-                    <div class="list-item">• Competencia Indirecta: Opciones caseras o semi-industriales</div>
+                    <div class="list-item">• Dependencia de Habilidades: Procesos que requieren especialización</div>
+                    <div class="list-item">• Estacionalidad: Demanda variable según factores del mercado</div>
+                    <div class="list-item">• Capacidad Limitada: Restricciones por procesos especializados</div>
+                    <div class="list-item">• Competencia Indirecta: Opciones alternativas del mercado</div>
                 </div>
                 <div class="content">
                     <strong>Factores Clave de Éxito:</strong>
-                    <div class="list-item">• Consistencia en calidad y sabor</div>
+                    <div class="list-item">• Consistencia en calidad del producto/servicio</div>
                     <div class="list-item">• Cumplimiento de tiempos de entrega</div>
                     <div class="list-item">• Comunicación efectiva con clientes</div>
                     <div class="list-item">• Gestión eficiente de recursos</div>
@@ -14576,15 +14369,15 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
                 <div class="content">
                     <strong>Corto Plazo (Primeros 3 meses):</strong>
                     <div class="list-item">• Enfocarse en perfeccionar procesos básicos antes de expandir</div>
-                    <div class="list-item">• Documentar cada pedido para construir portafolio</div>
+                    <div class="list-item">• Documentar cada proyecto para construir portafolio</div>
                     <div class="list-item">• Solicitar feedback sistemático para mejora continua</div>
                     <div class="list-item">• Establecer protocolos claros de comunicación con clientes</div>
                 </div>
                 <div class="content">
                     <strong>Mediano Plazo (3-6 meses):</strong>
                     <div class="list-item">• Evaluar necesidad de equipamiento adicional</div>
-                    <div class="list-item">• Considerar colaboraciones con proveedores de eventos</div>
-                    <div class="list-item">• Desarrollar sistema de pedidos recurrentes</div>
+                    <div class="list-item">• Considerar colaboraciones estratégicas</div>
+                    <div class="list-item">• Desarrollar sistema de clientes recurrentes</div>
                     <div class="list-item">• Implementar control de inventario más sofisticado</div>
                 </div>
                 <div class="content">
@@ -14600,8 +14393,7 @@ El modelo de producción masiva de la competencia no puede cubrir eficientemente
             <div class="final-note">
                 <strong>REFLEXIÓN FINAL</strong><br><br>
                 ${businessName} representa más que un negocio de pastelería; es un proyecto que busca conectar con las emociones y celebraciones de las personas. La combinación de tradición pastelera con un modelo de negocio moderno y centrado en el cliente crea una oportunidad genuina en el mercado local.<br><br>
-                El éxito dependerá no solo de la habilidad técnica, sino de la capacidad para construir relaciones, gestionar expectativas y mantener la consistencia que los clientes buscan cuando confían sus celebraciones más importantes a un proveedor.<br><br>
-                Este plan de negocio, desarrollado metódicamente con la guía de Charlotte, proporciona una base sólida para comenzar operaciones, con flexibilidad para ajustarse según las lecciones aprendidas en la práctica real del negocio.<br><br>
+                El éxito dependerá no solo de la habilidad té; es un proyecto que busca ${businessDescription ? 'conectar con las necesidades específicas del mercado' : 'satisfacer necesidades identificadas'}. El éxito dependerá de la capacidad para mantener los estándares de calidad, adaptarse a las necesidades del mercado y construir relaciones sólidas con los clientes
                 ---
                 <br><strong>Documento elaborado con base en la información validada durante el proceso de tutoría</strong>
                 <br><strong>Versión Final - ${currentDate}</strong>
