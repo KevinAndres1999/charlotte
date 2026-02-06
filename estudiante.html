@@ -13728,40 +13728,43 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function extractBusinessName() {
-        // Extract business name from student responses and AI responses in module 1
-        if (!projectData || !projectData[1] || !Array.isArray(projectData[1])) return null;
-        
-        const conversations = projectData[1];
-        
-        // Look for business name in both user and AI responses
-        for (let conv of conversations) {
+        // Extract business name from projectData first, then from conversations
+        if (projectData && projectData[1] && projectData[1].nombre_negocio && projectData[1].nombre_negocio.answer) {
+            return projectData[1].nombre_negocio.answer;
+        }
+
+        // Fallback: extract from projectConversations
+        if (!projectConversations || !Array.isArray(projectConversations)) return null;
+
+        // Look for business name in conversations
+        for (let conv of projectConversations) {
             // Check user responses first
-            if (conv.user) {
+            if (conv.role === 'user' && conv.content) {
                 // Look for quoted text
-                const quotes = conv.user.match(/"([^"]+)"/g);
+                const quotes = conv.content.match(/"([^"]+)"/g);
                 if (quotes && quotes.length > 0) {
                     return quotes[0].replace(/"/g, '');
                 }
-                
+
                 // Look for naming patterns
                 const namePatterns = /(se llama|llamarse|nombre.*es|mi negocio.*es|negocio.*es)\s*([^.!?]+)/i;
-                const match = conv.user.match(namePatterns);
+                const match = conv.content.match(namePatterns);
                 if (match) {
                     return match[2].trim();
                 }
             }
-            
+
             // Check AI responses
-            if (conv.ai) {
+            if (conv.role === 'assistant' && conv.content) {
                 // Look for AI confirming the name
                 const aiPatterns = /(tu negocio se llamará|el nombre.*será|negocio.*"|llamarse)\s*["']([^"']+)["']/i;
-                const match = conv.ai.match(aiPatterns);
+                const match = conv.content.match(aiPatterns);
                 if (match) {
                     return match[2].trim();
                 }
-                
+
                 // Look for quoted names in AI responses
-                const quotes = conv.ai.match(/"([^"]+)"/g);
+                const quotes = conv.content.match(/"([^"]+)"/g);
                 if (quotes && quotes.length > 0) {
                     // Filter out common phrases, look for business-like names
                     for (let quote of quotes) {
@@ -13773,55 +13776,163 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 }
             }
         }
-        
+
         return null;
     }
 
     function extractBusinessInfo(type) {
-        // Extract business information from projectData conversations
+        // Extract business information from projectData fields and conversations
         let module = 1;
-        
+        let fieldKeywords = [];
+
         switch(type) {
             case 'description':
+                module = 1;
+                fieldKeywords = ['descripcion', 'description', 'business_description'];
+                break;
             case 'mission':
+                module = 1;
+                fieldKeywords = ['mision', 'mission', 'business_mission'];
+                break;
             case 'vision':
+                module = 1;
+                fieldKeywords = ['vision', 'business_vision'];
+                break;
             case 'introduction':
                 module = 1;
+                fieldKeywords = ['nombre_negocio', 'name', 'business_name'];
                 break;
             case 'market_analysis':
                 module = 2;
+                fieldKeywords = ['cliente_ideal', 'competencia', 'propuesta_valor', 'market', 'mercado', 'analysis', 'analisis'];
                 break;
             case 'operations':
                 module = 3;
+                fieldKeywords = ['servicios_principales', 'proceso_estrella', 'recursos_necesarios', 'operations', 'operaciones', 'process', 'proceso'];
                 break;
             case 'marketing':
                 module = 4;
+                fieldKeywords = ['canales_venta', 'estrategia_redes', 'campaña_lanzamiento', 'marketing', 'mercadeo', 'strategy', 'estrategia'];
                 break;
             case 'finance':
             case 'conclusion':
                 module = 5;
+                fieldKeywords = ['inversion_inicial', 'precio_venta', 'proyeccion_ventas', 'finance', 'finanzas', 'financial', 'conclusion', 'conclusion'];
                 break;
         }
-        
-        if (!projectData || !projectData[module] || !Array.isArray(projectData[module])) return null;
-        
-        // Collect ALL relevant responses from this module and combine them
-        const conversations = projectData[module];
-        let relevantResponses = [];
-        
-        conversations.forEach(conv => {
-            if (conv.ai && conv.ai.length > 20) { // Include substantial AI responses
-                relevantResponses.push(conv.ai);
+
+        // First try to extract from projectData fields
+        if (projectData && projectData[module]) {
+            const fields = Object.keys(projectData[module]);
+
+            // Find fields that match the keywords
+            for (let keyword of fieldKeywords) {
+                const matchingField = fields.find(field => field.toLowerCase().includes(keyword.toLowerCase()));
+                if (matchingField && projectData[module][matchingField].answer) {
+                    return projectData[module][matchingField].answer;
+                }
             }
-            if (conv.user && conv.user.length > 10) { // Include student input
-                relevantResponses.push(conv.user);
+
+            // If no specific field found, combine all answers from the module
+            const answers = Object.values(projectData[module]).map(field => field.answer).filter(answer => answer);
+            if (answers.length > 0) {
+                const content = answers.join(' ').substring(0, 1500);
+                return content;
             }
-        });
-        
-        // Combine ALL responses into coherent content (limit to reasonable length)
-        const content = relevantResponses.join(' ').substring(0, 1500) + (relevantResponses.length > 0 ? '...' : '');
-        
-        return content || null;
+        }
+
+        // Fallback: extract from conversations (rough approximation by conversation segments)
+        if (projectConversations && Array.isArray(projectConversations)) {
+            // Divide conversations roughly by module (this is approximate)
+            const conversationsPerModule = 20; // Rough estimate
+            const startIndex = (module - 1) * conversationsPerModule;
+            const endIndex = module * conversationsPerModule;
+            const moduleConversations = projectConversations.slice(startIndex, endIndex);
+
+            let relevantResponses = [];
+
+            moduleConversations.forEach(conv => {
+                if (conv.role === 'assistant' && conv.content && conv.content.length > 20) {
+                    relevantResponses.push(conv.content);
+                }
+                if (conv.role === 'user' && conv.content && conv.content.length > 10) {
+                    relevantResponses.push(conv.content);
+                }
+            });
+
+            if (relevantResponses.length > 0) {
+                const content = relevantResponses.join(' ').substring(0, 1500) + '...';
+                return content;
+            }
+        }
+
+        return null;
+    }
+
+    // Funciones para extraer información del negocio
+    function extractBusinessName() {
+        if (projectData && projectData[1] && projectData[1].nombre_negocio && projectData[1].nombre_negocio.answer) {
+            return projectData[1].nombre_negocio.answer;
+        }
+        return null;
+    }
+
+    function extractBusinessInfo(type) {
+        let module = 1;
+        let fieldKeywords = [];
+
+        switch(type) {
+            case 'description':
+                module = 1;
+                fieldKeywords = ['descripcion', 'description', 'business_description'];
+                break;
+            case 'mission':
+                module = 1;
+                fieldKeywords = ['mision', 'mission', 'business_mission'];
+                break;
+            case 'vision':
+                module = 1;
+                fieldKeywords = ['vision', 'business_vision'];
+                break;
+            case 'introduction':
+                module = 1;
+                fieldKeywords = ['nombre_negocio', 'name', 'business_name'];
+                break;
+            case 'market_analysis':
+                module = 2;
+                fieldKeywords = ['cliente_ideal', 'competencia', 'propuesta_valor', 'market', 'mercado', 'analysis', 'analisis'];
+                break;
+            case 'operations':
+                module = 3;
+                fieldKeywords = ['servicios_principales', 'proceso_estrella', 'recursos_necesarios', 'operations', 'operaciones', 'process', 'proceso'];
+                break;
+            case 'marketing':
+                module = 4;
+                fieldKeywords = ['canales_venta', 'estrategia_redes', 'campaña_lanzamiento', 'marketing', 'mercadeo', 'strategy', 'estrategia'];
+                break;
+            case 'finance':
+            case 'conclusion':
+                module = 5;
+                fieldKeywords = ['inversion_inicial', 'precio_venta', 'proyeccion_ventas', 'finance', 'finanzas', 'financial', 'conclusion', 'conclusion'];
+                break;
+        }
+
+        if (projectData && projectData[module]) {
+            const fields = Object.keys(projectData[module]);
+            for (let keyword of fieldKeywords) {
+                const matchingField = fields.find(field => field.toLowerCase().includes(keyword.toLowerCase()));
+                if (matchingField && projectData[module][matchingField].answer) {
+                    return projectData[module][matchingField].answer;
+                }
+            }
+
+            const answers = Object.values(projectData[module]).map(field => field.answer).filter(answer => answer);
+            if (answers.length > 0) {
+                return answers.join(' ').substring(0, 1500);
+            }
+        }
+
+        return null;
     }
 
     function generateProjectBookHTML() {
@@ -13829,16 +13940,487 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
         const userProgram = currentUser ? currentUser.programa || 'emprendimiento' : 'emprendimiento';
         const instituteName = 'ESCUELA DE CAPACITACIÓN Y EMPRENDIMIENTO CHARLOTTE';
-        const courseName = userProgram === 'panaderia' ? 'MAESTRO DE TALLER EN PANADERÍA Y PASTELERÍA' : 
-                          userProgram === 'belleza' ? 'MAESTRO DE TALLER EN BELLEZA INTEGRAL' : 
+        const courseName = userProgram === 'panaderia' ? 'MAESTRO DE TALLER EN PANADERÍA Y PASTELERÍA' :
+                          userProgram === 'belleza' ? 'MAESTRO DE TALLER EN BELLEZA INTEGRAL' :
                           'MAESTRO DE TALLER EN EMPRENDIMIENTO';
-        const currentDate = new Date().toLocaleDateString('es-ES');
-        
+        const currentDate = new Date().toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
         // Extract project information from projectData
         const businessName = extractBusinessName() || 'Nombre del Negocio';
         const businessDescription = extractBusinessInfo('description') || 'Descripción del negocio...';
         const mission = extractBusinessInfo('mission') || 'Misión del negocio...';
         const vision = extractBusinessInfo('vision') || 'Visión del negocio...';
+        const slogan = projectData && projectData[1] && projectData[1].eslogan ? projectData[1].eslogan.answer : '';
+
+        // Extract additional information
+        const marketAnalysis = extractBusinessInfo('market_analysis') || '';
+        const operations = extractBusinessInfo('operations') || '';
+        const marketing = extractBusinessInfo('marketing') || '';
+        const finance = extractBusinessInfo('finance') || '';
+
+        // Parse market analysis components
+        let clientProfile = '', competition = '', valueProposition = '';
+        if (marketAnalysis) {
+            // Try to extract from specific fields first
+            if (projectData && projectData[2]) {
+                clientProfile = projectData[2].cliente_ideal ? projectData[2].cliente_ideal.answer : '';
+                competition = projectData[2].competencia ? projectData[2].competencia.answer : '';
+                valueProposition = projectData[2].propuesta_valor ? projectData[2].propuesta_valor.answer : '';
+            }
+        }
+
+        // Parse operations components
+        let mainServices = '', starProcess = '', resources = '';
+        if (operations) {
+            if (projectData && projectData[3]) {
+                mainServices = projectData[3].servicios_principales ? projectData[3].servicios_principales.answer : '';
+                starProcess = projectData[3].proceso_estrella ? projectData[3].proceso_estrella.answer : '';
+                resources = projectData[3].recursos_necesarios ? projectData[3].recursos_necesarios.answer : '';
+            }
+        }
+
+        // Parse marketing components
+        let salesChannels = '', socialStrategy = '', launchCampaign = '';
+        if (marketing) {
+            if (projectData && projectData[4]) {
+                salesChannels = projectData[4].canales_venta ? projectData[4].canales_venta.answer : '';
+                socialStrategy = projectData[4].estrategia_redes ? projectData[4].estrategia_redes.answer : '';
+                launchCampaign = projectData[4].campaña_lanzamiento ? projectData[4].campaña_lanzamiento.answer : '';
+            }
+        }
+
+        // Parse finance components
+        let initialInvestment = '', pricing = '', salesProjection = '';
+        if (finance) {
+            if (projectData && projectData[5]) {
+                initialInvestment = projectData[5].inversion_inicial ? projectData[5].inversion_inicial.answer : '';
+                pricing = projectData[5].precio_venta ? projectData[5].precio_venta.answer : '';
+                salesProjection = projectData[5].proyeccion_ventas ? projectData[5].proyeccion_ventas.answer : '';
+            }
+        }
+
+        let html = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>PROYECTO FINAL DE EMPRENDIMIENTO - ${userName}</title>
+            <style>
+                @page {
+                    size: A4;
+                    margin: 2.5cm 2cm 2.5cm 2cm;
+                    @bottom-right {
+                        content: "Página " counter(page);
+                    }
+                }
+
+                body {
+                    font-family: 'Times New Roman', serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: none;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 12pt;
+                }
+
+                .title-page {
+                    page-break-after: always;
+                    text-align: center;
+                    padding: 3cm;
+                    height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                }
+
+                .main-title {
+                    font-size: 20pt;
+                    font-weight: bold;
+                    margin-bottom: 1cm;
+                    text-transform: uppercase;
+                }
+
+                .subtitle {
+                    font-size: 16pt;
+                    font-weight: bold;
+                    margin-bottom: 2cm;
+                }
+
+                .student-info {
+                    font-size: 12pt;
+                    margin-bottom: 1cm;
+                }
+
+                .institute-info {
+                    font-size: 11pt;
+                    margin-top: 2cm;
+                }
+
+                .toc {
+                    page-break-before: always;
+                    padding: 2cm;
+                }
+
+                .toc-title {
+                    font-size: 16pt;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 1cm;
+                    text-transform: uppercase;
+                }
+
+                .toc-section {
+                    margin-bottom: 0.8cm;
+                }
+
+                .toc-item {
+                    margin-bottom: 0.3cm;
+                    margin-left: 1cm;
+                }
+
+                .chapter {
+                    page-break-before: always;
+                    padding: 2cm;
+                    margin-bottom: 1cm;
+                }
+
+                .chapter:first-child {
+                    page-break-before: avoid;
+                }
+
+                .chapter-title {
+                    font-size: 14pt;
+                    font-weight: bold;
+                    margin-bottom: 0.8cm;
+                    border-bottom: 1px solid #666;
+                    padding-bottom: 0.3cm;
+                    text-transform: uppercase;
+                }
+
+                .section-title {
+                    font-size: 12pt;
+                    font-weight: bold;
+                    margin-top: 0.8cm;
+                    margin-bottom: 0.5cm;
+                }
+
+                .subsection-title {
+                    font-size: 11pt;
+                    font-weight: bold;
+                    margin-top: 0.6cm;
+                    margin-bottom: 0.3cm;
+                }
+
+                .content {
+                    text-align: justify;
+                    margin-bottom: 0.8cm;
+                }
+
+                .highlight-box {
+                    background: #f8f9fa;
+                    padding: 0.8cm;
+                    margin: 0.5cm 0;
+                    border-left: 4px solid #007bff;
+                }
+
+                .list-item {
+                    margin-bottom: 0.3cm;
+                    margin-left: 0.5cm;
+                }
+
+                .conclusion {
+                    page-break-before: always;
+                    padding: 2cm;
+                }
+
+                .final-note {
+                    text-align: center;
+                    font-style: italic;
+                    margin-top: 2cm;
+                    padding-top: 1cm;
+                    border-top: 1px solid #666;
+                }
+            </style>
+        </head>
+        <body>
+            <!-- Portada -->
+            <div class="title-page">
+                <div>
+                    <div class="main-title">PROYECTO FINAL DE EMPRENDIMIENTO</div>
+                    <div class="subtitle">PLAN DE NEGOCIO: "${businessName}"</div>
+
+                    <div class="student-info">
+                        <strong>Presentado por:</strong> ${userName}<br>
+                        <strong>Programa:</strong> ${courseName}<br>
+                        <strong>Tutora Virtual:</strong> Charlotte<br>
+                        <strong>Fecha de Elaboración:</strong> ${currentDate}
+                    </div>
+
+                    <div class="institute-info">
+                        ${instituteName}<br>
+                        ${courseName}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Índice -->
+            <div class="toc">
+                <div class="toc-title">ÍNDICE</div>
+
+                <div class="toc-section">
+                    <strong>1. INTRODUCCIÓN Y ANTECEDENTES</strong>
+                    <div class="toc-item">1.1 Contexto del Proyecto</div>
+                    <div class="toc-item">1.2 Objetivo General</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>2. IDENTIDAD CORPORATIVA</strong>
+                    <div class="toc-item">2.1 Nombre y Eslogan</div>
+                    <div class="toc-item">2.2 Descripción del Negocio</div>
+                    <div class="toc-item">2.3 Filosofía Empresarial</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>3. ESTUDIO DE MERCADO</strong>
+                    <div class="toc-item">3.1 Perfil del Cliente Ideal</div>
+                    <div class="toc-item">3.2 Análisis Competitivo</div>
+                    <div class="toc-item">3.3 Propuesta de Valor</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>4. OPERACIONES Y PROCESOS PRODUCTIVOS</strong>
+                    <div class="toc-item">4.1 Catálogo de Productos</div>
+                    <div class="toc-item">4.2 Proceso de Elaboración</div>
+                    <div class="toc-item">4.3 Recursos Necesarios</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>5. ESTRATEGIA COMERCIAL Y DE MARKETING</strong>
+                    <div class="toc-item">5.1 Canales de Venta y Distribución</div>
+                    <div class="toc-item">5.2 Estrategia Digital</div>
+                    <div class="toc-item">5.3 Plan de Lanzamiento</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>6. ANÁLISIS FINANCIERO</strong>
+                    <div class="toc-item">6.1 Inversión Inicial</div>
+                    <div class="toc-item">6.2 Estructura de Costos</div>
+                    <div class="toc-item">6.3 Proyecciones de Ventas</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>7. PLAN DE IMPLEMENTACIÓN Y CONCLUSIONES</strong>
+                    <div class="toc-item">7.1 Cronograma Inicial</div>
+                    <div class="toc-item">7.2 Conclusiones</div>
+                    <div class="toc-item">7.3 Recomendaciones</div>
+                </div>
+            </div>
+
+            <!-- Capítulo 1: Introducción y Antecedentes -->
+            <div class="chapter">
+                <div class="chapter-title">1. INTRODUCCIÓN Y ANTECEDENTES</div>
+
+                <div class="section-title">1.1 Contexto del Proyecto</div>
+                <div class="content">
+                    ${businessName} surge como respuesta a una necesidad identificada en el mercado: ${businessDescription.toLowerCase()}.
+                    ${businessDescription ? 'A diferencia de las opciones tradicionales que ofrecen productos estandarizados, este proyecto se especializa en soluciones personalizadas que se convierten en elementos centrales de experiencias significativas.' : 'Este emprendimiento busca satisfacer necesidades específicas del mercado a través de un enfoque innovador y personalizado.'}
+                </div>
+                <div class="content">
+                    El desarrollo de este plan de negocio se realizó mediante una metodología estructurada en 6 módulos, guiados por la tutora virtual Charlotte, donde cada fase fue completada y validada antes de avanzar a la siguiente. Este proceso garantiza que cada aspecto del negocio haya sido cuidadosamente analizado y planificado.
+                </div>
+
+                <div class="section-title">1.2 Objetivo General</div>
+                <div class="content">
+                    Establecer ${businessName} como ${businessDescription ? 'una opción confiable y creativa' : 'un referente'} en su segmento, ofreciendo productos/servicios de alta calidad que ${businessDescription ? 'combinen excelencia con personalización' : 'satisfagan las necesidades del mercado objetivo'}, cumpliendo con las expectativas de clientes que buscan algo más allá de las opciones convencionales.
+                </div>
+            </div>
+
+            <!-- Capítulo 2: Identidad Corporativa -->
+            <div class="chapter">
+                <div class="chapter-title">2. IDENTIDAD CORPORATIVA</div>
+
+                <div class="section-title">2.1 Nombre y Eslogan</div>
+                <div class="content">
+                    <strong>Nombre Comercial:</strong> ${businessName}<br>
+                    ${slogan ? `<strong>Eslogan:</strong> "${slogan}"` : ''}
+                </div>
+                <div class="content">
+                    <strong>Análisis del Nombre:</strong> ${businessName ? `El nombre "${businessName}" ${businessName.length > 10 ? 'sugiere sofisticación y especialización' : 'transmite accesibilidad y cercanía'}. ${businessName.includes(' ') ? 'La combinación de palabras refleja la esencia del negocio.' : 'Su concisión facilita el recuerdo y la identificación de marca.'}`}
+                </div>
+
+                <div class="section-title">2.2 Descripción del Negocio</div>
+                <div class="content">
+                    ${businessName} ${businessDescription ? `es ${businessDescription.toLowerCase()}` : 'es un emprendimiento dedicado a ofrecer soluciones de calidad'}.
+                </div>
+                <div class="content">
+                    <strong>Segmentos Atendidos:</strong>
+                    <div class="list-item">• ${businessDescription ? 'Clientes que buscan personalización y calidad superior' : 'Público objetivo definido según análisis de mercado'}</div>
+                    <div class="list-item">• ${businessDescription ? 'Segmentos específicos según especialización del negocio' : 'Mercado meta identificado'}</div>
+                </div>
+
+                <div class="section-title">2.3 Filosofía Empresarial</div>
+                <div class="highlight-box">
+                    <strong>Misión:</strong> ${mission || 'Proporcionar productos/servicios de calidad que satisfagan las necesidades de nuestros clientes.'}
+                </div>
+                <div class="highlight-box">
+                    <strong>Visión:</strong> ${vision || 'Ser un referente en nuestro sector, reconocido por la calidad y el servicio al cliente.'}
+                </div>
+                <div class="content">
+                    <strong>Valores Implícitos:</strong>
+                    <div class="list-item">• Calidad y excelencia en cada entrega</div>
+                    <div class="list-item">• Atención personalizada al cliente</div>
+                    <div class="list-item">• Innovación y mejora continua</div>
+                    <div class="list-item">• Responsabilidad y compromiso</div>
+                </div>
+            </div>
+
+            <!-- Capítulo 3: Estudio de Mercado -->
+            <div class="chapter">
+                <div class="chapter-title">3. ESTUDIO DE MERCADO</div>
+
+                <div class="section-title">3.1 Perfil del Cliente Ideal</div>
+                <div class="content">
+                    ${clientProfile || 'Nuestro cliente ideal es aquel que valora la calidad, la personalización y busca soluciones que se adapten a sus necesidades específicas.'}
+                </div>
+
+                <div class="section-title">3.2 Análisis Competitivo</div>
+                <div class="content">
+                    ${competition || 'La competencia en el sector se caracteriza por enfoques tradicionales. Nuestra diferenciación radica en la especialización y el enfoque personalizado.'}
+                </div>
+
+                <div class="section-title">3.3 Propuesta de Valor</div>
+                <div class="highlight-box">
+                    ${valueProposition || 'Nuestra propuesta única combina calidad, personalización y servicio excepcional.'}
+                </div>
+                <div class="content">
+                    <strong>Diferenciadores Clave:</strong>
+                    <div class="list-item">• Enfoque personalizado vs. soluciones estandarizadas</div>
+                    <div class="list-item">• Calidad superior y atención al detalle</div>
+                    <div class="list-item">• Servicio adaptado a las necesidades específicas</div>
+                </div>
+            </div>
+
+            <!-- Capítulo 4: Operaciones y Procesos Productivos -->
+            <div class="chapter">
+                <div class="chapter-title">4. OPERACIONES Y PROCESOS PRODUCTIVOS</div>
+
+                <div class="section-title">4.1 Catálogo de Productos</div>
+                <div class="content">
+                    <strong>Línea Principal:</strong>
+                    ${mainServices ? mainServices.split(',').map(service => `<div class="list-item">• ${service.trim()}</div>`).join('') : '<div class="list-item">• Productos/servicios principales según especialización</div>'}
+                </div>
+
+                <div class="section-title">4.2 Proceso de Elaboración</div>
+                <div class="content">
+                    <strong>Proceso Estándar:</strong><br>
+                    ${starProcess || 'Proceso optimizado que garantiza calidad y eficiencia en cada etapa.'}
+                </div>
+
+                <div class="section-title">4.3 Recursos Necesarios</div>
+                <div class="content">
+                    ${resources || 'Recursos identificados según las necesidades operativas del negocio.'}
+                </div>
+            </div>
+
+            <!-- Capítulo 5: Estrategia Comercial y de Marketing -->
+            <div class="chapter">
+                <div class="chapter-title">5. ESTRATEGIA COMERCIAL Y DE MARKETING</div>
+
+                <div class="section-title">5.1 Canales de Venta y Distribución</div>
+                <div class="content">
+                    <strong>Modelo de Distribución:</strong><br>
+                    ${salesChannels || 'Estrategia multicanal que combina presencia digital y atención directa.'}
+                </div>
+
+                <div class="section-title">5.2 Estrategia Digital</div>
+                <div class="content">
+                    ${socialStrategy || 'Presencia digital estratégica para conectar con el público objetivo.'}
+                </div>
+
+                <div class="section-title">5.3 Plan de Lanzamiento</div>
+                <div class="content">
+                    ${launchCampaign || 'Campaña inicial diseñada para generar awareness y primeros clientes.'}
+                </div>
+            </div>
+
+            <!-- Capítulo 6: Análisis Financiero -->
+            <div class="chapter">
+                <div class="chapter-title">6. ANÁLISIS FINANCIERO</div>
+
+                <div class="section-title">6.1 Inversión Inicial</div>
+                <div class="content">
+                    ${initialInvestment || 'Inversión inicial calculada según requerimientos operativos.'}
+                </div>
+
+                <div class="section-title">6.2 Estructura de Costos</div>
+                <div class="content">
+                    ${pricing || 'Estructura de precios diseñada para garantizar rentabilidad y competitividad.'}
+                </div>
+
+                <div class="section-title">6.3 Proyecciones de Ventas</div>
+                <div class="content">
+                    ${salesProjection || 'Proyecciones realistas basadas en análisis de mercado y capacidad operativa.'}
+                </div>
+            </div>
+
+            <!-- Capítulo 7: Plan de Implementación y Conclusiones -->
+            <div class="conclusion">
+                <div class="chapter-title">7. PLAN DE IMPLEMENTACIÓN Y CONCLUSIONES</div>
+
+                <div class="section-title">7.1 Cronograma Inicial</div>
+                <div class="content">
+                    <strong>Fase 1 (Semanas 1-2):</strong> Puesta en marcha y configuración inicial<br>
+                    <strong>Fase 2 (Semanas 3-4):</strong> Pruebas y ajustes operativos<br>
+                    <strong>Fase 3 (Semanas 5-6):</strong> Lanzamiento comercial oficial
+                </div>
+
+                <div class="section-title">7.2 Conclusiones</div>
+                <div class="content">
+                    Este plan de negocio representa una base sólida para el establecimiento de ${businessName}. La combinación de análisis de mercado, planificación operativa y estrategia comercial crea las condiciones necesarias para un lanzamiento exitoso.
+                </div>
+                <div class="content">
+                    <strong>Fortalezas del Proyecto:</strong>
+                    <div class="list-item">• Modelo de negocio validado</div>
+                    <div class="list-item">• Análisis de mercado completo</div>
+                    <div class="list-item">• Planificación financiera realista</div>
+                    <div class="list-item">• Estrategia de diferenciación clara</div>
+                </div>
+
+                <div class="section-title">7.3 Recomendaciones</div>
+                <div class="content">
+                    <strong>Corto Plazo:</strong>
+                    <div class="list-item">• Enfocarse en la calidad del producto/servicio</div>
+                    <div class="list-item">• Construir relaciones sólidas con primeros clientes</div>
+                    <div class="list-item">• Monitorear métricas clave de desempeño</div>
+                </div>
+                <div class="content">
+                    <strong>Mediano Plazo:</strong>
+                    <div class="list-item">• Evaluar expansión según demanda del mercado</div>
+                    <div class="list-item">• Considerar alianzas estratégicas</div>
+                    <div class="list-item">• Implementar mejoras continuas basadas en feedback</div>
+                </div>
+            </div>
+
+            <!-- Reflexión Final -->
+            <div class="final-note">
+                <strong>REFLEXIÓN FINAL</strong><br><br>
+                ${businessName} representa más que un negocio; es un proyecto que busca ${businessDescription ? 'conectar con las necesidades específicas del mercado' : 'satisfacer necesidades identificadas'}. El éxito dependerá de la capacidad para mantener los estándares de calidad, adaptarse a las necesidades del mercado y construir relaciones sólidas con los clientes.<br><br>
+                Este plan de negocio, desarrollado metódicamente con la guía de Charlotte, proporciona una base sólida para comenzar operaciones, con flexibilidad para ajustarse según las lecciones aprendidas en la práctica real del negocio.<br><br>
+                ---
+                <br><strong>Documento elaborado con base en la información validada durante el proceso de tutoría</strong>
+                <br><strong>Versión Final - ${currentDate}</strong>
+            </div>
+        </body>
+        </html>`;
+
+        return html;
+    }
         
         let html = `
         <!DOCTYPE html>
@@ -13979,7 +14561,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 <div class="project-title">PROYECTO DE CREACIÓN DE NEGOCIO:<br>"${businessName}"</div>
                 <div class="presented-by">Presentado por:</div>
                 <div class="student-name">${userName}</div>
-                <div class="presented-by">Para optar por el título de:<br>Técnica en ${userProgram === 'panaderia' ? 'Panadería y Pastelería' : userProgram === 'belleza' ? 'Belleza Integral' : 'Emprendimiento'}</div>
+                <div class="presented-by">Para optar por el título de:<br>${userProgram === 'panaderia' ? 'Técnico en Panadería y Pastelería' : userProgram === 'belleza' ? 'Técnico en Belleza Integral' : 'Técnico en Emprendimiento'}</div>
                 <div class="tutor-info">Tutora Virtual: Charlotte<br>[Ciudad, ${currentDate}]</div>
             </div>
             
