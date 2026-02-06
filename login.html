@@ -215,7 +215,7 @@
         }
 
         // Función auxiliar para crear timeout
-        function withTimeout(promise, timeoutMs = 10000) {
+        function withTimeout(promise, timeoutMs = 15000) {
             return Promise.race([
                 promise,
                 new Promise((_, reject) =>
@@ -241,7 +241,6 @@
             try {
                 console.log('Starting user query...');
                 const queryStartTime = performance.now();
-
                 // Declarar variables
                 let userData = null;
                 let userDoc = null;
@@ -253,14 +252,14 @@
                     userData = cachedUser.data;
                     userDoc = { id: cachedUser.id };
                 } else {
-                    // OPTIMIZACIÓN: Usar getDoc con ID conocido en lugar de query
-                    // Si el email es único, podemos usar el email como ID del documento
-                    const userDocRef = doc(db, 'users', email.replace(/[.#$\/\[\]]/g, '_'));
-                    const userDocSnap = await withTimeout(getDoc(userDocRef), 8000);
+                    // Consulta directa simplificada
+                    console.log('Searching for user...');
+                    const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
+                    const querySnapshot = await withTimeout(getDocs(q), 15000);
 
-                    if (userDocSnap.exists()) {
-                        userData = userDocSnap.data();
-                        userDoc = userDocSnap;
+                    if (!querySnapshot.empty) {
+                        userDoc = querySnapshot.docs[0];
+                        userData = userDoc.data();
 
                         // Guardar en cache
                         userCache.set(email, {
@@ -269,22 +268,9 @@
                             timestamp: Date.now()
                         });
                     } else {
-                        // Fallback: buscar con query si no se encuentra por ID
-                        console.log('User not found by ID, trying query...');
-                        const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                        const querySnapshot = await withTimeout(getDocs(q), 8000);
-
-                        if (!querySnapshot.empty) {
-                            userDoc = querySnapshot.docs[0];
-                            userData = userDoc.data();
-
-                            // Guardar en cache
-                            userCache.set(email, {
-                                data: userData,
-                                id: userDoc.id,
-                                timestamp: Date.now()
-                            });
-                        }
+                        showMessage('Usuario no encontrado.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Iniciar Sesión';
                     }
                 }
 
@@ -345,17 +331,21 @@
                     submitBtn.innerHTML = 'Iniciar Sesión';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error during login:', error);
                 let errorMessage = 'Error al iniciar sesión.';
 
                 // Manejar errores de Firestore/timeout
                 if (error.message === 'timeout') {
+                    console.error('Timeout error - Firebase operation took too long');
                     errorMessage = 'Tiempo de espera agotado. Verifica tu conexión a internet e intenta nuevamente.';
                 } else if (error.message && error.message.includes('offline')) {
+                    console.error('Offline error detected');
                     errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
                 } else if (error.message && error.message.includes('network')) {
+                    console.error('Network error detected');
                     errorMessage = 'Error de red. Inténtalo nuevamente.';
                 } else if (error.message && error.message.includes('unavailable')) {
+                    console.error('Service unavailable error');
                     errorMessage = 'Servicio temporalmente no disponible. Inténtalo más tarde.';
                 } else if (error.message && error.message.includes('permission-denied')) {
                     errorMessage = 'Error de permisos. Contacta al administrador.';
