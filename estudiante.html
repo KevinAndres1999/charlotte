@@ -13672,101 +13672,62 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
     function extractBusinessInfo(type) {
         // Extract business information from projectData conversations
-        let searchText = '';
         let module = 1;
         
         switch(type) {
-            case 'name':
-                searchText = 'nombre.*negocio|negocio.*nombre|llamarse|se llama';
-                module = 1;
-                break;
             case 'description':
-                searchText = 'descripción|qué hace|servicio|producto|ofrece|actividad|especialidad|dedicarse';
-                module = 1;
-                break;
             case 'mission':
-                searchText = 'misión|propósito|objetivo.*negocio|buscamos|ofrecemos|brindar|proporcionar';
-                module = 1;
-                break;
             case 'vision':
-                searchText = 'visión|meta.*largo.*plazo|convertirse.*en|ser.*referencia|alcanzar|llegar.*a|convertirnos';
-                module = 1;
-                break;
             case 'introduction':
-                searchText = 'plan.*negocio|proyecto.*nace|pasión|demanda|puesta.*marcha|emprender|presenta';
                 module = 1;
                 break;
             case 'market_analysis':
-                searchText = 'cliente.*ideal|competencia|mercado|análisis.*mercado|cliente.*potencial|público|segmento|nicho|estudio|competidores';
                 module = 2;
                 break;
             case 'operations':
-                searchText = 'operaciones|procesos|servicio.*principal|producto.*estrella|recursos|equipos|instalaciones|local|materiales|proveedores';
                 module = 3;
                 break;
             case 'marketing':
-                searchText = 'marketing|ventas|canal.*venta|estrategia.*redes|campaña|precio|venta|promoción|publicidad|instagram|facebook|redes';
                 module = 4;
                 break;
             case 'finance':
-                searchText = 'inversión|finanzas|costo|precio|utilidad|proyección|venta|ingreso|presupuesto|capital|ganancia|beneficio';
-                module = 5;
-                break;
             case 'conclusion':
-                searchText = 'conclusión|aprendí|siguiente.*paso|emocionado|confiado|éxito|lograr|alcanzar|finalmente|resumiendo';
                 module = 5;
                 break;
         }
         
         if (!projectData || !projectData[module] || !Array.isArray(projectData[module])) return null;
         
-        // Search through AI and user responses in the specified module
+        // Collect all relevant responses from this module and combine them
         const conversations = projectData[module];
-        const regex = new RegExp(searchText, 'i');
+        let relevantResponses = [];
         
-        for (let i = conversations.length - 1; i >= 0; i--) {
-            const conv = conversations[i];
-            
-            // Check AI responses first (more likely to have structured information)
-            if (conv.ai && regex.test(conv.ai)) {
-                // Extract a meaningful paragraph or sentence
-                const sentences = conv.ai.split(/[.!?]+/).filter(s => s.trim().length > 10);
-                const relevantSentence = sentences.find(s => regex.test(s)) || sentences[0];
-                if (relevantSentence) {
-                    return relevantSentence.trim();
-                }
+        conversations.forEach(conv => {
+            if (conv.ai && conv.ai.length > 50) { // Only substantial AI responses
+                relevantResponses.push(conv.ai);
             }
-            
-            // Also check user responses
-            if (conv.user && regex.test(conv.user)) {
-                const sentences = conv.user.split(/[.!?]+/).filter(s => s.trim().length > 10);
-                const relevantSentence = sentences.find(s => regex.test(s)) || sentences[0];
-                if (relevantSentence) {
-                    return relevantSentence.trim();
-                }
+            if (conv.user && conv.user.length > 20) { // Student input can also be relevant
+                relevantResponses.push(conv.user);
             }
-        }
+        });
         
-        // Fallback: return the last AI or user response from the module
-        const lastConv = conversations[conversations.length - 1];
-        if (lastConv && lastConv.ai) {
-            return lastConv.ai.substring(0, 400) + '...';
-        }
-        if (lastConv && lastConv.user) {
-            return lastConv.user.substring(0, 400) + '...';
-        }
+        // Take the most recent substantial responses (last 3-4 responses)
+        const recentResponses = relevantResponses.slice(-4);
         
-        return null;
+        // Combine them into coherent content
+        const content = recentResponses.join(' ').substring(0, 800) + (recentResponses.length > 0 ? '...' : '');
+        
+        return content || null;
     }
 
     function generateProjectBookHTML() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
         const userProgram = currentUser ? currentUser.programa || 'emprendimiento' : 'emprendimiento';
-        const instituteName = 'INSTITUTO TÉCNICO SUPERIOR'; // Placeholder, can be customized
-        const courseName = userProgram === 'panaderia' ? 'CAPACITACIÓN EN PANADERÍA Y PASTELERÍA' : 
-                          userProgram === 'belleza' ? 'CAPACITACIÓN EN BELLEZA INTEGRAL' : 
-                          'CAPACITACIÓN EN EMPRENDIMIENTO';
+        const instituteName = 'ESCUELA DE CAPACITACIÓN Y EMPRENDIMIENTO CHARLOTTE';
+        const courseName = userProgram === 'panaderia' ? 'MAESTRO DE TALLER EN PANADERÍA Y PASTELERÍA' : 
+                          userProgram === 'belleza' ? 'MAESTRO DE TALLER EN BELLEZA INTEGRAL' : 
+                          'MAESTRO DE TALLER EN EMPRENDIMIENTO';
         const currentDate = new Date().toLocaleDateString('es-ES');
         
         // Extract project information from projectData
