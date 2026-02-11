@@ -4114,6 +4114,19 @@
                             Dom. Matutina
                         </button>
                     </div>
+                    
+                    <!-- Tabs de Programa -->
+                    <div style="display: flex; background: #faf5ff; border-bottom: 1px solid #e9d5ff;">
+                        <button onclick="cambiarProgramaCobros('Panadería')" id="tab-programa-panaderia" style="flex: 1; padding: 0.6rem; background: #a855f7; color: white; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="fas fa-bread-slice"></i> Panadería
+                        </button>
+                        <button onclick="cambiarProgramaCobros('Belleza')" id="tab-programa-belleza" style="flex: 1; padding: 0.6rem; background: #f3e8ff; color: #7c3aed; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="fas fa-spa"></i> Belleza
+                        </button>
+                        <button onclick="cambiarProgramaCobros('Todos')" id="tab-programa-todos" style="flex: 1; padding: 0.6rem; background: #f3e8ff; color: #7c3aed; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class="fas fa-users"></i> Todos
+                        </button>
+                    </div>
 
                     <!-- Acciones rápidas -->
                     <div style="padding: 1rem; background: #f0fdf4; border-bottom: 1px solid #a7f3d0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
@@ -9388,6 +9401,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         
         let cobrosSedeActual = 'Carapungo';
         let cobrosHorarioActual = 'Sábado Matutina';
+        let cobrosProgramaActual = 'Panadería';
         let cobrosEstudiantesFiltrados = [];
         let cobrosSeleccionados = new Set();
         
@@ -9443,6 +9457,32 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             cargarEstudiantesCobros();
         }
         
+        // Cambiar programa
+        function cambiarProgramaCobros(programa) {
+            cobrosProgramaActual = programa;
+            
+            // Actualizar tabs visuales
+            const tabs = {
+                'Panadería': 'tab-programa-panaderia',
+                'Belleza': 'tab-programa-belleza',
+                'Todos': 'tab-programa-todos'
+            };
+            
+            Object.keys(tabs).forEach(p => {
+                const tab = document.getElementById(tabs[p]);
+                if (p === programa) {
+                    tab.style.background = '#a855f7';
+                    tab.style.color = 'white';
+                } else {
+                    tab.style.background = '#f3e8ff';
+                    tab.style.color = '#7c3aed';
+                }
+            });
+            
+            cobrosSeleccionados.clear();
+            cargarEstudiantesCobros();
+        }
+        
         // Cargar estudiantes filtrados por sede y horario
         async function cargarEstudiantesCobros() {
             const container = document.getElementById('cobros-lista-estudiantes');
@@ -9459,10 +9499,24 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     await loadUsuariosAprobados();
                 }
                 
-                // Filtrar por sede y horario
-                cobrosEstudiantesFiltrados = allApprovedUsers.filter(u => 
-                    u.sede === cobrosSedeActual && u.horario === cobrosHorarioActual
-                );
+                // Filtrar por sede, horario y programa
+                cobrosEstudiantesFiltrados = allApprovedUsers.filter(u => {
+                    const matchSede = u.sede === cobrosSedeActual;
+                    const matchHorario = u.horario === cobrosHorarioActual;
+                    
+                    // Filtrar por programa
+                    let matchPrograma = true;
+                    if (cobrosProgramaActual !== 'Todos') {
+                        const userPrograma = (u.programa || '').toLowerCase();
+                        if (cobrosProgramaActual === 'Panadería') {
+                            matchPrograma = userPrograma.includes('panadería') || userPrograma.includes('panaderia') || userPrograma.includes('pan');
+                        } else if (cobrosProgramaActual === 'Belleza') {
+                            matchPrograma = userPrograma.includes('belleza') || userPrograma.includes('cosmetología') || userPrograma.includes('cosmetologia') || userPrograma.includes('estética') || userPrograma.includes('estetica');
+                        }
+                    }
+                    
+                    return matchSede && matchHorario && matchPrograma;
+                });
                 
                 // Ordenar alfabéticamente
                 cobrosEstudiantesFiltrados.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -9489,7 +9543,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 container.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: #6b7280;">
                         <i class="fas fa-users-slash" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                        <p style="margin: 0;">No hay estudiantes en ${cobrosSedeActual} - ${cobrosHorarioActual}</p>
+                        <p style="margin: 0;">No hay estudiantes de ${cobrosProgramaActual} en ${cobrosSedeActual} - ${cobrosHorarioActual}</p>
                     </div>
                 `;
                 return;
