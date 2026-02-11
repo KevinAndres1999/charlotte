@@ -13038,6 +13038,17 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
             if (confirm('¿Estás seguro de que quieres reiniciar el proyecto? Se perderá todo el progreso.')) {
                 resetProject();
             }
+        } else if (cmd === 'anterior' || cmd === 'atrás' || cmd === 'atras' || cmd === 'volver' || cmd === 'regresar') {
+            goToPreviousQuestion();
+        } else if (cmd === 'corregir' || cmd === 'editar' || cmd === 'cambiar' || cmd === 'modificar respuesta') {
+            showFieldsToCorrect();
+        } else if (cmd === 'siguiente' || cmd === 'continuar' || cmd === 'ok' || cmd === 'sí' || cmd === 'si') {
+            // Si no estamos en modo de mejora, avanzar al siguiente campo
+            if (!awaitingImprovement) {
+                showNextField();
+            }
+        } else if (cmd === 'ayuda' || cmd === 'help' || cmd === 'comandos') {
+            addChatMessage('📋 **Comandos disponibles:**\n\n• **"siguiente"** - Continuar al siguiente paso\n• **"anterior"** - Volver a la pregunta anterior\n• **"corregir"** - Editar una respuesta anterior\n• **"reiniciar"** - Empezar de nuevo el proyecto\n• **"descargar"** - Descargar documento final\n• **"vista previa"** - Ver documento antes de descargar\n• **"ayuda"** - Ver esta lista de comandos', 'ai');
         }
     }
 
@@ -13361,6 +13372,15 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
 
         // Agregar mensaje del usuario al chat
         addChatMessage(message, 'user');
+
+        // PRIMERO: Verificar si es un comando de navegación (siempre disponibles)
+        const cmd = message.toLowerCase().trim();
+        const navigationCommands = ['anterior', 'atrás', 'atras', 'volver', 'regresar', 'corregir', 'editar', 'cambiar', 'reiniciar', 'ayuda', 'help', 'comandos', 'descargar', 'vista previa', 'siguiente', 'continuar'];
+        
+        if (navigationCommands.includes(cmd)) {
+            handleConsultationCommand(message);
+            return;
+        }
 
         // Si estamos esperando selección de campo a corregir
         if (window.awaitingCorrectionSelection) {
