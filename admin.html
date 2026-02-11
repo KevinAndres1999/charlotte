@@ -7168,6 +7168,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
+            else if (sectionId === 'proyectos') try { loadProjects(); } catch (e) { console.error('Error loading proyectos:', e); }
         }
 
         function toggleMobileMenu() {
@@ -20084,15 +20085,26 @@ REGLAS ESTRICTAS:
                 });
 
                 container.innerHTML = projects.map(project => {
-                    const completedSteps = Object.keys(project.data || {}).length;
+                    // Contar módulos completados usando el nuevo formato (module_1, module_2, etc.)
+                    let completedSteps = 0;
+                    for (let i = 1; i <= 5; i++) {
+                        const moduleData = project[`module_${i}`];
+                        if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
+                            // Verificar si hay al menos un campo con respuesta
+                            const hasContent = Object.values(moduleData).some(field => 
+                                field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))
+                            );
+                            if (hasContent) completedSteps++;
+                        }
+                    }
                     const totalSteps = 5;
                     
                     return `
                         <div class="project-card">
                             <div class="project-header">
                                 <div>
-                                    <div class="project-student">${project.userEmail}</div>
-                                    <div class="project-program">${project.program || 'Programa'}</div>
+                                    <div class="project-student">${project.userEmail || project.id}</div>
+                                    <div class="project-program">${project.program || project.userProgram || 'Programa'}</div>
                                 </div>
                                 <div class="project-actions">
                                     <button class="btn-review" onclick="reviewProject('${project.id}')">
@@ -20106,8 +20118,8 @@ REGLAS ESTRICTAS:
                                 ).join('')}
                             </div>
                             <div style="font-size: 0.9rem; color: #64748b;">
-                                Pasos completados: ${completedSteps}/${totalSteps} • 
-                                Última actualización: ${project.lastUpdated ? new Date(project.lastUpdated.toDate()).toLocaleDateString('es-ES') : 'N/A'}
+                                Módulos con contenido: ${completedSteps}/${totalSteps} • 
+                                Última actualización: ${project.lastUpdated ? new Date(project.lastUpdated).toLocaleDateString('es-ES') : 'N/A'}
                             </div>
                         </div>
                     `;
@@ -20131,28 +20143,55 @@ REGLAS ESTRICTAS:
                 
                 const project = docSnap.data();
                 
+                // Títulos de los módulos
+                const moduleTitles = {
+                    1: 'Identificación del Negocio',
+                    2: 'Análisis de Mercado y Clientes',
+                    3: 'Operaciones y Procesos',
+                    4: 'Plan de Marketing y Ventas',
+                    5: 'Finanzas Básicas'
+                };
+                
+                // Construir el contenido de los módulos
+                let modulesHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    const moduleData = project[`module_${i}`];
+                    if (moduleData && typeof moduleData === 'object' && Object.keys(moduleData).length > 0) {
+                        modulesHtml += `
+                            <div class="project-step">
+                                <h4>Módulo ${i}: ${moduleTitles[i]}</h4>
+                                <div class="project-conversation">
+                                    ${Object.entries(moduleData).map(([fieldName, fieldData]) => {
+                                        const answer = fieldData.answer || fieldData.original || '';
+                                        const approved = fieldData.approved ? '✅' : '⏳';
+                                        return `
+                                            <div class="conversation-item" style="margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border-left: 3px solid ${fieldData.approved ? '#10b981' : '#f59e0b'};">
+                                                <strong style="color: #1e3a8a;">${fieldName.replace(/_/g, ' ').toUpperCase()}</strong> ${approved}
+                                                <p style="margin: 0.5rem 0 0 0; color: #334155;">${answer}</p>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                if (!modulesHtml) {
+                    modulesHtml = '<p style="color: #64748b; text-align: center; padding: 2rem;">Este proyecto aún no tiene contenido.</p>';
+                }
+                
                 // Crear modal
                 const modal = document.createElement('div');
                 modal.className = 'project-modal';
                 modal.innerHTML = `
                     <div class="project-modal-content">
                         <div class="project-modal-header">
-                            <h3>Proyecto de ${project.userEmail}</h3>
+                            <h3>Proyecto de ${project.userEmail || projectId}</h3>
                             <button onclick="this.closest('.project-modal').remove()">&times;</button>
                         </div>
                         
-                        ${Object.keys(project.data || {}).map(step => `
-                            <div class="project-step">
-                                <h4>Paso ${step}: ${getStepDescription(parseInt(step))}</h4>
-                                <div class="project-conversation">
-                                    ${project.data[step].map(item => `
-                                        <div class="conversation-item ${item.user ? 'user' : 'ai'}">
-                                            ${item.user || item.ai}
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('')}
+                        ${modulesHtml}
                         
                         <div class="feedback-section">
                             <h4>Comentarios del Docente</h4>

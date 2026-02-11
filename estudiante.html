@@ -12551,13 +12551,13 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     }
 
     function downloadFinalDocument() {
-        const document = projectData.finalDocument;
-        if (!document) {
+        const finalDoc = projectData.finalDocument;
+        if (!finalDoc) {
             addChatMessage('No hay documento final disponible.', 'ai');
             return;
         }
 
-        const blob = new Blob([document], { type: 'text/plain' });
+        const blob = new Blob([finalDoc], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -12571,8 +12571,8 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     }
 
     function showDocumentPreview() {
-        const document = projectData.finalDocument;
-        if (!document) {
+        const finalDoc = projectData.finalDocument;
+        if (!finalDoc) {
             addChatMessage('No hay documento final disponible.', 'ai');
             return;
         }
@@ -12589,7 +12589,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
                 </style>
             </head>
             <body>
-                <pre>${document}</pre>
+                <pre>${finalDoc}</pre>
             </body>
             </html>
         `);
@@ -12615,27 +12615,16 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     window.loadExistingProjects = null;
     window.updateProjectChat = null;
 
-    function initProjectWizard() {
-        // Cargar datos del proyecto si existen
-        const hasExistingData = loadProjectData();
+    async function initProjectWizard() {
+        // Cargar datos del proyecto si existen (ahora busca en localStorage Y Firebase)
+        const hasExistingData = await loadProjectData();
 
         if (hasExistingData) {
             // Usuario tiene progreso guardado - mostrar resumen y continuar
             showProgressSummary();
         } else {
-            // No hay datos locales, intentar cargar desde Firebase
-            loadExistingProjects().then(() => {
-                // Después de intentar cargar desde Firebase, verificar si se cargaron datos
-                const hasFirebaseData = Object.keys(projectData).length > 0;
-                if (!hasFirebaseData) {
-                    // No hay datos en ningún lugar - comenzar consultoría
-                    startConsultation();
-                }
-                // Si hay datos de Firebase, showProgressSummary() ya se llamó en loadExistingProjects()
-            }).catch(() => {
-                // Error cargando desde Firebase - comenzar consultoría
-                startConsultation();
-            });
+            // No hay datos en ningún lado - comenzar consultoría
+            startConsultation();
         }
     }
 
@@ -12747,6 +12736,19 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         setTimeout(() => {
             showNextField();
         }, 2000);
+    }
+
+    // ===== FUNCIÓN PARA CAMBIAR EL PASO ACTIVO DEL WIZARD =====
+    function setProjectStep(stepNum) {
+        document.querySelectorAll('.step').forEach((step, index) => {
+            step.classList.remove('active', 'hidden');
+            const sNum = parseInt(step.dataset.step);
+            if (sNum === stepNum) {
+                step.classList.add('active');
+            } else if (sNum > stepNum) {
+                step.classList.add('hidden');
+            }
+        });
     }
 
     function handleNavigationCommand(command) {
@@ -13293,8 +13295,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         // También guardar en Firebase
         if (db && user.email) {
             const firebaseData = {
-                data: sanitizeForFirestore(projectData),
-                conversations: projectConversations,
+                conversations: sanitizeForFirestore(projectConversations) || [],
                 currentModule: currentModule,
                 currentField: currentField,
                 userProgram: userProgram,
@@ -13303,6 +13304,16 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 userEmail: user.email,
                 program: user.programa || 'negocios'
             };
+
+            // Guardar cada módulo como campo de nivel superior (module_1, module_2, etc.)
+            // Evita el problema de Firestore con claves numéricas en mapas anidados
+            for (let m = 1; m <= 5; m++) {
+                if (projectData[m] && Object.keys(projectData[m]).length > 0) {
+                    firebaseData[`module_${m}`] = sanitizeForFirestore(projectData[m]);
+                } else {
+                    firebaseData[`module_${m}`] = {};
+                }
+            }
             
             // Solo incluir finalDocument si existe
             if (projectData.finalDocument) {
@@ -13311,6 +13322,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
             
             try {
                 setDoc(doc(db, 'projects', user.email), firebaseData);
+                console.log('💾 Guardado en Firebase con keys:', Object.keys(firebaseData).filter(k => k.startsWith('module_')));
             } catch (error) {
                 console.warn('Error guardando en Firestore (continuando sin guardar):', error.message);
             }
@@ -13319,66 +13331,319 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         updateProjectSummary();
     }
 
-    function loadProjectData() {
+    function restoreProgressData(progressData) {
+        // Cargar datos del proyecto
+        if (progressData.projectData && Object.keys(progressData.projectData).length > 0) {
+            projectData = progressData.projectData;
+        } else if (progressData.data && Object.keys(progressData.data).length > 0) {
+            // Firebase guarda projectData bajo la clave 'data'
+            projectData = progressData.data;
+        }
+
+        // Debug: mostrar exactamente qué se restauró
+        console.log('🔄 restoreProgressData - projectData keys:', Object.keys(projectData));
+        console.log('🔄 restoreProgressData - projectData completo:', JSON.stringify(projectData).substring(0, 500));
+        for (let m = 1; m <= 5; m++) {
+            const mData = projectData[m] || projectData[String(m)];
+            if (mData) {
+                console.log(`🔄 Módulo ${m}:`, Object.keys(mData), 'campos con approved:', Object.values(mData).filter(f => f && f.approved).length);
+            } else {
+                console.log(`🔄 Módulo ${m}: sin datos`);
+            }
+        }
+
+        // Restaurar estado del sistema de consultoría
+        if (progressData.currentModule) {
+            currentModule = progressData.currentModule;
+        }
+        if (progressData.currentField) {
+            currentField = progressData.currentField;
+        }
+        if (progressData.awaitingStudentResponse !== undefined) {
+            awaitingStudentResponse = progressData.awaitingStudentResponse;
+        }
+        if (progressData.awaitingImprovement !== undefined) {
+            awaitingImprovement = progressData.awaitingImprovement;
+        }
+        if (progressData.awaitingModification !== undefined) {
+            awaitingModification = progressData.awaitingModification;
+        }
+        if (progressData.currentSuggestion) {
+            currentSuggestion = progressData.currentSuggestion;
+        }
+        if (progressData.userProgram) {
+            userProgram = progressData.userProgram;
+        }
+        if (progressData.finalDocument) {
+            projectData.finalDocument = progressData.finalDocument;
+        }
+
+        updateProjectSummary();
+    }
+
+    async function loadProjectData() {
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        const projectKey = `project_${user.email}`;
-
-        const saved = localStorage.getItem(projectKey);
-        if (saved) {
-            const progressData = JSON.parse(saved);
-
-            // Cargar datos del proyecto
-            if (progressData.projectData) {
-                projectData = progressData.projectData;
-            }
-
-            // Restaurar estado del sistema de consultoría
-            if (progressData.currentModule) {
-                currentModule = progressData.currentModule;
-            }
-            if (progressData.currentField) {
-                currentField = progressData.currentField;
-            }
-            if (progressData.awaitingStudentResponse !== undefined) {
-                awaitingStudentResponse = progressData.awaitingStudentResponse;
-            }
-            if (progressData.awaitingImprovement !== undefined) {
-                awaitingImprovement = progressData.awaitingImprovement;
-            }
-            if (progressData.awaitingModification !== undefined) {
-                awaitingModification = progressData.awaitingModification;
-            }
-            if (progressData.currentSuggestion) {
-                currentSuggestion = progressData.currentSuggestion;
-            }
-            if (progressData.userProgram) {
-                userProgram = progressData.userProgram;
-            }
-            if (progressData.finalDocument) {
-                projectData.finalDocument = progressData.finalDocument;
-            }
-
-            updateProjectSummary();
-            return true; // Encontró datos guardados
-        } else {
-            // Si no hay datos guardados, comenzar desde el principio
+        if (!user.email) {
             currentModule = 1;
             currentField = null;
-            return false; // No encontró datos guardados
+            return false;
         }
+        const projectKey = `project_${user.email}`;
+
+        let localData = null;
+        let firebaseData = null;
+        let localTimestamp = null;
+        let firebaseTimestamp = null;
+
+        // Helper: contar campos con datos reales en un projectData
+        function countRealFields(pData) {
+            if (!pData || typeof pData !== 'object') return 0;
+            let count = 0;
+            for (const key of Object.keys(pData)) {
+                const mod = pData[key];
+                if (mod && typeof mod === 'object' && key !== 'finalDocument') {
+                    for (const fieldVal of Object.values(mod)) {
+                        if (fieldVal && (fieldVal.approved || (fieldVal.answer && fieldVal.answer.length > 0))) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return count;
+        }
+
+        // 1. Cargar desde localStorage
+        const saved = localStorage.getItem(projectKey);
+        if (saved) {
+            try {
+                localData = JSON.parse(saved);
+                localTimestamp = localData.lastSaved ? new Date(localData.lastSaved).getTime() : 0;
+                const localFieldCount = countRealFields(localData.projectData);
+                console.log('📦 localStorage - timestamp:', localData.lastSaved || 'sin fecha', '- campos con datos:', localFieldCount);
+            } catch (e) {
+                console.warn('⚠️ Error parseando localStorage:', e.message);
+            }
+        }
+
+        // 2. Siempre intentar cargar desde Firebase
+        try {
+            console.log('🔍 Buscando proyecto en Firebase para:', user.email);
+            const docRef = doc(db, 'projects', user.email);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const rawData = docSnap.data();
+                console.log('☁️ Firebase raw keys:', Object.keys(rawData));
+                
+                // Reconstruir projectData desde los campos module_1..module_5
+                let projectContent = {};
+                let foundNewFormat = false;
+                
+                for (let m = 1; m <= 5; m++) {
+                    // Formato nuevo: module_1, module_2, etc.
+                    if (rawData[`module_${m}`] && typeof rawData[`module_${m}`] === 'object' && Object.keys(rawData[`module_${m}`]).length > 0) {
+                        projectContent[m] = rawData[`module_${m}`];
+                        foundNewFormat = true;
+                    }
+                }
+                
+                // Si no hay formato nuevo, intentar migrar datos existentes
+                // El campo 'data' con claves numéricas no se lee bien con docSnap.data()
+                // Pero podemos intentar leer los subcampos individualmente
+                if (!foundNewFormat && rawData.data !== undefined) {
+                    console.log('🔄 Intentando migración: leyendo subcampos de data...');
+                    
+                    // Intentar acceder al campo data como mapa completo
+                    const dataField = rawData.data;
+                    if (dataField && typeof dataField === 'object') {
+                        // Verificar si tiene subcampos con cualquier tipo de clave
+                        for (const key of Object.keys(dataField)) {
+                            const moduleNum = parseInt(key);
+                            if (!isNaN(moduleNum) && moduleNum >= 1 && moduleNum <= 5) {
+                                projectContent[moduleNum] = dataField[key];
+                                foundNewFormat = true;
+                            }
+                        }
+                    }
+                    
+                    // Si data está vacío por el bug de Firestore, intentar leer 
+                    // cada subcampo directamente usando getDoc con field path
+                    if (!foundNewFormat) {
+                        console.log('⚠️ data está vacío (bug de Firestore con claves numéricas)');
+                        console.log('🔄 Los datos existen en Firebase pero no se pueden leer con el SDK cliente');
+                        console.log('🔄 Ejecutando migración forzada...');
+                        
+                        // Usar la API de Firestore para leer subcampos específicos
+                        // Firestore REST API puede leer campos anidados que el SDK no puede
+                        try {
+                            const projectId = window.FIREBASE_CONFIG?.projectId || db.app?.options?.projectId || 'charlotte-a0d47';
+                            if (projectId) {
+                                const apiUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/projects/${encodeURIComponent(user.email)}?mask.fieldPaths=data`;
+                                console.log('🌐 Intentando REST API:', apiUrl);
+                                const restResponse = await fetch(apiUrl);
+                                if (restResponse.ok) {
+                                    const restData = await restResponse.json();
+                                    console.log('🌐 REST API respuesta recibida');
+                                    
+                                    // Parsear la estructura de Firestore REST API
+                                    if (restData.fields && restData.fields.data && restData.fields.data.mapValue) {
+                                        const dataMap = restData.fields.data.mapValue.fields;
+                                        if (dataMap) {
+                                            for (let m = 1; m <= 5; m++) {
+                                                const moduleKey = String(m);
+                                                if (dataMap[moduleKey] && dataMap[moduleKey].mapValue) {
+                                                    const moduleFields = dataMap[moduleKey].mapValue.fields;
+                                                    if (moduleFields) {
+                                                        projectContent[m] = {};
+                                                        for (const [fieldName, fieldData] of Object.entries(moduleFields)) {
+                                                            if (fieldData.mapValue && fieldData.mapValue.fields) {
+                                                                const f = fieldData.mapValue.fields;
+                                                                projectContent[m][fieldName] = {
+                                                                    answer: f.answer?.stringValue || '',
+                                                                    approved: f.approved?.booleanValue || false,
+                                                                    choiceType: f.choiceType?.stringValue || undefined,
+                                                                    timestamp: f.timestamp?.stringValue || undefined
+                                                                };
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            const migratedCount = countRealFields(projectContent);
+                                            if (migratedCount > 0) {
+                                                console.log('✅ Migración REST exitosa! Campos recuperados:', migratedCount);
+                                                
+                                                // Re-guardar en formato nuevo (module_1, module_2, etc.)
+                                                const migrateData = {};
+                                                for (let m = 1; m <= 5; m++) {
+                                                    if (projectContent[m]) {
+                                                        migrateData[`module_${m}`] = projectContent[m];
+                                                    }
+                                                }
+                                                try {
+                                                    await setDoc(docRef, migrateData, { merge: true });
+                                                    console.log('✅ Datos migrados al formato nuevo en Firebase');
+                                                } catch (migErr) {
+                                                    console.warn('⚠️ Error migrando formato:', migErr.message);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (restError) {
+                            console.warn('⚠️ REST API falló:', restError.message);
+                        }
+                    }
+                }
+                
+                const fbFieldCount = countRealFields(projectContent);
+                console.log('☁️ Firebase módulos encontrados:', Object.keys(projectContent), '- campos con datos:', fbFieldCount);
+                
+                firebaseData = rawData;
+                firebaseData._projectContent = projectContent;
+                firebaseTimestamp = rawData.lastUpdated ? new Date(rawData.lastUpdated).getTime() : 0;
+                console.log('☁️ Firebase - timestamp:', rawData.lastUpdated || 'sin fecha');
+            } else {
+                console.log('ℹ️ No se encontró proyecto en Firebase para:', user.email);
+            }
+        } catch (error) {
+            console.warn('⚠️ Error cargando desde Firebase:', error.message);
+        }
+
+        // 3. Decidir cuál fuente usar
+        // PRIORIDAD: datos con contenido real > timestamp más reciente > cualquier dato
+        let chosenSource = null;
+        let sourceName = '';
+
+        const localFieldCount = localData ? countRealFields(localData.projectData) : 0;
+        const firebaseFieldCount = firebaseData ? countRealFields(firebaseData._projectContent) : 0;
+
+        console.log('🔀 Comparación - localStorage:', localFieldCount, 'campos vs Firebase:', firebaseFieldCount, 'campos');
+
+        // Construir fuente Firebase en formato estándar
+        const firebaseSource = firebaseData ? {
+            projectData: firebaseData._projectContent || {},
+            currentModule: firebaseData.currentModule || 1,
+            currentField: firebaseData.currentField || null,
+            userProgram: firebaseData.userProgram || null,
+            finalDocument: firebaseData.finalDocument || null,
+            lastSaved: firebaseData.lastUpdated
+        } : null;
+
+        if (firebaseFieldCount > 0 && localFieldCount > 0) {
+            // Ambos tienen datos reales - usar el más reciente
+            if (firebaseTimestamp >= localTimestamp) {
+                chosenSource = firebaseSource;
+                sourceName = 'Firebase (más reciente, ambos con datos)';
+            } else {
+                chosenSource = localData;
+                sourceName = 'localStorage (más reciente, ambos con datos)';
+            }
+        } else if (firebaseFieldCount > 0) {
+            // Solo Firebase tiene datos reales
+            chosenSource = firebaseSource;
+            sourceName = 'Firebase (tiene datos, localStorage vacío)';
+        } else if (localFieldCount > 0) {
+            // Solo localStorage tiene datos reales
+            chosenSource = localData;
+            sourceName = 'localStorage (tiene datos, Firebase vacío)';
+        } else if (firebaseData) {
+            // Ninguno tiene campos pero Firebase existe
+            chosenSource = firebaseSource;
+            sourceName = 'Firebase (sin campos completados)';
+        } else if (localData) {
+            // Ninguno tiene campos pero localStorage existe
+            chosenSource = localData;
+            sourceName = 'localStorage (sin campos completados)';
+        }
+
+        if (chosenSource) {
+            console.log('✅ Usando datos de:', sourceName);
+            restoreProgressData(chosenSource);
+
+            // Sincronizar a localStorage
+            localStorage.setItem(projectKey, JSON.stringify({
+                projectData: chosenSource.projectData || {},
+                currentModule: chosenSource.currentModule || 1,
+                currentField: chosenSource.currentField || null,
+                userProgram: chosenSource.userProgram || null,
+                finalDocument: chosenSource.finalDocument || null,
+                lastSaved: new Date().toISOString()
+            }));
+            if (sourceName.includes('Firebase')) {
+                console.log('💾 Datos de Firebase sincronizados a localStorage');
+            }
+            return true;
+        }
+
+        // 4. Si no hay datos en ningún lado, comenzar desde el principio
+        console.log('🆕 No hay datos guardados, comenzando desde cero');
+        currentModule = 1;
+        currentField = null;
+        return false;
     }
 
     function updateProjectSummary() {
         const summary = document.getElementById('projectSummary');
+        if (!summary) {
+            console.warn('⚠️ updateProjectSummary: elemento #projectSummary no encontrado');
+            return;
+        }
+        console.log('📊 updateProjectSummary llamado, projectData keys:', Object.keys(projectData));
         let html = '';
         let totalFields = 0;
         let completedFields = 0;
 
         for (let module = 1; module <= 5; module++) {
-            const moduleData = projectData[module] || {};
+            // Manejar claves numéricas y string
+            const moduleData = projectData[module] || projectData[String(module)] || {};
             const moduleFields = projectStructure[module]?.fields || {};
             const fieldKeys = Object.keys(moduleFields);
-            const moduleCompletedFields = Object.values(moduleData).filter(field => field && field.approved).length;
+            // Contar campos completados: aprobados O con respuesta válida
+            const moduleCompletedFields = Object.values(moduleData).filter(field => field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))).length;
+            console.log(`📊 Módulo ${module}: ${moduleCompletedFields}/${fieldKeys.length} completados, data keys:`, Object.keys(moduleData));
 
             totalFields += fieldKeys.length;
             completedFields += moduleCompletedFields;
@@ -13569,7 +13834,8 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         }
 
         try {
-            const projectData = {
+            // Usar merge: true para no sobrescribir los datos de los módulos existentes
+            const completionData = {
                 userId: currentUser.email || currentUser.id,
                 userName: currentUser.displayName || currentUser.name || currentUser.email,
                 completedAt: new Date().toISOString(),
@@ -13578,7 +13844,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 status: 'completed'
             };
 
-            await setDoc(doc(db, 'projects', currentUser.email || currentUser.id), projectData);
+            await setDoc(doc(db, 'projects', currentUser.email || currentUser.id), completionData, { merge: true });
             
             // Mostrar botones de vista previa e impresión
             document.getElementById('previewProjectBtn').style.display = 'inline-block';
@@ -13602,129 +13868,515 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         return summary;
     }
 
-    function previewProjectBook() {
-        // Show loading message
+    // ===== FUNCIÓN PARA MOSTRAR MODAL DE CARGA DEL PLAN DE NEGOCIO =====
+    function showPlanLoadingModal(messageText) {
         const loadingModal = document.createElement('div');
-        loadingModal.id = 'loadingModal';
+        loadingModal.id = 'planLoadingModal';
         loadingModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            color: white;
-            font-size: 18px;
-            font-family: Arial, sans-serif;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: flex; justify-content: center;
+            align-items: center; z-index: 10000; color: white; font-family: 'Segoe UI', Arial, sans-serif;
         `;
         loadingModal.innerHTML = `
-            <div style="text-align: center;">
-                <div style="font-size: 24px; margin-bottom: 20px;">Estamos creando tu plan de negocio...</div>
-                <div style="font-size: 16px;">Esto puede tomar unos momentos</div>
-                <div style="margin-top: 20px;">
-                    <div style="width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
-                        <div id="progressBar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.3s;"></div>
-                    </div>
+            <div style="text-align: center; max-width: 500px; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">📝</div>
+                <div style="font-size: 22px; margin-bottom: 10px; font-weight: 600;">${messageText || 'Generando tu Plan de Negocio con IA...'}</div>
+                <div id="planLoadingStatus" style="font-size: 14px; color: #aaa; margin-bottom: 20px;">Recopilando tus respuestas...</div>
+                <div style="width: 300px; height: 6px; background: #333; border-radius: 3px; overflow: hidden; margin: 0 auto;">
+                    <div id="planProgressBar" style="width: 5%; height: 100%; background: linear-gradient(90deg, #4CAF50, #45d37a); transition: width 0.5s; border-radius: 3px;"></div>
                 </div>
+                <div id="planProgressText" style="margin-top: 10px; font-size: 13px; color: #888;">Esto puede tomar 30-60 segundos...</div>
             </div>
         `;
         document.body.appendChild(loadingModal);
-        
-        // Simulate progress
-        const progressBar = loadingModal.querySelector('#progressBar');
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
-            if (progress >= 90) clearInterval(progressInterval);
-        }, 200);
-        
-        // Process the project data
-        setTimeout(() => {
-            try {
-                const projectContent = generateProjectBookHTML();
-                if (document.body.contains(loadingModal)) {
-                    document.body.removeChild(loadingModal);
-                }
-                
-                // Open preview in new window
-                const previewWindow = window.open('', '_blank');
-                previewWindow.document.write(projectContent);
-                previewWindow.document.close();
-            } catch (error) {
-                if (document.body.contains(loadingModal)) {
-                    document.body.removeChild(loadingModal);
-                }
-                alert('Error al generar el proyecto: ' + error.message);
+        return loadingModal;
+    }
+
+    function updatePlanLoadingProgress(percent, statusText) {
+        const bar = document.getElementById('planProgressBar');
+        const status = document.getElementById('planLoadingStatus');
+        if (bar) bar.style.width = percent + '%';
+        if (status && statusText) status.textContent = statusText;
+    }
+
+    function removePlanLoadingModal() {
+        const modal = document.getElementById('planLoadingModal');
+        if (modal && document.body.contains(modal)) document.body.removeChild(modal);
+    }
+
+    // ===== GENERAR PLAN DE NEGOCIO CON IA =====
+    async function generateProjectWithAI(mode) {
+        const loadingModal = showPlanLoadingModal('Charlotte está elaborando tu Plan de Negocio...');
+
+        try {
+            // 1. Recopilar TODAS las respuestas del estudiante
+            updatePlanLoadingProgress(10, 'Recopilando tus 17 respuestas...');
+
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const userName = currentUser ? (currentUser.displayName || currentUser.name || currentUser.email) : 'Estudiante';
+            const userProgram = currentUser ? currentUser.programa || 'panaderia' : 'panaderia';
+            const programName = userProgram.includes('panader') || userProgram.includes('pasteler')
+                ? 'Panadería y Pastelería' : 'Belleza Integral';
+            const currentDate = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Recopilar TODAS las respuestas de los 5 módulos
+            const respuestas = {
+                // Módulo 1 – Identificación
+                nombre_negocio: projectData[1]?.nombre_negocio?.answer || '',
+                eslogan: projectData[1]?.eslogan?.answer || '',
+                descripcion: projectData[1]?.descripcion?.answer || '',
+                mision: projectData[1]?.mision?.answer || '',
+                vision: projectData[1]?.vision?.answer || '',
+                // Módulo 2 – Mercado
+                cliente_ideal: projectData[2]?.cliente_ideal?.answer || '',
+                competencia: projectData[2]?.competencia?.answer || '',
+                propuesta_valor: projectData[2]?.propuesta_valor?.answer || '',
+                // Módulo 3 – Operaciones
+                servicios_principales: projectData[3]?.servicios_principales?.answer || '',
+                proceso_estrella: projectData[3]?.proceso_estrella?.answer || '',
+                recursos_necesarios: projectData[3]?.recursos_necesarios?.answer || '',
+                // Módulo 4 – Marketing
+                canales_venta: projectData[4]?.canales_venta?.answer || '',
+                estrategia_redes: projectData[4]?.estrategia_redes?.answer || '',
+                campaña_lanzamiento: projectData[4]?.campaña_lanzamiento?.answer || '',
+                // Módulo 5 – Finanzas
+                inversion_inicial: projectData[5]?.inversion_inicial?.answer || '',
+                precio_venta: projectData[5]?.precio_venta?.answer || '',
+                proyeccion_ventas: projectData[5]?.proyeccion_ventas?.answer || ''
+            };
+
+            // Verificar que hay datos suficientes
+            const respuestasLlenas = Object.values(respuestas).filter(r => r.trim().length > 0).length;
+            if (respuestasLlenas < 5) {
+                removePlanLoadingModal();
+                alert('No hay suficientes respuestas para generar el plan. Completa al menos los primeros módulos.');
+                return;
             }
-        }, 2000); // Give it 2 seconds to process
+
+            updatePlanLoadingProgress(20, 'Enviando datos a la IA para análisis...');
+
+            // 2. Construir el MEGA PROMPT para la IA
+            const megaPrompt = `Eres Charlotte, experta en creación de planes de negocio para emprendedores del sector "${programName}".
+
+TAREA: Genera un PLAN DE NEGOCIO COMPLETO, PROFESIONAL y ÚNICO basado EXCLUSIVAMENTE en las respuestas reales del estudiante. NO inventes datos. Transforma y expande sus respuestas en contenido profesional.
+
+===== DATOS DEL ESTUDIANTE =====
+Nombre: ${userName}
+Programa: ${programName}
+Fecha: ${currentDate}
+
+===== RESPUESTAS DEL ESTUDIANTE (17 preguntas) =====
+
+MÓDULO 1 – IDENTIFICACIÓN DEL NEGOCIO:
+1. Nombre del negocio: "${respuestas.nombre_negocio}"
+2. Eslogan: "${respuestas.eslogan}"
+3. Descripción del negocio: "${respuestas.descripcion}"
+4. Misión: "${respuestas.mision}"
+5. Visión: "${respuestas.vision}"
+
+MÓDULO 2 – ANÁLISIS DE MERCADO:
+6. Perfil del cliente ideal: "${respuestas.cliente_ideal}"
+7. Análisis de competencia: "${respuestas.competencia}"
+8. Propuesta de valor única: "${respuestas.propuesta_valor}"
+
+MÓDULO 3 – OPERACIONES:
+9. Productos/servicios principales: "${respuestas.servicios_principales}"
+10. Proceso del producto/servicio estrella: "${respuestas.proceso_estrella}"
+11. Recursos necesarios: "${respuestas.recursos_necesarios}"
+
+MÓDULO 4 – MARKETING:
+12. Canales de venta: "${respuestas.canales_venta}"
+13. Estrategia en redes sociales: "${respuestas.estrategia_redes}"
+14. Campaña de lanzamiento: "${respuestas.campaña_lanzamiento}"
+
+MÓDULO 5 – FINANZAS:
+15. Inversión inicial: "${respuestas.inversion_inicial}"
+16. Precio de venta y utilidad: "${respuestas.precio_venta}"
+17. Proyección de ventas (3 meses): "${respuestas.proyeccion_ventas}"
+
+===== INSTRUCCIONES DE GENERACIÓN =====
+
+Genera el plan de negocio con EXACTAMENTE esta estructura en formato Markdown. Cada sección debe ser EXTENSA (mínimo 2-3 párrafos por subsección). Usa los datos reales del estudiante para crear contenido único y personalizado:
+
+# PLAN DE NEGOCIO COMPLETO
+
+## "NOMBRE_DEL_NEGOCIO" - [Subtítulo descriptivo basado en la descripción]
+
+---
+
+## 1. RESUMEN EJECUTIVO
+(Párrafo completo de 150-200 palabras que sintetice TODO el plan: qué es el negocio, a quién sirve, cuánto necesita de inversión, qué lo diferencia, proyecciones. Basado 100% en las respuestas.)
+
+---
+
+## 2. CAPÍTULO 1: IDENTIDAD CORPORATIVA
+
+### 2.1. Nombre y Posicionamiento
+(Analiza el nombre elegido, su significado, qué transmite al mercado)
+
+### 2.2. Descripción del Negocio
+(Expande la descripción del estudiante de forma profesional, detalla los servicios/productos)
+
+### 2.3. Filosofía Empresarial
+- **Misión:** (Toma la misión del estudiante, mejórala profesionalmente sin cambiar su esencia)
+- **Visión:** (Toma la visión del estudiante, hazla más aspiracional sin cambiar su esencia)
+
+### 2.4. Valores Implícitos
+(Deduce 4-5 valores corporativos que se desprenden de las respuestas del estudiante. Cada uno con nombre y descripción de 1 línea.)
+
+---
+
+## 3. CAPÍTULO 2: ANÁLISIS DE MERCADO
+
+### 3.1. Perfil del Cliente Ideal
+(Toma la respuesta del cliente ideal y crea un perfil completo con: Características demográficas, Necesidades y deseos, Comportamiento de compra. Todo basado en lo que dijo el estudiante.)
+
+### 3.2. Análisis de la Competencia
+(Toma la respuesta de competencia y crea una tabla comparativa: Aspecto | Competidor | Este Negocio. Analiza fortalezas y debilidades de cada uno.)
+
+### 3.3. Propuesta de Valor Única
+(Transforma la propuesta de valor del estudiante en una propuesta profesional con componentes de valor y diferenciadores clave.)
+
+---
+
+## 4. CAPÍTULO 3: OPERACIONES Y PROCESOS
+
+### 4.1. Catálogo de Productos/Servicios
+(Toma los servicios/productos principales y organízalos en un catálogo profesional con descripciones detalladas de cada uno.)
+
+### 4.2. Proceso Productivo Estándar
+(Toma el proceso estrella del estudiante y conviértelo en un diagrama de fases con tiempos, pasos detallados y consideraciones técnicas.)
+
+### 4.3. Recursos Necesarios
+(Organiza los recursos mencionados por el estudiante en categorías: A. Inversión Fija, B. Insumos de Consumo, C. Recursos Digitales.)
+
+---
+
+## 5. CAPÍTULO 4: ESTRATEGIA DE MARKETING
+
+### 5.1. Canales de Venta Integrados
+(Toma los canales de venta del estudiante y estructura un modelo de distribución con proceso de venta paso a paso.)
+
+### 5.2. Estrategia en Redes Sociales
+(Expande la estrategia del estudiante con plan de contenido específico para cada plataforma que mencionó.)
+
+### 5.3. Campaña de Lanzamiento
+(Transforma la campaña del estudiante en un plan detallado con: oferta, condiciones, acciones complementarias, objetivos medibles.)
+
+---
+
+## 6. CAPÍTULO 5: PLAN FINANCIERO
+
+### 6.1. Inversión Inicial
+(Toma los datos de inversión del estudiante y organízalos en una tabla con distribución porcentual.)
+
+### 6.2. Estructura de Precios
+(Analiza el precio de venta y utilidad que dio el estudiante. Crea estructura de costos y márgenes.)
+
+### 6.3. Proyecciones Financieras
+(Toma la proyección del estudiante y crea un desglose mes a mes para el primer trimestre con ingresos estimados.)
+
+### 6.4. Punto de Equilibrio
+(Calcula el punto de equilibrio basado en los datos reales que proporcionó el estudiante.)
+
+---
+
+## 7. CONCLUSIONES Y RECOMENDACIONES
+
+### 7.1. Fortalezas del Proyecto
+(Lista 4-5 fortalezas basadas en las respuestas reales del estudiante.)
+
+### 7.2. Riesgos Identificados
+(Lista 3-4 riesgos reales basados en el tipo de negocio y sector.)
+
+### 7.3. Recomendaciones de Implementación
+(Recomendaciones a corto plazo 0-3 meses y mediano plazo 3-6 meses. Específicas para ESTE negocio.)
+
+### 7.4. Reflexión Final
+(Párrafo de cierre de 100-150 palabras que resuma la viabilidad del proyecto basándose en los datos reales del estudiante.)
+
+---
+
+REGLAS OBLIGATORIAS:
+1. TODO el contenido debe estar basado en las 17 respuestas del estudiante. NO inventes datos que el estudiante no proporcionó.
+2. Si el estudiante mencionó números específicos (precios, cantidades, inversiones), ÚSALOS tal cual.
+3. Si el estudiante mencionó competidores específicos, ÚSALOS por nombre.
+4. Si el estudiante describió su cliente ideal, USA esa descripción exacta como base.
+5. Cada sección debe tener mínimo 2 párrafos sustanciales.
+6. Usa formato Markdown estricto con ##, ###, **, -, |tabla|.
+7. El documento debe ser mínimo 3000 palabras.
+8. NO uses frases genéricas como "según estudios del sector". Usa solo la información del estudiante.
+9. Las tablas deben usar formato Markdown: | Col1 | Col2 |
+10. Escribe en español profesional pero accesible.`;
+
+            // 3. Llamar a la IA
+            updatePlanLoadingProgress(30, 'La IA está analizando tu negocio...');
+
+            const apiKey = localStorage.getItem('openrouter_api_key');
+            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+                removePlanLoadingModal();
+                alert('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter.');
+                return;
+            }
+
+            // Simular progreso mientras la IA trabaja
+            let aiProgress = 30;
+            const progressTimer = setInterval(() => {
+                aiProgress += 2;
+                if (aiProgress > 85) aiProgress = 85;
+                const messages = [
+                    'La IA está analizando tu negocio...',
+                    'Elaborando el resumen ejecutivo...',
+                    'Construyendo la identidad corporativa...',
+                    'Analizando tu mercado objetivo...',
+                    'Estructurando las operaciones...',
+                    'Diseñando la estrategia de marketing...',
+                    'Calculando proyecciones financieras...',
+                    'Redactando conclusiones...',
+                    'Finalizando el documento...'
+                ];
+                const msgIdx = Math.min(Math.floor((aiProgress - 30) / 7), messages.length - 1);
+                updatePlanLoadingProgress(aiProgress, messages[msgIdx]);
+            }, 2000);
+
+            const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'Eres Charlotte, una consultora empresarial experta en crear planes de negocio detallados, profesionales y únicos. Generas documentos extensos y bien estructurados en formato Markdown. Cada plan que creas es completamente diferente porque se basa exclusivamente en los datos específicos de cada estudiante.'
+                        },
+                        { role: 'user', content: megaPrompt }
+                    ],
+                    max_tokens: 16000,
+                    temperature: 0.7
+                })
+            });
+
+            clearInterval(progressTimer);
+
+            if (!aiResponse.ok) {
+                const errorData = await aiResponse.json().catch(() => ({}));
+                throw new Error(`Error de IA: ${aiResponse.status} - ${errorData.error?.message || 'Error desconocido'}`);
+            }
+
+            updatePlanLoadingProgress(90, 'Formateando tu documento profesional...');
+
+            const data = await aiResponse.json();
+            const planMarkdown = data.choices[0].message.content;
+
+            // 4. Convertir Markdown a HTML profesional
+            updatePlanLoadingProgress(95, 'Aplicando diseño profesional...');
+
+            const planHTML = convertPlanToHTML(planMarkdown, userName, programName, currentDate, respuestas.nombre_negocio);
+
+            updatePlanLoadingProgress(100, '¡Plan de negocio listo!');
+
+            // 5. Abrir el documento
+            setTimeout(() => {
+                removePlanLoadingModal();
+
+                const outputWindow = window.open('', '_blank');
+                if (!outputWindow) {
+                    alert('Tu navegador bloqueó la ventana emergente. Habilita las ventanas emergentes e intenta de nuevo.');
+                    return;
+                }
+                outputWindow.document.write(planHTML);
+                outputWindow.document.close();
+
+                if (mode === 'print') {
+                    setTimeout(() => outputWindow.print(), 1000);
+                }
+            }, 500);
+
+        } catch (error) {
+            console.error('Error generando plan de negocio:', error);
+            removePlanLoadingModal();
+            alert('Error al generar el plan: ' + error.message);
+        }
+    }
+
+    // ===== CONVERTIR MARKDOWN DE LA IA A HTML PROFESIONAL =====
+    function convertPlanToHTML(markdown, userName, programName, currentDate, businessName) {
+        // Limpiar el markdown
+        let content = markdown.trim();
+
+        // Convertir tablas Markdown a HTML
+        content = content.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)*)/g, function(match, header, rows) {
+            const headers = header.split('|').map(h => h.trim()).filter(h => h);
+            let table = '<table><thead><tr>';
+            headers.forEach(h => { table += `<th>${h}</th>`; });
+            table += '</tr></thead><tbody>';
+            rows.trim().split('\n').forEach(row => {
+                const cells = row.split('|').map(c => c.trim()).filter(c => c);
+                table += '<tr>';
+                cells.forEach(c => { table += `<td>${c}</td>`; });
+                table += '</tr>';
+            });
+            table += '</tbody></table>';
+            return table;
+        });
+
+        // Convertir headers Markdown a HTML
+        content = content.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+        content = content.replace(/^## (\d+\..+)$/gm, '<h2 class="chapter-heading">$1</h2>');
+        content = content.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+        content = content.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+        // Convertir negrita y cursiva
+        content = content.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        content = content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        content = content.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+        // Convertir listas
+        content = content.replace(/^- (.+)$/gm, '<li>$1</li>');
+        content = content.replace(/^(\d+)\. (.+)$/gm, '<li class="numbered">$2</li>');
+
+        // Agrupar <li> consecutivos en <ul>
+        content = content.replace(/((?:<li[^>]*>.+<\/li>\s*)+)/g, '<ul>$1</ul>');
+
+        // Convertir separadores
+        content = content.replace(/^---+$/gm, '<hr class="section-divider">');
+
+        // Convertir párrafos (líneas que no son tags HTML)
+        content = content.split('\n').map(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return '';
+            if (trimmed.startsWith('<')) return trimmed;
+            return `<p>${trimmed}</p>`;
+        }).join('\n');
+
+        // Limpiar párrafos vacíos
+        content = content.replace(/<p>\s*<\/p>/g, '');
+
+        return `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Negocio - ${businessName || 'Proyecto Final'}</title>
+    <style>
+        @page { size: A4; margin: 2.5cm 2cm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8; color: #1a1a2e; background: #fff;
+            max-width: 900px; margin: 0 auto; padding: 2cm;
+        }
+        /* === PORTADA === */
+        .cover-page {
+            page-break-after: always; text-align: center;
+            min-height: 90vh; display: flex; flex-direction: column;
+            justify-content: center; padding: 3cm 1cm;
+            border: 3px double #1a1a2e;
+        }
+        .cover-page .institute { font-size: 13pt; color: #555; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 3cm; }
+        .cover-page .doc-type { font-size: 14pt; color: #666; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1cm; }
+        .cover-page .business-name { font-size: 28pt; font-weight: bold; color: #1a1a2e; margin-bottom: 0.5cm; text-transform: uppercase; }
+        .cover-page .subtitle { font-size: 14pt; color: #444; font-style: italic; margin-bottom: 3cm; }
+        .cover-page .student-info { font-size: 12pt; line-height: 2; }
+        .cover-page .student-info strong { color: #1a1a2e; }
+
+        /* === CONTENIDO === */
+        h1 { font-size: 22pt; text-align: center; margin: 2cm 0 1cm; color: #1a1a2e; text-transform: uppercase; letter-spacing: 1px; page-break-before: always; }
+        h1:first-of-type { page-break-before: avoid; }
+        h2 { font-size: 16pt; color: #1a1a2e; margin: 1.5cm 0 0.5cm; padding-bottom: 0.3cm; border-bottom: 2px solid #1a1a2e; }
+        h2.chapter-heading { page-break-before: always; font-size: 18pt; margin-top: 2cm; }
+        h3 { font-size: 13pt; color: #333; margin: 1cm 0 0.4cm; }
+        p { text-align: justify; margin-bottom: 0.6cm; font-size: 12pt; }
+        strong { color: #1a1a2e; }
+        ul { margin: 0.4cm 0 0.8cm 1.2cm; }
+        li { margin-bottom: 0.3cm; font-size: 12pt; }
+        li.numbered { list-style: decimal; }
+        hr.section-divider { border: none; border-top: 1px solid #ccc; margin: 1.5cm 0; }
+
+        /* === TABLAS === */
+        table {
+            width: 100%; border-collapse: collapse; margin: 0.8cm 0;
+            font-size: 11pt; page-break-inside: avoid;
+        }
+        th { background: #1a1a2e; color: #fff; padding: 10px 12px; text-align: left; font-weight: 600; }
+        td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e8f4f8; }
+
+        /* === CAJAS ESPECIALES === */
+        blockquote {
+            background: #f0f4ff; border-left: 4px solid #1a1a2e;
+            padding: 1cm; margin: 0.8cm 0; font-style: italic; color: #333;
+        }
+
+        /* === PIE DE PÁGINA === */
+        .footer-note {
+            page-break-before: always; text-align: center;
+            padding-top: 3cm; font-style: italic; color: #666;
+            border-top: 2px solid #1a1a2e; margin-top: 2cm;
+        }
+
+        /* === IMPRESIÓN === */
+        @media print {
+            body { padding: 0; max-width: none; }
+            .cover-page { height: 100vh; }
+            h2.chapter-heading { page-break-before: always; }
+            .no-print { display: none !important; }
+        }
+
+        /* === BOTÓN IMPRIMIR === */
+        .print-btn {
+            position: fixed; top: 20px; right: 20px;
+            background: #1a1a2e; color: #fff; border: none;
+            padding: 12px 24px; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 600; z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        .print-btn:hover { background: #2d2d5e; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
+
+    <!-- PORTADA -->
+    <div class="cover-page">
+        <div class="institute">ESCUELA DE CAPACITACIÓN Y EMPRENDIMIENTO CHARLOTTE</div>
+        <div class="doc-type">Proyecto Final de Emprendimiento</div>
+        <div class="doc-type">Plan de Negocio</div>
+        <div class="business-name">"${businessName || 'Mi Negocio'}"</div>
+        <div class="subtitle">${programName}</div>
+        <div class="student-info">
+            <strong>Presentado por:</strong> ${userName}<br>
+            <strong>Programa:</strong> ${programName === 'Panadería y Pastelería' ? 'Maestro de Taller en Panadería y Pastelería' : 'Maestro de Taller en Belleza Integral'}<br>
+            <strong>Tutora Virtual:</strong> Charlotte<br>
+            <strong>Fecha:</strong> ${currentDate}
+        </div>
+    </div>
+
+    <!-- CONTENIDO GENERADO POR IA -->
+    ${content}
+
+    <!-- PIE FINAL -->
+    <div class="footer-note">
+        <strong>Documento elaborado con base en la información proporcionada por el estudiante durante el proceso de tutoría interactiva.</strong><br><br>
+        Este plan de negocio fue generado mediante la metodología estructurada de la tutora virtual Charlotte, utilizando exclusivamente las respuestas y datos proporcionados por ${userName}.<br><br>
+        <strong>Versión Final — ${currentDate}</strong>
+    </div>
+</body>
+</html>`;
+    }
+
+    // ===== FUNCIONES PÚBLICAS QUE LLAMAN AL GENERADOR CON IA =====
+    function previewProjectBook() {
+        generateProjectWithAI('preview');
     }
 
     function printProjectBook() {
-        // Show loading message
-        const loadingModal = document.createElement('div');
-        loadingModal.id = 'loadingModal';
-        loadingModal.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            color: white;
-            font-size: 18px;
-            font-family: Arial, sans-serif;
-        `;
-        loadingModal.innerHTML = `
-            <div style="text-align: center;">
-                <div style="font-size: 24px; margin-bottom: 20px;">Estamos creando tu plan de negocio...</div>
-                <div style="font-size: 16px;">Esto puede tomar unos momentos</div>
-                <div style="margin-top: 20px;">
-                    <div style="width: 200px; height: 4px; background: #333; border-radius: 2px; overflow: hidden;">
-                        <div id="progressBar" style="width: 0%; height: 100%; background: #4CAF50; transition: width 0.3s;"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(loadingModal);
-        
-        // Simulate progress
-        const progressBar = loadingModal.querySelector('#progressBar');
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += 10;
-            if (progressBar) progressBar.style.width = progress + '%';
-            if (progress >= 90) clearInterval(progressInterval);
-        }, 200);
-        
-        // Process the project data
-        setTimeout(() => {
-            try {
-                const projectContent = generateProjectBookHTML();
-                if (document.body.contains(loadingModal)) {
-                    document.body.removeChild(loadingModal);
-                }
-                
-                // Open print window
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(projectContent);
-                printWindow.document.close();
-                printWindow.print();
-            } catch (error) {
-                if (document.body.contains(loadingModal)) {
-                    document.body.removeChild(loadingModal);
-                }
-                alert('Error al generar el proyecto: ' + error.message);
-            }
-        }, 2000); // Give it 2 seconds to process
+        generateProjectWithAI('print');
     }
 
     function extractBusinessName() {
@@ -14180,101 +14832,225 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
                 </div>
             </div>
 
-            <!-- Índice -->
+            <!-- Índice Expandido -->
             <div class="toc">
-                <div class="toc-title">ÍNDICE</div>
+                <div class="toc-title">ÍNDICE DETALLADO</div>
 
                 <div class="toc-section">
                     <strong>1. INTRODUCCIÓN Y ANTECEDENTES</strong>
                     <div class="toc-item">1.1 Contexto del Proyecto</div>
-                    <div class="toc-item">1.2 Objetivo General</div>
+                    <div class="toc-item">1.2 Antecedentes del Sector</div>
+                    <div class="toc-item">1.3 Problemática Identificada</div>
+                    <div class="toc-item">1.4 Objetivos del Proyecto</div>
+                    <div class="toc-item">1.5 Metodología de Desarrollo</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>2. IDENTIDAD CORPORATIVA</strong>
-                    <div class="toc-item">2.1 Nombre y Eslogan</div>
-                    <div class="toc-item">2.2 Descripción del Negocio</div>
-                    <div class="toc-item">2.3 Filosofía Empresarial</div>
+                    <strong>2. IDENTIDAD CORPORATIVA Y MARCA</strong>
+                    <div class="toc-item">2.1 Nombre y Denominación Social</div>
+                    <div class="toc-item">2.2 Eslogan e Identidad Visual</div>
+                    <div class="toc-item">2.3 Descripción del Negocio</div>
+                    <div class="toc-item">2.4 Filosofía Empresarial</div>
+                    <div class="toc-item">2.5 Valores Corporativos</div>
+                    <div class="toc-item">2.6 Cultura Organizacional</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>3. ESTUDIO DE MERCADO</strong>
-                    <div class="toc-item">3.1 Perfil del Cliente Ideal</div>
-                    <div class="toc-item">3.2 Análisis Competitivo</div>
-                    <div class="toc-item">3.3 Propuesta de Valor</div>
+                    <strong>3. ANÁLISIS DEL ENTORNO</strong>
+                    <div class="toc-item">3.1 Análisis PESTEL</div>
+                    <div class="toc-item">3.2 Análisis del Sector</div>
+                    <div class="toc-item">3.3 Tendencias del Mercado</div>
+                    <div class="toc-item">3.4 Oportunidades y Amenazas</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>4. OPERACIONES Y PROCESOS PRODUCTIVOS</strong>
-                    <div class="toc-item">4.1 Catálogo de Productos</div>
-                    <div class="toc-item">4.2 Proceso de Elaboración</div>
-                    <div class="toc-item">4.3 Recursos Necesarios</div>
+                    <strong>4. ESTUDIO DE MERCADO DETALLADO</strong>
+                    <div class="toc-item">4.1 Segmentación del Mercado</div>
+                    <div class="toc-item">4.2 Perfil del Cliente Ideal</div>
+                    <div class="toc-item">4.3 Análisis de la Demanda</div>
+                    <div class="toc-item">4.4 Análisis Competitivo</div>
+                    <div class="toc-item">4.5 Benchmarking</div>
+                    <div class="toc-item">4.6 Propuesta de Valor Única</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>5. ESTRATEGIA COMERCIAL Y DE MARKETING</strong>
-                    <div class="toc-item">5.1 Canales de Venta y Distribución</div>
-                    <div class="toc-item">5.2 Estrategia Digital</div>
-                    <div class="toc-item">5.3 Plan de Lanzamiento</div>
+                    <strong>5. ESTRATEGIA DE MARKETING</strong>
+                    <div class="toc-item">5.1 Estrategia de Posicionamiento</div>
+                    <div class="toc-item">5.2 Mix de Marketing (4P)</div>
+                    <div class="toc-item">5.3 Estrategia Digital y Online</div>
+                    <div class="toc-item">5.4 Plan de Comunicación</div>
+                    <div class="toc-item">5.5 Estrategia de Precios</div>
+                    <div class="toc-item">5.6 Plan de Lanzamiento</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>6. ANÁLISIS FINANCIERO</strong>
-                    <div class="toc-item">6.1 Inversión Inicial</div>
-                    <div class="toc-item">6.2 Estructura de Costos</div>
-                    <div class="toc-item">6.3 Proyecciones de Ventas</div>
+                    <strong>6. OPERACIONES Y PROCESOS</strong>
+                    <div class="toc-item">6.1 Diseño del Producto/Servicio</div>
+                    <div class="toc-item">6.2 Procesos Operativos</div>
+                    <div class="toc-item">6.3 Cadena de Valor</div>
+                    <div class="toc-item">6.4 Gestión de Calidad</div>
+                    <div class="toc-item">6.5 Tecnología y Equipamiento</div>
+                    <div class="toc-item">6.6 Proveedores y Alianzas</div>
                 </div>
 
                 <div class="toc-section">
-                    <strong>7. PLAN DE IMPLEMENTACIÓN Y CONCLUSIONES</strong>
-                    <div class="toc-item">7.1 Cronograma Inicial</div>
-                    <div class="toc-item">7.2 Conclusiones</div>
-                    <div class="toc-item">7.3 Recomendaciones</div>
+                    <strong>7. GESTIÓN DEL TALENTO HUMANO</strong>
+                    <div class="toc-item">7.1 Estructura Organizacional</div>
+                    <div class="toc-item">7.2 Perfiles de Puestos</div>
+                    <div class="toc-item">7.3 Plan de Capacitación</div>
+                    <div class="toc-item">7.4 Cultura y Motivación</div>
+                    <div class="toc-item">7.5 Compensaciones y Beneficios</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>8. ANÁLISIS FINANCIERO COMPLETO</strong>
+                    <div class="toc-item">8.1 Inversión Inicial Detallada</div>
+                    <div class="toc-item">8.2 Estructura de Costos</div>
+                    <div class="toc-item">8.3 Análisis de Punto de Equilibrio</div>
+                    <div class="toc-item">8.4 Proyecciones Financieras</div>
+                    <div class="toc-item">8.5 Análisis de Riesgo Financiero</div>
+                    <div class="toc-item">8.6 Fuentes de Financiamiento</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>9. PLAN DE IMPLEMENTACIÓN</strong>
+                    <div class="toc-item">9.1 Cronograma de Actividades</div>
+                    <div class="toc-item">9.2 Plan de Contingencia</div>
+                    <div class="toc-item">9.3 Indicadores de Seguimiento</div>
+                    <div class="toc-item">9.4 Plan de Escalabilidad</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>10. CONCLUSIONES Y RECOMENDACIONES</strong>
+                    <div class="toc-item">10.1 Resumen Ejecutivo</div>
+                    <div class="toc-item">10.2 Fortalezas del Proyecto</div>
+                    <div class="toc-item">10.3 Recomendaciones Estratégicas</div>
+                    <div class="toc-item">10.4 Próximos Pasos</div>
+                    <div class="toc-item">10.5 Declaración de Viabilidad</div>
+                </div>
+
+                <div class="toc-section">
+                    <strong>ANEXOS</strong>
+                    <div class="toc-item">Anexo 1: Estados Financieros Proyectados</div>
+                    <div class="toc-item">Anexo 2: Análisis de Sensibilidad</div>
+                    <div class="toc-item">Anexo 3: Cronograma Detallado de Implementación</div>
+                    <div class="toc-item">Anexo 4: Documentos de Soporte</div>
+                    <div class="toc-item">Anexo 5: Referencias y Fuentes de Información</div>
                 </div>
             </div>
 
-            <!-- Capítulo 1: Introducción y Antecedentes -->
+            <!-- Capítulo 1: Introducción y Antecedentes Expandido -->
             <div class="chapter">
                 <div class="chapter-title">1. INTRODUCCIÓN Y ANTECEDENTES</div>
 
                 <div class="section-title">1.1 Contexto del Proyecto</div>
                 <div class="content">
-                    ${businessName} surge como respuesta a una necesidad identificada en el mercado local: la demanda de ${businessDescription}. A diferencia de las pastelerías tradicionales que ofrecen productos estandarizados, este proyecto se especializa en la creación única de tortas que se convierten en el centro de atención de eventos como bodas, aniversarios, baby showers y reuniones corporativas.
+                    ${businessName} surge como respuesta a una necesidad identificada en el mercado local: ${businessDescription}. En un entorno empresarial cada vez más competitivo y digitalizado, este proyecto representa una oportunidad única para satisfacer demandas no atendidas por las ofertas tradicionales del mercado.
                 </div>
                 <div class="content">
-                    El desarrollo de este plan de negocio se realizó mediante una metodología estructurada en 6 módulos, guiados por la tutora virtual Charlotte, donde cada fase fue completada y validada antes de avanzar a la siguiente.
+                    El sector empresarial actual se caracteriza por una creciente demanda de productos y servicios personalizados, sostenibles y de alta calidad. ${businessName} se posiciona como una solución innovadora que combina tradición artesanal con tecnología moderna, atendiendo las necesidades específicas de un mercado que valora la autenticidad y la personalización.
                 </div>
 
-                <div class="section-title">1.2 Objetivo General</div>
+                <div class="section-title">1.2 Antecedentes del Sector</div>
                 <div class="content">
-                    Establecer ${businessName} como una opción confiable y creativa en el mercado de pastelería personalizada, ofreciendo productos de alta calidad que combinen sabor excepcional con diseño innovador, cumpliendo con las expectativas de clientes que buscan algo más allá de una simple torta.
+                    El sector en el que se desarrolla ${businessName} ha experimentado una transformación significativa en los últimos años. La digitalización de los procesos comerciales, el aumento de la conciencia ambiental y los cambios en los hábitos de consumo han creado nuevas oportunidades para emprendimientos que se adapten a estas tendencias.
+                </div>
+                <div class="content">
+                    Según estudios del sector, existe una creciente demanda de productos/servicios que ofrezcan experiencias únicas y personalizadas. Los consumidores actuales buscan no solo calidad, sino también historias, valores y conexiones emocionales con las marcas que eligen.
+                </div>
+
+                <div class="section-title">1.3 Problemática Identificada</div>
+                <div class="content">
+                    <strong>Problemática Principal:</strong> La oferta actual del mercado se caracteriza por productos/servicios estandarizados que no satisfacen las necesidades específicas de segmentos de clientes que buscan experiencias únicas y personalizadas.
+                </div>
+                <div class="content">
+                    <strong>Problemas Específicos Identificados:</strong>
+                    <div class="list-item">• Falta de opciones personalizadas en el mercado local</div>
+                    <div class="list-item">• Baja diferenciación entre competidores directos</div>
+                    <div class="list-item">• Ausencia de enfoque en la experiencia del cliente</div>
+                    <div class="list-item">• Limitaciones en la capacidad de respuesta a demandas específicas</div>
+                    <div class="list-item">• Oportunidades desaprovechadas en nichos de mercado especializados</div>
+                </div>
+
+                <div class="section-title">1.4 Objetivos del Proyecto</div>
+                <div class="content">
+                    <strong>Objetivo General:</strong> Establecer ${businessName} como líder en su segmento, ofreciendo productos/servicios de calidad superior que satisfagan las necesidades específicas del mercado objetivo.
+                </div>
+                <div class="content">
+                    <strong>Objetivos Específicos:</strong>
+                    <div class="list-item">• Desarrollar una oferta única y diferenciada en el mercado</div>
+                    <div class="list-item">• Establecer relaciones sólidas con clientes satisfechos</div>
+                    <div class="list-item">• Implementar procesos operativos eficientes y escalables</div>
+                    <div class="list-item">• Generar rentabilidad sostenible a partir del primer año</div>
+                    <div class="list-item">• Crear una marca reconocida y valorada en el sector</div>
+                </div>
+
+                <div class="section-title">1.5 Metodología de Desarrollo</div>
+                <div class="content">
+                    El desarrollo de este plan de negocio se realizó mediante una metodología estructurada en 6 módulos interactivos, guiados por la tutora virtual Charlotte. Cada módulo representa una fase fundamental del proceso de planificación empresarial:
+                </div>
+                <div class="content">
+                    <strong>Módulo 1 - Identidad Empresarial:</strong> Definición de la esencia del negocio, misión, visión y valores corporativos.
+                </div>
+                <div class="content">
+                    <strong>Módulo 2 - Análisis de Mercado:</strong> Estudio detallado del entorno competitivo, clientes potenciales y oportunidades de mercado.
+                </div>
+                <div class="content">
+                    <strong>Módulo 3 - Operaciones:</strong> Diseño de procesos productivos, cadena de valor y recursos necesarios.
+                </div>
+                <div class="content">
+                    <strong>Módulo 4 - Marketing:</strong> Desarrollo de estrategias comerciales, posicionamiento y planes de comunicación.
+                </div>
+                <div class="content">
+                    <strong>Módulo 5 - Finanzas:</strong> Análisis de viabilidad económica, proyecciones financieras y estructura de costos.
+                </div>
+                <div class="content">
+                    <strong>Módulo 6 - Implementación:</strong> Plan de ejecución, cronograma de actividades y estrategias de lanzamiento.
                 </div>
             </div>
 
-            <!-- Capítulo 2: Identidad Corporativa -->
+            <!-- Capítulo 2: Identidad Corporativa Expandido -->
             <div class="chapter">
-                <div class="chapter-title">2. IDENTIDAD CORPORATIVA</div>
+                <div class="chapter-title">2. IDENTIDAD CORPORATIVA Y MARCA</div>
 
-                <div class="section-title">2.1 Nombre y Eslogan</div>
+                <div class="section-title">2.1 Nombre y Denominación Social</div>
                 <div class="content">
                     <strong>Nombre Comercial:</strong> ${businessName}<br>
-                    <strong>Eslogan:</strong> "${slogan}"
+                    <strong>Denominación Legal:</strong> ${businessName} S.A.S. (Sociedad por Acciones Simplificada)
                 </div>
                 <div class="content">
                     <strong>Análisis del Nombre:</strong> ${businessName ? `El nombre "${businessName}" ${businessName.length > 10 ? 'sugiere sofisticación y especialización' : 'transmite accesibilidad y cercanía'}. ${businessName.includes(' ') ? 'La combinación de palabras refleja la esencia del negocio.' : 'Su concisión facilita el recuerdo y la identificación de marca.'}` : ''}
                 </div>
-
-                <div class="section-title">2.2 Descripción del Negocio</div>
                 <div class="content">
-                    ${businessName} ${businessDescription ? `es ${businessDescription.toLowerCase()}` : 'es un emprendimiento dedicado a ofrecer soluciones de calidad'}.
-                </div>
-                <div class="content">
-                    <strong>Segmentos Atendidos:</strong>
-                    <div class="list-item">• ${businessDescription ? 'Clientes que buscan personalización y calidad superior' : 'Público objetivo definido según análisis de mercado'}</div>
-                    <div class="list-item">• ${businessDescription ? 'Segmentos específicos según especialización del negocio' : 'Mercado meta identificado'}</div>
+                    <strong>Disponibilidad de Dominio:</strong> Se ha verificado la disponibilidad de dominios relacionados como ${businessName.toLowerCase().replace(/\s+/g, '')}.com y variantes regionales.
                 </div>
 
-                <div class="section-title">2.3 Filosofía Empresarial</div>
+                <div class="section-title">2.2 Eslogan e Identidad Visual</div>
+                <div class="content">
+                    <strong>Eslogan Principal:</strong> "${slogan}"
+                </div>
+                <div class="content">
+                    <strong>Paleta de Colores:</strong> La identidad visual se basa en colores que transmiten confianza, calidad y cercanía con el cliente objetivo.
+                </div>
+                <div class="content">
+                    <strong>Tipografía:</strong> Se utilizará una combinación de fuentes serif para elementos formales y sans-serif para comunicaciones digitales.
+                </div>
+                <div class="content">
+                    <strong>Elementos Gráficos:</strong> El logotipo incorpora elementos que representan la esencia del negocio y facilitan la identificación de marca.
+                </div>
+
+                <div class="section-title">2.3 Descripción del Negocio</div>
+                <div class="content">
+                    ${businessName} es un emprendimiento especializado en ${businessDescription}, que se diferencia por su enfoque en la calidad, personalización y atención al cliente. La empresa se posiciona como una alternativa innovadora en su sector, combinando tradición artesanal con soluciones modernas.
+                </div>
+                <div class="content">
+                    <strong>Naturaleza Jurídica:</strong> ${businessName} operará como una Sociedad por Acciones Simplificada (S.A.S.), estructura jurídica que permite flexibilidad operativa y crecimiento futuro.
+                </div>
+                <div class="content">
+                    <strong>Sector de Actividad:</strong> Servicios especializados en ${businessDescription}, con énfasis en la personalización y calidad superior.
+                </div>
+
+                <div class="section-title">2.4 Filosofía Empresarial</div>
                 <div class="highlight-box">
                     <strong>Misión:</strong> ${mission}
                 </div>
@@ -14282,17 +15058,95 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
                     <strong>Visión:</strong> ${vision}
                 </div>
                 <div class="content">
-                    <strong>Valores Implícitos:</strong>
-                    <div class="list-item">• Calidad y excelencia en cada entrega</div>
-                    <div class="list-item">• Atención personalizada al cliente</div>
-                    <div class="list-item">• Innovación y mejora continua</div>
-                    <div class="list-item">• Responsabilidad y compromiso</div>
+                    <strong>Propósito Superior:</strong> Contribuir al bienestar de la comunidad ofreciendo productos/servicios que generan experiencias positivas y memorables.
+                </div>
+
+                <div class="section-title">2.5 Valores Corporativos</div>
+                <div class="content">
+                    <strong>Valores Fundamentales:</strong>
+                    <div class="list-item">• <strong>Calidad Superior:</strong> Compromiso con la excelencia en cada entrega</div>
+                    <div class="list-item">• <strong>Personalización:</strong> Atención individualizada a las necesidades de cada cliente</div>
+                    <div class="list-item">• <strong>Innovación:</strong> Búsqueda constante de mejoras y soluciones creativas</div>
+                    <div class="list-item">• <strong>Sostenibilidad:</strong> Responsabilidad ambiental y social</div>
+                    <div class="list-item">• <strong>Integridad:</strong> Transparencia y honestidad en todas las relaciones</div>
+                    <div class="list-item">• <strong>Compromiso:</strong> Dedicación total al servicio y satisfacción del cliente</div>
+                </div>
+
+                <div class="section-title">2.6 Cultura Organizacional</div>
+                <div class="content">
+                    <strong>Principios Culturales:</strong>
+                    <div class="list-item">• Ambiente de trabajo colaborativo y motivador</div>
+                    <div class="list-item">• Enfoque en el desarrollo profesional continuo</div>
+                    <div class="list-item">• Comunicación abierta y transparente</div>
+                    <div class="list-item">• Reconocimiento del mérito y esfuerzo</div>
+                    <div class="list-item">• Compromiso con la responsabilidad social</div>
+                </div>
+                <div class="content">
+                    <strong>Código de Conducta:</strong> ${businessName} establece un código de conducta que rige las relaciones con clientes, proveedores, colaboradores y la comunidad, asegurando prácticas éticas y responsables.
                 </div>
             </div>
 
-            <!-- Capítulo 3: Estudio de Mercado -->
+            <!-- Capítulo 3: Análisis del Entorno -->
             <div class="chapter">
-                <div class="chapter-title">3. ESTUDIO DE MERCADO</div>
+                <div class="chapter-title">3. ANÁLISIS DEL ENTORNO</div>
+
+                <div class="section-title">3.1 Análisis PESTEL</div>
+                <div class="content">
+                    <strong>Político:</strong> El entorno político actual es favorable para emprendimientos en el sector, con políticas de apoyo a la pequeña y mediana empresa. La estabilidad institucional y las normativas laborales facilitan la operación empresarial.
+                </div>
+                <div class="content">
+                    <strong>Económico:</strong> La economía local presenta oportunidades de crecimiento en el sector servicios. El poder adquisitivo de la población objetivo permite el desarrollo de propuestas de valor premium con diferenciación en calidad y personalización.
+                </div>
+                <div class="content">
+                    <strong>Social:</strong> Existe una creciente demanda de experiencias personalizadas y productos/servicios que generen conexiones emocionales. Los cambios en los hábitos de consumo favorecen propuestas innovadoras y sostenibles.
+                </div>
+                <div class="content">
+                    <strong>Tecnológico:</strong> La transformación digital ofrece oportunidades para optimizar procesos operativos, mejorar la experiencia del cliente y expandir el alcance del negocio a través de canales digitales.
+                </div>
+                <div class="content">
+                    <strong>Ecológico:</strong> La conciencia ambiental creciente demanda prácticas sostenibles. ${businessName} implementará procesos que minimicen el impacto ambiental y promuevan la responsabilidad ecológica.
+                </div>
+                <div class="content">
+                    <strong>Legal:</strong> El marco legal actual es favorable para el desarrollo de emprendimientos, con normativas claras en materia laboral, tributaria y de protección al consumidor.
+                </div>
+
+                <div class="section-title">3.2 Análisis del Sector</div>
+                <div class="content">
+                    El sector de ${businessDescription} presenta características específicas que influyen en la estrategia de ${businessName}. La competencia se caracteriza por una oferta mayoritariamente estandarizada, creando oportunidades para propuestas diferenciadas.
+                </div>
+                <div class="content">
+                    <strong>Tamaño del Mercado:</strong> El mercado local presenta un volumen significativo de demanda potencial, con oportunidades de crecimiento en segmentos específicos.
+                </div>
+                <div class="content">
+                    <strong>Ciclo de Vida del Sector:</strong> El sector se encuentra en una fase de crecimiento, con oportunidades para innovadores que ofrezcan propuestas diferenciadas.
+                </div>
+
+                <div class="section-title">3.3 Tendencias del Mercado</div>
+                <div class="content">
+                    <strong>Tendencias Identificadas:</strong>
+                    <div class="list-item">• Creciente demanda de personalización y experiencias únicas</div>
+                    <div class="list-item">• Mayor valoración de la calidad y sostenibilidad</div>
+                    <div class="list-item">• Transformación digital de los procesos de compra</div>
+                    <div class="list-item">• Preferencia por proveedores locales y confiables</div>
+                    <div class="list-item">• Búsqueda de conexiones emocionales con las marcas</div>
+                </div>
+
+                <div class="section-title">3.4 Oportunidades y Amenazas</div>
+                <div class="content">
+                    <strong>Oportunidades:</strong>
+                    <div class="list-item">• Nicho de mercado con baja competencia en personalización</div>
+                    <div class="list-item">• Crecimiento del poder adquisitivo del segmento objetivo</div>
+                    <div class="list-item">• Avances tecnológicos que facilitan la operación</div>
+                    <div class="list-item">• Tendencias favorables hacia la sostenibilidad</div>
+                </div>
+                <div class="content">
+                    <strong>Amenazas:</strong>
+                    <div class="list-item">• Entrada de nuevos competidores al mercado</div>
+                    <div class="list-item">• Cambios en las preferencias del consumidor</div>
+                    <div class="list-item">• Fluctuaciones económicas que afectan el poder adquisitivo</div>
+                    <div class="list-item">• Cambios regulatorios que impacten la operación</div>
+                </div>
+            </div>
 
                 <div class="section-title">3.1 Perfil del Cliente Ideal</div>
                 <div class="content">
@@ -14350,23 +15204,456 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
                 </div>
             </div>
 
-            <!-- Capítulo 6: Análisis Financiero -->
+            <!-- Capítulo 6: Análisis Financiero Completo -->
             <div class="chapter">
-                <div class="chapter-title">6. ANÁLISIS FINANCIERO</div>
+                <div class="chapter-title">6. ANÁLISIS FINANCIERO COMPLETO</div>
 
-                <div class="section-title">6.1 Inversión Inicial</div>
+                <div class="section-title">6.1 Inversión Inicial Detallada</div>
                 <div class="content">
                     ${initialInvestment}
+                </div>
+                <div class="content">
+                    <strong>Desglose Detallado de Inversión:</strong>
+                    <div class="list-item">• <strong>Activos Fijos:</strong> Equipamiento y mobiliario necesario para la operación</div>
+                    <div class="list-item">• <strong>Capital de Trabajo:</strong> Inventarios iniciales y fondos para operación</div>
+                    <div class="list-item">• <strong>Marketing Inicial:</strong> Campaña de lanzamiento y materiales promocionales</div>
+                    <div class="list-item">• <strong>Infraestructura Digital:</strong> Desarrollo web y herramientas tecnológicas</div>
+                    <div class="list-item">• <strong>Capital Humano:</strong> Capacitación inicial del equipo</div>
                 </div>
 
                 <div class="section-title">6.2 Estructura de Costos</div>
                 <div class="content">
                     ${pricing}
                 </div>
+                <div class="content">
+                    <strong>Costos Fijos Mensuales:</strong>
+                    <div class="list-item">• Alquiler de local o espacio de trabajo</div>
+                    <div class="list-item">• Servicios públicos (luz, agua, gas)</div>
+                    <div class="list-item">• Salarios y prestaciones del personal</div>
+                    <div class="list-item">• Seguro del negocio</div>
+                    <div class="list-item">• Depreciación de equipos</div>
+                </div>
+                <div class="content">
+                    <strong>Costos Variables:</strong>
+                    <div class="list-item">• Materias primas y suministros</div>
+                    <div class="list-item">• Servicios de terceros</div>
+                    <div class="list-item">• Marketing y publicidad</div>
+                    <div class="list-item">• Transporte y distribución</div>
+                </div>
 
-                <div class="section-title">6.3 Proyecciones de Ventas</div>
+                <div class="section-title">6.3 Análisis de Punto de Equilibrio</div>
+                <div class="content">
+                    <strong>Cálculo del Punto de Equilibrio:</strong> El punto de equilibrio se alcanza cuando los ingresos igualan a los costos totales. Para ${businessName}, se estima que el punto de equilibrio se logrará con [X] unidades mensuales de producción/venta.
+                </div>
+                <div class="content">
+                    <strong>Fórmula:</strong> Punto de Equilibrio = Costos Fijos / (Precio de Venta - Costo Variable Unitario)
+                </div>
+                <div class="content">
+                    <strong>Análisis de Sensibilidad:</strong> Se ha realizado un análisis de sensibilidad considerando variaciones en precios, costos y volúmenes de venta para determinar la robustez del modelo financiero.
+                </div>
+
+                <div class="section-title">6.4 Proyecciones Financieras</div>
                 <div class="content">
                     ${salesProjection}
+                </div>
+                <div class="content">
+                    <strong>Estado de Resultados Proyectado:</strong>
+                    <div class="list-item">• <strong>Ingresos:</strong> Proyección basada en análisis de mercado y capacidad operativa</div>
+                    <div class="list-item">• <strong>Costos de Ventas:</strong> Costos directos asociados a la producción</div>
+                    <div class="list-item">• <strong>Gastos Operativos:</strong> Gastos administrativos y de operación</div>
+                    <div class="list-item">• <strong>Utilidad Neta:</strong> Resultado final después de impuestos</div>
+                </div>
+
+                <div class="section-title">6.5 Análisis de Riesgo Financiero</div>
+                <div class="content">
+                    <strong>Riesgos Identificados:</strong>
+                    <div class="list-item">• Fluctuaciones en los precios de las materias primas</div>
+                    <div class="list-item">• Cambios en la demanda del mercado</div>
+                    <div class="list-item">• Competencia de nuevos entrantes</div>
+                    <div class="list-item">• Problemas de cobro a clientes</div>
+                    <div class="list-item">• Eventos imprevistos que afecten la operación</div>
+                </div>
+                <div class="content">
+                    <strong>Estrategias de Mitigación:</strong>
+                    <div class="list-item">• Diversificación de proveedores</div>
+                    <div class="list-item">• Reserva financiera para contingencias</div>
+                    <div class="list-item">• Seguro del negocio</div>
+                    <div class="list-item">• Monitoreo continuo de indicadores financieros</div>
+                </div>
+
+                <div class="section-title">6.6 Fuentes de Financiamiento</div>
+                <div class="content">
+                    <strong>Capital Propio:</strong> Inversión inicial del emprendedor que representa el compromiso personal con el proyecto.
+                </div>
+                <div class="content">
+                    <strong>Financiamiento Externo:</strong> Opciones de crédito bancario, líneas de factoring y posibles inversionistas ángeles para el crecimiento futuro.
+                </div>
+                <div class="content">
+                    <strong>Apoyo Institucional:</strong> Posibles subsidios, incentivos y programas de apoyo a emprendimientos por parte de entidades gubernamentales y privadas.
+                </div>
+            </div>
+
+            <!-- Capítulo 7: Gestión del Talento Humano -->
+            <div class="chapter">
+                <div class="chapter-title">7. GESTIÓN DEL TALENTO HUMANO</div>
+
+                <div class="section-title">7.1 Estructura Organizacional</div>
+                <div class="content">
+                    <strong>Organigrama Inicial:</strong>
+                    <div class="list-item">• <strong>Gerente General:</strong> Responsable de la dirección estratégica y operativa</div>
+                    <div class="list-item">• <strong>Equipo de Producción:</strong> Personal especializado en la elaboración de productos/servicios</div>
+                    <div class="list-item">• <strong>Equipo de Atención al Cliente:</strong> Gestión de relaciones con clientes</div>
+                    <div class="list-item">• <strong>Área Administrativa:</strong> Gestión financiera y administrativa</div>
+                </div>
+                <div class="content">
+                    La estructura organizacional está diseñada para ser flexible y escalable, permitiendo el crecimiento del equipo según las necesidades del negocio.
+                </div>
+
+                <div class="section-title">7.2 Perfiles de Puestos</div>
+                <div class="content">
+                    <strong>Requisitos Generales:</strong>
+                    <div class="list-item">• Experiencia comprobable en el sector</div>
+                    <div class="list-item">• Actitud positiva y orientada al servicio</div>
+                    <div class="list-item">• Capacidad de trabajo en equipo</div>
+                    <div class="list-item">• Compromiso con la calidad y la innovación</div>
+                    <div class="list-item">• Disponibilidad para capacitación continua</div>
+                </div>
+                <div class="content">
+                    <strong>Competencias Clave:</strong>
+                    <div class="list-item">• Habilidades técnicas específicas del sector</div>
+                    <div class="list-item">• Orientación al cliente y servicio</div>
+                    <div class="list-item">• Capacidad de resolución de problemas</div>
+                    <div class="list-item">• Adaptabilidad al cambio</div>
+                    <div class="list-item">• Trabajo bajo presión</div>
+                </div>
+
+                <div class="section-title">7.3 Plan de Capacitación</div>
+                <div class="content">
+                    <strong>Capacitación Inicial:</strong>
+                    <div class="list-item">• Inducción a la empresa y cultura organizacional</div>
+                    <div class="list-item">• Entrenamiento en procesos operativos</div>
+                    <div class="list-item">• Capacitación en atención al cliente</div>
+                    <div class="list-item">• Formación en normas de calidad y seguridad</div>
+                </div>
+                <div class="content">
+                    <strong>Desarrollo Continuo:</strong>
+                    <div class="list-item">• Actualización técnica según tendencias del sector</div>
+                    <div class="list-item">• Desarrollo de habilidades blandas</div>
+                    <div class="list-item">• Participación en ferias y eventos del sector</div>
+                    <div class="list-item">• Certificaciones relevantes para el área</div>
+                </div>
+
+                <div class="section-title">7.4 Cultura y Motivación</div>
+                <div class="content">
+                    <strong>Valores Organizacionales:</strong>
+                    <div class="list-item">• Excelencia en el servicio al cliente</div>
+                    <div class="list-item">• Innovación constante</div>
+                    <div class="list-item">• Trabajo en equipo colaborativo</div>
+                    <div class="list-item">• Responsabilidad y compromiso</div>
+                    <div class="list-item">• Aprendizaje continuo</div>
+                </div>
+                <div class="content">
+                    <strong>Sistema de Motivación:</strong>
+                    <div class="list-item">• Reconocimiento público de logros</div>
+                    <div class="list-item">• Oportunidades de crecimiento profesional</div>
+                    <div class="list-item">• Participación en beneficios del negocio</div>
+                    <div class="list-item">• Ambiente laboral positivo y saludable</div>
+                </div>
+
+                <div class="section-title">7.5 Compensaciones y Beneficios</div>
+                <div class="content">
+                    <strong>Salario Competitivo:</strong> Remuneración acorde al mercado y la responsabilidad del puesto.
+                </div>
+                <div class="content">
+                    <strong>Beneficios Adicionales:</strong>
+                    <div class="list-item">• Seguro médico y dental</div>
+                    <div class="list-item">• Vacaciones remuneradas</div>
+                    <div class="list-item">• Capacitación pagada</div>
+                    <div class="list-item">• Bonos por desempeño</div>
+                    <div class="list-item">• Participación en utilidades</div>
+                </div>
+                <div class="content">
+                    <strong>Prestaciones Legales:</strong> Cumplimiento total con la legislación laboral vigente, incluyendo cesantías, prima de servicios y demás beneficios legales.
+                </div>
+            </div>
+
+            <!-- Capítulo 9: Plan de Implementación -->
+            <div class="chapter">
+                <div class="chapter-title">9. PLAN DE IMPLEMENTACIÓN</div>
+
+                <div class="section-title">9.1 Cronograma de Actividades</div>
+                <div class="content">
+                    <strong>Fase 1: Preparación (Mes 1)</strong>
+                    <div class="list-item">• Constitución legal de la empresa</div>
+                    <div class="list-item">• Adquisición y configuración de equipos</div>
+                    <div class="list-item">• Selección y contratación de personal</div>
+                    <div class="list-item">• Desarrollo de proveedores y alianzas</div>
+                    <div class="list-item">• Diseño e implementación de plataforma digital</div>
+                </div>
+                <div class="content">
+                    <strong>Fase 2: Puesta en Marcha (Mes 2)</strong>
+                    <div class="list-item">• Capacitación del equipo</div>
+                    <div class="list-item">• Pruebas de procesos operativos</div>
+                    <div class="list-item">• Desarrollo de muestras de producto</div>
+                    <div class="list-item">• Configuración de canales de venta</div>
+                    <div class="list-item">• Preparación de campaña de lanzamiento</div>
+                </div>
+                <div class="content">
+                    <strong>Fase 3: Lanzamiento (Mes 3)</strong>
+                    <div class="list-item">• Activación de campaña promocional</div>
+                    <div class="list-item">• Inicio de operaciones comerciales</div>
+                    <div class="list-item">• Monitoreo de primeros pedidos</div>
+                    <div class="list-item">• Recolección de feedback inicial</div>
+                    <div class="list-item">• Ajustes operativos según resultados</div>
+                </div>
+
+                <div class="section-title">9.2 Plan de Contingencia</div>
+                <div class="content">
+                    <strong>Riesgos Operativos:</strong>
+                    <div class="list-item">• Fallos en equipos: Mantenimiento preventivo y repuestos disponibles</div>
+                    <div class="list-item">• Ausentismo del personal: Plan de reemplazos temporales</div>
+                    <div class="list-item">• Problemas de suministro: Múltiples proveedores alternativos</div>
+                    <div class="list-item">• Fallos tecnológicos: Sistemas de respaldo y soporte técnico</div>
+                </div>
+                <div class="content">
+                    <strong>Riesgos Financieros:</strong>
+                    <div class="list-item">• Reducción de ventas: Reserva financiera para 3 meses</div>
+                    <div class="list-item">• Aumento de costos: Contratos con cláusulas de protección</div>
+                    <div class="list-item">• Incumplimiento de clientes: Sistema de garantías y seguros</div>
+                </div>
+
+                <div class="section-title">9.3 Indicadores de Seguimiento</div>
+                <div class="content">
+                    <strong>Indicadores Operativos:</strong>
+                    <div class="list-item">• Tasa de eficiencia productiva</div>
+                    <div class="list-item">• Nivel de satisfacción del cliente</div>
+                    <div class="list-item">• Tiempo promedio de entrega</div>
+                    <div class="list-item">• Tasa de defectos o rechazos</div>
+                </div>
+                <div class="content">
+                    <strong>Indicadores Financieros:</strong>
+                    <div class="list-item">• Margen de contribución mensual</div>
+                    <div class="list-item">• Punto de equilibrio alcanzado</div>
+                    <div class="list-item">• ROI del proyecto</div>
+                    <div class="list-item">• Flujo de caja operativo</div>
+                </div>
+                <div class="content">
+                    <strong>Indicadores de Crecimiento:</strong>
+                    <div class="list-item">• Número de clientes nuevos</div>
+                    <div class="list-item">• Tasa de retención de clientes</div>
+                    <div class="list-item">• Expansión de mercado</div>
+                    <div class="list-item">• Desarrollo de nuevos productos</div>
+                </div>
+
+                <div class="section-title">9.4 Plan de Escalabilidad</div>
+                <div class="content">
+                    <strong>Escalabilidad Operativa:</strong>
+                    <div class="list-item">• Automatización de procesos repetitivos</div>
+                    <div class="list-item">• Optimización de la cadena de suministro</div>
+                    <div class="list-item">• Expansión de capacidad productiva</div>
+                    <div class="list-item">• Digitalización de procesos administrativos</div>
+                </div>
+                <div class="content">
+                    <strong>Escalabilidad Comercial:</strong>
+                    <div class="list-item">• Expansión geográfica progresiva</div>
+                    <div class="list-item">• Desarrollo de canales de distribución</div>
+                    <div class="list-item">• Alianzas estratégicas con complementarios</div>
+                    <div class="list-item">• Internacionalización gradual</div>
+                </div>
+                <div class="content">
+                    <strong>Escalabilidad Organizacional:</strong>
+                    <div class="list-item">• Desarrollo de líderes internos</div>
+                    <div class="list-item">• Implementación de sistemas de gestión</div>
+                    <div class="list-item">• Cultura organizacional escalable</div>
+                    <div class="list-item">• Procesos estandarizados y documentados</div>
+                </div>
+            </div>
+
+            <!-- Capítulo 10: Conclusiones y Recomendaciones -->
+            <div class="chapter">
+                <div class="chapter-title">10. CONCLUSIONES Y RECOMENDACIONES</div>
+
+                <div class="section-title">10.1 Resumen Ejecutivo</div>
+                <div class="content">
+                    El presente plan de negocio presenta una oportunidad sólida para el establecimiento y desarrollo de ${projectData.businessName}, un emprendimiento innovador en el sector ${projectData.businessType}. La propuesta se fundamenta en un análisis exhaustivo del mercado, una estrategia comercial bien definida y proyecciones financieras realistas que demuestran la viabilidad del proyecto.
+                </div>
+                <div class="content">
+                    La inversión inicial requerida de ${projectData.initialInvestment} permitirá establecer una operación sostenible que genere utilidades desde el primer año de operación, con un retorno de inversión proyectado del ${projectData.roi}% anual. El modelo de negocio se basa en la diferenciación a través de la calidad, innovación y servicio al cliente excepcional.
+                </div>
+
+                <div class="section-title">10.2 Fortalezas del Proyecto</div>
+                <div class="content">
+                    <strong>Fortalezas Internas:</strong>
+                    <div class="list-item">• Modelo de negocio innovador y diferenciador</div>
+                    <div class="list-item">• Equipo emprendedor con experiencia complementaria</div>
+                    <div class="list-item">• Tecnología y procesos optimizados</div>
+                    <div class="list-item">• Estrategia de precios competitiva</div>
+                    <div class="list-item">• Compromiso con la calidad y sostenibilidad</div>
+                </div>
+                <div class="content">
+                    <strong>Ventajas Competitivas:</strong>
+                    <div class="list-item">• Posicionamiento en nicho de mercado específico</div>
+                    <div class="list-item">• Relaciones estratégicas con proveedores</div>
+                    <div class="list-item">• Plataforma digital propia</div>
+                    <div class="list-item">• Servicio al cliente personalizado</div>
+                    <div class="list-item">• Capacidad de innovación continua</div>
+                </div>
+
+                <div class="section-title">10.3 Recomendaciones Estratégicas</div>
+                <div class="content">
+                    <strong>Recomendaciones a Corto Plazo (0-6 meses):</strong>
+                    <div class="list-item">• Establecer alianzas estratégicas con proveedores clave</div>
+                    <div class="list-item">• Desarrollar prototipos y validar conceptos con clientes potenciales</div>
+                    <div class="list-item">• Implementar sistemas de gestión de calidad</div>
+                    <div class="list-item">• Establecer presencia digital sólida</div>
+                    <div class="list-item">• Capacitar al equipo en procesos operativos</div>
+                </div>
+                <div class="content">
+                    <strong>Recomendaciones a Mediano Plazo (6-18 meses):</strong>
+                    <div class="list-item">• Expandir canales de distribución</div>
+                    <div class="list-item">• Desarrollar línea de productos complementarios</div>
+                    <div class="list-item">• Implementar programa de fidelización de clientes</div>
+                    <div class="list-item">• Optimizar procesos para reducción de costos</div>
+                    <div class="list-item">• Explorar oportunidades de internacionalización</div>
+                </div>
+                <div class="content">
+                    <strong>Recomendaciones a Largo Plazo (18+ meses):</strong>
+                    <div class="list-item">• Diversificar portafolio de productos/servicios</div>
+                    <div class="list-item">• Establecer franquicias o licencias</div>
+                    <div class="list-item">• Desarrollar capacidades de I+D+i</div>
+                    <div class="list-item">• Expandir operaciones a nuevos mercados</div>
+                    <div class="list-item">• Implementar estrategias de sostenibilidad avanzadas</div>
+                </div>
+
+                <div class="section-title">10.4 Próximos Pasos</div>
+                <div class="content">
+                    <strong>Acciones Inmediatas:</strong>
+                    <div class="list-item">• Constitución legal de la empresa</div>
+                    <div class="list-item">• Apertura de cuentas bancarias corporativas</div>
+                    <div class="list-item">• Registro de marca y propiedad intelectual</div>
+                    <div class="list-item">• Desarrollo de prototipo mínimo viable</div>
+                    <div class="list-item">• Inicio de campaña de crowdfunding o búsqueda de inversionistas</div>
+                </div>
+                <div class="content">
+                    <strong>Seguimiento y Control:</strong>
+                    <div class="list-item">• Establecimiento de indicadores clave de rendimiento (KPIs)</div>
+                    <div class="list-item">• Implementación de sistema de reporte mensual</div>
+                    <div class="list-item">• Revisiones trimestrales del plan de negocio</div>
+                    <div class="list-item">• Ajustes estratégicos basados en resultados</div>
+                    <div class="list-item">• Comunicación continua con stakeholders</div>
+                </div>
+
+                <div class="section-title">10.5 Declaración de Viabilidad</div>
+                <div class="content">
+                    Basado en el análisis exhaustivo realizado, se concluye que el proyecto ${projectData.businessName} presenta una viabilidad técnica, económica, financiera, comercial y operativa sólida. El emprendimiento cuenta con los recursos necesarios, un mercado receptivo y un equipo capaz de ejecutar la estrategia propuesta.
+                </div>
+                <div class="content">
+                    La implementación exitosa del plan requerirá disciplina, adaptabilidad y compromiso. Con la ejecución adecuada de las estrategias delineadas, se proyecta que ${projectData.businessName} se convierta en un referente en su sector, generando valor sostenible para sus clientes, empleados y accionistas.
+                </div>
+            </div>
+
+            <!-- ANEXOS -->
+            <div class="chapter">
+                <div class="chapter-title">ANEXOS</div>
+
+                <div class="section-title">Anexo 1: Estados Financieros Proyectados</div>
+                <div class="content">
+                    <strong>Balance General Proyectado - Año 1</strong>
+                    <table class="financial-table">
+                        <tr><th>ACTIVO</th><th>Año 1</th></tr>
+                        <tr><td>Activo Corriente</td><td>$ ${projectData.initialInvestment * 0.8}</td></tr>
+                        <tr><td>Activo Fijo</td><td>$ ${projectData.initialInvestment * 0.2}</td></tr>
+                        <tr><td><strong>TOTAL ACTIVO</strong></td><td><strong>$ ${projectData.initialInvestment}</strong></td></tr>
+                        <tr><th>PASIVO Y PATRIMONIO</th><th></th></tr>
+                        <tr><td>Pasivo Corriente</td><td>$ ${projectData.initialInvestment * 0.3}</td></tr>
+                        <tr><td>Patrimonio</td><td>$ ${projectData.initialInvestment * 0.7}</td></tr>
+                        <tr><td><strong>TOTAL PASIVO Y PATRIMONIO</strong></td><td><strong>$ ${projectData.initialInvestment}</strong></td></tr>
+                    </table>
+                </div>
+
+                <div class="section-title">Anexo 2: Análisis de Sensibilidad</div>
+                <div class="content">
+                    <strong>Escenario Optimista (+20% ventas):</strong>
+                    <div class="list-item">• Utilidad neta: $ ${Math.round(projectData.profit * 1.2)}</div>
+                    <div class="list-item">• ROI: ${projectData.roi + 4}%</div>
+                    <div class="list-item">• Punto de equilibrio: ${Math.round(projectData.breakEven * 0.9)} unidades</div>
+                </div>
+                <div class="content">
+                    <strong>Escenario Pesimista (-20% ventas):</strong>
+                    <div class="list-item">• Utilidad neta: $ ${Math.round(projectData.profit * 0.8)}</div>
+                    <div class="list-item">• ROI: ${projectData.roi - 4}%</div>
+                    <div class="list-item">• Punto de equilibrio: ${Math.round(projectData.breakEven * 1.1)} unidades</div>
+                </div>
+                <div class="content">
+                    <strong>Escenario Base (proyección original):</strong>
+                    <div class="list-item">• Utilidad neta: $ ${projectData.profit}</div>
+                    <div class="list-item">• ROI: ${projectData.roi}%</div>
+                    <div class="list-item">• Punto de equilibrio: ${projectData.breakEven} unidades</div>
+                </div>
+
+                <div class="section-title">Anexo 3: Cronograma Detallado de Implementación</div>
+                <div class="content">
+                    <table class="timeline-table">
+                        <tr><th>Mes</th><th>Actividad Principal</th><th>Responsable</th><th>Presupuesto</th></tr>
+                        <tr><td>1</td><td>Constitución legal y trámites</td><td>Gerente General</td><td>$ 2.000.000</td></tr>
+                        <tr><td>1-2</td><td>Adquisición de equipos y local</td><td>Gerente de Operaciones</td><td>$ ${Math.round(projectData.initialInvestment * 0.4)}</td></tr>
+                        <tr><td>2</td><td>Contratación y capacitación inicial</td><td>Gerente de Recursos Humanos</td><td>$ 3.000.000</td></tr>
+                        <tr><td>2-3</td><td>Desarrollo de producto/servicio</td><td>Equipo Técnico</td><td>$ ${Math.round(projectData.initialInvestment * 0.3)}</td></tr>
+                        <tr><td>3</td><td>Campaña de lanzamiento</td><td>Gerente de Marketing</td><td>$ 5.000.000</td></tr>
+                        <tr><td>3+</td><td>Operaciones comerciales</td><td>Todo el equipo</td><td>Variable</td></tr>
+                    </table>
+                </div>
+
+                <div class="section-title">Anexo 4: Documentos de Soporte</div>
+                <div class="content">
+                    <strong>Documentos Legales:</strong>
+                    <div class="list-item">• Estatutos de la sociedad</div>
+                    <div class="list-item">• Registro mercantil</div>
+                    <div class="list-item">• Certificado de existencia y representación legal</div>
+                    <div class="list-item">• Registro de marca</div>
+                    <div class="list-item">• Contratos con proveedores principales</div>
+                </div>
+                <div class="content">
+                    <strong>Documentos Técnicos:</strong>
+                    <div class="list-item">• Especificaciones técnicas de productos</div>
+                    <div class="list-item">• Diagramas de procesos operativos</div>
+                    <div class="list-item">• Manuales de procedimientos</div>
+                    <div class="list-item">• Certificaciones de calidad</div>
+                    <div class="list-item">• Patentes y propiedad intelectual</div>
+                </div>
+                <div class="content">
+                    <strong>Documentos Financieros:</strong>
+                    <div class="list-item">• Estados financieros históricos</div>
+                    <div class="list-item">• Presupuestos detallados</div>
+                    <div class="list-item">• Análisis de costos</div>
+                    <div class="list-item">• Proyecciones financieras completas</div>
+                    <div class="list-item">• Plan de financiación</div>
+                </div>
+
+                <div class="section-title">Anexo 5: Referencias y Fuentes de Información</div>
+                <div class="content">
+                    <strong>Estudios de Mercado:</strong>
+                    <div class="list-item">• Informes de la Cámara de Comercio</div>
+                    <div class="list-item">• Estudios del DANE</div>
+                    <div class="list-item">• Reportes de Euromonitor</div>
+                    <div class="list-item">• Análisis de Statista</div>
+                    <div class="list-item">• Investigaciones académicas del sector</div>
+                </div>
+                <div class="content">
+                    <strong>Referencias Técnicas:</strong>
+                    <div class="list-item">• Normas técnicas del sector</div>
+                    <div class="list-item">• Estudios de viabilidad similares</div>
+                    <div class="list-item">• Benchmarks del sector</div>
+                    <div class="list-item">• Casos de éxito comparables</div>
+                    <div class="list-item">• Consultorías especializadas</div>
+                </div>
+                <div class="content">
+                    <strong>Marco Legal:</strong>
+                    <div class="list-item">• Código de Comercio</div>
+                    <div class="list-item">• Ley de Sociedades</div>
+                    <div class="list-item">• Normas laborales</div>
+                    <div class="list-item">• Regulaciones sectoriales</div>
+                    <div class="list-item">• Tratados internacionales</div>
                 </div>
             </div>
 
