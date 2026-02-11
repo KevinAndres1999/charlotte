@@ -192,7 +192,7 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, enableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
         const firebaseConfig = window.FIREBASE_CONFIG;
@@ -200,6 +200,20 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // Pre-calentar conexión a Firebase inmediatamente
+        let connectionReady = false;
+        const warmupConnection = async () => {
+            try {
+                await enableNetwork(db);
+                connectionReady = true;
+                console.log('Firebase connection ready');
+            } catch (e) {
+                console.log('Warmup connection:', e.message);
+                connectionReady = true; // Continuar de todos modos
+            }
+        };
+        warmupConnection();
 
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
@@ -214,42 +228,32 @@
             messageDiv.style.display = 'block';
         }
 
-        // Función auxiliar para crear timeout con retry
-        async function withTimeoutAndRetry(promiseFn, timeoutMs = 20000, retries = 2) {
-            for (let attempt = 0; attempt <= retries; attempt++) {
-                try {
-                    const result = await Promise.race([
-                        promiseFn(),
-                        new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('timeout')), timeoutMs)
-                        )
-                    ]);
-                    return result;
-                } catch (error) {
-                    if (attempt === retries) throw error;
-                    console.log(`Attempt ${attempt + 1} failed, retrying...`);
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo antes de reintentar
-                }
-            }
+        // Función auxiliar para crear timeout (sin retry para ser más rápido)
+        async function withTimeout(promiseFn, timeoutMs = 10000) {
+            const result = await Promise.race([
+                promiseFn(),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                )
+            ]);
+            return result;
         }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const email = document.getElementById('email').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
             const submitBtn = loginForm.querySelector('.btn-login');
 
             // Deshabilitar botón y mostrar indicador de carga
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
 
             console.log('Login attempt for email:', email);
             const startTime = performance.now();
 
             try {
-                console.log('Starting user query...');
-                const queryStartTime = performance.now();
                 // Declarar variables
                 let userData = null;
                 let userDoc = null;
@@ -261,18 +265,15 @@
                     userData = cachedUser.data;
                     userDoc = { id: cachedUser.id };
                 } else {
-                    // Estrategia 1: Intentar obtener documento directamente por email como ID
-                    console.log('Trying direct document fetch...');
+                    // Estrategia: Búsqueda directa por ID (email) - más rápida
                     try {
                         const directDocRef = doc(db, 'users', email);
-                        const directDocSnap = await withTimeoutAndRetry(() => getDoc(directDocRef), 10000, 1);
+                        const directDocSnap = await withTimeout(() => getDoc(directDocRef), 8000);
                         
                         if (directDocSnap.exists()) {
-                            console.log('User found by direct ID');
                             userDoc = directDocSnap;
                             userData = directDocSnap.data();
                             
-                            // Guardar en cache
                             userCache.set(email, {
                                 data: userData,
                                 id: directDocSnap.id,
@@ -280,20 +281,18 @@
                             });
                         }
                     } catch (directError) {
-                        console.log('Direct fetch failed, trying query...', directError.message);
+                        console.log('Direct fetch error:', directError.message);
                     }
                     
-                    // Estrategia 2: Si no se encontró, hacer query por campo email
+                    // Si no se encontró por ID, buscar por campo email
                     if (!userData) {
-                        console.log('Searching for user with query...');
                         const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                        const querySnapshot = await withTimeoutAndRetry(() => getDocs(q), 20000, 2);
+                        const querySnapshot = await withTimeout(() => getDocs(q), 10000);
 
                         if (!querySnapshot.empty) {
                             userDoc = querySnapshot.docs[0];
                             userData = userDoc.data();
 
-                            // Guardar en cache
                             userCache.set(email, {
                                 data: userData,
                                 id: userDoc.id,
@@ -306,11 +305,12 @@
                         showMessage('Usuario no encontrado.', 'error');
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Iniciar Sesión';
+                        return;
                     }
                 }
 
                 const queryEndTime = performance.now();
-                console.log('Query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
+                console.log('Login query completed in', (queryEndTime - startTime).toFixed(2), 'ms');
 
                 if (userData) {
                     console.log('Login - User document ID:', userDoc.id);
