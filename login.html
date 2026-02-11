@@ -214,14 +214,23 @@
             messageDiv.style.display = 'block';
         }
 
-        // Función auxiliar para crear timeout
-        function withTimeout(promise, timeoutMs = 15000) {
-            return Promise.race([
-                promise,
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
-                )
-            ]);
+        // Función auxiliar para crear timeout con retry
+        async function withTimeoutAndRetry(promiseFn, timeoutMs = 20000, retries = 2) {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const result = await Promise.race([
+                        promiseFn(),
+                        new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                        )
+                    ]);
+                    return result;
+                } catch (error) {
+                    if (attempt === retries) throw error;
+                    console.log(`Attempt ${attempt + 1} failed, retrying...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Esperar 1 segundo antes de reintentar
+                }
+            }
         }
 
         loginForm.addEventListener('submit', async (e) => {
@@ -252,22 +261,48 @@
                     userData = cachedUser.data;
                     userDoc = { id: cachedUser.id };
                 } else {
-                    // Consulta directa simplificada
-                    console.log('Searching for user...');
-                    const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                    const querySnapshot = await withTimeout(getDocs(q), 15000);
+                    // Estrategia 1: Intentar obtener documento directamente por email como ID
+                    console.log('Trying direct document fetch...');
+                    try {
+                        const directDocRef = doc(db, 'users', email);
+                        const directDocSnap = await withTimeoutAndRetry(() => getDoc(directDocRef), 10000, 1);
+                        
+                        if (directDocSnap.exists()) {
+                            console.log('User found by direct ID');
+                            userDoc = directDocSnap;
+                            userData = directDocSnap.data();
+                            
+                            // Guardar en cache
+                            userCache.set(email, {
+                                data: userData,
+                                id: directDocSnap.id,
+                                timestamp: Date.now()
+                            });
+                        }
+                    } catch (directError) {
+                        console.log('Direct fetch failed, trying query...', directError.message);
+                    }
+                    
+                    // Estrategia 2: Si no se encontró, hacer query por campo email
+                    if (!userData) {
+                        console.log('Searching for user with query...');
+                        const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
+                        const querySnapshot = await withTimeoutAndRetry(() => getDocs(q), 20000, 2);
 
-                    if (!querySnapshot.empty) {
-                        userDoc = querySnapshot.docs[0];
-                        userData = userDoc.data();
+                        if (!querySnapshot.empty) {
+                            userDoc = querySnapshot.docs[0];
+                            userData = userDoc.data();
 
-                        // Guardar en cache
-                        userCache.set(email, {
-                            data: userData,
-                            id: userDoc.id,
-                            timestamp: Date.now()
-                        });
-                    } else {
+                            // Guardar en cache
+                            userCache.set(email, {
+                                data: userData,
+                                id: userDoc.id,
+                                timestamp: Date.now()
+                            });
+                        }
+                    }
+                    
+                    if (!userData) {
                         showMessage('Usuario no encontrado.', 'error');
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Iniciar Sesión';
