@@ -190,53 +190,31 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, enableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-
-        const firebaseConfig = window.FIREBASE_CONFIG;
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    <!-- Firebase Compat SDK - más estable -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Inicializar Firebase inmediatamente
+        const app = firebase.initializeApp(window.FIREBASE_CONFIG);
+        const db = firebase.firestore();
         
-        // Pre-calentar conexión a Firebase inmediatamente
-        let connectionReady = false;
-        const warmupConnection = async () => {
-            try {
-                await enableNetwork(db);
-                connectionReady = true;
-                console.log('Firebase connection ready');
-            } catch (e) {
-                console.log('Warmup connection:', e.message);
-                connectionReady = true; // Continuar de todos modos
-            }
-        };
-        warmupConnection();
+        // Habilitar persistencia offline para mejor rendimiento
+        db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+            console.log('Persistence error:', err.code);
+        });
 
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
 
-        // Cache para usuarios recientes (mejora rendimiento)
+        // Cache para usuarios recientes
         const userCache = new Map();
-        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+        const CACHE_DURATION = 5 * 60 * 1000;
 
         function showMessage(text, type) {
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
-        }
-
-        // Función auxiliar para crear timeout (sin retry para ser más rápido)
-        async function withTimeout(promiseFn, timeoutMs = 10000) {
-            const result = await Promise.race([
-                promiseFn(),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('timeout')), timeoutMs)
-                )
-            ]);
-            return result;
         }
 
         loginForm.addEventListener('submit', async (e) => {
@@ -246,149 +224,97 @@
             const password = document.getElementById('password').value;
             const submitBtn = loginForm.querySelector('.btn-login');
 
-            // Deshabilitar botón y mostrar indicador de carga
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
 
-            console.log('Login attempt for email:', email);
-            const startTime = performance.now();
+            console.log('Login attempt for:', email);
 
             try {
-                // Declarar variables
                 let userData = null;
-                let userDoc = null;
+                let userId = null;
 
-                // OPTIMIZACIÓN: Verificar cache primero
+                // Verificar cache primero
                 const cachedUser = userCache.get(email);
                 if (cachedUser && (Date.now() - cachedUser.timestamp) < CACHE_DURATION) {
-                    console.log('User found in cache');
+                    console.log('User from cache');
                     userData = cachedUser.data;
-                    userDoc = { id: cachedUser.id };
+                    userId = cachedUser.id;
                 } else {
-                    // Estrategia: Búsqueda directa por ID (email) - más rápida
-                    try {
-                        const directDocRef = doc(db, 'users', email);
-                        const directDocSnap = await withTimeout(() => getDoc(directDocRef), 8000);
+                    // Buscar usuario en Firestore
+                    console.log('Querying Firestore...');
+                    const snapshot = await db.collection('users')
+                        .where('email', '==', email)
+                        .limit(1)
+                        .get();
+
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        userData = doc.data();
+                        userId = doc.id;
                         
-                        if (directDocSnap.exists()) {
-                            userDoc = directDocSnap;
-                            userData = directDocSnap.data();
-                            
-                            userCache.set(email, {
-                                data: userData,
-                                id: directDocSnap.id,
-                                timestamp: Date.now()
-                            });
-                        }
-                    } catch (directError) {
-                        console.log('Direct fetch error:', directError.message);
-                    }
-                    
-                    // Si no se encontró por ID, buscar por campo email
-                    if (!userData) {
-                        const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                        const querySnapshot = await withTimeout(() => getDocs(q), 10000);
-
-                        if (!querySnapshot.empty) {
-                            userDoc = querySnapshot.docs[0];
-                            userData = userDoc.data();
-
-                            userCache.set(email, {
-                                data: userData,
-                                id: userDoc.id,
-                                timestamp: Date.now()
-                            });
-                        }
-                    }
-                    
-                    if (!userData) {
-                        showMessage('Usuario no encontrado.', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Iniciar Sesión';
-                        return;
+                        // Guardar en cache
+                        userCache.set(email, {
+                            data: userData,
+                            id: userId,
+                            timestamp: Date.now()
+                        });
+                        console.log('User found:', userId);
                     }
                 }
 
-                const queryEndTime = performance.now();
-                console.log('Login query completed in', (queryEndTime - startTime).toFixed(2), 'ms');
-
-                if (userData) {
-                    console.log('Login - User document ID:', userDoc.id);
-                    console.log('Login - User data:', userData);
-
-                    // Verificar contraseña
-                    if (userData.password === password) {
-                        console.log('Password verified, preparing user data...');
-                        const currentUser = {
-                            id: userDoc.id,  // Usar el ID real del documento
-                            email: userData.email,
-                            role: userData.role,
-                            name: userData.name,
-                            programa: userData.programa,
-                            sede: userData.sede,
-                            horario: userData.horario,
-                            cedula: userData.cedula,
-                            telefono: userData.telefono
-                        };
-                        sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-                        console.log('User logged in successfully:', currentUser);
-                        console.log('User logged in successfully:', currentUser.name);
-                        const endTime = performance.now();
-                        console.log('Total login time:', (endTime - startTime).toFixed(2), 'ms');
-
-                        // Mostrar mensaje de éxito antes de redirigir
-                        submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
-                        submitBtn.style.background = '#10b981';
-
-                        setTimeout(() => {
-                            // Redirigir según el rol
-                            if (userData.role === 'admin') {
-                                sessionStorage.removeItem('adminActiveSection');
-                                window.location.href = 'admin.html';
-                            } else if (userData.role === 'student') {
-                                window.location.href = 'estudiante.html';
-                            } else {
-                                showMessage('Rol no reconocido', 'error');
-                                submitBtn.disabled = false;
-                                submitBtn.innerHTML = 'Iniciar Sesión';
-                                submitBtn.style.background = '';
-                            }
-                        }, 500);
-                    } else {
-                        showMessage('Contraseña incorrecta.', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Iniciar Sesión';
-                    }
-                } else {
+                if (!userData) {
                     showMessage('Usuario no encontrado.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Iniciar Sesión';
+                    return;
+                }
+
+                // Verificar contraseña
+                if (userData.password === password) {
+                    const currentUser = {
+                        id: userId,
+                        email: userData.email,
+                        role: userData.role,
+                        name: userData.name,
+                        programa: userData.programa,
+                        sede: userData.sede,
+                        horario: userData.horario,
+                        cedula: userData.cedula,
+                        telefono: userData.telefono
+                    };
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                    console.log('Login successful:', currentUser.name);
+
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
+                    submitBtn.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        if (userData.role === 'admin') {
+                            sessionStorage.removeItem('adminActiveSection');
+                            window.location.href = 'admin.html';
+                        } else if (userData.role === 'student') {
+                            window.location.href = 'estudiante.html';
+                        } else {
+                            showMessage('Rol no reconocido', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            submitBtn.style.background = '';
+                        }
+                    }, 500);
+                } else {
+                    showMessage('Contraseña incorrecta.', 'error');
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Iniciar Sesión';
                 }
             } catch (error) {
-                console.error('Error during login:', error);
+                console.error('Login error:', error);
                 let errorMessage = 'Error al iniciar sesión.';
 
-                // Manejar errores de Firestore/timeout
-                if (error.message === 'timeout') {
-                    console.error('Timeout error - Firebase operation took too long');
-                    errorMessage = 'Tiempo de espera agotado. Verifica tu conexión a internet e intenta nuevamente.';
-                } else if (error.message && error.message.includes('offline')) {
-                    console.error('Offline error detected');
-                    errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
-                } else if (error.message && error.message.includes('network')) {
-                    console.error('Network error detected');
-                    errorMessage = 'Error de red. Inténtalo nuevamente.';
-                } else if (error.message && error.message.includes('unavailable')) {
-                    console.error('Service unavailable error');
-                    errorMessage = 'Servicio temporalmente no disponible. Inténtalo más tarde.';
-                } else if (error.message && error.message.includes('permission-denied')) {
-                    errorMessage = 'Error de permisos. Contacta al administrador.';
-                } else if (error.message && error.message.includes('not-found')) {
-                    errorMessage = 'Usuario no encontrado.';
-                } else {
-                    // Errores genéricos
-                    errorMessage = 'Error al iniciar sesión. Inténtalo nuevamente.';
+                if (error.code === 'unavailable') {
+                    errorMessage = 'Servicio no disponible. Verifica tu conexión.';
+                } else if (error.code === 'permission-denied') {
+                    errorMessage = 'Error de permisos.';
                 }
 
                 showMessage(errorMessage, 'error');
