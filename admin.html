@@ -20064,6 +20064,33 @@ REGLAS ESTRICTAS:
         }
 
         // =================== FUNCIONES PARA PROYECTOS ===================
+        
+        // Helper para formatear fechas de proyectos (puede ser Timestamp, string ISO, o Date)
+        function formatProjectDate(dateValue) {
+            if (!dateValue) return 'N/A';
+            try {
+                let date;
+                // Si es un Firestore Timestamp
+                if (dateValue.toDate && typeof dateValue.toDate === 'function') {
+                    date = dateValue.toDate();
+                }
+                // Si es un objeto con seconds (Timestamp serializado)
+                else if (dateValue.seconds) {
+                    date = new Date(dateValue.seconds * 1000);
+                }
+                // Si es un string ISO o número
+                else {
+                    date = new Date(dateValue);
+                }
+                
+                if (isNaN(date.getTime())) return 'N/A';
+                return date.toLocaleDateString('es-ES');
+            } catch (e) {
+                console.warn('Error formatting date:', e);
+                return 'N/A';
+            }
+        }
+
         async function loadProjects() {
             const container = document.getElementById('projectsList');
             if (!container) return;
@@ -20119,7 +20146,7 @@ REGLAS ESTRICTAS:
                             </div>
                             <div style="font-size: 0.9rem; color: #64748b;">
                                 Módulos con contenido: ${completedSteps}/${totalSteps} • 
-                                Última actualización: ${project.lastUpdated ? new Date(project.lastUpdated).toLocaleDateString('es-ES') : 'N/A'}
+                                Última actualización: ${formatProjectDate(project.lastUpdated)}
                             </div>
                         </div>
                     `;
