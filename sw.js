@@ -1,6 +1,6 @@
 // Service Worker para PWA Charlotte
-const CACHE_NAME = 'charlotte-v1.0.1';
-const STATIC_CACHE = 'charlotte-static-v1.0.1';
+const CACHE_NAME = 'charlotte-v1.0.2';
+const STATIC_CACHE = 'charlotte-static-v1.0.2';
 
 // Recursos críticos para cachear
 const CRITICAL_RESOURCES = [
@@ -74,6 +74,25 @@ self.addEventListener('fetch', (event) => {
 
   // Solo manejar requests GET
   if (event.request.method !== 'GET') return;
+
+  // NUNCA interceptar peticiones de Firebase, Google APIs ni autenticación
+  // Esto evita que el SW bloquee el login en móvil
+  const excludedDomains = [
+    'googleapis.com',
+    'google.com',
+    'gstatic.com',
+    'firebaseio.com',
+    'firebaseapp.com',
+    'firebase.google.com',
+    'identitytoolkit.googleapis.com',
+    'securetoken.googleapis.com',
+    'firestore.googleapis.com',
+    'cloudfunctions.net'
+  ];
+
+  if (excludedDomains.some(domain => url.hostname.includes(domain) || url.hostname.endsWith(domain))) {
+    return; // Dejar que el navegador maneje estas peticiones directamente
+  }
 
   // Para archivos HTML, CSS, JS - Network First (siempre validar con servidor)
   if (url.pathname.endsWith('.html') || url.pathname.endsWith('.css') || url.pathname.endsWith('.js') ||
