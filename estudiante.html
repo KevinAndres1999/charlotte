@@ -350,7 +350,9 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
-            height: 580px;
+            height: 75vh;
+            min-height: 600px;
+            max-height: 900px;
             overflow: hidden;
         }
 
@@ -409,12 +411,13 @@
 
         .chat-messages {
             flex: 1;
-            padding: 1.5rem;
+            padding: 1.5rem 1.75rem;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.25rem;
             background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            scroll-behavior: smooth;
         }
 
         .chat-messages::-webkit-scrollbar {
@@ -431,13 +434,14 @@
         }
 
         .chat-message {
-            padding: 1rem 1.25rem;
+            padding: 1.25rem 1.5rem;
             border-radius: 18px;
-            max-width: 85%;
+            max-width: 90%;
             word-wrap: break-word;
             position: relative;
             animation: messageSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            line-height: 1.5;
+            line-height: 1.7;
+            font-size: 1.05rem;
         }
 
         @keyframes messageSlide {
@@ -1092,7 +1096,8 @@
             }
 
             .ai-chat-container {
-                height: 500px;
+                height: 70vh;
+                min-height: 500px;
             }
 
             .project-summary {
@@ -1127,7 +1132,8 @@
             }
 
             .ai-chat-container {
-                height: 450px;
+                height: 65vh;
+                min-height: 400px;
             }
 
             .chat-header {
@@ -13839,6 +13845,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const chat = document.getElementById('projectChat');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${type}`;
+        messageDiv.id = 'msg-' + Date.now(); // ID único para scroll
 
         // Procesar markdown para respuestas de IA
         let processedMessage = message;
@@ -13854,7 +13861,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         }
 
         chat.appendChild(messageDiv);
-        chat.scrollTop = chat.scrollHeight;
+        
+        // Para mensajes del usuario, ir al final. Para AI, ir al inicio del mensaje
+        if (type === 'user') {
+            chat.scrollTop = chat.scrollHeight;
+        } else {
+            // Scroll suave al inicio del mensaje del bot para leer desde arriba
+            setTimeout(() => {
+                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
         projectConversations.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
     }
 
@@ -14418,14 +14435,22 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const chat = document.getElementById('projectChat');
         chat.innerHTML = '';
         
-        projectConversations.forEach(conv => {
+        projectConversations.forEach((conv, index) => {
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${conv.role === 'user' ? 'user' : 'ai'}`;
             messageDiv.textContent = conv.content;
             chat.appendChild(messageDiv);
         });
         
-        chat.scrollTop = chat.scrollHeight;
+        // Scroll al último mensaje del bot para leer desde el inicio
+        const lastAiMessage = chat.querySelector('.chat-message.ai:last-of-type');
+        if (lastAiMessage) {
+            setTimeout(() => {
+                lastAiMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        } else {
+            chat.scrollTop = chat.scrollHeight;
+        }
     }
 
     async function loadExistingProjects() {
