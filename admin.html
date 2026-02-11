@@ -14667,13 +14667,13 @@ REGLAS ESTRICTAS:
                 // Obtener la entrega actual
                 const entregaId = entregasData[currentEntregaIndex].id;
                 const entregaDoc = await getDoc(doc(db, 'entregas', entregaId));
-                if (!entregaDoc.exists()) return;
+                if (!entregaDoc.exists) return;
                 
                 const entrega = { id: entregaDoc.id, ...entregaDoc.data() };
                 
                 // Obtener la actividad
                 const actividadDoc = await getDoc(doc(db, 'activities', entrega.actividadId));
-                if (!actividadDoc.exists()) {
+                if (!actividadDoc.exists) {
                     alert('Actividad no encontrada');
                     return;
                 }
@@ -20111,6 +20111,18 @@ REGLAS ESTRICTAS:
                     projects.push({ id: doc.id, ...doc.data() });
                 });
 
+                // Obtener nombres de usuarios desde la colección users
+                const userNames = {};
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    if (userData.email) {
+                        userNames[userData.email.toLowerCase()] = userData.name || userData.email;
+                    }
+                    // También mapear por ID del documento
+                    userNames[doc.id.toLowerCase()] = userData.name || doc.id;
+                });
+
                 container.innerHTML = projects.map(project => {
                     // Contar módulos completados usando el nuevo formato (module_1, module_2, etc.)
                     let completedSteps = 0;
@@ -20126,12 +20138,17 @@ REGLAS ESTRICTAS:
                     }
                     const totalSteps = 5;
                     
+                    // Buscar el nombre del estudiante
+                    const studentEmail = (project.userEmail || project.id || '').toLowerCase();
+                    const studentName = userNames[studentEmail] || project.userName || project.userEmail || project.id;
+                    
                     return `
                         <div class="project-card">
                             <div class="project-header">
                                 <div>
-                                    <div class="project-student">${project.userEmail || project.id}</div>
+                                    <div class="project-student">${studentName}</div>
                                     <div class="project-program">${project.program || project.userProgram || 'Programa'}</div>
+                                    <div style="font-size: 0.8rem; color: #94a3b8;">${project.userEmail || project.id}</div>
                                 </div>
                                 <div class="project-actions">
                                     <button class="btn-review" onclick="reviewProject('${project.id}')">
@@ -20163,12 +20180,26 @@ REGLAS ESTRICTAS:
                 const docRef = doc(db, 'projects', projectId);
                 const docSnap = await getDoc(docRef);
                 
-                if (!docSnap.exists()) {
+                if (!docSnap.exists) {
                     alert('Proyecto no encontrado');
                     return;
                 }
                 
                 const project = docSnap.data();
+                
+                // Buscar nombre del estudiante
+                let studentName = project.userName || project.userEmail || projectId;
+                try {
+                    const userEmail = project.userEmail || projectId;
+                    // Intentar buscar por email en la colección users
+                    const usersSnapshot = await getDocs(query(collection(db, 'users'), where('email', '==', userEmail), limit(1)));
+                    if (!usersSnapshot.empty) {
+                        const userData = usersSnapshot.docs[0].data();
+                        studentName = userData.name || studentName;
+                    }
+                } catch (e) {
+                    console.log('No se pudo obtener nombre del usuario');
+                }
                 
                 // Títulos de los módulos
                 const moduleTitles = {
@@ -20214,7 +20245,8 @@ REGLAS ESTRICTAS:
                 modal.innerHTML = `
                     <div class="project-modal-content">
                         <div class="project-modal-header">
-                            <h3>Proyecto de ${project.userEmail || projectId}</h3>
+                            <h3>Proyecto de ${studentName}</h3>
+                            <span style="font-size: 0.85rem; color: #64748b;">${project.userEmail || projectId}</span>
                             <button onclick="this.closest('.project-modal').remove()">&times;</button>
                         </div>
                         
@@ -20275,7 +20307,7 @@ REGLAS ESTRICTAS:
                 const docRef = doc(db, 'project_feedback', projectId);
                 const docSnap = await getDoc(docRef);
                 
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const data = docSnap.data();
                     document.getElementById('projectFeedback').value = data.feedback || '';
                 }
