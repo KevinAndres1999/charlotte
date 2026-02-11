@@ -3518,6 +3518,7 @@
                 <!-- Dashboard y Usuarios -->
                 <div class="nav-item active" data-section="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
                 <div class="nav-item" data-section="usuarios"><i class="fas fa-user-check"></i><span>Aprobar Usuarios</span></div>
+                <div class="nav-item" data-section="cobros"><i class="fas fa-cash-register"></i><span>Cobros del Día</span></div>
 
                 <!-- Contenido Educativo -->
                 <div class="nav-item" data-section="videos"><i class="fas fa-video"></i><span>Videos</span></div>
@@ -3968,6 +3969,118 @@
                     </div>
                     
                     <div id="usuarios-aprobados" style="padding: 1rem;"></div>
+                </div>
+            </div>
+
+            <!-- Sistema de Cobros del Día -->
+            <div id="cobros" class="content-section">
+                <!-- Header Premium -->
+                <div style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; color: white; position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                    <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+                    <div style="position: relative; z-index: 1;">
+                        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem; font-weight: 700;">
+                            <i class="fas fa-cash-register"></i> Cobros del Día
+                        </h2>
+                        <p style="margin: 0; opacity: 0.9;">Registra los pagos semanales de cada clase</p>
+                    </div>
+                </div>
+
+                <!-- Resumen del Día -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #10b981;">
+                        <p style="margin: 0; font-size: 0.75rem; color: #065f46; font-weight: 600;">TOTAL GRUPO</p>
+                        <h3 id="cobros-total-grupo" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #064e3b;">0</h3>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #3b82f6;">
+                        <p style="margin: 0; font-size: 0.75rem; color: #1e40af; font-weight: 600;">PAGARON HOY</p>
+                        <h3 id="cobros-pagaron-hoy" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #1e3a8a;">0</h3>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #f59e0b;">
+                        <p style="margin: 0; font-size: 0.75rem; color: #92400e; font-weight: 600;">RECAUDADO</p>
+                        <h3 id="cobros-recaudado" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #78350f;">$0</h3>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #ef4444;">
+                        <p style="margin: 0; font-size: 0.75rem; color: #991b1b; font-weight: 600;">PENDIENTES</p>
+                        <h3 id="cobros-pendientes" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #7f1d1d;">0</h3>
+                    </div>
+                </div>
+
+                <!-- Selector de Fecha y Clase -->
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Fecha de la Clase</label>
+                            <input type="date" id="cobros-fecha" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Tema de la Clase</label>
+                            <input type="text" id="cobros-tema" placeholder="Ej: Pan de Yema, Corte Bob..." style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Monto ($)</label>
+                            <input type="number" id="cobros-monto" value="16" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                        </div>
+                        <div>
+                            <button onclick="cargarClasesHistorial()" style="width: 100%; padding: 0.75rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
+                                <i class="fas fa-history"></i> Ver Historial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs de Sede -->
+                <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
+                    <div style="display: flex; border-bottom: 2px solid #e5e7eb;">
+                        <button onclick="cambiarSedeCobros('Carapungo')" id="tab-sede-carapungo" class="tab-sede-active" style="flex: 1; padding: 1rem; background: #10b981; color: white; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-map-marker-alt"></i> Carapungo
+                        </button>
+                        <button onclick="cambiarSedeCobros('Sangolquí')" id="tab-sede-sangolqui" style="flex: 1; padding: 1rem; background: #f3f4f6; color: #374151; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-map-marker-alt"></i> Sangolquí
+                        </button>
+                    </div>
+                    
+                    <!-- Tabs de Horario -->
+                    <div style="display: flex; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                        <button onclick="cambiarHorarioCobros('Sábado Matutina')" id="tab-horario-sab-mat" class="tab-horario-active" style="flex: 1; padding: 0.75rem; background: #dbeafe; color: #1e40af; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid #3b82f6;">
+                            Sáb. Matutina
+                        </button>
+                        <button onclick="cambiarHorarioCobros('Sábado Vespertina')" id="tab-horario-sab-vesp" style="flex: 1; padding: 0.75rem; background: transparent; color: #6b7280; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;">
+                            Sáb. Vespertina
+                        </button>
+                        <button onclick="cambiarHorarioCobros('Domingo Matutina')" id="tab-horario-dom-mat" style="flex: 1; padding: 0.75rem; background: transparent; color: #6b7280; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;">
+                            Dom. Matutina
+                        </button>
+                    </div>
+
+                    <!-- Acciones rápidas -->
+                    <div style="padding: 1rem; background: #f0fdf4; border-bottom: 1px solid #a7f3d0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                        <button onclick="seleccionarTodosCobros()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-check-double"></i> Seleccionar Todos
+                        </button>
+                        <button onclick="cobrarSeleccionados()" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-dollar-sign"></i> Cobrar Seleccionados
+                        </button>
+                        <button onclick="exportarCobrosDelDia()" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-file-export"></i> Exportar Reporte
+                        </button>
+                        <span id="cobros-seleccionados-count" style="margin-left: auto; font-size: 0.85rem; color: #065f46; font-weight: 600;">0 seleccionados</span>
+                    </div>
+
+                    <!-- Lista de estudiantes -->
+                    <div id="cobros-lista-estudiantes" style="padding: 1rem; max-height: 500px; overflow-y: auto;">
+                        <p style="text-align: center; color: #6b7280;">Cargando estudiantes...</p>
+                    </div>
+                </div>
+
+                <!-- Historial de Clases -->
+                <div id="cobros-historial-container" style="display: none; margin-top: 1.5rem;">
+                    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 1rem 1.5rem; color: white;">
+                            <h4 style="margin: 0;"><i class="fas fa-history"></i> Historial de Clases y Cobros</h4>
+                        </div>
+                        <div id="cobros-historial-lista" style="padding: 1rem; max-height: 400px; overflow-y: auto;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -7312,6 +7425,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     console.log('✅ Funciones de carga de usuarios llamadas exitosamente');
                 } catch (e) { console.error('❌ Error loading usuarios:', e); }
             }
+            else if (sectionId === 'cobros') {
+                console.log('🎯 Cambiando a sección cobros');
+                try {
+                    initCobrosSection();
+                } catch (e) { console.error('❌ Error loading cobros:', e); }
+            }
             else if (sectionId === 'ver-entregas') try { loadEntregas(); } catch (e) { console.error('Error loading entregas:', e); }
             else if (sectionId === 'ver-respuestas') try { loadRespuestas(); } catch (e) { console.error('Error loading respuestas:', e); }
             else if (sectionId === 'proyectos') try { loadProjects(); } catch (e) { console.error('Error loading proyectos:', e); }
@@ -9188,6 +9307,498 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 showNotification('Error al quitar restricción', 'error');
             }
         }
+
+        // ==================== SISTEMA DE COBROS ====================
+        
+        let cobrosSedeActual = 'Carapungo';
+        let cobrosHorarioActual = 'Sábado Matutina';
+        let cobrosEstudiantesFiltrados = [];
+        let cobrosSeleccionados = new Set();
+        
+        // Inicializar fecha con la fecha actual o el sábado/domingo más cercano
+        function initCobrosSection() {
+            const fechaInput = document.getElementById('cobros-fecha');
+            if (fechaInput) {
+                const hoy = new Date();
+                fechaInput.value = hoy.toISOString().split('T')[0];
+            }
+            cargarEstudiantesCobros();
+        }
+        
+        // Cambiar sede
+        function cambiarSedeCobros(sede) {
+            cobrosSedeActual = sede;
+            
+            // Actualizar tabs visuales
+            document.getElementById('tab-sede-carapungo').style.background = sede === 'Carapungo' ? '#10b981' : '#f3f4f6';
+            document.getElementById('tab-sede-carapungo').style.color = sede === 'Carapungo' ? 'white' : '#374151';
+            document.getElementById('tab-sede-sangolqui').style.background = sede === 'Sangolquí' ? '#10b981' : '#f3f4f6';
+            document.getElementById('tab-sede-sangolqui').style.color = sede === 'Sangolquí' ? 'white' : '#374151';
+            
+            cobrosSeleccionados.clear();
+            cargarEstudiantesCobros();
+        }
+        
+        // Cambiar horario
+        function cambiarHorarioCobros(horario) {
+            cobrosHorarioActual = horario;
+            
+            // Actualizar tabs visuales
+            const tabs = {
+                'Sábado Matutina': 'tab-horario-sab-mat',
+                'Sábado Vespertina': 'tab-horario-sab-vesp',
+                'Domingo Matutina': 'tab-horario-dom-mat'
+            };
+            
+            Object.keys(tabs).forEach(h => {
+                const tab = document.getElementById(tabs[h]);
+                if (h === horario) {
+                    tab.style.background = '#dbeafe';
+                    tab.style.color = '#1e40af';
+                    tab.style.borderBottom = '3px solid #3b82f6';
+                } else {
+                    tab.style.background = 'transparent';
+                    tab.style.color = '#6b7280';
+                    tab.style.borderBottom = '3px solid transparent';
+                }
+            });
+            
+            cobrosSeleccionados.clear();
+            cargarEstudiantesCobros();
+        }
+        
+        // Cargar estudiantes filtrados por sede y horario
+        async function cargarEstudiantesCobros() {
+            const container = document.getElementById('cobros-lista-estudiantes');
+            container.innerHTML = '<p style="text-align: center; color: #6b7280;"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
+            
+            try {
+                // Si no tenemos usuarios cargados, cargarlos
+                if (!allApprovedUsers || allApprovedUsers.length === 0) {
+                    await loadUsuariosAprobados();
+                }
+                
+                // Filtrar por sede y horario
+                cobrosEstudiantesFiltrados = allApprovedUsers.filter(u => 
+                    u.sede === cobrosSedeActual && u.horario === cobrosHorarioActual
+                );
+                
+                // Ordenar alfabéticamente
+                cobrosEstudiantesFiltrados.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                
+                renderCobrosEstudiantes();
+                actualizarResumenCobros();
+            } catch (error) {
+                console.error('Error cargando estudiantes para cobros:', error);
+                container.innerHTML = '<p style="text-align: center; color: #ef4444;">Error al cargar estudiantes</p>';
+            }
+        }
+        
+        // Renderizar lista de estudiantes para cobros
+        function renderCobrosEstudiantes() {
+            const container = document.getElementById('cobros-lista-estudiantes');
+            const fechaSeleccionada = document.getElementById('cobros-fecha').value;
+            
+            if (cobrosEstudiantesFiltrados.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                        <i class="fas fa-users-slash" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p style="margin: 0;">No hay estudiantes en ${cobrosSedeActual} - ${cobrosHorarioActual}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = cobrosEstudiantesFiltrados.map(user => {
+                const historial = user.historialPagos || [];
+                const cuotasPagadas = historial.filter(p => p.estado === 'pagado').length;
+                const cuotasPendientes = historial.filter(p => p.estado === 'pendiente').length;
+                const totalClases = calcularClasesDesdeInicio(user.horario);
+                const debe = totalClases - cuotasPagadas;
+                
+                // Verificar si ya pagó en la fecha seleccionada
+                const yaPagoHoy = historial.some(p => 
+                    p.fecha && p.fecha.split('T')[0] === fechaSeleccionada && p.estado === 'pagado'
+                );
+                
+                // Color según deuda
+                let statusColor, statusBg, statusIcon;
+                if (debe >= 2) {
+                    statusColor = '#dc2626'; statusBg = '#fef2f2'; statusIcon = 'exclamation-triangle';
+                } else if (debe === 1) {
+                    statusColor = '#f59e0b'; statusBg = '#fffbeb'; statusIcon = 'exclamation-circle';
+                } else {
+                    statusColor = '#10b981'; statusBg = '#ecfdf5'; statusIcon = 'check-circle';
+                }
+                
+                const isSelected = cobrosSeleccionados.has(user.id);
+                
+                return `
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: ${isSelected ? '#dbeafe' : 'white'}; border: 2px solid ${isSelected ? '#3b82f6' : '#e5e7eb'}; border-radius: 12px; margin-bottom: 0.75rem; transition: all 0.2s;">
+                        <input type="checkbox" id="cobro-check-${user.id}" ${isSelected ? 'checked' : ''} ${yaPagoHoy ? 'disabled' : ''}
+                               onclick="toggleCobroSeleccion('${user.id}')"
+                               style="width: 20px; height: 20px; cursor: ${yaPagoHoy ? 'not-allowed' : 'pointer'}; accent-color: #3b82f6;">
+                        
+                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
+                            ${(user.name || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0; font-size: 0.95rem; color: #1f2937;">${user.name || 'Sin nombre'}</h4>
+                            <p style="margin: 0; font-size: 0.8rem; color: #6b7280;">${user.programa || ''}</p>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 0.5rem 1rem; background: ${statusBg}; border-radius: 8px; min-width: 80px;">
+                            <p style="margin: 0; font-size: 0.7rem; color: ${statusColor}; font-weight: 600;">
+                                <i class="fas fa-${statusIcon}"></i> ${debe > 0 ? `Debe ${debe}` : 'Al día'}
+                            </p>
+                            <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">${cuotasPagadas}/${totalClases} cuotas</p>
+                        </div>
+                        
+                        ${yaPagoHoy ? `
+                            <div style="padding: 0.5rem 1rem; background: #ecfdf5; color: #059669; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">
+                                <i class="fas fa-check"></i> Pagó hoy
+                            </div>
+                        ` : `
+                            <button onclick="cobrarIndividual('${user.id}')" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fas fa-dollar-sign"></i> Cobrar
+                            </button>
+                        `}
+                        
+                        <button onclick="verHistorialCobrosUsuario('${user.id}')" style="padding: 0.5rem 0.75rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;" title="Ver historial">
+                            <i class="fas fa-history"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            actualizarContadorCobrosSeleccionados();
+        }
+        
+        // Calcular clases desde el 31 de mayo 2025
+        function calcularClasesDesdeInicio(horario) {
+            const fechaInicio = new Date('2025-05-31');
+            const hoy = new Date();
+            let clases = 0;
+            
+            const diaSemana = horario && horario.toLowerCase().includes('domingo') ? 0 : 6; // 0=Domingo, 6=Sábado
+            
+            let fecha = new Date(fechaInicio);
+            while (fecha <= hoy) {
+                if (fecha.getDay() === diaSemana) {
+                    clases++;
+                }
+                fecha.setDate(fecha.getDate() + 1);
+            }
+            
+            return clases;
+        }
+        
+        // Toggle selección de estudiante para cobro
+        function toggleCobroSeleccion(userId) {
+            if (cobrosSeleccionados.has(userId)) {
+                cobrosSeleccionados.delete(userId);
+            } else {
+                cobrosSeleccionados.add(userId);
+            }
+            
+            // Actualizar visual
+            const checkbox = document.getElementById('cobro-check-' + userId);
+            if (checkbox) checkbox.checked = cobrosSeleccionados.has(userId);
+            
+            actualizarContadorCobrosSeleccionados();
+        }
+        
+        // Seleccionar todos los que no han pagado hoy
+        function seleccionarTodosCobros() {
+            const fechaSeleccionada = document.getElementById('cobros-fecha').value;
+            
+            cobrosEstudiantesFiltrados.forEach(user => {
+                const historial = user.historialPagos || [];
+                const yaPagoHoy = historial.some(p => 
+                    p.fecha && p.fecha.split('T')[0] === fechaSeleccionada && p.estado === 'pagado'
+                );
+                
+                if (!yaPagoHoy) {
+                    cobrosSeleccionados.add(user.id);
+                }
+            });
+            
+            renderCobrosEstudiantes();
+        }
+        
+        // Actualizar contador de seleccionados
+        function actualizarContadorCobrosSeleccionados() {
+            document.getElementById('cobros-seleccionados-count').textContent = `${cobrosSeleccionados.size} seleccionados`;
+        }
+        
+        // Cobrar a un estudiante individual
+        async function cobrarIndividual(userId) {
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            const fecha = document.getElementById('cobros-fecha').value;
+            const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
+            
+            if (!fecha) {
+                showNotification('Selecciona una fecha', 'warning');
+                return;
+            }
+            
+            try {
+                const userRef = db.collection('users').doc(userId);
+                const userDoc = await userRef.get();
+                const userData = userDoc.data();
+                
+                const historialPagos = userData.historialPagos || [];
+                historialPagos.push({
+                    concepto: tema,
+                    monto: monto,
+                    estado: 'pagado',
+                    fecha: new Date(fecha + 'T12:00:00').toISOString(),
+                    registradoPor: 'admin',
+                    sede: cobrosSedeActual,
+                    horario: cobrosHorarioActual
+                });
+                
+                await userRef.update({ 
+                    historialPagos,
+                    estadoPagos: 'pagos_al_dia'
+                });
+                
+                // Actualizar datos locales
+                const userIndex = allApprovedUsers.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allApprovedUsers[userIndex].historialPagos = historialPagos;
+                }
+                
+                showNotification(`Cobro registrado: $${monto}`, 'success');
+                cargarEstudiantesCobros();
+            } catch (error) {
+                console.error('Error cobrando:', error);
+                showNotification('Error al registrar cobro', 'error');
+            }
+        }
+        
+        // Cobrar a todos los seleccionados
+        async function cobrarSeleccionados() {
+            if (cobrosSeleccionados.size === 0) {
+                showNotification('Selecciona al menos un estudiante', 'warning');
+                return;
+            }
+            
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            const fecha = document.getElementById('cobros-fecha').value;
+            const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
+            
+            if (!fecha) {
+                showNotification('Selecciona una fecha', 'warning');
+                return;
+            }
+            
+            const confirmacion = confirm(`¿Registrar cobro de $${monto} a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}`);
+            if (!confirmacion) return;
+            
+            let cobrados = 0;
+            let errores = 0;
+            
+            for (const userId of cobrosSeleccionados) {
+                try {
+                    const userRef = db.collection('users').doc(userId);
+                    const userDoc = await userRef.get();
+                    const userData = userDoc.data();
+                    
+                    const historialPagos = userData.historialPagos || [];
+                    historialPagos.push({
+                        concepto: tema,
+                        monto: monto,
+                        estado: 'pagado',
+                        fecha: new Date(fecha + 'T12:00:00').toISOString(),
+                        registradoPor: 'admin',
+                        sede: cobrosSedeActual,
+                        horario: cobrosHorarioActual
+                    });
+                    
+                    await userRef.update({ 
+                        historialPagos,
+                        estadoPagos: 'pagos_al_dia'
+                    });
+                    
+                    // Actualizar datos locales
+                    const userIndex = allApprovedUsers.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        allApprovedUsers[userIndex].historialPagos = historialPagos;
+                    }
+                    
+                    cobrados++;
+                } catch (error) {
+                    console.error('Error cobrando a:', userId, error);
+                    errores++;
+                }
+            }
+            
+            showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${cobrados * monto}`, cobrados > 0 ? 'success' : 'error');
+            cobrosSeleccionados.clear();
+            cargarEstudiantesCobros();
+        }
+        
+        // Actualizar resumen de cobros
+        function actualizarResumenCobros() {
+            const fechaSeleccionada = document.getElementById('cobros-fecha').value;
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            
+            const totalGrupo = cobrosEstudiantesFiltrados.length;
+            let pagaronHoy = 0;
+            let recaudado = 0;
+            
+            cobrosEstudiantesFiltrados.forEach(user => {
+                const historial = user.historialPagos || [];
+                const pagoHoy = historial.find(p => 
+                    p.fecha && p.fecha.split('T')[0] === fechaSeleccionada && p.estado === 'pagado'
+                );
+                if (pagoHoy) {
+                    pagaronHoy++;
+                    recaudado += pagoHoy.monto || monto;
+                }
+            });
+            
+            document.getElementById('cobros-total-grupo').textContent = totalGrupo;
+            document.getElementById('cobros-pagaron-hoy').textContent = pagaronHoy;
+            document.getElementById('cobros-recaudado').textContent = '$' + recaudado;
+            document.getElementById('cobros-pendientes').textContent = totalGrupo - pagaronHoy;
+        }
+        
+        // Ver historial de cobros de un usuario
+        function verHistorialCobrosUsuario(userId) {
+            verHistorialPagos(userId); // Reutilizamos la función existente
+        }
+        
+        // Cargar historial de clases
+        async function cargarClasesHistorial() {
+            const container = document.getElementById('cobros-historial-container');
+            const lista = document.getElementById('cobros-historial-lista');
+            
+            container.style.display = 'block';
+            lista.innerHTML = '<p style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Cargando historial...</p>';
+            
+            try {
+                // Recopilar todas las fechas y temas únicos de los pagos
+                const clasesMap = new Map();
+                
+                allApprovedUsers.forEach(user => {
+                    if (user.sede === cobrosSedeActual && user.horario === cobrosHorarioActual) {
+                        const historial = user.historialPagos || [];
+                        historial.forEach(pago => {
+                            if (pago.fecha) {
+                                const fechaKey = pago.fecha.split('T')[0];
+                                if (!clasesMap.has(fechaKey)) {
+                                    clasesMap.set(fechaKey, {
+                                        fecha: fechaKey,
+                                        tema: pago.concepto || 'Sin tema',
+                                        pagos: 0,
+                                        total: 0
+                                    });
+                                }
+                                if (pago.estado === 'pagado') {
+                                    clasesMap.get(fechaKey).pagos++;
+                                    clasesMap.get(fechaKey).total += pago.monto || 0;
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                // Ordenar por fecha descendente
+                const clasesArray = Array.from(clasesMap.values()).sort((a, b) => 
+                    new Date(b.fecha) - new Date(a.fecha)
+                );
+                
+                if (clasesArray.length === 0) {
+                    lista.innerHTML = '<p style="text-align: center; color: #6b7280;">No hay registros de clases</p>';
+                    return;
+                }
+                
+                lista.innerHTML = clasesArray.map(clase => `
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9fafb; border-radius: 10px; margin-bottom: 0.75rem;">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                            <span style="font-size: 1.1rem; font-weight: 700;">${new Date(clase.fecha).getDate()}</span>
+                            <span style="font-size: 0.6rem; text-transform: uppercase;">${new Date(clase.fecha).toLocaleDateString('es', { month: 'short' })}</span>
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0; font-size: 0.95rem; color: #1f2937;">${clase.tema}</h4>
+                            <p style="margin: 0; font-size: 0.8rem; color: #6b7280;">${new Date(clase.fecha).toLocaleDateString('es', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="margin: 0; font-size: 1rem; font-weight: 700; color: #10b981;">$${clase.total}</p>
+                            <p style="margin: 0; font-size: 0.75rem; color: #6b7280;">${clase.pagos} pagos</p>
+                        </div>
+                        <button onclick="cargarClaseEspecifica('${clase.fecha}')" style="padding: 0.5rem 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+                lista.innerHTML = '<p style="text-align: center; color: #ef4444;">Error al cargar historial</p>';
+            }
+        }
+        
+        // Cargar una clase específica
+        function cargarClaseEspecifica(fecha) {
+            document.getElementById('cobros-fecha').value = fecha;
+            document.getElementById('cobros-historial-container').style.display = 'none';
+            renderCobrosEstudiantes();
+            actualizarResumenCobros();
+        }
+        
+        // Exportar reporte de cobros del día
+        function exportarCobrosDelDia() {
+            const fecha = document.getElementById('cobros-fecha').value;
+            const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
+            
+            const headers = ['Nombre', 'Email', 'Programa', 'Pagó', 'Monto', 'Debe Cuotas'];
+            const rows = cobrosEstudiantesFiltrados.map(user => {
+                const historial = user.historialPagos || [];
+                const pagoHoy = historial.find(p => p.fecha && p.fecha.split('T')[0] === fecha && p.estado === 'pagado');
+                const cuotasPagadas = historial.filter(p => p.estado === 'pagado').length;
+                const totalClases = calcularClasesDesdeInicio(user.horario);
+                const debe = totalClases - cuotasPagadas;
+                
+                return [
+                    user.name || '',
+                    user.email || '',
+                    user.programa || '',
+                    pagoHoy ? 'Sí' : 'No',
+                    pagoHoy ? pagoHoy.monto : 0,
+                    debe
+                ];
+            });
+            
+            let csv = `Reporte de Cobros - ${cobrosSedeActual} - ${cobrosHorarioActual}\n`;
+            csv += `Fecha: ${fecha}\n`;
+            csv += `Tema: ${tema}\n\n`;
+            csv += headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `cobros_${cobrosSedeActual}_${fecha}.csv`;
+            link.click();
+            
+            showNotification('Reporte exportado', 'success');
+        }
+        
+        // Agregar listener para cambio de fecha
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.getElementById('cobros-fecha');
+            if (fechaInput) {
+                fechaInput.addEventListener('change', function() {
+                    renderCobrosEstudiantes();
+                    actualizarResumenCobros();
+                });
+            }
+        });
 
         function filterUsuarios() {
             renderPendingUsers();
