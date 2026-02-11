@@ -4055,6 +4055,9 @@
 
                     <!-- Acciones rápidas -->
                     <div style="padding: 1rem; background: #f0fdf4; border-bottom: 1px solid #a7f3d0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                        <button onclick="toggleVistaTabla()" id="btn-vista-tabla" style="padding: 0.5rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-table"></i> Vista Tabla 40 Clases
+                        </button>
                         <button onclick="seleccionarTodosCobros()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
                             <i class="fas fa-check-double"></i> Seleccionar Todos
                         </button>
@@ -4064,12 +4067,23 @@
                         <button onclick="exportarCobrosDelDia()" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
                             <i class="fas fa-file-export"></i> Exportar Reporte
                         </button>
+                        <button onclick="exportarTablaCompleta()" style="padding: 0.5rem 1rem; background: #059669; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                            <i class="fas fa-file-excel"></i> Exportar Tabla Completa
+                        </button>
                         <span id="cobros-seleccionados-count" style="margin-left: auto; font-size: 0.85rem; color: #065f46; font-weight: 600;">0 seleccionados</span>
                     </div>
 
-                    <!-- Lista de estudiantes -->
+                    <!-- Vista Lista de estudiantes -->
                     <div id="cobros-lista-estudiantes" style="padding: 1rem; max-height: 500px; overflow-y: auto;">
                         <p style="text-align: center; color: #6b7280;">Cargando estudiantes...</p>
+                    </div>
+
+                    <!-- Vista Tabla 40 Clases -->
+                    <div id="cobros-tabla-container" style="display: none; overflow-x: auto;">
+                        <table id="cobros-tabla-40" style="width: 100%; border-collapse: collapse; font-size: 0.75rem;">
+                            <thead id="cobros-tabla-header"></thead>
+                            <tbody id="cobros-tabla-body"></tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -9386,7 +9400,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 // Ordenar alfabéticamente
                 cobrosEstudiantesFiltrados.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 
-                renderCobrosEstudiantes();
+                // Renderizar según la vista activa
+                if (vistaTablaActiva) {
+                    renderTabla40Clases();
+                } else {
+                    renderCobrosEstudiantes();
+                }
                 actualizarResumenCobros();
             } catch (error) {
                 console.error('Error cargando estudiantes para cobros:', error);
@@ -9787,6 +9806,299 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             link.click();
             
             showNotification('Reporte exportado', 'success');
+        }
+
+        // Variable para controlar vista
+        let vistaTablaActiva = false;
+
+        // Toggle entre vista lista y tabla
+        function toggleVistaTabla() {
+            vistaTablaActiva = !vistaTablaActiva;
+            const btn = document.getElementById('btn-vista-tabla');
+            const listaContainer = document.getElementById('cobros-lista-estudiantes');
+            const tablaContainer = document.getElementById('cobros-tabla-container');
+            
+            if (vistaTablaActiva) {
+                btn.innerHTML = '<i class="fas fa-list"></i> Vista Lista';
+                btn.style.background = '#3b82f6';
+                listaContainer.style.display = 'none';
+                tablaContainer.style.display = 'block';
+                renderTabla40Clases();
+            } else {
+                btn.innerHTML = '<i class="fas fa-table"></i> Vista Tabla 40 Clases';
+                btn.style.background = '#8b5cf6';
+                listaContainer.style.display = 'block';
+                tablaContainer.style.display = 'none';
+            }
+        }
+
+        // Generar las 40 fechas de clases desde el 31 de mayo 2025
+        function generarFechasClases(horario) {
+            const fechaInicio = new Date('2025-05-31');
+            const clases = [];
+            const totalClases = 40;
+            
+            // Determinar si es sábado (6) o domingo (0)
+            const diaSemana = horario && horario.toLowerCase().includes('domingo') ? 0 : 6;
+            
+            // Encontrar el primer día correspondiente
+            let fecha = new Date(fechaInicio);
+            while (fecha.getDay() !== diaSemana) {
+                fecha.setDate(fecha.getDate() + 1);
+            }
+            
+            // Generar 40 clases
+            for (let i = 0; i < totalClases; i++) {
+                clases.push({
+                    numero: i + 1,
+                    fecha: new Date(fecha),
+                    fechaStr: fecha.toISOString().split('T')[0]
+                });
+                fecha.setDate(fecha.getDate() + 7); // Siguiente semana
+            }
+            
+            return clases;
+        }
+
+        // Renderizar tabla de 40 clases
+        function renderTabla40Clases() {
+            const headerContainer = document.getElementById('cobros-tabla-header');
+            const bodyContainer = document.getElementById('cobros-tabla-body');
+            
+            const clases = generarFechasClases(cobrosHorarioActual);
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            
+            // Generar header
+            let headerHtml = '<tr style="background: linear-gradient(135deg, #1e3a8a, #3730a3); color: white;">';
+            headerHtml += '<th style="padding: 0.5rem; position: sticky; left: 0; background: #1e3a8a; z-index: 10; min-width: 150px; text-align: left;">Estudiante</th>';
+            headerHtml += '<th style="padding: 0.5rem; min-width: 60px;">Total</th>';
+            headerHtml += '<th style="padding: 0.5rem; min-width: 60px;">Debe</th>';
+            
+            clases.forEach((clase, i) => {
+                const fechaCorta = clase.fecha.toLocaleDateString('es', { day: '2-digit', month: 'short' });
+                const esHoy = clase.fechaStr === new Date().toISOString().split('T')[0];
+                headerHtml += `<th style="padding: 0.25rem 0.5rem; min-width: 45px; font-size: 0.65rem; writing-mode: vertical-rl; text-orientation: mixed; height: 80px; ${esHoy ? 'background: #fbbf24; color: #1f2937;' : ''}" title="Clase ${i + 1}: ${clase.fechaStr}">${fechaCorta}</th>`;
+            });
+            headerHtml += '</tr>';
+            
+            // Segunda fila con números de clase
+            headerHtml += '<tr style="background: #f3f4f6;">';
+            headerHtml += '<th style="position: sticky; left: 0; background: #f3f4f6; z-index: 10;"></th>';
+            headerHtml += '<th></th><th></th>';
+            clases.forEach((clase, i) => {
+                const esHoy = clase.fechaStr === new Date().toISOString().split('T')[0];
+                headerHtml += `<th style="padding: 0.25rem; font-size: 0.7rem; font-weight: 600; ${esHoy ? 'background: #fef3c7;' : ''}">${i + 1}</th>`;
+            });
+            headerHtml += '</tr>';
+            
+            headerContainer.innerHTML = headerHtml;
+            
+            // Generar body
+            if (cobrosEstudiantesFiltrados.length === 0) {
+                bodyContainer.innerHTML = '<tr><td colspan="43" style="text-align: center; padding: 2rem; color: #6b7280;">No hay estudiantes en este grupo</td></tr>';
+                return;
+            }
+            
+            let bodyHtml = '';
+            cobrosEstudiantesFiltrados.forEach((user, userIndex) => {
+                const historial = user.historialPagos || [];
+                const historialFechas = {};
+                
+                // Mapear pagos por fecha
+                historial.forEach(p => {
+                    if (p.fecha && p.estado === 'pagado') {
+                        const fechaKey = p.fecha.split('T')[0];
+                        historialFechas[fechaKey] = p;
+                    }
+                });
+                
+                const cuotasPagadas = Object.keys(historialFechas).length;
+                const debe = clases.length - cuotasPagadas;
+                
+                // Color de fila según deuda
+                let rowBg = userIndex % 2 === 0 ? '#ffffff' : '#f9fafb';
+                if (debe >= 5) rowBg = '#fef2f2';
+                else if (debe >= 2) rowBg = '#fffbeb';
+                
+                bodyHtml += `<tr style="background: ${rowBg};">`;
+                bodyHtml += `<td style="padding: 0.5rem; position: sticky; left: 0; background: ${rowBg}; z-index: 5; font-weight: 500; border-right: 2px solid #e5e7eb;">${user.name || 'Sin nombre'}</td>`;
+                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${cuotasPagadas * monto}</td>`;
+                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: ${debe > 0 ? '#dc2626' : '#059669'};">${debe}</td>`;
+                
+                clases.forEach((clase) => {
+                    const pago = historialFechas[clase.fechaStr];
+                    const esHoy = clase.fechaStr === new Date().toISOString().split('T')[0];
+                    const esFuturo = clase.fecha > new Date();
+                    
+                    let cellContent = '';
+                    let cellStyle = 'padding: 0.25rem; text-align: center; cursor: pointer;';
+                    
+                    if (pago) {
+                        cellContent = '✓';
+                        cellStyle += ' background: #dcfce7; color: #059669; font-weight: bold;';
+                    } else if (esFuturo) {
+                        cellContent = '·';
+                        cellStyle += ' background: #f3f4f6; color: #9ca3af;';
+                    } else {
+                        cellContent = '✗';
+                        cellStyle += ' background: #fee2e2; color: #dc2626;';
+                    }
+                    
+                    if (esHoy) {
+                        cellStyle += ' border: 2px solid #f59e0b;';
+                    }
+                    
+                    bodyHtml += `<td style="${cellStyle}" 
+                                     onclick="togglePagoTabla('${user.id}', '${clase.fechaStr}', ${clase.numero})" 
+                                     title="Clase ${clase.numero}: ${clase.fechaStr}">${cellContent}</td>`;
+                });
+                
+                bodyHtml += '</tr>';
+            });
+            
+            // Fila de totales
+            bodyHtml += '<tr style="background: linear-gradient(135deg, #1e3a8a, #3730a3); color: white; font-weight: 600;">';
+            bodyHtml += '<td style="padding: 0.75rem; position: sticky; left: 0; background: #1e3a8a; z-index: 5;">TOTALES</td>';
+            
+            let totalRecaudado = 0;
+            let totalDeuda = 0;
+            cobrosEstudiantesFiltrados.forEach(user => {
+                const historial = user.historialPagos || [];
+                const pagados = historial.filter(p => p.estado === 'pagado').length;
+                totalRecaudado += pagados * monto;
+                totalDeuda += (clases.length - pagados);
+            });
+            
+            bodyHtml += `<td style="padding: 0.75rem; text-align: center;">$${totalRecaudado}</td>`;
+            bodyHtml += `<td style="padding: 0.75rem; text-align: center;">${totalDeuda}</td>`;
+            
+            clases.forEach((clase) => {
+                let pagosEnFecha = 0;
+                cobrosEstudiantesFiltrados.forEach(user => {
+                    const historial = user.historialPagos || [];
+                    const pago = historial.find(p => p.fecha && p.fecha.split('T')[0] === clase.fechaStr && p.estado === 'pagado');
+                    if (pago) pagosEnFecha++;
+                });
+                const porcentaje = cobrosEstudiantesFiltrados.length > 0 ? Math.round((pagosEnFecha / cobrosEstudiantesFiltrados.length) * 100) : 0;
+                bodyHtml += `<td style="padding: 0.25rem; text-align: center; font-size: 0.7rem;" title="${pagosEnFecha}/${cobrosEstudiantesFiltrados.length}">${pagosEnFecha}</td>`;
+            });
+            
+            bodyHtml += '</tr>';
+            
+            bodyContainer.innerHTML = bodyHtml;
+        }
+
+        // Toggle pago desde la tabla
+        async function togglePagoTabla(userId, fechaStr, numeroClase) {
+            const user = cobrosEstudiantesFiltrados.find(u => u.id === userId);
+            if (!user) return;
+            
+            const historial = user.historialPagos || [];
+            const pagoExistente = historial.find(p => p.fecha && p.fecha.split('T')[0] === fechaStr && p.estado === 'pagado');
+            
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            const tema = document.getElementById('cobros-tema').value || `Clase ${numeroClase}`;
+            
+            if (pagoExistente) {
+                // Quitar pago
+                const confirmar = confirm(`¿Quitar pago de ${user.name} del ${fechaStr}?`);
+                if (!confirmar) return;
+                
+                try {
+                    const nuevoHistorial = historial.filter(p => !(p.fecha && p.fecha.split('T')[0] === fechaStr && p.estado === 'pagado'));
+                    await db.collection('users').doc(userId).update({ historialPagos: nuevoHistorial });
+                    
+                    // Actualizar local
+                    const userIndex = allApprovedUsers.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        allApprovedUsers[userIndex].historialPagos = nuevoHistorial;
+                    }
+                    
+                    showNotification('Pago eliminado', 'success');
+                    cargarEstudiantesCobros();
+                } catch (error) {
+                    console.error('Error eliminando pago:', error);
+                    showNotification('Error al eliminar pago', 'error');
+                }
+            } else {
+                // Agregar pago
+                try {
+                    const nuevoHistorial = [...historial, {
+                        concepto: tema,
+                        monto: monto,
+                        estado: 'pagado',
+                        fecha: new Date(fechaStr + 'T12:00:00').toISOString(),
+                        registradoPor: 'admin',
+                        sede: cobrosSedeActual,
+                        horario: cobrosHorarioActual
+                    }];
+                    
+                    await db.collection('users').doc(userId).update({ 
+                        historialPagos: nuevoHistorial,
+                        estadoPagos: 'pagos_al_dia'
+                    });
+                    
+                    // Actualizar local
+                    const userIndex = allApprovedUsers.findIndex(u => u.id === userId);
+                    if (userIndex !== -1) {
+                        allApprovedUsers[userIndex].historialPagos = nuevoHistorial;
+                    }
+                    
+                    showNotification(`Cobro registrado: $${monto}`, 'success');
+                    cargarEstudiantesCobros();
+                } catch (error) {
+                    console.error('Error registrando pago:', error);
+                    showNotification('Error al registrar pago', 'error');
+                }
+            }
+        }
+
+        // Exportar tabla completa a Excel
+        function exportarTablaCompleta() {
+            const clases = generarFechasClases(cobrosHorarioActual);
+            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
+            
+            // Headers
+            let headers = ['Estudiante', 'Total Pagado', 'Cuotas Debe'];
+            clases.forEach((clase, i) => {
+                headers.push(`Clase ${i + 1} (${clase.fechaStr})`);
+            });
+            
+            // Rows
+            const rows = cobrosEstudiantesFiltrados.map(user => {
+                const historial = user.historialPagos || [];
+                const historialFechas = {};
+                historial.forEach(p => {
+                    if (p.fecha && p.estado === 'pagado') {
+                        historialFechas[p.fecha.split('T')[0]] = p;
+                    }
+                });
+                
+                const cuotasPagadas = Object.keys(historialFechas).length;
+                const debe = clases.length - cuotasPagadas;
+                
+                let row = [user.name || '', '$' + (cuotasPagadas * monto), debe];
+                clases.forEach(clase => {
+                    row.push(historialFechas[clase.fechaStr] ? '✓' : '');
+                });
+                
+                return row;
+            });
+            
+            // Generar TSV (compatible con Excel)
+            let tsv = `Tabla de Cobros - ${cobrosSedeActual} - ${cobrosHorarioActual}\n\n`;
+            tsv += headers.join('\t') + '\n';
+            rows.forEach(row => {
+                tsv += row.join('\t') + '\n';
+            });
+            
+            const blob = new Blob(['\ufeff' + tsv], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `tabla_40_clases_${cobrosSedeActual}_${cobrosHorarioActual.replace(/ /g, '_')}.xls`;
+            link.click();
+            
+            showNotification('Tabla exportada a Excel', 'success');
         }
         
         // Agregar listener para cambio de fecha
