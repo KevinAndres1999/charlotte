@@ -3340,6 +3340,17 @@
                 font-size: 1rem !important;
             }
         }
+        
+        /* Animaciones para notificaciones */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
     </style>
 
     <!-- PWA Manifest -->
@@ -3400,6 +3411,57 @@
         let dashboardLoaded = false;
         let usuariosPendientesLoaded = false;
         let usuariosAprobadosLoaded = false;
+
+        // Función de notificación global
+        function showNotification(message, type = 'info') {
+            // Eliminar notificación anterior si existe
+            const existingNotification = document.querySelector('.admin-notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            const colors = {
+                success: { bg: '#10b981', icon: 'check-circle' },
+                error: { bg: '#ef4444', icon: 'times-circle' },
+                warning: { bg: '#f59e0b', icon: 'exclamation-triangle' },
+                info: { bg: '#3b82f6', icon: 'info-circle' }
+            };
+            
+            const config = colors[type] || colors.info;
+            
+            const notification = document.createElement('div');
+            notification.className = 'admin-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${config.bg};
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-weight: 500;
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${config.icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-cerrar después de 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
 
         function filterUsuarios() {
             renderPendingUsers();
@@ -9433,11 +9495,30 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 return;
             }
             
+            const hoy = new Date();
+            const clasesDelCurso = generarFechasClases(cobrosHorarioActual);
+            
             container.innerHTML = cobrosEstudiantesFiltrados.map(user => {
                 const historial = user.historialPagos || [];
-                const cuotasPagadas = historial.filter(p => p.estado === 'pagado').length;
-                const cuotasPendientes = historial.filter(p => p.estado === 'pendiente').length;
-                const totalClases = calcularClasesDesdeInicio(user.horario);
+                
+                // Contar solo pagos que corresponden a las clases del curso
+                let cuotasPagadas = 0;
+                let cuotasPendientes = 0;
+                let clasesPasadas = 0;
+                
+                clasesDelCurso.forEach(clase => {
+                    if (clase.fecha <= hoy) {
+                        clasesPasadas++;
+                        const pago = historial.find(p => p.fecha && p.fecha.split('T')[0] === clase.fechaStr);
+                        if (pago && pago.estado === 'pagado') {
+                            cuotasPagadas++;
+                        } else if (pago && pago.estado === 'pendiente') {
+                            cuotasPendientes++;
+                        }
+                    }
+                });
+                
+                const totalClases = clasesPasadas;
                 const debe = totalClases - cuotasPagadas;
                 
                 // Verificar estado en la fecha seleccionada
@@ -10182,6 +10263,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
             
             let bodyHtml = '';
+            const hoy = new Date();
+            
             cobrosEstudiantesFiltrados.forEach((user, userIndex) => {
                 const historial = user.historialPagos || [];
                 const historialFechas = {};
@@ -10199,8 +10282,20 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                 });
                 
-                const cuotasPagadas = Object.keys(historialFechas).length;
-                const debe = clases.length - cuotasPagadas;
+                // Contar solo pagos de las clases de este curso (40 clases)
+                let cuotasPagadasEnCurso = 0;
+                let clasesPasadas = 0;
+                
+                clases.forEach(clase => {
+                    if (clase.fecha <= hoy) {
+                        clasesPasadas++;
+                        if (historialFechas[clase.fechaStr]) {
+                            cuotasPagadasEnCurso++;
+                        }
+                    }
+                });
+                
+                const debe = clasesPasadas - cuotasPagadasEnCurso;
                 const esMensual = user.tipoPago === 'mensual';
                 
                 // Color de fila según deuda
@@ -10213,7 +10308,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     ${user.name || 'Sin nombre'}
                     ${esMensual ? '<span style="font-size: 0.6rem; background: #fef3c7; color: #92400e; padding: 0.1rem 0.3rem; border-radius: 3px; margin-left: 0.3rem;">M</span>' : ''}
                 </td>`;
-                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${cuotasPagadas * monto}</td>`;
+                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${cuotasPagadasEnCurso * monto}</td>`;
                 bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: ${debe > 0 ? '#dc2626' : '#059669'};">${debe}</td>`;
                 
                 clases.forEach((clase) => {
@@ -10257,11 +10352,19 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             
             let totalRecaudado = 0;
             let totalDeuda = 0;
+            const clasesPasadasTotal = clases.filter(c => c.fecha <= hoy).length;
+            
             cobrosEstudiantesFiltrados.forEach(user => {
                 const historial = user.historialPagos || [];
-                const pagados = historial.filter(p => p.estado === 'pagado').length;
-                totalRecaudado += pagados * monto;
-                totalDeuda += (clases.length - pagados);
+                let pagadosEnCurso = 0;
+                clases.forEach(clase => {
+                    if (clase.fecha <= hoy) {
+                        const pagado = historial.find(p => p.fecha && p.fecha.split('T')[0] === clase.fechaStr && p.estado === 'pagado');
+                        if (pagado) pagadosEnCurso++;
+                    }
+                });
+                totalRecaudado += pagadosEnCurso * monto;
+                totalDeuda += (clasesPasadasTotal - pagadosEnCurso);
             });
             
             bodyHtml += `<td style="padding: 0.75rem; text-align: center;">$${totalRecaudado}</td>`;
