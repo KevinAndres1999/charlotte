@@ -16394,6 +16394,10 @@ REGLAS IMPORTANTES:
                     console.log('OpenRouter test response (parsed or raw):', data);
                     console.log('OpenRouter response status:', response.status, response.statusText);
 
+                    // Exponer la respuesta para depuración en la consola del navegador
+                    try { window._lastOpenRouterTestResponse = data; console.log('Stored window._lastOpenRouterTestResponse (inspect via console)'); } catch(e) { /* ignore */ }
+                    console.log('OpenRouter choice[0] (for quick inspection):', data?.choices?.[0]);
+
                     // Aceptar distintas formas de payload (OpenRouter / OpenAI legacy / shapes con 'parts')
                     let content = null;
 
