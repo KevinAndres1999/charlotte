@@ -16394,20 +16394,42 @@ REGLAS IMPORTANTES:
                     console.log('OpenRouter test response (parsed or raw):', data);
                     console.log('OpenRouter response status:', response.status, response.statusText);
 
-                    // Aceptar distintas formas de payload (OpenRouter / OpenAI legacy)
+                    // Aceptar distintas formas de payload (OpenRouter / OpenAI legacy / shapes con 'parts')
                     let content = null;
+
+                    function extractTextFromMessageField(field) {
+                        if (!field) return null;
+                        if (typeof field === 'string') return field;
+                        if (Array.isArray(field)) return field.join('');
+                        // objeto con .parts (forma usada por OpenRouter/Stealth)
+                        if (field.parts && Array.isArray(field.parts)) return field.parts.join('');
+                        // objeto tipo { content: { parts: [...] } }
+                        if (field.content) return extractTextFromMessageField(field.content);
+                        // fallback a sus propiedades comunes
+                        if (field.text && typeof field.text === 'string') return field.text;
+                        if (field.message && typeof field.message === 'string') return field.message;
+                        return null;
+                    }
+
                     if (data && typeof data === 'object') {
-                        content = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? data?.result ?? data?.message ?? data?.error ?? null;
+                        const choice0 = data.choices && data.choices[0];
+                        content = extractTextFromMessageField(choice0?.message?.content ?? choice0?.message ?? choice0?.delta?.content ?? choice0?.text ?? null);
+                        content = content ?? data?.result ?? data?.message ?? data?.error ?? null;
+
+                        // Si la respuesta incluye información del proveedor/modelo, regístrala para ayudar al debug
+                        if (data.provider || data.model) {
+                            console.log('OpenRouter provider/model:', data.provider, data.model);
+                        }
                     } else if (typeof data === 'string') {
-                        // si la respuesta es texto plano que contiene OK, aceptarla como válida
                         if (data.indexOf('OK') !== -1) {
                             content = 'OK';
                         } else {
-                            // intentar parsear el string como JSON por si viene envuelto
                             try {
                                 const parsed = JSON.parse(data);
-                                content = parsed?.choices?.[0]?.message?.content ?? parsed?.choices?.[0]?.text ?? parsed?.result ?? parsed?.message ?? parsed?.error ?? null;
                                 data = parsed;
+                                const choice0 = parsed.choices && parsed.choices[0];
+                                content = extractTextFromMessageField(choice0?.message?.content ?? choice0?.message ?? choice0?.text ?? null);
+                                content = content ?? parsed?.result ?? parsed?.message ?? null;
                             } catch (e) {
                                 content = null;
                             }
