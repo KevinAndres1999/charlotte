@@ -17224,9 +17224,10 @@ REGLAS ESTRICTAS:
                                 },
                                 body: JSON.stringify({
                                         model: 'openrouter/aurora-alpha',
+                                        messages: [
                                         {
                                             role: 'system',
-                                            content: `Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido y completo, sin texto adicional. Nunca cortes las respuestas. Es critico que generes ${faltantes} preguntas, ni más ni menos. Si el contenido es insuficiente, reutiliza conceptos pero mantén la calidad.`
+                                            content: 'Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido y completo, sin texto adicional. Nunca cortes las respuestas. Es critico que generes ' + faltantes + ' preguntas, ni más ni menos. Si el contenido es insuficiente, reutiliza conceptos pero mantén la calidad.'
                                         },
                                         {
                                             role: 'user',
