@@ -1,8 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEMPORAL: Acceso completo mientras solucionamos el problema de autenticación
-    // ESTO ES INSEGURO - SOLO PARA DESARROLLO/DEBUGGING
+    // EMERGENCY: Permitir acceso temporal mientras solucionamos el problema
+    // ESTO ES TEMPORAL - REVERTIR DESPUÉS DE SOLUCIONAR
     
     match /{document=**} {
       allow read, write: if true;
