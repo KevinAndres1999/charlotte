@@ -1,10 +1,87 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TEMPORAL: Acceso completo mientras solucionamos el problema de autenticación
-    // ESTO ES INSEGURO - SOLO PARA DESARROLLO/DEBUGGING
-    
+    // Permitir acceso a todas las colecciones (temporal para desarrollo)
     match /{document=**} {
+      allow read, write: if true;
+    }
+    
+    // Permitir lectura/escritura en pendingStudents para registro público
+    match /pendingStudents/{document} {
+      allow read, write: if true;
+    }
+
+    // Permitir lectura/escritura en users para autenticación
+    match /users/{document} {
+      allow read, write: if true;
+    }
+
+    // Permitir lectura/escritura en contenido para usuarios autenticados (admin)
+    match /content/{document} {
+      allow read, write: if true;
+    }
+
+    match /classes/{document} {
+      allow read, write: if true;
+    }
+    
+    match /class_chunks/{document} {
+      allow read, write: if true;
+    }
+
+    match /activities/{document} {
+      allow read, write: if true;
+    }
+
+    match /materials/{document} {
+      allow read, write: if true;
+    }
+
+    match /cuestionarios/{document} {
+      allow read, write: if true;
+    }
+
+    match /evaluaciones/{document} {
+      allow read, write: if true;
+    }
+    
+    match /entregas/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasCuestionarios/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasEvaluaciones/{document} {
+      allow read, write: if true;
+    }
+    
+    match /foros/{document} {
+      allow read, write: if true;
+    }
+    
+    match /respuestasForos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /calificaciones_modulos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /configuracion/{document} {
+      allow read, write: if true;
+    }
+    
+    match /fotos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /recursos/{document} {
+      allow read, write: if true;
+    }
+    
+    match /contactos/{document} {
       allow read, write: if true;
     }
   }

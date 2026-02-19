@@ -6,7 +6,7 @@
 //   const client = new OpenRouter({ apiKey: apiKey });
 //   
 //   const response = await client.callModel({
-//     model: 'openrouter/aurora-alpha',
+//     model: 'xiaomi/mimo-v2-flash:free',
 //     messages: [
 //       {
 //         role: 'system',
