@@ -7864,6 +7864,71 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     </div>
                 </div>
             </div>
+
+            <!-- Ver Entregas -->
+            <div id="ver-entregas" class="content-section">
+                <div class="quiz-builder-section">
+                    <div class="quiz-builder-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; margin: -2rem -2rem 2rem -2rem; padding: 3rem 2rem; border-radius: 12px 12px 0 0;">
+                        <h3><i class="fas fa-file-alt"></i> Ver Entregas de Estudiantes</h3>
+                        <p style="color: white;">Revisa y califica las entregas de actividades de los estudiantes</p>
+                    </div>
+
+                    <!-- Filtros de entregas -->
+                    <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Buscar estudiante</label>
+                                <input type="text" id="entregasSearch" placeholder="Buscar por nombre o email..." 
+                                    style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Estado</label>
+                                <select id="entregasFilter" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todas</option>
+                                    <option value="pendientes">Pendientes</option>
+                                    <option value="calificadas">Calificadas</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Programa</label>
+                                <select id="programaFilter" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+                                    <option value="all">Todos</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <button onclick="filterEntregas()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-filter"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas de entregas -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                            <h4 style="margin: 0 0 0.5rem 0;"><i class="fas fa-file-alt"></i> Total Entregas</h4>
+                            <p style="font-size: 2rem; font-weight: bold; margin: 0;" id="total-entregas">0</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                            <h4 style="margin: 0 0 0.5rem 0;"><i class="fas fa-clock"></i> Pendientes</h4>
+                            <p style="font-size: 2rem; font-weight: bold; margin: 0;" id="pendientes-entregas">0</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                            <h4 style="margin: 0 0 0.5rem 0;"><i class="fas fa-check-circle"></i> Calificadas</h4>
+                            <p style="font-size: 2rem; font-weight: bold; margin: 0;" id="calificadas-entregas">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Lista de entregas -->
+                    <div id="entregas-list" class="clase-content-grid" style="margin-top: 2rem;">
+                        <!-- Las entregas se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Ver Clase -->
             <section id="clase-viewer" class="content-section">
                 <div class="welcome-banner clase-viewer-banner">
@@ -16313,47 +16378,22 @@ REGLAS IMPORTANTES:
                     })
                 });
 
-                // Si DeepSeek no está disponible para esta API key, intentar fallback a MiMo (mismo comportamiento histórico)
-                if (!response.ok && (response.status === 404 || response.status === 400)) {
-                    console.warn('Modelo DeepSeek no disponible para esta API key. Intentando fallback a Xiaomi/MiMo...');
-                    const fallbackResp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`,
-                            'HTTP-Referer': window.location.origin,
-                            'X-Title': 'Cursos Charlotte'
-                        },
-                        body: JSON.stringify({
-                            model: 'xiaomi/mimo-v2-flash',
-                            messages: [
-                                { role: 'user', content: 'Responde solo con "OK" si puedes leerme.' }
-                            ],
-                            max_tokens: 10
-                        })
-                    });
 
-                    if (fallbackResp.ok) {
-                        const data = await fallbackResp.json().catch(() => ({}));
-                        alert('⚠️ El modelo DeepSeek no está disponible para esta API key; se usó MiMo (fallback) y la conexión es válida.');
-                        console.log('Test exitoso (fallback):', data.choices?.[0]?.message?.content);
-                        testBtn.innerHTML = originalText;
-                        testBtn.disabled = false;
-                        return;
-                    }
-                    // si el fallback también falla, continuar para manejar el error original abajo
-                }
 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.choices && data.choices[0]?.message?.content) {
-                        alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar la IA en proyectos estudiantiles.');
+                        alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar DeepSeek R1 0528 (free).');
                         console.log('Test exitoso:', data.choices[0].message.content);
                     } else {
                         throw new Error('Respuesta inválida del servidor');
                     }
                 } else if (response.status === 401) {
                     throw new Error('API key inválida o expirada. Obtén una nueva en https://openrouter.ai');
+                } else if (response.status === 403) {
+                    throw new Error('Acceso denegado. Verifica que tu token tenga permisos.');
+                } else if (response.status === 404) {
+                    throw new Error('Modelo DeepSeek R1 0528 no disponible para esta API key. Verifica en https://openrouter.ai/models o usa otra key.');
                 } else if (response.status === 429) {
                     alert('⚠️ Límite de uso alcanzado. Espera un momento antes de probar nuevamente.');
                 } else {
