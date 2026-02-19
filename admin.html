@@ -16381,18 +16381,45 @@ REGLAS IMPORTANTES:
 
 
                 if (response.ok) {
-                    const data = await response.json().catch(() => null);
-                    console.log('OpenRouter test response (raw):', data);
+                    // Intentar parsear JSON; si falla, registrar texto crudo para diagnóstico
+                    let data = null;
+                    try {
+                        data = await response.json();
+                    } catch (jsonErr) {
+                        const raw = await response.clone().text().catch(() => null);
+                        console.error('OpenRouter: fallo al parsear JSON de respuesta. Texto crudo:', raw);
+                        data = raw;
+                    }
+
+                    console.log('OpenRouter test response (parsed or raw):', data);
+                    console.log('OpenRouter response status:', response.status, response.statusText);
 
                     // Aceptar distintas formas de payload (OpenRouter / OpenAI legacy)
-                    const content = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? data?.result ?? null;
+                    let content = null;
+                    if (data && typeof data === 'object') {
+                        content = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? data?.result ?? data?.message ?? data?.error ?? null;
+                    } else if (typeof data === 'string') {
+                        // si la respuesta es texto plano que contiene OK, aceptarla como válida
+                        if (data.indexOf('OK') !== -1) {
+                            content = 'OK';
+                        } else {
+                            // intentar parsear el string como JSON por si viene envuelto
+                            try {
+                                const parsed = JSON.parse(data);
+                                content = parsed?.choices?.[0]?.message?.content ?? parsed?.choices?.[0]?.text ?? parsed?.result ?? parsed?.message ?? parsed?.error ?? null;
+                                data = parsed;
+                            } catch (e) {
+                                content = null;
+                            }
+                        }
+                    }
 
                     if (content) {
                         alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar Aurora Alpha.');
                         console.log('Test exitoso:', content);
                     } else {
-                        console.error('Respuesta inesperada de OpenRouter:', data);
-                        alert('❌ Respuesta inesperada del servidor de OpenRouter. Revisa la consola (F12) para más detalles.');
+                        console.error('Respuesta inesperada de OpenRouter (sin campo de contenido válido):', data);
+                        alert('❌ Respuesta inesperada del servidor de OpenRouter. Abre la consola (F12) y pega aquí el contenido de "OpenRouter test response (parsed or raw):" para ayuda.');
                         throw new Error('Respuesta inválida del servidor: formato inesperado');
                     }
                 } else if (response.status === 401) {
