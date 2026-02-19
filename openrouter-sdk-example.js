@@ -6,7 +6,7 @@
 //   const client = new OpenRouter({ apiKey: apiKey });
 //   
 //   const response = await client.callModel({
-//     model: 'xiaomi/mimo-v2-flash:free',
+//     model: 'deepseek/deepseek-r1-0528:free',
 //     messages: [
 //       {
 //         role: 'system',
