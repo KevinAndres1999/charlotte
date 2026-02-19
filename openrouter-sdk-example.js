@@ -6,7 +6,7 @@
 //   const client = new OpenRouter({ apiKey: apiKey });
 //   
 //   const response = await client.callModel({
-//     model: 'deepseek/deepseek-r1-0528:free',
+//     model: 'openrouter/aurora-alpha',
 //     messages: [
 //       {
 //         role: 'system',

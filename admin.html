@@ -15099,7 +15099,7 @@ REGLAS:
                     'X-Title': 'Charlotte Educational Platform'
                 },
                 body: JSON.stringify({
-                    model: 'deepseek/deepseek-r1-0528:free',
+                    model: 'openrouter/aurora-alpha',
                     messages: [
                         {
                             role: 'system',
@@ -15217,7 +15217,7 @@ REGLAS:
                     'X-Title': 'Charlotte Educational Platform'
                 },
                 body: JSON.stringify({
-                    model: 'deepseek/deepseek-r1-0528:free',
+                    model: 'openrouter/aurora-alpha',
                     messages: [
                         {
                             role: 'system',
@@ -15745,7 +15745,7 @@ REGLAS IMPORTANTES:
                         'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek/deepseek-r1-0528:free',
+                        model: 'openrouter/aurora-alpha',
                         messages: [
                             {
                                 role: 'system',
@@ -16271,7 +16271,7 @@ REGLAS IMPORTANTES:
                         'X-Title': 'Cursos Charlotte'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek/deepseek-r1-0528:free',
+                        model: 'openrouter/aurora-alpha',
                         messages: [
                             {
                                 role: 'user',
@@ -16357,7 +16357,7 @@ REGLAS IMPORTANTES:
             try {
                 console.log('Probando conexión con OpenRouter desde proyectos...');
 
-                // Intento principal: DeepSeek R1 0528 (modelo configurado en estudiante)
+                // Intento principal: Aurora Alpha (modelo configurado en estudiante)
                 let response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
                     headers: {
@@ -16367,7 +16367,7 @@ REGLAS IMPORTANTES:
                         'X-Title': 'Cursos Charlotte'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek/deepseek-r1-0528:free',
+                        model: 'openrouter/aurora-alpha',
                         messages: [
                             {
                                 role: 'user',
@@ -16383,7 +16383,7 @@ REGLAS IMPORTANTES:
                 if (response.ok) {
                     const data = await response.json();
                     if (data.choices && data.choices[0]?.message?.content) {
-                        alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar DeepSeek R1 0528 (free).');
+                        alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar Aurora Alpha.');
                         console.log('Test exitoso:', data.choices[0].message.content);
                     } else {
                         throw new Error('Respuesta inválida del servidor');
@@ -16393,7 +16393,7 @@ REGLAS IMPORTANTES:
                 } else if (response.status === 403) {
                     throw new Error('Acceso denegado. Verifica que tu token tenga permisos.');
                 } else if (response.status === 404) {
-                    throw new Error('Modelo DeepSeek R1 0528 no disponible para esta API key. Verifica en https://openrouter.ai/models o usa otra key.');
+                    throw new Error('Modelo Aurora Alpha no disponible para esta API key. Verifica en https://openrouter.ai/models o usa otra key.');
                 } else if (response.status === 429) {
                     alert('⚠️ Límite de uso alcanzado. Espera un momento antes de probar nuevamente.');
                 } else {
@@ -16853,7 +16853,7 @@ REGLAS IMPORTANTES:
                         'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek/deepseek-r1-0528:free',
+                        model: 'openrouter/aurora-alpha',
                         messages: [
                             {
                                 role: 'user',
@@ -16959,7 +16959,7 @@ REGLAS ESTRICTAS:
                         'X-Title': 'Charlotte Educational Platform'
                     },
                     body: JSON.stringify({
-                        model: 'deepseek/deepseek-r1-0528:free',
+                        model: 'openrouter/aurora-alpha',
                         messages: [
                             {
                                 role: 'system',
@@ -17223,8 +17223,7 @@ REGLAS ESTRICTAS:
                                     'X-Title': 'Charlotte Educational Platform'
                                 },
                                 body: JSON.stringify({
-                                    model: 'deepseek/deepseek-r1-0528:free',
-                                    messages: [
+                                        model: 'openrouter/aurora-alpha',
                                         {
                                             role: 'system',
                                             content: `Eres un experto pedagogo que crea preguntas de opción múltiple de alta calidad. Siempre respondes SOLO con JSON válido y completo, sin texto adicional. Nunca cortes las respuestas. Es critico que generes ${faltantes} preguntas, ni más ni menos. Si el contenido es insuficiente, reutiliza conceptos pero mantén la calidad.`
