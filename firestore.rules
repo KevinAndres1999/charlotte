@@ -1,88 +1,168 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir acceso a todas las colecciones (temporal para desarrollo)
-    match /{document=**} {
-      allow read, write: if true;
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Permitir lectura/escritura en pendingStudents para registro público
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'admin';
+    }
+    
+    function isStudent() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'student';
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && 
+             request.auth.uid == userId;
+    }
+    
+    // Users collection - solo admins pueden leer, usuarios propios pueden actualizar su perfil
+    match /users/{userId} {
+      allow read: if isAdmin();
+      allow create: if false; // Creación vía Firebase Auth
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // Registro público de estudiantes pendientes
     match /pendingStudents/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow create: if true; // Registro público
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-
-    // Permitir lectura/escritura en users para autenticación
-    match /users/{document} {
-      allow read, write: if true;
-    }
-
-    // Permitir lectura/escritura en contenido para usuarios autenticados (admin)
-    match /content/{document} {
-      allow read, write: if true;
-    }
-
+    
+    // Contenido educativo - lectura pública para estudiantes, escritura solo admins
     match /classes/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Chunks de clases - acceso controlado
     match /class_chunks/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-
+    
+    // Actividades educativas
     match /activities/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-
+    
+    // Materiales educativos
     match /materials/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-
+    
+    // Cuestionarios - lectura para estudiantes autenticados, escritura admins
     match /cuestionarios/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
-
+    
+    // Evaluaciones - similar a cuestionarios
     match /evaluaciones/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Entregas de estudiantes - lectura para propios usuarios y admins, escritura controlada
     match /entregas/{document} {
-      allow read, write: if true;
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isStudent();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Respuestas a cuestionarios - acceso propietario
     match /respuestasCuestionarios/{document} {
-      allow read, write: if true;
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isStudent();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Respuestas a evaluaciones - acceso propietario
     match /respuestasEvaluaciones/{document} {
-      allow read, write: if true;
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if isStudent();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Foros - lectura para autenticados, escritura controlada
     match /foros/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Respuestas de foros
     match /respuestasForos/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Calificaciones de módulos - solo admins
     match /calificaciones_modulos/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Configuración del sistema - solo admins
     match /configuracion/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Fotos de perfil - acceso propietario y admins
     match /fotos/{document} {
-      allow read, write: if true;
+      allow read: if isOwner(document) || isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isOwner(document) || isAdmin();
+      allow delete: if isOwner(document) || isAdmin();
     }
     
+    // Recursos generales - lectura para autenticados, escritura admins
     match /recursos/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
     
+    // Contactos - solo admins pueden ver, público puede crear
     match /contactos/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow create: if true; // Formulario de contacto público
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
     }
   }
 }
