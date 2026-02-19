@@ -336,6 +336,43 @@
         .step.active .step-description {
             color: #64748b;
         }
+        
+        .step-status {
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .step-status.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .step-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .step-status.pending {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+        
+        .step.active .step-status {
+            background: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
+        }
+        
+        .step.completed .step-number span {
+            display: none;
+        }
+        
+        .step.completed .step-number::before {
+            content: '✓';
+            font-size: 1.1rem;
+        }
 
         .wizard-content {
             display: grid;
@@ -350,9 +387,9 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
-            height: 75vh;
-            min-height: 600px;
-            max-height: 900px;
+            height: 800px;
+            min-height: 800px;
+            max-height: 800px;
             overflow: hidden;
         }
 
@@ -471,6 +508,8 @@
             border-bottom-left-radius: 6px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             border: 1px solid #e2e8f0;
+            font-size: 1.15rem;
+            line-height: 1.8;
         }
 
         .chat-message.ai strong {
@@ -1096,8 +1135,9 @@
             }
 
             .ai-chat-container {
-                height: 70vh;
-                min-height: 500px;
+                height: 700px;
+                min-height: 700px;
+                max-height: 700px;
             }
 
             .project-summary {
@@ -1132,8 +1172,9 @@
             }
 
             .ai-chat-container {
-                height: 65vh;
-                min-height: 400px;
+                height: 700px;
+                min-height: 700px;
+                max-height: 700px;
             }
 
             .chat-header {
@@ -1158,6 +1199,11 @@
                 max-width: 90%;
                 padding: 0.875rem 1rem;
                 font-size: 0.95rem;
+            }
+            
+            .chat-message.ai {
+                font-size: 1.05rem;
+                line-height: 1.75;
             }
 
             .chat-input-container {
@@ -1416,6 +1462,52 @@
             margin: 0;
             opacity: 0.9;
             font-size: 0.9rem;
+        }
+
+        /* Estilos para módulos bloqueados */
+        .modulo-card.bloqueado {
+            position: relative;
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(30%);
+        }
+
+        .modulo-card.bloqueado::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            z-index: 1;
+        }
+
+        .modulo-card.bloqueado .lock-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            background: rgba(0,0,0,0.7);
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .modulo-card.bloqueado .lock-overlay i {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .modulo-card.bloqueado:hover {
+            transform: none !important;
         }
 
         .modulo-header {
@@ -3764,6 +3856,722 @@
                 opacity: 1;
             }
         }
+
+        /* === ESTILOS PARA ACTIVIDADES INTERACTIVAS IA === */
+        .actividad-ia-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .actividad-ia-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .actividad-ia-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .actividad-ia-card .card-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .actividad-ia-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .actividad-ia-card p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .actividad-ia-card .card-stats {
+            display: flex;
+            gap: 24px;
+            margin: 20px 0;
+            padding: 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+        }
+
+        .actividad-ia-card .stat {
+            text-align: center;
+        }
+
+        .actividad-ia-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .actividad-ia-card .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .actividad-ia-card .btn-iniciar-actividad {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .actividad-ia-card .btn-iniciar-actividad:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .actividad-ia-card .btn-iniciar-actividad:disabled {
+            background: rgba(255,255,255,0.5);
+            color: rgba(102,126,234,0.7);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .actividad-ia-card .intentos-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 12px;
+        }
+
+        .actividad-ia-card.aprobada {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .actividad-ia-card.reprobada {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Sección de Actividad Interactiva */
+        #actividad-ia-viewer {
+            min-height: calc(100vh - 80px);
+        }
+
+        .actividad-ia-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .actividad-ia-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .actividad-ia-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .actividad-ia-header .subtitulo {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .actividad-ia-header .meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .actividad-ia-header .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .pregunta-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .pregunta-card.respondida {
+            border-color: #3b82f6;
+        }
+
+        .pregunta-card.correcta {
+            border-color: #10b981;
+            background: linear-gradient(to right, rgba(16,185,129,0.05), transparent);
+        }
+
+        .pregunta-card.incorrecta {
+            border-color: #ef4444;
+            background: linear-gradient(to right, rgba(239,68,68,0.05), transparent);
+        }
+
+        .pregunta-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .pregunta-numero {
+            min-width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .pregunta-texto {
+            font-size: 1.1rem;
+            color: #1f2937;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .pregunta-tipo {
+            padding: 4px 12px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Opciones de Quiz */
+        .opciones-quiz {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opcion-quiz {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .opcion-quiz:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .opcion-quiz.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        }
+
+        .opcion-quiz.correcta-mostrar {
+            border-color: #10b981;
+            background: linear-gradient(to right, rgba(16,185,129,0.1), transparent);
+        }
+
+        .opcion-quiz.incorrecta-mostrar {
+            border-color: #ef4444;
+            background: linear-gradient(to right, rgba(239,68,68,0.1), transparent);
+        }
+
+        .opcion-quiz.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .opcion-quiz input[type="radio"] {
+            display: none;
+        }
+
+        .opcion-marker {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .opcion-quiz.selected .opcion-marker {
+            border-color: #667eea;
+            background: #667eea;
+        }
+
+        .opcion-quiz.selected .opcion-marker::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .opcion-quiz.correcta-mostrar .opcion-marker {
+            border-color: #10b981;
+            background: #10b981;
+        }
+
+        .opcion-quiz.correcta-mostrar .opcion-marker::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .opcion-quiz.incorrecta-mostrar .opcion-marker {
+            border-color: #ef4444;
+            background: #ef4444;
+        }
+
+        .opcion-quiz.incorrecta-mostrar .opcion-marker::after {
+            content: '✗';
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .opcion-texto {
+            flex: 1;
+            font-size: 1rem;
+            color: #374151;
+        }
+
+        /* Verdadero/Falso */
+        .opciones-vf {
+            display: flex;
+            gap: 16px;
+        }
+
+        .opcion-vf {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .opcion-vf:hover:not(.disabled) {
+            transform: translateY(-2px);
+        }
+
+        .opcion-vf.verdadero:hover:not(.disabled), .opcion-vf.verdadero.selected {
+            border-color: #10b981;
+            background: rgba(16,185,129,0.1);
+        }
+
+        .opcion-vf.falso:hover:not(.disabled), .opcion-vf.falso.selected {
+            border-color: #ef4444;
+            background: rgba(239,68,68,0.1);
+        }
+
+        .opcion-vf i {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .opcion-vf.verdadero i { color: #10b981; }
+        .opcion-vf.falso i { color: #ef4444; }
+
+        .opcion-vf span {
+            display: block;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Ordenar */
+        .ordenar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ordenar-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+
+        .ordenar-item:active {
+            cursor: grabbing;
+        }
+
+        .ordenar-item.dragging {
+            opacity: 0.5;
+            border-color: #667eea;
+        }
+
+        .ordenar-item .drag-handle {
+            margin-right: 16px;
+            color: #9ca3af;
+        }
+
+        .ordenar-item .item-numero {
+            width: 28px;
+            height: 28px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .ordenar-item .item-texto {
+            flex: 1;
+        }
+
+        /* Completar */
+        .completar-texto {
+            font-size: 1.1rem;
+            line-height: 2;
+            color: #374151;
+        }
+
+        .completar-input {
+            display: inline-block;
+            min-width: 150px;
+            padding: 6px 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            background: #f0f4ff;
+            font-size: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .completar-input:focus {
+            outline: none;
+            border-style: solid;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+        }
+
+        .completar-input.correcto {
+            border-color: #10b981;
+            background: rgba(16,185,129,0.1);
+        }
+
+        .completar-input.incorrecto {
+            border-color: #ef4444;
+            background: rgba(239,68,68,0.1);
+        }
+
+        /* Explicación */
+        .explicacion-box {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .explicacion-box.visible {
+            display: block;
+        }
+
+        .explicacion-box h4 {
+            color: #1e40af;
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .explicacion-box p {
+            color: #374151;
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Barra de progreso actividad */
+        .actividad-progress-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            padding: 16px 24px;
+            margin: -24px -24px 24px -24px;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .actividad-progress-bar .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .actividad-progress-bar .progress-text {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .actividad-progress-bar .questions-count {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .actividad-progress-bar .progress-track {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .actividad-progress-bar .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Botones de acción actividad */
+        .actividad-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-enviar-actividad {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-enviar-actividad:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+        }
+
+        .btn-enviar-actividad:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-volver-actividad {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver-actividad:hover {
+            background: #e5e7eb;
+        }
+
+        /* Modal de resultados */
+        .resultado-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+        }
+
+        .resultado-content {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .resultado-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .resultado-icon.aprobado {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .resultado-icon.reprobado {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .resultado-content h2 {
+            font-size: 1.75rem;
+            margin: 0 0 16px 0;
+            color: #1f2937;
+        }
+
+        .resultado-content .puntuacion {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 16px 0;
+        }
+
+        .resultado-content .puntuacion.aprobado {
+            color: #10b981;
+        }
+
+        .resultado-content .puntuacion.reprobado {
+            color: #ef4444;
+        }
+
+        .resultado-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin: 24px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .resultado-stats .stat {
+            text-align: center;
+        }
+
+        .resultado-stats .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .resultado-stats .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .resultado-message {
+            color: #6b7280;
+            margin: 16px 0;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .resultado-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .resultado-actions .btn-primary {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .resultado-actions .btn-secondary {
+            padding: 14px 28px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
     </style>
 
     <style>
@@ -5514,39 +6322,44 @@
                             <h3><i class="fas fa-rocket"></i> Tu Progreso</h3>
                             <p>Completa cada módulo para crear tu plan</p>
                         </div>
-                        <div class="step active" data-step="1">
-                            <div class="step-number">1</div>
+                        <div class="step" data-step="1" onclick="goToModule(1)">
+                            <div class="step-number"><span>1</span></div>
                             <div class="step-content">
                                 <div class="step-title">Identificación del Negocio</div>
                                 <div class="step-description">Nombre, eslogan, misión y visión</div>
+                                <div class="step-status"></div>
                             </div>
                         </div>
-                        <div class="step hidden" data-step="2">
-                            <div class="step-number">2</div>
+                        <div class="step" data-step="2" onclick="goToModule(2)">
+                            <div class="step-number"><span>2</span></div>
                             <div class="step-content">
                                 <div class="step-title">Análisis de Mercado</div>
                                 <div class="step-description">Clientes, competencia y propuesta de valor</div>
+                                <div class="step-status"></div>
                             </div>
                         </div>
-                        <div class="step hidden" data-step="3">
-                            <div class="step-number">3</div>
+                        <div class="step" data-step="3" onclick="goToModule(3)">
+                            <div class="step-number"><span>3</span></div>
                             <div class="step-content">
                                 <div class="step-title">Operaciones y Procesos</div>
                                 <div class="step-description">Servicios, procesos y recursos</div>
+                                <div class="step-status"></div>
                             </div>
                         </div>
-                        <div class="step hidden" data-step="4">
-                            <div class="step-number">4</div>
+                        <div class="step" data-step="4" onclick="goToModule(4)">
+                            <div class="step-number"><span>4</span></div>
                             <div class="step-content">
                                 <div class="step-title">Marketing y Ventas</div>
                                 <div class="step-description">Canales, estrategias y campañas</div>
+                                <div class="step-status"></div>
                             </div>
                         </div>
-                        <div class="step hidden" data-step="5">
-                            <div class="step-number">5</div>
+                        <div class="step" data-step="5" onclick="goToModule(5)">
+                            <div class="step-number"><span>5</span></div>
                             <div class="step-content">
                                 <div class="step-title">Finanzas Básicas</div>
                                 <div class="step-description">Inversión, precios y proyecciones</div>
+                                <div class="step-status"></div>
                             </div>
                         </div>
                     </div>
@@ -5575,7 +6388,7 @@
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
-                            <div class="chat-help">
+                            <div class="chat-help" id="chatCommandsHelp">
                                 💡 <strong>Comandos:</strong> "siguiente" para continuar • "anterior" para volver • "corregir" para editar respuesta • "reiniciar" para empezar de nuevo
                             </div>
                         </div>
@@ -5980,6 +6793,46 @@
                         <div class="content-card clase-tags-card" id="clase-tags-section" style="display: none;">
                             <h3><i class="fas fa-tags"></i> Etiquetas</h3>
                             <div class="clase-tags-list" id="clase-viewer-tags"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta de Actividad Interactiva -->
+                    <div id="actividad-ia-disponible" class="actividad-ia-card" style="display: none;">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <h3 id="actividad-ia-titulo">Actividad Interactiva</h3>
+                                <p id="actividad-ia-descripcion">Pon a prueba tus conocimientos de esta clase</p>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat">
+                                <div class="stat-value" id="actividad-ia-preguntas">0</div>
+                                <div class="stat-label">Preguntas</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="actividad-ia-puntaje">70%</div>
+                                <div class="stat-label">Para Aprobar</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="actividad-ia-intentos-restantes">3</div>
+                                <div class="stat-label">Intentos</div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn-iniciar-actividad" id="btn-iniciar-actividad-ia" onclick="iniciarActividadInteractiva()">
+                                <i class="fas fa-play-circle"></i> Iniciar Actividad
+                            </button>
+                            <span class="intentos-badge" id="intentos-info-badge" style="display: none;">
+                                <i class="fas fa-history"></i>
+                                <span id="intentos-usados-text">0/3 intentos usados</span>
+                            </span>
+                        </div>
+                        <div id="resultado-previo-actividad" style="display: none; margin-top: 16px; padding: 12px 16px; background: rgba(255,255,255,0.15); border-radius: 10px;">
+                            <span style="opacity: 0.9;">Último intento:</span>
+                            <strong id="resultado-previo-puntaje">-- %</strong>
                         </div>
                     </div>
 
@@ -8290,31 +9143,10 @@ function showModulosSelectorEstudiante() {
     const modulos = modulosPorPrograma[programaNormalizado] || modulosPorPrograma['Panadería y Pastelería'];
     
     const container = document.getElementById('modulosSelector');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 2rem;">
-            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
-            <p style="color: #6b7280; margin-bottom: 2rem;">${programa}</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
-                ${modulos.map(m => `
-                    <div class="modulo-card" data-modulo="${m.id}" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%);">
-                        <i class="fas ${m.icon}"></i>
-                        <h4>${m.nombre}</h4>
-                        <p>${m.descripcion}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
     
-    // Agregar event listeners para los clics
-    const cards = container.querySelectorAll('.modulo-card');
-    cards.forEach(card => {
-        card.addEventListener('click', () => {
-            const modulo = card.getAttribute('data-modulo');
-            window.loadClases(modulo);
-        });
-        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
-        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+    // Usar la función de renderizado con verificación de bloqueo
+    renderModulosConBloqueo(container, modulos, programa, (modulo) => {
+        window.loadClases(modulo);
     });
 }
 
@@ -9237,9 +10069,10 @@ function closeModal() {
 
 // Cerrar modal al hacer clic fuera
 window.onclick = function(event) {
-    const modal = document.getElementById('detailModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
+    const detailModal = document.getElementById('detailModal');
+    
+    if (event.target == detailModal) {
+        detailModal.style.display = 'none';
     }
 }
 
@@ -9418,6 +10251,9 @@ async function loadClaseDetail(id) {
 
             // Recargar la lista de clases para actualizar el estado
             window.loadClases();
+
+            // Verificar si hay actividad interactiva disponible para esta clase
+            await verificarYMostrarActividadIA(id);
         }
     } catch (error) {
         console.error('Error loading clase detail:', error);
@@ -9554,6 +10390,942 @@ function printClase(id) {
     printWindow.document.close();
     printWindow.print();
 }
+
+// =================== FUNCIONES DE ACTIVIDADES INTERACTIVAS IA ===================
+
+// Variables globales para actividad interactiva
+let actividadIAActual = null;
+let respuestasUsuario = {};
+let intentoActual = 1;
+
+// Verificar y mostrar tarjeta de actividad disponible
+async function verificarYMostrarActividadIA(claseId) {
+    try {
+        const cardElement = document.getElementById('actividad-ia-disponible');
+        if (!cardElement) return;
+
+        // Buscar actividad para esta clase
+        const actividadesRef = collection(db, 'actividades_interactivas');
+        const q = query(actividadesRef, where('claseId', '==', claseId));
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            cardElement.style.display = 'none';
+            return;
+        }
+
+        const actividadDoc = snapshot.docs[0];
+        const actividad = { id: actividadDoc.id, ...actividadDoc.data() };
+        actividadIAActual = actividad;
+
+        // Obtener información de intentos del usuario
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) {
+            cardElement.style.display = 'none';
+            return;
+        }
+
+        // Obtener intentos previos
+        const intentosRef = collection(db, 'intentos_actividades');
+        const qIntentos = query(intentosRef, 
+            where('actividadId', '==', actividad.id), 
+            where('usuarioId', '==', currentUser.id || currentUser.email)
+        );
+        const intentosSnapshot = await getDocs(qIntentos);
+        const intentos = intentosSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        const intentosUsados = intentos.length;
+        const intentosMaximos = actividad.intentosMaximos || 3;
+        const mejorPuntaje = intentos.length > 0 ? Math.max(...intentos.map(i => i.puntaje)) : 0;
+        const aprobado = mejorPuntaje >= (actividad.puntuacionMinima || 70);
+
+        // Actualizar UI de la tarjeta
+        document.getElementById('actividad-ia-titulo').textContent = actividad.titulo || 'Actividad Interactiva';
+        document.getElementById('actividad-ia-descripcion').textContent = actividad.descripcion || 'Pon a prueba tus conocimientos de esta clase';
+        document.getElementById('actividad-ia-preguntas').textContent = (actividad.preguntas || []).length;
+        document.getElementById('actividad-ia-puntaje').textContent = (actividad.puntuacionMinima || 70) + '%';
+        document.getElementById('actividad-ia-intentos-restantes').textContent = intentosMaximos - intentosUsados;
+
+        // Mostrar información de intentos
+        const intentosBadge = document.getElementById('intentos-info-badge');
+        const intentosText = document.getElementById('intentos-usados-text');
+        if (intentosUsados > 0) {
+            intentosBadge.style.display = 'inline-flex';
+            intentosText.textContent = `${intentosUsados}/${intentosMaximos} intentos usados`;
+        } else {
+            intentosBadge.style.display = 'none';
+        }
+
+        // Mostrar resultado previo si existe
+        const resultadoPrevio = document.getElementById('resultado-previo-actividad');
+        const resultadoPrevioText = document.getElementById('resultado-previo-puntaje');
+        if (intentos.length > 0) {
+            const ultimoIntento = intentos.sort((a, b) => 
+                (b.fecha?.seconds || 0) - (a.fecha?.seconds || 0)
+            )[0];
+            resultadoPrevioText.textContent = ultimoIntento.puntaje + '%';
+            resultadoPrevio.style.display = 'block';
+        } else {
+            resultadoPrevio.style.display = 'none';
+        }
+
+        // Actualizar estado visual de la tarjeta
+        cardElement.classList.remove('aprobada', 'reprobada');
+        const btnIniciar = document.getElementById('btn-iniciar-actividad-ia');
+        
+        if (aprobado) {
+            cardElement.classList.add('aprobada');
+            document.getElementById('actividad-ia-titulo').innerHTML = '<i class="fas fa-check-circle"></i> ' + (actividad.titulo || 'Actividad Completada');
+            btnIniciar.innerHTML = '<i class="fas fa-redo"></i> Repetir Actividad';
+        } else if (intentosUsados >= intentosMaximos) {
+            cardElement.classList.add('reprobada');
+            document.getElementById('actividad-ia-titulo').innerHTML = '<i class="fas fa-times-circle"></i> Sin Intentos Restantes';
+            btnIniciar.disabled = true;
+            btnIniciar.innerHTML = '<i class="fas fa-lock"></i> Sin Intentos';
+        } else {
+            btnIniciar.disabled = false;
+            btnIniciar.innerHTML = '<i class="fas fa-play-circle"></i> Iniciar Actividad';
+        }
+
+        intentoActual = intentosUsados + 1;
+        cardElement.style.display = 'block';
+
+    } catch (error) {
+        console.error('Error al verificar actividad IA:', error);
+        const cardElement = document.getElementById('actividad-ia-disponible');
+        if (cardElement) cardElement.style.display = 'none';
+    }
+}
+
+// Iniciar la actividad interactiva
+async function iniciarActividadInteractiva() {
+    if (!actividadIAActual) {
+        showToast('No se encontró la actividad', 'error');
+        return;
+    }
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        showToast('Debes iniciar sesión', 'error');
+        return;
+    }
+
+    // Verificar intentos disponibles
+    const intentosRef = collection(db, 'intentos_actividades');
+    const qIntentos = query(intentosRef, 
+        where('actividadId', '==', actividadIAActual.id), 
+        where('usuarioId', '==', currentUser.id || currentUser.email)
+    );
+    const intentosSnapshot = await getDocs(qIntentos);
+    const intentosUsados = intentosSnapshot.docs.length;
+    const intentosMaximos = actividadIAActual.intentosMaximos || 3;
+
+    if (intentosUsados >= intentosMaximos) {
+        showToast('Has agotado todos los intentos para esta actividad', 'warning');
+        return;
+    }
+
+    // Resetear respuestas
+    respuestasUsuario = {};
+    intentoActual = intentosUsados + 1;
+
+    const preguntas = actividadIAActual.preguntas || [];
+    const totalPreguntas = preguntas.length;
+
+    // Establecer título del modal
+    document.getElementById('modalTitle').textContent = actividadIAActual.titulo || 'Actividad Interactiva';
+
+    // Generar contenido del modal
+    let modalContent = `
+        <div class="actividad-ia-modal-content">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <p style="margin: 0 0 10px 0; opacity: 0.9;"><i class="fas fa-book"></i> ${actividadIAActual.claseTitulo || 'Clase'}</p>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <span><i class="fas fa-question-circle"></i> ${totalPreguntas} preguntas</span>
+                    <span><i class="fas fa-star"></i> Mínimo: ${actividadIAActual.puntuacionMinima || 70}%</span>
+                    <span><i class="fas fa-redo"></i> Intento ${intentoActual} de ${intentosMaximos}</span>
+                </div>
+            </div>
+
+            <div style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600; color: #374151;">Progreso</span>
+                    <span id="actividad-questions-count" style="color: #6b7280;">0 de ${totalPreguntas} respondidas</span>
+                </div>
+                <div style="height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                    <div id="actividad-progress-fill" style="height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); border-radius: 4px; transition: width 0.3s; width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="actividad-preguntas-container">
+                ${generarHTMLPreguntas(preguntas)}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                <button onclick="closeModal()" style="padding: 12px 24px; background: #f3f4f6; color: #374151; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem;">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button id="btn-enviar-actividad" onclick="enviarActividadInteractiva()" disabled style="padding: 14px 28px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; opacity: 0.5;">
+                    <i class="fas fa-paper-plane"></i> Enviar Respuestas
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modalBody').innerHTML = modalContent;
+
+    // Inicializar drag and drop para ordenar
+    inicializarDragAndDrop();
+
+    // Mostrar el modal
+    document.getElementById('detailModal').style.display = 'block';
+}
+
+// Generar HTML de todas las preguntas
+function generarHTMLPreguntas(preguntas) {
+    return preguntas.map((pregunta, index) => {
+        const numero = index + 1;
+        const tipoLabel = {
+            'quiz': 'Opción Múltiple',
+            'verdadero_falso': 'Verdadero/Falso',
+            'ordenar': 'Ordenar',
+            'completar': 'Completar'
+        }[pregunta.tipo] || pregunta.tipo;
+
+        let contenidoPregunta = '';
+        
+        switch(pregunta.tipo) {
+            case 'quiz':
+                contenidoPregunta = renderizarQuizHTML(pregunta, index);
+                break;
+            case 'verdadero_falso':
+                contenidoPregunta = renderizarVFHTML(pregunta, index);
+                break;
+            case 'ordenar':
+                contenidoPregunta = renderizarOrdenarHTML(pregunta, index);
+                break;
+            case 'completar':
+                contenidoPregunta = renderizarCompletarHTML(pregunta, index);
+                break;
+            default:
+                contenidoPregunta = `<p>Tipo de pregunta no soportado: ${pregunta.tipo}</p>`;
+        }
+
+        return `
+            <div class="pregunta-card" id="pregunta-${index}" data-tipo="${pregunta.tipo}" data-index="${index}" style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 2px solid transparent;">
+                <div style="display: flex; align-items: flex-start; gap: 16px; margin-bottom: 20px;">
+                    <div style="min-width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700;">${numero}</div>
+                    <div style="flex: 1; font-size: 1.1rem; color: #1f2937; line-height: 1.6;">${pregunta.pregunta}</div>
+                    <span style="padding: 4px 12px; background: #f3f4f6; color: #6b7280; border-radius: 20px; font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">${tipoLabel}</span>
+                </div>
+                ${contenidoPregunta}
+                <div class="explicacion-box" id="explicacion-${index}" style="margin-top: 16px; padding: 16px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 0 8px 8px 0; display: none;">
+                    <h4 style="color: #1e40af; margin: 0 0 8px 0;"><i class="fas fa-lightbulb"></i> Explicación</h4>
+                    <p style="color: #374151; margin: 0;">${pregunta.explicacion || 'Sin explicación disponible.'}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Renderizar Quiz HTML
+function renderizarQuizHTML(pregunta, index) {
+    return `<div class="opciones-quiz" style="display: flex; flex-direction: column; gap: 12px;">
+        ${(pregunta.opciones || []).map((opcion, opcionIndex) => `
+            <label class="opcion-quiz" data-pregunta="${index}" data-opcion="${opcionIndex}" onclick="seleccionarOpcionQuiz(${index}, ${opcionIndex})" style="display: flex; align-items: center; padding: 16px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; transition: all 0.2s;">
+                <input type="radio" name="quiz-${index}" value="${opcionIndex}" style="display: none;">
+                <span class="opcion-marker" style="width: 24px; height: 24px; border: 2px solid #d1d5db; border-radius: 50%; margin-right: 16px; display: flex; align-items: center; justify-content: center;"></span>
+                <span style="flex: 1; font-size: 1rem; color: #374151;">${opcion}</span>
+            </label>
+        `).join('')}
+    </div>`;
+}
+
+// Renderizar Verdadero/Falso HTML
+function renderizarVFHTML(pregunta, index) {
+    return `<div style="display: flex; gap: 16px;">
+        <div class="opcion-vf verdadero" data-pregunta="${index}" data-valor="true" onclick="seleccionarVF(${index}, true)" style="flex: 1; padding: 20px; text-align: center; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer;">
+            <i class="fas fa-check-circle" style="font-size: 2rem; color: #10b981; margin-bottom: 8px; display: block;"></i>
+            <span style="font-weight: 600; font-size: 1.1rem;">Verdadero</span>
+        </div>
+        <div class="opcion-vf falso" data-pregunta="${index}" data-valor="false" onclick="seleccionarVF(${index}, false)" style="flex: 1; padding: 20px; text-align: center; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer;">
+            <i class="fas fa-times-circle" style="font-size: 2rem; color: #ef4444; margin-bottom: 8px; display: block;"></i>
+            <span style="font-weight: 600; font-size: 1.1rem;">Falso</span>
+        </div>
+    </div>`;
+}
+
+// Renderizar Ordenar HTML
+function renderizarOrdenarHTML(pregunta, index) {
+    const items = [...(pregunta.items || [])];
+    const itemsDesordenados = shuffleArray(items.map((item, i) => ({ texto: item, originalIndex: i })));
+    
+    // Guardar orden inicial
+    respuestasUsuario[index] = itemsDesordenados.map(item => item.originalIndex);
+    
+    return `<div class="ordenar-container" id="ordenar-${index}" style="display: flex; flex-direction: column; gap: 12px;">
+        ${itemsDesordenados.map((item, i) => `
+            <div class="ordenar-item" draggable="true" data-original="${item.originalIndex}" data-current="${i}" style="display: flex; align-items: center; padding: 16px 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; cursor: grab;">
+                <i class="fas fa-grip-vertical" style="margin-right: 16px; color: #9ca3af;"></i>
+                <span class="item-numero" style="width: 28px; height: 28px; background: #667eea; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; margin-right: 12px;">${i + 1}</span>
+                <span style="flex: 1;">${item.texto}</span>
+            </div>
+        `).join('')}
+    </div>`;
+}
+
+// Renderizar Completar HTML
+function renderizarCompletarHTML(pregunta, index) {
+    let texto = pregunta.texto || '';
+    let blankIndex = 0;
+    
+    texto = texto.replace(/\[BLANK\]/g, () => {
+        const inputId = `completar-${index}-${blankIndex}`;
+        const input = `<input type="text" class="completar-input" id="${inputId}" data-pregunta="${index}" data-blank="${blankIndex}" oninput="actualizarRespuestaCompletar(${index})" placeholder="..." style="display: inline-block; min-width: 150px; padding: 6px 12px; border: 2px dashed #667eea; border-radius: 8px; background: #f0f4ff; font-size: 1rem; text-align: center;">`;
+        blankIndex++;
+        return input;
+    });
+
+    return `<div style="font-size: 1.1rem; line-height: 2; color: #374151;">${texto}</div>`;
+}
+
+// Renderizar las preguntas según su tipo (función legacy para compatibilidad)
+function renderizarPreguntasIA(preguntas) {
+    // Esta función ahora es manejada por generarHTMLPreguntas
+    console.log('renderizarPreguntasIA llamada - usando generarHTMLPreguntas');
+}
+
+// Función auxiliar para mezclar array
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Seleccionar opción de quiz
+function seleccionarOpcionQuiz(preguntaIndex, opcionIndex) {
+    // Limpiar selecciones previas
+    document.querySelectorAll(`.opcion-quiz[data-pregunta="${preguntaIndex}"]`).forEach(op => {
+        op.classList.remove('selected');
+        op.style.borderColor = '#e2e8f0';
+        op.style.background = '#f8fafc';
+    });
+
+    // Marcar seleccionada
+    const opcion = document.querySelector(`.opcion-quiz[data-pregunta="${preguntaIndex}"][data-opcion="${opcionIndex}"]`);
+    if (opcion) {
+        opcion.classList.add('selected');
+        opcion.style.borderColor = '#667eea';
+        opcion.style.background = 'linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%)';
+        opcion.querySelector('.opcion-marker').style.borderColor = '#667eea';
+        opcion.querySelector('.opcion-marker').style.background = '#667eea';
+    }
+
+    // Guardar respuesta
+    respuestasUsuario[preguntaIndex] = opcionIndex;
+
+    // Marcar pregunta como respondida
+    const card = document.getElementById(`pregunta-${preguntaIndex}`);
+    if (card) {
+        card.classList.add('respondida');
+        card.style.borderColor = '#3b82f6';
+    }
+
+    // Actualizar progreso
+    actualizarProgresoActividadIA();
+}
+
+// Seleccionar Verdadero/Falso
+function seleccionarVF(preguntaIndex, valor) {
+    // Limpiar estilos de selección previos
+    document.querySelectorAll(`.opcion-vf[data-pregunta="${preguntaIndex}"]`).forEach(op => {
+        op.style.background = '#f8f9fa';
+        op.style.borderColor = '#ddd';
+        op.style.color = '#333';
+    });
+
+    // Aplicar estilo a la opción seleccionada
+    const opcion = document.querySelector(`.opcion-vf[data-pregunta="${preguntaIndex}"][data-valor="${valor}"]`);
+    if (opcion) {
+        opcion.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        opcion.style.borderColor = '#667eea';
+        opcion.style.color = 'white';
+    }
+
+    // Guardar respuesta
+    respuestasUsuario[preguntaIndex] = valor;
+
+    // Marcar pregunta como respondida visualmente
+    const preguntaCard = document.getElementById(`pregunta-${preguntaIndex}`);
+    if (preguntaCard) {
+        preguntaCard.style.borderLeftColor = '#28a745';
+    }
+
+    // Actualizar progreso
+    actualizarProgresoActividadIA();
+}
+
+// Actualizar respuesta de completar
+function actualizarRespuestaCompletar(preguntaIndex) {
+    const inputs = document.querySelectorAll(`input[data-pregunta="${preguntaIndex}"]`);
+    const respuestas = [];
+    let todasLlenas = true;
+
+    inputs.forEach(input => {
+        respuestas.push(input.value.trim());
+        if (!input.value.trim()) todasLlenas = false;
+    });
+
+    respuestasUsuario[preguntaIndex] = respuestas;
+
+    // Marcar como respondida si todas están llenas
+    const preguntaCard = document.getElementById(`pregunta-${preguntaIndex}`);
+    if (todasLlenas) {
+        preguntaCard.classList.add('respondida');
+    } else {
+        preguntaCard.classList.remove('respondida');
+    }
+
+    // Actualizar progreso
+    actualizarProgresoActividadIA();
+}
+
+// Inicializar Drag and Drop para ordenar
+function inicializarDragAndDrop() {
+    const containers = document.querySelectorAll('.ordenar-container');
+    
+    containers.forEach(container => {
+        const items = container.querySelectorAll('.ordenar-item');
+        
+        items.forEach(item => {
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('drop', handleDrop);
+            item.addEventListener('dragend', handleDragEnd);
+        });
+    });
+}
+
+let draggedItem = null;
+
+function handleDragStart(e) {
+    draggedItem = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (this !== draggedItem) {
+        const container = this.parentNode;
+        const allItems = [...container.querySelectorAll('.ordenar-item')];
+        const draggedIndex = allItems.indexOf(draggedItem);
+        const targetIndex = allItems.indexOf(this);
+
+        if (draggedIndex < targetIndex) {
+            this.parentNode.insertBefore(draggedItem, this.nextSibling);
+        } else {
+            this.parentNode.insertBefore(draggedItem, this);
+        }
+
+        // Actualizar números
+        actualizarNumerosOrden(container);
+    }
+}
+
+function handleDragEnd() {
+    this.classList.remove('dragging');
+    draggedItem = null;
+
+    // Actualizar respuesta
+    const container = this.parentNode;
+    const containerId = container.id;
+    const preguntaIndex = parseInt(containerId.replace('ordenar-', ''));
+    
+    const items = container.querySelectorAll('.ordenar-item');
+    const orden = [];
+    items.forEach(item => {
+        orden.push(parseInt(item.dataset.original));
+    });
+
+    respuestasUsuario[preguntaIndex] = orden;
+    document.getElementById(`pregunta-${preguntaIndex}`).classList.add('respondida');
+    actualizarProgresoActividadIA();
+}
+
+function actualizarNumerosOrden(container) {
+    const items = container.querySelectorAll('.ordenar-item');
+    items.forEach((item, index) => {
+        item.querySelector('.item-numero').textContent = index + 1;
+    });
+}
+
+// Actualizar barra de progreso
+function actualizarProgresoActividadIA() {
+    if (!actividadIAActual) return;
+
+    const totalPreguntas = (actividadIAActual.preguntas || []).length;
+    // Contar respuestas guardadas en el objeto
+    let respondidas = 0;
+    for (let i = 0; i < totalPreguntas; i++) {
+        if (respuestasUsuario[i] !== undefined && respuestasUsuario[i] !== null) {
+            // Para completar, verificar que todas las respuestas estén llenas
+            if (Array.isArray(respuestasUsuario[i])) {
+                if (respuestasUsuario[i].every(r => r && r.trim() !== '')) {
+                    respondidas++;
+                }
+            } else {
+                respondidas++;
+            }
+        }
+    }
+    const porcentaje = totalPreguntas > 0 ? Math.round((respondidas / totalPreguntas) * 100) : 0;
+
+    const progressFill = document.getElementById('actividad-progress-fill');
+    const questionsCount = document.getElementById('actividad-questions-count');
+    
+    if (progressFill) progressFill.style.width = porcentaje + '%';
+    if (questionsCount) questionsCount.textContent = `${respondidas} de ${totalPreguntas} respondidas`;
+
+    // Habilitar/deshabilitar botón de enviar
+    const btnEnviar = document.getElementById('btn-enviar-actividad');
+    if (btnEnviar) {
+        btnEnviar.disabled = respondidas < totalPreguntas;
+    }
+}
+
+// Enviar actividad y calcular resultados
+async function enviarActividadInteractiva() {
+    if (!actividadIAActual) {
+        showToast('Error: No se encontró la actividad', 'error');
+        return;
+    }
+
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        showToast('Debes iniciar sesión', 'error');
+        return;
+    }
+
+    const preguntas = actividadIAActual.preguntas || [];
+    let correctas = 0;
+    const detalles = [];
+
+    // Evaluar cada pregunta
+    preguntas.forEach((pregunta, index) => {
+        const respuestaUsuario = respuestasUsuario[index];
+        let esCorrecta = false;
+
+        switch(pregunta.tipo) {
+            case 'quiz':
+                esCorrecta = respuestaUsuario === pregunta.respuestaCorrecta;
+                break;
+            case 'verdadero_falso':
+                esCorrecta = respuestaUsuario === pregunta.respuestaCorrecta;
+                break;
+            case 'ordenar':
+                const ordenCorrecto = pregunta.ordenCorrecto || pregunta.items.map((_, i) => i);
+                esCorrecta = JSON.stringify(respuestaUsuario) === JSON.stringify(ordenCorrecto);
+                break;
+            case 'completar':
+                const respuestasCorrectas = pregunta.respuestas || [];
+                if (Array.isArray(respuestaUsuario)) {
+                    esCorrecta = respuestaUsuario.every((resp, i) => 
+                        resp.toLowerCase().trim() === (respuestasCorrectas[i] || '').toLowerCase().trim()
+                    );
+                }
+                break;
+        }
+
+        if (esCorrecta) correctas++;
+
+        detalles.push({
+            pregunta: pregunta.pregunta,
+            tipo: pregunta.tipo,
+            respuestaUsuario: respuestaUsuario,
+            respuestaCorrecta: pregunta.respuestaCorrecta || pregunta.ordenCorrecto || pregunta.respuestas,
+            esCorrecta: esCorrecta
+        });
+    });
+
+    const puntaje = Math.round((correctas / preguntas.length) * 100);
+    const aprobado = puntaje >= (actividadIAActual.puntuacionMinima || 70);
+
+    // Guardar intento en Firebase
+    try {
+        const intentoData = {
+            actividadId: actividadIAActual.id,
+            usuarioId: currentUser.id || currentUser.email,
+            usuarioNombre: currentUser.nombre || currentUser.email,
+            puntaje: puntaje,
+            correctas: correctas,
+            totalPreguntas: preguntas.length,
+            aprobado: aprobado,
+            fecha: new Date(),
+            detalles: detalles
+        };
+
+        await addDoc(collection(db, 'intentos_actividades'), intentoData);
+
+        // Mostrar resultado
+        mostrarResultadoActividadIA({
+            puntaje: puntaje,
+            correctas: correctas,
+            totalPreguntas: preguntas.length,
+            aprobado: aprobado,
+            intentoActual: intentoActual,
+            intentosMaximos: actividadIAActual.intentosMaximos || 3,
+            mostrarRespuestas: actividadIAActual.mostrarRespuestas === 'soloAprobado' ? aprobado : true
+        });
+
+    } catch (error) {
+        console.error('Error al guardar intento:', error);
+        showToast('Error al guardar el resultado', 'error');
+    }
+}
+
+// Mostrar modal de resultado
+function mostrarResultadoActividadIA(resultado) {
+    const { puntaje, correctas, totalPreguntas, aprobado, intentoActual, intentosMaximos, mostrarRespuestas } = resultado;
+
+    // Mostrar estado de las preguntas
+    if (mostrarRespuestas) {
+        mostrarRespuestasEnPreguntas();
+    }
+
+    // Crear modal de resultado
+    const modal = document.createElement('div');
+    modal.className = 'resultado-modal';
+    modal.id = 'resultado-actividad-modal';
+
+    const mensaje = aprobado 
+        ? '¡Felicidades! Has aprobado la actividad. Sigue así con tu aprendizaje.'
+        : intentoActual < intentosMaximos 
+            ? `No alcanzaste el puntaje mínimo. Te quedan ${intentosMaximos - intentoActual} intento(s).`
+            : 'Has agotado todos tus intentos. Revisa el contenido de la clase para mejorar.';
+
+    modal.innerHTML = `
+        <div class="resultado-content">
+            <div class="resultado-icon ${aprobado ? 'aprobado' : 'reprobado'}">
+                <i class="fas fa-${aprobado ? 'trophy' : 'times'}"></i>
+            </div>
+            <h2>${aprobado ? '¡Excelente Trabajo!' : 'Sigue Intentando'}</h2>
+            <div class="puntuacion ${aprobado ? 'aprobado' : 'reprobado'}">${puntaje}%</div>
+            <div class="resultado-stats">
+                <div class="stat">
+                    <div class="stat-value">${correctas}</div>
+                    <div class="stat-label">Correctas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">${totalPreguntas - correctas}</div>
+                    <div class="stat-label">Incorrectas</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">${intentoActual}/${intentosMaximos}</div>
+                    <div class="stat-label">Intentos</div>
+                </div>
+            </div>
+            <p class="resultado-message">${mensaje}</p>
+            <div class="resultado-actions">
+                ${mostrarRespuestas ? `<button class="btn-secondary" onclick="cerrarModalResultado()">
+                    <i class="fas fa-eye"></i> Ver Respuestas
+                </button>` : ''}
+                <button class="btn-primary" onclick="volverDesdeActividadIA()">
+                    <i class="fas fa-arrow-left"></i> Volver a la Clase
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Mostrar respuestas correctas/incorrectas en las preguntas
+function mostrarRespuestasEnPreguntas() {
+    if (!actividadIAActual) return;
+    
+    const preguntas = actividadIAActual.preguntas || [];
+
+    preguntas.forEach((pregunta, index) => {
+        const card = document.getElementById(`pregunta-${index}`);
+        const explicacion = document.getElementById(`explicacion-${index}`);
+        const respuestaUsuario = respuestasUsuario[index];
+        let esCorrecta = false;
+
+        switch(pregunta.tipo) {
+            case 'quiz':
+                esCorrecta = respuestaUsuario === pregunta.respuestaCorrecta;
+                // Marcar opción correcta e incorrecta
+                document.querySelectorAll(`.opcion-quiz[data-pregunta="${index}"]`).forEach(op => {
+                    op.classList.add('disabled');
+                    const opIndex = parseInt(op.dataset.opcion);
+                    if (opIndex === pregunta.respuestaCorrecta) {
+                        op.classList.add('correcta-mostrar');
+                    } else if (opIndex === respuestaUsuario && !esCorrecta) {
+                        op.classList.add('incorrecta-mostrar');
+                    }
+                });
+                break;
+
+            case 'verdadero_falso':
+                esCorrecta = respuestaUsuario === pregunta.respuestaCorrecta;
+                document.querySelectorAll(`.opcion-vf[data-pregunta="${index}"]`).forEach(op => {
+                    op.classList.add('disabled');
+                    const valor = op.dataset.valor === 'true';
+                    if (valor === pregunta.respuestaCorrecta) {
+                        op.style.borderColor = '#10b981';
+                        op.style.background = 'rgba(16,185,129,0.2)';
+                    } else if (valor === respuestaUsuario && !esCorrecta) {
+                        op.style.borderColor = '#ef4444';
+                        op.style.background = 'rgba(239,68,68,0.2)';
+                    }
+                });
+                break;
+
+            case 'ordenar':
+                const ordenCorrecto = pregunta.ordenCorrecto || pregunta.items.map((_, i) => i);
+                esCorrecta = JSON.stringify(respuestaUsuario) === JSON.stringify(ordenCorrecto);
+                // Mostrar orden correcto
+                const container = document.getElementById(`ordenar-${index}`);
+                if (container && !esCorrecta) {
+                    const correctoHtml = `<p style="margin-top: 12px; color: #10b981; font-weight: 600;"><i class="fas fa-check"></i> Orden correcto: ${ordenCorrecto.map(i => pregunta.items[i]).join(' → ')}</p>`;
+                    container.insertAdjacentHTML('afterend', correctoHtml);
+                }
+                break;
+
+            case 'completar':
+                const respuestasCorrectas = pregunta.respuestas || [];
+                const inputs = document.querySelectorAll(`input[data-pregunta="${index}"]`);
+                let todasCorrectas = true;
+                inputs.forEach((input, i) => {
+                    const esCorrectaInput = input.value.trim().toLowerCase() === (respuestasCorrectas[i] || '').toLowerCase().trim();
+                    if (esCorrectaInput) {
+                        input.classList.add('correcto');
+                    } else {
+                        input.classList.add('incorrecto');
+                        input.title = `Respuesta correcta: ${respuestasCorrectas[i]}`;
+                        todasCorrectas = false;
+                    }
+                    input.disabled = true;
+                });
+                esCorrecta = todasCorrectas;
+                break;
+        }
+
+        // Marcar card como correcta/incorrecta
+        card.classList.add(esCorrecta ? 'correcta' : 'incorrecta');
+        
+        // Mostrar explicación
+        if (explicacion) {
+            explicacion.classList.add('visible');
+        }
+    });
+}
+
+// Cerrar modal de resultado
+function cerrarModalResultado() {
+    const modal = document.getElementById('resultado-actividad-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Cerrar modal de actividad IA (ahora usa detailModal)
+function cerrarModalActividadIA() {
+    closeModal();
+    
+    // Actualizar la tarjeta de actividad en el visor de clase si existe
+    const claseId = sessionStorage.getItem('currentClaseId');
+    if (claseId) {
+        verificarYMostrarActividadIA(claseId);
+    }
+}
+
+// Volver desde actividad IA
+function volverDesdeActividadIA() {
+    // Cerrar modales
+    cerrarModalResultado();
+    closeModal();
+}
+
+// Verificar módulos bloqueados por actividades no aprobadas
+async function verificarModulosBloqueados(programa) {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) return {};
+
+    const modulosBloqueados = {};
+    
+    try {
+        // Obtener todas las actividades interactivas del programa
+        const actividadesRef = collection(db, 'actividades_interactivas');
+        const qActividades = query(actividadesRef, where('programa', '==', programa));
+        const actividadesSnapshot = await getDocs(qActividades);
+        
+        if (actividadesSnapshot.empty) {
+            return modulosBloqueados; // Sin actividades, nada bloqueado
+        }
+
+        // Agrupar actividades por módulo
+        const actividadesPorModulo = {};
+        actividadesSnapshot.docs.forEach(doc => {
+            const actividad = { id: doc.id, ...doc.data() };
+            const modulo = actividad.modulo || 'modulo1';
+            if (!actividadesPorModulo[modulo]) {
+                actividadesPorModulo[modulo] = [];
+            }
+            actividadesPorModulo[modulo].push(actividad);
+        });
+
+        // Obtener todos los intentos del usuario
+        const intentosRef = collection(db, 'intentos_actividades');
+        const qIntentos = query(intentosRef, where('usuarioId', '==', currentUser.id || currentUser.email));
+        const intentosSnapshot = await getDocs(qIntentos);
+        
+        const intentosPorActividad = {};
+        intentosSnapshot.docs.forEach(doc => {
+            const intento = doc.data();
+            if (!intentosPorActividad[intento.actividadId]) {
+                intentosPorActividad[intento.actividadId] = [];
+            }
+            intentosPorActividad[intento.actividadId].push(intento);
+        });
+
+        // Verificar si cada módulo está aprobado
+        const modulosOrdenados = ['modulo1', 'modulo2', 'modulo3', 'modulo4'];
+        let moduloAnteriorAprobado = true; // modulo1 siempre está disponible
+
+        for (let i = 0; i < modulosOrdenados.length; i++) {
+            const moduloActual = modulosOrdenados[i];
+            
+            if (i === 0) {
+                // Módulo 1 siempre está disponible
+                modulosBloqueados[moduloActual] = false;
+            } else {
+                // Verificar si el módulo anterior tiene actividades sin aprobar
+                const moduloAnterior = modulosOrdenados[i - 1];
+                const actividadesModuloAnterior = actividadesPorModulo[moduloAnterior] || [];
+                
+                if (actividadesModuloAnterior.length === 0) {
+                    // Sin actividades en el módulo anterior, no está bloqueado
+                    modulosBloqueados[moduloActual] = false;
+                } else {
+                    // Verificar si hay al menos una actividad aprobada del módulo anterior
+                    const algunaAprobada = actividadesModuloAnterior.some(actividad => {
+                        const intentos = intentosPorActividad[actividad.id] || [];
+                        const mejorPuntaje = intentos.length > 0 ? Math.max(...intentos.map(i => i.puntaje)) : 0;
+                        return mejorPuntaje >= (actividad.puntuacionMinima || 70);
+                    });
+                    
+                    // Todas las actividades del módulo anterior deben estar aprobadas
+                    const todasAprobadas = actividadesModuloAnterior.every(actividad => {
+                        const intentos = intentosPorActividad[actividad.id] || [];
+                        const mejorPuntaje = intentos.length > 0 ? Math.max(...intentos.map(i => i.puntaje)) : 0;
+                        return mejorPuntaje >= (actividad.puntuacionMinima || 70);
+                    });
+                    
+                    modulosBloqueados[moduloActual] = !todasAprobadas;
+                }
+            }
+        }
+
+        return modulosBloqueados;
+    } catch (error) {
+        console.error('Error al verificar módulos bloqueados:', error);
+        return modulosBloqueados;
+    }
+}
+
+// Renderizar selector de módulos con bloqueo
+async function renderModulosConBloqueo(container, modulos, programa, onModuloClick) {
+    // Primero mostrar sin verificar bloqueos (carga más rápida)
+    container.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <p style="color: #6b7280; margin-bottom: 2rem;">${programa}</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
+                ${modulos.map(m => `
+                    <div class="modulo-card" data-modulo="${m.id}" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%);">
+                        <i class="fas ${m.icon}"></i>
+                        <h4>${m.nombre}</h4>
+                        <p>${m.descripcion}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 1rem; font-style: italic;">
+                <i class="fas fa-info-circle"></i> Verificando requisitos de módulos...
+            </p>
+        </div>
+    `;
+
+    // Verificar bloqueos de forma asíncrona
+    const bloqueados = await verificarModulosBloqueados(programa);
+
+    // Re-renderizar con información de bloqueo
+    container.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;"><i class="fas fa-layer-group"></i> Selecciona un Módulo</h3>
+            <p style="color: #6b7280; margin-bottom: 2rem;">${programa}</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto;">
+                ${modulos.map(m => {
+                    const estaBloqueado = bloqueados[m.id] === true;
+                    return `
+                        <div class="modulo-card ${estaBloqueado ? 'bloqueado' : ''}" data-modulo="${m.id}" style="background: linear-gradient(135deg, ${m.color} 0%, ${m.color}dd 100%);">
+                            ${estaBloqueado ? '<div class="lock-overlay"><i class="fas fa-lock"></i> Completa el módulo anterior</div>' : ''}
+                            <i class="fas ${m.icon}"></i>
+                            <h4>${m.nombre}</h4>
+                            <p>${m.descripcion}</p>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            ${Object.values(bloqueados).some(v => v) ? `
+                <p style="color: #f59e0b; font-size: 0.85rem; margin-top: 1rem;">
+                    <i class="fas fa-exclamation-triangle"></i> Aprueba las actividades del módulo actual para desbloquear el siguiente
+                </p>
+            ` : ''}
+        </div>
+    `;
+
+    // Agregar event listeners
+    const cards = container.querySelectorAll('.modulo-card');
+    cards.forEach(card => {
+        const modulo = card.getAttribute('data-modulo');
+        const estaBloqueado = bloqueados[modulo] === true;
+        
+        if (!estaBloqueado) {
+            card.addEventListener('click', () => onModuloClick(modulo));
+            card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-5px)');
+            card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+        } else {
+            card.addEventListener('click', () => {
+                showToast('Debes completar las actividades del módulo anterior para acceder a este', 'warning');
+            });
+        }
+    });
+}
+
+// Hacer funciones globales
+window.verificarYMostrarActividadIA = verificarYMostrarActividadIA;
+window.iniciarActividadInteractiva = iniciarActividadInteractiva;
+window.seleccionarOpcionQuiz = seleccionarOpcionQuiz;
+window.seleccionarVF = seleccionarVF;
+window.actualizarRespuestaCompletar = actualizarRespuestaCompletar;
+window.enviarActividadInteractiva = enviarActividadInteractiva;
+window.volverDesdeActividadIA = volverDesdeActividadIA;
+window.cerrarModalResultado = cerrarModalResultado;
+window.cerrarModalActividadIA = cerrarModalActividadIA;
+window.verificarModulosBloqueados = verificarModulosBloqueados;
+window.renderModulosConBloqueo = renderModulosConBloqueo;
+
+// =================== FIN FUNCIONES ACTIVIDADES INTERACTIVAS IA ===================
 
 // Nuevas funciones auxiliares para la interfaz premium
 function toggleBookmark(claseId) {
@@ -12698,18 +14470,252 @@ function openImageModal(imageUrl, title) {
         input.placeholder = 'Escribe tu respuesta aquí...';
 
         // Marcar que estamos esperando respuesta del estudiante
-        awaitingStudentResponse = true;
+        setChatState('AWAITING_RESPONSE');
     }
 
-    function processStudentResponse(response) {
+    // ========== NUEVO: Funciones para detectar preguntas y dar contexto ==========
+    
+    // Detección básica rápida (para casos obvios sin necesidad de IA)
+    function isObviousHelpRequest(text) {
+        const trimmed = text.trim().toLowerCase();
+        
+        // Casos muy obvios que no necesitan IA
+        const obviousPatterns = [
+            /^\s*\?\s*$/,                               // Solo un "?"
+            /^(ayuda|help|consejo|ejemplo|tip)s?\s*$/i, // Una sola palabra de ayuda
+            /^no\s*s[ée]\s*$/i,                         // Solo "no sé"
+        ];
+        
+        return obviousPatterns.some(pattern => pattern.test(trimmed));
+    }
+    
+    // Clasificar con IA si el mensaje es una RESPUESTA o una SOLICITUD
+    async function classifyStudentMessage(message, field) {
+        const apiKey = localStorage.getItem('openrouter_api_key');
+        
+        // Si no hay API key, usar detección básica
+        if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+            return { type: 'response', message: message };
+        }
+        
+        const classifyPrompt = `Analiza este mensaje de un estudiante que debe responder sobre "${field.label}".
+La pregunta que debe responder es: "${field.question}"
+
+El estudiante escribió: "${message}"
+
+CLASIFICA el mensaje en UNA de estas categorías:
+- RESPUESTA: Si el estudiante está dando una respuesta/información sobre su negocio (aunque sea corta o incompleta)
+- SOLICITUD: Si el estudiante está pidiendo ayuda, consejos, ejemplos, o haciendo una pregunta en lugar de responder
+
+Responde SOLO con el formato:
+TIPO: [RESPUESTA o SOLICITUD]
+RAZÓN: [breve explicación de por qué]`;
+
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'xiaomi/mimo-v2-flash',
+                    messages: [{ role: 'user', content: classifyPrompt }],
+                    max_tokens: 100
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.choices && data.choices[0]) {
+                const result = data.choices[0].message.content;
+                console.log('🔍 Clasificación IA:', result);
+                
+                // Extraer el tipo
+                if (/TIPO:\s*SOLICITUD/i.test(result)) {
+                    return { type: 'help_request', message: message, reason: result };
+                }
+            }
+            
+            return { type: 'response', message: message };
+            
+        } catch (error) {
+            console.error('Error clasificando mensaje:', error);
+            return { type: 'response', message: message };
+        }
+    }
+    
+    // Obtener contexto del proyecto para la IA (respuestas previas)
+    function getProjectContext() {
+        const context = [];
+        
+        for (let m = 1; m <= 5; m++) {
+            const moduleData = projectData[m];
+            if (!moduleData) continue;
+            
+            const module = projectStructure[m];
+            if (!module) continue;
+            
+            for (const [fieldKey, fieldData] of Object.entries(moduleData)) {
+                if (fieldData && fieldData.answer && fieldData.answer.trim().length > 5) {
+                    const field = module.fields[fieldKey];
+                    if (field) {
+                        context.push({
+                            module: module.title,
+                            field: field.label,
+                            answer: fieldData.answer
+                        });
+                    }
+                }
+            }
+        }
+        
+        return context;
+    }
+    
+    // Construir resumen de contexto para el prompt
+    function buildContextSummary() {
+        const context = getProjectContext();
+        if (context.length === 0) return '';
+        
+        let summary = '\n\nINFORMACIÓN PREVIA DEL PROYECTO DEL ESTUDIANTE:\n';
+        for (const item of context) {
+            summary += `- ${item.field}: "${item.answer}"\n`;
+        }
+        summary += '\nUsa esta información para dar sugerencias más específicas y personalizadas.\n';
+        
+        return summary;
+    }
+    
+    // Manejar cuando el estudiante pide ayuda en lugar de responder
+    async function handleHelpRequest(question, field) {
+        showTypingIndicator();
+        
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        let programName = 'Belleza Integral';
+        if (currentUser && currentUser.programa) {
+            const programa = currentUser.programa.toLowerCase();
+            if (programa.includes('panader') || programa.includes('pasteler')) {
+                programName = 'Panadería y Pastelería';
+            }
+        }
+        
+        const contextSummary = buildContextSummary();
+        
+        const prompt = `Eres Charlotte, consultora experta en ${programName}.
+
+El estudiante está trabajando en su plan de negocios y necesita responder sobre: "${field.label}"
+La pregunta es: ${field.question}
+
+El estudiante NO dio una respuesta, sino que pidió ayuda diciendo: "${question}"
+${contextSummary}
+TU TAREA: Dale consejos específicos y ejemplos concretos para que pueda responder esta pregunta.
+
+FORMATO:
+1. Reconoce su pregunta amablemente
+2. Da 2-3 consejos prácticos específicos para ${programName}
+3. Incluye 1-2 ejemplos concretos que podría usar
+4. Anímalo a escribir su propia respuesta basándose en estos consejos
+
+IMPORTANTE: 
+- Si tienes información previa del proyecto, úsala para personalizar los consejos
+- Por ejemplo, si ya conoces el nombre del negocio, úsalo en tus sugerencias
+- Sé específico para el sector de ${programName}
+- NO le des una respuesta completa para copiar, guíalo para que la escriba él/ella`;
+
+        const apiKey = localStorage.getItem('openrouter_api_key');
+        if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+            hideTypingIndicator();
+            addChatMessage(`💡 Para "${field.label}", piensa en qué hace especial tu negocio. Por ejemplo, si tienes un salón de belleza, ¿qué lo diferencia de otros? ¿Es el servicio, los productos, el ambiente?`, 'ai');
+            addChatMessage('Intenta escribir algo con tus propias palabras y te ayudaré a mejorarlo. 😊', 'ai');
+            setChatState('AWAITING_RESPONSE');
+            return;
+        }
+        
+        try {
+            const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'xiaomi/mimo-v2-flash',
+                    messages: [{ role: 'user', content: prompt }]
+                })
+            });
+            
+            const data = await aiResponse.json();
+            hideTypingIndicator();
+            
+            if (data.choices && data.choices[0]) {
+                addChatMessage(data.choices[0].message.content, 'ai');
+            } else {
+                addChatMessage(`💡 Te ayudo: Para "${field.label}", piensa en qué hace único tu negocio. Escribe algo sencillo y lo mejoraremos juntos.`, 'ai');
+            }
+            
+            addChatMessage('👆 Ahora intenta escribir tu respuesta con estos consejos. ¡Vamos, tú puedes! 💪', 'ai');
+            
+        } catch (error) {
+            console.error('Error getting help:', error);
+            hideTypingIndicator();
+            addChatMessage(`💡 Para esta pregunta, piensa en tu experiencia y lo que hace especial tu idea de negocio. Escribe algo sencillo y te ayudaré a mejorarlo.`, 'ai');
+        }
+        
+        // Mantener el estado esperando respuesta
+        setChatState('AWAITING_RESPONSE');
+    }
+
+    // ========== FIN: Funciones de ayuda y contexto ==========
+
+    async function processStudentResponse(response) {
         if (!currentField || !currentModule) return;
 
         const module = projectStructure[currentModule];
         const field = module.fields[currentField];
 
-        // Validar respuesta
+        // NUEVO: Clasificación inteligente del mensaje
+        // Primero verificar casos obvios sin IA
+        if (isObviousHelpRequest(response)) {
+            handleHelpRequest(response, field);
+            return;
+        }
+        
+        // Para mensajes ambiguos, usar IA para clasificar
+        showTypingIndicator();
+        const classification = await classifyStudentMessage(response, field);
+        hideTypingIndicator();
+        
+        if (classification.type === 'help_request') {
+            console.log('📋 Mensaje clasificado como solicitud de ayuda');
+            handleHelpRequest(response, field);
+            return;
+        }
+
+        // Validar respuesta con feedback mejorado
         if (!field.validation(response)) {
-            addChatMessage(`Tu respuesta es muy corta o no cumple con los requisitos. Por favor, proporciona una respuesta más detallada.`, 'ai');
+            const minLength = 10; // Longitud mínima típica
+            const currentLength = response.trim().length;
+            
+            let feedbackMessage = '⚠️ Tu respuesta necesita más desarrollo.\n\n';
+            
+            if (currentLength < minLength) {
+                feedbackMessage += `📏 **Longitud actual:** ${currentLength} caracteres (mínimo recomendado: ${minLength})\n\n`;
+            }
+            
+            feedbackMessage += '💡 **Sugerencias para mejorar:**\n';
+            feedbackMessage += '• Incluye más detalles específicos\n';
+            feedbackMessage += '• Piensa en el "qué", "cómo" y "por qué"\n';
+            feedbackMessage += '• Usa ejemplos concretos si aplica\n\n';
+            
+            if (field.example) {
+                const example = typeof field.example === 'function' ? field.example(userProgram) : field.example;
+                feedbackMessage += `📝 **Ejemplo de referencia:** ${example}`;
+            }
+            
+            addChatMessage(feedbackMessage, 'ai');
+            // Mantener estado para que pueda reintentar
+            setChatState('AWAITING_RESPONSE');
             return;
         }
 
@@ -12729,46 +14735,107 @@ function openImageModal(imageUrl, title) {
 
     function extractOptionsFromAnalysis(analysis) {
         const options = [];
-        const lines = analysis.split('\n');
-
-        // Buscar patrones comunes de opciones numeradas
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-
-            // Buscar líneas que empiecen con números (1., 1), (1:, etc.)
-            const optionMatch = line.match(/^(\d+)[\.\:\)\s]+(.+)$/i);
-            if (optionMatch) {
-                const optionNumber = parseInt(optionMatch[1]);
-                let optionText = optionMatch[2].trim();
-
-                // Remover caracteres de puntuación al final
-                optionText = optionText.replace(/[.,;:!?]$/, '');
-
-                options.push({
-                    number: optionNumber,
-                    text: optionText
-                });
+        
+        // Función para detectar SOLO placeholders obvios
+        function isPlaceholder(text) {
+            if (!text || text.length < 10) return true;
+            
+            // Texto entre corchetes
+            if (text.startsWith('[') && text.endsWith(']')) return true;
+            if (/\[.*\]/i.test(text) && text.length < 100) return true;
+            
+            // Instrucciones obvias
+            if (/^escribe aquí/i.test(text) || /^tu respuesta aquí/i.test(text)) return true;
+            if (/^\(escribe/i.test(text) || /^\(versión/i.test(text)) return true;
+            
+            return false;
+        }
+        
+        // Buscar opciones con regex que capture TODO el contenido hasta la siguiente opción
+        // Patrón: "Opción N:" o "N." o "N:" seguido de contenido
+        const optionPatterns = [
+            /Opción\s*(\d+)\s*[:\.]\s*([\s\S]*?)(?=Opción\s*\d+|¿Cuál|$)/gi,
+            /^(\d+)\s*[\.\:\)]\s*([\s\S]*?)(?=^\d+\s*[\.\:\)]|¿Cuál|$)/gim
+        ];
+        
+        // Intentar con el primer patrón (Opción N:)
+        let matches = [...analysis.matchAll(optionPatterns[0])];
+        
+        if (matches.length === 0) {
+            // Intentar con el segundo patrón (N. o N:)
+            matches = [...analysis.matchAll(optionPatterns[1])];
+        }
+        
+        // Función para limpiar prefijos de la IA (descripciones entre paréntesis al inicio)
+        function cleanOptionText(text) {
+            let cleaned = text.trim();
+            
+            // Remover prefijos entre paréntesis al inicio como "(Enfoque Experiencia...)" o "(Profesional y Estructurada)"
+            // Esto captura texto entre paréntesis al inicio seguido de salto de línea o espacio
+            cleaned = cleaned.replace(/^\([^)]+\)\s*\n?/i, '').trim();
+            
+            // Remover comillas al inicio y final
+            if ((cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+                (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+                cleaned = cleaned.slice(1, -1).trim();
             }
-
-            // También buscar patrones como "Opción 1:", "Option 1:", etc.
-            const opcionMatch = line.match(/^(?:Opción|Option)\s+(\d+)[\:\s]+(.+)$/i);
-            if (opcionMatch && !options.find(opt => opt.number === parseInt(opcionMatch[1]))) {
-                const optionNumber = parseInt(opcionMatch[1]);
-                let optionText = opcionMatch[2].trim();
-
-                // Remover caracteres de puntuación al final
-                optionText = optionText.replace(/[.,;:!?]$/, '');
-
+            
+            // Remover líneas vacías al final y "¿Cuál..." si quedó
+            cleaned = cleaned.replace(/\n\s*\n/g, '\n').trim();
+            cleaned = cleaned.replace(/¿Cuál[\s\S]*$/i, '').trim();
+            
+            return cleaned;
+        }
+        
+        for (const match of matches) {
+            const optionNumber = parseInt(match[1]);
+            let optionText = cleanOptionText(match[2]);
+            
+            // Solo agregar si no es placeholder y no está duplicado
+            if (!isPlaceholder(optionText) && !options.find(o => o.number === optionNumber)) {
                 options.push({
                     number: optionNumber,
                     text: optionText
                 });
+                console.log(`✅ Opción ${optionNumber} extraída:`, optionText.substring(0, 100) + '...');
             }
         }
-
-        // Ordenar opciones por número
+        
+        // Si no encontramos opciones con los patrones anteriores, intentar línea por línea
+        if (options.length === 0) {
+            const lines = analysis.split('\n');
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                // Buscar "Opción N:" o "N." al inicio de línea
+                const match = line.match(/^(?:Opción\s*)?(\d+)\s*[\.\:\)]\s*(.+)$/i);
+                if (match) {
+                    const optionNumber = parseInt(match[1]);
+                    let optionText = match[2].trim();
+                    
+                    // Capturar líneas siguientes que no empiecen con número/opción
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const nextLine = lines[j].trim();
+                        if (!nextLine) continue;
+                        if (/^(?:Opción\s*)?\d+\s*[\.\:\)]/i.test(nextLine)) break;
+                        if (/^¿Cuál/i.test(nextLine)) break;
+                        optionText += ' ' + nextLine;
+                    }
+                    
+                    // Usar la función de limpieza
+                    optionText = cleanOptionText(optionText);
+                    
+                    if (!isPlaceholder(optionText) && !options.find(o => o.number === optionNumber)) {
+                        options.push({ number: optionNumber, text: optionText });
+                    }
+                }
+            }
+        }
+        
+        // Ordenar por número
         options.sort((a, b) => a.number - b.number);
-
+        
+        console.log('📋 Opciones extraídas:', options.length);
         return options;
     }
 
@@ -12789,27 +14856,31 @@ function openImageModal(imageUrl, title) {
                 }
             }
 
-            const prompt = `Eres Charlotte, consultora especializada en emprendimiento para ${programName}.
+            // NUEVO: Obtener contexto del proyecto para respuestas más personalizadas
+            const contextSummary = buildContextSummary();
 
-Analiza esta respuesta del estudiante para el campo "${field.label}":
+            const prompt = `Eres Charlotte, consultora especializada en emprendimiento para ${programName}.
+${contextSummary}
+El estudiante escribió esta respuesta para "${field.label}":
 "${response}"
 
-INSTRUCCIONES ESPECÍFICAS:
-- SIEMPRE da opciones específicas de mejora, incluso si la respuesta es buena
-- Formato: "APROBADO: [respuesta original]. [Comentario positivo]. Te doy estas opciones para mejorarlo aún más:"
-- Luego da 2-3 opciones específicas adaptadas al sector ${programName}
-- Numera las opciones (Opción 1, Opción 2, Opción 3)
-- Pregunta: "¿Cuál te gusta más? (responde '1', '2', '3' o 'original' para mantener la tuya)"
-- Sé positiva y alentadora, enfócate en ayudar al estudiante
+TU TAREA: Genera EXACTAMENTE 3 versiones mejoradas de su respuesta.
 
-Ejemplo de respuesta:
-"APROBADO: Nuestra Receta. ¡Qué nombre tan auténtico! Te doy estas opciones para hacerlo aún más memorable:
-Opción 1: 'Recetas de la Abuela' - Evoca tradición familiar
-Opción 2: 'El Secreto de la Receta' - Genera misterio e interés  
-Opción 3: 'Recetas Artesanales' - Enfatiza lo hecho a mano
-¿Cuál te gusta más? (responde '1', '2', '3' o 'original')"
+FORMATO DE RESPUESTA:
+✅ ¡Buena respuesta! (breve comentario positivo)
 
-Responde de manera profesional y motivadora.`;
+Aquí tienes 3 versiones mejoradas:
+
+Opción 1: (escribe aquí una versión más profesional y completa de lo que escribió el estudiante)
+Opción 2: (escribe aquí una versión con enfoque diferente pero basada en su respuesta)
+Opción 3: (escribe aquí una versión más creativa o emotiva de su respuesta)
+
+¿Cuál te gusta más? Responde '1', '2', '3' o 'original' para mantener tu respuesta.
+
+REGLAS:
+- Cada opción debe ser un texto COMPLETO que el estudiante pueda usar directamente
+- Basa las mejoras en lo que el estudiante escribió: "${response}"
+- Adapta al sector de ${programName}`;
 
             // Obtener API key de OpenRouter
             const apiKey = localStorage.getItem('openrouter_api_key');
@@ -12818,7 +14889,7 @@ Responde de manera profesional y motivadora.`;
                 addChatMessage('❌ La IA no está configurada. Tu respuesta será guardada pero no puedo darte opciones personalizadas.', 'ai');
                 addChatMessage(`¿Quieres continuar con "${response}" o modificarlo? (responde "continuar" o "modificar")`, 'ai');
                 
-                awaitingImprovement = true;
+                setChatState('AWAITING_IMPROVEMENT');
                 currentSuggestion = {
                     field: currentField,
                     original: response,
@@ -12842,6 +14913,25 @@ Responde de manera profesional y motivadora.`;
             });
 
             const data = await aiResponse.json();
+            
+            // Verificar si la API retornó un error
+            if (!aiResponse.ok || !data.choices || !data.choices[0]) {
+                console.error('Error de API OpenRouter:', data);
+                hideTypingIndicator();
+                addChatMessage('⚠️ Hubo un problema con la IA. Tu respuesta ha sido guardada.', 'ai');
+                addChatMessage(`¿Quieres continuar con "${response}" o modificarlo? (responde "continuar" o "modificar")`, 'ai');
+                
+                setChatState('AWAITING_IMPROVEMENT');
+                currentSuggestion = {
+                    field: currentField,
+                    original: response,
+                    analysis: 'Error de API - respuesta guardada',
+                    options: [],
+                    type: 'no_ai'
+                };
+                return;
+            }
+            
             const analysis = data.choices[0].message.content;
 
             hideTypingIndicator();
@@ -12850,10 +14940,10 @@ Responde de manera profesional y motivadora.`;
             const options = extractOptionsFromAnalysis(analysis);
             
             if (options && options.length > 0) {
-                // Siempre dar opciones, nunca aprobar automáticamente
+                // Mostrar el análisis con las opciones
                 addChatMessage(`💡 ${analysis}`, 'ai');
                 
-                awaitingImprovement = true;
+                setChatState('AWAITING_IMPROVEMENT');
                 currentSuggestion = {
                     field: currentField,
                     original: response,
@@ -12862,27 +14952,198 @@ Responde de manera profesional y motivadora.`;
                     type: 'options'
                 };
             } else {
-                // Fallback si no hay opciones
-                addChatMessage(`✅ ¡Excelente respuesta! APROBADO: ${response}`, 'ai');
-                projectData[currentModule][currentField].approved = true;
-                setTimeout(() => showNextField(), 2000);
+                // Fallback: generar mejoras concretas basadas en la respuesta del estudiante
+                await generateConcreteImprovements(response, currentField);
             }
 
         } catch (error) {
             console.error('Error analizando respuesta:', error);
             hideTypingIndicator();
-            addChatMessage('Hubo un error analizando tu respuesta. ¿Quieres continuar con la siguiente pregunta o intentar de nuevo? (responde "continuar")', 'ai');
+            addChatMessage('⚠️ Hubo un error analizando tu respuesta. ¿Quieres continuar con la siguiente pregunta o intentar de nuevo? (responde "continuar")', 'ai');
             
-            awaitingImprovement = true;
+            setChatState('AWAITING_IMPROVEMENT');
             currentSuggestion = {
                 field: currentField,
                 original: response,
-                suggestion: 'Error en análisis - respuesta guardada sin revisión'
+                suggestion: 'Error en análisis - respuesta guardada sin revisión',
+                type: 'no_ai'
             };
         }
     }
+    
+    // Función para generar mejoras concretas cuando el análisis principal no las dio
+    async function generateConcreteImprovements(response, field) {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        let programName = 'Panadería y Pastelería';
+        if (currentUser && currentUser.programa) {
+            const programa = currentUser.programa.toLowerCase();
+            if (programa.includes('bellez') || programa.includes('estetic')) {
+                programName = 'Belleza Integral';
+            }
+        }
+        
+        const fieldInfo = projectStructure[currentModule]?.fields[field];
+        const fieldLabel = fieldInfo?.label || 'este campo';
+        
+        // NUEVO: Obtener contexto del proyecto
+        const contextSummary = buildContextSummary();
+        
+        const improvePrompt = `Eres Charlotte, experta en emprendimiento para ${programName}.
+${contextSummary}
+El estudiante escribió esta respuesta para "${fieldLabel}":
+"${response}"
+
+TU TAREA: Escribe EXACTAMENTE 3 versiones mejoradas de su respuesta.
+
+FORMATO:
+✅ ¡Buena respuesta! Aquí tienes 3 versiones mejoradas:
+
+Opción 1: (escribe aquí el texto mejorado completo basado en lo que escribió el estudiante)
+Opción 2: (escribe aquí otra versión mejorada con diferente enfoque)
+Opción 3: (escribe aquí una versión más creativa o emotiva)
+
+¿Cuál te gusta más? Responde '1', '2', '3' o 'original' para mantener tu respuesta.
+
+REGLAS:
+- Cada opción debe ser un TEXTO COMPLETO listo para usar
+- Basa las mejoras en: "${response}"
+- Adapta al sector de ${programName}
+- Si conoces información previa del negocio (nombre, servicios, etc.), úsala`;
+
+        try {
+            showTypingIndicator();
+            
+            const apiKey = localStorage.getItem('openrouter_api_key');
+            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
+                hideTypingIndicator();
+                // Sin IA, dar opción de continuar
+                addChatMessage(`✅ Tu respuesta "${response}" ha sido guardada. ¿Quieres continuar o modificarla? (responde "continuar" o "modificar")`, 'ai');
+                setChatState('AWAITING_IMPROVEMENT');
+                currentSuggestion = {
+                    field: currentField,
+                    original: response,
+                    analysis: 'Sin IA disponible',
+                    options: [],
+                    type: 'no_ai'
+                };
+                return;
+            }
+            
+            const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'xiaomi/mimo-v2-flash',
+                    messages: [{ role: 'user', content: improvePrompt }]
+                })
+            });
+            
+            const data = await aiResponse.json();
+            hideTypingIndicator();
+            
+            if (!aiResponse.ok || !data.choices || !data.choices[0]) {
+                // Error de API, continuar sin mejoras
+                addChatMessage(`✅ Tu respuesta "${response}" ha sido guardada. ¿Quieres continuar o modificarla? (responde "continuar" o "modificar")`, 'ai');
+                setChatState('AWAITING_IMPROVEMENT');
+                currentSuggestion = {
+                    field: currentField,
+                    original: response,
+                    analysis: 'Error de API',
+                    options: [],
+                    type: 'no_ai'
+                };
+                return;
+            }
+            
+            const improvements = data.choices[0].message.content;
+            const options = extractOptionsFromAnalysis(improvements);
+            
+            // Verificar si hay opciones válidas (no placeholders)
+            if (options.length > 0) {
+                // Mostrar solo si las opciones son reales
+                addChatMessage(`💡 ${improvements}`, 'ai');
+                
+                setChatState('AWAITING_IMPROVEMENT');
+                currentSuggestion = {
+                    field: currentField,
+                    original: response,
+                    analysis: improvements,
+                    options: options,
+                    type: 'options'
+                };
+            } else {
+                // La IA no generó opciones válidas - usar respuesta original
+                console.warn('⚠️ La IA no generó opciones válidas, usando respuesta original');
+                addChatMessage(`✅ He guardado tu respuesta: "${response}"\n\n¿Quieres continuar con la siguiente pregunta o modificar esta respuesta?\n\nEscribe **"continuar"** o **"modificar"**`, 'ai');
+                
+                setChatState('AWAITING_IMPROVEMENT');
+                currentSuggestion = {
+                    field: currentField,
+                    original: response,
+                    analysis: 'Respuesta guardada',
+                    options: [],
+                    type: 'no_ai'
+                };
+            }
+            
+        } catch (error) {
+            console.error('Error generando mejoras:', error);
+            hideTypingIndicator();
+            addChatMessage(`✅ Tu respuesta "${response}" ha sido guardada. ¿Quieres continuar o modificarla? (responde "continuar" o "modificar")`, 'ai');
+            setChatState('AWAITING_IMPROVEMENT');
+            currentSuggestion = {
+                field: currentField,
+                original: response,
+                analysis: 'Error generando mejoras',
+                options: [],
+                type: 'no_ai'
+            };
+        }
+    }
+    
+    // Función auxiliar global para detectar placeholders OBVIOS (para usar en saveSelectedOption)
+    function isValuePlaceholder(text) {
+        if (!text || text.length < 10) return true;
+        
+        // SOLO detectar texto que claramente es un placeholder/instrucción
+        // NO bloquear contenido real que pueda tener ciertas palabras
+        
+        // Texto entre corchetes es SIEMPRE un placeholder
+        if (text.startsWith('[') && text.endsWith(']')) {
+            console.warn('⚠️ Placeholder bloqueado (corchetes):', text);
+            return true;
+        }
+        
+        // Texto que contiene corchetes con instrucciones
+        if (/\[.*\]/i.test(text) && text.length < 100) {
+            console.warn('⚠️ Placeholder bloqueado (corchetes internos):', text);
+            return true;
+        }
+        
+        // Solo frases que son CLARAMENTE instrucciones (no contenido)
+        if (/^escribe aquí/i.test(text) || /^tu respuesta aquí/i.test(text)) {
+            return true;
+        }
+        
+        return false;
+    }
 
     function saveSelectedOption(selectedValue, choiceType) {
+        // VALIDACIÓN: No guardar placeholders
+        if (isValuePlaceholder(selectedValue)) {
+            console.error('⚠️ BLOQUEADO: Intento de guardar placeholder:', selectedValue);
+            addChatMessage('⚠️ La opción seleccionada parece ser un placeholder y no contenido real. Por favor, escribe "modificar" para ingresar tu propia respuesta, o elige "original" para mantener tu respuesta inicial.', 'ai');
+            return;
+        }
+        
+        // Guardar también la respuesta original del estudiante (para respaldo)
+        if (currentSuggestion && currentSuggestion.original) {
+            projectData[currentModule][currentField].original = currentSuggestion.original;
+        }
+        
         // Guardar la respuesta seleccionada
         projectData[currentModule][currentField].answer = selectedValue;
         projectData[currentModule][currentField].approved = true;
@@ -12894,12 +15155,38 @@ Responde de manera profesional y motivadora.`;
         // Guardar y verificar en Firebase
         saveProjectProgress();
         
+        // Verificar si venimos de una corrección de módulo
+        const correctionInfo = window.correctionInProgress;
+        
         // Pequeña pausa para asegurar el guardado
         setTimeout(() => {
             addChatMessage('✅ Guardado confirmado. ¡Excelente elección!', 'ai');
-            awaitingImprovement = false;
+            setChatState('IDLE');
             currentSuggestion = null;
-            setTimeout(() => showNextField(), 2000);
+            
+            // Si venía de una corrección, volver al módulo en revisión
+            if (correctionInfo) {
+                const reviewModule = correctionInfo.reviewModule;
+                
+                // Limpiar la información de corrección
+                window.correctionInProgress = null;
+                
+                if (reviewModule) {
+                    // Volver al modo de revisión del módulo
+                    setTimeout(() => {
+                        addChatMessage('¿Deseas editar otra respuesta de este módulo?', 'ai');
+                        reviewModuleResponses(reviewModule);
+                    }, 1500);
+                } else {
+                    // Corrección normal (no desde revisión de módulo)
+                    setTimeout(() => {
+                        addChatMessage('¿Deseas corregir algo más? Escribe "corregir" para ver tus respuestas, o "continuar" para seguir con el proyecto.', 'ai');
+                    }, 1500);
+                }
+            } else {
+                // Flujo normal - continuar al siguiente campo
+                setTimeout(() => showNextField(), 2000);
+            }
         }, 1500);
     }
 
@@ -13004,20 +15291,38 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
 
         const cmd = commandStr.toLowerCase().trim();
 
-        if (cmd === 'modificar' && awaitingImprovement) {
-            addChatMessage('Por favor, escribe tu respuesta modificada:', 'ai');
-            awaitingModification = true;
-        } else if (cmd === 'continuar' && awaitingImprovement && currentSuggestion?.type === 'no_ai') {
+        // Comando cancelar - volver al estado anterior
+        if (cmd === 'cancelar') {
+            if (chatState === 'AWAITING_MODIFICATION') {
+                addChatMessage('❌ Modificación cancelada. Volviendo a las opciones anteriores.', 'ai');
+                setChatState('AWAITING_IMPROVEMENT');
+                if (currentSuggestion?.options?.length > 0) {
+                    addChatMessage('¿Cuál eliges? Responde "1", "2", "3" u "original" para mantener tu respuesta.', 'ai');
+                }
+            } else if (chatState === 'CORRECTING_SELECT' || chatState === 'CORRECTING_INPUT') {
+                addChatMessage('❌ Corrección cancelada.', 'ai');
+                resetChatStates();
+                showNextField();
+            } else {
+                addChatMessage('No hay nada que cancelar.', 'ai');
+            }
+            return;
+        }
+
+        if (cmd === 'modificar' && chatState === 'AWAITING_IMPROVEMENT') {
+            addChatMessage('📝 Por favor, escribe tu respuesta modificada:', 'ai');
+            setChatState('AWAITING_MODIFICATION');
+        } else if (cmd === 'continuar' && chatState === 'AWAITING_IMPROVEMENT' && currentSuggestion?.type === 'no_ai') {
             // Caso sin IA - guardar respuesta original
             saveSelectedOption(currentSuggestion.original, 'original_no_ai');
-        } else if (cmd === 'continuar' && awaitingImprovement) {
+        } else if (cmd === 'continuar' && chatState === 'AWAITING_IMPROVEMENT') {
             // Aprobar la respuesta original
             saveSelectedOption(currentSuggestion.original, 'original');
-        } else if (cmd === 'original' && awaitingImprovement && currentSuggestion?.type === 'options') {
+        } else if (cmd === 'original' && chatState === 'AWAITING_IMPROVEMENT' && currentSuggestion?.type === 'options') {
             // Elegir la respuesta original
             saveSelectedOption(currentSuggestion.original, 'original');
-        } else if (awaitingImprovement && currentSuggestion?.type === 'options' && ['1', '2', '3'].includes(cmd)) {
-            // Elegir una opción numerada
+        } else if (chatState === 'AWAITING_IMPROVEMENT' && currentSuggestion?.type === 'options' && ['1', '2', '3'].includes(cmd)) {
+            // Elegir una opción numerada (opciones de la IA)
             const optionNumber = parseInt(cmd);
             const selectedOption = currentSuggestion.options.find(opt => opt.number === optionNumber);
             if (selectedOption) {
@@ -13025,7 +15330,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
             } else {
                 addChatMessage('Opción no válida. Por favor elige 1, 2, 3 u "original".', 'ai');
             }
-        } else if (cmd === 'revisar' && awaitingImprovement) {
+        } else if (cmd === 'revisar' && chatState === 'AWAITING_IMPROVEMENT') {
             addChatMessage('Tu respuesta actual es: "' + currentSuggestion.original + '"', 'ai');
             if (currentSuggestion.options && currentSuggestion.options.length > 0) {
                 addChatMessage('Opciones disponibles:', 'ai');
@@ -13037,24 +15342,32 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
                 addChatMessage('¿Quieres modificarla o continuar? (responde "modificar" o "continuar")', 'ai');
             }
         } else if (cmd === 'descargar') {
+            resetChatStates();
             downloadFinalDocument();
         } else if (cmd === 'vista previa') {
+            resetChatStates();
             showDocumentPreview();
         } else if (cmd === 'reiniciar') {
             if (confirm('¿Estás seguro de que quieres reiniciar el proyecto? Se perderá todo el progreso.')) {
                 resetProject();
             }
         } else if (cmd === 'anterior' || cmd === 'atrás' || cmd === 'atras' || cmd === 'volver' || cmd === 'regresar') {
+            resetChatStates(); // Limpiar estados antes de navegar
             goToPreviousQuestion();
         } else if (cmd === 'corregir' || cmd === 'editar' || cmd === 'cambiar' || cmd === 'modificar respuesta') {
+            resetChatStates(); // Limpiar estados antes de corregir
             showFieldsToCorrect();
         } else if (cmd === 'siguiente' || cmd === 'continuar' || cmd === 'ok' || cmd === 'sí' || cmd === 'si') {
             // Si no estamos en modo de mejora, avanzar al siguiente campo
-            if (!awaitingImprovement) {
+            if (chatState !== 'AWAITING_IMPROVEMENT') {
+                resetChatStates();
                 showNextField();
             }
         } else if (cmd === 'ayuda' || cmd === 'help' || cmd === 'comandos') {
             addChatMessage('📋 **Comandos disponibles:**\n\n• **"siguiente"** - Continuar al siguiente paso\n• **"anterior"** - Volver a la pregunta anterior\n• **"corregir"** - Editar una respuesta anterior\n• **"reiniciar"** - Empezar de nuevo el proyecto\n• **"descargar"** - Descargar documento final\n• **"vista previa"** - Ver documento antes de descargar\n• **"ayuda"** - Ver esta lista de comandos', 'ai');
+        } else if (chatState === 'AWAITING_IMPROVEMENT') {
+            // Usuario escribió algo que no es un comando válido en modo mejora
+            addChatMessage('⚠️ Por favor, elige una opción válida:\n• **1, 2, 3** - Elegir una sugerencia\n• **"original"** - Mantener tu respuesta\n• **"modificar"** - Escribir una nueva respuesta\n\n📍 **Navegación:** "anterior" • "corregir" • "reiniciar"', 'ai');
         }
     }
 
@@ -13103,10 +15416,75 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         `);
     }
 
-    // Variables para el sistema de consultoría
+    // Sistema de estados del chat (máquina de estados)
+    // Estados posibles: IDLE, AWAITING_RESPONSE, AWAITING_IMPROVEMENT, AWAITING_MODIFICATION, CORRECTING_SELECT, CORRECTING_INPUT
+    let chatState = 'IDLE';
+    // Nota: currentSuggestion ya está declarada arriba
+    
+    // Variables legacy para compatibilidad (se mantienen sincronizadas con chatState)
     let awaitingStudentResponse = false;
     let awaitingImprovement = false;
     let awaitingModification = false;
+    
+    // Función para cambiar estado del chat de forma segura
+    function setChatState(newState) {
+        console.log(`🔄 Chat state: ${chatState} → ${newState}`);
+        chatState = newState;
+        
+        // Sincronizar variables legacy
+        awaitingStudentResponse = (newState === 'AWAITING_RESPONSE' || newState === 'AWAITING_MODIFICATION');
+        awaitingImprovement = (newState === 'AWAITING_IMPROVEMENT');
+        awaitingModification = (newState === 'AWAITING_MODIFICATION');
+        window.awaitingCorrectionSelection = (newState === 'CORRECTING_SELECT');
+        window.awaitingCorrectionInput = (newState === 'CORRECTING_INPUT');
+        
+        // Actualizar barra de comandos según estado
+        updateCommandsHelp();
+    }
+    
+    // Función para actualizar la barra de comandos según el estado del chat
+    function updateCommandsHelp() {
+        const helpDiv = document.getElementById('chatCommandsHelp');
+        if (!helpDiv) return;
+        
+        const navCommands = '<br>📍 <strong>Navegación:</strong> "anterior" • "corregir" • "reiniciar"';
+        
+        if (chatState === 'AWAITING_IMPROVEMENT') {
+            helpDiv.innerHTML = '💡 <strong>Opciones:</strong> "1", "2", "3" para elegir mejora • "original" para mantener • "modificar" para escribir otra' + navCommands;
+        } else if (chatState === 'AWAITING_MODIFICATION') {
+            helpDiv.innerHTML = '💡 <strong>Escribe tu nueva respuesta</strong> o "cancelar" para volver' + navCommands;
+        } else if (chatState === 'CORRECTING_SELECT') {
+            helpDiv.innerHTML = '💡 <strong>Escribe el número</strong> de la pregunta a corregir o "cancelar" para volver';
+        } else if (chatState === 'CORRECTING_INPUT') {
+            helpDiv.innerHTML = '💡 <strong>Escribe tu nueva respuesta</strong> o "cancelar" para volver';
+        } else if (chatState === 'REVIEWING_MODULE') {
+            const maxFields = window.moduleFieldsToReview?.length || 0;
+            helpDiv.innerHTML = `💡 <strong>Escribe un número (1-${maxFields})</strong> para editar • "continuar" para seguir • "cancelar" para volver`;
+        } else {
+            helpDiv.innerHTML = '💡 <strong>Comandos:</strong> "siguiente" para continuar • "anterior" para volver • "corregir" para editar • "reiniciar" para empezar de nuevo';
+        }
+    }
+    
+    // Función para resetear todos los estados del chat
+    function resetChatStates() {
+        console.log('🔄 Resetting all chat states');
+        chatState = 'IDLE';
+        awaitingStudentResponse = false;
+        awaitingImprovement = false;
+        awaitingModification = false;
+        currentSuggestion = null;
+        window.awaitingCorrectionSelection = false;
+        window.awaitingCorrectionInput = false;
+        window.fieldsToCorrect = null;
+        window.currentCorrectionField = null;
+        // Limpiar variables de revisión de módulo
+        window.moduleFieldsToReview = null;
+        window.currentReviewModule = null;
+        window.pendingFieldsInModule = null;
+        // Limpiar información de corrección en progreso
+        window.correctionInProgress = null;
+        updateCommandsHelp(); // Restaurar comandos por defecto
+    }
 
     // Hacer las funciones globales inmediatamente
     // (las funciones se definirán después pero se asignarán aquí)
@@ -13260,39 +15638,9 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     }
 
     function handleNavigationCommand(command) {
-        const input = document.getElementById('projectInput');
-        const message = input.value.trim();
-        input.value = '';
-
-        if (command === 'siguiente' || command === 'continuar' || command === 'ok' || command === 'sí' || command === 'si' ||
-            command === 'claro' || command === 'por supuesto' || command === 'adelante' || command === 'siguiente módulo') {
-            if (currentProjectStep < 7) {
-                currentProjectStep++;
-                setProjectStep(currentProjectStep);
-
-                const moduleNames = {
-                    1: 'PRESENTACIÓN',
-                    2: 'LA IDEA Y SU CORAZÓN',
-                    3: 'QUIÉN Y DÓNDE',
-                    4: 'CÓMO SE HARÁ',
-                    5: 'CÓMO SE DARÁ A CONOCER',
-                    6: 'NÚMEROS CLAVE',
-                    7: 'ARMADO DEL PROYECTO FINAL'
-                };
-
-                const moduleName = moduleNames[currentProjectStep] || `MÓDULO ${currentProjectStep}`;
-                addChatMessage(`✅ Avanzando al ${moduleName}...`, 'ai');
-            } else {
-                addChatMessage('🎉 ¡Felicitaciones! Has completado todos los módulos de tu proyecto empresarial. Tu proyecto está listo para ser presentado.', 'ai');
-                addChatMessage('Recuerda organizar toda la información en un documento formal con portada, índice, introducción, desarrollo por capítulos, conclusión y anexos.', 'ai');
-            }
-        } else if (command === 'no' || command === 'detener' || command === 'parar' || command === 'terminar') {
-            addChatMessage('Entendido. Puedes continuar cuando estés listo escribiendo "siguiente" o "continuar".', 'ai');
-        } else if (command === 'anterior' || command === 'atrás' || command === 'atras' || command === 'volver' || command === 'regresar') {
-            goToPreviousQuestion();
-        } else if (command === 'corregir' || command === 'editar' || command === 'cambiar' || command === 'modificar respuesta') {
-            showFieldsToCorrect();
-        }
+        // Esta función ahora delega a handleConsultationCommand
+        // El sistema usa currentModule en lugar de currentProjectStep
+        handleConsultationCommand(command);
     }
 
     // Función para volver a la pregunta anterior
@@ -13307,25 +15655,68 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         const fields = Object.keys(projectStructure[currentModule].fields);
         const currentIndex = fields.indexOf(currentField);
 
+        let targetModule, targetField;
+
         if (currentIndex > 0) {
             // Hay una pregunta anterior en el mismo módulo
-            currentField = fields[currentIndex - 1];
-            addChatMessage(`📝 Volviendo a la pregunta anterior...`, 'ai');
-            setTimeout(() => {
-                showNextField();
-            }, 1000);
+            targetModule = currentModule;
+            targetField = fields[currentIndex - 1];
         } else if (currentModule > 1) {
             // Ir al último campo del módulo anterior
-            currentModule--;
-            const prevFields = Object.keys(projectStructure[currentModule].fields);
-            currentField = prevFields[prevFields.length - 1];
-            addChatMessage(`📝 Volviendo al módulo anterior: ${projectStructure[currentModule].title}`, 'ai');
-            setTimeout(() => {
-                showNextField();
-            }, 1000);
+            targetModule = currentModule - 1;
+            const prevFields = Object.keys(projectStructure[targetModule].fields);
+            targetField = prevFields[prevFields.length - 1];
         } else {
             addChatMessage('Ya estás en la primera pregunta del proyecto.', 'ai');
+            return;
         }
+
+        // Eliminar la respuesta de la pregunta anterior (como si nunca se respondió)
+        if (projectData[targetModule] && projectData[targetModule][targetField]) {
+            projectData[targetModule][targetField].answer = null;
+            projectData[targetModule][targetField].approved = false;
+            projectData[targetModule][targetField].suggestion = null;
+            projectData[targetModule][targetField].choiceType = null;
+        }
+
+        // Actualizar módulo y campo actual
+        currentModule = targetModule;
+        currentField = targetField;
+
+        const fieldLabel = projectStructure[targetModule].fields[targetField].label;
+        addChatMessage(`⬅️ Volviendo a: **${fieldLabel}**\n\n(Respuesta anterior eliminada)`, 'ai');
+        
+        // Guardar y actualizar resumen
+        saveProjectData();
+        updateProjectSummary();
+        updateWizardSteps();
+        
+        // Mostrar la pregunta de nuevo (mismo código que showNextField)
+        setTimeout(() => {
+            const module = projectStructure[currentModule];
+            const field = module.fields[currentField];
+            
+            // Mostrar información del campo
+            addChatMessage(`${module.title} - ${field.label}`, 'ai');
+            addChatMessage(field.question, 'ai');
+            
+            // Mostrar ejemplo si existe
+            if (field.example) {
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                let program = 'belleza';
+                if (currentUser && currentUser.programa) {
+                    const programa = currentUser.programa.toLowerCase();
+                    if (programa.includes('panader') || programa.includes('pasteler')) {
+                        program = 'panaderia';
+                    }
+                }
+                const example = field.example(program);
+                addChatMessage(`💡 ${example}`, 'ai');
+            }
+            
+            // Habilitar input para respuesta
+            showInputForField(field);
+        }, 1000);
     }
 
     // Función para mostrar qué campos se pueden corregir
@@ -13364,7 +15755,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         
         // Guardar los campos para poder corregirlos
         window.fieldsToCorrect = answeredFields;
-        window.awaitingCorrectionSelection = true;
+        setChatState('CORRECTING_SELECT');
     }
 
     async function sendProjectMessage() {
@@ -13379,48 +15770,55 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         // Agregar mensaje del usuario al chat
         addChatMessage(message, 'user');
 
-        // PRIMERO: Verificar si es un comando de navegación (siempre disponibles)
         const cmd = message.toLowerCase().trim();
-        const navigationCommands = ['anterior', 'atrás', 'atras', 'volver', 'regresar', 'corregir', 'editar', 'cambiar', 'reiniciar', 'ayuda', 'help', 'comandos', 'descargar', 'vista previa', 'siguiente', 'continuar'];
         
-        if (navigationCommands.includes(cmd)) {
-            handleConsultationCommand(message);
-            return;
-        }
-
-        // Si estamos esperando selección de campo a corregir
-        if (window.awaitingCorrectionSelection) {
-            handleCorrectionSelection(message);
-            return;
-        }
-
-        // Si estamos esperando la corrección de un campo
-        if (window.awaitingCorrectionInput) {
-            handleCorrectionInput(message);
-            return;
-        }
-
-        // Si estamos esperando respuesta del estudiante para un campo
-        if (awaitingStudentResponse) {
-            if (awaitingModification) {
-                // Procesar respuesta modificada
+        // Según el estado actual, procesar el mensaje de forma diferente
+        switch (chatState) {
+            case 'AWAITING_MODIFICATION':
+                // Usuario está escribiendo una respuesta modificada
+                // NO procesar como comando - siempre tratar como respuesta
                 processModifiedResponse(message);
-            } else {
-                // Procesar respuesta inicial
+                return;
+                
+            case 'CORRECTING_SELECT':
+                // Usuario está seleccionando qué campo corregir
+                handleCorrectionSelection(message);
+                return;
+                
+            case 'CORRECTING_INPUT':
+                // Usuario está escribiendo la corrección
+                handleCorrectionInput(message);
+                return;
+                
+            case 'REVIEWING_MODULE':
+                // Usuario está revisando un módulo y seleccionando qué editar
+                handleModuleReviewSelection(message);
+                return;
+                
+            case 'AWAITING_IMPROVEMENT':
+                // Usuario debe elegir entre opciones (1, 2, 3, original, modificar, continuar)
+                handleConsultationCommand(message);
+                return;
+                
+            case 'AWAITING_RESPONSE':
+                // Usuario está respondiendo a una pregunta del proyecto
+                // Verificar si es un comando de navegación primero
+                const navCommands = ['anterior', 'atrás', 'atras', 'volver', 'regresar', 'corregir', 'ayuda', 'help', 'reiniciar'];
+                if (navCommands.includes(cmd)) {
+                    handleConsultationCommand(message);
+                    return;
+                }
+                // Procesar como respuesta (función async)
                 processStudentResponse(message);
-            }
-            awaitingStudentResponse = false;
-            return;
+                // No cambiar estado aquí - processStudentResponse lo maneja internamente
+                return;
+                
+            case 'IDLE':
+            default:
+                // Manejar cualquier comando
+                handleConsultationCommand(message);
+                return;
         }
-
-        // Si estamos esperando decisión sobre mejora
-        if (awaitingImprovement) {
-            handleConsultationCommand(message);
-            return;
-        }
-
-        // Manejar comandos del sistema de consultoría
-        handleConsultationCommand(message);
     }
 
     // Función para manejar la selección del campo a corregir
@@ -13428,7 +15826,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         const num = parseInt(message);
         
         if (message.toLowerCase() === 'cancelar' || message.toLowerCase() === 'salir') {
-            window.awaitingCorrectionSelection = false;
+            setChatState('IDLE');
             window.fieldsToCorrect = null;
             addChatMessage('Corrección cancelada. Puedes continuar con tu proyecto.', 'ai');
             return;
@@ -13441,8 +15839,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         
         const fieldToCorrect = window.fieldsToCorrect[num - 1];
         window.currentCorrectionField = fieldToCorrect;
-        window.awaitingCorrectionSelection = false;
-        window.awaitingCorrectionInput = true;
+        setChatState('CORRECTING_INPUT');
         
         const field = projectStructure[fieldToCorrect.module].fields[fieldToCorrect.field];
         
@@ -13468,63 +15865,92 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
             return;
         }
         
-        // Guardar la corrección
+        // Configurar el módulo y campo actual para el análisis
+        // Guardar los valores originales para restaurar después si es necesario
+        const originalModule = currentModule;
+        const originalField = currentField;
+        
+        currentModule = fieldToCorrect.module;
+        currentField = fieldToCorrect.field;
+        
+        // Guardar la respuesta temporalmente (se actualizará después del análisis)
         if (!projectData[fieldToCorrect.module]) {
             projectData[fieldToCorrect.module] = {};
         }
         projectData[fieldToCorrect.module][fieldToCorrect.field] = {
             answer: message,
-            approved: true,
+            approved: true, // Se marca como aprobada pero pasará por análisis
             correctedAt: new Date().toISOString()
         };
         
-        addChatMessage(`✅ ¡Excelente! Tu respuesta para "${fieldToCorrect.label}" ha sido actualizada correctamente.`, 'ai');
+        // Guardar que venimos de una corrección para manejar el flujo después
+        window.correctionInProgress = {
+            fieldToCorrect: fieldToCorrect,
+            reviewModule: window.currentReviewModule,
+            originalModule: originalModule,
+            originalField: originalField
+        };
         
-        // Limpiar estados
-        window.awaitingCorrectionInput = false;
+        // Limpiar estados de corrección antes de analizar
         window.currentCorrectionField = null;
         window.fieldsToCorrect = null;
         
-        // Guardar progreso
-        saveProjectProgress();
+        // Pasar por el mismo proceso de análisis con IA que las respuestas normales
+        addChatMessage(`Analizando tu respuesta para "${fieldToCorrect.label}"...`, 'ai');
+        analyzeResponseWithAI(message, field);
         
-        // Preguntar si quiere corregir algo más
-        setTimeout(() => {
-            addChatMessage('¿Deseas corregir algo más? Escribe "corregir" para ver tus respuestas, o "continuar" para seguir con el proyecto.', 'ai');
-        }, 1500);
+        saveProjectProgress();
     }
 
     function processModifiedResponse(newResponse) {
-        if (!currentField || !currentModule || !currentSuggestion) return;
-
-        const field = projectStructure[currentModule].fields[currentField];
-
-        // Validar nueva respuesta
-        if (!field.validation(newResponse)) {
-            addChatMessage('Tu respuesta modificada aún necesita más detalles. Por favor, inténtalo de nuevo.', 'ai');
+        if (!currentField || !currentModule) {
+            addChatMessage('⚠️ Error: No hay campo activo para modificar. Por favor, intenta nuevamente.', 'ai');
+            setChatState('IDLE');
             return;
         }
 
-        // Actualizar respuesta
-        projectData[currentModule][currentField].answer = newResponse;
-        projectData[currentModule][currentField].approved = true;
+        const field = projectStructure[currentModule].fields[currentField];
 
-        addChatMessage('✅ ¡Excelente! Tu respuesta modificada ha sido aprobada.', 'ai');
+        // Validar nueva respuesta con feedback mejorado
+        if (!field.validation(newResponse)) {
+            const minLength = 10;
+            const currentLength = newResponse.trim().length;
+            
+            let feedbackMessage = '⚠️ Tu respuesta modificada necesita más desarrollo.\n\n';
+            
+            if (currentLength < minLength) {
+                feedbackMessage += `📏 **Longitud actual:** ${currentLength} caracteres (mínimo: ${minLength})\n\n`;
+            }
+            
+            feedbackMessage += '💡 **Sugerencias:**\n• Incluye más detalles\n• Piensa en el "qué", "cómo" y "por qué"\n\n';
+            feedbackMessage += 'Intenta de nuevo:';
+            
+            addChatMessage(feedbackMessage, 'ai');
+            // Mantener el estado para capturar el próximo intento
+            setChatState('AWAITING_MODIFICATION');
+            return;
+        }
 
-        awaitingModification = false;
-        awaitingImprovement = false;
+        // Guardar respuesta temporalmente
+        if (!projectData[currentModule]) projectData[currentModule] = {};
+        projectData[currentModule][currentField] = {
+            answer: newResponse,
+            approved: true,
+            timestamp: new Date().toISOString()
+        };
+
+        // Limpiar el estado de modificación antes de analizar
         currentSuggestion = null;
 
-        saveProjectProgress();
+        // Analizar la respuesta modificada con IA (igual que primera vez)
+        // Esto mostrará opciones de mejora y el usuario podrá elegir
+        analyzeResponseWithAI(newResponse, field);
 
-        // Continuar al siguiente campo
-        setTimeout(() => {
-            showNextField();
-        }, 2000);
+        saveProjectProgress();
     }
 
     function askCurrentQuestion() {
-        const currentQuestions = projectQuestions[currentProjectStep]?.questions || [];
+        const currentQuestions = projectQuestions[currentModule]?.questions || [];
         const question = currentQuestions[currentQuestionIndex];
 
         if (!question) {
@@ -13780,7 +16206,7 @@ Enseña conceptos financieros básicos de manera práctica. Incluye cálculos re
             // Mostrar indicador de escritura
             showTypingIndicator();
 
-            const prompt = stepPrompts[currentProjectStep] || `Eres un consultor empresarial especializado en ${getUserProgram()}. Estás en el paso ${currentProjectStep}: ${getStepDescription(currentProjectStep)}
+            const prompt = stepPrompts[currentModule] || `Eres un consultor empresarial especializado en ${getUserProgram()}. Estás en el paso ${currentModule}: ${getStepDescription(currentModule)}
 
 CONVERSACIÓN ACTUAL:
 ${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Tú'}: ${msg.content}`).join('\n')}
@@ -13862,15 +16288,10 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
         chat.appendChild(messageDiv);
         
-        // Para mensajes del usuario, ir al final. Para AI, ir al inicio del mensaje
-        if (type === 'user') {
+        // Scroll suave al final del chat para ver el nuevo mensaje
+        setTimeout(() => {
             chat.scrollTop = chat.scrollHeight;
-        } else {
-            // Scroll suave al inicio del mensaje del bot para leer desde arriba
-            setTimeout(() => {
-                messageDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        }
+        }, 50);
         
         projectConversations.push({ role: type === 'user' ? 'user' : 'assistant', content: message });
     }
@@ -13908,14 +16329,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function saveProjectData(userMessage, aiResponse) {
-        if (!projectData[currentProjectStep]) {
-            projectData[currentProjectStep] = [];
+        if (!projectData[currentModule]) {
+            projectData[currentModule] = {};
         }
-        projectData[currentProjectStep].push({
-            user: userMessage,
-            ai: aiResponse,
-            timestamp: new Date().toISOString()
-        });
+        // Guardar en formato compatible con el nuevo sistema
+        const fieldKey = currentField || 'conversation';
+        if (!projectData[currentModule][fieldKey]) {
+            projectData[currentModule][fieldKey] = {
+                answer: userMessage,
+                timestamp: new Date().toISOString()
+            };
+        }
         
         // Guardar automáticamente
         saveProjectProgress();
@@ -14020,11 +16444,23 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
     function restoreProgressData(progressData) {
         // Cargar datos del proyecto
-        if (progressData.projectData && Object.keys(progressData.projectData).length > 0) {
-            projectData = progressData.projectData;
-        } else if (progressData.data && Object.keys(progressData.data).length > 0) {
-            // Firebase guarda projectData bajo la clave 'data'
-            projectData = progressData.data;
+        // Primero intentar cargar desde el formato nuevo (module_1, module_2, etc.)
+        let hasModuleData = false;
+        for (let m = 1; m <= 5; m++) {
+            if (progressData[`module_${m}`] && Object.keys(progressData[`module_${m}`]).length > 0) {
+                projectData[m] = progressData[`module_${m}`];
+                hasModuleData = true;
+            }
+        }
+        
+        // Si no hay datos en formato module_X, intentar formatos anteriores
+        if (!hasModuleData) {
+            if (progressData.projectData && Object.keys(progressData.projectData).length > 0) {
+                projectData = progressData.projectData;
+            } else if (progressData.data && Object.keys(progressData.data).length > 0) {
+                // Firebase guarda projectData bajo la clave 'data'
+                projectData = progressData.data;
+            }
         }
 
         // Debug: mostrar exactamente qué se restauró
@@ -14370,6 +16806,212 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         if (completedFields >= totalFields && totalFields > 0) {
             completeBtn.style.display = 'inline-block';
         }
+        
+        // Actualizar también los pasos del wizard
+        updateWizardSteps();
+    }
+    
+    // Función para actualizar el wizard-steps visual
+    function updateWizardSteps() {
+        const steps = document.querySelectorAll('.wizard-steps .step[data-step]');
+        
+        steps.forEach(stepElement => {
+            const stepNum = parseInt(stepElement.getAttribute('data-step'));
+            const moduleData = projectData[stepNum] || projectData[String(stepNum)] || {};
+            const moduleFields = projectStructure[stepNum]?.fields || {};
+            const fieldKeys = Object.keys(moduleFields);
+            const totalFields = fieldKeys.length;
+            const completedFields = Object.values(moduleData).filter(field => 
+                field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))
+            ).length;
+            
+            const isCompleted = completedFields >= totalFields && totalFields > 0;
+            const isCurrent = stepNum === currentModule;
+            const hasProgress = completedFields > 0;
+            
+            // Limpiar clases previas
+            stepElement.classList.remove('active', 'completed', 'hidden');
+            
+            // Agregar clase según estado
+            if (isCompleted) {
+                stepElement.classList.add('completed');
+            }
+            if (isCurrent) {
+                stepElement.classList.add('active');
+            }
+            
+            // Actualizar el status del paso
+            const statusElement = stepElement.querySelector('.step-status');
+            if (statusElement) {
+                statusElement.classList.remove('in-progress', 'completed', 'pending');
+                
+                if (isCompleted) {
+                    statusElement.innerHTML = '<i class="fas fa-check"></i> Completado';
+                    statusElement.classList.add('completed');
+                } else if (isCurrent) {
+                    statusElement.innerHTML = `<i class="fas fa-play"></i> En progreso (${completedFields}/${totalFields})`;
+                    statusElement.classList.add('in-progress');
+                } else if (hasProgress) {
+                    statusElement.innerHTML = `<i class="fas fa-clock"></i> ${completedFields}/${totalFields} campos`;
+                    statusElement.classList.add('in-progress');
+                } else {
+                    statusElement.innerHTML = '<i class="fas fa-circle"></i> Pendiente';
+                    statusElement.classList.add('pending');
+                }
+            }
+        });
+    }
+    
+    // Función para ir a un módulo específico
+    function goToModule(moduleNum) {
+        // Verificar si el módulo está disponible (si tiene acceso)
+        const previousModuleData = projectData[moduleNum - 1] || projectData[String(moduleNum - 1)] || {};
+        const previousModuleFields = projectStructure[moduleNum - 1]?.fields || {};
+        const prevFieldKeys = Object.keys(previousModuleFields);
+        const prevCompletedFields = Object.values(previousModuleData).filter(field => 
+            field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))
+        ).length;
+        
+        // Permitir ir a módulo 1 siempre, o si el anterior está completo, o si ya tiene progreso en ese módulo
+        const moduleData = projectData[moduleNum] || projectData[String(moduleNum)] || {};
+        const hasProgressInModule = Object.keys(moduleData).length > 0;
+        
+        if (moduleNum === 1 || prevCompletedFields >= prevFieldKeys.length || hasProgressInModule) {
+            currentModule = moduleNum;
+            currentField = null;
+            
+            const moduleTitle = projectStructure[moduleNum]?.title || `Módulo ${moduleNum}`;
+            
+            // Si el módulo tiene respuestas guardadas, mostrar opción de revisión
+            if (hasProgressInModule) {
+                reviewModuleResponses(moduleNum);
+            } else {
+                // Módulo sin respuestas - iniciar normalmente
+                addChatMessage(`¡Vamos al ${moduleTitle}! Te guiaré paso a paso por este módulo.`, 'ai');
+                updateWizardSteps();
+                updateProjectSummary();
+                showNextField();
+            }
+        } else {
+            addChatMessage(`Para acceder al Módulo ${moduleNum}, primero debes completar el módulo anterior.`, 'ai');
+        }
+    }
+    
+    // Función para revisar las respuestas de un módulo específico
+    function reviewModuleResponses(moduleNum) {
+        const module = projectStructure[moduleNum];
+        const moduleData = projectData[moduleNum] || {};
+        const moduleTitle = module?.title || `Módulo ${moduleNum}`;
+        
+        // Recopilar las respuestas del módulo
+        const moduleFields = [];
+        const allFields = Object.keys(module.fields);
+        
+        for (const [fieldKey, fieldData] of Object.entries(moduleData)) {
+            if (fieldData.answer && module.fields[fieldKey]) {
+                moduleFields.push({
+                    module: moduleNum,
+                    field: fieldKey,
+                    label: module.fields[fieldKey].label,
+                    answer: fieldData.answer
+                });
+            }
+        }
+        
+        // Verificar campos pendientes
+        const pendingFields = allFields.filter(fieldKey => 
+            !moduleData[fieldKey] || !moduleData[fieldKey].answer
+        );
+        
+        addChatMessage(`📋 **${moduleTitle}**\n\nEstas son tus respuestas guardadas:`, 'ai');
+        
+        // Mostrar respuestas actuales
+        let responseMsg = '';
+        moduleFields.forEach((item, index) => {
+            const answerPreview = item.answer.length > 80 
+                ? item.answer.substring(0, 80) + '...' 
+                : item.answer;
+            responseMsg += `**${index + 1}. ${item.label}:**\n"${answerPreview}"\n\n`;
+        });
+        
+        if (pendingFields.length > 0) {
+            responseMsg += `⏳ *Campos pendientes: ${pendingFields.length}*\n\n`;
+        }
+        
+        responseMsg += '**¿Qué deseas hacer?**\n';
+        responseMsg += '• Escribe un **número (1-' + moduleFields.length + ')** para editar esa respuesta\n';
+        responseMsg += '• Escribe **"continuar"** para seguir donde lo dejaste\n';
+        responseMsg += '• Escribe **"cancelar"** para volver';
+        
+        addChatMessage(responseMsg, 'ai');
+        
+        // Guardar los campos del módulo para poder editarlos
+        window.moduleFieldsToReview = moduleFields;
+        window.currentReviewModule = moduleNum;
+        window.pendingFieldsInModule = pendingFields;
+        setChatState('REVIEWING_MODULE');
+        
+        updateWizardSteps();
+        updateProjectSummary();
+    }
+    
+    // Función para manejar la selección en modo revisión de módulo
+    function handleModuleReviewSelection(message) {
+        const cmd = message.toLowerCase().trim();
+        
+        if (cmd === 'cancelar' || cmd === 'salir' || cmd === 'volver') {
+            setChatState('IDLE');
+            window.moduleFieldsToReview = null;
+            window.currentReviewModule = null;
+            window.pendingFieldsInModule = null;
+            addChatMessage('Revisión cancelada. Puedes seleccionar otro módulo o escribir "continuar" para seguir con tu proyecto.', 'ai');
+            return;
+        }
+        
+        if (cmd === 'continuar' || cmd === 'siguiente') {
+            // Continuar donde lo dejó - buscar el próximo campo pendiente
+            setChatState('IDLE');
+            const pendingFields = window.pendingFieldsInModule;
+            window.moduleFieldsToReview = null;
+            window.currentReviewModule = null;
+            window.pendingFieldsInModule = null;
+            
+            if (pendingFields && pendingFields.length > 0) {
+                addChatMessage('¡Perfecto! Continuemos con las preguntas pendientes.', 'ai');
+                setTimeout(() => showNextField(), 1000);
+            } else {
+                addChatMessage('¡Has completado todas las preguntas de este módulo! Puedes revisar otro módulo o continuar al siguiente.', 'ai');
+                currentModule++;
+                setTimeout(() => showNextField(), 1500);
+            }
+            return;
+        }
+        
+        // Verificar si es un número para editar
+        const num = parseInt(message);
+        const maxFields = window.moduleFieldsToReview?.length || 0;
+        
+        if (!isNaN(num) && num >= 1 && num <= maxFields) {
+            const fieldToEdit = window.moduleFieldsToReview[num - 1];
+            window.currentCorrectionField = fieldToEdit;
+            setChatState('CORRECTING_INPUT');
+            
+            const field = projectStructure[fieldToEdit.module].fields[fieldToEdit.field];
+            
+            addChatMessage(`📝 **Editando: ${fieldToEdit.label}**\n\nTu respuesta actual:\n"${fieldToEdit.answer}"\n\nEscribe tu nueva respuesta:`, 'ai');
+            
+            // Mostrar el ejemplo como guía
+            if (field.example) {
+                setTimeout(() => {
+                    const example = typeof field.example === 'function' ? field.example(userProgram) : field.example;
+                    addChatMessage(`💡 **Guía:**\n${example}`, 'ai');
+                }, 500);
+            }
+        } else if (!isNaN(num)) {
+            addChatMessage(`Por favor, escribe un número del 1 al ${maxFields}, "continuar" para seguir, o "cancelar" para salir.`, 'ai');
+        } else {
+            addChatMessage('No entendí tu respuesta. Escribe el número de la respuesta a editar, "continuar" para seguir, o "cancelar" para salir.', 'ai');
+        }
     }
 
     function resetProject() {
@@ -14382,11 +17024,10 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         projectChat = [];
         currentModule = 1;
         currentField = null;
-        awaitingStudentResponse = false;
-        awaitingImprovement = false;
-        awaitingModification = false;
-        currentSuggestion = null;
         userProgram = null;
+        
+        // Resetear todos los estados del chat
+        resetChatStates();
 
         // Limpiar localStorage
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
@@ -14442,15 +17083,10 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
             chat.appendChild(messageDiv);
         });
         
-        // Scroll al último mensaje del bot para leer desde el inicio
-        const lastAiMessage = chat.querySelector('.chat-message.ai:last-of-type');
-        if (lastAiMessage) {
-            setTimeout(() => {
-                lastAiMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100);
-        } else {
+        // Scroll al final del chat
+        setTimeout(() => {
             chat.scrollTop = chat.scrollHeight;
-        }
+        }, 100);
     }
 
     async function loadExistingProjects() {
@@ -14471,7 +17107,17 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                 console.log('Proyecto cargado desde Firebase:', project);
                 
                 // Cargar datos del proyecto de consultoría si existen
-                if (project.data) {
+                // Primero intentar cargar desde el formato nuevo (module_1, module_2, etc.)
+                let hasModuleData = false;
+                for (let m = 1; m <= 5; m++) {
+                    if (project[`module_${m}`] && Object.keys(project[`module_${m}`]).length > 0) {
+                        projectData[m] = project[`module_${m}`];
+                        hasModuleData = true;
+                    }
+                }
+                
+                // Si no hay datos en formato module_X, intentar cargar desde project.data (formato antiguo)
+                if (!hasModuleData && project.data) {
                     projectData = project.data;
                 }
                 if (project.currentModule) {
@@ -16457,21 +19103,14 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.replaceLastMessage = replaceLastMessage;
     window.saveProjectData = saveProjectData;
     window.updateProjectSummary = updateProjectSummary;
+    window.updateWizardSteps = updateWizardSteps;
+    window.goToModule = goToModule;
     window.loadProjectData = loadProjectData;
     window.getStepDescription = getStepDescription;
     window.resetProject = resetProject;
 
     // Configurar event listeners después de que todas las funciones estén disponibles
-    // Configurar event listeners para los pasos
-    document.querySelectorAll('.step').forEach(step => {
-        step.addEventListener('click', () => {
-            const stepNum = parseInt(step.dataset.step);
-            // Solo permitir hacer clic en pasos que ya están desbloqueados
-            if (!step.classList.contains('hidden')) {
-                setProjectStep(stepNum);
-            }
-        });
-    });
+    // Los pasos ahora tienen onclick directamente en el HTML
 
     // Configurar event listener para el botón de enviar mensaje
     const sendBtn = document.getElementById('sendProjectBtn');

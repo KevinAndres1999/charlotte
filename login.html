@@ -192,14 +192,41 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
         import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
-        const firebaseConfig = window.FIREBASE_CONFIG;
+        console.log('🔐 Login module loaded at', new Date().toISOString());
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        const firebaseConfig = window.FIREBASE_CONFIG;
+        console.log('📦 Firebase config:', firebaseConfig.projectId);
+
+        let app, db, auth;
+        let firestoreReady = false;
+        
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log('✅ Firebase initialized successfully');
+            
+            // Forzar reconexión de Firestore y verificar conectividad
+            enableNetwork(db).then(async () => {
+                console.log('🌐 Firestore network enabled');
+                // Test rápido de conectividad
+                try {
+                    const testQuery = query(collection(db, 'users'), limit(1));
+                    await getDocs(testQuery);
+                    firestoreReady = true;
+                    console.log('✅ Firestore connection verified');
+                } catch (e) {
+                    console.warn('⚠️ Firestore test query failed:', e.message);
+                }
+            }).catch(err => {
+                console.warn('⚠️ Could not enable network:', err.message);
+            });
+        } catch (initError) {
+            console.error('❌ Firebase initialization error:', initError);
+        }
 
         const loginForm = document.getElementById('loginForm');
         const messageDiv = document.getElementById('message');
@@ -212,9 +239,38 @@
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
+            console.log(`📢 Message [${type}]: ${text}`);
         }
 
-        // Función auxiliar para crear timeout
+        // Función auxiliar para crear timeout con reintentos
+        async function withRetry(promiseFn, maxRetries = 3, baseTimeoutMs = 15000) {
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    // Timeout aumenta con cada intento
+                    const timeoutMs = baseTimeoutMs + (attempt - 1) * 5000;
+                    console.log(`🔄 Attempt ${attempt}/${maxRetries} (timeout: ${timeoutMs}ms)...`);
+                    
+                    const result = await Promise.race([
+                        promiseFn(),
+                        new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                        )
+                    ]);
+                    return result;
+                } catch (error) {
+                    console.warn(`⚠️ Attempt ${attempt} failed:`, error.message);
+                    if (attempt === maxRetries) {
+                        throw error;
+                    }
+                    // Esperar antes de reintentar (backoff exponencial)
+                    const waitTime = 1500 * attempt;
+                    console.log(`⏳ Waiting ${waitTime}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, waitTime));
+                }
+            }
+        }
+
+        // Función auxiliar para crear timeout (legacy)
         function withTimeout(promise, timeoutMs = 15000) {
             return Promise.race([
                 promise,
@@ -224,22 +280,44 @@
             ]);
         }
 
+        if (!loginForm) {
+            console.error('❌ Login form not found!');
+        } else {
+            console.log('✅ Login form found');
+        }
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log('📤 Form submitted');
 
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const submitBtn = loginForm.querySelector('.btn-login');
 
+            if (!email || !password) {
+                showMessage('Por favor ingresa email y contraseña', 'error');
+                return;
+            }
+
             // Deshabilitar botón y mostrar indicador de carga
             submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+
+            // Verificar conectividad básica
+            if (!navigator.onLine) {
+                showMessage('Sin conexión a internet. Verifica tu conexión y vuelve a intentar.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Iniciar Sesión';
+                return;
+            }
+
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
 
-            console.log('Login attempt for email:', email);
+            console.log('🔍 Login attempt for email:', email);
             const startTime = performance.now();
 
             try {
-                console.log('Starting user query...');
+                console.log('📡 Starting user query...');
                 const queryStartTime = performance.now();
                 // Declarar variables
                 let userData = null;
@@ -248,14 +326,21 @@
                 // OPTIMIZACIÓN: Verificar cache primero
                 const cachedUser = userCache.get(email);
                 if (cachedUser && (Date.now() - cachedUser.timestamp) < CACHE_DURATION) {
-                    console.log('User found in cache');
+                    console.log('✅ User found in cache');
                     userData = cachedUser.data;
                     userDoc = { id: cachedUser.id };
                 } else {
-                    // Consulta directa simplificada
-                    console.log('Searching for user...');
+                    // Consulta directa con reintentos
+                    console.log('🔍 Searching for user in Firestore...');
+                    console.log('🔗 Firestore ready status:', firestoreReady);
+                    
                     const q = query(collection(db, 'users'), where('email', '==', email), limit(1));
-                    const querySnapshot = await withTimeout(getDocs(q), 15000);
+                    
+                    const querySnapshot = await withRetry(
+                        () => getDocs(q),
+                        3,  // 3 intentos
+                        20000  // 20 segundos base timeout
+                    );
 
                     if (!querySnapshot.empty) {
                         userDoc = querySnapshot.docs[0];
