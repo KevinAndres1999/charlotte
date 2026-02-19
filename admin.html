@@ -16381,12 +16381,19 @@ REGLAS IMPORTANTES:
 
 
                 if (response.ok) {
-                    const data = await response.json();
-                    if (data.choices && data.choices[0]?.message?.content) {
+                    const data = await response.json().catch(() => null);
+                    console.log('OpenRouter test response (raw):', data);
+
+                    // Aceptar distintas formas de payload (OpenRouter / OpenAI legacy)
+                    const content = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? data?.result ?? null;
+
+                    if (content) {
                         alert('✅ ¡Conexión exitosa! Tu API key de OpenRouter es válida y puedes usar Aurora Alpha.');
-                        console.log('Test exitoso:', data.choices[0].message.content);
+                        console.log('Test exitoso:', content);
                     } else {
-                        throw new Error('Respuesta inválida del servidor');
+                        console.error('Respuesta inesperada de OpenRouter:', data);
+                        alert('❌ Respuesta inesperada del servidor de OpenRouter. Revisa la consola (F12) para más detalles.');
+                        throw new Error('Respuesta inválida del servidor: formato inesperado');
                     }
                 } else if (response.status === 401) {
                     throw new Error('API key inválida o expirada. Obtén una nueva en https://openrouter.ai');
