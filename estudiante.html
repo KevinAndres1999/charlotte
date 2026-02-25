@@ -16343,6 +16343,12 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.getStepDescription = getStepDescription;
     window.resetProject = resetProject;
 
+    // Exponer funciones de generación de plan de negocio al window (requerido por js/estudiante/modules/proyecto.js)
+    window.generateProjectWithAI = generateProjectWithAI;
+    window.showPlanLoadingModal = showPlanLoadingModal;
+    window.updatePlanLoadingProgress = updatePlanLoadingProgress;
+    window.removePlanLoadingModal = removePlanLoadingModal;
+
     // Configurar event listeners después de que todas las funciones estén disponibles
     // Configurar event listeners para los pasos
     document.querySelectorAll('.step').forEach(step => {

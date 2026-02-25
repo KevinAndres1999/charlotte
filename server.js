@@ -7,7 +7,13 @@ const Database = require('better-sqlite3');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-this';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('⚠️ ERROR: JWT_SECRET no está configurado en las variables de entorno');
+  console.error('Por favor configure JWT_SECRET en su archivo .env o variables de entorno');
+  process.exit(1);
+}
 
 app.use(cors());
 app.use(express.json());

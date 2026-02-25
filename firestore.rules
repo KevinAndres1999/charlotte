@@ -1,88 +1,137 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir acceso a todas las colecciones (temporal para desarrollo)
-    match /{document=**} {
-      allow read, write: if true;
+    
+    // Función helper para verificar autenticación
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Permitir lectura/escritura en pendingStudents para registro público
+    // Función helper para verificar rol de admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.role == 'admin';
+    }
+    
+    // Función helper para verificar que el usuario es propietario o admin
+    function isOwnerOrAdmin(resourceUserId) {
+      return request.auth != null && 
+        (request.auth.token.role == 'admin' || resourceUserId == request.auth.uid);
+    }
+    
+    // USUARIOS - Lectura pública de perfil público, escritura solo para propios o admin
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwnerOrAdmin(userId);
+    }
+    
+    // ESTUDIANTES PENDIENTES - Solo admins pueden gestionar
     match /pendingStudents/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+      allow create: if isAuthenticated();
     }
-
-    // Permitir lectura/escritura en users para autenticación
-    match /users/{document} {
-      allow read, write: if true;
-    }
-
-    // Permitir lectura/escritura en contenido para usuarios autenticados (admin)
+    
+    // CONTENIDO - Solo admins pueden crear/editar, todos los auth pueden leer
     match /content/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
+    // CLASES
     match /classes/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
+    // CHUNKS DE CLASES
     match /class_chunks/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
+    // ACTIVIDADES
     match /activities/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
+    // MATERIALES
     match /materials/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
+    // CUESTIONARIOS
     match /cuestionarios/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
+    // EVALUACIONES
     match /evaluaciones/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
+    // ENTREGAS - Estudiantes pueden crear/editar las propias, admins pueden todo
     match /entregas/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
     }
     
+    // RESPUESTAS DE CUESTIONARIOS
     match /respuestasCuestionarios/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
     }
     
+    // RESPUESTAS DE EVALUACIONES
     match /respuestasEvaluaciones/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
     }
     
+    // FOROS
     match /foros/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
+    // RESPUESTAS EN FOROS
     match /respuestasForos/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
     
+    // CALIFICACIONES - Solo admins pueden gestionar, usuarios ven las propias
     match /calificaciones_modulos/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
+      allow write: if isAdmin();
     }
     
+    // CONFIGURACIÓN - Solo admins
     match /configuracion/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow write: if isAdmin();
     }
     
+    // FOTOS
     match /fotos/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
+    // RECURSOS
     match /recursos/{document} {
-      allow read, write: if true;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
+    // CONTACTOS
     match /contactos/{document} {
-      allow read, write: if true;
+      allow read: if isAdmin();
+      allow write: if isAuthenticated();
+      allow create: if true;
     }
   }
 }
