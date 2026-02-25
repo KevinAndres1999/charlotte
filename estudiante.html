@@ -7,8 +7,7 @@
     <title>Portal Estudiante | Charlotte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
-    <!-- JaaS (Jitsi as a Service) API -->
-    <script src="https://8x8.vc/vpaas-magic-cookie-f9b193b32789486da9489bb7ea7f61e9/external_api.js" async></script>
+
 
     <!-- Firebase Environment Variables -->
     <script>
@@ -21,6 +20,32 @@
             messagingSenderId: "971007838036",
             appId: "1:971007838036:web:381b5c516ba841fef12ac1"
         };
+        
+        // OpenRouter API Key - Se obtiene desde Firebase de forma segura
+        window.OPENROUTER_API_KEY = "";
+        
+        // Cargar API key de Firebase de forma segura
+        async function loadOpenRouterKey() {
+            try {
+                // Esperar a que Firebase esté disponible
+                if (!window.db || !window.getDoc || !window.doc) {
+                    console.warn('Firebase no disponible aún, reintentando en 1 segundo...');
+                    setTimeout(loadOpenRouterKey, 1000);
+                    return;
+                }
+                
+                const configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+                if (configDoc.exists && configDoc.exists()) {
+                    const data = configDoc.data();
+                    if (data && data.apiKey) {
+                        window.OPENROUTER_API_KEY = data.apiKey;
+                        console.log('✅ API key de OpenRouter cargada correctamente');
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo cargar la API key de OpenRouter:', e.message);
+            }
+        }
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -193,127 +218,336 @@
             }
         }
 
-        /* =================== ESTILOS PARA MI PROYECTO =================== */
+        /* =================== ESTILOS PREMIUM PARA MI PROYECTO =================== */
         .project-wizard {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 320px 1fr;
             gap: 2rem;
             margin-top: 2rem;
+            min-height: 600px;
         }
 
         .wizard-steps {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(30, 58, 138, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .wizard-steps-header {
+            color: white;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .wizard-steps-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wizard-steps-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin: 0;
         }
 
         .step {
-            padding: 1rem;
-            border-radius: 12px;
-            background: white;
-            border: 2px solid #e2e8f0;
+            padding: 1rem 1.25rem;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .step:hover {
-            border-color: #3b82f6;
-            box-shadow: 0 4px 12px rgba(59,130,246,0.1);
+        .step:hover:not(.hidden) {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .step.active {
-            border-color: #3b82f6;
-            background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(59,130,246,0.05));
+            background: white;
+            border-color: white;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            transform: scale(1.02);
         }
 
         .step-number {
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: #e2e8f0;
-            color: #64748b;
+            background: rgba(255,255,255,0.2);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
         .step.active .step-number {
-            background: #3b82f6;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .step.completed .step-number {
+            background: #10b981;
             color: white;
         }
 
+        .step.completed .step-number::after {
+            content: '✓';
+            font-size: 0.9rem;
+        }
+
         .step.hidden {
-            opacity: 0.3;
+            opacity: 0.4;
             pointer-events: none;
+            transform: scale(0.98);
+        }
+
+        .step-content {
+            flex: 1;
         }
 
         .step-title {
             font-weight: 600;
-            color: #1e3a8a;
+            color: rgba(255,255,255,0.95);
             margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+
+        .step.active .step-title {
+            color: #1e3a8a;
         }
 
         .step-description {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.4;
+        }
+
+        .step.active .step-description {
             color: #64748b;
+        }
+        
+        .step-status {
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .step-status.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .step-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .step-status.pending {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+        
+        .step.active .step-status {
+            background: rgba(59, 130, 246, 0.15);
+            color: #2563eb;
+        }
+        
+        .step.completed .step-number span {
+            display: none;
+        }
+        
+        .step.completed .step-number::before {
+            content: '✓';
+            font-size: 1.1rem;
         }
 
         .wizard-content {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 2rem;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
         }
 
         .ai-chat-container {
             background: white;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
-            height: 500px;
+            height: 800px;
+            min-height: 800px;
+            max-height: 800px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .chat-header-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .chat-header-info h4 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-header-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .chat-header-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
         }
 
         .chat-messages {
             flex: 1;
-            padding: 1rem;
+            padding: 1.5rem 1.75rem;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
-            background: #e5e5e5;
+            gap: 1.25rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
         }
 
         .chat-message {
-            padding: 0.75rem 1rem;
+            padding: 1.25rem 1.5rem;
             border-radius: 18px;
-            max-width: 80%;
+            max-width: 90%;
             word-wrap: break-word;
             position: relative;
-            animation: fadeIn 0.3s ease-in;
+            animation: messageSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        @keyframes messageSlide {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
 
         .chat-message.user {
-            background: #dcf8c6;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
             align-self: flex-end;
             margin-left: auto;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
 
         .chat-message.ai {
             background: white;
+            color: #1e293b;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            font-size: 1.15rem;
+            line-height: 1.8;
+        }
+
+        .chat-message.ai strong {
+            color: #667eea;
         }
 
         .chat-message.suggestion {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            max-width: 90%;
         }
 
         .suggestion-container {
@@ -324,14 +558,14 @@
 
         .suggestion-header {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
         .suggestion-content {
-            line-height: 1.4;
+            line-height: 1.5;
             opacity: 0.95;
         }
 
@@ -339,69 +573,80 @@
             display: flex;
             gap: 0.5rem;
             flex-wrap: wrap;
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
         }
 
         .suggestion-actions button {
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.25rem;
             border: none;
-            border-radius: 20px;
+            border-radius: 25px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             flex: 1;
-            min-width: 120px;
+            min-width: 100px;
         }
 
         .btn-approve {
             background: #10b981;
             color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
         .btn-approve:hover {
             background: #059669;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
         }
 
         .btn-modify {
             background: #f59e0b;
             color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
         .btn-modify:hover {
             background: #d97706;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
         }
 
         .btn-keep {
-            background: #6b7280;
+            background: rgba(255,255,255,0.2);
             color: white;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         .btn-keep:hover {
-            background: #4b5563;
-            transform: translateY(-1px);
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
 
         .typing {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            background: white;
+            border-radius: 18px;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            align-self: flex-start;
         }
 
         .typing-dots {
             display: flex;
-            gap: 4px;
+            gap: 5px;
             align-items: center;
         }
 
         .typing-dots span {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: #9ca3af;
-            animation: typing 1.4s infinite ease-in-out;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            animation: typingBounce 1.4s infinite ease-in-out;
         }
 
         .typing-dots span:nth-child(2) {
@@ -412,169 +657,347 @@
             animation-delay: 0.4s;
         }
 
-        @keyframes typing {
+        @keyframes typingBounce {
             0%, 60%, 100% {
                 transform: translateY(0);
-                opacity: 0.4;
             }
             30% {
-                transform: translateY(-10px);
-                opacity: 1;
+                transform: translateY(-12px);
             }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .chat-input-container {
-            padding: 1rem;
-            border-top: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            background: white;
+            border-top: 1px solid #f1f5f9;
             display: flex;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            align-items: flex-end;
         }
 
         .chat-input-container textarea {
             flex: 1;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
             outline: none;
             font-family: inherit;
             font-size: 1rem;
             line-height: 1.5;
+            resize: none;
+            min-height: 52px;
+            max-height: 120px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
         }
 
         .chat-input-container textarea:focus {
-            border-color: #3b82f6;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-input-container textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        #sendProjectBtn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            flex-shrink: 0;
+        }
+
+        #sendProjectBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        #sendProjectBtn:active {
+            transform: scale(0.95);
+        }
+
+        .chat-help {
+            padding: 0.75rem 1.25rem;
+            background: #fef3c7;
+            border-top: 1px solid #fde68a;
+            font-size: 0.85rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .project-summary {
             background: white;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             padding: 1.5rem;
-            max-height: 400px;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            max-height: 580px;
+            overflow: hidden;
         }
 
         .project-summary h3 {
-            margin-bottom: 1rem;
+            margin: 0 0 1.25rem 0;
             color: #1e3a8a;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .project-summary h3 i {
+            color: #667eea;
+        }
+
+        #projectSummary {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        #projectSummary::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #projectSummary::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
         }
 
         .overall-progress {
             margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 14px;
+            border: 1px solid #bae6fd;
+        }
+
+        .overall-progress h4 {
+            margin: 0 0 0.75rem 0;
+            color: #0369a1;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .progress-bar {
-            background: #e2e8f0;
+            background: #e0f2fe;
             border-radius: 10px;
-            height: 8px;
-            margin: 0.5rem 0;
+            height: 12px;
+            margin: 0.75rem 0;
             overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #3b82f6, #1e3a8a);
+            background: linear-gradient(90deg, #3b82f6, #1e40af);
             border-radius: 10px;
-            transition: width 0.5s ease;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .overall-progress p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #0369a1;
+            text-align: center;
+            font-weight: 500;
         }
 
         .summary-step {
-            padding: 1rem;
+            padding: 1rem 1.25rem;
             margin-bottom: 0.75rem;
-            border-radius: 8px;
+            border-radius: 12px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
         }
 
         .summary-step.completed {
-            background: #f0fdf4;
-            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: #86efac;
+        }
+
+        .summary-step.completed::before {
+            content: '✓';
+            position: absolute;
+            right: 1rem;
+            color: #10b981;
+            font-weight: bold;
         }
 
         .summary-step.current {
-            background: #fefce8;
-            border-color: #f59e0b;
-            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.1);
+            background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+            border-color: #fde047;
+            box-shadow: 0 4px 12px rgba(250, 204, 21, 0.2);
+            position: relative;
+        }
+
+        .summary-step.current::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            border-radius: 12px 0 0 12px;
         }
 
         .summary-step h4 {
             margin: 0 0 0.5rem 0;
             color: #1e3a8a;
             font-size: 0.9rem;
-        }
-
-        .step-progress {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #64748b;
-        }
-
-        .step-count {
             font-weight: 600;
-            color: #3b82f6;
-        }
-
-        .summary-step.completed {
-            background: #f0f9ff;
-            border-left-color: #3b82f6;
-        }
-
-        .summary-step h4 {
-            margin: 0 0 0.5rem 0;
-            color: #1e3a8a;
-            font-size: 0.9rem;
         }
 
         .step-progress {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #64748b;
+        }
+
+        .step-progress i {
+            font-size: 0.9rem;
         }
 
         .summary-step.completed .step-progress {
             color: #10b981;
         }
 
+        .summary-step.current .step-progress {
+            color: #d97706;
+        }
+
+        .step-count {
+            font-weight: 600;
+            color: #3b82f6;
+            background: #dbeafe;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+
+        .project-actions {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 2px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .project-actions button {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .project-actions .btn-danger {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .project-actions .btn-danger:hover {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        .project-actions .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .project-actions .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .project-actions .btn-secondary {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .project-actions .btn-secondary:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .project-actions .btn-print {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .project-actions .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
         .project-complete {
             text-align: center;
             margin-top: 2rem;
-            padding: 2rem;
+            padding: 2.5rem;
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            border-radius: 12px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
         }
 
         .project-complete h3 {
             margin-bottom: 1rem;
-        }
-
-        .btn-print {
-            background: white;
-            color: #10b981;
-            border: 2px solid white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-print:hover {
-            background: #f8fafc;
-            color: #059669;
+            font-size: 1.5rem;
         }
 
         /* =================== ESTILOS DE IMPRESIÓN =================== */
@@ -4310,11 +4733,11 @@
     </script>
 
 
-    <!-- Cache Refresh Script -->
-    <script src="cache-refresh.js"></script>
-
     <!-- PWA Script -->
     <script src="pwa.js"></script>
+    
+    <!-- Estudiante Modules -->
+    <script type="module" src="js/estudiante/main.js"></script>
 
     <style>
         /* Estilos para la nueva interfaz de calificaciones */
@@ -4610,117 +5033,38 @@
                     });
                 }
 
-                // =================== FUNCIONES DE VIDEOCONFERENCIA (JaaS) ===================
-                let jitsiApi = null;
+                // =================== FUNCIONES DE VIDEOCONFERENCIA (Microsoft Teams) ===================
                 
+                // Unirse a reunión de Teams
                 window.joinConference = function(roomName) {
-                    const container = document.getElementById('conference-container');
-                    const jaasContainer = document.getElementById('jaas-container');
+                    const links = JSON.parse(localStorage.getItem('teamsMeetingLinks') || '{}');
+                    const meetingUrl = links[roomName];
                     
-                    // Obtener datos del usuario actual
-                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-                    const userName = currentUser.name || currentUser.email || 'Estudiante';
-                    const userEmail = currentUser.email || '';
-                    
-                    // Limpiar contenedor anterior si existe
-                    if (jitsiApi) {
-                        jitsiApi.dispose();
-                        jitsiApi = null;
+                    if (!meetingUrl) {
+                        alert('No hay una reunión de Teams programada para esta sala en este momento. Por favor, contacta a tu instructor para obtener el enlace.');
+                        return;
                     }
-                    jaasContainer.innerHTML = '';
                     
-                    // Mapear nombres de sala a nombres completos
-                    const roomNames = {
-                        'sala-general': 'CharlotteSalaGeneral',
-                        'panaderia': 'CharlottePanaderia',
-                        'belleza': 'CharlotteBelleza'
-                    };
+                    // Abrir en nueva pestaña
+                    window.open(meetingUrl, '_blank', 'noopener,noreferrer');
                     
-                    const fullRoomName = roomNames[roomName] || roomName;
-                    
-                    try {
-                        // Crear instancia de JaaS
-                        jitsiApi = new JitsiMeetExternalAPI("8x8.vc", {
-                            roomName: `vpaas-magic-cookie-f9b193b32789486da9489bb7ea7f61e9/${fullRoomName}`,
-                            parentNode: jaasContainer,
-                            width: '100%',
-                            height: 600,
-                            userInfo: {
-                                displayName: userName,
-                                email: userEmail
-                            },
-                            configOverwrite: {
-                                startWithAudioMuted: true,
-                                startWithVideoMuted: true,
-                                prejoinPageEnabled: false,
-                                disableDeepLinking: true,
-                                lang: 'es'
-                            },
-                            interfaceConfigOverwrite: {
-                                TOOLBAR_BUTTONS: [
-                                    'microphone', 'camera', 'closedcaptions', 'desktop',
-                                    'fullscreen', 'fodeviceselection', 'hangup', 'chat',
-                                    'raisehand', 'videoquality', 'filmstrip', 'participants-pane',
-                                    'tileview', 'select-background', 'mute-everyone'
-                                ],
-                                SHOW_JITSI_WATERMARK: false,
-                                SHOW_BRAND_WATERMARK: false,
-                                BRAND_WATERMARK_LINK: '',
-                                SHOW_POWERED_BY: false,
-                                DEFAULT_BACKGROUND: '#1e3a8a',
-                                MOBILE_APP_PROMO: false,
-                                DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
-                            }
-                        });
-                        
-                        // Eventos de la conferencia
-                        jitsiApi.addListener('videoConferenceJoined', () => {
-                            console.log('Usuario unido a la conferencia:', fullRoomName);
-                            document.getElementById('conferenceStatus').textContent = 'Conectado';
-                        });
-                        
-                        jitsiApi.addListener('videoConferenceLeft', () => {
-                            console.log('Usuario salió de la conferencia');
-                            closeConference();
-                        });
-                        
-                        jitsiApi.addListener('participantJoined', () => {
-                            updateParticipantCount();
-                        });
-                        
-                        jitsiApi.addListener('participantLeft', () => {
-                            updateParticipantCount();
-                        });
-                        
+                    // También intentar mostrar embebido
+                    const container = document.getElementById('conference-container');
+                    const iframe = document.getElementById('teams-iframe');
+                    if (iframe) {
+                        iframe.src = meetingUrl;
                         container.style.display = 'block';
                         container.scrollIntoView({ behavior: 'smooth' });
-                        
-                    } catch (error) {
-                        console.error('Error al iniciar JaaS:', error);
-                        alert('Error al conectar con el servicio de videoconferencia. Por favor, intenta de nuevo.');
                     }
                 };
                 
-                function updateParticipantCount() {
-                    if (jitsiApi) {
-                        const count = jitsiApi.getNumberOfParticipants();
-                        const participantsEl = document.getElementById('conferenceParticipants');
-                        if (participantsEl) {
-                            participantsEl.textContent = count;
-                        }
-                    }
-                }
-
+                // Cerrar reunión de Teams
                 window.closeConference = function() {
                     const container = document.getElementById('conference-container');
-                    const jaasContainer = document.getElementById('jaas-container');
-                    
-                    if (jitsiApi) {
-                        jitsiApi.dispose();
-                        jitsiApi = null;
+                    const iframe = document.getElementById('teams-iframe');
+                    if (iframe) {
+                        iframe.src = '';
                     }
-                    
-                    jaasContainer.innerHTML = '';
                     container.style.display = 'none';
                     document.getElementById('conferenceStatus').textContent = 'En vivo';
                     document.getElementById('conferenceParticipants').textContent = '-';
@@ -5038,59 +5382,89 @@
 
                 <div class="project-wizard">
                     <div class="wizard-steps">
-                        <div class="step active" data-step="1">
-                            <div class="step-number">1</div>
-                            <div class="step-title">¿A qué te dedicarás?</div>
-                            <div class="step-description">Define tu especialización basada en tu curso</div>
+                        <div class="wizard-steps-header">
+                            <h3><i class="fas fa-rocket"></i> Tu Progreso</h3>
+                            <p>Completa cada módulo para crear tu plan</p>
                         </div>
-                        <div class="step hidden" data-step="2">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Objetivos del negocio</div>
-                            <div class="step-description">Establece metas claras y realistas</div>
+                        <div class="step" data-step="1" onclick="goToModule(1)">
+                            <div class="step-number"><span>1</span></div>
+                            <div class="step-content">
+                                <div class="step-title">Identificación del Negocio</div>
+                                <div class="step-description">Nombre, eslogan, misión y visión</div>
+                                <div class="step-status"></div>
+                            </div>
                         </div>
-                        <div class="step hidden" data-step="3">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Análisis de mercado</div>
-                            <div class="step-description">Estudia tu competencia y clientes</div>
+                        <div class="step" data-step="2" onclick="goToModule(2)">
+                            <div class="step-number"><span>2</span></div>
+                            <div class="step-content">
+                                <div class="step-title">Análisis de Mercado</div>
+                                <div class="step-description">Clientes, competencia y propuesta de valor</div>
+                                <div class="step-status"></div>
+                            </div>
                         </div>
-                        <div class="step hidden" data-step="4">
-                            <div class="step-number">4</div>
-                            <div class="step-title">Plan financiero</div>
-                            <div class="step-description">Calcula costos, precios y proyecciones</div>
+                        <div class="step" data-step="3" onclick="goToModule(3)">
+                            <div class="step-number"><span>3</span></div>
+                            <div class="step-content">
+                                <div class="step-title">Operaciones y Procesos</div>
+                                <div class="step-description">Servicios, procesos y recursos</div>
+                                <div class="step-status"></div>
+                            </div>
                         </div>
-                        <div class="step hidden" data-step="5">
-                            <div class="step-number">5</div>
-                            <div class="step-title">Marketing y ventas</div>
-                            <div class="step-description">Estrategias para atraer clientes</div>
+                        <div class="step" data-step="4" onclick="goToModule(4)">
+                            <div class="step-number"><span>4</span></div>
+                            <div class="step-content">
+                                <div class="step-title">Marketing y Ventas</div>
+                                <div class="step-description">Canales, estrategias y campañas</div>
+                                <div class="step-status"></div>
+                            </div>
+                        </div>
+                        <div class="step" data-step="5" onclick="goToModule(5)">
+                            <div class="step-number"><span>5</span></div>
+                            <div class="step-content">
+                                <div class="step-title">Finanzas Básicas</div>
+                                <div class="step-description">Inversión, precios y proyecciones</div>
+                                <div class="step-status"></div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="wizard-content">
                         <div class="ai-chat-container">
+                            <div class="chat-header">
+                                <div class="chat-header-avatar">🤖</div>
+                                <div class="chat-header-info">
+                                    <h4>Charlotte</h4>
+                                    <p>Tu tutora de emprendimiento</p>
+                                </div>
+                                <div class="chat-header-status">
+                                    <span class="status-dot"></span>
+                                    <span>En línea</span>
+                                </div>
+                            </div>
                             <div class="chat-messages" id="projectChat">
                                 <div class="chat-message ai">
                                     <strong>Charlotte:</strong> ¡Hola! Soy tu tutora para el proyecto empresarial. Vamos a crear un plan de negocio paso a paso. ¿Estás listo para comenzar?
                                 </div>
                             </div>
                             <div class="chat-input-container" id="projectInputContainer">
-                                <textarea id="projectInput" placeholder="Escribe tu respuesta aquí..." rows="3" style="resize: vertical; min-height: 60px; max-height: 150px;"></textarea>
-                                <button id="sendProjectBtn" class="btn-primary">
+                                <textarea id="projectInput" placeholder="Escribe tu respuesta aquí..." rows="2"></textarea>
+                                <button id="sendProjectBtn">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
-                            <div class="chat-help" style="font-size: 0.85rem; color: #64748b; margin-top: 8px; text-align: center;">
-                                💡 <strong>Comandos:</strong> "siguiente" para continuar, "reiniciar" para empezar de nuevo
+                            <div class="chat-help" id="chatCommandsHelp">
+                                💡 <strong>Comandos:</strong> "siguiente" para continuar • "anterior" para volver • "corregir" para editar respuesta • "reiniciar" para empezar de nuevo
                             </div>
                         </div>
                         <div class="project-summary">
-                            <h3>Resumen de tu proyecto</h3>
+                            <h3><i class="fas fa-clipboard-list"></i> Resumen del Proyecto</h3>
                             <div id="projectSummary"></div>
-                            <div class="project-actions" style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <button onclick="resetProject()" class="btn btn-danger" style="background-color: #dc2626; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                    <i class="fas fa-trash"></i> Reiniciar Proyecto
+                            <div class="project-actions">
+                                <button onclick="resetProject()" class="btn btn-danger">
+                                    <i class="fas fa-trash-alt"></i> Reiniciar Proyecto
                                 </button>
                                 <button onclick="completeProject()" class="btn btn-primary" id="completeProjectBtn" style="display: none;">
-                                    <i class="fas fa-check"></i> Completar Proyecto
+                                    <i class="fas fa-check-circle"></i> Completar Proyecto
                                 </button>
                                 <button onclick="previewProjectBook()" class="btn btn-secondary" id="previewProjectBtn" style="display: none;">
                                     <i class="fas fa-eye"></i> Vista Previa
@@ -5256,8 +5630,8 @@
 
             <!-- =================== VIDEOCONFERENCIA =================== -->
             <section id="videoconferencia" class="section">
-                <h2 class="page-title"><i class="fas fa-video"></i> Videoconferencia</h2>
-                <p class="page-subtitle">Únete a sesiones en tiempo real con tus instructores y compañeros de clase.</p>
+                <h2 class="page-title"><i class="fab fa-microsoft"></i> Videoconferencia Microsoft Teams</h2>
+                <p class="page-subtitle">Únete a sesiones en tiempo real con tus instructores a través de Microsoft Teams.</p>
                 
                 <!-- Tarjetas de estadísticas -->
                 <div class="stat-cards" style="margin-bottom: 2rem;">
@@ -5309,8 +5683,8 @@
                                     <i class="fas fa-user"></i> Abierta
                                 </span>
                             </div>
-                            <button class="btn btn-primary" onclick="joinConference('sala-general')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600;">
-                                <i class="fas fa-video"></i> Unirse a Sala
+                            <button class="btn btn-primary" onclick="joinConference('sala-general')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #464EB8, #7B83EB); color: white; border: none;">
+                                <i class="fab fa-microsoft"></i> Unirse con Teams
                             </button>
                         </div>
 
@@ -5326,8 +5700,8 @@
                                     <i class="fas fa-bread-slice"></i> Panadería
                                 </span>
                             </div>
-                            <button class="btn" onclick="joinConference('panaderia')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; cursor: pointer;">
-                                <i class="fas fa-video"></i> Unirse a Sala
+                            <button class="btn" onclick="joinConference('panaderia')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">
+                                <i class="fab fa-microsoft"></i> Unirse con Teams
                             </button>
                         </div>
 
@@ -5343,57 +5717,57 @@
                                     <i class="fas fa-spa"></i> Belleza
                                 </span>
                             </div>
-                            <button class="btn" onclick="joinConference('belleza')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; cursor: pointer;">
-                                <i class="fas fa-video"></i> Unirse a Sala
+                            <button class="btn" onclick="joinConference('belleza')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none;">
+                                <i class="fab fa-microsoft"></i> Unirse con Teams
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Contenedor de conferencia activa (JaaS) -->
+                <!-- Contenedor de conferencia activa (Microsoft Teams) -->
                 <div id="conference-container" class="content-card" style="display: none; margin-top: 1.5rem;">
-                    <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 12px 12px 0 0; border-bottom: 1px solid #e2e8f0;">
+                    <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #464EB8, #7B83EB); border-radius: 12px 12px 0 0; border-bottom: 1px solid #7B83EB;">
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <span style="background: #ef4444; width: 12px; height: 12px; border-radius: 50%; animation: pulse 1.5s infinite;"></span>
-                            <span style="font-weight: 600; color: #1e3a8a;">En vivo - Sala Activa</span>
+                            <span style="background: #7B83EB; width: 12px; height: 12px; border-radius: 50%;"></span>
+                            <span style="font-weight: 600; color: white;"><i class="fab fa-microsoft"></i> Microsoft Teams</span>
                         </div>
-                        <button class="btn" onclick="closeConference()" style="background: #ef4444; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                            <i class="fas fa-times"></i> Cerrar Conferencia
+                        <button class="btn" onclick="closeConference()" style="background: #464EB8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-times"></i> Cerrar
                         </button>
                     </div>
-                    <div id="jaas-container" style="width: 100%; height: 600px; border-radius: 0 0 12px 12px; overflow: hidden;"></div>
+                    <iframe id="teams-iframe" style="width: 100%; height: 600px; border-radius: 0 0 12px 12px; overflow: hidden;" allow="camera; microphone; fullscreen; display-capture"></iframe>
                 </div>
 
                 <!-- Información adicional -->
                 <div class="card" style="margin-top: 1.5rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe;">
-                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Información Importante</h4>
+                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fab fa-microsoft"></i> Cómo usar Microsoft Teams</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-microphone" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <i class="fas fa-external-link-alt" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
-                                <strong style="color: #1e40af;">Micrófono</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Activa tu micrófono solo cuando vayas a participar.</p>
+                                <strong style="color: #1e40af;">Unirse</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Al hacer clic en "Unirse a Sala", se abrirá Microsoft Teams en una nueva pestaña.</p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-camera" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <i class="fas fa-user-cog" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
-                                <strong style="color: #1e40af;">Cámara</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Puedes activar o desactivar tu cámara según prefieras.</p>
+                                <strong style="color: #1e40af;">Permisos</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Permite el acceso a micrófono y cámara cuando Teams lo solicite.</p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-hand-paper" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <i class="fas fa-desktop" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
-                                <strong style="color: #1e40af;">Participación</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Levanta la mano virtual para pedir la palabra.</p>
+                                <strong style="color: #1e40af;">Recomendaciones</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Usa preferiblemente Chrome o Edge para mejor compatibilidad.</p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-wifi" style="color: #3b82f6; margin-top: 0.25rem;"></i>
+                            <i class="fas fa-question-circle" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
-                                <strong style="color: #1e40af;">Conexión</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Asegúrate de tener una conexión estable a internet.</p>
+                                <strong style="color: #1e40af;">¿Sin Teams?</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Si no tienes Teams instalado, puedes usar la versión web desde el navegador.</p>
                             </div>
                         </div>
                     </div>
@@ -5600,6 +5974,7 @@ try {
     window.where = where;
     window.doc = doc;
     window.getDoc = getDoc;
+    window.setDoc = setDoc;
     window.updateDoc = updateDoc;
     window.addDoc = addDoc;
     
@@ -5831,6 +6206,11 @@ function getVideoId(url) {
 function loadStudentInfo() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) return;
+
+    // Cargar API key de OpenRouter de forma segura
+    if (typeof loadOpenRouterKey === 'function') {
+        loadOpenRouterKey();
+    }
 
     const userNameEl = document.getElementById('userName');
     const studentNameEl = document.getElementById('studentName');
@@ -6286,6 +6666,9 @@ window.logout = logout;
 window.sendProjectMessage = sendProjectMessage;
 window.initProjectWizard = initProjectWizard;
 window.resetProject = resetProject;
+    window.goToModule = goToModule;
+    window.updateWizardSteps = updateWizardSteps;
+    window.reviewModuleResponses = reviewModuleResponses;
 
 // Agregar event listeners después de que el DOM esté cargado
 document.addEventListener('DOMContentLoaded', function() {
@@ -12316,7 +12699,7 @@ Opción 3: 'Recetas Artesanales' - Enfatiza lo hecho a mano
 Responde de manera profesional y motivadora.`;
 
             // Obtener API key de OpenRouter
-            const apiKey = localStorage.getItem('openrouter_api_key');
+            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
                 hideTypingIndicator();
                 addChatMessage('❌ La IA no está configurada. Tu respuesta será guardada pero no puedo darte opciones personalizadas.', 'ai');
@@ -12340,7 +12723,7 @@ Responde de manera profesional y motivadora.`;
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'openrouter/aurora-alpha',
+                    model: 'google/gemini-2.0-flash-001',
                     messages: [{ role: 'user', content: prompt }]
                 })
             });
@@ -12610,11 +12993,152 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     window.updateProjectSummary = null;
     window.loadProjectData = null;
     window.getStepDescription = null;
-    window.completeProject = null;
-    window.previewProjectBook = null;
-    window.printProjectBook = null;
+    // Mantener completeProject, previewProjectBook y printProjectBook disponibles
+    // window.completeProject = null; // Eliminado para permitir completar proyecto
+    // window.previewProjectBook = null; // Eliminado para permitir vista previa
+    // window.printProjectBook = null; // Eliminado para permitir impresión
     window.loadExistingProjects = null;
     window.updateProjectChat = null;
+
+    // =================== NUEVAS FUNCIONES PARA WIZARD MEJORADO ===================
+    // Función para actualizar el wizard-steps visual
+    function updateWizardSteps() {
+        const steps = document.querySelectorAll('.wizard-steps .step[data-step]');
+        
+        steps.forEach(stepElement => {
+            const stepNum = parseInt(stepElement.getAttribute('data-step'));
+            const moduleData = projectData[stepNum] || projectData[String(stepNum)] || {};
+            const moduleFields = projectStructure[stepNum]?.fields || {};
+            const fieldKeys = Object.keys(moduleFields);
+            const totalFields = fieldKeys.length;
+            const completedFields = Object.values(moduleData).filter(field => 
+                field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))
+            ).length;
+            
+            const isCompleted = completedFields >= totalFields && totalFields > 0;
+            const isCurrent = stepNum === currentModule;
+            const hasProgress = completedFields > 0;
+            
+            // Limpiar clases previas
+            stepElement.classList.remove('active', 'completed', 'hidden');
+            
+            // Agregar clase según estado
+            if (isCompleted) {
+                stepElement.classList.add('completed');
+            }
+            if (isCurrent) {
+                stepElement.classList.add('active');
+            }
+            
+            // Actualizar el status del paso
+            const statusElement = stepElement.querySelector('.step-status');
+            if (statusElement) {
+                statusElement.classList.remove('in-progress', 'completed', 'pending');
+                
+                if (isCompleted) {
+                    statusElement.innerHTML = '<i class="fas fa-check"></i> Completado';
+                    statusElement.classList.add('completed');
+                } else if (isCurrent) {
+                    statusElement.innerHTML = '<i class="fas fa-play"></i> En progreso (' + completedFields + '/' + totalFields + ')';
+                    statusElement.classList.add('in-progress');
+                } else if (hasProgress) {
+                    statusElement.innerHTML = '<i class="fas fa-clock"></i> ' + completedFields + '/' + totalFields + ' campos';
+                    statusElement.classList.add('in-progress');
+                } else {
+                    statusElement.innerHTML = '<i class="fas fa-circle"></i> Pendiente';
+                    statusElement.classList.add('pending');
+                }
+            }
+        });
+    }
+    
+    // Función para ir a un módulo específico
+    function goToModule(moduleNum) {
+        // Verificar si el módulo está disponible (si tiene acceso)
+        const previousModuleData = projectData[moduleNum - 1] || projectData[String(moduleNum - 1)] || {};
+        const previousModuleFields = projectStructure[moduleNum - 1]?.fields || {};
+        const prevFieldKeys = Object.keys(previousModuleFields);
+        const prevCompletedFields = Object.values(previousModuleData).filter(field => 
+            field && (field.approved || (field.answer && field.answer.trim && field.answer.trim().length > 0))
+        ).length;
+        
+        // Permitir ir a módulo 1 siempre, o si el anterior está completo, o si ya tiene progreso en ese módulo
+        const moduleData = projectData[moduleNum] || projectData[String(moduleNum)] || {};
+        const hasProgressInModule = Object.keys(moduleData).length > 0;
+        
+        if (moduleNum === 1 || prevCompletedFields >= prevFieldKeys.length || hasProgressInModule) {
+            currentModule = moduleNum;
+            currentField = null;
+            
+            const moduleTitle = projectStructure[moduleNum]?.title || 'Módulo ' + moduleNum;
+            
+            // Si el módulo tiene respuestas guardadas, mostrar opción de revisión
+            if (hasProgressInModule) {
+                reviewModuleResponses(moduleNum);
+            } else {
+                // Módulo sin respuestas - iniciar normalmente
+                addChatMessage('¡Vamos al ' + moduleTitle + '! Te guiaré paso a paso por este módulo.', 'ai');
+                updateWizardSteps();
+                updateProjectSummary();
+                showNextField();
+            }
+        } else {
+            addChatMessage('Para acceder al Módulo ' + moduleNum + ', primero debes completar el módulo anterior.', 'ai');
+        }
+    }
+    
+    // Función para revisar las respuestas de un módulo específico
+    function reviewModuleResponses(moduleNum) {
+        const module = projectStructure[moduleNum];
+        const moduleData = projectData[moduleNum] || {};
+        const moduleTitle = module?.title || 'Módulo ' + moduleNum;
+        
+        // Recopilar las respuestas del módulo
+        const moduleFields = [];
+        const allFields = Object.keys(module.fields);
+        
+        for (const [fieldKey, fieldData] of Object.entries(moduleData)) {
+            if (fieldData.answer && module.fields[fieldKey]) {
+                moduleFields.push({
+                    module: moduleNum,
+                    field: fieldKey,
+                    label: module.fields[fieldKey].label,
+                    answer: fieldData.answer
+                });
+            }
+        }
+        
+        // Verificar campos pendientes
+        const pendingFields = allFields.filter(fieldKey => 
+            !moduleData[fieldKey] || !moduleData[fieldKey].answer
+        );
+        
+        addChatMessage('📋 **' + moduleTitle + '**\n\nEstas son tus respuestas guardadas:', 'ai');
+        
+        // Mostrar respuestas actuales
+        let responseMsg = '';
+        moduleFields.forEach((item, index) => {
+            const answerPreview = item.answer.length > 80 
+                ? item.answer.substring(0, 80) + '...' 
+                : item.answer;
+            responseMsg += '**' + (index + 1) + '. ' + item.label + ':**\n"' + answerPreview + '"\n\n';
+        });
+        
+        if (pendingFields.length > 0) {
+            responseMsg += '⏳ *Campos pendientes: ' + pendingFields.length + '*\n\n';
+        }
+        
+        responseMsg += '**¿Qué deseas hacer?**\n';
+        responseMsg += '• Escribe un **número (1-' + moduleFields.length + ')** para editar esa respuesta\n';
+        responseMsg += '• Escribe **"continuar"** para seguir donde lo dejaste\n';
+        responseMsg += '• Escribe **"cancelar"** para volver';
+        
+        addChatMessage(responseMsg, 'ai');
+        
+        // Guardar los campos del módulo para poder editarlos
+        window.moduleFieldsToReview = moduleFields;
+        window.currentReviewModule = moduleNum;
+    }
 
     async function initProjectWizard() {
         // Cargar datos del proyecto si existen (ahora busca en localStorage Y Firebase)
@@ -13095,10 +13619,10 @@ Enseña conceptos financieros básicos de manera práctica. Incluye cálculos re
 
     async function sendProjectChatMessage(message) {
         try {
-            const apiKey = localStorage.getItem('openrouter_api_key');
+            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
 
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
-                addChatMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter.', 'ai');
+                addChatMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de admin.', 'ai');
                 return;
             }
 
@@ -13119,7 +13643,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'openrouter/aurora-alpha',
+                    model: 'google/gemini-2.0-flash-001',
                     messages: [
                         { role: 'system', content: 'Eres Charlotte, un tutor especializado en emprendimiento práctico para estudiantes de formación técnica en Panadería/Pastelería y Belleza Integral. Tu rol es guiar a cada estudiante, paso a paso, en la creación de un documento de proyecto de negocio completo y viable (su "tesis" práctica), que será el entregable final de su capacitación. Debes adaptar tu guía a cada sector específico (Panadería o Belleza). Sé académica, paciente, motivadora y muy estructurada. Incluye ejemplos específicos del sector correspondiente.' },
                         { role: 'user', content: prompt }
@@ -13330,6 +13854,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         }
 
         updateProjectSummary();
+        updateWizardSteps();
     }
 
     function restoreProgressData(progressData) {
@@ -13380,6 +13905,7 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         }
 
         updateProjectSummary();
+        updateWizardSteps();
     }
 
     async function loadProjectData() {
@@ -14113,10 +14639,13 @@ REGLAS OBLIGATORIAS:
             // 3. Llamar a la IA
             updatePlanLoadingProgress(30, 'La IA está analizando tu negocio...');
 
-            const apiKey = localStorage.getItem('openrouter_api_key');
+            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
+            console.log('API Key disponible:', apiKey ? 'Sí' : 'No');
+            console.log('API Key primeros 20 chars:', apiKey ? apiKey.substring(0, 20) + '...' : 'N/A');
+            
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
                 removePlanLoadingModal();
-                alert('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter.');
+                alert('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de admin.');
                 return;
             }
 
@@ -14144,10 +14673,12 @@ REGLAS OBLIGATORIAS:
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'Cursos Charlotte'
                 },
                 body: JSON.stringify({
-                    model: 'openrouter/aurora-alpha',
+                    model: 'google/gemini-2.0-flash-001',
                     messages: [
                         {
                             role: 'system',
@@ -14159,6 +14690,9 @@ REGLAS OBLIGATORIAS:
                     temperature: 0.7
                 })
             });
+
+            console.log('Respuesta de IA - Status:', aiResponse.status);
+            console.log('Respuesta de IA - OK:', aiResponse.ok);
 
             clearInterval(progressTimer);
 
@@ -14372,12 +14906,26 @@ REGLAS OBLIGATORIAS:
     }
 
     // ===== FUNCIONES PÚBLICAS QUE LLAMAN AL GENERADOR CON IA =====
-    function previewProjectBook() {
-        generateProjectWithAI('preview');
+    async function previewProjectBook() {
+        alert('Iniciando vista previa...');
+        console.log('previewProjectBook llamado');
+        try {
+            await generateProjectWithAI('preview');
+        } catch (e) {
+            console.error('Error en previewProjectBook:', e);
+            alert('Error: ' + e.message);
+        }
     }
 
-    function printProjectBook() {
-        generateProjectWithAI('print');
+    async function printProjectBook() {
+        alert('Iniciando impresión...');
+        console.log('printProjectBook llamado');
+        try {
+            await generateProjectWithAI('print');
+        } catch (e) {
+            console.error('Error en printProjectBook:', e);
+            alert('Error: ' + e.message);
+        }
     }
 
     function extractBusinessName() {
