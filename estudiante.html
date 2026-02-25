@@ -13141,6 +13141,9 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     }
 
     async function initProjectWizard() {
+        // Cargar API key de Firebase si no está en localStorage
+        await loadApiKeyFromFirebase();
+        
         // Cargar datos del proyecto si existen (ahora busca en localStorage Y Firebase)
         const hasExistingData = await loadProjectData();
 
@@ -13150,6 +13153,31 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         } else {
             // No hay datos en ningún lado - comenzar consultoría
             startConsultation();
+        }
+    }
+
+    // Función para cargar la API key desde Firebase
+    async function loadApiKeyFromFirebase() {
+        const existingKey = localStorage.getItem('openrouter_api_key');
+        if (existingKey && existingKey !== 'sk-or-v1-fake-key') {
+            console.log('API key ya disponible en localStorage');
+            return;
+        }
+        
+        // Intentar cargar desde Firebase
+        try {
+            if (window.db && window.getDoc && window.doc) {
+                const configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+                if (configDoc.exists()) {
+                    const apiKey = configDoc.data().apiKey;
+                    if (apiKey) {
+                        localStorage.setItem('openrouter_api_key', apiKey);
+                        console.log('API key cargada desde Firebase');
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('No se pudo cargar API key desde Firebase:', e);
         }
     }
 
