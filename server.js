@@ -6,6 +6,7 @@ const path = require('path');
 const Database = require('better-sqlite3');
 const http = require('http');
 const { Server } = require('socket.io');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const server = http.createServer(app);
@@ -61,6 +62,15 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// --- Rate limiting: protección contra fuerza bruta en auth ---
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutos
+  max: 15,                    // máximo 15 intentos por ventana por IP
+  message: { message: 'Demasiados intentos de autenticación. Espera 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Inicializar SQLite (archivo data.db en la raíz del proyecto)
 const db = new Database(path.join(__dirname, 'data.db'));
@@ -145,7 +155,7 @@ function setSetting(key, value){
   up.run(key, value);
 }
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', authLimiter, async (req, res) => {
   const { email, password } = req.body || {};
   if (!email || !password) return res.status(400).json({ message: 'Email y contraseña requeridos' });
   try{
@@ -163,7 +173,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Registro de usuario (demo, guardar en memoria)
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', authLimiter, async (req, res) => {
   const { email, password, name, role } = req.body || {};
   if (!email ||!password || !name) return res.status(400).json({ message: 'Nombre, email y contraseña requeridos' });
   if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
@@ -273,12 +283,31 @@ app.get('/api/profile', (req, res) => {
 // Almacenamiento en memoria de las salas activas
 const activeRooms = new Map(); // roomId -> { participants: Map(socketId -> userData) }
 
+// --- Middleware de autenticación para Socket.io ---
+// Verifica el JWT en el handshake para que socket.user siempre sea fiable
+io.use((socket, next) => {
+  const token = socket.handshake.auth && socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('Token de autenticación requerido'));
+  }
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    socket.user = payload; // { email, name, role }
+    next();
+  } catch (err) {
+    next(new Error('Token inválido o expirado. Por favor inicia sesión nuevamente.'));
+  }
+});
+
 io.on('connection', (socket) => {
   console.log(`Usuario conectado: ${socket.id}`);
   
   // Unirse a una sala
-  socket.on('join-room', ({ roomId, userName, userId, isAdmin }) => {
-    console.log(`${userName} (${socket.id}) se une a la sala: ${roomId}, isAdmin: ${isAdmin}`);
+  socket.on('join-room', ({ roomId, userName, userId }) => {
+    // SEGURIDAD: isAdmin se determina SIEMPRE desde el JWT verificado, nunca desde el cliente
+    const isAdmin = socket.user?.role === 'admin';
+    const safeUserName = (userName || socket.user?.name || 'Participante').toString().trim().substring(0, 100);
+    console.log(`${safeUserName} (${socket.id}) se une a la sala: ${roomId}, isAdmin: ${isAdmin}`);
     
     // Verificar si la sala existe en la base de datos
     const room = db.prepare('SELECT * FROM rooms WHERE roomId = ? AND isActive = 1').get(roomId);
@@ -300,28 +329,28 @@ io.on('connection', (socket) => {
       return;
     }
     
-    // Agregar participante
-    roomData.participants.set(socket.id, { userName, userId, isAdmin: isAdmin || false, joinedAt: new Date() });
+    // Agregar participante (isAdmin viene del JWT, no del cliente)
+    roomData.participants.set(socket.id, { userName: safeUserName, userId: socket.user?.email, isAdmin, joinedAt: new Date() });
     socket.join(roomId);
     
     // Notificar a otros participantes que alguien se unió
-    const participants = Array.from(roomData.participants.entries()).map(([id, data]) => ({
+    const participantsList = Array.from(roomData.participants.entries()).map(([id, data]) => ({
       socketId: id,
       userName: data.userName,
-      userId: data.userId
+      isAdmin: data.isAdmin,
     }));
     
     // Enviar lista de participantes actuales al nuevo usuario
     socket.emit('room-joined', { 
       roomId, 
-      participants: participants.filter(p => p.socketId !== socket.id)
+      participants: participantsList.filter(p => p.socketId !== socket.id)
     });
     
     // Notificar a otros que hay un nuevo participante
     socket.to(roomId).emit('user-joined', { 
       socketId: socket.id, 
-      userName,
-      userId 
+      userName: safeUserName,
+      isAdmin
     });
   });
   
@@ -415,38 +444,25 @@ io.on('connection', (socket) => {
     });
   });
   
-  // Silenciar participante (solo admin)
+  // Silenciar participante (solo admin) - validado desde JWT, no desde cliente
   socket.on('mute-participant', ({ roomId, socketId, reason }) => {
-    console.log(`Silenciar participante ${socketId} en sala ${roomId}. Razón: ${reason}`);
-    // Verificar que el que hace la solicitud es admin
-    const roomData = activeRooms.get(roomId);
-    if (roomData && roomData.participants.has(socket.id)) {
-      const adminData = roomData.participants.get(socket.id);
-      if (adminData && adminData.isAdmin) {
-        // Enviar al participantes específico
-        io.to(socketId).emit('mute-participant', {
-          socketId: socketId,
-          reason: reason || 'Silenciado por el administrador'
-        });
-      }
-    }
+    if (socket.user?.role !== 'admin') return; // SEGURIDAD: solo admins
+    const safeReason = (reason || '').toString().trim().substring(0, 200) || 'Silenciado por el administrador';
+    console.log(`Admin ${socket.user.email} silencia ${socketId} en sala ${roomId}`);
+    io.to(socketId).emit('mute-participant', { reason: safeReason });
   });
   
-  // Expulsar participante (solo admin)
+  // Expulsar participante (solo admin) - validado desde JWT
   socket.on('kick-participant', ({ roomId, socketId, reason }) => {
-    console.log(`Expulsar participante ${socketId} de sala ${roomId}. Razón: ${reason}`);
-    // Verificar que el que hace la solicitud es admin
-    const roomData = activeRooms.get(roomId);
-    if (roomData && roomData.participants.has(socket.id)) {
-      const adminData = roomData.participants.get(socket.id);
-      if (adminData && adminData.isAdmin) {
-        // Enviar al participantes específico para que abandone la sala
-        io.to(socketId).emit('kick-participant', {
-          socketId: socketId,
-          reason: reason || 'Expulsado por el administrador'
-        });
-      }
-    }
+    if (socket.user?.role !== 'admin') return; // SEGURIDAD: solo admins
+    const safeReason = (reason || '').toString().trim().substring(0, 200) || 'Expulsado por el administrador';
+    console.log(`Admin ${socket.user.email} expulsa ${socketId} de sala ${roomId}`);
+    io.to(socketId).emit('kick-participant', { reason: safeReason });
+  });
+
+  // Estado de habla (para indicador de quien habla)
+  socket.on('speaking-state', ({ roomId, speaking }) => {
+    socket.to(roomId).emit('user-speaking', { socketId: socket.id, speaking: !!speaking });
   });
   
   // Desconexión

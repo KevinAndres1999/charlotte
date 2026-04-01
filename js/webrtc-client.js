@@ -27,6 +27,27 @@ let currentLayout = 'grid';  // 'grid' | 'spotlight' | 'admin-only'
 let pinnedVideoId = null;    // 'local' | socketId | null
 let viewOptionsOpen = false;
 
+// Race condition fix: esperar a que el stream local esté listo
+let localStreamReady = false;
+let _localStreamWaiters = [];
+
+function waitForLocalStream() {
+  if (localStreamReady) return Promise.resolve();
+  return new Promise(resolve => _localStreamWaiters.push(resolve));
+}
+
+// Notificaciones: máximo 3 apiladas, con timers controlados
+const _activeNotifications = [];
+
+// Calidad de red: interval que corre cada 5s cuando hay peers
+let _qualityInterval = null;
+
+// Grabación
+let mediaRecorder = null;
+let _recordedChunks = [];
+let isRecording = false;
+let _recordingCanvas = null;
+
 // ============================================
 // INICIALIZACIÓN
 // ============================================
@@ -164,12 +185,13 @@ function initializeSocket() {
     }
   });
 
-  socket.on('user-joined', async ({ socketId, userName }) => {
+  socket.on('user-joined', async ({ socketId, userName, isAdmin }) => {
     console.log('Nuevo usuario:', userName, socketId);
-    participants.set(socketId, { userName, isAdmin: false, isMuted: false });
+    participants.set(socketId, { userName, isAdmin: !!isAdmin, isMuted: false });
     await createPeerConnection(socketId, false);
     updateParticipantCount();
     showNotification(`${userName} se unió a la sala`);
+    if (navigator.vibrate) navigator.vibrate(50);
   });
 
   socket.on('user-left', ({ socketId, userName }) => {
@@ -265,6 +287,17 @@ function initializeSocket() {
     leaveRoom();
   });
 
+  // Estado de habla: indicador en tiempo real de quién habla
+  socket.on('user-speaking', ({ socketId, speaking }) => {
+    const wrapper = document.getElementById(`video-${socketId}`);
+    if (wrapper) {
+      wrapper.style.boxShadow = speaking
+        ? '0 0 0 3px #4CAF50, 0 4px 15px rgba(76,175,80,0.4)'
+        : '';
+      wrapper.style.transition = 'box-shadow 0.2s ease';
+    }
+  });
+
   // Error del servidor
   socket.on('error', ({ message }) => {
     showNotification('Error: ' + message);
@@ -277,6 +310,9 @@ function initializeSocket() {
 
 async function createPeerConnection(socketId, isInitiator) {
   console.log('Creando conexión peer:', socketId, 'Iniciador:', isInitiator);
+
+  // Esperar que el stream local esté disponible (fix race condition)
+  await waitForLocalStream();
 
   const pc = new RTCPeerConnection(ICE_SERVERS);
   peerConnections.set(socketId, pc);
@@ -305,11 +341,25 @@ async function createPeerConnection(socketId, isInitiator) {
     addRemoteVideo(socketId, remoteStream);
   };
 
-  // Manejar cambios de conexión
+  // Manejar cambios de conexión (incluyendo 'disconnected' temporal)
+  let _disconnectTimer = null;
   pc.onconnectionstatechange = () => {
-    console.log('Estado de conexión con', socketId, ':', pc.connectionState);
-    if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+    const state = pc.connectionState;
+    console.log('Estado de conexión con', socketId, ':', state);
+    if (state === 'failed' || state === 'closed') {
+      clearTimeout(_disconnectTimer);
       removePeerConnection(socketId);
+    } else if (state === 'disconnected') {
+      // Puede recuperarse solo en ~5s; esperamos antes de limpiar
+      _disconnectTimer = setTimeout(() => {
+        if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+          removePeerConnection(socketId);
+        }
+      }, 5000);
+    } else if (state === 'connected') {
+      clearTimeout(_disconnectTimer);
+      // Iniciar monitoreo de calidad si no estaba activo
+      if (!_qualityInterval) _startQualityMonitoring();
     }
   };
 
@@ -358,20 +408,28 @@ async function startLocalStream() {
       }
     });
 
+    // Marcar stream como listo y resolver esperas pendientes (fix race condition)
+    localStreamReady = true;
+    _localStreamWaiters.forEach(resolve => resolve());
+    _localStreamWaiters = [];
+
     // Agregar video local a la interfaz
     addLocalVideo(localStream);
 
     // Agregar tracks a todas las conexiones existentes
-    peerConnections.forEach(pc => {
-      localStream.getTracks().forEach(track => {
+    await Promise.all([...peerConnections.values()].map(async pc => {
+      for (const track of localStream.getTracks()) {
         const sender = pc.getSenders().find(s => s.track?.kind === track.kind);
         if (sender) {
-          sender.replaceTrack(track);
+          await sender.replaceTrack(track).catch(() => {});
         } else {
           pc.addTrack(track, localStream);
         }
-      });
-    });
+      }
+    }));
+
+    // Iniciar detección de nivel de audio (indicador de quien habla)
+    setupAudioLevelDetection(localStream);
 
   } catch (err) {
     console.error('Error accediendo a medios:', err);
@@ -447,8 +505,14 @@ function addRemoteVideo(socketId, stream) {
     label.className = 'video-label';
     label.innerHTML = `
       <i class="fas fa-microphone" id="audio-icon-${socketId}"></i>
-      <span>${displayName}</span>
+      <span>${escapeHtml(displayName)}</span>
     `;
+
+    // Indicador de calidad de red
+    const qualityBadge = document.createElement('div');
+    qualityBadge.className = 'connection-quality';
+    qualityBadge.style.cssText = 'position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:white;padding:3px 7px;border-radius:5px;font-size:11px;display:flex;align-items:center;gap:4px;';
+    qualityBadge.innerHTML = '<i class="fas fa-signal" style="color:#4CAF50;"></i>';
     
     // Botón para enfocar
     const pinOverlay = document.createElement('div');
@@ -457,6 +521,7 @@ function addRemoteVideo(socketId, stream) {
     
     wrapper.appendChild(video);
     wrapper.appendChild(label);
+    wrapper.appendChild(qualityBadge);
     wrapper.appendChild(pinOverlay);
     
     // Doble toque para enfocar en móvil
@@ -735,6 +800,9 @@ function toggleRaiseHand() {
     btn.style.color = '';
   }
   
+  // Feedback háptico en móvil
+  if (navigator.vibrate) navigator.vibrate(isHandRaised ? [50, 30, 50] : 30);
+  
   // Mostrar indicador visual en nuestro propio video
   const localWrapper = document.getElementById('local-video-wrapper');
   if (localWrapper) {
@@ -816,6 +884,9 @@ function updateParticipantHandStatus(socketId, raised) {
 // ============================================
 
 function sendReaction(reaction) {
+  // Feedback háptico en móvil
+  if (navigator.vibrate) navigator.vibrate(40);
+
   // Mostrar reacción localmente primero (instantáneo)
   showReactionNotification(currentUserName, reaction);
   
@@ -969,27 +1040,47 @@ function getQualityIcon(quality) {
 // NOTIFICACIONES
 // ============================================
 
-function showNotification(message) {
+function showNotification(message, duration = 3000) {
+  // Límite: máximo 3 notificaciones al mismo tiempo (eliminar la más antigua)
+  if (_activeNotifications.length >= 3) {
+    const oldest = _activeNotifications.shift();
+    clearTimeout(oldest._timeout);
+    oldest.remove();
+  }
+
+  const isMobile = window.innerWidth <= 768;
   const notification = document.createElement('div');
   notification.style.cssText = `
     position: fixed;
-    top: 20px;
+    ${isMobile ? 'bottom: 100px; top: auto;' : 'top: 20px;'}
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.82);
     color: white;
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 25px;
-    z-index: 1000;
+    z-index: 9999;
+    font-size: 14px;
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
     animation: slideDown 0.3s ease;
   `;
   notification.textContent = message;
   document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.animation = 'slideUp 0.3s ease';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
+  _activeNotifications.push(notification);
+
+  notification._timeout = setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      notification.remove();
+      const idx = _activeNotifications.indexOf(notification);
+      if (idx !== -1) _activeNotifications.splice(idx, 1);
+    }, 300);
+  }, duration);
 }
 
 function updateUserListenOnlyMode(socketId, enabled) {
@@ -1454,4 +1545,230 @@ async function toggleRotation() {
   } catch (err) {
     showNotification('💡 Gira el dispositivo manualmente y bloquea la rotación desde ajustes');
   }
+}
+
+// ============================================
+// INDICADOR DE QUIÉN HABLA (Audio Level)
+// ============================================
+
+let _audioContext = null;
+let _localSpeaking = false;
+
+function setupAudioLevelDetection(stream) {
+  try {
+    _audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = _audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    const source = _audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    function detectLevel() {
+      if (!localStream) return; // Stream cerrado, detener
+      analyser.getByteFrequencyData(dataArray);
+      const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      const speaking = avg > 18; // umbral calibrado
+
+      if (speaking !== _localSpeaking) {
+        _localSpeaking = speaking;
+        // Borde verde en nuestro propio video
+        const wrapper = document.getElementById('local-video-wrapper');
+        if (wrapper) {
+          wrapper.style.boxShadow = speaking ? '0 0 0 3px #4CAF50, 0 4px 15px rgba(76,175,80,0.4)' : '';
+          wrapper.style.transition = 'box-shadow 0.15s ease';
+        }
+        // Notificar a otros participantes
+        if (socket && currentRoomId) {
+          socket.emit('speaking-state', { roomId: currentRoomId, speaking });
+        }
+      }
+      requestAnimationFrame(detectLevel);
+    }
+    detectLevel();
+  } catch (err) {
+    console.warn('Audio level detection no disponible:', err);
+  }
+}
+
+// ============================================
+// MONITOREO DE CALIDAD DE RED
+// ============================================
+
+function _startQualityMonitoring() {
+  if (_qualityInterval) return; // ya activo
+  _qualityInterval = setInterval(async () => {
+    for (const [socketId, pc] of peerConnections) {
+      if (pc.connectionState !== 'connected') continue;
+      try {
+        const stats = await pc.getStats();
+        let ping = 0, packetLoss = 0, quality = 'good';
+
+        stats.forEach(report => {
+          if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+            ping = report.currentRoundTripTime ? Math.round(report.currentRoundTripTime * 1000) : 0;
+          }
+          if (report.type === 'inbound-rtp' && report.kind === 'video') {
+            packetLoss = report.packetsLost || 0;
+          }
+        });
+
+        if (ping > 300 || packetLoss > 10) quality = 'poor';
+        else if (ping > 150 || packetLoss > 5) quality = 'fair';
+
+        // Actualizar badge visual en el video
+        const wrapper = document.getElementById(`video-${socketId}`);
+        if (wrapper) {
+          const badge = wrapper.querySelector('.connection-quality');
+          if (badge) {
+            const colors = { good: '#4CAF50', fair: '#FFC107', poor: '#F44336' };
+            badge.innerHTML = `<i class="fas fa-signal" style="color:${colors[quality]};"></i>`;
+            badge.title = `Ping: ${ping}ms | Pérdida: ${packetLoss} paquetes`;
+          }
+        }
+
+        // Adaptar calidad de video según red (solo si bitrate disponible)
+        await _adjustVideoQuality(pc, socketId, ping);
+      } catch (e) { /* pc cerrado */ }
+    }
+
+    // Detener si no hay conexiones
+    if (peerConnections.size === 0) {
+      clearInterval(_qualityInterval);
+      _qualityInterval = null;
+    }
+  }, 5000); // cada 5 segundos
+}
+
+// ============================================
+// CALIDAD DE VIDEO ADAPTATIVA
+// ============================================
+
+async function _adjustVideoQuality(pc, socketId, pingMs) {
+  try {
+    const videoSender = pc.getSenders().find(s => s.track?.kind === 'video');
+    if (!videoSender) return;
+    const params = videoSender.getParameters();
+    if (!params.encodings || params.encodings.length === 0) return;
+
+    const enc = params.encodings[0];
+    if (pingMs > 400) {
+      // Red muy lenta: 180p, 150kbps
+      enc.maxBitrate = 150000;
+      enc.scaleResolutionDownBy = 4;
+    } else if (pingMs > 200) {
+      // Red media: 360p, 400kbps
+      enc.maxBitrate = 400000;
+      enc.scaleResolutionDownBy = 2;
+    } else {
+      // Red buena: calidad máxima
+      enc.maxBitrate = 1500000;
+      enc.scaleResolutionDownBy = 1;
+    }
+    await videoSender.setParameters(params);
+  } catch (e) { /* no soportado en este navegador */ }
+}
+
+// ============================================
+// GRABACIÓN DE CLASES
+// ============================================
+
+async function toggleRecording() {
+  if (!isRecording) {
+    await _startRecording();
+  } else {
+    _stopRecording();
+  }
+}
+
+async function _startRecording() {
+  try {
+    // Crear canvas que captura todos los videos visibles
+    _recordingCanvas = document.createElement('canvas');
+    _recordingCanvas.width = 1280;
+    _recordingCanvas.height = 720;
+    const ctx = _recordingCanvas.getContext('2d');
+    const canvasStream = _recordingCanvas.captureStream(25);
+
+    // Añadir audio local al stream de grabación
+    if (localStream) {
+      localStream.getAudioTracks().forEach(track => canvasStream.addTrack(track));
+    }
+
+    // Función que dibuja todos los videos en el canvas
+    function drawFrame() {
+      if (!isRecording) return;
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, _recordingCanvas.width, _recordingCanvas.height);
+
+      // Recoger todos los elementos de video visibles
+      const videos = [...document.querySelectorAll(
+        '#videosGrid video, #spotlightArea video, #thumbnailsStrip video'
+      )].filter(v => v.readyState >= 2);
+
+      if (videos.length === 0) {
+        requestAnimationFrame(drawFrame);
+        return;
+      }
+      const cols = videos.length <= 1 ? 1 : videos.length <= 4 ? 2 : Math.ceil(Math.sqrt(videos.length));
+      const rows = Math.ceil(videos.length / cols);
+      const w = _recordingCanvas.width / cols;
+      const h = _recordingCanvas.height / rows;
+
+      videos.forEach((video, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        ctx.drawImage(video, col * w, row * h, w, h);
+      });
+      requestAnimationFrame(drawFrame);
+    }
+    drawFrame();
+
+    const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+      .find(t => MediaRecorder.isTypeSupported(t)) || '';
+
+    _recordedChunks = [];
+    mediaRecorder = new MediaRecorder(canvasStream, mimeType ? { mimeType } : {});
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(_recordedChunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `clase-${new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-')}.webm`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showNotification('✅ Grabación guardada en tu dispositivo');
+    };
+
+    mediaRecorder.start(1000); // chunk cada 1s
+    isRecording = true;
+
+    const btn = document.getElementById('recordBtn');
+    if (btn) {
+      btn.style.background = '#f44336';
+      btn.title = 'Detener grabación';
+      btn.innerHTML = '<i class="fas fa-stop"></i>';
+    }
+    showNotification('🔴 Grabación iniciada');
+    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+  } catch (err) {
+    console.error('Error iniciando grabación:', err);
+    showNotification('❌ No se pudo iniciar la grabación: ' + (err.message || err));
+  }
+}
+
+function _stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+  _recordingCanvas = null;
+
+  const btn = document.getElementById('recordBtn');
+  if (btn) {
+    btn.style.background = '#757575';
+    btn.title = 'Grabar clase';
+    btn.innerHTML = '<i class="fas fa-circle"></i>';
+  }
+  showNotification('⏹️ Grabación detenida. Descargando archivo...');
 }
