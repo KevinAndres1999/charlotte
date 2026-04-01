@@ -367,9 +367,37 @@
                     console.log('Login - User data:', userData);
 
                     // Verificar contraseña
-                    if (userData.password === password) {
-                        console.log('Password verified, preparing user data...');
-                        const currentUser = {
+                    if (userData.authMethod === 'firebase') {
+                        // Nuevo sistema: usar Firebase Auth para verificar
+                        try {
+                            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                            console.log('Firebase Auth verificación exitosa');
+                        } catch (authError) {
+                            console.error('Firebase Auth error:', authError.code);
+                            if (authError.code === 'auth/invalid-credential') {
+                                showMessage('Contraseña incorrecta.', 'error');
+                            } else if (authError.code === 'auth/user-not-found') {
+                                showMessage('Usuario no encontrado.', 'error');
+                            } else {
+                                showMessage('Error de autenticación.', 'error');
+                            }
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            return;
+                        }
+                    } else {
+                        // Sistema antiguo: verificar contraseña en texto plano
+                        if (userData.password !== password) {
+                            showMessage('Contraseña incorrecta.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            return;
+                        }
+                    }
+                    
+                    // Continuar con el login exitoso
+                    console.log('Password verified, preparing user data...');
+                    const currentUser = {
                             id: userDoc.id,  // Usar el ID real del documento
                             email: userData.email,
                             role: userData.role,
@@ -405,17 +433,8 @@
                                 submitBtn.style.background = '';
                             }
                         }, 500);
-                    } else {
-                        showMessage('Contraseña incorrecta.', 'error');
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = 'Iniciar Sesión';
                     }
-                } else {
-                    showMessage('Usuario no encontrado.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Iniciar Sesión';
-                }
-            } catch (error) {
+                } catch (error) {
                 console.error('Error during login:', error);
                 let errorMessage = 'Error al iniciar sesión.';
 
