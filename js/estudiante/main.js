@@ -57,8 +57,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadEstudianteModule('foros'),
         loadEstudianteModule('gamificacion'),
         loadEstudianteModule('cuestionarios'),
-        loadEstudianteModule('evaluaciones')
+        loadEstudianteModule('evaluaciones'),
+        loadEstudianteModule('videoconferencia-estudiante')
     ]);
+    
+    // Inicializar módulo de videoconferencia
+    const videoModule = window.ESTUDIANTE_CONFIG.modules['videoconferencia-estudiante'];
+    if (videoModule && typeof videoModule.init === 'function') {
+        await videoModule.init();
+        console.log('✅ Módulo de videoconferencia inicializado');
+    }
     
     window.ESTUDIANTE_CONFIG.modulesLoaded = true;
     

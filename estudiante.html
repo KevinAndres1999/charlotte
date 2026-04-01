@@ -4736,6 +4736,9 @@
     <!-- PWA Script -->
     <script src="pwa.js"></script>
     
+    <!-- Configuración de entorno -->
+    <script src="js/config.js"></script>
+    
     <!-- Estudiante Modules -->
     <script type="module" src="js/estudiante/main.js"></script>
 
@@ -5630,144 +5633,60 @@
 
             <!-- =================== VIDEOCONFERENCIA =================== -->
             <section id="videoconferencia" class="section">
-                <h2 class="page-title"><i class="fab fa-microsoft"></i> Videoconferencia Microsoft Teams</h2>
-                <p class="page-subtitle">Únete a sesiones en tiempo real con tus instructores a través de Microsoft Teams.</p>
+                <h2 class="page-title"><i class="fas fa-video"></i> Videoconferencia</h2>
+                <p class="page-subtitle">Únete a sesiones en tiempo real con tus instructores y compañeros.</p>
                 
-                <!-- Tarjetas de estadísticas -->
-                <div class="stat-cards" style="margin-bottom: 2rem;">
-                    <div class="stat-card">
-                        <i class="fas fa-door-open"></i>
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">Salas Disponibles</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <div class="stat-number" id="conferenceInstructors">-</div>
-                        <div class="stat-label">Instructores Online</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <div class="stat-number" id="conferenceParticipants">-</div>
-                        <div class="stat-label">Participantes Activos</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-clock"></i>
-                        <div class="stat-number" id="conferenceStatus">En vivo</div>
-                        <div class="stat-label">Estado</div>
-                    </div>
-                </div>
-
                 <!-- Contenedor de salas -->
                 <div class="content-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                         <h3 style="color: #1e3a8a; font-size: 1.3rem; margin: 0;">
-                            <i class="fas fa-broadcast-tower" style="color: #3b82f6;"></i> Salas de Clases en Vivo
+                            <i class="fas fa-door-open" style="color: #3b82f6;"></i> Salas Disponibles
                         </h3>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <span style="background: #dcfce7; color: #166534; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
-                                <i class="fas fa-circle" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i> Conectado
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="video-conference-options" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                        <!-- Sala General -->
-                        <div class="conference-room" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.1)'; this.style.borderColor='#3b82f6';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#e2e8f0';">
-                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #3b82f6, #1e3a8a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="fas fa-users" style="font-size: 1.8rem; color: white;"></i>
-                            </div>
-                            <h4 style="color: #1e3a8a; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala General</h4>
-                            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">Sala abierta para consultas generales y tutorías con instructores.</p>
-                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-                                <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
-                                    <i class="fas fa-user"></i> Abierta
-                                </span>
-                            </div>
-                            <button class="btn btn-primary" onclick="joinConference('sala-general')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #464EB8, #7B83EB); color: white; border: none;">
-                                <i class="fab fa-microsoft"></i> Unirse con Teams
-                            </button>
-                        </div>
-
-                        <!-- Sala de Panadería -->
-                        <div class="conference-room" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fcd34d; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(245,158,11,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="fas fa-bread-slice" style="font-size: 1.8rem; color: white;"></i>
-                            </div>
-                            <h4 style="color: #92400e; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala de Panadería</h4>
-                            <p style="color: #a16207; font-size: 0.9rem; margin-bottom: 1rem;">Clases en vivo dedicadas al programa de Panadería y Pastelería.</p>
-                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-                                <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
-                                    <i class="fas fa-bread-slice"></i> Panadería
-                                </span>
-                            </div>
-                            <button class="btn" onclick="joinConference('panaderia')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">
-                                <i class="fab fa-microsoft"></i> Unirse con Teams
-                            </button>
-                        </div>
-
-                        <!-- Sala de Belleza -->
-                        <div class="conference-room" style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border: 2px solid #f9a8d4; border-radius: 16px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 25px rgba(236,72,153,0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #ec4899, #be185d); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <i class="fas fa-spa" style="font-size: 1.8rem; color: white;"></i>
-                            </div>
-                            <h4 style="color: #9d174d; font-size: 1.2rem; margin-bottom: 0.5rem;">Sala de Belleza</h4>
-                            <p style="color: #be185d; font-size: 0.9rem; margin-bottom: 1rem;">Clases en vivo dedicadas al programa de Belleza Integral.</p>
-                            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-                                <span style="background: #fce7f3; color: #9d174d; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">
-                                    <i class="fas fa-spa"></i> Belleza
-                                </span>
-                            </div>
-                            <button class="btn" onclick="joinConference('belleza')" style="width: 100%; padding: 0.75rem; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none;">
-                                <i class="fab fa-microsoft"></i> Unirse con Teams
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contenedor de conferencia activa (Microsoft Teams) -->
-                <div id="conference-container" class="content-card" style="display: none; margin-top: 1.5rem;">
-                    <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #464EB8, #7B83EB); border-radius: 12px 12px 0 0; border-bottom: 1px solid #7B83EB;">
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <span style="background: #7B83EB; width: 12px; height: 12px; border-radius: 50%;"></span>
-                            <span style="font-weight: 600; color: white;"><i class="fab fa-microsoft"></i> Microsoft Teams</span>
-                        </div>
-                        <button class="btn" onclick="closeConference()" style="background: #464EB8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                            <i class="fas fa-times"></i> Cerrar
+                        <button class="btn btn-primary" onclick="window.studentVideoRooms?.loadRooms()" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-sync-alt"></i> Actualizar Salas
                         </button>
                     </div>
-                    <iframe id="teams-iframe" style="width: 100%; height: 600px; border-radius: 0 0 12px 12px; overflow: hidden;" allow="camera; microphone; fullscreen; display-capture"></iframe>
+                    
+                    <!-- Contenedor dinámico de salas -->
+                    <div id="studentRoomsContainer">
+                        <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                            <i class="fas fa-door-open" style="font-size: 3rem; color: #cbd5e1; margin-bottom: 1rem;"></i>
+                            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Haz clic en "Actualizar Salas" para ver las salas disponibles</p>
+                            <p style="font-size: 0.9rem; color: #94a3b8;">Las salas activas aparecerán aquí</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Información adicional -->
                 <div class="card" style="margin-top: 1.5rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe;">
-                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fab fa-microsoft"></i> Cómo usar Microsoft Teams</h4>
+                    <h4 style="color: #1e3a8a; margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> Cómo usar Videoconferencia</h4>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-external-link-alt" style="color: #464EB8; margin-top: 0.25rem;"></i>
+                            <i class="fas fa-sync-alt" style="color: #464EB8; margin-top: 0.25rem;"></i>
+                            <div>
+                                <strong style="color: #1e40af;">Actualizar</strong>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Haz clic en "Actualizar Salas" para ver las salas de videoconferencia disponibles.</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <i class="fas fa-door-open" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
                                 <strong style="color: #1e40af;">Unirse</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Al hacer clic en "Unirse a Sala", se abrirá Microsoft Teams en una nueva pestaña.</p>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Haz clic en "Unirse a la Sala" para entrar a una videoconferencia activa.</p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
                             <i class="fas fa-user-cog" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
                                 <strong style="color: #1e40af;">Permisos</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Permite el acceso a micrófono y cámara cuando Teams lo solicite.</p>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Permite el acceso a micrófono y cámara cuando el navegador lo solicite.</p>
                             </div>
                         </div>
                         <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
                             <i class="fas fa-desktop" style="color: #464EB8; margin-top: 0.25rem;"></i>
                             <div>
                                 <strong style="color: #1e40af;">Recomendaciones</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Usa preferiblemente Chrome o Edge para mejor compatibilidad.</p>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
-                            <i class="fas fa-question-circle" style="color: #464EB8; margin-top: 0.25rem;"></i>
-                            <div>
-                                <strong style="color: #1e40af;">¿Sin Teams?</strong>
-                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Si no tienes Teams instalado, puedes usar la versión web desde el navegador.</p>
+                                <p style="color: #64748b; font-size: 0.85rem; margin: 0;">Usa Chrome, Firefox o Edge para mejor compatibilidad con WebRTC.</p>
                             </div>
                         </div>
                     </div>
