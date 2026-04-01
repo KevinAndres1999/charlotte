@@ -8,12 +8,26 @@ export default {
 };
 
 export async function init() {
+  console.log('🎥 Inicializando módulo de videoconferencia...');
+  
+  // Exponer funciones globalmente
+  window.videoRooms = {
+    loadRooms,
+    showCreateModal,
+    editRoom,
+    viewRoom,
+    deleteRoom,
+    toggleActive,
+    copyLink
+  };
+  
   // Inicializar cuando se muestra la sección
   const videoSection = document.getElementById('videoconferencia');
   if (videoSection) {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.target.classList.contains('active')) {
+          console.log('✅ Sección de videoconferencia activada, cargando salas...');
           loadRooms();
         }
       });
@@ -26,9 +40,12 @@ export async function init() {
     
     // Cargar si ya está activo
     if (videoSection.classList.contains('active')) {
+      console.log('✅ Sección ya activa, cargando salas...');
       loadRooms();
     }
   }
+  
+  console.log('✅ Módulo de videoconferencia inicializado');
 }
 
 // ============================================
@@ -559,14 +576,7 @@ function showError(message) {
   alert(message);
 }
 
-// Exportar funciones para uso global
-window.videoRooms = {
-  init,
-  loadRooms,
-  showCreateModal,
-  editRoom,
-  viewRoom,
-  deleteRoom,
-  toggleActive,
-  copyLink
-};
+// ============================================
+// FIN DEL MÓDULO
+// Funciones exportadas globalmente en init()
+// ============================================

@@ -7817,9 +7817,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     <div class="page-header" style="margin-bottom: 30px;">
                         <h2><i class="fas fa-video"></i> Gestión de Videoconferencias</h2>
                         <p>Administra salas de videoconferencia propias sin depender de servicios externos</p>
+                        <button class="btn btn-primary" onclick="if(window.videoRooms){window.videoRooms.loadRooms()}else{alert('Cargando módulo...')}">
+                            <i class="fas fa-sync"></i> Cargar Salas
+                        </button>
+                        <button class="btn btn-success" onclick="if(window.videoRooms){window.videoRooms.showCreateModal()}else{alert('Cargando módulo...')}">
+                            <i class="fas fa-plus"></i> Nueva Sala
+                        </button>
                     </div>
                     <div id="roomsContainer">
-                        <!-- El contenido se cargará dinámicamente desde videoconferencia.js -->
+                        <p style="text-align: center; color: #666; padding: 20px;">
+                            <i class="fas fa-spinner fa-spin"></i> Haz clic en "Cargar Salas" para ver las salas disponibles
+                        </p>
                     </div>
                 </div>
             </div>
