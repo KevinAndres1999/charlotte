@@ -29,7 +29,7 @@ let currentPanel = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Verificar autenticación
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   if (!token) {
     window.location.href = '/login.html';
     return;
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================================
 
 async function loadRooms() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   const roomsList = document.getElementById('roomsList');
   const errorContainer = document.getElementById('errorContainer');
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
@@ -116,7 +116,7 @@ function initializeSocket() {
   
   socket = io(backendURL, {
     auth: {
-      token: localStorage.getItem('token')
+      token: localStorage.getItem('authToken')
     },
     transports: ['websocket', 'polling'],
     reconnection: true,
