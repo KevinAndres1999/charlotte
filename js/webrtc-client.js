@@ -199,11 +199,57 @@ function initializeSocket() {
     alert(message);
     leaveRoom();
   });
-
-  socket.on('error', ({ message }) => {
-    alert('Error: ' + message);
+  
+  // ===== EVENTOS DE MEJORAS =====
+  
+  // Mano levantada
+  socket.on('hand-raised', ({ socketId, userName, raised }) => {
+    showHandRaisedNotification(userName, raised);
+    updateParticipantHandStatus(socketId, raised);
+  });
+  
+  // Reacciones
+  socket.on('reaction', ({ socketId, userName, reaction }) => {
+    showReactionNotification(userName, reaction);
+  });
+  
+  // Modo solo escuchar
+  socket.on('listen-only-mode', ({ socketId, userName, enabled }) => {
+    updateUserListenOnlyMode(socketId, enabled);
+    showNotification(`${userName} está en modo solo escuchar`);
+  });
+  
+  // Notificación de nueva sala (para estudiantes)
+  socket.on('new-room-available', ({ roomName, roomId }) => {
+    showNotification(`Nueva sala disponible: ${roomName}`);
+  });
+  
+  // Control del admin: silenciar participante
+  socket.on('mute-participant', ({ socketId, reason }) => {
+    if (socketId === currentUserId) {
+      isAudioMuted = true;
+      if (localStream) {
+        localStream.getAudioTracks().forEach(track => track.enabled = false);
+      }
+      const muteBtn = document.getElementById('muteBtn');
+      muteBtn.classList.add('off');
+      muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
+      showNotification(`Has sido silenciado: ${reason}`);
+    }
+  });
+  
+  // Control del admin: expulsar participante
+  socket.on('kick-participant', ({ socketId, reason }) => {
+    if (socketId === currentUserId) {
+      alert(`Has sido expulsado de la sala: ${reason}`);
+      leaveRoom();
+    }
   });
 }
+
+socket.on('error', ({ message }) => {
+  alert('Error: ' + message);
+});
 
 // ============================================
 // WEBRTC - PEER CONNECTIONS
@@ -599,8 +645,273 @@ function leaveRoom() {
   }
 
   // Volver a inicio o lista de salas
-  window.location.href = '/videoconferencia.html';
+  window.location.href = 'videoconferencia.html';
 }
+
+// ============================================
+// LEVANTAR MANO
+// ============================================
+
+let isHandRaised = false;
+
+function toggleRaiseHand() {
+  isHandRaised = !isHandRaised;
+  
+  const btn = document.getElementById('raiseHandBtn');
+  if (isHandRaised) {
+    btn.style.background = '#FF5722';
+    btn.style.color = '#fff';
+  } else {
+    btn.style.background = '#FFC107';
+    btn.style.color = '';
+  }
+  
+  // Notificar a otros participantes
+  socket.emit('hand-raised', {
+    roomId: currentRoomId,
+    raised: isHandRaised,
+    userName: currentUserName
+  });
+}
+
+function showHandRaisedNotification(userName, raised) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: ${raised ? '#FF5722' : '#4CAF50'};
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  `;
+  notification.innerHTML = `<i class="fas fa-hand-paper"></i> ${userName} ${raised ? 'levantó la mano' : 'bajó la mano'}`;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// ============================================
+// REACCIONES RÁPIDAS
+// ============================================
+
+function sendReaction(reaction) {
+  if (currentRoomId && socket) {
+    socket.emit('reaction', {
+      roomId: currentRoomId,
+      reaction: reaction,
+      userName: currentUserName
+    });
+  }
+  // Ocultar panel de reacciones
+  document.getElementById('reactionsPanel').style.display = 'none';
+}
+
+function showReactionNotification(userName, reaction) {
+  const reactionEl = document.createElement('div');
+  reactionEl.style.cssText = `
+    position: fixed;
+    font-size: 48px;
+    z-index: 1000;
+    animation: floatUp 2s ease forwards;
+    pointer-events: none;
+  `;
+  reactionEl.textContent = reaction;
+  
+  // Position near the user's video or center
+  reactionEl.style.left = '50%';
+  reactionEl.style.top = '50%';
+  
+  document.body.appendChild(reactionEl);
+  
+  setTimeout(() => reactionEl.remove(), 2000);
+}
+
+function toggleReactionsPanel() {
+  const panel = document.getElementById('reactionsPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+// ============================================
+// MODO SOLO ESCUCHAR
+// ============================================
+
+let isListenOnlyMode = false;
+
+async function toggleListenOnlyMode() {
+  isListenOnlyMode = !isListenOnlyMode;
+  
+  const btn = document.getElementById('listenOnlyBtn');
+  
+  if (isListenOnlyMode) {
+    // Desactivar cámara y micrófono
+    if (localStream) {
+      localStream.getVideoTracks().forEach(track => track.enabled = false);
+      localStream.getAudioTracks().forEach(track => track.enabled = false);
+    }
+    
+    if (btn) {
+      btn.classList.add('active');
+      btn.style.background = '#2196F3';
+    }
+    
+    showNotification('Modo solo escuchar activado');
+  } else {
+    // Reactivar cámara y micrófono
+    if (localStream) {
+      localStream.getVideoTracks().forEach(track => track.enabled = true);
+      localStream.getAudioTracks().forEach(track => track.enabled = true);
+    }
+    
+    if (btn) {
+      btn.classList.remove('active');
+      btn.style.background = '';
+    }
+    
+    showNotification('Modo solo escuchar desactivado');
+  }
+  
+  // Notificar cambio
+  if (socket && currentRoomId) {
+    socket.emit('listen-only-mode', {
+      roomId: currentRoomId,
+      enabled: isListenOnlyMode,
+      userName: currentUserName
+    });
+  }
+}
+
+// ============================================
+// INDICADOR DE CALIDAD DE CONEXIÓN
+// ============================================
+
+function showConnectionQuality(pc, socketId) {
+  if (!pc) return;
+  
+  pc.getStats().then(stats => {
+    let quality = 'good';
+    let ping = 0;
+    let packetLoss = 0;
+    
+    stats.forEach(report => {
+      if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+        ping = report.currentRoundTripTime ? Math.round(report.currentRoundTripTime * 1000) : 0;
+      }
+      if (report.type === 'inbound-rtp' && report.kind === 'video') {
+        packetLoss = report.packetsLost || 0;
+      }
+    });
+    
+    // Determinar calidad
+    if (ping > 300 || packetLoss > 10) {
+      quality = 'poor';
+    } else if (ping > 150 || packetLoss > 5) {
+      quality = 'fair';
+    }
+    
+    // Actualizar indicador visual
+    const videoWrapper = document.getElementById(`video-${socketId}`);
+    if (videoWrapper) {
+      const qualityIndicator = videoWrapper.querySelector('.connection-quality');
+      if (qualityIndicator) {
+        qualityIndicator.className = `connection-quality ${quality}`;
+        qualityIndicator.innerHTML = getQualityIcon(quality);
+      }
+    }
+  });
+}
+
+function getQualityIcon(quality) {
+  const icons = {
+    good: '<i class="fas fa-signal" style="color: #4CAF50;"></i>',
+    fair: '<i class="fas fa-signal" style="color: #FFC107;"></i>',
+    poor: '<i class="fas fa-signal" style="color: #F44336;"></i>'
+  };
+  return icons[quality] || icons.good;
+}
+
+// ============================================
+// NOTIFICACIONES
+// ============================================
+
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    z-index: 1000;
+    animation: slideDown 0.3s ease;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.animation = 'slideUp 0.3s ease';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Funciones auxiliares para eventos de socket
+function updateParticipantHandStatus(socketId, raised) {
+  const videoWrapper = document.getElementById(`video-${socketId}`);
+  if (videoWrapper) {
+    const handIndicator = videoWrapper.querySelector('.hand-indicator');
+    if (handIndicator) {
+      handIndicator.style.display = raised ? 'flex' : 'none';
+    }
+  }
+}
+
+function updateUserListenOnlyMode(socketId, enabled) {
+  const videoWrapper = document.getElementById(`video-${socketId}`);
+  if (videoWrapper) {
+    if (enabled) {
+      videoWrapper.style.opacity = '0.7';
+      videoWrapper.style.borderColor = '#2196F3';
+    } else {
+      videoWrapper.style.opacity = '1';
+      videoWrapper.style.borderColor = '';
+    }
+  }
+}
+
+// Añadir animaciones CSS
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+  @keyframes slideDown {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translate(-50%, 0); opacity: 1; }
+    to { transform: translate(-50%, -100%); opacity: 0; }
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
 
 // ============================================
 // CHAT

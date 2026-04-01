@@ -177,6 +177,59 @@
       width: 60px;
     }
 
+    .control-btn.hand-btn {
+      background: #FFC107;
+    }
+
+    .control-btn.hand-btn.active {
+      background: #FF5722;
+      animation: handRaise 0.5s ease;
+    }
+
+    @keyframes handRaise {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg); }
+      75% { transform: rotate(15deg); }
+    }
+
+    /* Reacciones flotantes */
+    .reaction-float {
+      position: absolute;
+      font-size: 48px;
+      animation: floatUp 3s ease-out forwards;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-200px) scale(1.5);
+      }
+    }
+
+    /* Indicador de mano levantada en video */
+    .hand-raised-indicator {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #FFC107;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 20px;
+      animation: handPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes handPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
     /* Panel lateral (chat) */
     .side-panel {
       width: 0;
@@ -379,18 +432,213 @@
       color: #667eea;
     }
 
-    /* Responsivo */
+    /* Indicador de calidad de conexión */
+    .connection-quality {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .quality-excellent { color: #4CAF50; }
+    .quality-good { color: #8BC34A; }
+    .quality-fair { color: #FF9800; }
+    .quality-poor { color: #f44336; }
+
+    /* Botón de vista */
+    .view-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .view-toggle:hover {
+      background: white;
+    }
+
+    /* Vista de orador */
+    .videos-grid.speaker-view {
+      grid-template-columns: 1fr;
+      grid-template-rows: 3fr 1fr;
+    }
+
+    .videos-grid.speaker-view .video-wrapper:first-child {
+      grid-row: 1;
+    }
+
+    .videos-grid.speaker-view .video-wrapper:not(:first-child) {
+      grid-row: 2;
+      grid-column: auto;
+    }
+
+    /* Panel de participantes flotante */
+    .participants-floating {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      max-width: 250px;
+      max-height: 400px;
+      overflow-y: auto;
+      z-index: 99;
+      display: none;
+    }
+
+    .participants-floating.show {
+      display: block;
+    }
+
+    .participants-floating h4 {
+      margin-bottom: 10px;
+      color: #333;
+      font-size: 14px;
+    }
+
+    /* Responsivo - Tablet */
+    @media (max-width: 1024px) {
+      .videos-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      }
+
+      .top-bar {
+        padding: 12px 15px;
+      }
+
+      .view-toggle {
+        top: 15px;
+        right: 15px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+
+    /* Responsivo - Móvil */
     @media (max-width: 768px) {
+      body {
+        overflow-y: auto;
+      }
+
+      .video-container {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .videos-area {
+        padding: 5px;
+        gap: 5px;
+      }
+
+      .top-bar {
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .room-info h2 {
+        font-size: 16px;
+      }
+
+      .room-info p {
+        font-size: 12px;
+      }
+
+      .top-controls {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
       .videos-grid {
         grid-template-columns: 1fr;
+        gap: 8px;
+        max-height: calc(100vh - 200px);
+      }
+
+      .video-wrapper {
+        aspect-ratio: 16/9;
+        min-height: 200px;
       }
 
       .side-panel.open {
-        position: absolute;
+        position: fixed;
         right: 0;
-        height: 100%;
+        top: 0;
+        height: 100vh;
         z-index: 1000;
         width: 100%;
+      }
+
+      .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+      }
+
+      .bottom-controls {
+        gap: 10px;
+        padding: 12px 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .control-btn.leave-btn {
+        width: 100%;
+        border-radius: 10px;
+        order: 10;
+      }
+
+      .view-toggle {
+        top: 10px;
+        right: 10px;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      .participants-floating {
+        top: 60px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+      }
+
+      .room-list-container {
+        padding: 20px;
+      }
+
+      .room-list-container h1 {
+        font-size: 24px;
+      }
+
+      .video-label {
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+    }
+
+    /* Responsivo - Móvil pequeño */
+    @media (max-width: 480px) {
+      .videos-grid {
+        max-height: calc(100vh - 180px);
       }
 
       .control-btn {
@@ -400,8 +648,37 @@
       }
 
       .bottom-controls {
-        gap: 8px;
-        padding: 15px 10px;
+        gap: 6px;
+        padding: 10px 5px;
+      }
+
+      .top-bar {
+        padding: 8px;
+      }
+
+      .room-info h2 {
+        font-size: 14px;
+      }
+
+      .room-info p {
+        font-size: 11px;
+      }
+    }
+
+    /* Mejoras para táctil */
+    @media (hover: none) and (pointer: coarse) {
+      .control-btn {
+        width: 55px;
+        height: 55px;
+        font-size: 20px;
+      }
+
+      .room-card {
+        padding: 25px;
+      }
+
+      .chat-input-container input {
+        font-size: 16px; /* Previene zoom en iOS */
       }
     }
 
@@ -472,12 +749,33 @@
         <button id="screenBtn" class="control-btn screen-btn" onclick="toggleScreenShare()" title="Compartir pantalla">
           <i class="fas fa-desktop"></i>
         </button>
+        <button id="listenOnlyBtn" class="control-btn listen-btn" onclick="toggleListenOnlyMode()" title="Modo solo escuchar">
+          <i class="fas fa-headphones"></i>
+        </button>
+        <button id="raiseHandBtn" class="control-btn hand-btn" onclick="toggleRaiseHand()" title="Levantar mano" style="background: #FFC107;">
+          <i class="fas fa-hand-paper"></i>
+        </button>
+        <button id="reactionsBtn" class="control-btn reaction-btn" onclick="toggleReactionsPanel()" title="Reacciones" style="background: #9C27B0;">
+          <i class="fas fa-smile"></i>
+        </button>
         <button id="chatBtn" class="control-btn chat-btn" onclick="toggleChat()" title="Chat">
           <i class="fas fa-comment"></i>
         </button>
         <button class="control-btn leave-btn" onclick="leaveRoom()" title="Salir">
           <i class="fas fa-phone-slash"></i>
         </button>
+      </div>
+
+      <!-- Panel de reacciones -->
+      <div id="reactionsPanel" style="position: fixed; bottom: 100px; right: 20px; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; z-index: 200;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 120px;">
+          <button onclick="sendReaction('👍')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👍</button>
+          <button onclick="sendReaction('👏')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">👏</button>
+          <button onclick="sendReaction('❤️')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">❤️</button>
+          <button onclick="sendReaction('❓')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">❓</button>
+          <button onclick="sendReaction('😂')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">😂</button>
+          <button onclick="sendReaction('🎉')" style="background: none; border: none; font-size: 32px; cursor: pointer; padding: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">🎉</button>
+        </div>
       </div>
     </div>
 
