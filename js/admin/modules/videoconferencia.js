@@ -54,8 +54,14 @@ export async function init() {
 
 async function loadRooms() {
   const token = localStorage.getItem('token');
-  if (!token) return;
+  if (!token) {
+    console.error('❌ No hay token de autenticación');
+    showError('No estás autenticado');
+    return;
+  }
+  
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
+  console.log('🔧 Cargando salas desde:', apiBase);
 
   try {
     const response = await fetch(`${apiBase}/rooms`, {
@@ -64,15 +70,20 @@ async function loadRooms() {
       }
     });
 
+    console.log('📥 Respuesta del servidor:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error('Error cargando salas');
+      const errorData = await response.text();
+      console.error('❌ Error del servidor:', errorData);
+      throw new Error(`Error cargando salas: ${response.status}`);
     }
 
     const data = await response.json();
-    displayRooms(data.rooms);
+    console.log('✅ Salas recibidas:', data);
+    displayRooms(data.rooms || []);
   } catch (err) {
-    console.error('Error cargando salas:', err);
-    showError('Error cargando salas de videoconferencia');
+    console.error('❌ Error cargando salas:', err);
+    showError(`Error cargando salas: ${err.message}`);
   }
 }
 
@@ -216,14 +227,21 @@ function showCreateModal() {
 
 async function createRoom(formData) {
   const token = localStorage.getItem('token');
-  if (!token) return;
+  if (!token) {
+    showError('No hay token de autenticación');
+    return;
+  }
+  
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
+  console.log('🔧 Creando sala con API:', apiBase);
 
   const data = {
     name: formData.get('name'),
     description: formData.get('description'),
     maxParticipants: parseInt(formData.get('maxParticipants'))
   };
+
+  console.log('📤 Enviando datos:', data);
 
   try {
     const response = await fetch(`${apiBase}/rooms`, {
@@ -235,15 +253,22 @@ async function createRoom(formData) {
       body: JSON.stringify(data)
     });
 
+    console.log('📥 Respuesta del servidor:', response.status, response.statusText);
+
     if (!response.ok) {
-      throw new Error('Error creando sala');
+      const errorData = await response.text();
+      console.error('Error del servidor:', errorData);
+      throw new Error(`Error creando sala: ${response.status} - ${errorData}`);
     }
 
+    const result = await response.json();
+    console.log('✅ Sala creada:', result);
+    
     showSuccess('Sala creada exitosamente');
     loadRooms();
   } catch (err) {
-    console.error('Error creando sala:', err);
-    showError('Error creando sala');
+    console.error('❌ Error creando sala:', err);
+    showError(`Error creando sala: ${err.message}`);
   }
 }
 
