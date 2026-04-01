@@ -755,6 +755,160 @@
     .no-video-placeholder i {
       opacity: 0.5;
     }
+
+    /* ===================================================
+       OPCIONES DE VISTA (layout, fullscreen, rotación)
+    =================================================== */
+    .view-options-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: rgba(102, 126, 234, 0.12);
+      color: #667eea;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .view-options-btn:hover,
+    .view-options-btn.active { background: #667eea; color: white; }
+
+    .view-options-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      padding: 6px 0;
+      min-width: 230px;
+      z-index: 600;
+      animation: fadeInDown 0.18s ease;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .view-options-menu hr { border: none; border-top: 1px solid #f0f0f0; margin: 4px 0; }
+    .view-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 18px;
+      cursor: pointer;
+      color: #333;
+      font-size: 14px;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .view-option:hover { background: #f5f5f5; }
+    .view-option i { width: 20px; text-align: center; color: #667eea; font-size: 15px; }
+    .view-option.active-option { color: #667eea; font-weight: 600; background: rgba(102,126,234,0.06); }
+
+    /* ===================================================
+       ÁREA SPOTLIGHT / MODO ENFOQUE
+    =================================================== */
+    .spotlight-area {
+      flex: 1;
+      position: relative;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 180px;
+    }
+    .spotlight-area .video-wrapper {
+      width: 100% !important;
+      height: 100% !important;
+      aspect-ratio: unset !important;
+      border-radius: 0 !important;
+    }
+
+    .thumbnails-strip-container {
+      height: 90px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px;
+      align-items: stretch;
+      flex-shrink: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
+    }
+    .thumbnails-strip-container::-webkit-scrollbar { height: 4px; }
+    .thumbnails-strip-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.35); border-radius: 2px; }
+    .thumbnails-strip-container .video-wrapper {
+      width: 140px !important;
+      height: 82px !important;
+      aspect-ratio: unset !important;
+      flex-shrink: 0;
+      cursor: pointer !important;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .thumbnails-strip-container .video-wrapper:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .thumbnails-strip-container .video-wrapper .video-label { font-size: 10px; padding: 3px 6px; }
+    .thumbnails-strip-container .video-wrapper .video-label i { font-size: 9px; }
+
+    /* ===================================================
+       BOTÓN PIN (enfocar) en cada video
+    =================================================== */
+    .video-pin-overlay {
+      position: absolute;
+      bottom: 36px;
+      right: 8px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 5;
+    }
+    .video-wrapper:hover .video-pin-overlay { opacity: 1; }
+    .video-pin-btn-overlay {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 0, 0, 0.65);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      backdrop-filter: blur(4px);
+      white-space: nowrap;
+    }
+    .video-pin-btn-overlay:hover { background: rgba(102, 126, 234, 0.85); }
+    /* En táctil, siempre visible */
+    @media (hover: none) { .video-pin-overlay { opacity: 0.75; } }
+
+    /* ===================================================
+       PANTALLA COMPLETA
+    =================================================== */
+    .video-container.pseudo-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999 !important;
+      background: #111 !important;
+      border-radius: 0 !important;
+      height: 100dvh !important;
+    }
+    :fullscreen .video-container,
+    :-webkit-full-screen .video-container { background: #111; }
+
+    /* ===================================================
+       RESPONSIVE EXTRA para spotlight
+    =================================================== */
+    @media (max-width: 768px) {
+      .thumbnails-strip-container { height: 72px; }
+      .thumbnails-strip-container .video-wrapper { width: 110px !important; height: 66px !important; }
+      .view-options-menu { min-width: 200px; right: -8px; }
+      .view-option { padding: 10px 14px; font-size: 13px; }
+    }
+    @media (max-width: 480px) {
+      .thumbnails-strip-container { height: 62px; }
+      .thumbnails-strip-container .video-wrapper { width: 90px !important; height: 56px !important; }
+    }
   </style>
 </head>
 <body>
@@ -784,14 +938,46 @@
             <span id="participantCount">1</span> participante(s)
           </p>
         </div>
-        <div class="top-controls">
+        <div class="top-controls" style="position: relative; display: flex; align-items: center; gap: 8px;">
+          <!-- Botón opciones de vista -->
+          <button id="viewOptionsBtn" class="view-options-btn" onclick="toggleViewOptions()" title="Opciones de vista">
+            <i class="fas fa-expand-arrows-alt"></i>
+          </button>
+          <!-- Menú desplegable de opciones -->
+          <div id="viewOptionsMenu" class="view-options-menu" style="display:none;">
+            <div class="view-option active-option" data-mode="grid" onclick="setLayoutMode('grid'); toggleViewOptions()">
+              <i class="fas fa-th"></i> Todas las cámaras
+            </div>
+            <div class="view-option" data-mode="spotlight" onclick="setLayoutMode('spotlight'); toggleViewOptions()">
+              <i class="fas fa-compress-alt"></i> Vista enfocada
+            </div>
+            <div class="view-option" data-mode="admin-only" onclick="setLayoutMode('admin-only'); toggleViewOptions()">
+              <i class="fas fa-chalkboard-teacher"></i> Solo ver al admin
+            </div>
+            <hr>
+            <div class="view-option" onclick="toggleFullscreen(); toggleViewOptions()">
+              <i class="fas fa-expand" id="fullscreenIcon"></i>
+              <span id="fullscreenText">Pantalla completa</span>
+            </div>
+            <div class="view-option" id="rotationOption" style="display:none;" onclick="toggleRotation(); toggleViewOptions()">
+              <i class="fas fa-sync-alt" id="rotationIcon"></i>
+              <span id="rotationText">Girar a horizontal</span>
+            </div>
+          </div>
+
           <button class="control-btn chat-btn" onclick="toggleParticipants()" title="Participantes">
             <i class="fas fa-users"></i>
           </button>
         </div>
       </div>
 
-      <!-- Grid de videos -->
+      <!-- Área principal - Modo Spotlight/Enfoque -->
+      <div id="spotlightArea" class="spotlight-area" style="display:none;"></div>
+
+      <!-- Tira de miniaturas - Modo Spotlight -->
+      <div id="thumbnailsStrip" class="thumbnails-strip-container" style="display:none;"></div>
+
+      <!-- Grid de videos (modo cuadrícula normal) -->
       <div id="videosGrid" class="videos-grid">
         <!-- Los videos se agregarán dinámicamente aquí -->
       </div>

@@ -23,6 +23,9 @@ let isAudioMuted = false;
 let isVideoOff = false;
 let isScreenSharing = false;
 let currentPanel = null;
+let currentLayout = 'grid';  // 'grid' | 'spotlight' | 'admin-only'
+let pinnedVideoId = null;    // 'local' | socketId | null
+let viewOptionsOpen = false;
 
 // ============================================
 // INICIALIZACIÓN
@@ -330,6 +333,10 @@ function removePeerConnection(socketId) {
     pc.close();
     peerConnections.delete(socketId);
   }
+  // Si el video que se va era el enfocado, volver a modo cuadrícula
+  if (currentLayout !== 'grid' && pinnedVideoId === socketId) {
+    setLayoutMode('grid');
+  }
   removeRemoteVideo(socketId);
 }
 
@@ -396,13 +403,33 @@ function addLocalVideo(stream) {
     <span>${currentUserName} (Tú)</span>
   `;
   
+  // Botón para enfocar (spotlight)
+  const pinOverlay = document.createElement('div');
+  pinOverlay.className = 'video-pin-overlay';
+  pinOverlay.innerHTML = '<button class="video-pin-btn-overlay" onclick="event.stopPropagation(); pinVideoById(\'local\')" title="Enfocar este video"><i class="fas fa-thumbtack"></i> Enfocar</button>';
+  
   wrapper.appendChild(video);
   wrapper.appendChild(label);
+  wrapper.appendChild(pinOverlay);
+  
+  // Doble toque para enfocar en móvil
+  let lastTap = 0;
+  wrapper.addEventListener('touchend', () => {
+    const now = Date.now();
+    if (now - lastTap < 300) pinVideoById('local');
+    lastTap = now;
+  });
+  
   videosGrid.insertBefore(wrapper, videosGrid.firstChild);
 }
 
 function addRemoteVideo(socketId, stream) {
   const videosGrid = document.getElementById('videosGrid');
+  const thumbnailsStrip = document.getElementById('thumbnailsStrip');
+  
+  // Obtener nombre del participante del Map
+  const participantData = participants.get(socketId);
+  const displayName = participantData ? participantData.userName : 'Participante';
   
   // Verificar si ya existe
   let wrapper = document.getElementById(`video-${socketId}`);
@@ -420,16 +447,40 @@ function addRemoteVideo(socketId, stream) {
     label.className = 'video-label';
     label.innerHTML = `
       <i class="fas fa-microphone" id="audio-icon-${socketId}"></i>
-      <span>Participante</span>
+      <span>${displayName}</span>
     `;
+    
+    // Botón para enfocar
+    const pinOverlay = document.createElement('div');
+    pinOverlay.className = 'video-pin-overlay';
+    pinOverlay.innerHTML = `<button class="video-pin-btn-overlay" onclick="event.stopPropagation(); pinVideoById('${socketId}')" title="Enfocar este video"><i class="fas fa-thumbtack"></i> Enfocar</button>`;
     
     wrapper.appendChild(video);
     wrapper.appendChild(label);
-    videosGrid.appendChild(wrapper);
+    wrapper.appendChild(pinOverlay);
+    
+    // Doble toque para enfocar en móvil
+    let lastTap = 0;
+    wrapper.addEventListener('touchend', () => {
+      const now = Date.now();
+      if (now - lastTap < 300) pinVideoById(socketId);
+      lastTap = now;
+    });
+    
+    // Colocar en el contenedor correcto según el modo actual
+    if (currentLayout === 'spotlight' && thumbnailsStrip) {
+      wrapper.onclick = () => switchSpotlightTo(wrapper.id);
+      thumbnailsStrip.appendChild(wrapper);
+    } else {
+      videosGrid.appendChild(wrapper);
+    }
   } else {
     // Actualizar stream si ya existe
     const video = wrapper.querySelector('video');
     video.srcObject = stream;
+    // Actualizar nombre si ahora lo tenemos
+    const nameSpan = wrapper.querySelector('.video-label span:last-child');
+    if (nameSpan && displayName !== 'Participante') nameSpan.textContent = displayName;
   }
 }
 
@@ -1153,3 +1204,254 @@ window.addEventListener('beforeunload', (e) => {
     leaveRoom();
   }
 });
+
+// ============================================
+// OPCIONES DE VISTA / MENÚ
+// ============================================
+
+function toggleViewOptions() {
+  const menu = document.getElementById('viewOptionsMenu');
+  const btn  = document.getElementById('viewOptionsBtn');
+  if (!menu || !btn) return;
+
+  viewOptionsOpen = !viewOptionsOpen;
+  menu.style.display = viewOptionsOpen ? 'block' : 'none';
+  btn.classList.toggle('active', viewOptionsOpen);
+
+  if (viewOptionsOpen) {
+    // Mostrar opción de rotación si el navegador la soporta
+    const rotOpt = document.getElementById('rotationOption');
+    if (rotOpt && 'orientation' in screen) rotOpt.style.display = 'flex';
+
+    // Cerrar al hacer clic fuera
+    setTimeout(() => {
+      document.addEventListener('click', _closeViewOptionsOutside, { once: true });
+    }, 0);
+  }
+}
+
+function _closeViewOptionsOutside(e) {
+  const menu = document.getElementById('viewOptionsMenu');
+  const btn  = document.getElementById('viewOptionsBtn');
+  if (menu && !menu.contains(e.target) && e.target !== btn && !btn?.contains(e.target)) {
+    menu.style.display = 'none';
+    viewOptionsOpen = false;
+    if (btn) btn.classList.remove('active');
+  }
+}
+
+// ============================================
+// LAYOUT (cuadrícula / spotlight / solo-admin)
+// ============================================
+
+function setLayoutMode(mode, forcedTargetId = null) {
+  currentLayout = mode;
+
+  // Actualizar ítem activo en el menú
+  document.querySelectorAll('#viewOptionsMenu .view-option[data-mode]').forEach(opt => {
+    opt.classList.toggle('active-option', opt.dataset.mode === mode);
+  });
+
+  if (mode === 'grid') {
+    exitSpotlightMode();
+    return;
+  }
+
+  // Resolver qué video mostrar en primer plano
+  let targetId = forcedTargetId;
+  if (!targetId) {
+    const adminEntry = [...participants.entries()].find(([, d]) => d.isAdmin);
+    if (mode === 'admin-only') {
+      if (adminEntry) {
+        targetId = adminEntry[0];
+      } else {
+        // ¿Soy yo el admin?
+        try {
+          const payload = JSON.parse(atob(localStorage.getItem('authToken').split('.')[1]));
+          if (payload.role === 'admin') targetId = 'local';
+        } catch (e) {}
+      }
+      if (!targetId) {
+        showNotification('No hay ningún administrador en la sala ahora');
+        currentLayout = 'grid';
+        document.querySelectorAll('#viewOptionsMenu .view-option[data-mode]').forEach(opt => {
+          opt.classList.toggle('active-option', opt.dataset.mode === 'grid');
+        });
+        return;
+      }
+    } else {
+      // spotlight: admin → primer peer → local
+      const firstPeer = peerConnections.size > 0 ? [...peerConnections.keys()][0] : null;
+      targetId = adminEntry ? adminEntry[0] : (firstPeer || 'local');
+    }
+  }
+
+  enterSpotlightMode(targetId, mode === 'admin-only');
+}
+
+function enterSpotlightMode(targetVideoId, hideOthers) {
+  const videosGrid    = document.getElementById('videosGrid');
+  const spotlightArea = document.getElementById('spotlightArea');
+  const thumbnailsStrip = document.getElementById('thumbnailsStrip');
+  if (!videosGrid || !spotlightArea || !thumbnailsStrip) return;
+
+  const wrapperId = targetVideoId === 'local' ? 'local-video-wrapper' : `video-${targetVideoId}`;
+  const pinnedWrapper = document.getElementById(wrapperId);
+  if (!pinnedWrapper) {
+    showNotification('Video no disponible en este momento');
+    currentLayout = 'grid';
+    return;
+  }
+
+  pinnedVideoId = targetVideoId;
+
+  // Mover todos los wrappers: pinned → spotlightArea, resto → thumbnailsStrip (o dejar en grid si hideOthers)
+  const wrappers = Array.from(videosGrid.querySelectorAll('.video-wrapper'));
+  wrappers.forEach(wrapper => {
+    if (wrapper === pinnedWrapper) {
+      wrapper.onclick = null;
+      spotlightArea.appendChild(wrapper);
+    } else if (!hideOthers) {
+      wrapper.onclick = () => switchSpotlightTo(wrapper.id);
+      thumbnailsStrip.appendChild(wrapper);
+    }
+    // hideOthers: los no-pinned permanecen en videosGrid (oculto)
+  });
+
+  videosGrid.style.display = 'none';
+  spotlightArea.style.display = 'block';
+  thumbnailsStrip.style.display = hideOthers ? 'none' : 'flex';
+}
+
+function exitSpotlightMode() {
+  const videosGrid    = document.getElementById('videosGrid');
+  const spotlightArea = document.getElementById('spotlightArea');
+  const thumbnailsStrip = document.getElementById('thumbnailsStrip');
+  if (!videosGrid || !spotlightArea || !thumbnailsStrip) return;
+
+  // Devolver todos los wrappers al grid
+  [spotlightArea, thumbnailsStrip].forEach(container => {
+    Array.from(container.children).forEach(child => {
+      if (child.classList.contains('video-wrapper')) {
+        child.onclick = null;
+        videosGrid.appendChild(child);
+      }
+    });
+  });
+
+  videosGrid.style.display = '';
+  spotlightArea.style.display = 'none';
+  thumbnailsStrip.style.display = 'none';
+  pinnedVideoId = null;
+  currentLayout = 'grid';
+
+  // Sincronizar menú
+  document.querySelectorAll('#viewOptionsMenu .view-option[data-mode]').forEach(opt => {
+    opt.classList.toggle('active-option', opt.dataset.mode === 'grid');
+  });
+}
+
+function switchSpotlightTo(wrapperId) {
+  const spotlightArea   = document.getElementById('spotlightArea');
+  const thumbnailsStrip = document.getElementById('thumbnailsStrip');
+  if (!spotlightArea || !thumbnailsStrip) return;
+
+  const clickedWrapper    = document.getElementById(wrapperId);
+  const currentSpotlighted = spotlightArea.querySelector('.video-wrapper');
+  if (!clickedWrapper || !currentSpotlighted || currentSpotlighted === clickedWrapper) return;
+
+  // Actual pinned → thumbnails
+  currentSpotlighted.onclick = () => switchSpotlightTo(currentSpotlighted.id);
+  thumbnailsStrip.appendChild(currentSpotlighted);
+
+  // Clicked → spotlight
+  clickedWrapper.onclick = null;
+  spotlightArea.appendChild(clickedWrapper);
+
+  pinnedVideoId = wrapperId === 'local-video-wrapper' ? 'local' : wrapperId.replace('video-', '');
+}
+
+// Enfocar un video por ID (llamado desde los botones "Enfocar" y doble-toque)
+function pinVideoById(videoId) {
+  if (currentLayout === 'grid') {
+    setLayoutMode('spotlight', videoId);
+  } else {
+    const wrapperId = videoId === 'local' ? 'local-video-wrapper' : `video-${videoId}`;
+    switchSpotlightTo(wrapperId);
+  }
+}
+
+// ============================================
+// PANTALLA COMPLETA
+// ============================================
+
+function toggleFullscreen() {
+  const videoConference = document.getElementById('videoConference');
+  const icon = document.getElementById('fullscreenIcon');
+  const text = document.getElementById('fullscreenText');
+
+  const isFullNow = document.fullscreenElement || document.webkitFullscreenElement;
+
+  if (!isFullNow) {
+    const reqFS = videoConference.requestFullscreen || videoConference.webkitRequestFullscreen;
+    if (reqFS) {
+      reqFS.call(videoConference).catch(() => {
+        // Fallback iOS (no soporta Fullscreen API)
+        _applyPseudoFullscreen(true);
+      });
+    } else {
+      _applyPseudoFullscreen(true);
+    }
+  } else {
+    const exitFS = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exitFS) exitFS.call(document);
+    _applyPseudoFullscreen(false);
+  }
+}
+
+function _applyPseudoFullscreen(active) {
+  const videoConference = document.getElementById('videoConference');
+  const icon = document.getElementById('fullscreenIcon');
+  const text = document.getElementById('fullscreenText');
+  if (!videoConference) return;
+  videoConference.classList.toggle('pseudo-fullscreen', active);
+  document.body.style.overflow = active ? 'hidden' : '';
+  if (icon) icon.className = active ? 'fas fa-compress' : 'fas fa-expand';
+  if (text) text.textContent = active ? 'Salir de pantalla completa' : 'Pantalla completa';
+}
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    _applyPseudoFullscreen(false);
+  } else {
+    const icon = document.getElementById('fullscreenIcon');
+    const text = document.getElementById('fullscreenText');
+    if (icon) icon.className = 'fas fa-compress';
+    if (text) text.textContent = 'Salir de pantalla completa';
+  }
+});
+
+// ============================================
+// ROTACIÓN DE PANTALLA (móvil)
+// ============================================
+
+async function toggleRotation() {
+  const rotText = document.getElementById('rotationText');
+  const rotIcon = document.getElementById('rotationIcon');
+  try {
+    const currentType = screen.orientation ? screen.orientation.type : '';
+    if (currentType.includes('portrait') || currentType === '') {
+      await screen.orientation.lock('landscape');
+      if (rotText) rotText.textContent = 'Girar a vertical';
+      if (rotIcon) rotIcon.className = 'fas fa-mobile-alt';
+      showNotification('📱 Pantalla bloqueada en horizontal');
+    } else {
+      await screen.orientation.lock('portrait');
+      if (rotText) rotText.textContent = 'Girar a horizontal';
+      if (rotIcon) rotIcon.className = 'fas fa-sync-alt';
+      showNotification('📱 Pantalla bloqueada en vertical');
+    }
+  } catch (err) {
+    showNotification('💡 Gira el dispositivo manualmente y bloquea la rotación desde ajustes');
+  }
+}
