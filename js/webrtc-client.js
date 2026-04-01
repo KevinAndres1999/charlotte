@@ -666,12 +666,30 @@ function toggleRaiseHand() {
     btn.style.color = '';
   }
   
+  // Mostrar indicador visual en nuestro propio video
+  const localWrapper = document.getElementById('local-video-wrapper');
+  if (localWrapper) {
+    let handIndicator = localWrapper.querySelector('.hand-indicator');
+    if (!handIndicator) {
+      handIndicator = document.createElement('div');
+      handIndicator.className = 'hand-indicator';
+      handIndicator.innerHTML = '<i class="fas fa-hand-paper"></i>';
+      handIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #FF5722; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;';
+      localWrapper.appendChild(handIndicator);
+    }
+    handIndicator.style.display = isHandRaised ? 'flex' : 'none';
+  }
+  
   // Notificar a otros participantes
-  socket.emit('hand-raised', {
-    roomId: currentRoomId,
-    raised: isHandRaised,
-    userName: currentUserName
-  });
+  if (socket && currentRoomId) {
+    socket.emit('hand-raised', {
+      roomId: currentRoomId,
+      raised: isHandRaised,
+      userName: currentUserName
+    });
+  }
+  
+  showNotification(isHandRaised ? 'Mano levantada' : 'Mano bajata');
 }
 
 function showHandRaisedNotification(userName, raised) {
@@ -697,40 +715,70 @@ function showHandRaisedNotification(userName, raised) {
   }, 3000);
 }
 
+function updateParticipantHandStatus(socketId, raised) {
+  const videoWrapper = document.getElementById(`video-${socketId}`);
+  if (!videoWrapper) return;
+  
+  let handIndicator = videoWrapper.querySelector('.hand-indicator');
+  if (!handIndicator) {
+    handIndicator = document.createElement('div');
+    handIndicator.className = 'hand-indicator';
+    handIndicator.innerHTML = '<i class="fas fa-hand-paper"></i>';
+    handIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #FF5722; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;';
+    videoWrapper.appendChild(handIndicator);
+  }
+  handIndicator.style.display = raised ? 'flex' : 'none';
+}
+
 // ============================================
 // REACCIONES RÁPIDAS
 // ============================================
 
 function sendReaction(reaction) {
-  if (currentRoomId && socket) {
+  // Mostrar reacción localmente primero (instantáneo)
+  showReactionNotification(currentUserName, reaction);
+  
+  // También mostrar en nuestro video
+  const localWrapper = document.getElementById('local-video-wrapper');
+  if (localWrapper) {
+    const reactionEl = document.createElement('div');
+    reactionEl.textContent = reaction;
+    reactionEl.style.cssText = 'position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); font-size: 36px; animation: floatUp 2s ease forwards; pointer-events: none; z-index: 10;';
+    localWrapper.appendChild(reactionEl);
+    setTimeout(() => reactionEl.remove(), 2000);
+  }
+  
+  // Enviar al servidor
+  if (socket && currentRoomId) {
     socket.emit('reaction', {
       roomId: currentRoomId,
       reaction: reaction,
       userName: currentUserName
     });
   }
+  
   // Ocultar panel de reacciones
   document.getElementById('reactionsPanel').style.display = 'none';
 }
 
 function showReactionNotification(userName, reaction) {
-  const reactionEl = document.createElement('div');
-  reactionEl.style.cssText = `
+  // Mostrar notificación flotante
+  const notification = document.createElement('div');
+  notification.style.cssText = `
     position: fixed;
-    font-size: 48px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
     z-index: 1000;
     animation: floatUp 2s ease forwards;
     pointer-events: none;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
   `;
-  reactionEl.textContent = reaction;
+  notification.textContent = reaction;
+  document.body.appendChild(notification);
   
-  // Position near the user's video or center
-  reactionEl.style.left = '50%';
-  reactionEl.style.top = '50%';
-  
-  document.body.appendChild(reactionEl);
-  
-  setTimeout(() => reactionEl.remove(), 2000);
+  setTimeout(() => notification.remove(), 2000);
 }
 
 function toggleReactionsPanel() {
