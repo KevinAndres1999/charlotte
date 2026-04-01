@@ -133,33 +133,48 @@ function initializeSocket() {
     console.log('Desconectado del servidor Socket.io');
   });
 
-  socket.on('room-joined', async ({ roomId, participants }) => {
-    console.log('Unido a la sala:', roomId);
-    console.log('Participantes existentes:', participants);
+  socket.on('room-joined', async ({ roomId, participants: existingParticipants }) => {
+    console.log('Unido a la sala:', roomId, 'Participantes:', existingParticipants);
+
+    // Poblar el Map de participantes con los que ya están en la sala
+    existingParticipants.forEach(p => {
+      participants.set(p.socketId, { userName: p.userName, isAdmin: p.isAdmin || false, isMuted: false });
+    });
 
     // Mostrar interfaz de videoconferencia
     document.getElementById('roomSelection').style.display = 'none';
     document.getElementById('videoConference').style.display = 'flex';
 
+    // Mostrar el nombre de sala si vino por parámetro URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomNameFromUrl = urlParams.get('roomName');
+    if (roomNameFromUrl) {
+      document.getElementById('roomName').textContent = decodeURIComponent(roomNameFromUrl);
+    }
+
     // Iniciar stream local
     await startLocalStream();
 
     // Conectar con participantes existentes
-    for (const participant of participants) {
+    for (const participant of existingParticipants) {
       await createPeerConnection(participant.socketId, true);
     }
   });
 
   socket.on('user-joined', async ({ socketId, userName }) => {
     console.log('Nuevo usuario:', userName, socketId);
+    participants.set(socketId, { userName, isAdmin: false, isMuted: false });
     await createPeerConnection(socketId, false);
     updateParticipantCount();
+    showNotification(`${userName} se unió a la sala`);
   });
 
   socket.on('user-left', ({ socketId, userName }) => {
     console.log('Usuario salió:', userName, socketId);
+    participants.delete(socketId);
     removePeerConnection(socketId);
     updateParticipantCount();
+    showNotification(`${userName} salió de la sala`);
   });
 
   socket.on('offer', async ({ from, offer }) => {
@@ -225,36 +240,33 @@ function initializeSocket() {
     showNotification(`Nueva sala disponible: ${roomName}`);
   });
   
-  // Control del admin: silenciar participante
-  socket.on('mute-participant', ({ socketId, reason }) => {
-    // Verificar si es para este usuario (comparar con socket.id O currentUserId)
-    if (socketId === socket.id || socketId === currentUserId) {
-      isAudioMuted = true;
-      if (localStream) {
-        localStream.getAudioTracks().forEach(track => track.enabled = false);
-      }
-      const muteBtn = document.getElementById('muteBtn');
-      if (muteBtn) {
-        muteBtn.classList.add('off');
-        muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
-      }
-      showNotification(`Has sido silenciado: ${reason}`);
+  // Control del admin: silenciar participante (el servidor envía solo a este socket)
+  socket.on('mute-participant', ({ reason }) => {
+    isAudioMuted = true;
+    if (localStream) {
+      localStream.getAudioTracks().forEach(track => track.enabled = false);
     }
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) {
+      muteBtn.classList.add('muted');
+      muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
+    }
+    const localAudioIcon = document.getElementById('local-audio-icon');
+    if (localAudioIcon) localAudioIcon.className = 'fas fa-microphone-slash audio-muted';
+    showNotification(`🔇 Has sido silenciado: ${reason || 'por el administrador'}`);
   });
   
   // Control del admin: expulsar participante
-  socket.on('kick-participant', ({ socketId, reason }) => {
-    // Verificar si es para este usuario (comparar con socket.id O currentUserId)
-    if (socketId === socket.id || socketId === currentUserId) {
-      alert(`Has sido expulsado de la sala: ${reason}`);
-      leaveRoom();
-    }
+  socket.on('kick-participant', ({ reason }) => {
+    alert(`Has sido expulsado de la sala: ${reason || 'Expulsado por el administrador'}`);
+    leaveRoom();
+  });
+
+  // Error del servidor
+  socket.on('error', ({ message }) => {
+    showNotification('Error: ' + message);
   });
 }
-
-socket.on('error', ({ message }) => {
-  alert('Error: ' + message);
-});
 
 // ============================================
 // WEBRTC - PEER CONNECTIONS
@@ -722,18 +734,30 @@ function showHandRaisedNotification(userName, raised) {
 }
 
 function updateParticipantHandStatus(socketId, raised) {
+  // Actualizar en el Map
+  if (participants.has(socketId)) {
+    participants.get(socketId).handRaised = raised;
+  }
+
+  // Actualizar indicador visual en el video
   const videoWrapper = document.getElementById(`video-${socketId}`);
   if (!videoWrapper) return;
   
   let handIndicator = videoWrapper.querySelector('.hand-indicator');
-  if (!handIndicator) {
+  if (!handIndicator && raised) {
     handIndicator = document.createElement('div');
     handIndicator.className = 'hand-indicator';
-    handIndicator.innerHTML = '<i class="fas fa-hand-paper"></i>';
-    handIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #FF5722; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10;';
+    handIndicator.innerHTML = '✋';
+    handIndicator.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #FF5722; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; font-size: 18px;';
     videoWrapper.appendChild(handIndicator);
+  } else if (handIndicator) {
+    handIndicator.style.display = raised ? 'flex' : 'none';
   }
-  handIndicator.style.display = raised ? 'flex' : 'none';
+
+  // Actualizar lista de participantes si está abierta
+  if (currentPanel === 'participants') {
+    updateParticipantsList();
+  }
 }
 
 // ============================================
@@ -1007,33 +1031,53 @@ function updateParticipantsList() {
   const list = document.getElementById('participantsList');
   if (!list) return;
   
-  // Verificar si el usuario actual es admin
-  const isAdmin = typeof window.isUserAdmin !== 'undefined' && window.isUserAdmin;
+  // Verificar si el usuario actual es admin decodificando el token
+  let isAdmin = false;
+  try {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      isAdmin = payload.role === 'admin';
+    }
+  } catch (e) {}
+
+  const totalCount = peerConnections.size + 1;
   
   let html = `
-    <div class="participant-item" data-socket-id="local">
-      <i class="fas fa-user"></i>
-      <strong>${currentUserName} (Tú)</strong>
-      ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+    <div style="color: #666; font-size: 13px; margin-bottom: 10px;">
+      <i class="fas fa-users"></i> ${totalCount} participante(s)
+    </div>
+    <div class="participant-item" style="background: #f0fdf4; border-left: 3px solid #22c55e;" data-socket-id="local">
+      <i class="fas fa-user" style="color: #22c55e;"></i>
+      <strong style="flex:1;">${escapeHtml(currentUserName)} (Tú)</strong>
+      ${isAdmin ? '<span style="background:#3b82f6;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">ADMIN</span>' : ''}
     </div>
   `;
   
+  if (peerConnections.size === 0) {
+    html += `<p style="text-align:center;color:#94a3b8;font-size:13px;margin-top:15px;">Esperando otros participantes...</p>`;
+  }
+
   peerConnections.forEach((pc, socketId) => {
     const participantData = participants.get(socketId);
     const userName = participantData ? participantData.userName : 'Participante';
     const isMuted = participantData ? participantData.isMuted : false;
+    const hasHandRaised = participantData ? participantData.handRaised : false;
     
     html += `
-      <div class="participant-item" data-socket-id="${socketId}">
-        <i class="fas fa-user"></i>
-        <span>${userName}</span>
-        ${isMuted ? '<span class="muted-badge"><i class="fas fa-microphone-slash"></i></span>' : ''}
+      <div class="participant-item" data-socket-id="${socketId}" style="margin-top:8px;">
+        <i class="fas fa-user" style="color:#667eea;"></i>
+        <span style="flex:1;">${escapeHtml(userName)}</span>
+        ${hasHandRaised ? '<span title="Mano levantada" style="color:#FF5722;">✋</span>' : ''}
+        ${isMuted ? '<span title="Silenciado" style="color:#ef4444;"><i class="fas fa-microphone-slash"></i></span>' : ''}
         ${isAdmin ? `
-          <div class="participant-controls">
-            <button onclick="muteParticipant('${socketId}')" title="Silenciar" class="control-btn-small">
+          <div style="display:flex;gap:5px;margin-top:5px;">
+            <button onclick="muteParticipant('${socketId}')" title="Silenciar" 
+              style="background:#FFC107;color:white;border:none;padding:4px 8px;border-radius:5px;cursor:pointer;font-size:12px;">
               <i class="fas fa-microphone-slash"></i>
             </button>
-            <button onclick="kickParticipant('${socketId}')" title="Expulsar" class="control-btn-small kick-btn">
+            <button onclick="kickParticipant('${socketId}')" title="Expulsar"
+              style="background:#f44336;color:white;border:none;padding:4px 8px;border-radius:5px;cursor:pointer;font-size:12px;">
               <i class="fas fa-sign-out-alt"></i>
             </button>
           </div>

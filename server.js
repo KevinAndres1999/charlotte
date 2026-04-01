@@ -277,8 +277,8 @@ io.on('connection', (socket) => {
   console.log(`Usuario conectado: ${socket.id}`);
   
   // Unirse a una sala
-  socket.on('join-room', ({ roomId, userName, userId }) => {
-    console.log(`${userName} (${socket.id}) se une a la sala: ${roomId}`);
+  socket.on('join-room', ({ roomId, userName, userId, isAdmin }) => {
+    console.log(`${userName} (${socket.id}) se une a la sala: ${roomId}, isAdmin: ${isAdmin}`);
     
     // Verificar si la sala existe en la base de datos
     const room = db.prepare('SELECT * FROM rooms WHERE roomId = ? AND isActive = 1').get(roomId);
@@ -301,7 +301,7 @@ io.on('connection', (socket) => {
     }
     
     // Agregar participante
-    roomData.participants.set(socket.id, { userName, userId, joinedAt: new Date() });
+    roomData.participants.set(socket.id, { userName, userId, isAdmin: isAdmin || false, joinedAt: new Date() });
     socket.join(roomId);
     
     // Notificar a otros participantes que alguien se unió
@@ -384,6 +384,69 @@ io.on('connection', (socket) => {
     socket.to(roomId).emit('user-screen-share-stopped', {
       socketId: socket.id
     });
+  });
+  
+  // Reacciones/emojis - broadcasting a todos en la sala
+  socket.on('reaction', ({ roomId, reaction, userName }) => {
+    console.log(`Reacción de ${userName}: ${reaction} en sala ${roomId}`);
+    socket.to(roomId).emit('reaction', {
+      socketId: socket.id,
+      userName: userName,
+      reaction: reaction
+    });
+  });
+  
+  // Mano levantada
+  socket.on('hand-raised', ({ roomId, raised, userName }) => {
+    console.log(`Mano ${raised ? 'levantada' : 'bajada'} de ${userName} en sala ${roomId}`);
+    socket.to(roomId).emit('hand-raised', {
+      socketId: socket.id,
+      userName: userName,
+      raised: raised
+    });
+  });
+  
+  // Modo solo escuchar (audio sin video)
+  socket.on('listen-only-mode', ({ roomId, enabled, userName }) => {
+    socket.to(roomId).emit('listen-only-mode', {
+      socketId: socket.id,
+      userName: userName,
+      enabled: enabled
+    });
+  });
+  
+  // Silenciar participante (solo admin)
+  socket.on('mute-participant', ({ roomId, socketId, reason }) => {
+    console.log(`Silenciar participante ${socketId} en sala ${roomId}. Razón: ${reason}`);
+    // Verificar que el que hace la solicitud es admin
+    const roomData = activeRooms.get(roomId);
+    if (roomData && roomData.participants.has(socket.id)) {
+      const adminData = roomData.participants.get(socket.id);
+      if (adminData && adminData.isAdmin) {
+        // Enviar al participantes específico
+        io.to(socketId).emit('mute-participant', {
+          socketId: socketId,
+          reason: reason || 'Silenciado por el administrador'
+        });
+      }
+    }
+  });
+  
+  // Expulsar participante (solo admin)
+  socket.on('kick-participant', ({ roomId, socketId, reason }) => {
+    console.log(`Expulsar participante ${socketId} de sala ${roomId}. Razón: ${reason}`);
+    // Verificar que el que hace la solicitud es admin
+    const roomData = activeRooms.get(roomId);
+    if (roomData && roomData.participants.has(socket.id)) {
+      const adminData = roomData.participants.get(socket.id);
+      if (adminData && adminData.isAdmin) {
+        // Enviar al participantes específico para que abandone la sala
+        io.to(socketId).emit('kick-participant', {
+          socketId: socketId,
+          reason: reason || 'Expulsado por el administrador'
+        });
+      }
+    }
   });
   
   // Desconexión
