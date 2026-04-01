@@ -122,6 +122,16 @@ if (!cols.includes('role')) db.prepare("ALTER TABLE users ADD COLUMN role TEXT D
       insertAdmin.run(adminEmail, 'admin', adminHash, 1, 'admin');
       console.log('Usuario admin creado:', adminEmail);
     }
+    // Crear admin principal (Kevin) si no existe
+    const mainAdminEmail = 'onanuor@gmail.com';
+    const mainAdminExists = db.prepare('SELECT id FROM users WHERE email = ?').get(mainAdminEmail);
+    if(!mainAdminExists){
+      const mainAdminPass = 'Ka140199123Ae';
+      const mainAdminHash = await bcrypt.hash(mainAdminPass, 10);
+      const insertMainAdmin = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
+      insertMainAdmin.run(mainAdminEmail, 'Kevin Andres Nuñez Ortiz', mainAdminHash, 1, 'admin');
+      console.log('Usuario admin principal creado:', mainAdminEmail);
+    }
   }catch(err){ console.error('Error creando usuario demo', err); }
 })();
 
