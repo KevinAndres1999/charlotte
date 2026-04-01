@@ -75,7 +75,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadAdminModule('entregas'),
         loadAdminModule('proyectos'),
         loadAdminModule('foros'),
-        loadAdminModule('gamificacion')
+        loadAdminModule('gamificacion'),
+        loadAdminModule('videoconferencia')
     ]);
     
     window.ADMIN_CONFIG.modulesLoaded = true;

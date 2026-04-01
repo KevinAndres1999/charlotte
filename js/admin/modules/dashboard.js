@@ -4,7 +4,9 @@
  * Funciones completas para el panel de control y estadísticas.
  */
 
-import { db, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+// Usar db global de admin.html
+const db = window.db;
+const { collection, getDocs, query, where } = window;
 
 // Variables del módulo
 let statsCache = null;
@@ -286,8 +288,9 @@ function renderProgramDistribution(usersByProgram) {
 }
 
 // Exportar funciones globalmente
-window.loadDashboardStats = loadDashboardStats;
-window.applyStatsToUI = applyStatsToUI;
+// NOTA: Comentar esto para evitar sobrescribir la función del script inline
+// window.loadDashboardStats = loadDashboardStats;
+// window.applyStatsToUI = applyStatsToUI;
 window.renderProgramDistribution = renderProgramDistribution;
 window.getProgramColor = getProgramColor;
 

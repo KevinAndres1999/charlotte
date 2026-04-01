@@ -250,6 +250,272 @@
         font-size: 22px;
       }
     }
+
+    /* Sección de Contador Animado */
+    .stats-section {
+      background: linear-gradient(135deg, #0a1628 0%, #1a365d 100%);
+      padding: 60px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stats-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(230, 57, 113, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 50%, rgba(139, 69, 172, 0.15) 0%, transparent 50%);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+      .stat-card {
+        padding: 20px 10px;
+      }
+      .stat-number {
+        font-size: 32px;
+      }
+      .stat-label {
+        font-size: 11px;
+      }
+      .stat-icon {
+        font-size: 28px;
+      }
+      .programs-preview {
+        padding: 40px 0;
+      }
+      .programs-preview .section-header {
+        padding: 24px 16px;
+      }
+      .programs-preview h2 {
+        font-size: 24px;
+      }
+      .features-section {
+        padding: 40px 0;
+      }
+    }
+    
+    .stat-card {
+      text-align: center;
+      padding: 30px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: #e63946;
+    }
+    
+    .stat-icon {
+      font-size: 40px;
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    .stat-number {
+      font-size: 48px;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    
+    .stat-number .suffix {
+      color: #e63946;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Sección de Testimonios */
+    .testimonials-section {
+      padding: 80px 0;
+      background: #f8fafc;
+    }
+    
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 40px;
+    }
+    
+    @media (max-width: 900px) {
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .testimonial-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .testimonial-quote {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 60px;
+      color: var(--primary);
+      opacity: 0.1;
+      font-family: Georgia, serif;
+    }
+    
+    .testimonial-text {
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .testimonial-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    
+    .testimonial-info h4 {
+      color: #0a1628;
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+    
+    .testimonial-info p {
+      color: #64748b;
+      margin: 0;
+      font-size: 13px;
+    }
+    
+    .testimonial-rating {
+      color: #f59e0b;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    /* Header info bar */
+    .header-info-bar {
+      background: var(--accent-2);
+      padding: 10px 0;
+      font-size: 13px;
+    }
+    
+    .header-info-bar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .header-info-bar .info-left {
+      display: flex;
+      gap: 25px;
+      color: rgba(255,255,255,0.9);
+    }
+    
+    .header-info-bar .info-left a {
+      color: rgba(255,255,255,0.9);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.3s;
+    }
+    
+    .header-info-bar .info-left a:hover {
+      color: var(--primary);
+    }
+    
+    .header-info-bar .info-right {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .header-info-bar .social-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .header-info-bar .social-icon:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+      .header-info-bar {
+        display: block;
+        padding: 8px 0;
+        font-size: 11px;
+      }
+      .header-info-bar .container {
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+      }
+      .header-info-bar .info-left {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+      .header-info-bar .info-left a {
+        font-size: 10px;
+      }
+      .header-info-bar .info-left a i {
+        margin-right: 4px;
+      }
+    }
   </style>
 
   <!-- PWA Manifest -->
@@ -307,6 +573,23 @@
   <script src="pwa.js"></script>
 </head>
 <body>
+  <!-- Barra de información superior -->
+  <div class="header-info-bar">
+    <div class="container">
+      <div class="info-left">
+        <a href="tel:+593964245339"><i class="fas fa-phone"></i> +593 964 245 339</a>
+        <a><i class="fas fa-map-marker-alt"></i> Carapungo · Sangolquí</a>
+        <a><i class="fas fa-certificate"></i> Aval SENESCYT - ANAE - Ministerio de Trabajo</a>
+      </div>
+      <div class="info-right">
+        <a href="https://www.facebook.com/cursoscharlotte/" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/cursoscharlotte/" target="_blank" class="social-icon"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.tiktok.com/@cursoscharlotte" target="_blank" class="social-icon"><i class="fab fa-tiktok"></i></a>
+        <a href="https://wa.me/+593964245339" target="_blank" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </div>
+  </div>
+
   <!-- Splash Screen -->
   <div id="splash-screen">
     <img src="mesa de trabajo 3.png" alt="Escuela Charlotte">
@@ -399,7 +682,7 @@
   </div>
 
   <!-- Video de fondo -->
-  <video autoplay muted loop playsinline id="bgVideo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; object-fit: cover; z-index: 0;">
+  <video autoplay muted loop playsinline id="bgVideo" style="position: fixed; top: 0; left: 0; min-width: 100%; min-height: 100%; width: auto; height: auto; z-index: -1; object-fit: cover; transform: translate(-50%, -50%); left: 50%; top: 50%;">
     <source src="video inicio.mp4" type="video/mp4">
   </video>
 
@@ -440,36 +723,29 @@
       </div>
     </section>
 
-    <section class="features-section">
+    <!-- Sección de Contador Animado -->
+    <section class="stats-section" id="stats">
       <div class="container">
-        <div class="carousel-container">
-          <div class="carousel-track">
-            <div class="feature-card-carousel active">
-              <div class="feature-icon-large">👨‍🏫</div>
-              <h3>Clases Prácticas</h3>
-              <p>Aprende con instructores certificados en talleres reales con equipos profesionales.</p>
-            </div>
-            <div class="feature-card-carousel">
-              <div class="feature-icon-large">🎓</div>
-              <h3>Certificaciones Nacionales</h3>
-              <p>SENESCYT, ANAE y aval del Ministerio de Trabajo reconocidos a nivel nacional.</p>
-            </div>
-            <div class="feature-card-carousel">
-              <div class="feature-icon-large">🌍</div>
-              <h3>Certificación ISO 21001</h3>
-              <p>Norma internacional ISO 21001, avalada en 165 países del mundo.</p>
-            </div>
-            <div class="feature-card-carousel">
-              <div class="feature-icon-large">💼</div>
-              <h3>Soporte Emprendedor</h3>
-              <p>Acompañamiento personalizado para iniciar y potenciar tu negocio.</p>
-            </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon">🎓</span>
+            <div class="stat-number"><span class="counter" data-target="500">0</span><span class="suffix">+</span></div>
+            <div class="stat-label">Estudiantes</div>
           </div>
-          <div class="carousel-dots">
-            <span class="dot active" data-slide="0"></span>
-            <span class="dot" data-slide="1"></span>
-            <span class="dot" data-slide="2"></span>
-            <span class="dot" data-slide="3"></span>
+          <div class="stat-card">
+            <span class="stat-icon">🏆</span>
+            <div class="stat-number"><span class="counter" data-target="7">0</span><span class="suffix">+</span></div>
+            <div class="stat-label">Años de Experiencia</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">👨‍🏫</span>
+            <div class="stat-number"><span class="counter" data-target="500">0</span><span class="suffix">+</span></div>
+            <div class="stat-label">Profesionales Formados</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon">🤝</span>
+            <div class="stat-number"><span class="counter" data-target="10">0</span><span class="suffix">+</span></div>
+            <div class="stat-label">Aliados Estratégicos</div>
           </div>
         </div>
       </div>
@@ -515,13 +791,88 @@
       </div>
     </section>
 
-    <section class="cta-section">
-    <div id="galleryModal" class="modal" aria-hidden="true" style="background: rgba(0,0,0,0.9);">
-      <div class="modal-content" style="background: transparent; max-width: 90vw; max-height: 90vh; margin: auto; position: relative;">
-        <button class="modal-close" style="position: absolute; top: -50px; right: 0; background: rgba(255,255,255,0.2); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 1001;" aria-label="Cerrar">×</button>
-        <img id="galleryModalImg" src="" alt="" style="max-width: 100%; max-height: 100%; display: block; margin: auto;">
+    <section class="features-section">
+      <div class="container">
+        <div class="carousel-container">
+          <div class="carousel-track">
+            <div class="feature-card-carousel active">
+              <div class="feature-icon-large">👨‍🏫</div>
+              <h3>Clases Prácticas</h3>
+              <p>Aprende con instructores certificados en talleres reales con equipos profesionales.</p>
+            </div>
+            <div class="feature-card-carousel">
+              <div class="feature-icon-large">🎓</div>
+              <h3>Certificaciones Nacionales</h3>
+              <p>SENESCYT, ANAE y aval del Ministerio de Trabajo reconocidos a nivel nacional.</p>
+            </div>
+            <div class="feature-card-carousel">
+              <div class="feature-icon-large">🌍</div>
+              <h3>Certificación ISO 21001</h3>
+              <p>Norma internacional ISO 21001, avalada en 165 países del mundo.</p>
+            </div>
+            <div class="feature-card-carousel">
+              <div class="feature-icon-large">💼</div>
+              <h3>Soporte Emprendedor</h3>
+              <p>Acompañamiento personalizado para iniciar y potenciar tu negocio.</p>
+            </div>
+          </div>
+          <div class="carousel-dots">
+            <span class="dot active" data-slide="0"></span>
+            <span class="dot" data-slide="1"></span>
+            <span class="dot" data-slide="2"></span>
+            <span class="dot" data-slide="3"></span>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Sección de Testimonios -->
+    <section class="testimonials-section">
+      <div class="container">
+        <div class="section-header" style="background:linear-gradient(135deg,var(--accent-2),var(--accent));padding:40px;border-radius:16px;box-shadow:0 10px 30px rgba(11,52,96,0.2);">
+          <h2 style="color:#fff;margin:0 0 12px;">Testimonios de Estudiantes</h2>
+          <p class="section-subtitle" style="color:#fff;opacity:0.95;margin:0;">Lo que dicen nuestros estudiantes</p>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <span class="testimonial-quote">"</span>
+            <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"Excelente curso de panadería. Aprendí técnicas que nunca imaginé. Ahora tengo mi propio negocio y mis clientes aman mis productos."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">MR</div>
+              <div class="testimonial-info">
+                <h4>María Rodríguez</h4>
+                <p>Curso de Panadería</p>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <span class="testimonial-quote">"</span>
+            <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"El curso de belleza integral cambió mi vida. Las profesoras son muy profesionales y el certificado me ha abierto muchas puertas laborales."</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">LP</div>
+              <div class="testimonial-info">
+                <h4>Laura Pérez</h4>
+                <p>Curso de Belleza Integral</p>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-card">
+            <span class="testimonial-quote">"</span>
+            <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+            <p class="testimonial-text">"La asesoría técnica me ayudó a formalizar mi negocio. Ahora tengo mi RUC y todos mis permisos en orden. ¡Totalmente recomendado!"</p>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">JC</div>
+              <div class="testimonial-info">
+                <h4>Juan Carlos</h4>
+                <p>Asesoría Técnica</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section class="cta-section">
       <div class="container">
@@ -692,6 +1043,43 @@ function installPWA() {
     } else {
         alert('La app ya está instalada o no es compatible con tu navegador.');
     }
+}
+
+// Contador animado
+function animateCounters() {
+  const counters = document.querySelectorAll('.counter');
+  const speed = 200;
+
+  counters.forEach(counter => {
+    const updateCount = () => {
+      const target = +counter.getAttribute('data-target');
+      const count = +counter.innerText;
+      const inc = target / speed;
+
+      if (count < target) {
+        counter.innerText = Math.ceil(count + inc);
+        setTimeout(updateCount, 20);
+      } else {
+        counter.innerText = target;
+      }
+    };
+    updateCount();
+  });
+}
+
+// Observer para el contador
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounters();
+      statsObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+const statsSection = document.getElementById('stats');
+if (statsSection) {
+  statsObserver.observe(statsSection);
 }
 </script></body>
 </html>

@@ -1484,7 +1484,20 @@
                 </div>
             </div>
 
-            <!-- PASO 7: CONTACTO -->
+            <!-- PASO 7: SEDES Y HORARIOS -->
+            <div class="journey-step" data-step="6">
+                <div class="step-content">
+                    <div class="section-title">
+                        <h2>📍 Sedes y Horarios</h2>
+                        <p>Elige la sede y horario que más te convenga</p>
+                    </div>
+                    <div id="sedesContainer" style="max-width: 900px; margin: 0 auto;">
+                        <!-- Se llena dinámicamente según el programa -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 8: CONTACTO -->
             <div class="journey-step" data-step="6">
                 <div class="step-content">
                     <div class="contact-final">
@@ -1554,7 +1567,8 @@
         <div class="step-indicator" data-step="3" onclick="goToStep(3)" title="Contenido"></div>
         <div class="step-indicator" data-step="4" onclick="goToStep(4)" title="Inversión"></div>
         <div class="step-indicator" data-step="5" onclick="goToStep(5)" title="Certificaciones"></div>
-        <div class="step-indicator" data-step="6" onclick="goToStep(6)" title="Contacto"></div>
+        <div class="step-indicator" data-step="6" onclick="goToStep(6)" title="Sedes"></div>
+        <div class="step-indicator" data-step="7" onclick="goToStep(7)" title="Contacto"></div>
     </div>
 
     <script>
@@ -1563,6 +1577,13 @@
             belleza: {
                 name: 'Belleza Integral',
                 duration: '9 meses',
+                sedes: [
+                    {
+                        nombre: 'Carapungo',
+                        direccion: 'https://maps.app.goo.gl/QEyAbBYKYErFMoXP6',
+                        horarios: ['Sábado 9:00 AM - 12:00 PM', 'Sábado 2:00 PM - 5:00 PM']
+                    }
+                ],
                 advantages: [
                     { icon: '💰', title: 'Alta Rentabilidad', desc: 'La industria de la belleza genera miles de millones anualmente' },
                     { icon: '🏠', title: 'Trabaja Independiente', desc: 'Monta tu propio salón o trabaja desde casa' },
@@ -1587,6 +1608,18 @@
             panaderia: {
                 name: 'Panadería y Pastelería',
                 duration: '9 meses',
+                sedes: [
+                    {
+                        nombre: 'Carapungo',
+                        direccion: 'https://maps.app.goo.gl/QEyAbBYKYErFMoXP6',
+                        horarios: ['Sábado 9:00 AM - 12:00 PM', 'Sábado 2:00 PM - 5:00 PM', 'Domingo 9:00 AM - 12:00 PM']
+                    },
+                    {
+                        nombre: 'Sangolquí',
+                        direccion: 'https://maps.app.goo.gl/wjEP81eCrgPfbpbx5',
+                        horarios: ['Sábado 9:00 AM - 12:00 PM']
+                    }
+                ],
                 advantages: [
                     { icon: '🍰', title: 'Arte Comestible', desc: 'Crea obras de arte que deleitan todos los sentidos' },
                     { icon: '🏪', title: 'Tu Propio Negocio', desc: 'Emprende con tu panadería o pastelería' },
@@ -1611,6 +1644,18 @@
             asesoria: {
                 name: 'Asesoría Técnica',
                 duration: '3 meses',
+                sedes: [
+                    {
+                        nombre: 'Carapungo',
+                        direccion: 'https://maps.app.goo.gl/QEyAbBYKYErFMoXP6',
+                        horarios: ['Sábado 9:00 AM - 12:00 PM', 'Sábado 2:00 PM - 5:00 PM']
+                    },
+                    {
+                        nombre: 'Sangolquí',
+                        direccion: 'https://maps.app.goo.gl/wjEP81eCrgPfbpbx5',
+                        horarios: ['Sábado 9:00 AM - 12:00 PM']
+                    }
+                ],
                 advantages: [
                     { icon: '📋', title: 'Formaliza tu Negocio', desc: 'Aprende a legalizar y certificar tu emprendimiento' },
                     { icon: '📱', title: 'Marketing Digital', desc: 'Domina redes sociales y ventas online' },
@@ -1636,7 +1681,7 @@
 
         let currentStep = 0;
         let selectedProgram = 'belleza';
-        const totalSteps = 7;
+        const totalSteps = 8;
 
         // Crear partículas de fondo
         function createParticles() {
@@ -1756,6 +1801,40 @@
             featuresContainer.innerHTML = data.features.map(feature => `
                 <li><i class="fas fa-check-circle"></i> ${feature}</li>
             `).join('');
+
+            // Sedes y Horarios
+            updateSedesContent();
+        }
+
+        // Actualizar contenido de sedes y horarios
+        function updateSedesContent() {
+            const data = programData[selectedProgram];
+            const sedesContainer = document.getElementById('sedesContainer');
+            
+            if (sedesContainer && data.sedes) {
+                sedesContainer.innerHTML = data.sedes.map(sede => `
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 16px; padding: 25px; margin-bottom: 20px; border: 2px solid rgba(255,255,255,0.1);">
+                        <h3 style="color: white; font-size: 22px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> ${sede.nombre}
+                        </h3>
+                        <a href="${sede.direccion}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; color: var(--gold); text-decoration: none; margin-bottom: 20px; font-weight: 600;">
+                            <i class="fas fa-external-link-alt"></i> Ver ubicación en Google Maps
+                        </a>
+                        <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-clock" style="color: var(--cyan);"></i> Horarios disponibles
+                            </h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                ${sede.horarios.map(horario => `
+                                    <span style="background: rgba(6,182,212,0.2); border: 1px solid var(--cyan); padding: 10px 16px; border-radius: 8px; color: white; font-size: 14px;">
+                                        ${horario}
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         // Reiniciar el journey
@@ -1805,6 +1884,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             createParticles();
             updateProgramContent();
+            updateSedesContent();
         });
     </script>
 </body>

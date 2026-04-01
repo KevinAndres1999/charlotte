@@ -3,8 +3,9 @@
  * Funciones relacionadas con gamificación
  */
 
-// Importar Firestore
-const { getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, collection, query, where, orderBy, setDoc } = window.firebaseFirestore || {};
+// Usar funciones globales de admin.html
+const db = window.db;
+const { getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, collection, query, where, orderBy, setDoc } = window;
 
 /**
  * Cargar estadísticas de gamificación

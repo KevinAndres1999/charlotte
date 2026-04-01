@@ -267,16 +267,12 @@
             const email = document.getElementById('email').value;
 
             try {
-                // Verificar si el email ya existe en pendientes
-                const q1 = query(collection(db, 'pendingStudents'), where('email', '==', email));
-                const snapshot1 = await getDocs(q1);
+                // Verificar si el email ya existe en usuarios
+                const q = query(collection(db, 'users'), where('email', '==', email));
+                const snapshot = await getDocs(q);
                 
-                // Verificar si el email ya existe en aprobados
-                const q2 = query(collection(db, 'approvedStudents'), where('email', '==', email));
-                const snapshot2 = await getDocs(q2);
-                
-                if (!snapshot1.empty || !snapshot2.empty) {
-                    showMessage('Este correo ya está registrado', 'error');
+                if (!snapshot.empty) {
+                    showMessage('Este correo ya está registrado. Por favor inicia sesión.', 'error');
                     return;
                 }
 

@@ -9,6 +9,9 @@
  * - Variables globales: allApprovedUsers, temasClasesGuardados, showNotification
  */
 
+// Usar db global de admin.html
+const db = window.db;
+
 // Estado del módulo
 let cobrosSedeActual = 'Carapungo';
 let cobrosHorarioActual = 'Sábado Matutina';

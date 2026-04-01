@@ -12,126 +12,154 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.role == 'admin';
     }
     
-    // Función helper para verificar que el usuario es propietario o admin
-    function isOwnerOrAdmin(resourceUserId) {
-      return request.auth != null && 
-        (request.auth.token.role == 'admin' || resourceUserId == request.auth.uid);
-    }
-    
-    // USUARIOS - Lectura pública de perfil público, escritura solo para propios o admin
+    // USUARIOS - Todo público
     match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow write: if isOwnerOrAdmin(userId);
+      allow read, write: if true;
     }
     
-    // ESTUDIANTES PENDIENTES - Solo admins pueden gestionar
-    match /pendingStudents/{document} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
-      allow create: if isAuthenticated();
-    }
-    
-    // CONTENIDO - Solo admins pueden crear/editar, todos los auth pueden leer
+    // CONTENIDO - Todo público
     match /content/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // CLASES
     match /classes/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
     
     // CHUNKS DE CLASES
     match /class_chunks/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // ACTIVIDADES
     match /activities/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // MATERIALES
     match /materials/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // CUESTIONARIOS
     match /cuestionarios/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
 
     // EVALUACIONES
     match /evaluaciones/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    // ENTREGAS - Estudiantes pueden crear/editar las propias, admins pueden todo
-    match /entregas/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
-    }
-    
-    // RESPUESTAS DE CUESTIONARIOS
-    match /respuestasCuestionarios/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
+      allow read, write: if true;
     }
     
     // RESPUESTAS DE EVALUACIONES
     match /respuestasEvaluaciones/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
+      allow read, write: if true;
+    }
+    
+    // REINTENTOS DE EVALUACIONES
+    match /reintentosEvaluaciones/{document} {
+      allow read, write: if true;
+    }
+    
+    // ENTREGAS
+    match /entregas/{document} {
+      allow read, write: if true;
+    }
+    
+    // RESPUESTAS DE CUESTIONARIOS
+    match /respuestasCuestionarios/{document} {
+      allow read, write: if true;
+    }
+    
+    // RESPUESTAS (otra colección)
+    match /respuestas/{document} {
+      allow read, write: if true;
+    }
+    
+    // RESPUESTAS DE EVALUACIONES
+    match /respuestasEvaluaciones/{document} {
+      allow read, write: if true;
     }
     
     // FOROS
     match /foros/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
     
     // RESPUESTAS EN FOROS
     match /respuestasForos/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // CALIFICACIONES - Solo admins pueden gestionar, usuarios ven las propias
+    // CALIFICACIONES
     match /calificaciones_modulos/{document} {
-      allow read: if isAdmin() || (isAuthenticated() && document == request.auth.uid);
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
     
-    // CONFIGURACIÓN - Solo admins
+    // RESULTADOS DE EVALUACIONES
+    match /resultados_evaluaciones/{document} {
+      allow read, write: if true;
+    }
+    
+    // CALIFICACIONES DE PRÁCTICAS
+    match /calificaciones_practicas/{document} {
+      allow read, write: if true;
+    }
+    
+    // ACTIVIDADES INTERACTIVAS
+    match /actividades_interactivas/{document} {
+      allow read, write: if true;
+    }
+    
+    // CONFIGURACIÓN
     match /configuracion/{document} {
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+      allow read, write: if true;
+    }
+    
+    // CONFIG - API keys: lectura pública
+    match /config/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // AI ANALYSIS
+    match /ai_analysis/{document} {
+      allow read, write: if true;
     }
     
     // FOTOS
     match /fotos/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
     }
     
     // RECURSOS
     match /recursos/{document} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+      allow read, write: if true;
+    }
+    
+    // PROYECTOS
+    match /projects/{document} {
+      allow read, write: if true;
+    }
+    
+    match /proyectos/{document} {
+      allow read, write: if true;
+    }
+    
+    // APROBADOS
+    match /approvedStudents/{document} {
+      allow read, write: if true;
+    }
+    
+    // PENDIENTES
+    match /pendingStudents/{document} {
+      allow read, write: if true;
     }
     
     // CONTACTOS
     match /contactos/{document} {
-      allow read: if isAdmin();
-      allow write: if isAuthenticated();
-      allow create: if true;
+      allow read, write: if true;
     }
   }
 }

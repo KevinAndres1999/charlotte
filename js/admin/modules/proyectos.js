@@ -4,7 +4,9 @@
  * Funciones para gestionar la revisión de proyectos empresariales de estudiantes.
  */
 
-import { db, doc, getDoc, getDocs, collection, setDoc, query, where, limit } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+// Usar db global de admin.html
+const db = window.db;
+const { doc, getDoc, getDocs, collection, setDoc, query, where, limit } = window;
 
 // Definir estructura de campos por
 // 4}0 módulo

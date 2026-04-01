@@ -5964,6 +5964,7 @@ try {
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    window.db = db;
     const auth = getAuth(app);
     
     // Asignar funciones globales para compatibilidad
@@ -5979,6 +5980,78 @@ try {
     window.addDoc = addDoc;
     
     console.log('Firebase initialized successfully');
+
+    // =================== FUNCIÓN HELPER PARA OBTENER API KEY ===================
+    // Ahora usa el SDK de Firebase normal ya que las reglas permiten lectura de config
+    async function fetchApiKeyFromFirebase() {
+        try {
+            if (!window.db) {
+                console.warn('Firebase no disponible');
+                return null;
+            }
+            
+            const configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+            console.log('📡 Respuesta de config/openrouter:', configDoc);
+            
+            if (configDoc && configDoc.exists && configDoc.exists()) {
+                const data = configDoc.data();
+                console.log('📄 Datos del documento:', data);
+                if (data && data.apiKey) {
+                    return data.apiKey;
+                }
+            }
+            return null;
+        } catch (e) {
+            console.error('Error obteniendo API key:', e);
+            return null;
+        }
+    }
+
+    // Cache para la API key
+    let cachedApiKey = null;
+    let apiKeyCacheTime = 0;
+    const API_KEY_CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+    async function getOpenRouterApiKey() {
+        const now = Date.now();
+        
+        // Verificar cache
+        if (cachedApiKey && (now - apiKeyCacheTime) < API_KEY_CACHE_DURATION) {
+            return cachedApiKey;
+        }
+        
+        // 1. Primero intentar desde cookie
+        const cookieMatch = document.cookie.match(/openrouter_api_key=([^;]+)/);
+        if (cookieMatch && cookieMatch[1] && !cookieMatch[1].startsWith('sk-or-v1-fake')) {
+            cachedApiKey = cookieMatch[1];
+            apiKeyCacheTime = now;
+            return cachedApiKey;
+        }
+        // 2. Luego intentar desde localStorage
+        const localKey = localStorage.getItem('openrouter_api_key');
+        if (localKey && !localKey.startsWith('sk-or-v1-fake')) {
+            cachedApiKey = localKey;
+            apiKeyCacheTime = now;
+            return cachedApiKey;
+        }
+        // 3. Luego desde window
+        if (window.OPENROUTER_API_KEY && !window.OPENROUTER_API_KEY.startsWith('sk-or-v1-fake')) {
+            cachedApiKey = window.OPENROUTER_API_KEY;
+            apiKeyCacheTime = now;
+            return cachedApiKey;
+        }
+        // 4. Finalmente intentar desde Firebase SDK
+        const firebaseKey = await fetchApiKeyFromFirebase();
+        if (firebaseKey) {
+            cachedApiKey = firebaseKey;
+            apiKeyCacheTime = now;
+            console.log('✅ API key obtenida desde Firebase');
+        }
+        return cachedApiKey || '';
+    }
+    
+    // Exponer función globally
+    window.getOpenRouterApiKey = getOpenRouterApiKey;
 
     // =================== SISTEMA DE OPTIMIZACIÓN DE CONSULTAS ===================
     class FirebaseQueryOptimizer {
@@ -12316,40 +12389,40 @@ function openImageModal(imageUrl, title) {
                     question: "¿Cuál será el nombre de tu negocio?",
                     validation: (answer) => answer.length >= 3,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplos: "Dulce Hogar", "Pan Artesanal", "Sabor Casero"' :
-                        'Ejemplos: "Belleza Natural", "Glow Studio", "Estilo Perfecto"'
+                        '💡 EJEMPLO REAL: "Panadería Artesanal Del Sabor" - Nombre que transmite tradición, calidad y el arte de hacer pan. Evita nombres muy largos o difíciles de recordar.' :
+                        '💡 EJEMPLO REAL: "Belleza Integral Luanna" - Combina el concepto de belleza con el nombre personalizado. Evita nombres muy genéricos como "Salón de Belleza".'
                 },
                 eslogan: {
                     label: "Eslogan",
                     question: "¿Cuál será el eslogan de tu negocio?",
                     validation: (answer) => answer.length >= 5,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplos: "El sabor de casa", "Panadería artesanal con corazón"' :
-                        'Ejemplos: "Tu belleza, nuestra pasión", "Estilo que transforma"'
+                        '💡 EJEMPLO REAL: "El sabor que recuerda a casa" - Un eslogan emotivo que conecta con la nostalgia y la calidez del hogar. Debe ser memorable y reflejar tu esencia.' :
+                        '💡 EJEMPLO REAL: "Donde tu belleza shine" - Un eslogan moderno y positivo que motiva a verse bien. Debe ser corto y fácil de recordar.'
                 },
                 descripcion: {
                     label: "Descripción del Negocio",
                     question: "Describe brevemente qué hace tu negocio y qué lo hace especial",
                     validation: (answer) => answer.length >= 20,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Panadería artesanal que elabora productos frescos diarios usando ingredientes locales y técnicas tradicionales"' :
-                        'Ejemplo: "Estudio de belleza integral especializado en tratamientos faciales y corporales con productos naturales"'
+                        '💡 EJEMPLO ESTRUCTURADO: "Panadería artesanal especializada en productos frescos elaborados daily con harina orgánica y masa madre. Nuestra diferenciación: horneado en el momento, ingredientes locales de proveedores conocidos y productos sin conservantes. Ambiente acogedor donde el cliente puede ver la preparación."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "Estudio de belleza integral que ofrece tratamientos faciales, manicure, peinados y maquillaje profesional. Diferenciación: usamos productos orgánicos certificados, ambiente relajante con música suave, y horarios extendidos para comodidad de profesionales ocupadas."'
                 },
                 mision: {
                     label: "Misión",
                     question: "¿Cuál es la misión de tu negocio?",
                     validation: (answer) => answer.length >= 15,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Brindar a la comunidad productos de panadería de calidad excepcional elaborados con pasión y dedicación"' :
-                        'Ejemplo: "Ayudar a nuestros clientes a sentirse seguros y hermosos mediante servicios de belleza profesional y personalizada"'
+                        '💡 EJEMPLO ESTRUCTURADO: "Brindar a nuestra comunidad acceso a productos de panadería artesanales de la más alta calidad, elaborados con ingredientes locales sostenibles, garantizando que cada cliente experimente el verdadero sabor del pan recién horneado mientras apoyamos a productores locales."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "Transformar la confianza y belleza de cada cliente mediante servicios de estética personalizados, utilizando productos de alta gama y técnicas innovadoras, en un ambiente donde se sientan únicos y mimados."'
                 },
                 vision: {
                     label: "Visión",
                     question: "¿Cuál es la visión de tu negocio a 2 años?",
                     validation: (answer) => answer.length >= 15,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Ser la panadería de referencia en el barrio, reconocida por la calidad y frescura de nuestros productos"' :
-                        'Ejemplo: "Convertirnos en el estudio de belleza más recomendado en la zona por nuestros tratamientos innovadores"'
+                        '💡 EJEMPLO ESTRUCTURADO: "Convertirnos en la panadería de referencia en nuestra ciudad, reconocidos por la calidad premium de nuestros productos y el servicio al cliente excepcional, logrando expandrirnos a 3 sucursales y emplear a 15 personas especializadas."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "Posicionarnos como el estudio de belleza más recomendado en la zona, con una base de clientas fidelizadas que nos recomiendan activamente, planificando abrir una segunda sucursal en 3 años."'
                 }
             }
         },
@@ -12361,24 +12434,24 @@ function openImageModal(imageUrl, title) {
                     question: "Describe a tu cliente ideal (edad, género, profesión, intereses, etc.)",
                     validation: (answer) => answer.length >= 30,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "María, 35 años, ama de casa. Le gusta cocinar en casa y busca panes saludables para su familia"' :
-                        'Ejemplo: "Ana, 28 años, profesional. Valora su imagen personal y busca tratamientos que le ahorren tiempo diario"'
+                        '💡 EJEMPLO ESTRUCTURADO: "Perfil: Mujeres de 30-50 años, profesionales o amas de casa, nivel socioeconómico medio-alto. Características: Valoran productos naturales y saludables, tienen poder adquisitivo para invertir en calidad, buscan experiencias gourmet. Comportamiento: Compran para ocasiones especiales y uso diario familiar, sensibles a promociones por redes sociales."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "Mujeres de 25-45 años, profesionales o emprendedoras. Características: Valoran la imagen personal, tienen poco tiempo pero buscan resultados efectivos, dispuestas a invertir en cuidado personal. Comportamiento: Agendan citas con anticipación, refieren a amigas, buscan paquetes de servicios."'
                 },
                 competencia: {
                     label: "Análisis de Competencia",
                     question: "Menciona 2-3 competidores principales y qué hacen mejor/peor que tú",
                     validation: (answer) => answer.length >= 50,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Panadería Central: Buena ubicación pero productos industrializados. Mi ventaja: productos artesanales frescos"' :
-                        'Ejemplo: "Salón BellaVisión: Muchos servicios pero calidad irregular. Mi ventaja: especialización y atención personalizada"'
+                        '💡 EJEMPLO ESTRUCTURADO: "1) Panadería La Familiar: Buena ubicación centro comercial, productos variados, pero masa congelada. MI VENTAJA: masa fresca diaria. 2) Supermercado-local: Precios bajos, horarios amplios, pero calidad baja. MI VENTAJA: productos artesanales premium. 3) Delivery apps: Comodidad, pero comisiones altas. MI VENTAJA: atención personalizada y productos únicos."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "1) Salones de belleza tradicionales: Precios accesibles, mucha trayectoria, pero horarios rígidos. MI VENTAJA: horarios flexibles y ambiente moderno. 2) Spas: Experiencia premium, pero precios muy altos. MI VENTAJA: relación calidad-precio. 3) Freelancers a domicilio: Precios bajos, pero sin estructura. MI VENTAJA: local profesional con esterilización."'
                 },
                 propuesta_valor: {
                     label: "Propuesta Única de Valor",
                     question: "¿Qué te diferencia de la competencia? ¿Cuál es tu ventaja única?",
                     validation: (answer) => answer.length >= 20,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Somos los únicos que usamos masa madre cultivada por 30 años, dando un sabor incomparable"' :
-                        'Ejemplo: "Ofrecemos consulta facial gratuita para determinar el tratamiento ideal para cada tipo de piel"'
+                        '💡 EJEMPLO: "Somos la única panadería en la zona que usa masa madre cultivada artesanalmente por más de 30 años, horneada 2 veces al día (mañana y tarde) para garantizar frescura. Además, ofrecems degustaciones gratuitas y talleres de panadería."' :
+                        '💡 EJEMPLO: "Somos el único studio en la zona que ofrece diagnóstico facial gratuito con cámara de análisis,使用的是 tecnología de última generación para personalización exacta de tratamientos."'
                 }
             }
         },
@@ -12395,24 +12468,24 @@ function openImageModal(imageUrl, title) {
                         return hasMinimumLength && hasMultipleItems;
                     },
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Pan de masa madre, Croissants artesanales, Pasteles personalizados, Cafetería"' :
-                        'Ejemplo: "Cortes de cabello, Tratamientos faciales, Manicura y pedicura, Maquillaje para eventos"'
+                        '💡 EJEMPLO ESTRUCTURADO: "1) Pan de masa madre ($n): Pan artesanal de fermentación lenta 48h. 2) Croissants de mantequilla ($c/u): Tradicionales franceses, hojaldre perfecto. 3) Pasteles personalizados (desde $n): Decorados para bodas y cumpleaños. 4) Pan dulce artesanal ($p): Recetas familiares exclusivas."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "1) Tratamientos faciales (desde $n): Limpieza, hidratación y rejuvenecimiento. 2) Manicure y pedicura (desde $c/u): Semipermanente y tradicional. 3) Peinados para eventos (desde $n): Recogidos y ondas. 4) Maquillaje social (desde $n): Para fiestas y eventos especiales."'
                 },
                 proceso_estrella: {
                     label: "Proceso de tu Servicio/Producto Estrella",
                     question: "Describe paso a paso cómo produces o realizas tu servicio/producto principal",
                     validation: (answer) => answer.length >= 50,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "1. Preparar masa madre 24h antes, 2. Amasar ingredientes, 3. Fermentar 2h, 4. Horneado 45min a 220°C"' :
-                        'Ejemplo: "1. Consulta inicial, 2. Limpieza facial, 3. Exfoliación, 4. Tratamiento específico, 5. Hidratación final"'
+                        '💡 EJEMPLO ESTRUCTURADO (para un pastel personalizado): "Paso 1: Consulta con el cliente (30 min) - conocer ocasión, gustos, preferencias alimentarias. Paso 2: Diseño y presupuesto (15 min) - presentar propuestas visuales. Paso 3: Preparación base (2 horas) - hornear bizcocho, preparar buttercream. Paso 4: Decoración (3-4 horas) - fondant, decorados, personalización. Paso 5: Empaque y entrega (30 min) - caja térmica, transporte seguro."' :
+                        '💡 EJEMPLO ESTRUCTURADO (para tratamiento facial): "Paso 1: Recepción y更衣 (10 min) - cambiar bata,卸妆. Paso 2: Análisis de piel (15 min) - usar lámpara LED para evaluar condición. Paso 3: Limpieza profunda (20 min) - desincrustación de impurezas. Paso 4: Tratamiento específico (30 min) - según necesidad del cliente. Paso 5: Hidratación y protector (15 min) - sellar tratamiento. Paso 6: Recomendaciones hogar (10 min) - indicar rutina diaria."'
                 },
                 recursos_necesarios: {
                     label: "Recursos Necesarios",
                     question: "Lista los equipos, insumos y recursos principales que necesitas",
                     validation: (answer) => answer.length >= 30,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Horno industrial, Amasadora, Balanzas digitales, Ingredientes orgánicos, Mostrador refrigerado"' :
-                        'Ejemplo: "Silla de trabajo, Lámpara LED, Productos profesionales, Equipos de esterilización, Material desechable"'
+                        '💡 EJEMPLO ESTRUCTURADO: "EQUIPOS: Horno convector (~$800), Amasadora profesional (~$400), Batidora de pedestal (~$200), Refrigerador mostrador (~$600). INSUMOS: Harina orgánica (25kg/$50), Mantequilla premium (10kg/$80), Levadura fresca ($15/kg), Huevos农场 ($4/docena). OTROS: Empaques biodegradables, Uniformes, Cámara de celular para fotos productos."' :
+                        '💡 EJEMPLO ESTRUCTURADO: "EQUIPOS: Silla reclinable profesional (~$300), Lámpara LED de análisis (~$150), Cama estética (~$400), Esterilizador UV (~$100). INSUMOS: Cremas faciales profesionales (~$200-kit), Esmaltes semipermanentes (~$80-kit), Productos desechables (guantes, batas) (~$50/mes). OTROS: Camilla de cambio, Espejo grande, Decoración ambientadora."'
                 }
             }
         },
@@ -12424,8 +12497,8 @@ function openImageModal(imageUrl, title) {
                     question: "¿Cómo venderás tus productos/servicios? (ej: local físico, redes sociales, etc.)",
                     validation: (answer) => answer.length >= 20,
                     example: (program) => program === 'panaderia' ?
-                        'Ejemplo: "Local físico en zona comercial + Ventas online por WhatsApp + Ferias locales"' :
-                        'Ejemplo: "Estudio físico by appointment + Instagram para mostrar trabajos + WhatsApp para citas"'
+                        '💡 EJEMPLO: "1) LOCAL FÍSICO: En calle principal del barrio, visibilidad alta. 2) WHATSAPP: Pedidos personalizados, entrega a domicilio. 3) FERIAS: Presencia en mercados locales los domingos."' :
+                        '💡 EJEMPLO: "1) ESTUDIO: Solo con cita previa, ambiente exclusivo. 2) INSTAGRAM: Portafolio de trabajos, agendar. 3) WHATSAPP: Citas y promociones."'
                 },
                 estrategia_redes: {
                     label: "Estrategia en Redes Sociales",
@@ -12479,6 +12552,13 @@ function openImageModal(imageUrl, title) {
     // Variables para el sistema de consultoría
     let currentField = null;
     let currentModule = 1;
+    let awaitingStudentResponse = false;
+    let awaitingImprovement = false;
+    let awaitingModification = false;
+    
+    // Variables para el modo de revisión de módulos
+    window.moduleFieldsToReview = null;
+    window.currentReviewModule = null;
 
     // ===== SISTEMA DE CONSULTORÍA INTERACTIVA =====
     // Funciones para el nuevo sistema de consultoría
@@ -12487,22 +12567,23 @@ function openImageModal(imageUrl, title) {
         currentModule = 1;
         currentField = null;
 
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        
-        // Determinar el programa basado en el usuario actual
-        let programName = 'Belleza Integral'; // default
-        if (currentUser && currentUser.programa) {
-            const programa = currentUser.programa.toLowerCase();
-            if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
-                programName = 'Panadería y Pastelería';
-            } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
-                programName = 'Belleza Integral';
+        // Solo mostrar mensaje de bienvenida si es una conversación nueva (sin mensajes previos)
+        if (!projectConversations || projectConversations.length === 0) {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            
+            // Determinar el programa basado en el usuario actual
+            let programName = 'Belleza Integral'; // default
+            if (currentUser && currentUser.programa) {
+                const programa = currentUser.programa.toLowerCase();
+                if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
+                    programName = 'Panadería y Pastelería';
+                } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
+                    programName = 'Belleza Integral';
+                }
             }
-        }
 
-        addChatMessage(`¡Hola ${currentUser?.name || 'estudiante'}! Soy Charlotte, tu consultora especializada en emprendimiento para ${programName}.`, 'ai');
-        addChatMessage(`Vamos a crear juntos tu proyecto de negocio paso a paso. Te haré preguntas específicas y te daré consejos profesionales para que desarrolles un plan sólido.`, 'ai');
-        addChatMessage(`Comenzaremos con el Módulo 1: Identificación del Negocio. ¿Estás listo para empezar?`, 'ai');
+            addChatMessage(`¡Hola ${currentUser?.name || 'estudiante'}! Soy Charlotte, tu consultora especializada en emprendimiento para ${programName}. Vamos a crear juntos tu proyecto de negocio paso a paso. Te haré preguntas específicas y te daré consejos profesionales para que desarrolles un plan sólido. Comenzaremos con el Módulo 1: Identificación del Negocio. ¿Estás listo para empezar?`, 'ai');
+        }
 
         // Mostrar el primer campo
         setTimeout(() => {
@@ -12637,11 +12718,26 @@ function openImageModal(imageUrl, title) {
                 });
             }
 
-            // También buscar patrones como "Opción 1:", "Option 1:", etc.
-            const opcionMatch = line.match(/^(?:Opción|Option)\s+(\d+)[\:\s]+(.+)$/i);
+            // Buscar patrones como "Opción 1:", "Option 1:", etc.
+            const opcionMatch = line.match(/^(?:Opción|Option|MEJORA)\s+(\d+)[\:\s]+(.+)$/i);
             if (opcionMatch && !options.find(opt => opt.number === parseInt(opcionMatch[1]))) {
                 const optionNumber = parseInt(opcionMatch[1]);
                 let optionText = opcionMatch[2].trim();
+
+                // Remover caracteres de puntuación al final
+                optionText = optionText.replace(/[.,;:!?]$/, '');
+
+                options.push({
+                    number: optionNumber,
+                    text: optionText
+                });
+            }
+            
+            // Buscar patrones como "NUEVA OPCIÓN 1:", "NUEVA OPCION 1:", etc. (para showMoreOptions)
+            const nuevaOpcionMatch = line.match(/^(?:NUEVA\s+)?OPCION(?:IÓN)?\s+(\d+)[\:\s]+(.+)$/i);
+            if (nuevaOpcionMatch && !options.find(opt => opt.number === parseInt(nuevaOpcionMatch[1]))) {
+                const optionNumber = parseInt(nuevaOpcionMatch[1]);
+                let optionText = nuevaOpcionMatch[2].trim();
 
                 // Remover caracteres de puntuación al final
                 optionText = optionText.replace(/[.,;:!?]$/, '');
@@ -12659,60 +12755,102 @@ function openImageModal(imageUrl, title) {
         return options;
     }
 
+    // ===== HISTORIAL DE CHAT CON IA =====
+    let aiChatHistory = [];
+    
+    // Función para guardar historial en localStorage
+    function saveChatHistory() {
+        try {
+            localStorage.setItem('ai_chat_history', JSON.stringify(aiChatHistory));
+        } catch(e) {
+            console.warn('No se pudo guardar historial:', e);
+        }
+    }
+    
+    // Función para cargar historial
+    function loadChatHistory() {
+        try {
+            const saved = localStorage.getItem('ai_chat_history');
+            if (saved) {
+                aiChatHistory = JSON.parse(saved);
+            }
+        } catch(e) {
+            console.warn('No se pudo cargar historial:', e);
+        }
+    }
+    
+    // Inicializar historial al cargar
+    loadChatHistory();
+
+    // ===== ANÁLISIS DE IA MEJORADO =====
     async function analyzeResponseWithAI(response, field) {
         try {
             showTypingIndicator();
 
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
             
-            // Determinar el programa basado en el usuario actual
-            let programName = 'Belleza Integral'; // default
-            if (currentUser && currentUser.programa) {
-                const programa = currentUser.programa.toLowerCase();
-                if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
-                    programName = 'Panadería y Pastelería';
-                } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
-                    programName = 'Belleza Integral';
+            // Obtener contexto del estudiante
+            let programName = 'Belleza Integral';
+            let sectorTips = '';
+            let studentName = 'Estudiante';
+            
+            if (currentUser) {
+                studentName = currentUser.displayName || currentUser.name || currentUser.email.split('@')[0];
+                
+                if (currentUser.programa) {
+                    const programa = currentUser.programa.toLowerCase();
+                    if (programa.includes('panader') || programa.includes('pasteler')) {
+                        programName = 'Panadería y Pastelería';
+                        sectorTips = `Ejemplos para panadería: productos artesanales, masas madre, pasteles personalizados, pan dulce, repostería fina.`;
+                    } else if (programa.includes('bellez') || programa.includes('estetic')) {
+                        programName = 'Belleza Integral';
+                        sectorTips = `Ejemplos para belleza: tratamientos faciales, manicure, peinados, maquillaje profesional, asesoría de imagen.`;
+                    }
                 }
             }
+            
+            // Obtener progreso del estudiante
+            const progreso = getProjectProgress();
+            const modulosCompletados = Object.keys(progreso).filter(k => progreso[k] > 0).length;
+            
+            // Construir historial para contexto
+            const historyContext = aiChatHistory.slice(-5).map(msg => 
+                `${msg.role === 'user' ? studentName : 'Charlotte'}: ${msg.content}`
+            ).join('\n');
 
             const prompt = `Eres Charlotte, consultora especializada en emprendimiento para ${programName}.
 
-Analiza esta respuesta del estudiante para el campo "${field.label}":
-"${response}"
+${historyContext ? `CONVERSACIÓN RECIENTE:\n${historyContext}\n` : ''}
+=== INFORMACIÓN DEL ESTUDIANTE ===
+- Nombre: ${studentName}
+- Programa: ${programName}
+- Módulos completados: ${modulosCompletados}/5
+- Campo actual: ${field.label}
+- Respuesta original del estudiante: "${response}"
 
-INSTRUCCIONES ESPECÍFICAS:
-- SIEMPRE da opciones específicas de mejora, incluso si la respuesta es buena
-- Formato: "APROBADO: [respuesta original]. [Comentario positivo]. Te doy estas opciones para mejorarlo aún más:"
-- Luego da 2-3 opciones específicas adaptadas al sector ${programName}
-- Numera las opciones (Opción 1, Opción 2, Opción 3)
-- Pregunta: "¿Cuál te gusta más? (responde '1', '2', '3' o 'original' para mantener la tuya)"
-- Sé positiva y alentadora, enfócate en ayudar al estudiante
+${sectorTips}
 
-Ejemplo de respuesta:
-"APROBADO: Nuestra Receta. ¡Qué nombre tan auténtico! Te doy estas opciones para hacerlo aún más memorable:
-Opción 1: 'Recetas de la Abuela' - Evoca tradición familiar
-Opción 2: 'El Secreto de la Receta' - Genera misterio e interés  
-Opción 3: 'Recetas Artesanales' - Enfatiza lo hecho a mano
-¿Cuál te gusta más? (responde '1', '2', '3' o 'original')"
+INSTRUCCIONES OBLIGATORIAS - MUY IMPORTANTE:
+1. La respuesta original del estudiante es: "${response}"
+2. Debes TOMAR esa respuesta y MEJORARLA profesionalmente
+3. Las 3 opciones deben ser versiones MEJORADAS de esa respuesta específica
+4. NO inventes nuevos conceptos - MEJORA los que el estudiante ya dio
+5. Cada opción debe mantener la esencia de lo que el estudiante escribió
+6. Mejora la redacción, hazla más profesional, pero conserva las ideas principales
 
-Responde de manera profesional y motivadora.`;
+Formato obligatorio - cada línea debe empezar con "MEJORA":
+MEJORA 1: [primera versión mejorada de "${response}"]
+MEJORA 2: [segunda versión mejorada de "${response}"]
+MEJORA 3: [tercera versión mejorada de "${response}"]
 
-            // Obtener API key de OpenRouter
-            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
+Responde ONLY con las 3 mejoras de la respuesta original.`;
+
+            // Obtener API key de forma unificada
+            let apiKey = await getOpenRouterApiKey();
+
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
                 hideTypingIndicator();
-                addChatMessage('❌ La IA no está configurada. Tu respuesta será guardada pero no puedo darte opciones personalizadas.', 'ai');
-                addChatMessage(`¿Quieres continuar con "${response}" o modificarlo? (responde "continuar" o "modificar")`, 'ai');
-                
-                awaitingImprovement = true;
-                currentSuggestion = {
-                    field: currentField,
-                    original: response,
-                    analysis: 'Respuesta guardada sin análisis de IA',
-                    options: [],
-                    type: 'no_ai'
-                };
+                addChatMessage('❌ La IA no está configurada. Tu respuesta será guardada.', 'ai');
                 return;
             }
 
@@ -12720,26 +12858,35 @@ Responde de manera profesional y motivadora.`;
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-Title': 'Charlotte Educational Platform'
                 },
                 body: JSON.stringify({
                     model: 'google/gemini-2.0-flash-001',
-                    messages: [{ role: 'user', content: prompt }]
+                    messages: [{ role: 'user', content: prompt }],
+                    max_tokens: 600,
+                    temperature: 0.7
                 })
             });
 
             const data = await aiResponse.json();
             const analysis = data.choices[0].message.content;
 
-            hideTypingIndicator();
-
-            // Extraer opciones del análisis de la IA
-            const options = extractOptionsFromAnalysis(analysis);
+            // Guardar en historial
+            aiChatHistory.push({ role: 'user', content: response, field: field.label });
+            aiChatHistory.push({ role: 'assistant', content: analysis });
+            if (aiChatHistory.length > 20) aiChatHistory = aiChatHistory.slice(-20);
+            saveChatHistory();
             
+            // Guardar análisis en Firebase
+            saveAIAnalysisToFirebase(response, field.label, analysis);
+
+            hideTypingIndicator();
+            addChatMessage(`💡 ${analysis}`, 'ai');
+
+            // Guardar análisis
+            const options = extractOptionsFromAnalysis(analysis);
             if (options && options.length > 0) {
-                // Siempre dar opciones, nunca aprobar automáticamente
-                addChatMessage(`💡 ${analysis}`, 'ai');
-                
                 awaitingImprovement = true;
                 currentSuggestion = {
                     field: currentField,
@@ -12748,24 +12895,61 @@ Responde de manera profesional y motivadora.`;
                     options: options,
                     type: 'options'
                 };
+                
+                // Mostrar las opciones numeradas y las instrucciones
+                addChatMessage('📋 He analizado tu respuesta y te ofrezco las siguientes opciones de mejora:', 'ai');
+                options.forEach(opt => {
+                    addChatMessage(`${opt.number}. ${opt.text}`, 'ai');
+                });
+                addChatMessage('💡 Para elegir una opción, escribe el número (1, 2 o 3) O escribe "original" para mantener tu respuesta escrita tal como la enviaste.', 'ai');
             } else {
-                // Fallback si no hay opciones
-                addChatMessage(`✅ ¡Excelente respuesta! APROBADO: ${response}`, 'ai');
-                projectData[currentModule][currentField].approved = true;
-                setTimeout(() => showNextField(), 2000);
+                addChatMessage(`✅ ¡Excelente! Tu respuesta ha sido aprobada.`, 'ai');
             }
 
         } catch (error) {
             console.error('Error analizando respuesta:', error);
             hideTypingIndicator();
-            addChatMessage('Hubo un error analizando tu respuesta. ¿Quieres continuar con la siguiente pregunta o intentar de nuevo? (responde "continuar")', 'ai');
+            addChatMessage('❌ Error al analizar. Tu respuesta ha sido guardada.', 'ai');
+        }
+    }
+    
+    // Función para obtener progreso del proyecto
+    function getProjectProgress() {
+        const progress = {};
+        for (let i = 1; i <= 5; i++) {
+            if (projectData[i]) {
+                progress[i] = Object.keys(projectData[i]).length;
+            } else {
+                progress[i] = 0;
+            }
+        }
+        return progress;
+    }
+    
+    // Función para guardar análisis en Firebase
+    async function saveAIAnalysisToFirebase(response, field, analysis) {
+        try {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+            if (!currentUser || !currentUser.email) return;
             
-            awaitingImprovement = true;
-            currentSuggestion = {
-                field: currentField,
-                original: response,
-                suggestion: 'Error en análisis - respuesta guardada sin revisión'
+            const analysisData = {
+                response: response,
+                field: field,
+                analysis: analysis,
+                timestamp: new Date().toISOString(),
+                module: currentModule
             };
+            
+            // Guardar en Firestore si está disponible
+            if (window.db && window.db.app) {
+                const { doc, setDoc } = window;
+                await setDoc(doc(window.db, 'ai_analysis', currentUser.email), {
+                    lastAnalysis: analysisData,
+                    email: currentUser.email
+                }, { merge: true });
+            }
+        } catch(e) {
+            console.warn('No se pudo guardar análisis en Firebase:', e);
         }
     }
 
@@ -12867,8 +13051,68 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         addChatMessage('• Escribe "descargar" para descargar el documento\n• Escribe "vista previa" para ver el documento completo\n• Escribe "reiniciar" para empezar un nuevo proyecto', 'ai');
     }
 
+    async function showMoreOptions() {
+        showTypingIndicator();
+        try {
+            const apiKey = await getOpenRouterApiKey();
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const programName = currentUser?.programa || 'Panadería y Pastelería';
+            
+            const newOptionsPrompt = `Eres Charlotte, consultora especializada en emprendimiento para ${programName}.
+
+El estudiante actualmente está en el campo: "${currentSuggestion?.field || 'N/A'}"
+Su respuesta original fue: "${currentSuggestion?.original || 'N/A'}"
+
+El estudiante ha solicitado más opciones o opciones diferentes.
+
+INSTRUCCIONES:
+1. Genera 3 opciones COMPLETAMENTE DIFERENTES a las anteriores
+2. Las nuevas opciones deben ser más variadas y diversas en enfoque y estilo
+3. Cada opción debe ser única y diferente
+
+Formato obligatorio:
+NUEVA OPCIÓN 1: [nueva opción]
+NUEVA OPCIÓN 2: [nueva opción]
+NUEVA OPCIÓN 3: [nueva opción]
+
+Responde ONLY con las 3 nuevas opciones.`;
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [{ role: 'user', content: newOptionsPrompt }],
+                    max_tokens: 500,
+                    temperature: 0.9
+                })
+            });
+
+            const data = await response.json();
+            const newOptionsResponse = data.choices[0].message.content;
+
+            // Extraer las nuevas opciones y actualizar currentSuggestion
+            const newOptions = extractOptionsFromAnalysis(newOptionsResponse);
+            if (newOptions && newOptions.length > 0 && currentSuggestion) {
+                currentSuggestion.options = newOptions;
+                currentSuggestion.analysis = newOptionsResponse;
+            }
+
+            hideTypingIndicator();
+            addChatMessage(`💡 Aquí tienes nuevas opciones:\n\n${newOptionsResponse}`, 'ai');
+            addChatMessage('Elige la opción que más te guste (1, 2 o 3), escribe "más opciones" si necesitas otras, o escribe "original" para mantener tu respuesta escrita.', 'ai');
+        } catch (error) {
+            hideTypingIndicator();
+            addChatMessage('Lo siento, no pude generar más opciones en este momento. Por favor elige una de las opciones anteriores o continúa.', 'ai');
+        }
+    }
+
     // Función para manejar comandos especiales
     function handleConsultationCommand(command) {
+        console.log('DEBUG handleConsultationCommand: comando=', command);
         // Verificación robusta del parámetro command
         if (command === null || command === undefined) {
             console.error('handleConsultationCommand: comando es null o undefined', command);
@@ -12891,6 +13135,80 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
 
         const cmd = commandStr.toLowerCase().trim();
 
+        // PRIORIDAD 1: Modo de revisión - el usuario quiere editar un campo específico
+        if (window.moduleFieldsToReview && window.moduleFieldsToReview.length > 0) {
+            console.log('MODO REVISIÓN: moduleFieldsToReview disponible con', window.moduleFieldsToReview.length, 'campos');
+            const moduleFields = window.moduleFieldsToReview;
+            
+            // Detectar si es un número
+            const numberMatch = cmd.match(/^(\d+)$/);
+            if (numberMatch) {
+                const selectedIndex = parseInt(numberMatch[1]) - 1; // Convertir a índice (0-based)
+                
+                if (selectedIndex >= 0 && selectedIndex < moduleFields.length) {
+                    // Campo válido seleccionado - iniciar edición
+                    const selectedField = moduleFields[selectedIndex];
+                    
+                    // Configurar el módulo y campo actual
+                    currentModule = selectedField.module;
+                    currentField = selectedField.field;
+                    
+                    // Limpiar el modo de revisión
+                    window.moduleFieldsToReview = null;
+                    window.currentReviewModule = null;
+                    
+                    // Obtener la información del campo
+                    const module = projectStructure[currentModule];
+                    const field = module.fields[currentField];
+                    
+                    addChatMessage(`✏️ Editando: ${field.label}`, 'ai');
+                    addChatMessage('Tu respuesta anterior era:', 'ai');
+                    addChatMessage('"' + selectedField.answer + '"', 'ai');
+                    addChatMessage('\n' + field.question, 'ai');
+                    
+                    // Mostrar ejemplo
+                    if (field.example) {
+                        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+                        let program = 'belleza';
+                        if (currentUser && currentUser.programa) {
+                            const programa = currentUser.programa.toLowerCase();
+                            if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
+                                program = 'panaderia';
+                            } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
+                                program = 'belleza';
+                            }
+                        }
+                        const example = field.example(program);
+                        addChatMessage(`💡 ${example}`, 'ai');
+                    }
+                    
+                    // Habilitar input
+                    showInputForField(field);
+                    return;
+                } else {
+                    addChatMessage('Número no válido. Por favor elige un número entre 1 y ' + moduleFields.length + '.', 'ai');
+                    return;
+                }
+            } else if (cmd === 'continuar') {
+                // Continuar sin editar
+                window.moduleFieldsToReview = null;
+                window.currentReviewModule = null;
+                addChatMessage('Continuando con el proyecto...', 'ai');
+                setTimeout(() => showNextField(), 1500);
+                return;
+            } else if (cmd === 'cancelar') {
+                // Cancelar y volver
+                window.moduleFieldsToReview = null;
+                window.currentReviewModule = null;
+                addChatMessage('Operación cancelada.', 'ai');
+                return;
+            } else {
+                addChatMessage('No entendí tu respuesta. Escribe un número (1-' + moduleFields.length + ') para editar esa respuesta, "continuar" para seguir, o "cancelar" para volver.', 'ai');
+                return;
+            }
+        }
+
+        // PRIORIDAD 2: Comandos cuando se está mejorando una respuesta
         if (cmd === 'modificar' && awaitingImprovement) {
             addChatMessage('Por favor, escribe tu respuesta modificada:', 'ai');
             awaitingModification = true;
@@ -12900,28 +13218,49 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         } else if (cmd === 'continuar' && awaitingImprovement) {
             // Aprobar la respuesta original
             saveSelectedOption(currentSuggestion.original, 'original');
-        } else if (cmd === 'original' && awaitingImprovement && currentSuggestion?.type === 'options') {
-            // Elegir la respuesta original
-            saveSelectedOption(currentSuggestion.original, 'original');
-        } else if (awaitingImprovement && currentSuggestion?.type === 'options' && ['1', '2', '3'].includes(cmd)) {
-            // Elegir una opción numerada
-            const optionNumber = parseInt(cmd);
-            const selectedOption = currentSuggestion.options.find(opt => opt.number === optionNumber);
-            if (selectedOption) {
-                saveSelectedOption(selectedOption.text, `opcion_${optionNumber}`);
+        } else if (cmd === 'original' && awaitingImprovement) {
+            // Elegir la respuesta original - guardar directamente
+            if (currentSuggestion && currentSuggestion.original) {
+                saveSelectedOption(currentSuggestion.original, 'original');
             } else {
-                addChatMessage('Opción no válida. Por favor elige 1, 2, 3 u "original".', 'ai');
+                addChatMessage('No hay una respuesta original para guardar. Escribe "continuar" para seguir.', 'ai');
             }
-        } else if (cmd === 'revisar' && awaitingImprovement) {
-            addChatMessage('Tu respuesta actual es: "' + currentSuggestion.original + '"', 'ai');
-            if (currentSuggestion.options && currentSuggestion.options.length > 0) {
-                addChatMessage('Opciones disponibles:', 'ai');
-                currentSuggestion.options.forEach(opt => {
-                    addChatMessage(`${opt.number}. ${opt.text}`, 'ai');
-                });
-                addChatMessage('¿Cuál eliges? (1, 2, 3 u "original")', 'ai');
+        } else if (awaitingImprovement && currentSuggestion?.type === 'options') {
+            // Mejorar reconocimiento de opciones - más flexible
+            const cmdLower = cmd.toLowerCase().trim();
+            
+            // Detectar si es un número directo (1, 2, 3)
+            const directNumberMatch = cmdLower.match(/^(\d+)$/);
+            const directNumber = directNumberMatch ? parseInt(directNumberMatch[1]) : null;
+            
+            // Detectar si es una opción con texto (opción 1, la opcion 1, etc.)
+            const optionMatch = cmdLower.match(/(?:la\s+|elijo\s+|escojo\s+|el\s+)?(?:opcion|opción|opc)\s*(\d+)/i);
+            const optionNumber = optionMatch ? parseInt(optionMatch[1]) : null;
+            
+            // Usar el número encontrado (prioridad al número directo)
+            const foundNumber = directNumber || optionNumber;
+            
+            if (foundNumber && ['1', '2', '3'].includes(String(foundNumber))) {
+                // Elegir una opción numerada
+                const selectedOption = currentSuggestion.options.find(opt => opt.number === foundNumber);
+                if (selectedOption) {
+                    saveSelectedOption(selectedOption.text, `opcion_${foundNumber}`);
+                } else {
+                    addChatMessage('Opción no válida. Por favor elige 1, 2, 3 u "original".', 'ai');
+                }
+            } else if (cmd === 'revisar' || cmd === 'ver' || cmd === 'ver opciones') {
+                addChatMessage('Tu respuesta actual es: "' + currentSuggestion.original + '"', 'ai');
+                if (currentSuggestion.options && currentSuggestion.options.length > 0) {
+                    addChatMessage('Opciones disponibles:', 'ai');
+                    currentSuggestion.options.forEach(opt => {
+                        addChatMessage(`${opt.number}. ${opt.text}`, 'ai');
+                    });
+                    addChatMessage('¿Cuál eliges? (responde solo el número: 1, 2, 3)', 'ai');
+                } else {
+                    addChatMessage('¿Quieres modificarla o continuar? (responde "modificar" o "continuar")', 'ai');
+                }
             } else {
-                addChatMessage('¿Quieres modificarla o continuar? (responde "modificar" o "continuar")', 'ai');
+                addChatMessage('No entendí tu respuesta. Por favor responde solo con el número: 1, 2, o 3. También puedes escribir "original", "revisar" o "continuar".', 'ai');
             }
         } else if (cmd === 'descargar') {
             downloadFinalDocument();
@@ -12978,11 +13317,6 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
             </html>
         `);
     }
-
-    // Variables para el sistema de consultoría
-    let awaitingStudentResponse = false;
-    let awaitingImprovement = false;
-    let awaitingModification = false;
 
     // Hacer las funciones globales inmediatamente
     // (las funciones se definirán después pero se asignarán aquí)
@@ -13138,6 +13472,17 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         // Guardar los campos del módulo para poder editarlos
         window.moduleFieldsToReview = moduleFields;
         window.currentReviewModule = moduleNum;
+        
+        // Asegurar que los flags de respuesta estén en false para que el mensaje vaya a handleConsultationCommand
+        awaitingStudentResponse = false;
+        awaitingImprovement = false;
+        
+        // Habilitar input para que el usuario pueda responder
+        const input = document.getElementById('projectInput');
+        if (input) {
+            input.focus();
+            input.placeholder = 'Escribe el número del campo que quieres editar...';
+        }
     }
 
     async function initProjectWizard() {
@@ -13311,9 +13656,9 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
 
         if (command === 'siguiente' || command === 'continuar' || command === 'ok' || command === 'sí' || command === 'si' ||
             command === 'claro' || command === 'por supuesto' || command === 'adelante' || command === 'siguiente módulo') {
-            if (currentProjectStep < 7) {
-                currentProjectStep++;
-                setProjectStep(currentProjectStep);
+            if (currentModule < 7) {
+                currentModule++;
+                setProjectStep(currentModule);
 
                 const moduleNames = {
                     1: 'PRESENTACIÓN',
@@ -13325,7 +13670,7 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
                     7: 'ARMADO DEL PROYECTO FINAL'
                 };
 
-                const moduleName = moduleNames[currentProjectStep] || `MÓDULO ${currentProjectStep}`;
+                const moduleName = moduleNames[currentModule] || `MÓDULO ${currentModule}`;
                 addChatMessage(`✅ Avanzando al ${moduleName}...`, 'ai');
             } else {
                 addChatMessage('🎉 ¡Felicitaciones! Has completado todos los módulos de tu proyecto empresarial. Tu proyecto está listo para ser presentado.', 'ai');
@@ -13337,10 +13682,25 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     }
 
     async function sendProjectMessage() {
+        // Mostrar mensaje temporal en el chat para debug
+        const debugDiv = document.createElement('div');
+        debugDiv.className = 'chat-message system';
+        debugDiv.textContent = '🔧 DEBUG: sendProjectMessage iniciada...';
+        document.getElementById('projectChat').appendChild(debugDiv);
+        
+        console.log('DEBUG sendProjectMessage: Iniciando...');
         const input = document.getElementById('projectInput');
         const message = input.value.trim();
 
         if (!message) return;
+
+        // Evitar mensajes duplicados consecutivos del usuario
+        const chat = document.getElementById('projectChat');
+        const lastUserMessage = chat?.lastElementChild;
+        if (lastUserMessage?.classList?.contains('user') && lastUserMessage.textContent === message) {
+            console.log('Mensaje duplicado ignorado');
+            return;
+        }
 
         // Limpiar input inmediatamente
         input.value = '';
@@ -13363,8 +13723,72 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
 
         // Si estamos esperando decisión sobre mejora
         if (awaitingImprovement) {
-            handleConsultationCommand(message);
-            return;
+            // Analizar el mensaje del estudiante para entender su intención
+            showTypingIndicator();
+            try {
+                const apiKey = await getOpenRouterApiKey();
+                const intentPrompt = `Eres un analizador de intenciones de mensajes. Analiza el siguiente mensaje del estudiante y determina qué está pidiendo.
+
+Mensaje del estudiante: "${message}"
+
+Opciones de intención (responde SOLO con una):
+1. NUMERO - Si es una elección de opción (1, 2, 3)
+2. CONTINUAR - Si quiere guardar su respuesta original y continuar
+3. ORIGINAL - Si escribe "original" para mantener su respuesta escrita sin cambios
+4. REVISAR - Si quiere ver o revisar su respuesta original
+5. MODIFICAR - Si quiere cambiar o modificar su respuesta
+6. MAS_OPCIONES - Si pide más opciones, opciones diferentes, o similares
+7. OTRO - Si es cualquier otra petición o pregunta
+
+Responde SOLO con una palabra: NUMERO, CONTINUAR, ORIGINAL, REVISAR, MODIFICAR, MAS_OPCIONES, u OTRO.`;
+
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: 'google/gemini-2.0-flash-001',
+                        messages: [{ role: 'user', content: intentPrompt }],
+                        max_tokens: 50,
+                        temperature: 0.3
+                    })
+                });
+
+                const data = await response.json();
+                const intent = data.choices[0].message.content.trim().toUpperCase();
+
+                hideTypingIndicator();
+                console.log('Intención detectada:', intent);
+
+                // Procesar según la intención detectada
+                if (intent.includes('NUMERO')) {
+                    // Es un número - procesar como elección de opción
+                    handleConsultationCommand(message);
+                } else if (intent.includes('MAS_OPCIONES')) {
+                    // Pide más opciones
+                    await showMoreOptions();
+                } else if (intent.includes('CONTINUAR') || intent.includes('ORIGINAL')) {
+                    // Guardar respuesta original y continuar
+                    handleConsultationCommand('continuar');
+                } else if (intent.includes('REVISAR')) {
+                    // Revisar respuesta original
+                    handleConsultationCommand('revisar');
+                } else if (intent.includes('MODIFICAR')) {
+                    // Modificar respuesta
+                    handleConsultationCommand('modificar');
+                } else {
+                    // Es otro tipo de mensaje - intentar procesar como comando o responder
+                    handleConsultationCommand(message);
+                }
+                return;
+            } catch (error) {
+                hideTypingIndicator();
+                // En caso de error, procesar como comando normal
+                handleConsultationCommand(message);
+                return;
+            }
         }
 
         // Manejar comandos del sistema de consultoría
@@ -13400,8 +13824,367 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
         }, 2000);
     }
 
+    // ===== FUNCIONES DEL SISTEMA DE CONVERSACIÓN (MIGRADAS DESDE BACKUP) =====
+    
+    async function processConversationResponse(userResponse, question, step) {
+        // Agregar respuesta del usuario al chat
+        addChatMessage(userResponse, 'user');
+
+        // El siguiente step debería ser 'analysis'
+        const nextStepIndex = currentConversationStep + 1;
+        const nextStep = question.conversationFlow[nextStepIndex];
+
+        if (nextStep && nextStep.type === 'analysis') {
+            // Realizar análisis de IA
+            await performAIAnalysis(userResponse, question, nextStep);
+        }
+    }
+
+    async function performAIAnalysis(userResponse, question, analysisStep) {
+        try {
+            // Intentar obtener la API key
+            let apiKey = await getOpenRouterApiKey();
+            
+            // Si no hay key, continuar sin ella
+            if (!apiKey) {
+            }
+
+            if (!apiKey) {
+                // Sin API key, guardar directamente
+                saveResponseAndContinue(userResponse, question);
+                return;
+            }
+
+            showTypingIndicator();
+
+            const prompt = analysisStep.aiPrompt
+                .replace('{sector}', (userProgram || 'belleza') === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral');
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'X-Title': 'Charlotte Educational Platform'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `Eres Charlotte, tutora especializada en emprendimiento. Analiza respuestas de estudiantes y decide si son excelentes o necesitan mejoras.`
+                        },
+                        {
+                            role: 'user',
+                            content: `Pregunta: "${question.conversationFlow[currentConversationStep].message}"
+Respuesta del estudiante: "${userResponse}"
+
+${prompt}`
+                        }
+                    ],
+                    max_tokens: 300,
+                    temperature: 0.7
+                })
+            });
+
+            hideTypingIndicator();
+
+            if (!response.ok) {
+                saveResponseAndContinue(userResponse, question);
+                return;
+            }
+
+            const data = await response.json();
+            const analysis = data.choices[0].message.content;
+
+            // Procesar el análisis
+            await processAIAnalysisResult(analysis, userResponse, question);
+
+        } catch (error) {
+            console.error('Error en análisis de IA:', error);
+            saveResponseAndContinue(userResponse, question);
+        }
+    }
+
+    async function processAIAnalysisResult(analysis, userResponse, question) {
+        if (analysis.toUpperCase().includes('EXCELENTE:') || analysis.toUpperCase().includes('APROBADO:')) {
+            // Respuesta excelente - guardar directamente
+            const approvedResponse = analysis.split(/EXCELENTE:|APROBADO:/)[1].trim() || userResponse;
+            addChatMessage(`¡Excelente! ${getPositiveFeedback ? getPositiveFeedback(question.id) : '¡Muy bien!'}`, 'ai');
+            saveResponseAndContinue(approvedResponse, question);
+        } else {
+            // Necesita mejoras - mostrar opciones
+            await showImprovementOptions(analysis, userResponse, question);
+        }
+    }
+
+    async function showImprovementOptions(analysis, userResponse, question) {
+        // Extraer opciones del análisis de IA
+        const options = extractOptionsFromAnalysis(analysis);
+        
+        // Extraer opciones del análisis de IA y mostrarlas numeradas
+        const optionsStep = {
+            type: 'options',
+            analysis: analysis,
+            originalResponse: userResponse,
+            question: question,
+            options: options
+        };
+
+        // Mostrar análisis y opciones
+        addChatMessage(analysis, 'ai');
+        
+        // Mostrar las opciones numeradas y las instrucciones
+        if (options && options.length > 0) {
+            addChatMessage('📋 He analizado tu respuesta y te ofrezco las siguientes opciones de mejora:', 'ai');
+            options.forEach(opt => {
+                addChatMessage(`${opt.number}. ${opt.text}`, 'ai');
+            });
+            addChatMessage('💡 Para elegir una opción, escribe el número (1, 2 o 3) O escribe "original" para mantener tu respuesta escrita tal como la enviaste.', 'ai');
+        }
+
+        // Agregar step de opciones al conversationFlow
+        if (question.conversationFlow) {
+            question.conversationFlow.splice(currentConversationStep + 2, 0, optionsStep);
+            currentConversationStep++;
+            askCurrentQuestion();
+        }
+    }
+
+    async function processOptionSelection(selectedOption, question) {
+        // Mejorar reconocimiento de opciones - más flexible
+        const optStr = String(selectedOption || '').toLowerCase().trim();
+        
+        // Detectar si es un número directo (1, 2, 3)
+        const directNumberMatch = optStr.match(/^(\d+)$/);
+        const directNumber = directNumberMatch ? parseInt(directNumberMatch[1]) : null;
+        
+        // Detectar si es una opción con texto (opción 1, la opcion 1, etc.)
+        const optionMatch = optStr.match(/(?:la\s+|elijo\s+|escojo\s+|el\s+)?(?:opcion|opción|opc)\s*(\d+)/i);
+        const optionNumber = optionMatch ? parseInt(optionMatch[1]) : null;
+        
+        // Usar el número encontrado (prioridad al número directo)
+        const foundNumber = directNumber || optionNumber;
+        
+        if (!foundNumber || foundNumber < 1 || foundNumber > 3) {
+            addChatMessage('Por favor, elige una opción válida. Responde solo con el número: 1, 2 o 3.', 'ai');
+            return;
+        }
+
+        // Extraer la opción seleccionada del análisis anterior
+        const optionsStep = question.conversationFlow ? question.conversationFlow.find(step => step.type === 'options') : null;
+        if (optionsStep && optionsStep.analysis) {
+            const selectedOptionText = extractOptionFromAnalysis(optionsStep.analysis, foundNumber);
+            if (selectedOptionText) {
+                // Llamar a la IA para generar la respuesta final mejorada
+                showTypingIndicator();
+                try {
+                    const apiKey = await getOpenRouterApiKey();
+                    const improvementPrompt = `Eres Charlotte, consultora especializada en emprendimiento.
+
+El estudiante ha elegido la opción ${foundNumber} para el campo "${currentSuggestion?.field || question.id}".
+
+Opción elegida: "${selectedOptionText}"
+
+INSTRUCCIONES:
+1. Reconoce la elección del estudiante de manera positiva
+2. Confirma la opción elegida
+3. Da una respuesta FINAL mejorada y profesional basada en la opción seleccionada
+4. No des más opciones - esta es la respuesta final
+
+Responde con la confirmación y la respuesta final mejorada.`;
+
+                    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            model: 'google/gemini-2.0-flash-001',
+                            messages: [{ role: 'user', content: improvementPrompt }],
+                            max_tokens: 400,
+                            temperature: 0.7
+                        })
+                    });
+
+                    const data = await response.json();
+                    const finalResponse = data.choices[0].message.content;
+
+                    hideTypingIndicator();
+                    addChatMessage(finalResponse, 'ai');
+                    saveResponseAndContinue(selectedOptionText, question);
+                    awaitingImprovement = false;
+                    currentSuggestion = null;
+                    return;
+                } catch (error) {
+                    hideTypingIndicator();
+                    addChatMessage(`¡Perfecta elección! Has seleccionado: "${selectedOptionText}"`, 'ai');
+                    saveResponseAndContinue(selectedOptionText, question);
+                    awaitingImprovement = false;
+                    currentSuggestion = null;
+                    return;
+                }
+            }
+        }
+
+        // Fallback si no se puede extraer la opción
+        addChatMessage(`¡Perfecta elección! Has seleccionado la opción ${foundNumber}.`, 'ai');
+        saveResponseAndContinue(`Opción ${foundNumber} seleccionada`, question);
+    }
+
+    function extractOptionFromAnalysis(analysis, optionNumber) {
+        // Extraer opción numerada del análisis
+        const lines = analysis.split('\n');
+        const optionRegex = new RegExp(`^${optionNumber}[\)\.:]\\s*(.+)`);
+        
+        for (const line of lines) {
+            const match = line.match(optionRegex);
+            if (match && match[1]) {
+                return match[1].trim();
+            }
+        }
+        return null;
+    }
+
+    async function reviewStudentResponse(userResponse, question) {
+        // Para el módulo 0 (presentación), guardar directamente sin revisión
+        if (currentModule === 1) {
+            saveResponseAndContinue(userResponse, question);
+            return;
+        }
+
+        try {
+            // Unificar: usar getOpenRouterApiKey() para obtener la API key
+            let apiKey = await getOpenRouterApiKey();
+            
+            if (!apiKey) {
+                // Si no hay API key, guardar directamente
+                saveResponseAndContinue(userResponse, question);
+                return;
+            }
+
+            // Mostrar indicador de escritura
+            showTypingIndicator();
+
+            const currentProgram = userProgram || 'belleza';
+            const prompt = `Eres Charlotte, tutora especializada en emprendimiento para ${currentProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral'}.
+
+Tu tarea es revisar CRÍTICAMENTE la respuesta del estudiante y decidir si realmente está bien o necesita mejoras significativas.
+
+Pregunta actual: "${question.question}"
+Respuesta del estudiante: "${userResponse}"
+
+INSTRUCCIONES ESTRICTAS PARA REVISIÓN:
+- Revisa ORTOGRAFÍA: Corrige errores como "apasteria" → "pastelería", "l" → "la", faltas de acentos
+- Revisa GRAMÁTICA: Asegúrate de que las frases estén bien construidas y sean profesionales
+- Revisa CREATIVIDAD: ¿Es original? ¿Transmite valor único? ¿Es memorable para un negocio?
+- Revisa ESPECIFICIDAD: ¿Responde exactamente a lo pedido? ¿Es lo suficientemente detallado?
+- Revisa PROFESIONALISMO: ¿Suena como un negocio real o parece amateur?
+
+SOLO APRUEBA si la respuesta es EXCELENTE (sin errores, creativa, profesional, memorable).
+Si hay CUALQUIER problema (ortografía, gramática, falta de creatividad, vaguedad, etc.), NO apruebes.
+
+FORMATO DE RESPUESTA:
+- Si APRUEBAS (solo respuestas perfectas): "APROBADO: [respuesta del estudiante]"
+- Si RECHAZAS: Explica amablemente pero FIRMEMENTE qué mejorar, da EJEMPLOS concretos, y sugiere una versión mejorada específica.
+
+Sé constructivo pero EXIGENTE - tu objetivo es crear proyectos PROFESIONALES de calidad.`;
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'X-Title': 'Charlotte Educational Platform'
+                },
+                body: JSON.stringify({
+                    model: 'google/gemini-2.0-flash-001',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'Eres Charlotte, tutora de emprendimiento嚴格审核回复。'
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.7
+                })
+            });
+
+            hideTypingIndicator();
+
+            if (!response.ok) {
+                saveResponseAndContinue(userResponse, question);
+                return;
+            }
+
+            const data = await response.json();
+            const review = data.choices[0].message.content;
+
+            // Procesar la revisión
+            if (review.toUpperCase().includes('APROBADO:')) {
+                const approvedResponse = review.split('APROBADO:')[1].trim();
+                addChatMessage(`¡Excelente! ${getPositiveFeedback ? getPositiveFeedback(question.id) : 'Tu respuesta es perfecta!'}`, 'ai');
+                saveResponseAndContinue(approvedResponse || userResponse, question);
+            } else {
+                // Mostrar sugerencias de mejora
+                addChatMessage(review, 'ai');
+                awaitingImprovement = true;
+                addChatMessage('¿Qué prefieres? Escribe "mejorar" para ver opciones o "continuar" para guardar tu respuesta actual.', 'ai');
+            }
+
+        } catch (error) {
+            console.error('Error revisando respuesta:', error);
+            saveResponseAndContinue(userResponse, question);
+        }
+    }
+
+    function getPositiveFeedback(questionId) {
+        const feedbacks = {
+            'nombre_negocio': '¡Un nombre muy profesional y memorable!',
+            'eslogan': '¡Eslogan creativo y efectivo!',
+            'descripcion': '¡Descripción clara y profesional!',
+            'mision': '¡Misión inspiradora!',
+            'vision': '¡Visión a largo plazo muy clara!',
+            'cliente_ideal': '¡Perfecto entendimiento de tu cliente!',
+            'competencia': '¡Análisis de competencia muy útil!',
+            'propuesta_valor': '¡Propuesta de valor única y convincente!'
+        };
+        return feedbacks[questionId] || '¡Muy bien!继续前进！';
+    }
+
+    function saveResponseAndContinue(response, question) {
+        // Guardar la respuesta
+        if (!projectData[currentModule]) {
+            projectData[currentModule] = {};
+        }
+        
+        projectData[currentModule][question.id] = {
+            answer: response,
+            approved: true,
+            timestamp: new Date().toISOString()
+        };
+
+        saveProjectProgress();
+
+        // Continuar al siguiente paso
+        setTimeout(() => {
+            // Continuar con el siguiente campo o pregunta
+            if (currentConversationStep !== undefined && question.conversationFlow) {
+                currentConversationStep++;
+                askCurrentQuestion();
+            } else {
+                showNextField();
+            }
+        }, 1500);
+    }
+
     function askCurrentQuestion() {
-        const currentQuestions = projectQuestions[currentProjectStep]?.questions || [];
+        const currentQuestions = projectQuestions[currentModule]?.questions || [];
         const question = currentQuestions[currentQuestionIndex];
 
         if (!question) {
@@ -13446,47 +14229,6 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
             }
             addChatMessage(questionText, 'ai');
         }
-    }
-
-    function extractOptionFromAnalysis(analysis, optionNumber) {
-        // Buscar patrones comunes de opciones numeradas en el análisis
-        const lines = analysis.split('\n');
-
-        // Buscar líneas que empiecen con números (1., 1), (1:, etc.)
-        const optionPatterns = [
-            new RegExp(`^${optionNumber}\\s*[.:)]\\s*(.+)$`, 'i'), // "1. Opción", "1: Opción", "1) Opción"
-            new RegExp(`^\\(${optionNumber}\\)\\s*(.+)$`, 'i'), // "(1) Opción"
-            new RegExp(`${optionNumber}\\s*[.:)]\\s*(.+?)(?=\\d+[.:)]|$)`, 'i') // Opción en medio del texto
-        ];
-
-        for (const line of lines) {
-            for (const pattern of optionPatterns) {
-                const match = line.match(pattern);
-                if (match && match[1]) {
-                    // Limpiar la opción extraída
-                    let option = match[1].trim();
-                    // Remover caracteres de puntuación al final
-                    option = option.replace(/[.,;:!?]$/, '');
-                    return option;
-                }
-            }
-        }
-
-        // Si no se encuentra con los patrones, intentar extraer manualmente
-        const analysisLower = analysis.toLowerCase();
-        const optionIndex = analysisLower.indexOf(`${optionNumber}.`);
-        if (optionIndex !== -1) {
-            const start = optionIndex + `${optionNumber}.`.length;
-            const nextOption = analysisLower.indexOf(`${optionNumber + 1}.`, start);
-            const end = nextOption !== -1 ? nextOption : analysis.length;
-            let option = analysis.substring(start, end).trim();
-            // Limpiar saltos de línea y espacios extra
-            option = option.split('\n')[0].trim();
-            option = option.replace(/[.,;:!?]$/, '');
-            return option;
-        }
-
-        return null; // No se pudo extraer la opción
     }
 
     function saveToFirebase(category, data) {
@@ -13550,6 +14292,10 @@ Proyecto completado exitosamente con la asesoría de Charlotte, tutora virtual e
     // Definir los prompts específicos para cada módulo
     const stepPrompts = {
                 2: `Eres Charlotte, tutor especializado en emprendimiento para ${getUserProgram()}. Estás guiando al estudiante en el MÓDULO 1: IDEA Y NICHOS (Capítulo 1 del Proyecto).
+
+INSTRUCCIONES IMPORTANTES:
+- Si ofreces opciones al estudiante, SIEMPRE indica al final: "Para elegir una opción, escribe el número (por ejemplo: 1, 2 o 3) o escribe 'original' para mantener tu respuesta escrita"
+- No saludes de nuevo si ya has saludado antes en esta conversación
 
 INSTRUCCIONES ESPECÍFICAS:
 1. Paso 1.1: Nombre del Negocio y Eslogan
@@ -13647,7 +14393,21 @@ Enseña conceptos financieros básicos de manera práctica. Incluye cálculos re
 
     async function sendProjectChatMessage(message) {
         try {
-            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
+            // Intentar obtener la API key desde localStorage, window, o Firebase
+            let apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
+            
+            // Si no hay key, intentar obtener desde Firebase
+            if (!apiKey && window.db) {
+                try {
+                    const configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+                    if (configDoc.exists && configDoc.data().apiKey) {
+                        apiKey = configDoc.data().apiKey;
+                        console.log('✅ API key cargada desde Firebase');
+                    }
+                } catch(e) {
+                    console.warn('No se pudo obtener API key de Firebase:', e);
+                }
+            }
 
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
                 addChatMessage('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de admin.', 'ai');
@@ -13657,7 +14417,12 @@ Enseña conceptos financieros básicos de manera práctica. Incluye cálculos re
             // Mostrar indicador de escritura
             showTypingIndicator();
 
-            const prompt = stepPrompts[currentProjectStep] || `Eres un consultor empresarial especializado en ${getUserProgram()}. Estás en el paso ${currentProjectStep}: ${getStepDescription(currentProjectStep)}
+            const prompt = stepPrompts[currentModule] || `Eres un consultor empresarial especializado en ${getUserProgram()}. Estás en el paso ${currentModule}: ${getStepDescription(currentModule)}
+
+INSTRUCCIONES IMPORTANTES:
+- Si ofreces opciones al estudiante, SIEMPRE indica al final: "Para elegir una opción, escribe el número (por ejemplo: 1, 2 o 3) o escribe 'original' para mantener tu respuesta escrita"
+- No saludes de nuevo si ya has saludado antes en esta conversación
+- Mantén un registro de lo que ya has dicho
 
 CONVERSACIÓN ACTUAL:
 ${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Tú'}: ${msg.content}`).join('\n')}
@@ -13774,10 +14539,10 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function saveProjectData(userMessage, aiResponse) {
-        if (!projectData[currentProjectStep]) {
-            projectData[currentProjectStep] = [];
+        if (!projectData[currentModule]) {
+            projectData[currentModule] = [];
         }
-        projectData[currentProjectStep].push({
+        projectData[currentModule].push({
             user: userMessage,
             ai: aiResponse,
             timestamp: new Date().toISOString()
@@ -14241,13 +15006,19 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
     }
 
     function resetProject() {
+        console.log('🔄 Iniciando proceso de reinicio del proyecto...');
+        
         if (!confirm('¿Estás seguro de que quieres reiniciar el proyecto? Se perderán todos los datos y conversaciones actuales.')) {
+            console.log('Reinicio cancelado por el usuario');
             return;
         }
+
+        console.log('✅ Usuario confirmó el reinicio');
 
         // Limpiar variables del sistema de consultoría
         projectData = {};
         projectChat = [];
+        projectConversations = [];
         currentModule = 1;
         currentField = null;
         awaitingStudentResponse = false;
@@ -14258,45 +15029,70 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
         // Limpiar localStorage
         const user = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        const projectKey = `project_${user.email}`;
-        localStorage.removeItem(projectKey);
+        if (user.email) {
+            const projectKey = `project_${user.email}`;
+            localStorage.removeItem(projectKey);
+            console.log('✅ LocalStorage limpiado');
+        }
 
         // Limpiar Firebase - eliminar documento completo
-        if (db && user.email) {
+        if (window.db && user.email) {
             try {
-                const docRef = doc(db, 'projects', user.email);
-                deleteDoc(docRef)
-                    .then(() => console.log('✅ Proyecto eliminado de Firebase'))
-                    .catch(error => console.warn('⚠️ Error eliminando proyecto de Firebase (continuando):', error.message));
+                const { doc: docFn, deleteDoc } = window.firebaseFirestore;
+                if (docFn && deleteDoc) {
+                    const docRef = docFn(window.db, 'projects', user.email);
+                    deleteDoc(docRef)
+                        .then(() => console.log('✅ Proyecto eliminado de Firebase'))
+                        .catch(error => console.warn('⚠️ Error eliminando proyecto de Firebase:', error.message));
+                }
             } catch (error) {
                 console.warn('⚠️ Error al preparar eliminación en Firebase:', error.message);
             }
         }
 
         // Limpiar UI
-        document.getElementById('projectChat').innerHTML = '';
-        document.getElementById('projectSummary').innerHTML = '';
+        const chatElement = document.getElementById('projectChat');
+        if (chatElement) {
+            chatElement.innerHTML = '';
+        }
+        
+        const summaryElement = document.getElementById('projectSummary');
+        if (summaryElement) {
+            summaryElement.innerHTML = '';
+        }
 
         // Ocultar botones de acciones
-        document.getElementById('completeProjectBtn').style.display = 'none';
-        document.getElementById('previewProjectBtn').style.display = 'none';
-        document.getElementById('printProjectBtn').style.display = 'none';
+        const completeBtn = document.getElementById('completeProjectBtn');
+        if (completeBtn) completeBtn.style.display = 'none';
+        
+        const previewBtn = document.getElementById('previewProjectBtn');
+        if (previewBtn) previewBtn.style.display = 'none';
+        
+        const printBtn = document.getElementById('printProjectBtn');
+        if (printBtn) printBtn.style.display = 'none';
 
-        // Reinicializar pasos
-        document.querySelectorAll('.step').forEach((step, index) => {
-            step.classList.remove('active', 'hidden');
-            if (index === 0) {
-                step.classList.add('active');
-            } else {
-                step.classList.add('hidden');
-            }
-        });
+        // Reinicializar pasos del wizard
+        const steps = document.querySelectorAll('.step');
+        if (steps && steps.length > 0) {
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'hidden');
+                if (index === 0) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.add('hidden');
+                }
+            });
+        }
 
-        // Comenzar desde el principio
-        currentModule = 1;
-        currentField = null;
+        // Actualizar vista del proyecto
+        if (typeof updateProjectView === 'function') {
+            updateProjectView();
+        }
 
-        alert('Proyecto reiniciado exitosamente. Puedes comenzar de nuevo.');
+        // Mostrar mensaje de éxito
+        alert('✅ Proyecto reiniciado exitosamente. Puedes comenzar de nuevo.');
+        
+        console.log('✅ Proceso de reinicio completado');
     }
 
     function updateProjectChat() {
@@ -14464,6 +15260,61 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const loadingModal = showPlanLoadingModal('Charlotte está elaborando tu Plan de Negocio...');
 
         try {
+            // Obtener API key de Firebase primero
+            let apiKeyFromFirebase = '';
+            console.log('🔍 Intentando obtener API key de Firebase...');
+            console.log('window.db disponible:', !!window.db);
+            
+            // Mostrar qué proyecto de Firebase se está usando
+            if (window.db && window.db.app) {
+                console.log('🔥 Proyecto Firebase:', window.db.app.options.projectId);
+            }
+            
+            if (window.db) {
+                try {
+                    console.log('📡 Consultando Firestore...');
+                    
+                    // Intentar primero en coleccion 'config'
+                    let configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+                    console.log('📄 raw configDoc:', configDoc);
+                    console.log('📄 configDoc.type:', configDoc?.constructor?.name);
+                    console.log('📄 configDoc.exists():', configDoc?.exists());
+                    
+                    // Método alternativo: verificar si tiene datos
+                    const hasData = configDoc && configDoc.exists && configDoc.exists();
+                    console.log('📄 hasData:', hasData);
+                    
+                    if (hasData) {
+                        const data = configDoc.data();
+                        console.log('📄 data:', data);
+                        if (data && data.apiKey) {
+                            apiKeyFromFirebase = data.apiKey;
+                            console.log('✅ API key cargada desde Firebase');
+                        }
+                    }
+                    
+                    // Si no existe, intentar en coleccion 'configuracion'
+                    if (!apiKeyFromFirebase) {
+                        console.log('📄 Intentando en configuracion...');
+                        let configDoc2 = await window.getDoc(window.doc(window.db, 'configuracion', 'openrouter'));
+                        console.log('📄 configDoc2.exists():', configDoc2?.exists());
+                        
+                        if (configDoc2 && configDoc2.exists && configDoc2.exists()) {
+                            const data2 = configDoc2.data();
+                            console.log('📄 data2:', data2);
+                            if (data2 && data2.apiKey) {
+                                apiKeyFromFirebase = data2.apiKey;
+                                console.log('✅ API key cargada desde configuracion');
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.error('❌ Error completo:', e);
+                }
+            } else {
+                console.log('⚠️ Firebase no está disponible (window.db es undefined)');
+            }
+
             // 1. Recopilar TODAS las respuestas del estudiante
             updatePlanLoadingProgress(10, 'Recopilando tus 17 respuestas...');
 
@@ -14667,7 +15518,7 @@ REGLAS OBLIGATORIAS:
             // 3. Llamar a la IA
             updatePlanLoadingProgress(30, 'La IA está analizando tu negocio...');
 
-            const apiKey = localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
+            const apiKey = apiKeyFromFirebase || localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
             console.log('API Key disponible:', apiKey ? 'Sí' : 'No');
             console.log('API Key primeros 20 chars:', apiKey ? apiKey.substring(0, 20) + '...' : 'N/A');
             

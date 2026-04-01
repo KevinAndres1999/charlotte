@@ -86,7 +86,11 @@ function resetProject() {
     // Limpiar Firebase
     if (window.db && user.email) {
         try {
-            const { doc, deleteDoc } = window.firebaseFirestore;
+            const { doc, deleteDoc } = window.firebaseFirestore || {};
+            if (!doc || !deleteDoc) {
+                console.warn('Firebase no disponible');
+                return;
+            }
             const docRef = doc(window.db, 'projects', user.email);
             deleteDoc(docRef)
                 .then(() => console.log('✅ Proyecto eliminado de Firebase'))

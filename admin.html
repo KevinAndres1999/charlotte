@@ -27,9 +27,10 @@
         // Initialize Firebase
         const firebaseConfig = window.FIREBASE_CONFIG;
         const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        console.log('Firebase initialized in head, db:', db);
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+        
+        console.log('Firebase initialized in head, db:', window.db);
 
         // Helper functions to map modular API to compat API
         window.collection = (db, path) => db.collection(path);
@@ -62,6 +63,12 @@
         window.updateDoc = (docRef, data) => docRef.update(data);
         window.deleteDoc = (docRef) => docRef.delete();
         window.onSnapshot = (query, callback) => query.onSnapshot(callback);
+        
+        // Usar Firebase directamente sin wrapper para evitar problemas
+        window.db = window.db || firebase.firestore();
+        
+        // Definir db global para el script inline
+        const db = window.db;
     </script>
     <style>
         body { background: #f8fafc; margin: 0; }
@@ -3561,6 +3568,9 @@
         }
     </script>
 
+    <!-- Configuración de entorno -->
+    <script src="js/config.js"></script>
+    
     <!-- Módulos JS (Carga dinámica) -->
     <script type="module" src="js/admin/admin.js"></script>
 
@@ -7802,96 +7812,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
             <!-- Videoconferencia -->
             <div id="videoconferencia" class="content-section">
-                <div class="quiz-builder-section">
-                    <div class="quiz-builder-header">
-                        <h3><i class="fas fa-video"></i> Gestión de Videoconferencias</h3>
-                        <p style="color: white;">Administra reuniones de Microsoft Teams para clases en vivo</p>
+                <link rel="stylesheet" href="css/admin-videoconferencia.css">
+                <div class="container">
+                    <div class="page-header" style="margin-bottom: 30px;">
+                        <h2><i class="fas fa-video"></i> Gestión de Videoconferencias</h2>
+                        <p>Administra salas de videoconferencia propias sin depender de servicios externos</p>
                     </div>
-
-                    <!-- Configuración de enlaces de Teams -->
-                    <div class="card" style="margin-bottom: 2rem;">
-                        <h4><i class="fab fa-microsoft"></i> Configurar Enlaces de Microsoft Teams</h4>
-                        <p style="color: #6b7280; margin-bottom: 1rem;">Ingresa los enlaces de reuniones de Microsoft Teams para cada sala. Los estudiantes podrán acceder desde su portal.</p>
-                        <div style="display: grid; gap: 1rem;">
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Enlace Sala General</label>
-                                <input type="text" id="teamsLinkGeneral" placeholder="https://teams.microsoft.com/l/meetup-join/..." 
-                                    style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Enlace Sala Panadería</label>
-                                <input type="text" id="teamsLinkPanaderia" placeholder="https://teams.microsoft.com/l/meetup-join/..." 
-                                    style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
-                            </div>
-                            <div>
-                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Enlace Sala Belleza</label>
-                                <input type="text" id="teamsLinkBelleza" placeholder="https://teams.microsoft.com/l/meetup-join/..." 
-                                    style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
-                            </div>
-                            <button class="btn btn-primary" onclick="saveTeamsLinks()">
-                                <i class="fas fa-save"></i> Guardar Enlaces
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h4>Salas Disponibles</h4>
-                        <p style="color: #6b7280; margin-bottom: 1rem;">Haz clic en "Unirse" para abrir la reunión de Teams correspondiente.</p>
-                        <div class="conference-rooms-grid">
-                            <div class="conference-room-card">
-                                <h5>Sala General</h5>
-                                <p>Sala abierta para consultas y tutorías generales.</p>
-                                <div class="room-actions">
-                                    <button class="btn btn-primary" onclick="joinTeamsMeeting('sala-general')">
-                                        <i class="fab fa-microsoft"></i> Unirse a Reunión
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="copyTeamsLink('sala-general')">
-                                        <i class="fas fa-copy"></i> Copiar Enlace
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="conference-room-card">
-                                <h5>Sala de Panadería</h5>
-                                <p>Dedicada a cursos de panadería y pastelería.</p>
-                                <div class="room-actions">
-                                    <button class="btn btn-primary" onclick="joinTeamsMeeting('panaderia')">
-                                        <i class="fab fa-microsoft"></i> Unirse a Reunión
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="copyTeamsLink('panaderia')">
-                                        <i class="fas fa-copy"></i> Copiar Enlace
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="conference-room-card">
-                                <h5>Sala de Belleza</h5>
-                                <p>Dedicada a cursos de belleza integral.</p>
-                                <div class="room-actions">
-                                    <button class="btn btn-primary" onclick="joinTeamsMeeting('belleza')">
-                                        <i class="fab fa-microsoft"></i> Unirse a Reunión
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="copyTeamsLink('belleza')">
-                                        <i class="fas fa-copy"></i> Copiar Enlace
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Contenedor para mostrar estado de Teams (alternativa embebida) -->
-                    <div id="teams-container" style="display: none; margin-top: 2rem;">
-                        <div class="conference-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: linear-gradient(135deg, #464EB8, #7B83EB); border-radius: 12px 12px 0 0;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <span style="background: #7B83EB; width: 12px; height: 12px; border-radius: 50%;"></span>
-                                <span style="font-weight: 600; color: white;"><i class="fab fa-microsoft"></i> Microsoft Teams</span>
-                                <span id="teamsRoomName" style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 20px; color: white; font-size: 0.85rem;"></span>
-                            </div>
-                            <button class="btn" onclick="closeTeamsMeeting()" style="background: #464EB8; color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                <i class="fas fa-times"></i> Cerrar
-                            </button>
-                        </div>
-                        <div id="teams-embed-container" style="width: 100%; height: 600px; border-radius: 0 0 12px 12px; overflow: hidden; background: #f3f4f6;">
-                            <iframe id="teams-iframe" style="width: 100%; height: 100%; border: none;" allow="camera; microphone; fullscreen; display-capture"></iframe>
-                        </div>
+                    <div id="roomsContainer">
+                        <!-- El contenido se cargará dinámicamente desde videoconferencia.js -->
                     </div>
                 </div>
             </div>
@@ -9227,23 +9155,54 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             
             dashboardLoaded = true;
             console.log('Loading dashboard stats');
+            console.log('db:', db);
+            console.log('window.db:', window.db);
+            console.log('getDocs:', getDocs);
+            console.log('collection:', collection);
             
             try {
-                // Cargar todas las colecciones en paralelo para mayor velocidad
-                const [videosSnapshot, clasesSnapshot, actividadesSnapshot, materialesSnapshot, entregasSnapshot, respuestasSnapshot, respuestasEvaluacionesSnapshot, usuariosSnapshot, cuestionariosSnapshot, evaluacionesSnapshot] = await Promise.all([
-                    getDocs(collection(db, 'content')),
-                    getDocs(collection(db, 'classes')),
-                    getDocs(collection(db, 'activities')),
-                    getDocs(collection(db, 'materials')),
-                    getDocs(collection(db, 'entregas')),
-                    getDocs(collection(db, 'respuestas')),
-                    getDocs(collection(db, 'respuestasEvaluaciones')),
-                    getDocs(query(collection(db, 'users'), where('role', '==', 'student'))),
-                    getDocs(collection(db, 'cuestionarios')),
-                    getDocs(collection(db, 'evaluaciones'))
-                ]);
+                // Cargar cada colección individualmente para mejor debug
+                console.log('Cargando content...');
+                const videosSnapshot = await getDocs(collection(db, 'content'));
+                console.log('content cargado:', videosSnapshot.size);
                 
-                console.log('All stats loaded in parallel');
+                console.log('Cargando classes...');
+                const clasesSnapshot = await getDocs(collection(db, 'classes'));
+                console.log('classes cargado:', clasesSnapshot.size);
+                
+                console.log('Cargando activities...');
+                const actividadesSnapshot = await getDocs(collection(db, 'activities'));
+                console.log('activities cargado:', actividadesSnapshot.size);
+                
+                console.log('Cargando materials...');
+                const materialesSnapshot = await getDocs(collection(db, 'materials'));
+                console.log('materials cargado:', materialesSnapshot.size);
+                
+                console.log('Cargando entregas...');
+                const entregasSnapshot = await getDocs(collection(db, 'entregas'));
+                console.log('entregas cargado:', entregasSnapshot.size);
+                
+                console.log('Cargando respuestas...');
+                const respuestasSnapshot = await getDocs(collection(db, 'respuestas'));
+                console.log('respuestas cargado:', respuestasSnapshot.size);
+                
+                console.log('Cargando respuestasEvaluaciones...');
+                const respuestasEvaluacionesSnapshot = await getDocs(collection(db, 'respuestasEvaluaciones'));
+                console.log('respuestasEvaluaciones cargado:', respuestasEvaluacionesSnapshot.size);
+                
+                console.log('Cargando users...');
+                const usuariosSnapshot = await getDocs(query(collection(db, 'users'), where('role', '==', 'student')));
+                console.log('users cargado:', usuariosSnapshot.size);
+                
+                console.log('Cargando cuestionarios...');
+                const cuestionariosSnapshot = await getDocs(collection(db, 'cuestionarios'));
+                console.log('cuestionarios cargado:', cuestionariosSnapshot.size);
+                
+                console.log('Cargando evaluaciones...');
+                const evaluacionesSnapshot = await getDocs(collection(db, 'evaluaciones'));
+                console.log('evaluaciones cargado:', evaluacionesSnapshot.size);
+                
+                console.log('All stats loaded individually');
                 
                 // Procesar usuarios con más detalle
                 let activeUsers = usuariosSnapshot.docs
@@ -9434,7 +9393,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 applyStatsToUI(statsCache);
             } catch (error) {
                 console.error('Error loading stats:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                console.error('Error details:', error.stack);
                 dashboardLoaded = false;
+                alert('Error al cargar estadísticas: ' + error.message + '. Por favor revisa la consola para más detalles.');
             }
         }
         
@@ -10077,9 +10040,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         function renderApprovedUsers() {
             const container = document.getElementById('usuarios-aprobados');
+            console.log('🎨 renderApprovedUsers llamado - container:', container);
+            console.log('🎨 allApprovedUsers:', allApprovedUsers);
             const programaFilter = document.getElementById('filterPrograma').value;
             const sedeFilter = document.getElementById('filterSedeAprobados').value;
             const horarioFilter = document.getElementById('filterHorarioAprobados').value;
+            console.log('🎨 Filtros - programa:', programaFilter, 'sede:', sedeFilter, 'horario:', horarioFilter);
 
             let filtered = allApprovedUsers.filter(user => {
                 const matchesPrograma = !programaFilter ||
@@ -10117,6 +10083,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             container.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; padding: 0.5rem;">
                     ${filtered.map(user => {
+                        console.log('🎨 Renderizando usuario:', user.name, user.id);
                         const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user', color: '#374151' };
                         const estadoPago = user.estadoPagos === 'pagos_pendientes';
                         const isSelected = usuariosSeleccionados.has(user.id);
@@ -16197,6 +16164,7 @@ REGLAS IMPORTANTES:
         window.limpiarDuplicados = limpiarDuplicados;
         window.resetPassword = resetPassword;
         window.loadUsuariosAprobados = loadUsuariosAprobados;
+        window.renderApprovedUsers = renderApprovedUsers;
         window.deleteItem = deleteItem;
         window.loadEntregas = loadEntregas;
         window.filterEntregas = filterEntregas;
@@ -16260,6 +16228,11 @@ REGLAS IMPORTANTES:
 
             // Guardar en localStorage
             localStorage.setItem('openrouter_api_key', apiKey);
+            
+            // También guardar en cookie para que los estudiantes puedan leerla
+            const expires = new Date();
+            expires.setTime(expires.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 días
+            document.cookie = 'openrouter_api_key=' + apiKey + ';expires=' + expires.toUTCString() + ';path=/;domain=.cursoscharlotte.com';
 
             // Sincronizar con el campo de proyectos
             const proyectosInput = document.getElementById('openaiApiKeyProyectos');
@@ -21876,6 +21849,9 @@ REGLAS ESTRICTAS:
                     apiKey: apiKey,
                     updatedAt: new Date().toISOString()
                 }, { merge: true });
+                
+                // También guardar en localStorage para que funcione sin conexión
+                localStorage.setItem('openrouter_api_key', apiKey);
                 
                 const statusEl = document.getElementById('openrouterStatus');
                 statusEl.style.display = 'block';

@@ -1,0 +1,21 @@
+# ============================================
+# Configuración de Render.com para Backend
+# Despliegue automático del servidor de videoconferencias
+# ============================================
+
+services:
+  # Servidor de videoconferencias con Socket.io
+  - type: web
+    name: charlotte-video-server
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.x
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+    healthCheckPath: /
+    autoDeploy: true

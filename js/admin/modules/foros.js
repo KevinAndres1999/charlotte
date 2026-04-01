@@ -3,8 +3,9 @@
  * Funciones relacionadas con gestión de foros
  */
 
-// Importar Firestore
-const { getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, collection, query, where, orderBy } = window.firebaseFirestore || {};
+// Usar funciones globales de admin.html
+const db = window.db;
+const { getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, collection, query, where, orderBy } = window;
 
 /**
  * Cargar lista de foros
