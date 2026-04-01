@@ -7,6 +7,8 @@ export default {
   init
 };
 
+let autoRefreshInterval = null;
+
 export async function init() {
   console.log('🎥 Inicializando módulo de videoconferencia para estudiantes...');
   
@@ -24,6 +26,9 @@ export async function init() {
         if (mutation.target.classList.contains('active')) {
           console.log('✅ Sección de videoconferencia activada, cargando salas...');
           loadRooms();
+          startAutoRefresh();
+        } else {
+          stopAutoRefresh();
         }
       });
     });
@@ -37,50 +42,64 @@ export async function init() {
     if (videoSection.classList.contains('active')) {
       console.log('✅ Sección ya activa, cargando salas...');
       loadRooms();
+      startAutoRefresh();
     }
   }
   
   console.log('✅ Módulo de videoconferencia para estudiantes inicializado');
 }
 
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefreshInterval = setInterval(() => {
+    loadRooms(true); // silent refresh
+  }, 30000); // cada 30 segundos
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
 // ============================================
 // CARGAR Y MOSTRAR SALAS (SOLO ACTIVAS)
 // ============================================
 
-async function loadRooms() {
+async function loadRooms(silent = false) {
   const token = localStorage.getItem('authToken');
   if (!token) {
     console.error('❌ No hay token de autenticación');
-    showMessage('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.', 'error');
+    if (!silent) showMessage('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.', 'error');
     return;
   }
   
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
-  console.log('🔧 Cargando salas desde:', apiBase);
+  const container = document.getElementById('studentRoomsContainer');
+
+  if (!silent && container) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px; color: #64748b;">
+        <i class="fas fa-spinner fa-spin fa-2x" style="color: #3b82f6; margin-bottom: 15px;"></i>
+        <p>Cargando salas disponibles...</p>
+      </div>
+    `;
+  }
 
   try {
     const response = await fetch(`${apiBase}/rooms`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+      headers: { 'Authorization': `Bearer ${token}` }
     });
 
-    console.log('📥 Respuesta del servidor:', response.status, response.statusText);
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('❌ Error del servidor:', errorData);
-      throw new Error(`Error cargando salas: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Error cargando salas: ${response.status}`);
 
     const data = await response.json();
-    console.log('✅ Salas recibidas:', data);
-    // Filtrar solo salas activas para estudiantes
     const activeRooms = (data.rooms || []).filter(room => room.isActive);
     displayRooms(activeRooms);
   } catch (err) {
     console.error('❌ Error cargando salas:', err);
-    showMessage(`Error cargando salas: ${err.message}`, 'error');
+    if (!silent) showMessage(`Error cargando salas: ${err.message}`, 'error');
   }
 }
 
@@ -90,49 +109,67 @@ function displayRooms(rooms) {
 
   if (rooms.length === 0) {
     container.innerHTML = `
-      <div class="empty-state" style="text-align: center; padding: 40px;">
-        <i class="fas fa-video fa-3x" style="color: #cbd5e1; margin-bottom: 20px;"></i>
-        <p style="color: #64748b; font-size: 1.1rem;">No hay salas de videoconferencia disponibles en este momento</p>
-        <p style="color: #94a3b8; font-size: 0.9rem;">Tu instructor creará salas cuando haya clases programadas</p>
+      <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 4rem; margin-bottom: 15px;">📹</div>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 8px; font-weight: 600;">No hay clases en vivo ahora</p>
+        <p style="color: #94a3b8; font-size: 0.9rem;">Las salas aparecerán aquí cuando tu instructor inicie una clase</p>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;"><i class="fas fa-sync-alt"></i> Se actualiza automáticamente cada 30 segundos</p>
       </div>
     `;
     return;
   }
 
-  let html = `
-    <div class="section-header" style="margin-bottom: 20px;">
-      <h3 style="color: #1e3a8a;">Salas Disponibles</h3>
-      <p style="color: #64748b;">Haz clic en "Unirse" para entrar a una videoconferencia</p>
-    </div>
-    <div class="rooms-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-  `;
+  let html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">`;
 
   rooms.forEach(room => {
+    const participants = room.currentParticipants || 0;
+    const isFull = participants >= room.maxParticipants;
+    
     html += `
-      <div class="room-card" style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
-        <div class="room-header" style="margin-bottom: 15px;">
-          <h4 style="color: #1e3a8a; margin-bottom: 5px; font-size: 1.2rem;">
-            <i class="fas fa-video" style="color: #3b82f6;"></i> ${escapeHtml(room.name)}
-          </h4>
-          <span class="status-badge" style="background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">
-            <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Activa
+      <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border: 2px solid #e2e8f0; transition: all 0.3s ease;"
+           onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#3b82f6'; this.style.boxShadow='0 8px 20px rgba(59,130,246,0.15)';"
+           onmouseout="this.style.transform=''; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.08)';">
+        
+        <!-- Encabezado -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+          <div style="flex: 1; min-width: 0;">
+            <h4 style="color: #1e3a8a; font-size: 1.1rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              <i class="fas fa-broadcast-tower" style="color: #3b82f6; font-size: 0.9rem;"></i> ${escapeHtml(room.name)}
+            </h4>
+          </div>
+          <span style="background: #dcfce7; color: #166534; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; margin-left: 8px;">
+            ● EN VIVO
           </span>
         </div>
-        <div class="room-body" style="margin-bottom: 15px;">
-          <p style="color: #64748b; margin-bottom: 15px;">${escapeHtml(room.description) || 'Sin descripción'}</p>
-          <div class="room-stats" style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <div class="stat" style="display: flex; align-items: center; gap: 5px; color: #64748b; font-size: 0.9rem;">
-              <i class="fas fa-users"></i>
-              <span>${room.currentParticipants || 0} / ${room.maxParticipants}</span>
-            </div>
-            <div class="stat" style="display: flex; align-items: center; gap: 5px; color: #64748b; font-size: 0.9rem;">
-              <i class="fas fa-calendar"></i>
-              <span>${formatDate(room.createdAt)}</span>
-            </div>
-          </div>
+        
+        <!-- Descripción -->
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 14px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          ${escapeHtml(room.description) || 'Sin descripción'}
+        </p>
+        
+        <!-- Estadísticas -->
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+          <span style="display: flex; align-items: center; gap: 5px; color: ${isFull ? '#ef4444' : '#64748b'}; font-size: 0.85rem;">
+            <i class="fas fa-users"></i> ${participants} / ${room.maxParticipants}
+            ${isFull ? '<span style="color:#ef4444;font-size:0.75rem;">(Llena)</span>' : ''}
+          </span>
+          <span style="display: flex; align-items: center; gap: 5px; color: #64748b; font-size: 0.85rem;">
+            <i class="fas fa-clock"></i> ${formatDate(room.createdAt)}
+          </span>
         </div>
-        <button class="btn btn-primary" onclick="window.studentVideoRooms.joinRoom('${room.roomId}')" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; border: none; cursor: pointer;">
-          <i class="fas fa-sign-in-alt"></i> Unirse a la Sala
+        
+        <!-- Botón -->
+        <button 
+          onclick="window.studentVideoRooms.joinRoom('${room.roomId}')"
+          ${isFull ? 'disabled' : ''}
+          style="width: 100%; padding: 12px; border-radius: 10px; font-weight: 600; 
+                 background: ${isFull ? '#e2e8f0' : 'linear-gradient(135deg, #3b82f6, #1e40af)'};
+                 color: ${isFull ? '#94a3b8' : 'white'}; 
+                 border: none; cursor: ${isFull ? 'not-allowed' : 'pointer'}; 
+                 font-size: 0.95rem; transition: opacity 0.2s;"
+          ${!isFull ? 'onmouseover="this.style.opacity=\'0.9\'" onmouseout="this.style.opacity=\'1\'"' : ''}>
+          <i class="fas ${isFull ? 'fa-ban' : 'fa-sign-in-alt'}"></i>
+          ${isFull ? 'Sala Llena' : 'Unirse a la Clase'}
         </button>
       </div>
     `;
@@ -148,9 +185,15 @@ function displayRooms(rooms) {
 
 function joinRoom(roomId) {
   console.log('📹 Uniendo a sala:', roomId);
-  // Abrir la sala en una nueva ventana
   const roomUrl = `${window.location.origin}/videoconferencia.html?room=${roomId}`;
-  window.open(roomUrl, '_blank', 'width=1200,height=800');
+  
+  // En móvil, abrir en la misma ventana para mejor experiencia
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = roomUrl;
+  } else {
+    window.open(roomUrl, '_blank', 'width=1200,height=800');
+  }
 }
 
 // ============================================

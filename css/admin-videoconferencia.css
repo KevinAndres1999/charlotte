@@ -437,6 +437,7 @@
 @media (max-width: 768px) {
   .rooms-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .section-header {
@@ -445,17 +446,57 @@
     gap: 15px;
   }
 
-  .room-actions {
+  .section-header h3 {
+    font-size: 20px;
+  }
+
+  .room-header {
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .room-header h4 {
+    font-size: 16px;
+    padding-right: 0;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+  }
+
+  .room-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
 
   .room-actions .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .room-link {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .room-link-input {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .room-link .btn {
     width: 100%;
     justify-content: center;
   }
 
   .modal-content {
     max-width: 95%;
+    margin: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 
   .form-actions {
@@ -464,6 +505,26 @@
 
   .form-actions .btn {
     width: 100%;
+  }
+
+  .room-stats {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-card {
+    padding: 15px;
+  }
+
+  .room-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header .btn {
+    padding: 12px;
+    font-size: 14px;
   }
 }
 

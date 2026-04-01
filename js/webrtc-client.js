@@ -18,6 +18,7 @@ let currentRoomId = null;
 let currentUserName = null;
 let currentUserId = null;
 let peerConnections = new Map(); // socketId -> RTCPeerConnection
+let participants = new Map(); // socketId -> { userName, isAdmin, isMuted }
 let isAudioMuted = false;
 let isVideoOff = false;
 let isScreenSharing = false;
@@ -226,21 +227,25 @@ function initializeSocket() {
   
   // Control del admin: silenciar participante
   socket.on('mute-participant', ({ socketId, reason }) => {
-    if (socketId === currentUserId) {
+    // Verificar si es para este usuario (comparar con socket.id O currentUserId)
+    if (socketId === socket.id || socketId === currentUserId) {
       isAudioMuted = true;
       if (localStream) {
         localStream.getAudioTracks().forEach(track => track.enabled = false);
       }
       const muteBtn = document.getElementById('muteBtn');
-      muteBtn.classList.add('off');
-      muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
+      if (muteBtn) {
+        muteBtn.classList.add('off');
+        muteBtn.querySelector('i').className = 'fas fa-microphone-slash';
+      }
       showNotification(`Has sido silenciado: ${reason}`);
     }
   });
   
   // Control del admin: expulsar participante
   socket.on('kick-participant', ({ socketId, reason }) => {
-    if (socketId === currentUserId) {
+    // Verificar si es para este usuario (comparar con socket.id O currentUserId)
+    if (socketId === socket.id || socketId === currentUserId) {
       alert(`Has sido expulsado de la sala: ${reason}`);
       leaveRoom();
     }
@@ -446,7 +451,8 @@ async function joinRoom(roomId, roomName) {
   socket.emit('join-room', {
     roomId,
     userName: currentUserName,
-    userId: currentUserId
+    userId: currentUserId,
+    isAdmin: typeof window.isUserAdmin !== 'undefined' && window.isUserAdmin
   });
 }
 
@@ -689,7 +695,7 @@ function toggleRaiseHand() {
     });
   }
   
-  showNotification(isHandRaised ? 'Mano levantada' : 'Mano bajata');
+  showNotification(isHandRaised ? 'Mano levantada ✋' : 'Mano bajada');
 }
 
 function showHandRaisedNotification(userName, raised) {
@@ -911,17 +917,6 @@ function showNotification(message) {
   }, 3000);
 }
 
-// Funciones auxiliares para eventos de socket
-function updateParticipantHandStatus(socketId, raised) {
-  const videoWrapper = document.getElementById(`video-${socketId}`);
-  if (videoWrapper) {
-    const handIndicator = videoWrapper.querySelector('.hand-indicator');
-    if (handIndicator) {
-      handIndicator.style.display = raised ? 'flex' : 'none';
-    }
-  }
-}
-
 function updateUserListenOnlyMode(socketId, enabled) {
   const videoWrapper = document.getElementById(`video-${socketId}`);
   if (videoWrapper) {
@@ -1010,24 +1005,98 @@ function updateParticipantCount() {
 
 function updateParticipantsList() {
   const list = document.getElementById('participantsList');
+  if (!list) return;
+  
+  // Verificar si el usuario actual es admin
+  const isAdmin = typeof window.isUserAdmin !== 'undefined' && window.isUserAdmin;
   
   let html = `
-    <div class="participant-item">
+    <div class="participant-item" data-socket-id="local">
       <i class="fas fa-user"></i>
       <strong>${currentUserName} (Tú)</strong>
+      ${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
     </div>
   `;
   
   peerConnections.forEach((pc, socketId) => {
+    const participantData = participants.get(socketId);
+    const userName = participantData ? participantData.userName : 'Participante';
+    const isMuted = participantData ? participantData.isMuted : false;
+    
     html += `
-      <div class="participant-item">
+      <div class="participant-item" data-socket-id="${socketId}">
         <i class="fas fa-user"></i>
-        <span>Participante</span>
+        <span>${userName}</span>
+        ${isMuted ? '<span class="muted-badge"><i class="fas fa-microphone-slash"></i></span>' : ''}
+        ${isAdmin ? `
+          <div class="participant-controls">
+            <button onclick="muteParticipant('${socketId}')" title="Silenciar" class="control-btn-small">
+              <i class="fas fa-microphone-slash"></i>
+            </button>
+            <button onclick="kickParticipant('${socketId}')" title="Expulsar" class="control-btn-small kick-btn">
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+        ` : ''}
       </div>
     `;
   });
   
   list.innerHTML = html;
+}
+
+// Función para silenciar un participante (solo admin)
+function muteParticipant(socketId) {
+  if (!socket || !currentRoomId) return;
+  
+  const reason = prompt('Razón para silenciar (opcional):');
+  socket.emit('mute-participant', {
+    roomId: currentRoomId,
+    socketId: socketId,
+    reason: reason || 'Silenciado por el administrador'
+  });
+  
+  showNotification('Participante silenciado');
+}
+
+
+// Función para expulsar un participante (solo admin)
+function kickParticipant(socketId) {
+  if (!socket || !currentRoomId) return;
+  
+  if (confirm('¿Estás seguro de que quieres expulsar a este participante?')) {
+    const reason = prompt('Razón para expulsar (opcional):');
+    socket.emit('kick-participant', {
+      roomId: currentRoomId,
+      socketId: socketId,
+      reason: reason || 'Expulsado por el administrador'
+    });
+    
+    showNotification('Participante expulsado');
+  }
+}
+
+// Actualizar estado de mano levantada de un participante
+function updateParticipantHandStatus(socketId, raised) {
+  const list = document.getElementById('participantsList');
+  if (!list) return;
+  
+  const items = list.querySelectorAll('.participant-item');
+  items.forEach(item => {
+    if (item.dataset.socketId === socketId) {
+      let handIndicator = item.querySelector('.hand-indicator');
+      if (!handIndicator && raised) {
+        handIndicator = document.createElement('span');
+        handIndicator.className = 'hand-indicator';
+        handIndicator.innerHTML = '<i class="fas fa-hand-paper"></i>';
+        handIndicator.style.color = '#FF5722';
+        handIndicator.style.marginLeft = '5px';
+        item.appendChild(handIndicator);
+      } else if (handIndicator && !raised) {
+        handIndicator.remove();
+      }
+    }
+  });
 }
 
 // ============================================
