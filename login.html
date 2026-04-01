@@ -412,6 +412,28 @@
 
                         console.log('User logged in successfully:', currentUser);
                         console.log('User logged in successfully:', currentUser.name);
+                        
+                        // Obtener token JWT del backend para videoconferencias
+                        try {
+                            console.log('🔐 Obteniendo token JWT del backend...');
+                            const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://charlotte-video-server.onrender.com';
+                            const tokenResponse = await fetch(`${backendUrl}/api/login`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: userData.email, password: password })
+                            });
+                            
+                            if (tokenResponse.ok) {
+                                const tokenData = await tokenResponse.json();
+                                localStorage.setItem('authToken', tokenData.token);
+                                console.log('✅ Token JWT obtenido y guardado');
+                            } else {
+                                console.warn('⚠️ No se pudo obtener token del backend, continuando sin él');
+                            }
+                        } catch (tokenError) {
+                            console.warn('⚠️ Error obteniendo token del backend:', tokenError.message);
+                        }
+                        
                         const endTime = performance.now();
                         console.log('Total login time:', (endTime - startTime).toFixed(2), 'ms');
 
