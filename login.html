@@ -417,12 +417,41 @@
                         try {
                             console.log('🔐 Obteniendo token JWT del backend...');
                             const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://charlotte-video-server.onrender.com';
-                            const tokenResponse = await fetch(`${backendUrl}/api/login`, {
+                            
+                            // Intentar login en el backend
+                            let tokenResponse = await fetch(`${backendUrl}/api/login`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ email: userData.email, password: password })
                             });
                             
+                            // Si el usuario no existe en el backend (error 401), registrarlo automáticamente
+                            if (!tokenResponse.ok && tokenResponse.status === 401) {
+                                console.log('👤 Usuario no existe en backend, registrando automáticamente...');
+                                const registerResponse = await fetch(`${backendUrl}/api/register`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ 
+                                        name: userData.name || 'Usuario',
+                                        email: userData.email, 
+                                        password: password 
+                                    })
+                                });
+                                
+                                if (registerResponse.ok) {
+                                    console.log('✅ Usuario registrado en backend, obteniendo token...');
+                                    // Reintentar login después del registro
+                                    tokenResponse = await fetch(`${backendUrl}/api/login`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ email: userData.email, password: password })
+                                    });
+                                } else {
+                                    console.warn('⚠️ No se pudo registrar usuario en backend');
+                                }
+                            }
+                            
+                            // Guardar el token si el login fue exitoso
                             if (tokenResponse.ok) {
                                 const tokenData = await tokenResponse.json();
                                 localStorage.setItem('authToken', tokenData.token);

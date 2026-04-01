@@ -164,17 +164,20 @@ app.post('/api/login', async (req, res) => {
 
 // Registro de usuario (demo, guardar en memoria)
 app.post('/api/register', async (req, res) => {
-  const { email, password, name } = req.body || {};
-  if (!email || !password || !name) return res.status(400).json({ message: 'Nombre, email y contraseña requeridos' });
+  const { email, password, name, role } = req.body || {};
+  if (!email ||!password || !name) return res.status(400).json({ message: 'Nombre, email y contraseña requeridos' });
   if (password.length < 6) return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres' });
   try{
     const exists = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
     if (exists) return res.status(409).json({ message: 'El email ya está registrado' });
     const passwordHash = await bcrypt.hash(password, 10);
+    // Usar el rol proporcionado o 'student' por defecto
+    const userRole = (role === 'admin' || role === 'student') ? role : 'student';
     const insert = db.prepare('INSERT INTO users (email, name, passwordHash, active, role) VALUES (?, ?, ?, ?, ?)');
-    insert.run(email, name, passwordHash, 1, 'student');
-    const token = jwt.sign({ email, name, role: 'student' }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(201).json({ token, user: { email, name, role: 'student', active: 1 } });
+    insert.run(email, name, passwordHash, 1, userRole);
+    const token = jwt.sign({ email, name, role: userRole }, JWT_SECRET, { expiresIn: '1h' });
+    console.log('Usuario registrado en backend:', email, 'con rol:', userRole);
+    res.status(201).json({ token, user: { email, name, role: userRole, active: 1 } });
   }catch(err){
     console.error('Register error', err);
     res.status(500).json({ message: 'Error interno' });
