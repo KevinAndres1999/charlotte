@@ -47,6 +47,7 @@ let mediaRecorder = null;
 let _recordedChunks = [];
 let isRecording = false;
 let _recordingCanvas = null;
+let _recordingAudioCtx = null;  // AudioContext para mezclar audio local + remoto
 
 // ============================================
 // INICIALIZACIÓN
@@ -1682,66 +1683,118 @@ async function toggleRecording() {
 
 async function _startRecording() {
   try {
-    // Crear canvas que captura todos los videos visibles
+    // Verificar soporte del navegador
+    const testCanvas = document.createElement('canvas');
+    if (typeof testCanvas.captureStream !== 'function') {
+      showNotification('❌ Tu navegador no soporta grabación. Usa Chrome, Edge o Firefox.');
+      return;
+    }
+    if (typeof MediaRecorder === 'undefined') {
+      showNotification('❌ MediaRecorder no disponible en este navegador.');
+      return;
+    }
+
+    // Crear canvas principal de grabación
     _recordingCanvas = document.createElement('canvas');
     _recordingCanvas.width = 1280;
     _recordingCanvas.height = 720;
     const ctx = _recordingCanvas.getContext('2d');
     const canvasStream = _recordingCanvas.captureStream(25);
 
-    // Añadir audio local al stream de grabación
-    if (localStream) {
-      localStream.getAudioTracks().forEach(track => canvasStream.addTrack(track));
+    // --- Mezclar audio local + remoto con AudioContext ---
+    _recordingAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioDest = _recordingAudioCtx.createMediaStreamDestination();
+
+    // Audio local
+    if (localStream && localStream.getAudioTracks().length > 0) {
+      try {
+        const localSrc = _recordingAudioCtx.createMediaStreamSource(localStream);
+        localSrc.connect(audioDest);
+      } catch (e) { console.warn('Audio local no disponible para grabación', e); }
     }
 
-    // Función que dibuja todos los videos en el canvas
+    // Audio remoto: leer desde los elementos <video> que tengan srcObject
+    document.querySelectorAll(
+      '#videosGrid video, #spotlightArea video, #thumbnailsStrip video'
+    ).forEach(videoEl => {
+      try {
+        if (videoEl.srcObject && videoEl.srcObject.getAudioTracks().length > 0) {
+          const remoteSrc = _recordingAudioCtx.createMediaStreamSource(videoEl.srcObject);
+          remoteSrc.connect(audioDest);
+        }
+      } catch (e) { /* ignorar elementos sin audio */ }
+    });
+
+    // Añadir audio mezclado al stream del canvas
+    audioDest.stream.getAudioTracks().forEach(track => canvasStream.addTrack(track));
+
+    // IMPORTANTE: establecer isRecording = true ANTES de llamar drawFrame()
+    // Si se hace después, drawFrame() sale inmediatamente por el guard "if (!isRecording) return"
+    isRecording = true;
+
+    // Función de dibujo del canvas
     function drawFrame() {
-      if (!isRecording) return;
+      if (!isRecording) return; // Parar el loop cuando se detenga la grabación
       ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, _recordingCanvas.width, _recordingCanvas.height);
 
-      // Recoger todos los elementos de video visibles
       const videos = [...document.querySelectorAll(
         '#videosGrid video, #spotlightArea video, #thumbnailsStrip video'
-      )].filter(v => v.readyState >= 2);
+      )].filter(v => v.readyState >= 2 && !v.paused);
 
-      if (videos.length === 0) {
-        requestAnimationFrame(drawFrame);
-        return;
+      if (videos.length > 0) {
+        const cols = videos.length <= 1 ? 1 : videos.length <= 4 ? 2 : Math.ceil(Math.sqrt(videos.length));
+        const rows = Math.ceil(videos.length / cols);
+        const w = _recordingCanvas.width / cols;
+        const h = _recordingCanvas.height / rows;
+        videos.forEach((video, i) => {
+          const col = i % cols;
+          const row = Math.floor(i / cols);
+          try { ctx.drawImage(video, col * w, row * h, w, h); } catch (e) { /* frame no disponible */ }
+        });
       }
-      const cols = videos.length <= 1 ? 1 : videos.length <= 4 ? 2 : Math.ceil(Math.sqrt(videos.length));
-      const rows = Math.ceil(videos.length / cols);
-      const w = _recordingCanvas.width / cols;
-      const h = _recordingCanvas.height / rows;
-
-      videos.forEach((video, i) => {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        ctx.drawImage(video, col * w, row * h, w, h);
-      });
       requestAnimationFrame(drawFrame);
     }
     drawFrame();
 
-    const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+    // Seleccionar el mejor codec disponible
+    const mimeType = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
       .find(t => MediaRecorder.isTypeSupported(t)) || '';
 
     _recordedChunks = [];
     mediaRecorder = new MediaRecorder(canvasStream, mimeType ? { mimeType } : {});
-    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _recordedChunks.push(e.data); };
+    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) _recordedChunks.push(e.data); };
+    mediaRecorder.onerror = (e) => {
+      console.error('Error en MediaRecorder:', e);
+      showNotification('❌ Error durante la grabación: ' + (e.error?.message || e));
+      _stopRecording();
+    };
     mediaRecorder.onstop = () => {
+      // Limpiar AudioContext
+      if (_recordingAudioCtx) {
+        _recordingAudioCtx.close().catch(() => {});
+        _recordingAudioCtx = null;
+      }
+
+      if (_recordedChunks.length === 0) {
+        showNotification('⚠️ La grabación estaba vacía, no se guardó nada.');
+        return;
+      }
+
       const blob = new Blob(_recordedChunks, { type: 'video/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `clase-${new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-')}.webm`;
+      document.body.appendChild(a);
       a.click();
-      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      // Revocar DESPUÉS de un tiempo prudencial para que el navegador inicie la descarga
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
       showNotification('✅ Grabación guardada en tu dispositivo');
     };
 
-    mediaRecorder.start(1000); // chunk cada 1s
-    isRecording = true;
+    mediaRecorder.start(1000); // chunk cada segundo
 
     const btn = document.getElementById('recordBtn');
     if (btn) {
@@ -1752,6 +1805,8 @@ async function _startRecording() {
     showNotification('🔴 Grabación iniciada');
     if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
   } catch (err) {
+    isRecording = false; // Resetear el flag si algo falló al iniciar
+    if (_recordingAudioCtx) { _recordingAudioCtx.close().catch(() => {}); _recordingAudioCtx = null; }
     console.error('Error iniciando grabación:', err);
     showNotification('❌ No se pudo iniciar la grabación: ' + (err.message || err));
   }
@@ -1763,6 +1818,7 @@ function _stopRecording() {
   }
   isRecording = false;
   _recordingCanvas = null;
+  // _recordingAudioCtx se cierra en el onstop del MediaRecorder
 
   const btn = document.getElementById('recordBtn');
   if (btn) {
