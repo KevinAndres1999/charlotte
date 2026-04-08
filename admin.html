@@ -16132,8 +16132,9 @@ REGLAS IMPORTANTES:
             }
             
             try {
+                const { id: _strippedId, ...actividadSinId } = actividadGeneradaActual;
                 const actividadData = {
-                    ...actividadGeneradaActual,
+                    ...actividadSinId,
                     fechaCreacion: new Date().toISOString(),
                     activa: true,
                     sedes: claseSeleccionadaParaActividad?.sedes || ['Carapungo', 'Sangolquí'],

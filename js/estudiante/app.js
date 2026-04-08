@@ -1747,7 +1747,7 @@ async function loadActividadesContent(selectedModulo) {
         let actividadesInteractivasData = [];
         try {
             const iaSnap = await getDocs(query(collection(db, 'actividades_interactivas'), where('programa', '==', currentUser.programa)));
-            iaSnap.forEach(d => actividadesInteractivasData.push({ id: d.id, ...d.data(), esInteractiva: true }));
+            iaSnap.forEach(d => actividadesInteractivasData.push({ ...d.data(), id: d.id, esInteractiva: true }));
         } catch(e) {
             console.warn('No se pudieron cargar actividades interactivas:', e);
         }
