@@ -193,7 +193,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
         import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, updateDoc, deleteField, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
         console.log('🔐 Login module loaded at', new Date().toISOString());
 
@@ -444,23 +444,38 @@
                             return;
                         }
                         // Contraseña correcta — intentar migrar automáticamente a Firebase Auth
+                        // Saltar migración si ya se detectó conflicto previamente
                         try {
                             let migrationOk = false;
-                            try {
-                                await createUserWithEmailAndPassword(auth, email, password);
-                                migrationOk = true;
-                            } catch (createErr) {
-                                if (createErr.code === 'auth/email-already-in-use') {
-                                    // Ya existe en Firebase Auth — verificar que la contraseña coincida
-                                    try {
-                                        await signInWithEmailAndPassword(auth, email, password);
-                                        migrationOk = true;
-                                    } catch (signInErr) {
-                                        // Contraseña en Firestore difiere de Firebase Auth — dejar como legado
-                                        console.warn('⚠️ Migración omitida: el usuario ya existe en Firebase Auth con contraseña diferente.');
+                            if (userData.migrationConflict) {
+                                // Conflicto previo conocido: omitir migración para evitar errores 400 repetidos
+                                console.log('ℹ️ Migración saltada: conflicto previo registrado.');
+                            } else {
+                                try {
+                                    await createUserWithEmailAndPassword(auth, email, password);
+                                    migrationOk = true;
+                                } catch (createErr) {
+                                    if (createErr.code === 'auth/email-already-in-use') {
+                                        // Ya existe en Firebase Auth — verificar que la contraseña coincida
+                                        try {
+                                            await signInWithEmailAndPassword(auth, email, password);
+                                            migrationOk = true;
+                                        } catch (signInErr) {
+                                            // Contraseña difiere — marcar en Firestore y enviar reset
+                                            console.warn('⚠️ Migración: usuario existe en Firebase Auth con contraseña diferente. Marcando conflicto.');
+                                            const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
+                                            if (docId) {
+                                                try {
+                                                    await updateDoc(doc(db, 'users', docId), { migrationConflict: true });
+                                                    userCache.delete(email);
+                                                } catch (e) { /* omitir */ }
+                                            }
+                                            // Enviar email de restablecimiento de contraseña silenciosamente
+                                            try { await sendPasswordResetEmail(auth, email); } catch (e) { /* omitir */ }
+                                        }
                                     }
+                                    // cualquier otro error de createUser → omitir migración silenciosamente
                                 }
-                                // cualquier otro error de createUser → omitir migración silenciosamente
                             }
                             if (migrationOk) {
                                 const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
