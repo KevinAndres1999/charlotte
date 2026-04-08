@@ -16162,9 +16162,12 @@ REGLAS IMPORTANTES:
                 
                 // Limpiar
                 actividadGeneradaActual = null;
-                document.getElementById('actividadGeneradaCard').style.display = 'none';
-                document.getElementById('claseSeleccionadaInfo').style.display = 'none';
-                document.getElementById('actividadIAClase').value = '';
+                const cardEl = document.getElementById('actividadGeneradaCard');
+                const infoEl = document.getElementById('claseSeleccionadaInfo');
+                const claseSelect = document.getElementById('actividadIAClase');
+                if (cardEl) cardEl.style.display = 'none';
+                if (infoEl) infoEl.style.display = 'none';
+                if (claseSelect) claseSelect.value = '';
                 
                 // Recargar lista
                 cargarActividadesInteractivas();
