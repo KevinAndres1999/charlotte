@@ -192,8 +192,8 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
-        import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+        import { getFirestore, collection, query, where, limit, getDocs, doc, getDoc, updateDoc, deleteField, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
         console.log('🔐 Login module loaded at', new Date().toISOString());
 
@@ -234,6 +234,56 @@
         // Cache para usuarios recientes (mejora rendimiento)
         const userCache = new Map();
         const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+        // Mensajes de estado de estudiante (graduado / retirado)
+        function mostrarMensajeEstado(status, nombre) {
+            // Limpiar sesión — no deben entrar a la plataforma
+            sessionStorage.clear();
+
+            const loginCard = document.querySelector('.login-card');
+            const backLink = document.querySelector('.back-link');
+            if (!loginCard) return;
+
+            if (status === 'graduado') {
+                loginCard.innerHTML = `
+                    <div style="text-align:center; padding: 1rem 0;">
+                        <div style="font-size:4rem; margin-bottom:1rem;">🎓</div>
+                        <h2 style="color:#0a1628; margin-bottom:0.75rem;">¡Felicitaciones, ${nombre || 'estudiante'}!</h2>
+                        <p style="color:#374151; line-height:1.7; margin-bottom:1.25rem;">
+                            Esta plataforma es únicamente para el uso de los <strong>estudiantes activos</strong>.
+                            Tú ya eres parte de nuestra historia como graduado de Charlotte.
+                        </p>
+                        <p style="color:#374151; line-height:1.7; margin-bottom:1.5rem;">
+                            ¡Fue un honor tenerte aquí! Recuerda siempre lo aprendido y
+                            lleva el nombre de Charlotte muy en alto. ✨
+                        </p>
+                        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:12px; padding:1rem; margin-bottom:1.5rem; color:#92400e; font-size:0.9rem;">
+                            <i class="fas fa-star" style="color:#f59e0b;"></i>
+                            <strong> ¡Eres un graduado Charlotte!</strong><br>
+                            Si necesitas comunicarte con nosotros, escríbenos por WhatsApp.
+                        </div>
+                        <a href="index.html" style="display:inline-block; padding:0.75rem 2rem; background:linear-gradient(135deg,#e63971,#0b3460); color:white; border-radius:8px; text-decoration:none; font-weight:600;">
+                            <i class="fas fa-home"></i> Volver al inicio
+                        </a>
+                    </div>`;
+            } else if (status === 'retirado') {
+                loginCard.innerHTML = `
+                    <div style="text-align:center; padding: 1rem 0;">
+                        <div style="font-size:3.5rem; margin-bottom:1rem;">🚫</div>
+                        <h2 style="color:#0a1628; margin-bottom:0.75rem;">Acceso no disponible</h2>
+                        <p style="color:#374151; line-height:1.7; margin-bottom:1.5rem;">
+                            Tu cuenta ya no tiene acceso activo a la plataforma Charlotte.
+                            Si crees que esto es un error o deseas retomar tus estudios,
+                            comunícate con nosotros.
+                        </p>
+                        <a href="index.html" style="display:inline-block; padding:0.75rem 2rem; background:#6b7280; color:white; border-radius:8px; text-decoration:none; font-weight:600;">
+                            <i class="fas fa-home"></i> Volver al inicio
+                        </a>
+                    </div>`;
+            }
+
+            if (backLink) backLink.style.display = 'none';
+        }
 
         function showMessage(text, type) {
             messageDiv.textContent = text;
@@ -386,12 +436,45 @@
                             return;
                         }
                     } else {
-                        // Sistema antiguo: verificar contraseña en texto plano
+                        // Sistema legado: verificar contraseña en texto plano
                         if (userData.password !== password) {
                             showMessage('Contraseña incorrecta.', 'error');
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = 'Iniciar Sesión';
                             return;
+                        }
+                        // Contraseña correcta — intentar migrar automáticamente a Firebase Auth
+                        try {
+                            let migrationOk = false;
+                            try {
+                                await createUserWithEmailAndPassword(auth, email, password);
+                                migrationOk = true;
+                            } catch (createErr) {
+                                if (createErr.code === 'auth/email-already-in-use') {
+                                    // Ya existe en Firebase Auth — verificar que la contraseña coincida
+                                    try {
+                                        await signInWithEmailAndPassword(auth, email, password);
+                                        migrationOk = true;
+                                    } catch (signInErr) {
+                                        // Contraseña en Firestore difiere de Firebase Auth — dejar como legado
+                                        console.warn('⚠️ Migración omitida: el usuario ya existe en Firebase Auth con contraseña diferente.');
+                                    }
+                                }
+                                // cualquier otro error de createUser → omitir migración silenciosamente
+                            }
+                            if (migrationOk) {
+                                const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
+                                if (docId) {
+                                    await updateDoc(doc(db, 'users', docId), {
+                                        authMethod: 'firebase',
+                                        password: deleteField()
+                                    });
+                                    userCache.delete(email);
+                                }
+                                console.log('✅ Usuario migrado a Firebase Auth');
+                            }
+                        } catch (migErr) {
+                            console.warn('⚠️ No se pudo migrar usuario a Firebase Auth:', migErr.message);
                         }
                     }
                     
@@ -404,9 +487,8 @@
                             name: userData.name,
                             programa: userData.programa,
                             sede: userData.sede,
-                            horario: userData.horario,
-                            cedula: userData.cedula,
-                            telefono: userData.telefono
+                            horario: userData.horario
+                            // cedula y telefono NO se guardan en sessionStorage (PII sensible)
                         };
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
@@ -476,7 +558,17 @@
                                 sessionStorage.removeItem('adminActiveSection');
                                 window.location.href = 'admin.html';
                             } else if (userData.role === 'student') {
-                                window.location.href = 'estudiante.html';
+                                const status = userData.status || 'cursando';
+                                if (status === 'graduado' || status === 'retirado') {
+                                    // Limpiar sesión y mostrar mensaje de estado
+                                    mostrarMensajeEstado(status, userData.name);
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = 'Iniciar Sesión';
+                                    submitBtn.style.background = '';
+                                } else {
+                                    // 'cursando' o 'active' (compatibilidad) → acceso normal
+                                    window.location.href = 'estudiante.html';
+                                }
                             } else {
                                 showMessage('Rol no reconocido', 'error');
                                 submitBtn.disabled = false;

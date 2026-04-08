@@ -45,32 +45,10 @@ window.getEstudianteInfo = function() {
     };
 };
 
-// Inicialización
+// Inicialización — los módulos reales se cargan desde app.js (foros-module.js, proyecto-module.js)
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Charlotte Estudiante - Sistema Híbrido v2.0');
-    console.log('   Funciones globales:', window.getEstudianteInfo().globalFunctions);
-    console.log('   Módulos ES6: disponibles bajo demanda');
-    
-    // Cargar módulos del estudiante
-    await Promise.all([
-        loadEstudianteModule('proyecto'),
-        loadEstudianteModule('foros'),
-        loadEstudianteModule('gamificacion'),
-        loadEstudianteModule('cuestionarios'),
-        loadEstudianteModule('evaluaciones'),
-        loadEstudianteModule('videoconferencia-estudiante')
-    ]);
-    
-    // Inicializar módulo de videoconferencia
-    const videoModule = window.ESTUDIANTE_CONFIG.modules['videoconferencia-estudiante'];
-    if (videoModule && typeof videoModule.init === 'function') {
-        await videoModule.init();
-        console.log('✅ Módulo de videoconferencia inicializado');
-    }
-    
     window.ESTUDIANTE_CONFIG.modulesLoaded = true;
-    
-    console.log('✅ Módulos de estudiante cargados:', Object.keys(window.ESTUDIANTE_CONFIG.modules).join(', '));
 });
 
 // Exportar para uso global

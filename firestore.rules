@@ -1,165 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Función helper para verificar autenticación
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    // Función helper para verificar rol de admin
-    function isAdmin() {
-      return request.auth != null && request.auth.token.role == 'admin';
-    }
-    
-    // USUARIOS - Todo público
+
+    // USUARIOS
+    // Lectura pública temporal: necesaria para la búsqueda por email durante el login
+    // (antes de que Firebase Auth esté activo). Restringir a isAuthenticated() una vez
+    // que todos los usuarios legados hayan sido migrados a Firebase Auth.
     match /users/{userId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
-    
-    // CONTENIDO - Todo público
-    match /content/{document} {
-      allow read, write: if true;
+
+    // CONFIG - Solo usuarios autenticados pueden leer (protege API keys como OpenRouter)
+    match /config/{document} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
+
+    // CONTENIDO
+    match /content/{document} { allow read, write: if isAuthenticated(); }
 
     // CLASES
-    match /classes/{document} {
-      allow read, write: if true;
-    }
-    
-    // CHUNKS DE CLASES
-    match /class_chunks/{document} {
-      allow read, write: if true;
-    }
+    match /classes/{document} { allow read, write: if isAuthenticated(); }
+    match /class_chunks/{document} { allow read, write: if isAuthenticated(); }
 
     // ACTIVIDADES
-    match /activities/{document} {
-      allow read, write: if true;
-    }
+    match /activities/{document} { allow read, write: if isAuthenticated(); }
+    match /actividades_interactivas/{document} { allow read, write: if isAuthenticated(); }
 
     // MATERIALES
-    match /materials/{document} {
-      allow read, write: if true;
-    }
+    match /materials/{document} { allow read, write: if isAuthenticated(); }
 
-    // CUESTIONARIOS
-    match /cuestionarios/{document} {
-      allow read, write: if true;
-    }
+    // EVALUACIONES Y CUESTIONARIOS
+    match /cuestionarios/{document} { allow read, write: if isAuthenticated(); }
+    match /evaluaciones/{document} { allow read, write: if isAuthenticated(); }
+    match /respuestasEvaluaciones/{document} { allow read, write: if isAuthenticated(); }
+    match /reintentosEvaluaciones/{document} { allow read, write: if isAuthenticated(); }
+    match /resultados_evaluaciones/{document} { allow read, write: if isAuthenticated(); }
+    match /respuestasCuestionarios/{document} { allow read, write: if isAuthenticated(); }
+    match /respuestas/{document} { allow read, write: if isAuthenticated(); }
 
-    // EVALUACIONES
-    match /evaluaciones/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESPUESTAS DE EVALUACIONES
-    match /respuestasEvaluaciones/{document} {
-      allow read, write: if true;
-    }
-    
-    // REINTENTOS DE EVALUACIONES
-    match /reintentosEvaluaciones/{document} {
-      allow read, write: if true;
-    }
-    
-    // ENTREGAS
-    match /entregas/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESPUESTAS DE CUESTIONARIOS
-    match /respuestasCuestionarios/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESPUESTAS (otra colección)
-    match /respuestas/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESPUESTAS DE EVALUACIONES
-    match /respuestasEvaluaciones/{document} {
-      allow read, write: if true;
-    }
-    
+    // ENTREGAS Y CALIFICACIONES
+    match /entregas/{document} { allow read, write: if isAuthenticated(); }
+    match /entregas_interactivas/{document} { allow read, write: if isAuthenticated(); }
+    match /calificaciones_modulos/{document} { allow read, write: if isAuthenticated(); }
+    match /calificaciones_practicas/{document} { allow read, write: if isAuthenticated(); }
+
     // FOROS
-    match /foros/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESPUESTAS EN FOROS
-    match /respuestasForos/{document} {
-      allow read, write: if true;
-    }
-    
-    // CALIFICACIONES
-    match /calificaciones_modulos/{document} {
-      allow read, write: if true;
-    }
-    
-    // RESULTADOS DE EVALUACIONES
-    match /resultados_evaluaciones/{document} {
-      allow read, write: if true;
-    }
-    
-    // CALIFICACIONES DE PRÁCTICAS
-    match /calificaciones_practicas/{document} {
-      allow read, write: if true;
-    }
-    
-    // ACTIVIDADES INTERACTIVAS
-    match /actividades_interactivas/{document} {
-      allow read, write: if true;
-    }
-    
-    // CONFIGURACIÓN
-    match /configuracion/{document} {
-      allow read, write: if true;
-    }
-    
-    // CONFIG - API keys: lectura pública
-    match /config/{document} {
-      allow read: if true;
-      allow write: if true;
-    }
-    
-    // AI ANALYSIS
-    match /ai_analysis/{document} {
-      allow read, write: if true;
-    }
-    
-    // FOTOS
-    match /fotos/{document} {
-      allow read, write: if true;
-    }
-    
-    // RECURSOS
-    match /recursos/{document} {
-      allow read, write: if true;
-    }
-    
-    // PROYECTOS
-    match /projects/{document} {
-      allow read, write: if true;
-    }
-    
-    match /proyectos/{document} {
-      allow read, write: if true;
-    }
-    
-    // APROBADOS
-    match /approvedStudents/{document} {
-      allow read, write: if true;
-    }
-    
-    // PENDIENTES
-    match /pendingStudents/{document} {
-      allow read, write: if true;
-    }
-    
+    match /foros/{document} { allow read, write: if isAuthenticated(); }
+    match /respuestasForos/{document} { allow read, write: if isAuthenticated(); }
+
+    // CONFIGURACIÓN DE LA APP
+    match /configuracion/{document} { allow read, write: if isAuthenticated(); }
+
+    // IA
+    match /ai_analysis/{document} { allow read, write: if isAuthenticated(); }
+
+    // RECURSOS Y PROYECTOS
+    match /fotos/{document} { allow read, write: if isAuthenticated(); }
+    match /recursos/{document} { allow read, write: if isAuthenticated(); }
+    match /projects/{document} { allow read, write: if isAuthenticated(); }
+    match /proyectos/{document} { allow read, write: if isAuthenticated(); }
+
+    // ESTUDIANTES
+    match /approvedStudents/{document} { allow read, write: if isAuthenticated(); }
+    match /pendingStudents/{document} { allow read, write: if isAuthenticated(); }
+
     // CONTACTOS
-    match /contactos/{document} {
-      allow read, write: if true;
-    }
+    match /contactos/{document} { allow read, write: if isAuthenticated(); }
   }
 }

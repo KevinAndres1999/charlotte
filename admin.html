@@ -8395,12 +8395,20 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         // Variable global para preguntas seleccionadas
         let selectedQuestions = [];
 
-        // Verificar autenticación
+        // Verificar autenticación: doble check (sessionStorage + Firebase Auth)
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         console.log('Current user from session:', currentUser);
         if (!currentUser || currentUser.role !== 'admin') {
             window.location.href = 'login.html';
         }
+
+        // Verificar que Firebase Auth también tenga sesión activa
+        window.auth.onAuthStateChanged(function(firebaseUser) {
+            if (!firebaseUser) {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+        });
         
         // Flag para evitar cargas duplicadas (ya declaradas globalmente)
         // let dashboardLoaded = false;
@@ -10046,6 +10054,28 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             `;
         }
 
+        // Helper que genera el HTML del badge de estado + selector para una tarjeta de usuario
+        function getEstadoBadgeHtml(user) {
+            const ESTADOS = {
+                cursando: { label: 'Cursando', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', icon: 'fa-book-open' },
+                graduado:  { label: 'Graduado', color: '#b45309', bg: '#fffbeb', border: '#fcd34d', icon: 'fa-graduation-cap' },
+                retirado:  { label: 'Retirado', color: '#6b7280', bg: '#f9fafb', border: '#d1d5db', icon: 'fa-user-slash' },
+                active:    { label: 'Cursando', color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', icon: 'fa-book-open' }
+            };
+            const est = user.status || 'cursando';
+            const cfg = ESTADOS[est] || ESTADOS.cursando;
+            return '<div style="display:flex;align-items:center;justify-content:space-between;background:' + cfg.bg + ';border:1px solid ' + cfg.border + ';border-radius:8px;padding:0.4rem 0.75rem;margin-bottom:0.75rem;">'
+                + '<span style="font-size:0.75rem;font-weight:700;color:' + cfg.color + ';">'
+                + '<i class="fas ' + cfg.icon + '"></i> ' + cfg.label + '</span>'
+                + '<select onchange="cambiarEstadoEstudiante(\'' + user.id + '\', this.value); this.value=\'\'"'
+                + ' style="border:none;background:transparent;color:' + cfg.color + ';font-size:0.7rem;cursor:pointer;outline:none;" title="Cambiar estado">'
+                + '<option value="">Cambiar estado\u2026</option>'
+                + '<option value="cursando">Cursando</option>'
+                + '<option value="graduado">\uD83C\uDF93 Graduado</option>'
+                + '<option value="retirado">\uD83D\uDEAB Retirado</option>'
+                + '</select></div>';
+        }
+
         function renderApprovedUsers() {
             const container = document.getElementById('usuarios-aprobados');
             console.log('🎨 renderApprovedUsers llamado - container:', container);
@@ -10128,6 +10158,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     </div>
                                 </div>
                                 <div style="padding: 1rem 1.25rem;">
+                                    <!-- Badge estado del estudiante -->
+                                    ${getEstadoBadgeHtml(user)}
                                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
                                         <span style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #374151;">
                                             <i class="fas fa-graduation-cap"></i> ${user.programa || 'Sin programa'}
@@ -12291,6 +12323,24 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             } catch (error) {
                 console.error('Error deleting user:', error);
                 alert('Error al eliminar usuario');
+            }
+        }
+
+        // Función para cambiar el estado del estudiante (cursando / graduado / retirado)
+        async function cambiarEstadoEstudiante(userId, nuevoEstado) {
+            if (!nuevoEstado) return;
+            const user = allApprovedUsers.find(u => u.id === userId);
+            const nombres = { cursando: 'Cursando', graduado: 'Graduado', retirado: 'Retirado' };
+            const label = nombres[nuevoEstado] || nuevoEstado;
+            if (!confirm(`¿Cambiar estado de "${user ? (user.name || user.email) : userId}" a "${label}"?`)) return;
+            try {
+                await setDoc(doc(db, 'users', userId), { status: nuevoEstado }, { merge: true });
+                const idx = allApprovedUsers.findIndex(u => u.id === userId);
+                if (idx !== -1) allApprovedUsers[idx].status = nuevoEstado;
+                renderApprovedUsers();
+            } catch (error) {
+                console.error('Error cambiando estado:', error);
+                alert('Error al cambiar el estado del estudiante');
             }
         }
 
@@ -15727,20 +15777,69 @@ GENERA una actividad interactiva con EXACTAMENTE este formato JSON:
             "texto": "El [BLANK] es importante para [BLANK] porque mejora [BLANK].",
             "respuestas": ["concepto1", "concepto2", "concepto3"],
             "explicacion": "Explicación de las respuestas correctas"
+        },
+        {
+            "tipo": "relacionar",
+            "pregunta": "Relaciona cada término con su definición:",
+            "pares": [
+                {"izquierda": "Término 1", "derecha": "Definición 1"},
+                {"izquierda": "Término 2", "derecha": "Definición 2"},
+                {"izquierda": "Término 3", "derecha": "Definición 3"},
+                {"izquierda": "Término 4", "derecha": "Definición 4"}
+            ],
+            "explicacion": "Explicación de las relaciones correctas"
+        },
+        {
+            "tipo": "crucigrama",
+            "pregunta": "Completa el crucigrama con los conceptos del tema:",
+            "palabras": [
+                {"palabra": "TERMINO", "pista": "Descripción o pista de la palabra", "orientacion": "horizontal", "fila": 0, "columna": 0},
+                {"palabra": "CONCEPTO", "pista": "Descripción o pista de la palabra", "orientacion": "vertical", "fila": 0, "columna": 2}
+            ],
+            "explicacion": "Explicación del tema tratado en el crucigrama"
+        },
+        {
+            "tipo": "clasificar",
+            "pregunta": "Clasifica cada elemento en la categoría correcta:",
+            "categorias": ["Categoría A", "Categoría B"],
+            "elementos": [
+                {"texto": "Elemento 1", "categoria": "Categoría A"},
+                {"texto": "Elemento 2", "categoria": "Categoría B"},
+                {"texto": "Elemento 3", "categoria": "Categoría A"},
+                {"texto": "Elemento 4", "categoria": "Categoría B"}
+            ],
+            "explicacion": "Explicación de los criterios de clasificación"
+        },
+        {
+            "tipo": "sopa_letras",
+            "pregunta": "Encuentra las palabras ocultas en la sopa de letras:",
+            "palabras": ["TERMINO1", "TERMINO2", "TERMINO3", "TERMINO4", "TERMINO5"],
+            "pistas": ["Pista del término 1", "Pista del término 2", "Pista del término 3", "Pista del término 4", "Pista del término 5"],
+            "explicacion": "Explicación de los términos encontrados"
+        },
+        {
+            "tipo": "escritura_libre",
+            "pregunta": "Pregunta o tema sobre el que el estudiante debe escribir:",
+            "rubrica": "Criterios de evaluación: 1) Menciona los conceptos clave (40%), 2) Explica con sus propias palabras (40%), 3) Da un ejemplo práctico (20%)",
+            "longitudMinima": 80,
+            "explicacion": "Explicación de lo que se espera en la respuesta"
         }
     ]
 }
 
 REGLAS IMPORTANTES:
-1. Genera entre 5 y 8 preguntas variadas
-2. Usa DIFERENTES tipos de preguntas (quiz, verdadero_falso, ordenar, completar)
-3. Las preguntas deben ser claras y basadas directamente en el contenido
-4. Cada pregunta DEBE tener una explicación educativa
-5. En "quiz": respuestaCorrecta es el índice (0-3) de la opción correcta
-6. En "verdadero_falso": respuestaCorrecta es true o false
-7. En "ordenar": items es el array desordenado, ordenCorrecto es los índices en orden correcto
-8. En "completar": [BLANK] marca donde va cada respuesta, respuestas contiene las palabras correctas en orden
-9. Responde ÚNICAMENTE con JSON válido, sin texto antes ni después`;
+1. Genera entre 6 y 9 preguntas variadas usando al menos 5 tipos diferentes
+2. Para "quiz": respuestaCorrecta es el índice (0-3) de la opción correcta, genera exactamente 4 opciones
+3. Para "verdadero_falso": respuestaCorrecta es true o false
+4. Para "ordenar": items es el array desordenado, ordenCorrecto son los índices en orden correcto
+5. Para "completar": [BLANK] marca cada espacio, respuestas contiene las palabras en orden
+6. Para "relacionar": genera 4-6 pares únicos sin repetir términos
+7. Para "crucigrama": las palabras DEBEN ser en MAYÚSCULAS sin tildes ni espacios. Coloca las palabras de forma que se crucen (usa letras compartidas). Verifica que fila/columna no sobrepasen 12. Máximo 6 palabras.
+8. Para "clasificar": genera 2-3 categorías con al menos 3 elementos cada una
+9. Para "sopa_letras": las palabras deben ser en MAYÚSCULAS, sin tildes ni espacios. Genera 5-7 palabras de máximo 10 letras cada una
+10. Para "escritura_libre": la rúbrica debe ser clara con porcentajes que sumen 100%
+11. Cada pregunta DEBE tener una explicación educativa
+12. Responde ÚNICAMENTE con JSON válido, sin texto antes ni después`;
 
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
@@ -15790,6 +15889,23 @@ REGLAS IMPORTANTES:
                 // Validar estructura
                 if (!actividad.preguntas || !Array.isArray(actividad.preguntas)) {
                     throw new Error('La actividad generada no tiene preguntas válidas');
+                }
+                
+                // Sanitizar preguntas malformadas de la IA
+                actividad.preguntas = actividad.preguntas.filter(p => {
+                    if (!p || !p.tipo || !p.pregunta) return false;
+                    if (p.tipo === 'quiz' && (!Array.isArray(p.opciones) || p.opciones.length < 2)) return false;
+                    if (p.tipo === 'ordenar' && (!Array.isArray(p.items) || p.items.length < 2)) return false;
+                    if (p.tipo === 'completar' && !p.texto && !p.pregunta) return false;
+                    if (p.tipo === 'relacionar' && (!Array.isArray(p.pares) || p.pares.length < 2)) return false;
+                    if (p.tipo === 'crucigrama' && (!Array.isArray(p.palabras) || p.palabras.length < 1)) return false;
+                    if (p.tipo === 'clasificar' && (!Array.isArray(p.categorias) || !Array.isArray(p.elementos))) return false;
+                    if (p.tipo === 'sopa_letras' && (!Array.isArray(p.palabras) || p.palabras.length < 2)) return false;
+                    if (p.tipo === 'escritura_libre' && !p.rubrica) return false;
+                    return true;
+                });
+                if (actividad.preguntas.length === 0) {
+                    throw new Error('La IA no generó preguntas válidas. Intenta de nuevo.');
                 }
                 
                 actividadGeneradaActual = {
@@ -15889,11 +16005,82 @@ REGLAS IMPORTANTES:
                         break;
                         
                     case 'completar':
-                        let textoMostrado = p.texto;
-                        p.respuestas.forEach((resp, idx) => {
+                        let textoMostrado = p.texto || p.pregunta || '';
+                        (p.respuestas || []).forEach((resp) => {
                             textoMostrado = textoMostrado.replace('[BLANK]', `<span style="background: #dcfce7; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 600; color: #166534;">${resp}</span>`);
                         });
-                        contenidoHtml = `<p style="font-size: 1rem; line-height: 1.8;">${textoMostrado}</p>`;
+                        contenidoHtml = `<p style="font-size: 1rem; line-height: 1.8;">${textoMostrado || '<em>Sin contenido</em>'}</p>`;
+                        break;
+
+                    case 'relacionar':
+                        contenidoHtml = `
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <div>
+                                    <div style="font-weight:600; color:#6366f1; margin-bottom:0.5rem;">Columna A</div>
+                                    ${(p.pares || []).map((par, idx) => `<div style="background:#e0e7ff; padding:0.5rem 0.75rem; border-radius:8px; margin-bottom:0.35rem;">${par.izquierda}</div>`).join('')}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; color:#10b981; margin-bottom:0.5rem;">Columna B</div>
+                                    ${(p.pares || []).map((par, idx) => `<div style="background:#dcfce7; padding:0.5rem 0.75rem; border-radius:8px; margin-bottom:0.35rem;">${par.derecha}</div>`).join('')}
+                                </div>
+                            </div>
+                            <p style="margin-top:0.5rem; color:#64748b; font-size:0.85rem;"><i class="fas fa-arrows-alt-h"></i> Los estudiantes conectarán cada elemento de la columna A con la columna B</p>
+                        `;
+                        break;
+
+                    case 'crucigrama':
+                        contenidoHtml = `
+                            <div>
+                                <p style="color:#64748b; font-size:0.9rem; margin-bottom:0.5rem;"><i class="fas fa-th"></i> Palabras del crucigrama:</p>
+                                ${(p.palabras || []).map(pw => `
+                                    <div style="display:flex; gap:0.75rem; align-items:center; margin-bottom:0.35rem;">
+                                        <span style="background:#fef3c7; color:#92400e; padding:0.25rem 0.6rem; border-radius:6px; font-weight:700; font-family:monospace;">${pw.palabra}</span>
+                                        <span style="color:#475569; font-size:0.9rem;">${pw.orientacion === 'horizontal' ? '→' : '↓'} ${pw.pista}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        break;
+
+                    case 'clasificar':
+                        contenidoHtml = `
+                            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                                ${(p.categorias || []).map(cat => {
+                                    const items = (p.elementos || []).filter(el => el.categoria === cat);
+                                    return `
+                                        <div style="flex:1; min-width:120px; background:#f8fafc; border:2px dashed #cbd5e1; border-radius:8px; padding:0.75rem;">
+                                            <div style="font-weight:600; color:#0ea5e9; margin-bottom:0.5rem; text-align:center;">${cat}</div>
+                                            ${items.map(el => `<div style="background:white; border:1px solid #e2e8f0; padding:0.35rem 0.6rem; border-radius:6px; margin-bottom:0.25rem; font-size:0.9rem;">${el.texto}</div>`).join('')}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            <p style="margin-top:0.5rem; color:#64748b; font-size:0.85rem;"><i class="fas fa-hand-pointer"></i> Los estudiantes arrastrarán los elementos a la categoría correcta</p>
+                        `;
+                        break;
+
+                    case 'sopa_letras':
+                        contenidoHtml = `
+                            <div>
+                                <p style="color:#64748b; font-size:0.9rem; margin-bottom:0.5rem;"><i class="fas fa-search"></i> Palabras a encontrar:</p>
+                                <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                                    ${(p.palabras || []).map((pal, idx) => `
+                                        <div style="background:#fce7f3; color:#9d174d; padding:0.35rem 0.75rem; border-radius:20px; font-weight:600; font-family:monospace; font-size:0.9rem;" title="${p.pistas?.[idx] || ''}">${pal}</div>
+                                    `).join('')}
+                                </div>
+                                ${p.pistas ? `<p style="margin-top:0.5rem; color:#64748b; font-size:0.8rem;">Las pistas se mostrarán al estudiante</p>` : ''}
+                            </div>
+                        `;
+                        break;
+
+                    case 'escritura_libre':
+                        contenidoHtml = `
+                            <div style="background:#f0f9ff; padding:0.75rem; border-radius:8px; border-left:3px solid #0ea5e9;">
+                                <p style="margin:0 0 0.5rem 0; color:#0369a1; font-size:0.9rem;"><strong><i class="fas fa-robot"></i> Rúbrica para evaluación IA:</strong></p>
+                                <p style="margin:0; color:#0369a1; font-size:0.88rem; white-space:pre-line;">${p.rubrica}</p>
+                                ${p.longitudMinima ? `<p style="margin:0.5rem 0 0 0; color:#0369a1; font-size:0.85rem;"><i class="fas fa-text-width"></i> Mínimo ${p.longitudMinima} palabras</p>` : ''}
+                            </div>
+                        `;
                         break;
                 }
                 
@@ -15901,7 +16088,12 @@ REGLAS IMPORTANTES:
                     'quiz': { icon: 'fa-list-ul', label: 'Selección Múltiple' },
                     'verdadero_falso': { icon: 'fa-check-circle', label: 'Verdadero/Falso' },
                     'ordenar': { icon: 'fa-sort', label: 'Ordenar' },
-                    'completar': { icon: 'fa-edit', label: 'Completar' }
+                    'completar': { icon: 'fa-edit', label: 'Completar' },
+                    'relacionar': { icon: 'fa-arrows-alt-h', label: 'Relacionar' },
+                    'crucigrama': { icon: 'fa-th', label: 'Crucigrama' },
+                    'clasificar': { icon: 'fa-layer-group', label: 'Clasificar' },
+                    'sopa_letras': { icon: 'fa-search', label: 'Sopa de Letras' },
+                    'escritura_libre': { icon: 'fa-robot', label: 'Escritura Libre IA' }
                 };
                 
                 const tipoInfo = tipoLabels[p.tipo] || { icon: 'fa-question', label: p.tipo };
@@ -16169,6 +16361,7 @@ REGLAS IMPORTANTES:
         window.guardarHorarioUsuarioAprobado = guardarHorarioUsuarioAprobado;
         window.rechazarUsuario = rechazarUsuario;
         window.eliminarUsuario = eliminarUsuario;
+        window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
         window.limpiarDuplicados = limpiarDuplicados;
         window.resetPassword = resetPassword;
         window.loadUsuariosAprobados = loadUsuariosAprobados;

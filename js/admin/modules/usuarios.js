@@ -8,6 +8,18 @@
 const db = window.db;
 const { collection, getDocs, query, where, doc, setDoc, deleteDoc, addDoc } = window;
 
+// Helper para updateDoc: usa window.updateDoc si existe, si no usa setDoc con merge
+const _updateDoc = window.updateDoc ||
+    ((ref, data) => window.setDoc(ref, data, { merge: true }));
+
+// Configuración de estados de estudiante
+const ESTADOS_ESTUDIANTE = {
+    cursando:  { label: 'Cursando',  color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', icon: 'fa-book-open' },
+    graduado:  { label: 'Graduado',  color: '#b45309', bg: '#fffbeb', border: '#fcd34d', icon: 'fa-graduation-cap' },
+    retirado:  { label: 'Retirado',  color: '#6b7280', bg: '#f9fafb', border: '#d1d5db', icon: 'fa-user-slash' },
+    active:    { label: 'Cursando',  color: '#059669', bg: '#ecfdf5', border: '#a7f3d0', icon: 'fa-book-open' }  // compatibilidad
+};
+
 // Variables globales del módulo
 let allPendingUsers = [];
 let allApprovedUsers = [];
@@ -70,6 +82,9 @@ async function loadUsuariosAprobados() {
 
 // Función para actualizar el dashboard de estadísticas
 function actualizarDashboardUsuarios() {
+    const cursando = allApprovedUsers.filter(u => u.status === 'cursando' || u.status === 'active').length;
+    const graduados = allApprovedUsers.filter(u => u.status === 'graduado').length;
+    const retirados = allApprovedUsers.filter(u => u.status === 'retirado').length;
     const total = allApprovedUsers.length + (allPendingUsers ? allPendingUsers.length : 0);
     const pagosPendientes = allApprovedUsers.filter(u => u.estadoPagos === 'pagos_pendientes').length;
     
@@ -80,6 +95,9 @@ function actualizarDashboardUsuarios() {
     
     setText('total-todos-usuarios', total);
     setText('total-pagos-pendientes', pagosPendientes);
+    setText('total-cursando', cursando);
+    setText('total-graduados', graduados);
+    setText('total-retirados', retirados);
     
     // Estadísticas por sede
     const carapungo = allApprovedUsers.filter(u => u.sede === 'Carapungo').length;
@@ -99,7 +117,7 @@ async function aprobarUsuario(id) {
         await setDoc(doc(db, 'users', user.email), {
             ...user,
             role: 'student',
-            status: 'active',
+            status: 'cursando',
             approvedAt: new Date().toISOString()
         });
 
@@ -126,6 +144,25 @@ async function rechazarUsuario(id) {
     } catch (error) {
         console.error('Error rejecting user:', error);
         alert('Error al rechazar usuario');
+    }
+}
+
+// Función para cambiar el estado de un estudiante
+async function cambiarEstadoEstudiante(userId, nuevoEstado) {
+    const estadoConfig = ESTADOS_ESTUDIANTE[nuevoEstado];
+    if (!estadoConfig) return;
+    const user = allApprovedUsers.find(u => u.id === userId);
+    if (!user) return;
+    if (!confirm(`¿Cambiar estado de "${user.name || user.email}" a "${estadoConfig.label}"?`)) return;
+    try {
+        await setDoc(doc(db, 'users', userId), { ...user, status: nuevoEstado });
+        const idx = allApprovedUsers.findIndex(u => u.id === userId);
+        if (idx !== -1) allApprovedUsers[idx].status = nuevoEstado;
+        renderApprovedUsers();
+        actualizarDashboardUsuarios();
+    } catch (error) {
+        console.error('Error cambiando estado:', error);
+        alert('Error al cambiar el estado del estudiante');
     }
 }
 
@@ -157,7 +194,7 @@ async function aprobarTodosPendientes() {
             await setDoc(doc(db, 'users', user.email), {
                 ...user,
                 role: 'student',
-                status: 'active',
+                status: 'cursando',
                 approvedAt: new Date().toISOString()
             });
             await deleteDoc(doc(db, 'pendingStudents', user.id));
@@ -295,6 +332,25 @@ function renderApprovedUsers() {
                             </div>
                         </div>
                         <div style="padding: 1rem 1.25rem;">
+                            <!-- Badge de estado del estudiante -->
+                            <div style="margin-bottom: 0.75rem;">
+                                ${(() => {
+                                    const est = user.status || 'cursando';
+                                    const cfg = ESTADOS_ESTUDIANTE[est] || ESTADOS_ESTUDIANTE.cursando;
+                                    return `<div style="display:flex; align-items:center; justify-content:space-between; background:${cfg.bg}; border:1px solid ${cfg.border}; border-radius:8px; padding:0.4rem 0.75rem;">
+                                        <span style="font-size:0.75rem; font-weight:700; color:${cfg.color};">
+                                            <i class="fas ${cfg.icon}"></i> ${cfg.label}
+                                        </span>
+                                        <select onchange="cambiarEstadoEstudiante('${user.id}', this.value); this.value=''"
+                                            style="border:none; background:transparent; color:${cfg.color}; font-size:0.7rem; cursor:pointer; outline:none;" title="Cambiar estado">
+                                            <option value="">Cambiar estado…</option>
+                                            <option value="cursando">Cursando</option>
+                                            <option value="graduado">🎓 Graduado</option>
+                                            <option value="retirado">🚫 Retirado</option>
+                                        </select>
+                                    </div>`;
+                                })()}
+                            </div>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
                                 <span style="background: #f3f4f6; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.75rem; color: #374151;">
                                     <i class="fas fa-graduation-cap"></i> ${user.programa || 'Sin programa'}
@@ -359,6 +415,9 @@ if (!window.rechazarUsuario) {
 }
 if (!window.eliminarUsuario) {
     window.eliminarUsuario = eliminarUsuario;
+}
+if (!window.cambiarEstadoEstudiante) {
+    window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
 }
 if (!window.aprobarTodosPendientes) {
     window.aprobarTodosPendientes = aprobarTodosPendientes;

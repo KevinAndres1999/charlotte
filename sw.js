@@ -94,6 +94,13 @@ self.addEventListener('fetch', (event) => {
     return; // Dejar que el navegador maneje estas peticiones directamente
   }
 
+  // No interceptar requests cross-origin que no sean recursos estáticos conocidos
+  // (imágenes externas, noticias, APIs de terceros, etc.)
+  if (url.origin !== self.location.origin &&
+      !STATIC_RESOURCES.some(resource => url.href.startsWith(resource))) {
+    return;
+  }
+
   // Para archivos HTML, CSS, JS - Network First (siempre validar con servidor)
   if (url.pathname.endsWith('.html') || url.pathname.endsWith('.css') || url.pathname.endsWith('.js') ||
       CRITICAL_RESOURCES.some(resource => url.pathname === resource)) {
@@ -161,23 +168,17 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Validar que la respuesta sea válida
-          if (!response || response.status === 0) {
-            throw new Error('Invalid response');
-          }
-
-          // Cachear respuestas exitosas de API, pero excluir Firestore
-          if (response.status === 200 && !url.hostname.includes('firestore.googleapis.com') &&
-              !url.hostname.includes('googleapis.com')) {
+          // Cachear solo respuestas exitosas de nuestra propia API
+          if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseClone);
-            }).catch(error => console.warn('Error cacheando respuesta:', error));
+            }).catch(() => {});
           }
           return response;
         })
         .catch((error) => {
-          console.warn('Network request failed:', error.message, 'for URL:', event.request.url);
+          console.warn('Network request failed for URL:', event.request.url);
 
           // Si falla la red, intentar servir desde cache
           return caches.match(event.request).then((cachedResponse) => {
