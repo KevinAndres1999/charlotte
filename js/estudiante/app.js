@@ -4854,15 +4854,70 @@ async function loadVideoDetail(id) {
         if (docSnap.exists()) {
             const video = docSnap.data();
             document.getElementById('modalTitle').textContent = video.titulo;
-            const videoId = getVideoId(video.url);
+            
+            // Detectar tipo de video
+            const isYouTube = video.url.includes('youtube.com') || video.url.includes('youtu.be');
+            const isLocalVideo = video.url.startsWith('/videos/') || video.url.includes('/videos/');
+            const isMp4 = video.url.endsWith('.mp4') || video.url.endsWith('.webm');
+            
+            let videoPlayerHTML = '';
+            
+            if (isYouTube) {
+                // YouTube
+                const videoId = getVideoId(video.url);
+                videoPlayerHTML = videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 315px;"></iframe>` : '';
+            } else if (isLocalVideo || isMp4) {
+                // Video local desde Render
+                const videoUrl = video.url.startsWith('http') ? video.url : `/videos/${video.url}`;
+                videoPlayerHTML = `
+                    <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+                        <video id="videoPlayer-${id}" width="100%" height="315" controls style="display: block; width: 100%;">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Tu navegador no soporta videos HTML5
+                        </video>
+                    </div>
+                    <div style="background: #f0f9ff; border: 1px solid #e0e7ff; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 0.9em; color: #1e40af;">
+                        <i class="fas fa-info-circle"></i> Video alojado en servidor
+                    </div>
+                `;
+            } else {
+                // Enlace externo
+                videoPlayerHTML = `<p><a href="${video.url}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 600;"><i class="fas fa-external-link-alt"></i> Abrir video en nueva pestaña</a></p>`;
+            }
+            
             document.getElementById('modalBody').innerHTML = `
                 <p><strong>Descripción:</strong> ${video.descripcion || 'Sin descripción'}</p>
                 <p><strong>Programa:</strong> ${video.programa}</p>
+                <p><strong>Duración:</strong> ${video.duracion || 'N/A'}</p>
                 <p><strong>Fecha:</strong> ${video.fechaCreacion ? new Date(video.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
                 <div style="margin-top: 20px;">
-                    ${videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 315px;"></iframe>` : `<p><a href="${video.url}" target="_blank" style="color: #3b82f6; text-decoration: underline;">Abrir video en nueva pestaña</a></p>`}
+                    ${videoPlayerHTML}
                 </div>
             `;
+            
+            // Guardar progreso del video al reproducir
+            const videoElement = document.getElementById(`videoPlayer-${id}`);
+            if (videoElement) {
+                videoElement.addEventListener('play', () => {
+                    localStorage.setItem(`video-${id}-progress`, '25');
+                });
+                videoElement.addEventListener('pause', () => {
+                    const progress = Math.round((videoElement.currentTime / videoElement.duration) * 100);
+                    localStorage.setItem(`video-${id}-progress`, progress);
+                });
+                videoElement.addEventListener('ended', () => {
+                    localStorage.setItem(`video-${id}-watched`, 'true');
+                    localStorage.setItem(`video-${id}-progress`, '100');
+                });
+                
+                // Restaurar posición si fue pausado
+                const savedProgress = localStorage.getItem(`video-${id}-progress`);
+                if (savedProgress && savedProgress !== '0') {
+                    videoElement.addEventListener('loadedmetadata', () => {
+                        videoElement.currentTime = (savedProgress / 100) * videoElement.duration;
+                    });
+                }
+            }
         }
     } catch (error) {
         console.error('Error loading video detail:', error);

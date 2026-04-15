@@ -4199,6 +4199,38 @@
 
                     <form id="videoForm">
                         <div class="quiz-form-grid">
+                            <!-- Área de Carga -->
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-cloud-upload-alt"></i> Subir Video</h4>
+                                
+                                <!-- Área Drag & Drop -->
+                                <div id="videoDragDrop" style="border: 2px dashed #667eea; border-radius: 12px; padding: 40px; text-align: center; background: #f0f4ff; cursor: pointer; transition: all 0.3s; margin-bottom: 15px;">
+                                    <i class="fas fa-video" style="font-size: 48px; color: #667eea; margin-bottom: 15px; display: block;"></i>
+                                    <p style="color: #667eea; font-weight: 600; margin: 0 0 5px 0;">Arrastra tu video aquí</p>
+                                    <p style="color: #64748b; margin: 0; font-size: 0.9em;">o haz clic para seleccionar</p>
+                                    <p style="color: #94a3b8; margin: 10px 0 0 0; font-size: 0.85em;">Formatos: MP4, WebM, MKV (máx. 300MB)</p>
+                                    <input type="file" id="videoFileInput" accept="video/mp4,.mp4,video/webm,.webm,video/x-matroska,.mkv" style="display: none;">
+                                </div>
+
+                                <!-- Preview del Video -->
+                                <div id="videoPreview" style="display: none; margin-bottom: 15px; background: #000; border-radius: 8px; overflow: hidden;">
+                                    <video id="previewVideoElement" width="100%" height="auto" controls style="max-height: 300px;"></video>
+                                    <div style="padding: 10px; background: white; border-top: 1px solid #e2e8f0;">
+                                        <p id="videoFileName" style="margin: 0; font-weight: 600; color: #1e293b;"></p>
+                                        <p id="videoFileSize" style="margin: 5px 0 0 0; font-size: 0.9em; color: #64748b;"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Indicador de Carga -->
+                                <div id="uploadProgress" style="display: none; margin-bottom: 15px;">
+                                    <div style="background: #e2e8f0; border-radius: 8px; height: 24px; overflow: hidden;">
+                                        <div id="uploadProgressBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75em; font-weight: 600;"></div>
+                                    </div>
+                                    <p id="uploadStatus" style="margin: 8px 0 0 0; text-align: center; font-size: 0.9em; color: #64748b;"></p>
+                                </div>
+                            </div>
+
+                            <!-- Información del Video -->
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-info-circle"></i> Información del Video</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
@@ -4207,15 +4239,15 @@
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="videoDesc">Descripción</label>
-                                    <textarea id="videoDesc" placeholder="Describe el contenido y objetivos del video..."></textarea>
+                                    <textarea id="videoDesc" placeholder="Describe el contenido y objetivos del video..." style="min-height: 80px;"></textarea>
                                 </div>
-                            </div>
-
-                            <div class="quiz-form-card">
-                                <h4><i class="fas fa-cogs"></i> Configuración</h4>
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="videoDuracion">Duración (minutos)</label>
+                                    <input type="number" id="videoDuracion" placeholder="Ej: 45" min="1">
+                                </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="videoPrograma">Programa</label>
-                                    <select id="videoPrograma" required onchange="populateModuloSelect('videoModulo', 'videoPrograma')">
+                                    <select id="videoPrograma" required>
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -4223,7 +4255,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Horarios (selecciona uno o más)</label>
+                                    <label>Horarios (opcional)</label>
                                     <div class="horarios-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
                                         <label style="display: flex; align-items: center; gap: 8px;">
                                             <input type="checkbox" name="videoHorarios" value="Sábado Matutina">
@@ -4240,7 +4272,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label>Sedes (selecciona una o más)</label>
+                                    <label>Sedes (opcional)</label>
                                     <div class="sedes-checkboxes" style="display: flex; flex-direction: column; gap: 8px;">
                                         <label style="display: flex; align-items: center; gap: 8px;">
                                             <input type="checkbox" name="videoSedes" value="Carapungo">
@@ -4252,15 +4284,15 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px; display: none;" id="videoUrlContainer">
                                     <label for="videoUrl">URL del Video</label>
-                                    <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=..." required>
+                                    <input type="text" id="videoUrl" placeholder="Se completará automáticamente" readonly>
                                 </div>
                             </div>
                         </div>
 
                         <div class="submit-section">
-                            <button type="submit" class="btn-submit-quiz">
+                            <button type="submit" class="btn-submit-quiz" id="videoFormSubmitBtn">
                                 <i class="fas fa-upload"></i> Subir Video
                             </button>
                         </div>
@@ -8776,40 +8808,160 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             // Formulario de videos
             const videoForm = document.getElementById('videoForm');
             if (videoForm) {
+                let selectedVideoFile = null;
+
+                // Manejador de drag and drop
+                const videoDragDrop = document.getElementById('videoDragDrop');
+                const videoFileInput = document.getElementById('videoFileInput');
+
+                videoDragDrop.addEventListener('click', () => videoFileInput.click());
+
+                videoDragDrop.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    videoDragDrop.style.background = '#e0e7ff';
+                    videoDragDrop.style.borderColor = '#764ba2';
+                });
+
+                videoDragDrop.addEventListener('dragleave', () => {
+                    videoDragDrop.style.background = '#f0f4ff';
+                    videoDragDrop.style.borderColor = '#667eea';
+                });
+
+                videoDragDrop.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    videoDragDrop.style.background = '#f0f4ff';
+                    videoDragDrop.style.borderColor = '#667eea';
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) handleVideoFileSelect(files[0]);
+                });
+
+                videoFileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) handleVideoFileSelect(e.target.files[0]);
+                });
+
+                function handleVideoFileSelect(file) {
+                    if (!file.type.startsWith('video/') && !['video/mp4', 'video/webm', 'video/x-matroska'].includes(file.type)) {
+                        alert('Por favor selecciona un archivo de video válido (MP4, WebM, MKV)');
+                        return;
+                    }
+
+                    if (file.size > 300 * 1024 * 1024) {
+                        alert('El archivo es muy grande (máx. 300MB)');
+                        return;
+                    }
+
+                    selectedVideoFile = file;
+
+                    // Mostrar preview
+                    const videoPreview = document.getElementById('videoPreview');
+                    const previewVideoElement = document.getElementById('previewVideoElement');
+                    const videoFileName = document.getElementById('videoFileName');
+                    const videoFileSize = document.getElementById('videoFileSize');
+
+                    const url = URL.createObjectURL(file);
+                    previewVideoElement.src = url;
+                    videoFileName.textContent = file.name;
+                    videoFileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+                    videoPreview.style.display = 'block';
+
+                    videoDragDrop.style.display = 'none';
+                }
+
                 videoForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    
                     const title = document.getElementById('videoTitle').value;
                     const desc = document.getElementById('videoDesc').value;
                     const programa = document.getElementById('videoPrograma').value;
-                    const url = document.getElementById('videoUrl').value;
+                    const duracion = document.getElementById('videoDuracion').value || 0;
                     
-                    // Recoger horarios seleccionados
                     const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="videoHorarios"]:checked')).map(cb => cb.value);
-                    // Recoger sedes seleccionadas
                     const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="videoSedes"]:checked')).map(cb => cb.value);
 
-                    if (!url) return alert('Ingresa la URL del video');
+                    if (!title) return alert('Ingresa el título del video');
                     if (!programa) return alert('Selecciona un programa');
-                    if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
-                    if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
+
+                    const submitBtn = document.getElementById('videoFormSubmitBtn');
+                    const originalBtnText = submitBtn.innerHTML;
+                    let videoUrl = null;
 
                     try {
-                        await addDoc(collection(db, 'content'), {
-                            titulo: title,
-                            descripcion: desc,
-                            url: url,
-                            programa: programa,
-                            horarios: horariosSeleccionados,
-                            sedes: sedesSeleccionadas,
-                            fechaCreacion: new Date().toISOString()
-                        });
+                        // Si hay archivo seleccionado, subirlo
+                        if (selectedVideoFile) {
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo video...';
 
-                        alert('Video agregado exitosamente');
-                        videoForm.reset();
-                        loadDashboardStats();
+                            const formData = new FormData();
+                            formData.append('video', selectedVideoFile);
+                            formData.append('titulo', title);
+                            formData.append('descripcion', desc);
+                            formData.append('programa', programa);
+                            formData.append('duracion', duracion);
+
+                            const uploadProgress = document.getElementById('uploadProgress');
+                            const uploadProgressBar = document.getElementById('uploadProgressBar');
+                            const uploadStatus = document.getElementById('uploadStatus');
+                            uploadProgress.style.display = 'block';
+
+                            const xhr = new XMLHttpRequest();
+                            xhr.upload.addEventListener('progress', (e) => {
+                                if (e.lengthComputable) {
+                                    const percentComplete = (e.loaded / e.total) * 100;
+                                    uploadProgressBar.style.width = percentComplete + '%';
+                                    uploadProgressBar.textContent = Math.round(percentComplete) + '%';
+                                    uploadStatus.textContent = `Subiendo... ${Math.round(percentComplete)}%`;
+                                }
+                            });
+
+                            xhr.addEventListener('load', async () => {
+                                if (xhr.status === 200) {
+                                    const response = JSON.parse(xhr.responseText);
+                                    videoUrl = response.video.url;
+
+                                    uploadStatus.textContent = 'Guardando en base de datos...';
+
+                                    // Guardar en Firestore
+                                    await addDoc(collection(db, 'content'), {
+                                        titulo: title,
+                                        descripcion: desc,
+                                        url: videoUrl,
+                                        programa: programa,
+                                        duracion: parseInt(duracion) || 0,
+                                        horarios: horariosSeleccionados,
+                                        sedes: sedesSeleccionadas,
+                                        fechaSubida: new Date().toISOString(),
+                                        tipo: 'video-local'
+                                    });
+
+                                    uploadProgress.style.display = 'none';
+                                    alert('✅ Video subido exitosamente');
+                                    videoForm.reset();
+                                    selectedVideoFile = null;
+                                    document.getElementById('videoPreview').style.display = 'none';
+                                    document.getElementById('videoDragDrop').style.display = 'block';
+                                    loadVideosList();
+                                    loadDashboardStats();
+                                } else {
+                                    throw new Error(xhr.responseText);
+                                }
+                            });
+
+                            xhr.addEventListener('error', () => {
+                                alert('Error en la carga del archivo');
+                            });
+
+                            xhr.open('POST', window.APP_CONFIG.BACKEND_URL + '/api/upload-video');
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + sessionStorage.getItem('token'));
+                            xhr.send(formData);
+                        } else {
+                            alert('⚠️ Por favor selecciona un archivo de video para subir');
+                        }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('Error al agregar video');
+                        alert('Error al procesar el video: ' + error.message);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
                     }
                 });
             }

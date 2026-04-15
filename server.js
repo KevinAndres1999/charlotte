@@ -7,6 +7,7 @@ const Database = require('better-sqlite3');
 const http = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
+const multer = require('multer');
 
 const app = express();
 const server = http.createServer(app);
@@ -62,6 +63,140 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// ============================================
+// CONFIGURACIÓN DE CARGA DE VIDEOS
+// ============================================
+const fs = require('fs');
+const videosDir = path.join(__dirname, 'videos');
+
+// Crear directorio de videos si no existe
+if (!fs.existsSync(videosDir)) {
+  fs.mkdirSync(videosDir, { recursive: true });
+}
+
+// Configurar multer para carga de videos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, videosDir);
+  },
+  filename: (req, file, cb) => {
+    // Sanitizar nombre del archivo
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9-_]/g, '-')
+      .substring(0, 50);
+    cb(null, `${name}-${timestamp}${ext}`);
+  }
+});
+
+const uploadFilter = (req, file, cb) => {
+  const allowedMimes = ['video/mp4', 'video/webm', 'video/x-matroska'];
+  const allowedExts = ['.mp4', '.webm', '.mkv'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  
+  if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten videos MP4, WebM o MKV'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter: uploadFilter,
+  limits: {
+    fileSize: 300 * 1024 * 1024 // 300MB max
+  }
+});
+
+// Endpoint para subir video
+app.post('/api/upload-video', requireAuth, upload.single('video'), (req, res) => {
+  if (!req.user || req.user.role !== 'admin') {
+    // Eliminar archivo si no es admin
+    if (req.file) fs.unlinkSync(req.file.path);
+    return res.status(403).json({ message: 'Acceso restringido' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'No se subió ningún archivo' });
+  }
+
+  try {
+    const { titulo, descripcion, programa, duracion } = req.body;
+    
+    if (!titulo || !programa) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: 'Título y programa son requeridos' });
+    }
+
+    // Retornar información del video
+    const videoUrl = `/videos/${req.file.filename}`;
+    
+    res.json({
+      success: true,
+      message: 'Video subido exitosamente',
+      video: {
+        filename: req.file.filename,
+        url: videoUrl,
+        size: req.file.size,
+        sizeHuman: formatBytes(req.file.size),
+        titulo,
+        descripcion,
+        programa,
+        duracion,
+        fechaSubida: new Date().toISOString()
+      }
+    });
+  } catch (err) {
+    // Eliminar archivo en caso de error
+    if (req.file) fs.unlinkSync(req.file.path);
+    console.error('Error uploading video:', err);
+    res.status(500).json({ message: 'Error al subir video: ' + err.message });
+  }
+});
+
+// ============================================
+// SERVIR ARCHIVOS ESTÁTICOS (VIDEOS)
+// ============================================
+app.use('/videos', express.static(path.join(__dirname, 'videos'), {
+  setHeaders: (res, path) => {
+    // Permitir CORS en videos
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Content-Type', 'video/mp4');
+  }
+}));
+
+// Endpoint para listar videos disponibles
+app.get('/api/videos/list', (req, res) => {
+  const fs = require('fs');
+  const videosPath = path.join(__dirname, 'videos');
+  try {
+    const files = fs.readdirSync(videosPath)
+      .filter(file => /\.(mp4|webm|mkv)$/i.test(file))
+      .map(file => ({
+        name: file,
+        url: `/videos/${file}`,
+        size: fs.statSync(path.join(videosPath, file)).size,
+        sizeHuman: formatBytes(fs.statSync(path.join(videosPath, file)).size)
+      }));
+    res.json({ videos: files });
+  } catch(err) {
+    console.error('Error listing videos:', err);
+    res.status(500).json({ message: 'Error al listar videos' });
+  }
+});
+
+// Helper para formatear bytes
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
 
 // --- Rate limiting: protección contra fuerza bruta en auth ---
 const authLimiter = rateLimit({
