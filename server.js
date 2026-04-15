@@ -159,16 +159,82 @@ app.post('/api/upload-video', upload.single('video'), (req, res) => {
 });
 
 // ============================================
-// SERVIR ARCHIVOS ESTÁTICOS (VIDEOS)
+// SERVIR ARCHIVOS ESTÁTICOS (VIDEOS) CON SOPORTE DE STREAMING
 // ============================================
-app.use('/videos', express.static(path.join(__dirname, 'videos'), {
-  setHeaders: (res, path) => {
-    // Permitir CORS en videos
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Accept-Ranges', 'bytes');
-    res.setHeader('Content-Type', 'video/mp4');
+
+// Mejor manejador para servir videos con streaming y CORS
+app.get('/videos/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filepath = path.join(videosDir, filename);
+  
+  // Seguridad: prevenir path traversal
+  if (!filepath.startsWith(videosDir)) {
+    return res.status(403).json({ message: 'Acceso denegado' });
   }
-}));
+  
+  // Verificar que el archivo existe
+  if (!fs.existsSync(filepath)) {
+    console.warn(`⚠️ Video no encontrado: ${filename}`);
+    return res.status(404).json({ message: 'Video no encontrado' });
+  }
+  
+  // Obtener información del archivo
+  const stat = fs.statSync(filepath);
+  const fileSize = stat.size;
+  
+  // Detectar tipo MIME correcto
+  const ext = path.extname(filename).toLowerCase();
+  let mimeType = 'video/mp4';
+  if (ext === '.webm') mimeType = 'video/webm';
+  if (ext === '.mkv') mimeType = 'video/x-matroska';
+  
+  // Headers CORS y de video
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Content-Type', mimeType);
+  res.setHeader('Content-Length', fileSize);
+  res.setHeader('Accept-Ranges', 'bytes');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  
+  // Soporte para range requests (para scrubbing de video)
+  const range = req.headers.range;
+  let stream;
+  
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    
+    if (start >= fileSize) {
+      return res.status(416).json({ message: 'Range no válido' });
+    }
+    
+    res.status(206).setHeader('Content-Range', `bytes ${start}-${end}/${fileSize}`);
+    res.setHeader('Content-Length', end - start + 1);
+    
+    stream = fs.createReadStream(filepath, { start, end });
+    stream.pipe(res);
+    
+    console.log(`📺 Streaming ${filename} (${start}-${end}/${fileSize} bytes)`);
+  } else {
+    // Sin range request, servir todo el archivo
+    stream = fs.createReadStream(filepath);
+    stream.pipe(res);
+    
+    console.log(`📺 Sirviendo ${filename} (${fileSize} bytes, tipo: ${mimeType})`);
+  }
+  
+  // Manejo de errores
+  stream.on('error', (err) => {
+    console.error(`❌ Error sirviendo video ${filename}:`, err);
+    if (!res.headersSent) {
+      res.status(500).json({ message: 'Error sirviendo archivo' });
+    }
+  });
+});
+
+// Fallback para servir archivos estáticos normales
+app.use('/videos', express.static(path.join(__dirname, 'videos')));
 
 // Endpoint para listar videos disponibles
 app.get('/api/videos/list', (req, res) => {
