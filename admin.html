@@ -8949,15 +8949,21 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                             : baseUrl + response.video.url;
 
                                         console.log('💾 URL completa para guardar:', videoUrl);
-                                        url: videoUrl,
-                                        programa: programa,
-                                        duracion: parseInt(duracion) || 0,
-                                        horarios: horariosSeleccionados,
-                                        sedes: sedesSeleccionadas,
-                                        fechaSubida: new Date().toISOString(),
-                                        tipo: 'video-local',
-                                        uploadedBy: currentUser?.email
-                                    });
+                                        uploadStatus.textContent = 'Guardando en base de datos...';
+
+                                        // Guardar en Firestore
+                                        await addDoc(collection(db, 'content'), {
+                                            titulo: title,
+                                            descripcion: desc,
+                                            url: videoUrl,
+                                            programa: programa,
+                                            duracion: parseInt(duracion) || 0,
+                                            horarios: horariosSeleccionados,
+                                            sedes: sedesSeleccionadas,
+                                            fechaSubida: new Date().toISOString(),
+                                            tipo: 'video-local',
+                                            uploadedBy: currentUser?.email
+                                        });
 
                                     uploadProgress.style.display = 'none';
                                     submitBtn.disabled = false;
