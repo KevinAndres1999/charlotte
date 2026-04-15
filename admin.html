@@ -8869,56 +8869,81 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
                 videoForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+                    console.log('📹 Formulario de video enviado');
                     
-                    const title = document.getElementById('videoTitle').value;
-                    const desc = document.getElementById('videoDesc').value;
+                    const title = document.getElementById('videoTitle').value.trim();
+                    const desc = document.getElementById('videoDesc').value.trim();
                     const programa = document.getElementById('videoPrograma').value;
                     const duracion = document.getElementById('videoDuracion').value || 0;
                     
                     const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="videoHorarios"]:checked')).map(cb => cb.value);
                     const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="videoSedes"]:checked')).map(cb => cb.value);
 
-                    if (!title) return alert('Ingresa el título del video');
-                    if (!programa) return alert('Selecciona un programa');
+                    // Validaciones
+                    if (!selectedVideoFile) {
+                        alert('❌ Por favor selecciona un video primero.\n\n1. Arrastra el video al área azul\n2. O haz clic para seleccionar');
+                        return;
+                    }
+
+                    if (!title) {
+                        alert('❌ Por favor ingresa el título del video');
+                        return;
+                    }
+
+                    if (!programa) {
+                        alert('❌ Por favor selecciona un programa');
+                        return;
+                    }
 
                     const submitBtn = document.getElementById('videoFormSubmitBtn');
                     const originalBtnText = submitBtn.innerHTML;
                     let videoUrl = null;
 
                     try {
-                        // Si hay archivo seleccionado, subirlo
-                        if (selectedVideoFile) {
-                            submitBtn.disabled = true;
-                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo video...';
+                        console.log('📤 Iniciando carga de video:', {
+                            nombre: selectedVideoFile.name,
+                            tamaño: selectedVideoFile.size,
+                            titulo: title,
+                            programa: programa
+                        });
 
-                            const formData = new FormData();
-                            formData.append('video', selectedVideoFile);
-                            formData.append('titulo', title);
-                            formData.append('descripcion', desc);
-                            formData.append('programa', programa);
-                            formData.append('duracion', duracion);
-                            formData.append('userEmail', currentUser?.email || 'admin');
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo video...';
 
-                            const uploadProgress = document.getElementById('uploadProgress');
-                            const uploadProgressBar = document.getElementById('uploadProgressBar');
-                            const uploadStatus = document.getElementById('uploadStatus');
-                            uploadProgress.style.display = 'block';
+                        const formData = new FormData();
+                        formData.append('video', selectedVideoFile);
+                        formData.append('titulo', title);
+                        formData.append('descripcion', desc);
+                        formData.append('programa', programa);
+                        formData.append('duracion', duracion);
+                        formData.append('userEmail', currentUser?.email || 'admin');
 
-                            const xhr = new XMLHttpRequest();
-                            xhr.upload.addEventListener('progress', (e) => {
-                                if (e.lengthComputable) {
-                                    const percentComplete = (e.loaded / e.total) * 100;
-                                    uploadProgressBar.style.width = percentComplete + '%';
-                                    uploadProgressBar.textContent = Math.round(percentComplete) + '%';
-                                    uploadStatus.textContent = `Subiendo... ${Math.round(percentComplete)}%`;
-                                }
-                            });
+                        const uploadProgress = document.getElementById('uploadProgress');
+                        const uploadProgressBar = document.getElementById('uploadProgressBar');
+                        const uploadStatus = document.getElementById('uploadStatus');
+                        uploadProgress.style.display = 'block';
 
-                            xhr.addEventListener('load', async () => {
+                        const xhr = new XMLHttpRequest();
+                        
+                        xhr.upload.addEventListener('progress', (e) => {
+                            if (e.lengthComputable) {
+                                const percentComplete = (e.loaded / e.total) * 100;
+                                uploadProgressBar.style.width = percentComplete + '%';
+                                uploadProgressBar.textContent = Math.round(percentComplete) + '%';
+                                uploadStatus.textContent = `Subiendo... ${Math.round(percentComplete)}% (${formatBytes(e.loaded)} / ${formatBytes(e.total)})`;
+                                console.log('📊 Progreso:', Math.round(percentComplete) + '%');
+                            }
+                        });
+
+                        xhr.addEventListener('load', async () => {
+                            console.log('✅ Respuesta del servidor:', xhr.status, xhr.responseText);
+                            
+                            try {
                                 if (xhr.status === 200) {
                                     const response = JSON.parse(xhr.responseText);
                                     videoUrl = response.video.url;
 
+                                    console.log('💾 Guardando en Firestore con URL:', videoUrl);
                                     uploadStatus.textContent = 'Guardando en base de datos...';
 
                                     // Guardar en Firestore
@@ -8936,7 +8961,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     });
 
                                     uploadProgress.style.display = 'none';
-                                    alert('✅ Video subido exitosamente');
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalBtnText;
+                                    
+                                    alert('✅ ¡Video subido exitosamente!\n\nYa está disponible para los estudiantes.');
+                                    console.log('🎉 Video guardado completamente');
+                                    
                                     videoForm.reset();
                                     selectedVideoFile = null;
                                     document.getElementById('videoPreview').style.display = 'none';
@@ -8945,28 +8975,51 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     loadDashboardStats();
                                 } else {
                                     const errorResponse = JSON.parse(xhr.responseText);
-                                    throw new Error(errorResponse.message || 'Error en la carga');
+                                    throw new Error(`Servidor respondió con error ${xhr.status}: ${errorResponse.message}`);
                                 }
-                            });
+                            } catch (parseErr) {
+                                console.error('❌ Error procesando respuesta:', parseErr);
+                                throw parseErr;
+                            }
+                        });
 
-                            xhr.addEventListener('error', () => {
-                                alert('❌ Error en la carga del archivo. Verifica tu conexión.');
-                                uploadProgress.style.display = 'none';
-                            });
+                        xhr.addEventListener('error', (err) => {
+                            console.error('❌ Error de conexión:', err);
+                            alert('❌ Error en la conexión. Verifica que:\n1. Tu internet esté activo\n2. El servidor esté disponible\n3. El archivo no sea demasiado grande');
+                            uploadProgress.style.display = 'none';
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                        });
 
-                            xhr.open('POST', window.APP_CONFIG.BACKEND_URL + '/api/upload-video');
-                            xhr.send(formData);
-                        } else {
-                            alert('⚠️ Por favor selecciona un archivo de video para subir');
-                        }
+                        xhr.addEventListener('abort', () => {
+                            console.warn('⚠️ Carga cancelada');
+                            uploadProgress.style.display = 'none';
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnText;
+                        });
+
+                        const backendUrl = window.APP_CONFIG?.BACKEND_URL || 'https://charlotte-video-server.onrender.com';
+                        console.log('🔗 Endpoint:', backendUrl + '/api/upload-video');
+                        
+                        xhr.open('POST', backendUrl + '/api/upload-video');
+                        xhr.send(formData);
+
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error al procesar el video: ' + error.message);
-                    } finally {
+                        console.error('❌ Error general:', error);
+                        alert('❌ Error: ' + error.message);
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalBtnText;
                     }
                 });
+            }
+
+            // Helper para formatear bytes
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
             }
 
             // Formulario de clases
