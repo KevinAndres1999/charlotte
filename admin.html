@@ -8897,6 +8897,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             formData.append('descripcion', desc);
                             formData.append('programa', programa);
                             formData.append('duracion', duracion);
+                            formData.append('userEmail', currentUser?.email || 'admin');
 
                             const uploadProgress = document.getElementById('uploadProgress');
                             const uploadProgressBar = document.getElementById('uploadProgressBar');
@@ -8930,7 +8931,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                         horarios: horariosSeleccionados,
                                         sedes: sedesSeleccionadas,
                                         fechaSubida: new Date().toISOString(),
-                                        tipo: 'video-local'
+                                        tipo: 'video-local',
+                                        uploadedBy: currentUser?.email
                                     });
 
                                     uploadProgress.style.display = 'none';
@@ -8942,16 +8944,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     loadVideosList();
                                     loadDashboardStats();
                                 } else {
-                                    throw new Error(xhr.responseText);
+                                    const errorResponse = JSON.parse(xhr.responseText);
+                                    throw new Error(errorResponse.message || 'Error en la carga');
                                 }
                             });
 
                             xhr.addEventListener('error', () => {
-                                alert('Error en la carga del archivo');
+                                alert('❌ Error en la carga del archivo. Verifica tu conexión.');
+                                uploadProgress.style.display = 'none';
                             });
 
                             xhr.open('POST', window.APP_CONFIG.BACKEND_URL + '/api/upload-video');
-                            xhr.setRequestHeader('Authorization', 'Bearer ' + sessionStorage.getItem('token'));
                             xhr.send(formData);
                         } else {
                             alert('⚠️ Por favor selecciona un archivo de video para subir');

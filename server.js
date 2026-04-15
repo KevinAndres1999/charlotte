@@ -111,25 +111,23 @@ const upload = multer({
   }
 });
 
-// Endpoint para subir video
-app.post('/api/upload-video', requireAuth, upload.single('video'), (req, res) => {
-  if (!req.user || req.user.role !== 'admin') {
-    // Eliminar archivo si no es admin
-    if (req.file) fs.unlinkSync(req.file.path);
-    return res.status(403).json({ message: 'Acceso restringido' });
-  }
-
+// Endpoint para subir video (actualizado para Firestore Auth)
+app.post('/api/upload-video', upload.single('video'), (req, res) => {
+  // Solo requiere que haya un archivo, la autenticación se valida desde el cliente
   if (!req.file) {
     return res.status(400).json({ message: 'No se subió ningún archivo' });
   }
 
   try {
-    const { titulo, descripcion, programa, duracion } = req.body;
+    const { titulo, descripcion, programa, duracion, userEmail } = req.body;
     
     if (!titulo || !programa) {
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ message: 'Título y programa son requeridos' });
     }
+
+    // Logging básico
+    console.log(`📹 Video subido por ${userEmail}: ${titulo}`);
 
     // Retornar información del video
     const videoUrl = `/videos/${req.file.filename}`;
@@ -146,12 +144,15 @@ app.post('/api/upload-video', requireAuth, upload.single('video'), (req, res) =>
         descripcion,
         programa,
         duracion,
+        uploadedBy: userEmail,
         fechaSubida: new Date().toISOString()
       }
     });
   } catch (err) {
     // Eliminar archivo en caso de error
-    if (req.file) fs.unlinkSync(req.file.path);
+    if (req.file) {
+      fs.unlinkSync(req.file.path);
+    }
     console.error('Error uploading video:', err);
     res.status(500).json({ message: 'Error al subir video: ' + err.message });
   }
