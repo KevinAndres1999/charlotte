@@ -8941,15 +8941,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             try {
                                 if (xhr.status === 200) {
                                     const response = JSON.parse(xhr.responseText);
-                                    videoUrl = response.video.url;
+                                        
+                                        // Convertir URL relativa a URL completa
+                                        let baseUrl = window.APP_CONFIG?.BACKEND_URL || 'https://charlotte-video-server.onrender.com';
+                                        videoUrl = response.video.url.startsWith('http') 
+                                            ? response.video.url 
+                                            : baseUrl + response.video.url;
 
-                                    console.log('💾 Guardando en Firestore con URL:', videoUrl);
-                                    uploadStatus.textContent = 'Guardando en base de datos...';
-
-                                    // Guardar en Firestore
-                                    await addDoc(collection(db, 'content'), {
-                                        titulo: title,
-                                        descripcion: desc,
+                                        console.log('💾 URL completa para guardar:', videoUrl);
                                         url: videoUrl,
                                         programa: programa,
                                         duracion: parseInt(duracion) || 0,

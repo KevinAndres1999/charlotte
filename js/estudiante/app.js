@@ -4855,41 +4855,63 @@ async function loadVideoDetail(id) {
             const video = docSnap.data();
             document.getElementById('modalTitle').textContent = video.titulo;
             
-            // Detectar tipo de video
-            const isYouTube = video.url.includes('youtube.com') || video.url.includes('youtu.be');
-            const isLocalVideo = video.url.startsWith('/videos/') || video.url.includes('/videos/');
-            const isMp4 = video.url.endsWith('.mp4') || video.url.endsWith('.webm');
+            // Detectar tipo de video y normalizar URL
+            let videoUrl = video.url || '';
+            const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+            const isVimeo = videoUrl.includes('vimeo.com');
+            
+            // Detectar si es un video local (desde Render)
+            const isLocalVideo = videoUrl.includes('charlotte-video-server.onrender.com/videos/') || 
+                                 videoUrl.includes('localhost:3000/videos/') ||
+                                 videoUrl.includes('/videos/');
+            const isMp4OrWebm = videoUrl.endsWith('.mp4') || videoUrl.endsWith('.webm') || 
+                               videoUrl.includes('.mp4?') || videoUrl.includes('.webm?');
+            
+            console.log('🔍 Detectando video:', { url: videoUrl, isYouTube, isLocalVideo, isMp4OrWebm });
             
             let videoPlayerHTML = '';
             
             if (isYouTube) {
                 // YouTube
-                const videoId = getVideoId(video.url);
-                videoPlayerHTML = videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 315px;"></iframe>` : '';
-            } else if (isLocalVideo || isMp4) {
-                // Video local desde Render
-                const videoUrl = video.url.startsWith('http') ? video.url : `/videos/${video.url}`;
+                const videoId = getVideoId(videoUrl);
+                videoPlayerHTML = videoId ? `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="width: 100%; height: 315px; border-radius: 8px;"></iframe>` : '';
+                console.log('📺 Reproduciendo YouTube');
+            } else if (isVimeo) {
+                // Vimeo
+                const vimeoId = videoUrl.match(/vimeo\.com\/(\d+)/)?.[1];
+                videoPlayerHTML = vimeoId ? `<iframe src="https://player.vimeo.com/video/${vimeoId}" frameborder="0" allowfullscreen style="width: 100%; height: 315px; border-radius: 8px;"></iframe>` : '';
+                console.log('📺 Reproduciendo Vimeo');
+            } else if (isLocalVideo || isMp4OrWebm) {
+                // Video local desde Render - asegurar URL completa
+                if (!videoUrl.includes('://')) {
+                    // URL relativa, agregar base
+                    const baseUrl = 'https://charlotte-video-server.onrender.com';
+                    videoUrl = videoUrl.startsWith('/') ? baseUrl + videoUrl : baseUrl + '/' + videoUrl;
+                }
+                
                 videoPlayerHTML = `
                     <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
-                        <video id="videoPlayer-${id}" width="100%" height="315" controls style="display: block; width: 100%;">
+                        <video id="videoPlayer-${id}" width="100%" height="auto" controls style="display: block; width: 100%; background: #000; max-height: 400px;">
                             <source src="${videoUrl}" type="video/mp4">
-                            Tu navegador no soporta videos HTML5
+                            Tu navegador no soporta videos HTML5. <a href="${videoUrl}" target="_blank" style="color: #3b82f6;">Descarga aquí</a>
                         </video>
                     </div>
                     <div style="background: #f0f9ff; border: 1px solid #e0e7ff; border-radius: 8px; padding: 12px; margin: 10px 0; font-size: 0.9em; color: #1e40af;">
-                        <i class="fas fa-info-circle"></i> Video alojado en servidor
+                        <i class="fas fa-server"></i> Video desde servidor (${videoUrl})
                     </div>
                 `;
+                console.log('📹 Reproduciendo video local desde:', videoUrl);
             } else {
                 // Enlace externo
-                videoPlayerHTML = `<p><a href="${video.url}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 600;"><i class="fas fa-external-link-alt"></i> Abrir video en nueva pestaña</a></p>`;
+                videoPlayerHTML = `<p><a href="${videoUrl}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 600;"><i class="fas fa-external-link-alt"></i> Abrir video en nueva pestaña</a></p>`;
+                console.log('🔗 Enlace externo');
             }
             
             document.getElementById('modalBody').innerHTML = `
                 <p><strong>Descripción:</strong> ${video.descripcion || 'Sin descripción'}</p>
                 <p><strong>Programa:</strong> ${video.programa}</p>
-                <p><strong>Duración:</strong> ${video.duracion || 'N/A'}</p>
-                <p><strong>Fecha:</strong> ${video.fechaCreacion ? new Date(video.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
+                <p><strong>Duración:</strong> ${video.duracion ? video.duracion + ' min' : 'N/A'}</p>
+                <p><strong>Fecha:</strong> ${video.fechaCreacion || video.fechaSubida ? new Date(video.fechaCreacion || video.fechaSubida).toLocaleDateString('es-ES') : 'N/A'}</p>
                 <div style="margin-top: 20px;">
                     ${videoPlayerHTML}
                 </div>
@@ -4900,21 +4922,33 @@ async function loadVideoDetail(id) {
             if (videoElement) {
                 videoElement.addEventListener('play', () => {
                     localStorage.setItem(`video-${id}-progress`, '25');
+                    console.log('▶️ Video reproduciendo:', video.titulo);
+                    updateVideosStats();
                 });
                 videoElement.addEventListener('pause', () => {
                     const progress = Math.round((videoElement.currentTime / videoElement.duration) * 100);
                     localStorage.setItem(`video-${id}-progress`, progress);
+                    console.log('⏸️ Pausado en', Math.round(videoElement.currentTime) + 's / ' + Math.round(videoElement.duration) + 's');
                 });
                 videoElement.addEventListener('ended', () => {
                     localStorage.setItem(`video-${id}-watched`, 'true');
                     localStorage.setItem(`video-${id}-progress`, '100');
+                    console.log('✅ Video completado');
+                    updateVideosStats();
+                });
+                
+                videoElement.addEventListener('error', (e) => {
+                    console.error('❌ Error reproduciendo video:', e);
+                    alert('Error al reproducir el video. Verifica que la URL sea válida.');
                 });
                 
                 // Restaurar posición si fue pausado
                 const savedProgress = localStorage.getItem(`video-${id}-progress`);
-                if (savedProgress && savedProgress !== '0') {
+                if (savedProgress && parseInt(savedProgress) > 0) {
                     videoElement.addEventListener('loadedmetadata', () => {
-                        videoElement.currentTime = (savedProgress / 100) * videoElement.duration;
+                        const seconds = (parseInt(savedProgress) / 100) * videoElement.duration;
+                        videoElement.currentTime = seconds;
+                        console.log('⏩ Reanudando desde minuto', Math.round(videoElement.currentTime / 60));
                     });
                 }
             }
