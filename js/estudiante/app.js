@@ -3669,20 +3669,7 @@ function printClase(id) {
     printWindow.print();
 }
 
-// Nuevas funciones auxiliares para la interfaz premium
-function toggleBookmark(claseId) {
-    const isBookmarked = localStorage.getItem(`clase-${claseId}-bookmarked`) === 'true';
-    localStorage.setItem(`clase-${claseId}-bookmarked`, (!isBookmarked).toString());
-
-    // Mostrar feedback visual
-    const bookmarkBtn = document.querySelector('.action-icon.bookmarked');
-    if (bookmarkBtn) {
-        bookmarkBtn.classList.toggle('active', !isBookmarked);
-    }
-
-    showToast(isBookmarked ? 'Removido de favoritos' : 'Agregado a favoritos', 'success');
-}
-
+// Funciones auxiliares para la interfaz premium
 function printClaseFromViewer() {
     if (!currentClaseId) {
         showToast('No hay clase cargada', 'error');
@@ -6115,7 +6102,6 @@ async function submitEntrega(actividadId) {
         console.error('Error submitting entrega:', error);
         alert('Error al enviar la entrega');
     }
-    }
 }
 
 async function submitCuestionario(cuestionarioId) {
@@ -8534,60 +8520,62 @@ function openImageModal(imageUrl, title) {
                 } else {
                     // Ya tiene respuestas - verificar pagos para reintento
                     console.log('🔄 Reintento detectado - verificando pagos');
-                    const userData = userDoc.docs[0].data();
+                    const userQuery = query(collection(db, 'users'), where('email', '==', currentUser.email));
+                    const userDoc = await getDocs(userQuery);
+                    const userData = userDoc.docs[0]?.data() || {};
                     const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
 
                     if (estadoPagos === 'pagos_pendientes') {
-                    // Mostrar modal de advertencia
-                    const modalHtml = `
-                        <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
-                            <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                                <div style="padding: 2rem; text-align: center;">
-                                    <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
-                                        <i class="fas fa-exclamation-triangle"></i>
+                        // Mostrar modal de advertencia
+                        const modalHtml = `
+                            <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                                <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                                    <div style="padding: 2rem; text-align: center;">
+                                        <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
+                                        <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
+                                            Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
+                                        </p>
+                                        <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
+                                            Por favor, contacta a tu docente para resolver esta situación.
+                                        </p>
+                                        <button onclick="document.getElementById('pagosPendientesModal').remove()"
+                                                style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                            Entendido
+                                        </button>
                                     </div>
-                                    <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
-                                    <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
-                                        Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
-                                    </p>
-                                    <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
-                                        Por favor, contacta a tu docente para resolver esta situación.
-                                    </p>
-                                    <button onclick="document.getElementById('pagosPendientesModal').remove()"
-                                            style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                        Entendido
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    document.body.insertAdjacentHTML('beforeend', modalHtml);
-                    return;
-                }
-
-                // Verificar que la actividad existe en la colección correcta
-                let actualTipo = tipo;
-                try {
-                    const collectionName = tipo === 'evaluacion' ? 'evaluaciones' : 'cuestionarios';
-                    const docSnap = await getDoc(doc(db, collectionName, id));
-                    if (!docSnap.exists()) {
-                        console.error('Documento no encontrado en', collectionName, ':', id);
-                        alert('Actividad no encontrada');
+                        `;
+                        document.body.insertAdjacentHTML('beforeend', modalHtml);
                         return;
-                    }
-                    console.log('Actividad encontrada en', collectionName);
-                } catch (error) {
-                    console.error('Error verificando existencia de la actividad:', error);
-                    alert('Error al verificar la actividad');
-                    return;
-                }
+                    } else {
+                        // Verificar que la actividad existe en la colección correcta
+                        let actualTipo = tipo;
+                        try {
+                            const collectionName = tipo === 'evaluacion' ? 'evaluaciones' : 'cuestionarios';
+                            const docSnap = await getDoc(doc(db, collectionName, id));
+                            if (!docSnap.exists()) {
+                                console.error('Documento no encontrado en', collectionName, ':', id);
+                                alert('Actividad no encontrada');
+                                return;
+                            }
+                            console.log('Actividad encontrado en', collectionName);
+                        } catch (error) {
+                            console.error('Error verificando existencia de la actividad:', error);
+                            alert('Error al verificar la actividad');
+                            return;
+                        }
 
-                // Si los pagos están al día, proceder con el acceso normal
-                const url = tipo === 'cuestionario' 
-                    ? `responder-cuestionario.html?id=${id}` 
-                    : `responder-evaluacion.html?id=${id}`;
-                console.log('Tipo recibido:', tipo, 'URL generada:', url);
-                window.location.href = url;
+                        // Si los pagos están al día, proceder con el acceso normal
+                        const url = tipo === 'cuestionario' 
+                            ? `responder-cuestionario.html?id=${id}` 
+                            : `responder-evaluacion.html?id=${id}`;
+                        console.log('Tipo recibido:', tipo, 'URL generada:', url);
+                        window.location.href = url;
+                    }
                 }
             } catch (error) {
                 console.error('Error verificando pagos:', error);
@@ -8602,7 +8590,6 @@ function openImageModal(imageUrl, title) {
         window.toggleBookmarkFromViewer = toggleBookmarkFromViewer;
         window.downloadClaseFromViewer = downloadClaseFromViewer;
         window.verificarPagosYAcceder = verificarPagosYAcceder;
-        
     } catch (error) {
-        console.error('Error initializing Firebase:', error);
+        console.error('Error initializing student app:', error);
     }
