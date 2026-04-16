@@ -314,7 +314,9 @@ async function marcarPendiente(userId) {
         
         // Calcular monto según tipo de pago
         const tipoPago = userData.tipoPago || 'semanal';
-        const monto = tipoPago === 'mensual' ? 70 : 16;
+        let monto = 16; // default
+        if (tipoPago === 'quincenal') monto = 35;
+        else if (tipoPago === 'mensual') monto = 70;
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -397,6 +399,13 @@ function editarTipoPagoUsuario(userId) {
                             <div>
                                 <strong style="color: #8b5cf6;">Pago Semanal</strong>
                                 <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$16 por clase (cada sábado/domingo)</p>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid ${tipoActual === 'quincenal' ? '#06b6d4' : '#e5e7eb'}; border-radius: 10px; cursor: pointer; margin-bottom: 0.75rem; background: ${tipoActual === 'quincenal' ? '#ecf0ff' : 'white'};">
+                            <input type="radio" name="tipoPago" value="quincenal" ${tipoActual === 'quincenal' ? 'checked' : ''} style="width: 20px; height: 20px;">
+                            <div>
+                                <strong style="color: #06b6d4;">Pago Quincenal</strong>
+                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$35 cada 15 días (2 clases)</p>
                             </div>
                         </label>
                         <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid ${tipoActual === 'mensual' ? '#f59e0b' : '#e5e7eb'}; border-radius: 10px; cursor: pointer; background: ${tipoActual === 'mensual' ? '#fffbeb' : 'white'};">
@@ -528,7 +537,9 @@ async function cobrarIndividual(userId) {
         
         // Calcular monto según tipo de pago
         const tipoPago = userData.tipoPago || 'semanal';
-        const monto = tipoPago === 'mensual' ? 70 : 16;
+        let monto = 16; // default
+        if (tipoPago === 'quincenal') monto = 35;
+        else if (tipoPago === 'mensual') monto = 70;
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -593,7 +604,9 @@ async function cobrarSeleccionados() {
             
             // Calcular monto según tipo de pago
             const tipoPago = userData.tipoPago || 'semanal';
-            const monto = tipoPago === 'mensual' ? 70 : 16;
+            let monto = 16; // default
+            if (tipoPago === 'quincenal') monto = 35;
+            else if (tipoPago === 'mensual') monto = 70;
             
             const historialPagos = userData.historialPagos || [];
             historialPagos.push({
@@ -618,13 +631,14 @@ async function cobrarSeleccionados() {
             }
             
             cobrados++;
+            montoTotal += monto;
         } catch (error) {
             console.error('Error cobrando a:', userId, error);
             errores++;
         }
     }
     
-    if (typeof showNotification === 'function') showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${cobrados * monto}`, cobrados > 0 ? 'success' : 'error');
+    if (typeof showNotification === 'function') showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${montoTotal}`, cobrados > 0 ? 'success' : 'error');
     cobrosSeleccionados.clear();
     cargarEstudiantesCobros();
 }
