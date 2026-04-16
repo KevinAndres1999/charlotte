@@ -1086,7 +1086,7 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
                                     style="padding: 0.75rem; background: #dc2626; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                                 <i class="fas fa-trash"></i> Eliminar Registro
                             </button>
-                        ` : ''
+                        ` : ''}
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: right; padding: 1rem; border-top: 1px solid #eee;">
