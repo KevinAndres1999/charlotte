@@ -10204,19 +10204,19 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             
             for (const user of allPendingUsers) {
                 try {
-                    const userData = {
-                        name: user.name,
-                        email: user.email,
-                        password: user.password,
-                        programa: user.programa,
+                    const firebaseUID = user.firebaseUID || user.id; // Usar el firebaseUID del usuario
+                    
+                    // Actualizar el documento existente en users, no crear uno nuevo
+                    await db.collection('users').doc(firebaseUID).update({
                         sede: user.sede || 'Carapungo',
                         horario: user.horario || 'Sábado Matutina',
                         role: 'student',
+                        status: 'cursando', // Cambiar a cursando, no active
                         estadoPagos: 'pagos_al_dia',
                         approvedAt: new Date().toISOString()
-                    };
+                    });
                     
-                    await db.collection('users').doc(user.id).set(userData);
+                    // Eliminar de pendingStudents
                     await db.collection('pendingStudents').doc(user.id).delete();
                     aprobados++;
                 } catch (error) {
@@ -12752,44 +12752,25 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 }
 
                 const data = docSnap.data();
+                const firebaseUID = data.firebaseUID || id; // Usar el firebaseUID del usuario
 
-                // Verificar si el usuario ya existe en la colección users
-                const existingUserQuery = await getDocs(query(collection(db, 'users'),
-                    where('email', '==', data.email),
-                    where('role', '==', 'student')
-                ));
-
-                if (!existingUserQuery.empty) {
-                    await deleteDoc(docRef);
-                    loadUsuariosPendientes();
-                    loadUsuariosAprobados();
-                    alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
-                    document.getElementById('approvalModal').remove();
-                    return;
-                }
-
-                // Usar la contraseña registrada por el estudiante
-                const password = data.password;
-                if (!password || password.length < 6) {
-                    alert('La contraseña del estudiante no es válida');
-                    return;
-                }
-
-                // Guardar en users con sede, horario y estado de pagos
-                await addDoc(collection(db, 'users'), {
-                    ...data,
+                // Actualizar el documento existente en users con el firebaseUID correcto
+                const userDocRef = doc(db, 'users', firebaseUID);
+                await updateDoc(userDocRef, {
                     sede: sede,
                     horario: horario,
                     estadoPagos: estadoPagos,
-                    password: password,
                     role: 'student',
-                    status: 'active',
+                    status: 'cursando', // Cambiar a cursando, no active
                     approvedAt: new Date().toISOString(),
                     approvedBy: currentUser && currentUser.id ? currentUser.id : 'admin'
                 });
 
+                console.log('✅ Usuario actualizado en users con ID:', firebaseUID);
+
                 // Eliminar de pendingStudents
                 await deleteDoc(docRef);
+                console.log('✅ Usuario eliminado de pendingStudents');
 
                 // Cerrar modal y recargar listas
                 document.getElementById('approvalModal').remove();
