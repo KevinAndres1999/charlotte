@@ -499,6 +499,15 @@ async function loadDashboardStats() {
     if (!currentUser) return;
 
     try {
+        // === BLOQUE 3: ACTUALIZAR BADGE DE NOTIFICACIONES ===
+        const noLeidas = await contarNotificacionesNoLeidas();
+        const badgeEl = document.getElementById('notificationBadge');
+        if (badgeEl) {
+            badgeEl.textContent = noLeidas > 0 ? noLeidas : '0';
+            badgeEl.style.display = noLeidas > 0 ? 'flex' : 'flex';
+            badgeEl.style.background = noLeidas > 0 ? '#ef4444' : 'transparent';
+        }
+        
         if (!currentUser.programa) {
             // Si no tiene programa asignado, mostrar 0
             const elements = ['totalClases', 'totalVideos', 'totalActividades', 'totalMateriales', 'totalCuestionarios', 'totalEvaluaciones',
@@ -5394,6 +5403,197 @@ window.detenerAutoguardado = detenerAutoguardado;
 window.recuperarBorrador = recuperarBorrador;
 window.validarPrerrequisitos = validarPrerrequisitos;
 window.limpiarBorrador = limpiarBorrador;
+
+// ============================================
+// BLOQUE 3: SISTEMA DE NOTIFICACIONES
+// ============================================
+
+async function crearNotificacion(tipo, datos) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const notification = {
+            usuarioID: currentUser.uid,
+            usuarioEmail: currentUser.email,
+            programa: currentUser.programa,
+            tipo: tipo, // 'clase_nueva', 'actividad_nueva', 'calificacion', 'cambio_clase'
+            titulo: datos.titulo,
+            mensaje: datos.mensaje,
+            icon: datos.icon || '📢',
+            enlace: datos.enlace || null,
+            enlaceID: datos.enlaceID || null,
+            leida: false,
+            fechaCreacion: new Date().toISOString(),
+            timestamp: Date.now()
+        };
+        
+        // Guardar en Firestore: notificaciones/{usuarioID}/{notificacionID}
+        const notifRef = collection(db, 'notificaciones', currentUser.uid, 'items');
+        await addDoc(notifRef, notification);
+        
+        console.log(`📢 Notificación creada: ${tipo} - ${datos.titulo}`);
+        
+        // Mostrar toast en tiempo real si el estudiante está activo
+        mostrarToastNotificacion(datos.titulo, datos.mensaje, datos.icon);
+        
+    } catch (error) {
+        console.error('Error creando notificación:', error);
+    }
+}
+
+function mostrarToastNotificacion(titulo, mensaje, icon = '📢') {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        z-index: 10000;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        max-width: 350px;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    toast.innerHTML = `
+        <span style="font-size: 24px;">${icon}</span>
+        <div>
+            <strong style="display: block; margin-bottom: 4px;">${titulo}</strong>
+            <small>${mensaje}</small>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+async function cargarNotificaciones() {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return [];
+        
+        const notifRef = collection(db, 'notificaciones', currentUser.uid, 'items');
+        const q = query(notifRef, orderBy('timestamp', 'desc'), limit(20));
+        const snap = await getDocs(q);
+        
+        const notificaciones = [];
+        snap.forEach(doc => {
+            notificaciones.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return notificaciones;
+    } catch (error) {
+        console.error('Error cargando notificaciones:', error);
+        return [];
+    }
+}
+
+async function marcarNotificacionLeida(notificacionID) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const notifRef = doc(db, 'notificaciones', currentUser.uid, 'items', notificacionID);
+        await updateDoc(notifRef, { leida: true });
+    } catch (error) {
+        console.error('Error marcando notificación:', error);
+    }
+}
+
+async function contarNotificacionesNoLeidas() {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return 0;
+        
+        const notifRef = collection(db, 'notificaciones', currentUser.uid, 'items');
+        const q = query(notifRef, where('leida', '==', false));
+        const snap = await getDocs(q);
+        
+        return snap.size;
+    } catch (error) {
+        return 0;
+    }
+}
+
+function mostrarPanelNotificaciones() {
+    cargarNotificaciones().then(notificaciones => {
+        const panel = `
+            <div style="position: fixed; top: 60px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow-y: auto; z-index: 9999; border: 1px solid #e2e8f0;">
+                <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+                    <span>🔔 Notificaciones (${notificaciones.length})</span>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                </div>
+                <div>
+                    ${notificaciones.length === 0 ? 
+                        '<div style="padding: 20px; text-align: center; color: #999;">No tienes notificaciones</div>' :
+                        notificaciones.map(n => `
+                            <div style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; cursor: pointer; background: ${!n.leida ? '#f8f9ff' : 'white'}; transition: background 0.2s;" onclick="marcarNotificacionLeida('${n.id}')">
+                                <div style="display: flex; gap: 8px;">
+                                    <span style="font-size: 18px;">${n.icon}</span>
+                                    <div style="flex: 1;">
+                                        <strong style="display: block; font-size: 13px; color: #333;">${n.titulo}</strong>
+                                        <small style="color: #666; display: block; margin: 4px 0;">${n.mensaje}</small>
+                                        <small style="color: #999; font-size: 11px;">${new Date(n.fechaCreacion).toLocaleString()}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>
+        `;
+        
+        let existing = document.querySelector('[style*="position: fixed"][style*="right: 20px"]');
+        if (existing && existing !== document.body) existing.remove();
+        
+        const container = document.createElement('div');
+        container.innerHTML = panel;
+        document.body.appendChild(container.firstElementChild);
+    });
+}
+
+window.crearNotificacion = crearNotificacion;
+window.cargarNotificaciones = cargarNotificaciones;
+window.mostrarPanelNotificaciones = mostrarPanelNotificaciones;
+window.marcarNotificacionLeida = marcarNotificacionLeida;
+window.contarNotificacionesNoLeidas = contarNotificacionesNoLeidas;
+
+// Agregar animaciones al documento
+const styleSheet = document.createElement("style");
+styleSheet.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(styleSheet);
+
 window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
 window.navigateClase = navigateClase;
 window.getClaseIndex = getClaseIndex;

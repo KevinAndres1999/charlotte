@@ -9222,6 +9222,48 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             });
                         }
 
+                        // === BLOQUE 3: CREAR NOTIFICACIONES A ESTUDIANTES ===
+                        if (estado === 'publicada' && visible) {
+                            // Obtener todos los estudiantes del programa
+                            try {
+                                const estudiantesSnap = await getDocs(query(
+                                    collection(db, 'users'),
+                                    where('rol', '==', 'estudiante'),
+                                    where('programa', '==', programa)
+                                ));
+                                
+                                // Crear notificación para cada estudiante
+                                estudiantesSnap.forEach(async (estudianteDoc) => {
+                                    const estudiante = estudianteDoc.data();
+                                    const notificacion = {
+                                        usuarioID: estudianteDoc.id,
+                                        usuarioEmail: estudiante.email,
+                                        programa: programa,
+                                        tipo: 'clase_nueva',
+                                        titulo: `Nueva clase: ${title}`,
+                                        mensaje: `Se ha publicado una nueva clase en el módulo seleccionado`,
+                                        icon: '📚',
+                                        enlace: 'clases',
+                                        enlaceID: claseRef.id,
+                                        leida: false,
+                                        fechaCreacion: new Date().toISOString(),
+                                        timestamp: Date.now()
+                                    };
+                                    
+                                    try {
+                                        const notifRef = collection(db, 'notificaciones', estudianteDoc.id, 'items');
+                                        await addDoc(notifRef, notificacion);
+                                    } catch(e) {
+                                        console.warn(`No se pudo crear notificación para ${estudiante.email}`);
+                                    }
+                                });
+                                
+                                console.log(`✅ Notificaciones creadas para estudiantes del programa ${programa}`);
+                            } catch (error) {
+                                console.warn('Error creando notificaciones:', error);
+                            }
+                        }
+
                         alert(isEditing ? 'Clase actualizada exitosamente' : 'Clase subida exitosamente');
                         
                         // Limpiar formulario y resetear modo edición
