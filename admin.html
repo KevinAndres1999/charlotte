@@ -12971,6 +12971,22 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         }
         
         // ================== FIN HERRAMIENTAS DE ADMINISTRACIÓN ==================
+        
+        // ============================================
+        // HELPER GLOBAL: LIMPIAR OBJETOS PARA FIRESTORE
+        // ============================================
+        function cleanObjectForFirestore(obj) {
+            const cleaned = {};
+            for (const key in obj) {
+                const value = obj[key];
+                if (value !== undefined && !Number.isNaN(value)) {
+                    cleaned[key] = value;
+                } else if (Number.isNaN(value) && key === 'duracion') {
+                    cleaned[key] = 0;
+                }
+            }
+            return cleaned;
+        }
 
         async function loadClasesList(selectedModulo = null) {
             try {
@@ -12988,22 +13004,6 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             } catch (error) {
                 console.error('Error loading clases:', error);
             }
-        }
-        
-        // ============================================
-        // HELPER: LIMPIAR OBJETOS PARA FIRESTORE
-        // ============================================
-        function cleanObjectForFirestore(obj) {
-            const cleaned = {};
-            for (const key in obj) {
-                const value = obj[key];
-                if (value !== undefined && !Number.isNaN(value)) {
-                    cleaned[key] = value;
-                } else if (Number.isNaN(value) && key === 'duracion') {
-                    cleaned[key] = 0;
-                }
-            }
-            return cleaned;
         }
         
         function mostrarResumenClases() {
