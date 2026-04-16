@@ -8,6 +8,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
 const multer = require('multer');
+const ffmpeg = require('fluent-ffmpeg');
+const ffmpegStatic = require('ffmpeg-static');
 
 const app = express();
 const server = http.createServer(app);
@@ -39,6 +41,9 @@ const io = new Server(server, {
     credentials: true
   }
 });
+
+// Configurar ffmpeg para usar el binario de ffmpeg-static
+ffmpeg.setFfmpegPath(ffmpegStatic);
 
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -111,8 +116,42 @@ const upload = multer({
   }
 });
 
+// ============================================
+// FUNCIÓN DE COMPRESIÓN DE VIDEOS
+// ============================================
+function compressVideo(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    console.log(`🎥 Iniciando compresión de video: ${path.basename(inputPath)}`);
+    
+    ffmpeg(inputPath)
+      .videoCodec('libx264')
+      .audioCodec('aac')
+      .audioChannels(2)
+      .audioFreq(44100)
+      .format('mp4')
+      .on('start', (commandLine) => {
+        console.log('🚀 Comando FFmpeg:', commandLine);
+      })
+      .on('progress', (progress) => {
+        // Log cada 25% de progreso para no saturar logs
+        if (progress.percent && Math.round(progress.percent) % 25 === 0) {
+          console.log(`📊 Compresión: ${Math.round(progress.percent)}%`);
+        }
+      })
+      .on('end', () => {
+        console.log(`✅ Compresión completada: ${path.basename(outputPath)}`);
+        resolve(outputPath);
+      })
+      .on('error', (err) => {
+        console.error(`❌ Error comprimiendo video: ${err.message}`);
+        reject(err);
+      })
+      .save(outputPath);
+  });
+}
+
 // Endpoint para subir video (actualizado para Firestore Auth)
-app.post('/api/upload-video', upload.single('video'), (req, res) => {
+app.post('/api/upload-video', upload.single('video'), async (req, res) => {
   // Solo requiere que haya un archivo, la autenticación se valida desde el cliente
   if (!req.file) {
     return res.status(400).json({ message: 'No se subió ningún archivo' });
@@ -126,28 +165,73 @@ app.post('/api/upload-video', upload.single('video'), (req, res) => {
       return res.status(400).json({ message: 'Título y programa son requeridos' });
     }
 
+    const originalSize = req.file.size;
+    const originalFilename = req.file.filename;
+    const originalPath = req.file.path;
+    
     // Logging básico
-    console.log(`📹 Video subido por ${userEmail}: ${titulo}`);
+    console.log(`📹 Video subido por ${userEmail}: ${titulo} (${formatBytes(originalSize)})`);
 
-    // Retornar información del video
-    const videoUrl = `/videos/${req.file.filename}`;
+    // Responder al cliente inmediatamente (no esperar compresión)
+    const videoUrl = `/videos/${originalFilename}`;
     
     res.json({
       success: true,
-      message: 'Video subido exitosamente',
+      message: 'Video recibido. Comprimiendo...',
       video: {
-        filename: req.file.filename,
+        filename: originalFilename,
         url: videoUrl,
-        size: req.file.size,
-        sizeHuman: formatBytes(req.file.size),
+        size: originalSize,
+        sizeHuman: formatBytes(originalSize),
         titulo,
         descripcion,
         programa,
         duracion,
         uploadedBy: userEmail,
-        fechaSubida: new Date().toISOString()
+        fechaSubida: new Date().toISOString(),
+        compressing: true
       }
     });
+
+    // ============================================
+    // INICIAR COMPRESIÓN EN BACKGROUND
+    // ============================================
+    try {
+      // Crear nombre para la versión comprimida (siempre .mp4)
+      const ext = path.extname(originalFilename);
+      const nameWithoutExt = path.basename(originalFilename, ext);
+      const compressedFilename = `${nameWithoutExt}.mp4`;
+      const compressedPath = path.join(videosDir, compressedFilename);
+
+      console.log(`🎬 Comenzando compresión en background...`);
+      console.log(`   Original: ${originalFilename} (${formatBytes(originalSize)})`);
+      console.log(`   Destino: ${compressedFilename}`);
+      
+      // Comprimir video
+      await compressVideo(originalPath, compressedPath);
+      
+      // Obtener tamaño del video comprimido
+      const compressedSize = fs.statSync(compressedPath).size;
+      const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+      
+      console.log(`📦 Compresión exitosa:`);
+      console.log(`   Tamaño original: ${formatBytes(originalSize)}`);
+      console.log(`   Tamaño comprimido: ${formatBytes(compressedSize)}`);
+      console.log(`   Reducción: ${ratio}%`);
+      
+      // Eliminar archivo original
+      if (fs.existsSync(originalPath)) {
+        fs.unlinkSync(originalPath);
+        console.log(`🗑️  Archivo original eliminado`);
+      }
+      
+      console.log(`✨ Video disponible como: ${compressedFilename}`);
+      
+    } catch (compressErr) {
+      console.error(`⚠️  Error en compresión (video original disponible): ${compressErr.message}`);
+      // El video original sigue disponible, no es un error crítico
+    }
+
   } catch (err) {
     // Eliminar archivo en caso de error
     if (req.file) {
