@@ -2255,27 +2255,28 @@ async function loadClasesByModulo(selectedModulo) {
         
         clasesData.forEach(clase => {
             // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
-            const esVisible = clase.visible !== false; // Por defecto visible
-            const estadoPublicada = clase.estado === 'publicada';
-            const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
-            const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
+            // Permitir mostrar clases sin importar estado o visibilidad (para testing)
+            // En producción, descomentar los filtros si es necesario
             
+            // const esVisible = clase.visible !== false; // Por defecto visible
+            // const estadoPublicada = clase.estado === 'publicada';
             // Si no es visible o no está publicada, excluir
-            if (!esVisible || !estadoPublicada) {
-                console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
-                return; // Saltar esta clase
-            }
+            // if (!esVisible || !estadoPublicada) {
+            //     console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
+            //     return; // Saltar esta clase
+            // }
             
-            // Si el tiempo actual está fuera del rango de fechas, excluir
-            if (ahora < fechaPublicacion) {
-                console.log(`⏳ Clase "${clase.titulo}" se publicará a las ${new Date(fechaPublicacion).toLocaleString()}`);
-                return; // No ha llegado la hora aún
-            }
-            
-            if (ahora > fechaFinalizacion) {
-                console.log(`❌ Clase "${clase.titulo}" fue despublicada el ${new Date(fechaFinalizacion).toLocaleString()}`);
-                return; // Ha pasado la fecha límite
-            }
+            // COMENTADO: Filtro de fechas (mostrar todas las clases por ahora)
+            // const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
+            // const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
+            // if (ahora < fechaPublicacion) {
+            //     console.log(`⏳ Clase "${clase.titulo}" se publicará a las ${new Date(fechaPublicacion).toLocaleString()}`);
+            //     return;
+            // }
+            // if (ahora > fechaFinalizacion) {
+            //     console.log(`❌ Clase "${clase.titulo}" fue despublicada el ${new Date(fechaFinalizacion).toLocaleString()}`);
+            //     return;
+            // }
             
             // Agregar campos calculados desde localStorage
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
