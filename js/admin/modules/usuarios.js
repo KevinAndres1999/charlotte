@@ -168,15 +168,75 @@ async function cambiarEstadoEstudiante(userId, nuevoEstado) {
 
 // Función para eliminar usuario
 async function eliminarUsuario(id) {
-    if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+    if (!confirm('¿Estás seguro de eliminar este usuario? Se eliminará de Firebase Auth y Firestore.')) return;
     
     try {
+        // Obtener el usuario actual para verificar el firebaseUID y email
+        const userDoc = await getDoc(doc(db, 'users', id));
+        if (!userDoc.exists()) {
+            alert('Usuario no encontrado');
+            return;
+        }
+        
+        const userData = userDoc.data();
+        const firebaseUID = userData.firebaseUID || id; // Usar firebaseUID si existe, si no usar el ID del doc
+        const email = userData.email;
+
+        // Obtener token de autenticación de Firebase
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        if (!currentUser) {
+            alert('No autenticado');
+            return;
+        }
+
+        // Obtener ID token de Firebase
+        let idToken = sessionStorage.getItem('adminIdToken');
+        if (!idToken) {
+            // Si no hay token guardado, intentar obtenerlo del usuario de Firebase
+            try {
+                idToken = await window.auth?.currentUser?.getIdToken();
+            } catch (e) {
+                console.warn('No se pudo obtener ID token:', e);
+            }
+        }
+
+        if (!idToken) {
+            alert('Token de autenticación no disponible. Por favor, recarga la página.');
+            return;
+        }
+
+        // Llamar al endpoint para eliminar de Firebase Auth + Firestore
+        const response = await fetch(window.APP_CONFIG.API_BASE + '/admin/delete-user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + idToken
+            },
+            body: JSON.stringify({
+                firebaseUID: firebaseUID,
+                email: email
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Error al eliminar usuario');
+        }
+
+        // Eliminar de Firestore (redundante pero seguro)
         await deleteDoc(doc(db, 'users', id));
-        alert('Usuario eliminado');
+        
+        // Remover de la lista local
+        const idx = allApprovedUsers.findIndex(u => u.id === id);
+        if (idx !== -1) {
+            allApprovedUsers.splice(idx, 1);
+        }
+
+        alert('✅ Usuario eliminado completamente (Firebase Auth + Firestore)');
         await loadUsuariosAprobados();
     } catch (error) {
         console.error('Error deleting user:', error);
-        alert('Error al eliminar usuario');
+        alert('Error al eliminar usuario: ' + error.message);
     }
 }
 

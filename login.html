@@ -507,6 +507,17 @@
                         };
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
+                        // Para admins, guardar el ID token de Firebase para operaciones privilegiadas
+                        if (userData.role === 'admin') {
+                            try {
+                                const idToken = await auth.currentUser.getIdToken();
+                                sessionStorage.setItem('adminIdToken', idToken);
+                                console.log('✅ Firebase ID token guardado para admin');
+                            } catch (e) {
+                                console.warn('⚠️ No se pudo guardar ID token:', e);
+                            }
+                        }
+
                         console.log('User logged in successfully:', currentUser);
                         console.log('User logged in successfully:', currentUser.name);
                         

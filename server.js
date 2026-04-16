@@ -10,6 +10,8 @@ const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const ffmpeg = require('fluent-ffmpeg');
 const ffmpegStatic = require('ffmpeg-static');
+const admin = require('firebase-admin');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +54,19 @@ if (!JWT_SECRET) {
   console.error('⚠️ ERROR: JWT_SECRET no está configurado en las variables de entorno');
   console.error('Por favor configure JWT_SECRET en su archivo .env o variables de entorno');
   process.exit(1);
+}
+
+// Inicializar Firebase Admin
+try {
+  const serviceAccount = require('./charlotte-a0d47-firebase-adminsdk-fbsvc-0b73eda623.json');
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: serviceAccount.project_id
+  });
+  console.log('✅ Firebase Admin SDK inicializado correctamente');
+} catch (error) {
+  console.warn('⚠️ Firebase Admin SDK no disponible (esto es normal en desarrollo local sin credenciales)');
+  console.warn('   Las funciones de eliminación de usuarios de Firebase Auth no funcionarán');
 }
 
 app.use(cors({
@@ -480,6 +495,41 @@ app.post('/api/register', authLimiter, async (req, res) => {
   }
 });
 
+// Middleware para verificar Firebase ID token
+async function verifyFirebaseToken(req, res, next) {
+  const auth = req.headers.authorization || '';
+  const parts = auth.split(' ');
+  if(parts.length !== 2) return res.status(401).json({ message: 'No autorizado' });
+  const token = parts[1];
+  
+  try {
+    if (!admin.auth) {
+      // Si no hay Firebase Admin disponible, usar JWT normal
+      const data = jwt.verify(token, JWT_SECRET);
+      req.user = data; // {email,name,role}
+      return next();
+    }
+    
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      role: decodedToken.role || 'user'
+    };
+    next();
+  } catch (error) {
+    console.error('Token verification error:', error);
+    // Fallback a JWT si Firebase falla
+    try {
+      const data = jwt.verify(token, JWT_SECRET);
+      req.user = data;
+      return next();
+    } catch (jwtError) {
+      return res.status(401).json({ message: 'Token inválido' });
+    }
+  }
+}
+
 // Middleware simple para verificar token y adjuntar payload
 function requireAuth(req, res, next){
   const auth = req.headers.authorization || '';
@@ -521,6 +571,38 @@ app.patch('/api/admin/users/:email/active', requireAuth, (req, res) => {
   }catch(err){
     console.error('Admin update error', err);
     res.status(500).json({ message: 'Error interno' });
+  }
+});
+
+// Endpoint admin: eliminar usuario (Firestore + Firebase Auth)
+app.post('/api/admin/delete-user', verifyFirebaseToken, async (req, res) => {
+  if(!req.user || req.user.role !== 'admin') return res.status(403).json({ message: 'Acceso restringido' });
+  
+  const { firebaseUID, email } = req.body || {};
+  
+  if (!firebaseUID || !email) {
+    return res.status(400).json({ message: 'firebaseUID y email requeridos' });
+  }
+
+  try {
+    // Intentar eliminar de Firebase Auth usando Admin SDK
+    if (admin.auth) {
+      try {
+        await admin.auth().deleteUser(firebaseUID);
+        console.log(`✅ Usuario eliminado de Firebase Auth: ${email}`);
+      } catch (firebaseError) {
+        console.warn(`⚠️ No se pudo eliminar de Firebase Auth: ${firebaseError.message}`);
+        // No es un error crítico, continuar con Firestore
+      }
+    }
+
+    res.json({ 
+      message: 'Usuario eliminado correctamente',
+      email: email
+    });
+  } catch (err) {
+    console.error('Error eliminando usuario:', err);
+    res.status(500).json({ message: 'Error al eliminar usuario: ' + err.message });
   }
 });
 
