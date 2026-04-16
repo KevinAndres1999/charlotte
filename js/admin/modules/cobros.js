@@ -1566,37 +1566,6 @@ window.guardarAsistencias = guardarAsistencias;
 
 // =================== ASISTENCIAS ===================
 
-function cambiarSeccionCobros(seccion) {
-    const tabCobros = document.getElementById('tab-seccion-cobros');
-    const tabAsistencias = document.getElementById('tab-seccion-asistencias');
-    const contenidoCobros = document.getElementById('seccion-cobros-content');
-    const contenidoAsistencias = document.getElementById('seccion-asistencias-content');
-
-    if (seccion === 'cobros') {
-        tabCobros.style.background = '#10b981';
-        tabCobros.style.color = 'white';
-        tabCobros.style.borderBottom = '3px solid #059669';
-        
-        tabAsistencias.style.background = '#f3f4f6';
-        tabAsistencias.style.color = '#374151';
-        tabAsistencias.style.borderBottom = '3px solid transparent';
-        
-        contenidoCobros.style.display = 'block';
-        contenidoAsistencias.style.display = 'none';
-    } else if (seccion === 'asistencias') {
-        tabCobros.style.background = '#f3f4f6';
-        tabCobros.style.color = '#374151';
-        tabCobros.style.borderBottom = '3px solid transparent';
-        
-        tabAsistencias.style.background = '#8b5cf6';
-        tabAsistencias.style.color = 'white';
-        tabAsistencias.style.borderBottom = '3px solid #7c3aed';
-        
-        contenidoCobros.style.display = 'none';
-        contenidoAsistencias.style.display = 'block';
-    }
-}
-
 async function cargarEstudiantesParaAsistencia() {
     const fecha = document.getElementById('asist-fecha')?.value;
     const sede = document.getElementById('asist-sede')?.value;
@@ -1761,11 +1730,6 @@ async function guardarAsistencias() {
     }
 }
 
-// Exponer funciones globalmente
-window.cambiarSeccionCobros = cambiarSeccionCobros;
-window.cargarEstudiantesParaAsistencia = cargarEstudiantesParaAsistencia;
-window.marcarTodosPresentes = marcarTodosPresentes;
-window.guardarAsistencias = guardarAsistencias;
 
 // Exportar el módulo
 const cobrosModule = {

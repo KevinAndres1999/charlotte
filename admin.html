@@ -11051,48 +11051,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             cargarEstudiantesCobros();
         }
         
-        // Cambiar sección: Cobros vs Asistencias
-        function cambiarSeccionCobros(seccion) {
-            const cobroContent = document.getElementById('seccion-cobros-content');
-            const asistenciasContent = document.getElementById('seccion-asistencias-content');
-            const tabCobros = document.getElementById('tab-seccion-cobros');
-            const tabAsistencias = document.getElementById('tab-seccion-asistencias');
-            
-            if (seccion === 'cobros') {
-                // Mostrar Cobros, ocultar Asistencias
-                if (cobroContent) cobroContent.style.display = 'block';
-                if (asistenciasContent) asistenciasContent.style.display = 'none';
-                
-                // Actualizar estilos de tabs
-                if (tabCobros) {
-                    tabCobros.style.background = '#10b981';
-                    tabCobros.style.color = 'white';
-                    tabCobros.style.borderBottom = '3px solid #059669';
-                }
-                if (tabAsistencias) {
-                    tabAsistencias.style.background = '#f3f4f6';
-                    tabAsistencias.style.color = '#374151';
-                    tabAsistencias.style.borderBottom = '3px solid transparent';
-                }
-            } else if (seccion === 'asistencias') {
-                // Mostrar Asistencias, ocultar Cobros
-                if (cobroContent) cobroContent.style.display = 'none';
-                if (asistenciasContent) asistenciasContent.style.display = 'block';
-                
-                // Actualizar estilos de tabs
-                if (tabCobros) {
-                    tabCobros.style.background = '#f3f4f6';
-                    tabCobros.style.color = '#374151';
-                    tabCobros.style.borderBottom = '3px solid transparent';
-                }
-                if (tabAsistencias) {
-                    tabAsistencias.style.background = '#10b981';
-                    tabAsistencias.style.color = 'white';
-                    tabAsistencias.style.borderBottom = '3px solid #059669';
-                }
-            }
-        }
-        
         // Cambiar horario
         function cambiarHorarioCobros(horario) {
             cobrosHorarioActual = horario;
