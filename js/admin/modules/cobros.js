@@ -1066,16 +1066,24 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
                     
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <button onclick="
-                            const montoInput = document.getElementById('modal-pago-monto');
-                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado', montoInput ? parseFloat(montoInput.value) : ${montoActual});
+                            const input = document.getElementById('modal-pago-monto');
+                            let monto = ${montoActual};
+                            if (input && input.value && !isNaN(input.value)) {
+                                monto = parseFloat(input.value);
+                            }
+                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado', monto);
                         " 
                                 style="padding: 1rem; background: ${estadoActual === 'pagado' ? '#059669' : '#10b981'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="fas fa-check-circle"></i> ${estadoActual === 'pagado' ? 'PAGADO ✓' : 'Marcar como Pagado'}
                         </button>
                         
                         <button onclick="
-                            const montoInput = document.getElementById('modal-pago-monto');
-                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente', montoInput ? parseFloat(montoInput.value) : ${montoActual});
+                            const input = document.getElementById('modal-pago-monto');
+                            let monto = ${montoActual};
+                            if (input && input.value && !isNaN(input.value)) {
+                                monto = parseFloat(input.value);
+                            }
+                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente', monto);
                         " 
                                 style="padding: 1rem; background: ${estadoActual === 'pendiente' ? '#b45309' : '#f59e0b'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="fas fa-clock"></i> ${estadoActual === 'pendiente' ? 'PENDIENTE ⏳' : 'Marcar como Pendiente'}
@@ -1100,7 +1108,18 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
 
 // Guardar pago desde modal de tabla
 async function guardarPagoTabla(userId, fechaStr, claseNum, estado, montoParam) {
-    const monto = montoParam || (parseFloat(document.getElementById('modal-pago-monto')?.value) || 16);
+    // Si montoParam es un número válido, usarlo. Sino, leer del input o usar default
+    let monto = 16;
+    
+    if (montoParam && !isNaN(montoParam) && parseFloat(montoParam) > 0) {
+        monto = parseFloat(montoParam);
+    } else {
+        const inputValue = document.getElementById('modal-pago-monto')?.value;
+        if (inputValue && !isNaN(inputValue)) {
+            monto = parseFloat(inputValue);
+        }
+    }
+    
     const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
     const temas = temasClasesGuardados[key] || {};
     const tema = temas[fechaStr] || `Clase ${claseNum}`;
