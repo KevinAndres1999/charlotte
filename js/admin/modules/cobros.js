@@ -855,8 +855,6 @@ function renderTabla40Clases() {
     if (!headerContainer || !bodyContainer) return;
     
     const clases = generarFechasClases(cobrosHorarioActual);
-    const montoInput = document.getElementById('cobros-monto');
-    const monto = parseFloat(montoInput?.value) || 16;
     const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
     const temas = temasClasesGuardados[key] || {};
     
@@ -891,7 +889,7 @@ function renderTabla40Clases() {
         const tema = temas[clase.fechaStr] || '';
         const temaCorto = tema.length > 8 ? tema.substring(0, 6) + '..' : (tema || '—');
         headerHtml += `<th style="padding: 0.2rem; font-size: 0.6rem; color: #4338ca; cursor: pointer; max-width: 45px; overflow: hidden;" 
-                           onclick="cobrosModule.editarTemaClase('${clase.fechaStr}', ${i + 1})" 
+                           onclick="editarTemaClase('${clase.fechaStr}', ${i + 1})" 
                            title="${tema || 'Click para agregar tema'}">${temaCorto}</th>`;
     });
     headerHtml += '</tr>';
@@ -912,6 +910,7 @@ function renderTabla40Clases() {
         const historialFechas = {};
         const historialPendientes = {};
         
+        // Mapear pagos y pendientes (guardando objeto completo con monto)
         historial.forEach(p => {
             if (p.fecha) {
                 const fechaKey = p.fecha.split('T')[0];
@@ -923,19 +922,24 @@ function renderTabla40Clases() {
             }
         });
         
-        let cuotasPagadasEnCurso = 0;
+        // Calcular total sumando los montos REALES del historial
+        let totalPagado = 0;
         let clasesPasadas = 0;
         
         clases.forEach(clase => {
             if (clase.fecha <= hoy) {
                 clasesPasadas++;
                 if (historialFechas[clase.fechaStr]) {
-                    cuotasPagadasEnCurso++;
+                    totalPagado += (historialFechas[clase.fechaStr].monto || 0);
                 }
             }
         });
         
-        const debe = clasesPasadas - cuotasPagadasEnCurso;
+        const debe = clasesPasadas - Object.keys(historialFechas).filter(f => {
+            const fecha = new Date(f);
+            return fecha <= hoy;
+        }).length;
+        
         const esMensual = user.tipoPago === 'mensual';
         
         let rowBg = userIndex % 2 === 0 ? '#ffffff' : '#f9fafb';
@@ -947,7 +951,7 @@ function renderTabla40Clases() {
             ${user.name || 'Sin nombre'}
             ${esMensual ? '<span style="font-size: 0.6rem; background: #fef3c7; color: #92400e; padding: 0.1rem 0.3rem; border-radius: 3px; margin-left: 0.3rem;">M</span>' : ''}
         </td>`;
-        bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${cuotasPagadasEnCurso * monto}</td>`;
+        bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${totalPagado}</td>`;
         bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: ${debe > 0 ? '#dc2626' : '#059669'};">${debe}</td>`;
         
         clases.forEach((clase) => {

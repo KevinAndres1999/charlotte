@@ -11939,7 +11939,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             const bodyContainer = document.getElementById('cobros-tabla-body');
             
             const clases = generarFechasClases(cobrosHorarioActual);
-            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
             const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
             const temas = temasClasesGuardados[key] || {};
             
@@ -11995,7 +11994,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const historialFechas = {};
                 const historialPendientes = {};
                 
-                // Mapear pagos y pendientes por fecha
+                // Mapear pagos y pendientes por fecha (guardando el objeto completo con monto)
                 historial.forEach(p => {
                     if (p.fecha) {
                         const fechaKey = p.fecha.split('T')[0];
@@ -12007,20 +12006,25 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                 });
                 
-                // Contar solo pagos de las clases de este curso (40 clases)
-                let cuotasPagadasEnCurso = 0;
+                // Calcular total pagado sumando los montos REALES del historial
+                let totalPagado = 0;
                 let clasesPasadas = 0;
                 
                 clases.forEach(clase => {
                     if (clase.fecha <= hoy) {
                         clasesPasadas++;
                         if (historialFechas[clase.fechaStr]) {
-                            cuotasPagadasEnCurso++;
+                            // Sumar el monto real guardado
+                            totalPagado += (historialFechas[clase.fechaStr].monto || 0);
                         }
                     }
                 });
                 
-                const debe = clasesPasadas - cuotasPagadasEnCurso;
+                const debe = clasesPasadas - Object.keys(historialFechas).filter(f => {
+                    const fecha = new Date(f);
+                    return fecha <= hoy;
+                }).length;
+                
                 const esMensual = user.tipoPago === 'mensual';
                 
                 // Color de fila según deuda
@@ -12033,7 +12037,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     ${user.name || 'Sin nombre'}
                     ${esMensual ? '<span style="font-size: 0.6rem; background: #fef3c7; color: #92400e; padding: 0.1rem 0.3rem; border-radius: 3px; margin-left: 0.3rem;">M</span>' : ''}
                 </td>`;
-                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${cuotasPagadasEnCurso * monto}</td>`;
+                bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: #059669;">$${totalPagado}</td>`;
                 bodyHtml += `<td style="padding: 0.5rem; text-align: center; font-weight: 600; color: ${debe > 0 ? '#dc2626' : '#059669'};">${debe}</td>`;
                 
                 clases.forEach((clase) => {
