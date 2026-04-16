@@ -4631,6 +4631,354 @@ function reiniciarActividadInteractiva(actividadId) {
 
 // =================== FIN ACTIVIDADES INTERACTIVAS ===================
 
+// =================== BLOQUE 6: BÚSQUEDA MEJORADA Y FILTROS AVANZADOS ===================
+
+/**
+ * Función global de búsqueda mejorada
+ * Búsqueda simultánea en clases, actividades, videos, cuestionarios y materiales
+ */
+async function busquedaGlobal(termino) {
+    if (!termino || termino.trim().length < 2) {
+        mostrarResultadosBusqueda([]);
+        return;
+    }
+
+    const searchTerm = termino.toLowerCase().trim();
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    if (!currentUser) {
+        showToast('Por favor inicia sesión para buscar', 'error');
+        return;
+    }
+
+    // Recolectar resultados de todas las secciones
+    const resultados = {
+        clases: [],
+        actividades: [],
+        videos: [],
+        cuestionarios: [],
+        materiales: []
+    };
+
+    // 📚 Búsqueda en CLASES
+    if (filteredClases && filteredClases.length > 0) {
+        resultados.clases = filteredClases.filter(clase =>
+            clase.titulo?.toLowerCase().includes(searchTerm) ||
+            clase.descripcion?.toLowerCase().includes(searchTerm) ||
+            clase.tags?.toLowerCase().includes(searchTerm) ||
+            clase.contenido?.toLowerCase().includes(searchTerm)
+        ).slice(0, 5); // Limitar a 5
+    }
+
+    // 📝 Búsqueda en ACTIVIDADES
+    if (filteredActividades && filteredActividades.length > 0) {
+        resultados.actividades = filteredActividades.filter(act =>
+            act.titulo?.toLowerCase().includes(searchTerm) ||
+            act.descripcion?.toLowerCase().includes(searchTerm) ||
+            act.instrucciones?.toLowerCase().includes(searchTerm) ||
+            act.objetivos?.toLowerCase().includes(searchTerm)
+        ).slice(0, 5);
+    }
+
+    // 🎥 Búsqueda en VIDEOS
+    if (filteredVideos && filteredVideos.length > 0) {
+        resultados.videos = filteredVideos.filter(video =>
+            video.titulo?.toLowerCase().includes(searchTerm) ||
+            video.descripcion?.toLowerCase().includes(searchTerm) ||
+            video.tags?.toLowerCase().includes(searchTerm)
+        ).slice(0, 5);
+    }
+
+    // ❓ Búsqueda en CUESTIONARIOS
+    if (filteredCuestionarios && filteredCuestionarios.length > 0) {
+        resultados.cuestionarios = filteredCuestionarios.filter(cues =>
+            cues.titulo?.toLowerCase().includes(searchTerm) ||
+            cues.descripcion?.toLowerCase().includes(searchTerm)
+        ).slice(0, 5);
+    }
+
+    // 📄 Búsqueda en MATERIALES
+    if (filteredMateriales && filteredMateriales.length > 0) {
+        resultados.materiales = filteredMateriales.filter(mat =>
+            mat.titulo?.toLowerCase().includes(searchTerm) ||
+            mat.descripcion?.toLowerCase().includes(searchTerm)
+        ).slice(0, 5);
+    }
+
+    mostrarResultadosBusqueda(resultados);
+}
+
+/**
+ * Mostrar resultados de búsqueda en modal
+ */
+function mostrarResultadosBusqueda(resultados) {
+    const totalResultados = 
+        (resultados.clases?.length || 0) +
+        (resultados.actividades?.length || 0) +
+        (resultados.videos?.length || 0) +
+        (resultados.cuestionarios?.length || 0) +
+        (resultados.materiales?.length || 0);
+
+    let html = `<div class="resultados-busqueda">
+        <div class="busqueda-header">
+            <h3><i class="fas fa-search"></i> Resultados: ${totalResultados} encontrado${totalResultados !== 1 ? 's' : ''}</h3>
+        </div>`;
+
+    // CLASES
+    if (resultados.clases?.length > 0) {
+        html += `<div class="resultados-seccion">
+            <h4><i class="fas fa-book-open"></i> Clases (${resultados.clases.length})</h4>
+            <div class="resultados-lista">
+                ${resultados.clases.map(c => `
+                    <div class="resultado-item" onclick="openModal('clase', '${c.id}'); closeModal();">
+                        <div class="resultado-titulo">${c.titulo}</div>
+                        <div class="resultado-meta">
+                            <span><i class="fas fa-calendar"></i> ${c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString() : ''}</span>
+                            ${c.dificultad ? `<span class="difficulty ${c.dificultad}">${c.dificultad}</span>` : ''}
+                        </div>
+                        <div class="resultado-descripcion">${(c.descripcion || '').substring(0, 100)}...</div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    // ACTIVIDADES
+    if (resultados.actividades?.length > 0) {
+        html += `<div class="resultados-seccion">
+            <h4><i class="fas fa-tasks"></i> Actividades (${resultados.actividades.length})</h4>
+            <div class="resultados-lista">
+                ${resultados.actividades.map(a => `
+                    <div class="resultado-item" onclick="openModal('actividad', '${a.id}', ${!!a.esInteractiva}); closeModal();">
+                        <div class="resultado-titulo">${a.esInteractiva ? '<i class="fas fa-bolt"></i>' : ''} ${a.titulo}</div>
+                        <div class="resultado-meta">
+                            <span><i class="fas fa-calendar"></i> ${a.fechaRegistro ? new Date(a.fechaRegistro).toLocaleDateString() : ''}</span>
+                            ${a.dificultad ? `<span class="difficulty ${a.dificultad}">${a.dificultad}</span>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    // VIDEOS
+    if (resultados.videos?.length > 0) {
+        html += `<div class="resultados-seccion">
+            <h4><i class="fas fa-play-circle"></i> Videos (${resultados.videos.length})</h4>
+            <div class="resultados-lista">
+                ${resultados.videos.map(v => `
+                    <div class="resultado-item" onclick="openModal('video', '${v.id}'); closeModal();">
+                        <div class="resultado-titulo">${v.titulo}</div>
+                        <div class="resultado-meta">
+                            <span><i class="fas fa-clock"></i> ${v.duracion || 'N/A'}</span>
+                            <span><i class="fas fa-calendar"></i> ${v.fechaCreacion ? new Date(v.fechaCreacion).toLocaleDateString() : ''}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    // CUESTIONARIOS
+    if (resultados.cuestionarios?.length > 0) {
+        html += `<div class="resultados-seccion">
+            <h4><i class="fas fa-question-circle"></i> Cuestionarios (${resultados.cuestionarios.length})</h4>
+            <div class="resultados-lista">
+                ${resultados.cuestionarios.map(q => `
+                    <div class="resultado-item" onclick="verificarPagosYAcceder('${q.id}', 'cuestionario'); closeModal();">
+                        <div class="resultado-titulo">${q.titulo}</div>
+                        <div class="resultado-meta">
+                            <span><i class="fas fa-question-circle"></i> ${q.preguntas?.length || 0} preguntas</span>
+                            <span><i class="fas fa-calendar"></i> ${q.fechaRegistro ? new Date(q.fechaRegistro).toLocaleDateString() : ''}</span>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    // MATERIALES
+    if (resultados.materiales?.length > 0) {
+        html += `<div class="resultados-seccion">
+            <h4><i class="fas fa-folder"></i> Materiales (${resultados.materiales.length})</h4>
+            <div class="resultados-lista">
+                ${resultados.materiales.map(m => `
+                    <div class="resultado-item">
+                        <div class="resultado-titulo">${m.titulo}</div>
+                        <div class="resultado-meta">
+                            <span><i class="fas fa-file"></i> ${m.tipo || 'Archivo'}</span>
+                            <span><i class="fas fa-calendar"></i> ${m.fecha ? new Date(m.fecha).toLocaleDateString() : ''}</span>
+                        </div>
+                        ${m.url ? `<a href="${m.url}" target="_blank" class="btn-small"><i class="fas fa-download"></i> Descargar</a>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        </div>`;
+    }
+
+    if (totalResultados === 0) {
+        html += `<div class="empty-search"><i class="fas fa-search"></i><p>No se encontraron resultados</p></div>`;
+    }
+
+    html += `</div>`;
+
+    // Mostrar en modal o contenedor
+    const container = document.getElementById('modalBody');
+    if (container) {
+        container.innerHTML = html;
+        document.getElementById('modalTitle').textContent = '🔍 Resultados de Búsqueda';
+    }
+}
+
+/**
+ * Filtros avanzados por dificultad
+ */
+function aplicarFiltrosAvanzados(tipo, opciones = {}) {
+    const { dificultad, estado, modulo, tipo_contenido } = opciones;
+
+    switch(tipo) {
+        case 'clases':
+            if (dificultad) {
+                filteredClases = filteredClases.filter(c => c.dificultad === dificultad);
+            }
+            if (estado) {
+                filteredClases = filteredClases.filter(c => c.estado === estado);
+            }
+            renderClases();
+            break;
+
+        case 'actividades':
+            if (dificultad) {
+                filteredActividades = filteredActividades.filter(a => a.dificultad === dificultad);
+            }
+            if (estado === 'completadas') {
+                filteredActividades = filteredActividades.filter(a => a.isCompleted);
+            } else if (estado === 'pendientes') {
+                filteredActividades = filteredActividades.filter(a => !a.isCompleted);
+            }
+            renderActividades();
+            break;
+
+        case 'videos':
+            if (tipo_contenido) {
+                filteredVideos = filteredVideos.filter(v => v.tipo === tipo_contenido);
+            }
+            renderVideos();
+            break;
+
+        case 'cuestionarios':
+            if (estado === 'respondidos') {
+                filteredCuestionarios = filteredCuestionarios.filter(c => c.intentosRealizados > 0);
+            } else if (estado === 'pendientes') {
+                filteredCuestionarios = filteredCuestionarios.filter(c => c.intentosRealizados === 0);
+            }
+            renderCuestionarios();
+            break;
+
+        case 'materiales':
+            if (tipo_contenido) {
+                filteredMateriales = filteredMateriales.filter(m => m.tipo === tipo_contenido);
+            }
+            renderMateriales();
+            break;
+    }
+}
+
+/**
+ * Búsqueda por dificultad
+ */
+function filtrarPorDificultad(tipo, dificultad) {
+    showToast(`Filtrando ${tipo} por dificultad: ${dificultad}`, 'info');
+    aplicarFiltrosAvanzados(tipo, { dificultad });
+}
+
+/**
+ * Búsqueda por estado
+ */
+function filtrarPorEstado(tipo, estado) {
+    showToast(`Filtrando ${tipo} por estado: ${estado}`, 'info');
+    aplicarFiltrosAvanzados(tipo, { estado });
+}
+
+/**
+ * Búsqueda por tipo de contenido
+ */
+function filtrarPorTipo(tipo, tipoContenido) {
+    showToast(`Filtrando ${tipo} por tipo: ${tipoContenido}`, 'info');
+    aplicarFiltrosAvanzados(tipo, { tipo_contenido: tipoContenido });
+}
+
+/**
+ * Búsqueda combinada: texto + filtros
+ */
+async function busquedaAvanzada(termino, tipo, filtros = {}) {
+    const searchTerm = termino?.toLowerCase().trim() || '';
+    
+    switch(tipo) {
+        case 'clases':
+            if (searchTerm) {
+                filteredClases = allClases.filter(c =>
+                    c.titulo?.toLowerCase().includes(searchTerm) ||
+                    c.descripcion?.toLowerCase().includes(searchTerm)
+                );
+            }
+            aplicarFiltrosAvanzados('clases', filtros);
+            break;
+
+        case 'actividades':
+            if (searchTerm) {
+                filteredActividades = allActividades.filter(a =>
+                    a.titulo?.toLowerCase().includes(searchTerm) ||
+                    a.descripcion?.toLowerCase().includes(searchTerm)
+                );
+            }
+            aplicarFiltrosAvanzados('actividades', filtros);
+            break;
+
+        case 'videos':
+            if (searchTerm) {
+                filteredVideos = allVideos.filter(v =>
+                    v.titulo?.toLowerCase().includes(searchTerm) ||
+                    v.descripcion?.toLowerCase().includes(searchTerm)
+                );
+            }
+            aplicarFiltrosAvanzados('videos', filtros);
+            break;
+
+        case 'cuestionarios':
+            if (searchTerm) {
+                filteredCuestionarios = allCuestionarios.filter(c =>
+                    c.titulo?.toLowerCase().includes(searchTerm) ||
+                    c.descripcion?.toLowerCase().includes(searchTerm)
+                );
+            }
+            aplicarFiltrosAvanzados('cuestionarios', filtros);
+            break;
+
+        case 'materiales':
+            if (searchTerm) {
+                filteredMateriales = allMateriales.filter(m =>
+                    m.titulo?.toLowerCase().includes(searchTerm) ||
+                    m.descripcion?.toLowerCase().includes(searchTerm)
+                );
+            }
+            aplicarFiltrosAvanzados('materiales', filtros);
+            break;
+    }
+}
+
+/**
+ * Exponer funciones globalmente
+ */
+window.busquedaGlobal = busquedaGlobal;
+window.mostrarResultadosBusqueda = mostrarResultadosBusqueda;
+window.busquedaAvanzada = busquedaAvanzada;
+window.filtrarPorDificultad = filtrarPorDificultad;
+window.filtrarPorEstado = filtrarPorEstado;
+window.filtrarPorTipo = filtrarPorTipo;
+window.aplicarFiltrosAvanzados = aplicarFiltrosAvanzados;
+
+// =================== FIN BLOQUE 6: BÚSQUEDA MEJORADA ===================
+
 async function loadActividadDetail(id) {
     try {
         const docRef = doc(db, 'activities', id);
@@ -5762,6 +6110,56 @@ window.cargarComentarios = cargarComentarios;
 window.responderComentario = responderComentario;
 window.mostrarPanelComentarios = mostrarPanelComentarios;
 window.enviarComentario = enviarComentario;
+
+// ============================================
+// BLOQUE 5: HISTORIAL Y AUDITORÍA DE CAMBIOS
+// ============================================
+
+async function mostrarHistorialClase(claseId) {
+    try {
+        const claseRef = doc(db, 'classes', claseId);
+        const claseSnap = await getDoc(claseRef);
+        
+        if (!claseSnap.exists()) return;
+        
+        const clase = claseSnap.data();
+        const historial = clase.historialCambios || [];
+        
+        const panel = `
+            <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 600px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; z-index: 10000;">
+                <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; color: #333;">📋 Historial de Cambios</span>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                </div>
+                <div style="overflow-y: auto; max-height: 400px; padding: 16px;">
+                    ${historial.length === 0 ? 
+                        '<div style="padding: 20px; text-align: center; color: #999;">Sin cambios registrados</div>' :
+                        historial.slice().reverse().map((cambio, idx) => `
+                            <div style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; background: ${idx === 0 ? '#f0f9ff' : 'white'};">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <strong style="color: #333; font-size: 13px;">${cambio.usuario || 'Sistema'}</strong>
+                                    <small style="color: #999;">${new Date(cambio.fecha).toLocaleString()}</small>
+                                </div>
+                                <small style="color: #666; display: block;">${cambio.cambios}</small>
+                                <small style="color: #999; font-size: 11px;">Estado: ${cambio.estadoAnterior || 'N/A'} → ${cambio.estadoNuevo || 'N/A'}</small>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>
+        `;
+        
+        const container = document.createElement('div');
+        container.innerHTML = panel;
+        document.body.appendChild(container.firstElementChild);
+        
+        console.log(`📋 Historial mostrado: ${historial.length} cambios`);
+    } catch (error) {
+        console.error('Error mostrando historial:', error);
+    }
+}
+
+window.mostrarHistorialClase = mostrarHistorialClase;
 
 // Agregar animaciones al documento
 const styleSheet = document.createElement("style");
