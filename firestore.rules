@@ -72,5 +72,25 @@ service cloud.firestore {
 
     // CONTACTOS
     match /contactos/{document} { allow read, write: if isAuthenticated(); }
+
+    // COMENTARIOS EN CLASES
+    match /comentarios_clases/{claseId}/items/{document} { 
+      allow read, write: if isAuthenticated(); 
+    }
+
+    // NOTIFICACIONES
+    match /notificaciones/{userId}/items/{document} { 
+      allow read, write: if isAuthenticated() && request.auth.uid == userId; 
+    }
+
+    // BORRADORES
+    match /borradores/{userId}/actividades/{document} { 
+      allow read, write: if isAuthenticated() && request.auth.uid == userId; 
+    }
+
+    // PREFERENCIAS Y BOOKMARKS
+    match /usuarios/{userId}/preferencias/{document} { 
+      allow read, write: if isAuthenticated() && request.auth.uid == userId; 
+    }
   }
 }

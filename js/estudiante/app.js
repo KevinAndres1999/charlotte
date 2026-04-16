@@ -3665,6 +3665,20 @@ async function printClase(id) {
             content = '<p style="color: #dc2626; text-align: center;">Sin contenido disponible</p>';
         }
         
+        // Cargar logo como base64 para la marca de agua
+        let logoBase64 = '';
+        try {
+            const logoResponse = await fetch('/mesa de trabajo 3.png');
+            const logoBlob = await logoResponse.blob();
+            logoBase64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(logoBlob);
+            });
+        } catch (error) {
+            console.warn('No se pudo cargar el logo:', error);
+        }
+        
         // Crear ventana de impresión con estilos completos + watermark
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
@@ -3690,15 +3704,15 @@ async function printClase(id) {
                         margin: 0 auto;
                         position: relative;
                     }
-                    /* Watermark */
+                    /* Watermark con logo */
                     body::before {
                         content: '';
                         position: fixed;
                         top: 50%;
                         left: 50%;
-                        width: 400px;
-                        height: 400px;
-                        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="%23e2e8f0" stroke-width="2"/><text x="100" y="100" font-family="Arial" font-size="16" fill="%23cbd5e1" text-anchor="middle" dominant-baseline="middle">ECE CHARLOTTE</text><circle cx="100" cy="80" r="20" fill="none" stroke="%23cbd5e1" stroke-width="1.5"/></svg>') no-repeat center;
+                        width: 500px;
+                        height: 500px;
+                        background: url('${logoBase64}') no-repeat center;
                         background-size: contain;
                         opacity: 0.08;
                         pointer-events: none;
@@ -3940,6 +3954,20 @@ async function downloadClaseFromViewer() {
             content = 'No hay contenido disponible para esta clase.';
         }
         
+        // Cargar logo como base64 para la marca de agua
+        let logoBase64 = '';
+        try {
+            const logoResponse = await fetch('/mesa de trabajo 3.png');
+            const logoBlob = await logoResponse.blob();
+            logoBase64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(logoBlob);
+            });
+        } catch (error) {
+            console.warn('No se pudo cargar el logo:', error);
+        }
+        
         // Crear contenido HTML para descargar con watermark
         const htmlContent = `
             <!DOCTYPE html>
@@ -3964,25 +3992,20 @@ async function downloadClaseFromViewer() {
                         margin: 0 auto;
                         position: relative;
                     }
-                    /* Watermark */
+                    /* Watermark con logo */
                     body::before {
-                        content: 'ECE CHARLOTTE';
+                        content: '';
                         position: fixed;
                         top: 50%;
                         left: 50%;
-                        width: 400px;
-                        height: 400px;
-                        font-size: 48px;
-                        font-weight: bold;
-                        color: rgba(100, 116, 139, 0.08);
-                        text-align: center;
+                        width: 500px;
+                        height: 500px;
+                        background: url('${logoBase64}') no-repeat center;
+                        background-size: contain;
+                        opacity: 0.08;
+                        pointer-events: none;
                         transform: translate(-50%, -50%) rotate(-45deg);
                         z-index: 0;
-                        pointer-events: none;
-                        white-space: nowrap;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
                     }
                     .header {
                         border-bottom: 3px solid #3b82f6;
