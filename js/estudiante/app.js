@@ -3667,7 +3667,7 @@ async function printClase(id) {
         
         // Crear ventana de impresión con estilos completos + watermark
         const printWindow = window.open('', '_blank');
-        const logoUrl = '/logo-ece.png';
+        const logoUrl = 'https://cursoscharlotte.com/logo-ece.png';
         printWindow.document.write(`
             <!DOCTYPE html>
             <html lang="es">
@@ -3690,21 +3690,6 @@ async function printClase(id) {
                         max-width: 900px;
                         margin: 0 auto;
                         position: relative;
-                    }
-                    /* Watermark con logo */
-                    body::before {
-                        content: '';
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        width: 500px;
-                        height: 500px;
-                        background: url('${logoUrl}') no-repeat center;
-                        background-size: contain;
-                        opacity: 0.08;
-                        pointer-events: none;
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                        z-index: -1;
                     }
                     .header {
                         border-bottom: 3px solid #3b82f6;
@@ -3814,9 +3799,23 @@ async function printClase(id) {
                         .content img { page-break-inside: avoid; }
                         body::before { display: block !important; }
                     }
+                    .watermark {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        width: 600px;
+                        height: 600px;
+                        background: url('${logoUrl}') no-repeat center;
+                        background-size: contain;
+                        opacity: 0.08;
+                        pointer-events: none;
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                        z-index: -1;
+                    }
                 </style>
             </head>
             <body>
+                <div class="watermark"></div>
                 <div class="header">
                     <h1>${clase.titulo}</h1>
                     <div class="meta">
@@ -3981,21 +3980,6 @@ async function downloadClaseFromViewer() {
                         margin: 0 auto;
                         position: relative;
                     }
-                    /* Watermark con logo */
-                    body::before {
-                        content: '';
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        width: 500px;
-                        height: 500px;
-                        background: url('${logoBase64 || '/logo-ece.png'}') no-repeat center;
-                        background-size: contain;
-                        opacity: 0.08;
-                        pointer-events: none;
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                        z-index: 0;
-                    }
                     .header {
                         border-bottom: 3px solid #3b82f6;
                         padding-bottom: 20px;
@@ -4097,9 +4081,23 @@ async function downloadClaseFromViewer() {
                         position: relative;
                         z-index: 1;
                     }
+                    .watermark {
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        width: 600px;
+                        height: 600px;
+                        background: url('https://cursoscharlotte.com/logo-ece.png') no-repeat center;
+                        background-size: contain;
+                        opacity: 0.08;
+                        pointer-events: none;
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                        z-index: -1;
+                    }
                 </style>
             </head>
             <body>
+                <div class="watermark"></div>
                 <div class="header">
                     <h1>${clase.titulo}</h1>
                     <div class="meta">
