@@ -999,15 +999,21 @@ function renderTabla40Clases() {
     
     cobrosEstudiantesFiltrados.forEach(user => {
         const historial = user.historialPagos || [];
-        let pagadosEnCurso = 0;
+        let montoPagadoEnCurso = 0;
+        let clasesPagadasEnCurso = 0;
+        
         clases.forEach(clase => {
             if (clase.fecha <= hoy) {
                 const pagado = historial.find(p => p.fecha && p.fecha.split('T')[0] === clase.fechaStr && p.estado === 'pagado');
-                if (pagado) pagadosEnCurso++;
+                if (pagado) {
+                    montoPagadoEnCurso += (pagado.monto || 0);
+                    clasesPagadasEnCurso++;
+                }
             }
         });
-        totalRecaudado += pagadosEnCurso * monto;
-        totalDeuda += (clasesPasadasTotal - pagadosEnCurso);
+        
+        totalRecaudado += montoPagadoEnCurso;
+        totalDeuda += (clasesPasadasTotal - clasesPagadasEnCurso);
     });
     
     bodyHtml += `<td style="padding: 0.75rem; text-align: center;">$${totalRecaudado}</td>`;
