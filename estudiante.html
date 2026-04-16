@@ -5449,6 +5449,36 @@
                             <p id="progressEvaluacionesText">Cargando...</p>
                         </div>
                     </div>
+
+                    <!-- Card Asistencias -->
+                    <div class="progress-card" style="border-left-color: #8b5cf6; cursor: pointer;" data-section="asistencias" onclick="showSectionV2('asistencias')">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressAsistenciasFill" style="stroke: #8b5cf6;"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressAsistenciasPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Asistencias</h4>
+                            <p id="progressAsistenciasText">Cargando...</p>
+                        </div>
+                    </div>
+
+                    <!-- Card Pagos -->
+                    <div class="progress-card" style="border-left-color: #06b6d4; cursor: pointer;" data-section="pagos" onclick="showSectionV2('pagos')">
+                        <div class="progress-circle">
+                            <svg>
+                                <circle class="progress-bg" cx="40" cy="40" r="30"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="30" id="progressPagosFill" style="stroke: #06b6d4;"></circle>
+                            </svg>
+                            <div class="progress-text" id="progressPagosPercent">0%</div>
+                        </div>
+                        <div class="progress-info">
+                            <h4>Pagos</h4>
+                            <p id="progressPagosText">Cargando...</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -5913,6 +5943,88 @@
                 </div>
             </section>
 
+            <!-- =================== ASISTENCIAS =================== -->
+            <section id="asistencias" class="section">
+                <h2 class="page-title"><i class="fas fa-clipboard-check"></i> Mis Asistencias</h2>
+                <p class="page-subtitle">Monitorea tu asistencia a clases y sesiones en vivo</p>
+
+                <div class="content-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #3b82f6;" id="asistenciaTotal">--%</div>
+                                <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Asistencia General</p>
+                            </div>
+                            <div style="border-left: 2px solid #e2e8f0; padding-left: 2rem;">
+                                <p style="margin: 0.5rem 0; color: #0f2138;"><strong id="asistenciaPresente">0</strong> Presente</p>
+                                <p style="margin: 0.5rem 0; color: #0f2138;"><strong id="asistenciaAusente">0</strong> Ausente</p>
+                                <p style="margin: 0.5rem 0; color: #0f2138;"><strong id="asistenciaJustificada">0</strong> Justificada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="margin-top: 2rem;">
+                    <table class="attendance-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Fecha</th>
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Clase/Evento</th>
+                                <th style="padding: 1rem; text-align: center; color: #475569; font-weight: 600;">Estado</th>
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="asistenciasTableBody">
+                            <tr style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                <td colspan="4">Cargando asistencias...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- =================== PAGOS =================== -->
+            <section id="pagos" class="section">
+                <h2 class="page-title"><i class="fas fa-credit-card"></i> Mis Pagos</h2>
+                <p class="page-subtitle">Consulta el estado de tus pagos e historial de transacciones</p>
+
+                <div class="content-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                        <div style="padding: 1.5rem; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0.5rem;">
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Saldo Actual</p>
+                            <p style="color: #1e3a8a; margin: 0; font-size: 1.8rem; font-weight: bold;" id="saldoActual">-</p>
+                        </div>
+                        <div style="padding: 1.5rem; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 0.5rem;">
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Pagado</p>
+                            <p style="color: #166534; margin: 0; font-size: 1.8rem; font-weight: bold;" id="totalPagado">-</p>
+                        </div>
+                        <div style="padding: 1.5rem; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0.5rem;">
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Pendiente</p>
+                            <p style="color: #b91c1c; margin: 0; font-size: 1.8rem; font-weight: bold;" id="totalPendiente">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive" style="margin-top: 2rem;">
+                    <table class="payments-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Fecha</th>
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Concepto</th>
+                                <th style="padding: 1rem; text-align: right; color: #475569; font-weight: 600;">Monto</th>
+                                <th style="padding: 1rem; text-align: center; color: #475569; font-weight: 600;">Estado</th>
+                                <th style="padding: 1rem; text-align: left; color: #475569; font-weight: 600;">Referencia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pagosTableBody">
+                            <tr style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                <td colspan="5">Cargando pagos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Nueva sección para visor de clases -->
             <section id="clase-viewer" class="section">
                 <div class="welcome-banner clase-viewer-banner">
@@ -6088,6 +6200,7 @@
     </div>
 
     <script type="module" src="js/estudiante/app.js"></script>
+    <script type="module" src="js/estudiante/asistencias-pagos.js"></script>
 
 </body>
 </html>

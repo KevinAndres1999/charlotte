@@ -709,6 +709,14 @@ async function loadDashboardStats() {
                       document.getElementById('progressEvaluacionesText'),
                       document.getElementById('progressEvaluacionesFill'));
 
+        // Cargar asistencias y pagos para las nuevas secciones
+        try {
+            loadAsistencias();
+            loadPagos();
+        } catch (error) {
+            console.warn('Error loading attendance and payment data:', error);
+        }
+
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
@@ -782,6 +790,10 @@ function showSectionV2(sectionId, noPush = false) {
     } else if (sectionId === 'proyecto') {
         // Inicializar el sistema de proyectos
         window.initProjectWizard?.();
+    } else if (sectionId === 'asistencias') {
+        loadAsistencias();
+    } else if (sectionId === 'pagos') {
+        loadPagos();
     }
 }
 
