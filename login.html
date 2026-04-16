@@ -443,64 +443,84 @@
                             submitBtn.innerHTML = 'Iniciar Sesión';
                             return;
                         }
-                        // Contraseña correcta — intentar migrar automáticamente a Firebase Auth
-                        // Saltar migración si ya se detectó conflicto previamente
+                        // Contraseña correcta — migrar automáticamente a Firebase Auth
+                        // Para admins, FORZAR migración (no saltar aunque haya conflicto)
                         try {
                             let migrationOk = false;
-                            if (userData.migrationConflict) {
-                                // Conflicto previo conocido: omitir migración para evitar errores 400 repetidos
+                            
+                            // Para admins: forzar migración incluso si hay conflicto previo
+                            const isAdmin = userData.role === 'admin';
+                            const shouldSkipMigration = !isAdmin && userData.migrationConflict;
+                            
+                            if (shouldSkipMigration) {
                                 console.log('ℹ️ Migración saltada: conflicto previo registrado.');
                             } else {
                                 try {
+                                    // Intentar crear usuario nuevo
                                     await createUserWithEmailAndPassword(auth, email, password);
                                     migrationOk = true;
+                                    console.log('✅ Usuario creado en Firebase Auth');
                                 } catch (createErr) {
                                     if (createErr.code === 'auth/email-already-in-use') {
-                                        // Ya existe en Firebase Auth — verificar que la contraseña coincida
+                                        // Ya existe en Firebase Auth — intentar signIn
                                         try {
                                             await signInWithEmailAndPassword(auth, email, password);
                                             migrationOk = true;
+                                            console.log('✅ Usuario ya existía en Firebase Auth, signIn exitoso');
                                         } catch (signInErr) {
-                                            // Contraseña difiere — marcar en Firestore y enviar reset
-                                            console.warn('⚠️ Migración: usuario existe en Firebase Auth con contraseña diferente. Marcando conflicto.');
-                                            const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
-                                            if (docId) {
-                                                try {
-                                                    await updateDoc(doc(db, 'users', docId), { migrationConflict: true });
-                                                    userCache.delete(email);
-                                                } catch (e) { /* omitir */ }
+                                            // Contraseña difiere
+                                            console.warn('⚠️ Usuario existe en Firebase Auth con contraseña diferente');
+                                            if (isAdmin) {
+                                                // Para admins, este es un error bloqueante
+                                                showMessage('Error: Contraseña no coincide con Firebase Auth. Por favor contacta al administrador del sistema.', 'error');
+                                                submitBtn.disabled = false;
+                                                submitBtn.innerHTML = 'Iniciar Sesión';
+                                                return;
+                                            } else {
+                                                // Para estudiantes, marcar conflicto y enviar reset
+                                                const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
+                                                if (docId) {
+                                                    try {
+                                                        await updateDoc(doc(db, 'users', docId), { migrationConflict: true });
+                                                        userCache.delete(email);
+                                                    } catch (e) { /* omitir */ }
+                                                }
+                                                try { await sendPasswordResetEmail(auth, email); } catch (e) { /* omitir */ }
                                             }
-                                            // Enviar email de restablecimiento de contraseña silenciosamente
-                                            try { await sendPasswordResetEmail(auth, email); } catch (e) { /* omitir */ }
+                                        }
+                                    } else {
+                                        // Otro error de createUser
+                                        console.error('Error al crear usuario en Firebase Auth:', createErr.code);
+                                        if (isAdmin) {
+                                            showMessage('Error: No se puede migrar a Firebase Auth. ' + createErr.message, 'error');
+                                            submitBtn.disabled = false;
+                                            submitBtn.innerHTML = 'Iniciar Sesión';
+                                            return;
                                         }
                                     }
-                                    // cualquier otro error de createUser → omitir migración silenciosamente
                                 }
                             }
+                            
                             if (migrationOk) {
                                 const docId = userDoc.id || (userDoc.docs ? userDoc.docs[0].id : null);
                                 if (docId) {
                                     await updateDoc(doc(db, 'users', docId), {
                                         authMethod: 'firebase',
-                                        password: deleteField()
+                                        password: deleteField(),
+                                        migrationConflict: false  // Limpiar conflicto si existía
                                     });
                                     userCache.delete(email);
                                 }
-                                console.log('✅ Usuario migrado a Firebase Auth');
-                            } else if (!userData.migrationConflict) {
-                                // Si la migración falló y no es por conflicto, para admins forzar el signIn
-                                // para que puedan obtener el ID token
-                                if (userData.role === 'admin') {
-                                    try {
-                                        await signInWithEmailAndPassword(auth, email, password);
-                                        console.log('ℹ️ Admin sign-in en Firebase Auth para obtener ID token');
-                                    } catch (adminSignInErr) {
-                                        console.warn('⚠️ No se pudo hacer sign-in de admin en Firebase Auth:', adminSignInErr.code);
-                                    }
-                                }
+                                console.log('✅ Usuario migrado/confirmado en Firebase Auth');
                             }
                         } catch (migErr) {
-                            console.warn('⚠️ No se pudo migrar usuario a Firebase Auth:', migErr.message);
+                            console.warn('⚠️ Error durante migración a Firebase Auth:', migErr.message);
+                            if (userData.role === 'admin') {
+                                showMessage('Error: No se puede completar la migración a Firebase Auth. ' + migErr.message, 'error');
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Iniciar Sesión';
+                                return;
+                            }
                         }
                     }
                     

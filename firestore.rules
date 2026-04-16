@@ -22,18 +22,18 @@ service cloud.firestore {
     }
 
     // CONTENIDO
-    match /content/{document} { allow read, write: if isAuthenticated(); }
+    match /content/{document} { allow read: if true; allow write: if isAuthenticated(); }
 
     // CLASES
-    match /classes/{document} { allow read, write: if isAuthenticated(); }
-    match /class_chunks/{document} { allow read, write: if isAuthenticated(); }
+    match /classes/{document} { allow read: if true; allow write: if isAuthenticated(); }
+    match /class_chunks/{document} { allow read: if true; allow write: if isAuthenticated(); }
 
     // ACTIVIDADES
-    match /activities/{document} { allow read, write: if isAuthenticated(); }
-    match /actividades_interactivas/{document} { allow read, write: if isAuthenticated(); }
+    match /activities/{document} { allow read: if true; allow write: if isAuthenticated(); }
+    match /actividades_interactivas/{document} { allow read: if true; allow write: if isAuthenticated(); }
 
     // MATERIALES
-    match /materials/{document} { allow read, write: if isAuthenticated(); }
+    match /materials/{document} { allow read: if true; allow write: if isAuthenticated(); }
 
     // EVALUACIONES Y CUESTIONARIOS
     match /cuestionarios/{document} { allow read, write: if isAuthenticated(); }
