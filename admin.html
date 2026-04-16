@@ -9133,6 +9133,22 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
             }
 
+            // Helper para limpiar objetos de undefined y NaN (para Firestore)
+            function cleanObjectForFirestore(obj) {
+                const cleaned = {};
+                for (const key in obj) {
+                    const value = obj[key];
+                    // Evitar undefined, NaN, y convertir NaN a 0 para duracion
+                    if (value !== undefined && !Number.isNaN(value)) {
+                        cleaned[key] = value;
+                    } else if (Number.isNaN(value) && key === 'duracion') {
+                        // Si es duracion y es NaN, asignar 0
+                        cleaned[key] = 0;
+                    }
+                }
+                return cleaned;
+            }
+
             // Formulario de clases
             const claseForm = document.getElementById('claseForm');
             if (claseForm) {
@@ -9189,12 +9205,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 estadoNuevo: estado
                             });
                             
-                            await updateDoc(claseRef, {
+                            await updateDoc(claseRef, cleanObjectForFirestore({
                                 titulo: title,
                                 descripcion: desc,
                                 programa: programa,
                                 modulo: modulo,
-                                duracion: parseInt(duracion),
+                                duracion: parseInt(duracion) || 0,
                                 horarios: horariosSeleccionados,
                                 sedes: sedesSeleccionadas,
                                 estado: estado,
@@ -9207,15 +9223,15 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 prerequisitos: prerequisitos,
                                 fechaActualizacion: ahora,
                                 historialCambios: historial.slice(-50) // Mantener últimos 50 cambios
-                            });
+                            }));
                         } else {
                             // Crear nueva clase
-                            claseRef = await addDoc(collection(db, 'classes'), {
+                            claseRef = await addDoc(collection(db, 'classes'), cleanObjectForFirestore({
                                 titulo: title,
                                 descripcion: desc,
                                 programa: programa,
                                 modulo: modulo,
-                                duracion: parseInt(duracion),
+                                duracion: parseInt(duracion) || 0,
                                 horarios: horariosSeleccionados,
                                 sedes: sedesSeleccionadas,
                                 estado: estado,
@@ -9235,7 +9251,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     cambios: 'Creación inicial',
                                     estadoNuevo: estado
                                 }]
-                            });
+                            }));
                         }
 
                         // Verificar el tamaño del contenido
@@ -9246,17 +9262,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             // Dividir contenido en chunks
                             await saveContentInChunks(claseRef.id, content);
                             // Actualizar el documento principal para indicar que tiene chunks
-                            await updateDoc(claseRef, {
+                            await updateDoc(claseRef, cleanObjectForFirestore({
                                 hasChunks: true,
                                 fechaActualizacion: new Date().toISOString()
-                            });
+                            }));
                         } else {
                             // Guardar contenido directamente
-                            await updateDoc(claseRef, {
+                            await updateDoc(claseRef, cleanObjectForFirestore({
                                 contenido: content,
                                 hasChunks: false,
                                 fechaActualizacion: new Date().toISOString()
-                            });
+                            }));
                         }
 
                         // === BLOQUE 3: CREAR NOTIFICACIONES A ESTUDIANTES ===
