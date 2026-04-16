@@ -11283,7 +11283,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         
         // Marcar como pendiente
         async function marcarPendiente(userId) {
-            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
             const fecha = document.getElementById('cobros-fecha').value;
             const tema = document.getElementById('cobros-tema').value || obtenerTemaClase(fecha) || 'Clase semanal';
             
@@ -11296,6 +11295,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const userRef = db.collection('users').doc(userId);
                 const userDoc = await userRef.get();
                 const userData = userDoc.data();
+                
+                // Calcular monto según tipo de pago
+                const tipoPago = userData.tipoPago || 'semanal';
+                const monto = tipoPago === 'mensual' ? 70 : 16;
                 
                 const historialPagos = userData.historialPagos || [];
                 historialPagos.push({
@@ -11384,7 +11387,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     <input type="radio" name="tipoPago" value="mensual" ${tipoActual === 'mensual' ? 'checked' : ''} style="width: 20px; height: 20px;">
                                     <div>
                                         <strong style="color: #f59e0b;">Pago Mensual</strong>
-                                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$64 por mes (4 clases)</p>
+                                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$70 por mes (4 clases)</p>
                                     </div>
                                 </label>
                             </div>
@@ -11486,7 +11489,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         
         // Cobrar a un estudiante individual
         async function cobrarIndividual(userId) {
-            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
             const fecha = document.getElementById('cobros-fecha').value;
             const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
             
@@ -11499,6 +11501,10 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const userRef = db.collection('users').doc(userId);
                 const userDoc = await userRef.get();
                 const userData = userDoc.data();
+                
+                // Calcular monto según tipo de pago
+                const tipoPago = userData.tipoPago || 'semanal';
+                const monto = tipoPago === 'mensual' ? 70 : 16;
                 
                 const historialPagos = userData.historialPagos || [];
                 historialPagos.push({
@@ -11537,7 +11543,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 return;
             }
             
-            const monto = parseFloat(document.getElementById('cobros-monto').value) || 16;
             const fecha = document.getElementById('cobros-fecha').value;
             const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
             
@@ -11546,17 +11551,22 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 return;
             }
             
-            const confirmacion = confirm(`¿Registrar cobro de $${monto} a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}`);
+            const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto se aplicará según el tipo de pago de cada estudiante.`);
             if (!confirmacion) return;
             
             let cobrados = 0;
             let errores = 0;
+            let montoTotal = 0;
             
             for (const userId of cobrosSeleccionados) {
                 try {
                     const userRef = db.collection('users').doc(userId);
                     const userDoc = await userRef.get();
                     const userData = userDoc.data();
+                    
+                    // Calcular monto según tipo de pago
+                    const tipoPago = userData.tipoPago || 'semanal';
+                    const monto = tipoPago === 'mensual' ? 70 : 16;
                     
                     const historialPagos = userData.historialPagos || [];
                     historialPagos.push({
@@ -11581,13 +11591,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     }
                     
                     cobrados++;
+                    montoTotal += monto;
                 } catch (error) {
                     console.error('Error cobrando a:', userId, error);
                     errores++;
                 }
             }
             
-            showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${cobrados * monto}`, cobrados > 0 ? 'success' : 'error');
+            showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${montoTotal}`, cobrados > 0 ? 'success' : 'error');
             cobrosSeleccionados.clear();
             cargarEstudiantesCobros();
         }
@@ -12070,7 +12081,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             const historial = user.historialPagos || [];
             const pagoExistente = historial.find(p => p.fecha && p.fecha.split('T')[0] === fechaStr);
             const estadoActual = pagoExistente ? pagoExistente.estado : 'ninguno';
-            const montoActual = pagoExistente ? pagoExistente.monto : (parseFloat(document.getElementById('cobros-monto').value) || 16);
+            const montoActual = pagoExistente ? pagoExistente.monto : (user.tipoPago === 'mensual' ? 70 : 16);
             
             const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
             const temas = temasClasesGuardados[key] || {};

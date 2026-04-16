@@ -296,11 +296,9 @@ function renderCobrosEstudiantes() {
 
 // Marcar como pendiente
 async function marcarPendiente(userId) {
-    const montoInput = document.getElementById('cobros-monto');
     const fechaInput = document.getElementById('cobros-fecha');
     const temaInput = document.getElementById('cobros-tema');
     
-    const monto = parseFloat(montoInput?.value) || 16;
     const fecha = fechaInput?.value;
     const tema = temaInput?.value || obtenerTemaClase(fecha) || 'Clase semanal';
     
@@ -313,6 +311,10 @@ async function marcarPendiente(userId) {
         const userRef = db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
+        
+        // Calcular monto según tipo de pago
+        const tipoPago = userData.tipoPago || 'semanal';
+        const monto = tipoPago === 'mensual' ? 70 : 16;
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -401,7 +403,7 @@ function editarTipoPagoUsuario(userId) {
                             <input type="radio" name="tipoPago" value="mensual" ${tipoActual === 'mensual' ? 'checked' : ''} style="width: 20px; height: 20px;">
                             <div>
                                 <strong style="color: #f59e0b;">Pago Mensual</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$64 por mes (4 clases)</p>
+                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$70 por mes (4 clases)</p>
                             </div>
                         </label>
                     </div>
@@ -508,11 +510,9 @@ function actualizarContadorCobrosSeleccionados() {
 
 // Cobrar a un estudiante individual
 async function cobrarIndividual(userId) {
-    const montoInput = document.getElementById('cobros-monto');
     const fechaInput = document.getElementById('cobros-fecha');
     const temaInput = document.getElementById('cobros-tema');
     
-    const monto = parseFloat(montoInput?.value) || 16;
     const fecha = fechaInput?.value;
     const tema = temaInput?.value || 'Clase semanal';
     
@@ -525,6 +525,10 @@ async function cobrarIndividual(userId) {
         const userRef = db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
+        
+        // Calcular monto según tipo de pago
+        const tipoPago = userData.tipoPago || 'semanal';
+        const monto = tipoPago === 'mensual' ? 70 : 16;
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -563,11 +567,9 @@ async function cobrarSeleccionados() {
         return;
     }
     
-    const montoInput = document.getElementById('cobros-monto');
     const fechaInput = document.getElementById('cobros-fecha');
     const temaInput = document.getElementById('cobros-tema');
     
-    const monto = parseFloat(montoInput?.value) || 16;
     const fecha = fechaInput?.value;
     const tema = temaInput?.value || 'Clase semanal';
     
@@ -576,17 +578,22 @@ async function cobrarSeleccionados() {
         return;
     }
     
-    const confirmacion = confirm(`¿Registrar cobro de $${monto} a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}`);
+    const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto se aplicará según el tipo de pago de cada estudiante.`);
     if (!confirmacion) return;
     
     let cobrados = 0;
     let errores = 0;
+    let montoTotal = 0;
     
     for (const userId of cobrosSeleccionados) {
         try {
             const userRef = db.collection('users').doc(userId);
             const userDoc = await userRef.get();
             const userData = userDoc.data();
+            
+            // Calcular monto según tipo de pago
+            const tipoPago = userData.tipoPago || 'semanal';
+            const monto = tipoPago === 'mensual' ? 70 : 16;
             
             const historialPagos = userData.historialPagos || [];
             historialPagos.push({
@@ -1027,8 +1034,7 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
     const historial = user.historialPagos || [];
     const pagoExistente = historial.find(p => p.fecha && p.fecha.split('T')[0] === fechaStr);
     const estadoActual = pagoExistente ? pagoExistente.estado : 'ninguno';
-    const montoInput = document.getElementById('cobros-monto');
-    const montoActual = pagoExistente ? pagoExistente.monto : (parseFloat(montoInput?.value) || 16);
+    const montoActual = pagoExistente ? pagoExistente.monto : (user.tipoPago === 'mensual' ? 70 : 16);
     
     const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
     const temas = temasClasesGuardados[key] || {};
@@ -1158,8 +1164,6 @@ async function eliminarPagoTabla(userId, fechaStr) {
 // Exportar tabla completa a Excel
 function exportarTablaCompleta() {
     const clases = generarFechasClases(cobrosHorarioActual);
-    const montoInput = document.getElementById('cobros-monto');
-    const monto = parseFloat(montoInput?.value) || 16;
     const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
     const temas = temasClasesGuardados[key] || {};
     
@@ -1190,7 +1194,10 @@ function exportarTablaCompleta() {
         const debe = clases.length - cuotasPagadas;
         const tipoPago = user.tipoPago || 'semanal';
         
-        let row = [user.name || '', tipoPago, '$' + (cuotasPagadas * monto), cuotasPendientes, debe];
+        // Calcular total pagado sumando montos reales del historial
+        const totalPagado = Object.values(historialFechas).reduce((sum, p) => sum + (p.monto || 0), 0);
+        
+        let row = [user.name || '', tipoPago, '$' + totalPagado, cuotasPendientes, debe];
         clases.forEach(clase => {
             if (historialFechas[clase.fechaStr]) {
                 row.push('✓');
