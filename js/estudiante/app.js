@@ -5286,6 +5286,379 @@ window.crearPreviewContainer = crearPreviewContainer;
 
 // =================== FIN BLOQUE 7: PREVIEW ADMIN ===================
 
+// =================== BLOQUE 8: ANALYTICS + EXTRAS (DASHBOARD DE MÉTRICAS) ===================
+
+/**
+ * Sistema de Analytics para estudiantes y administradores
+ * Incluye: tiempo de lectura, estadísticas de uso, PDF export, bookmarks
+ */
+
+// Estado global de analytics
+let analyticsState = {
+    clasesVistas: 0,
+    actividadesCompletadas: 0,
+    tiempoTotalEstudio: 0,
+    ultimaActividad: null,
+    bookmarks: []
+};
+
+/**
+ * Calcular tiempo de lectura en minutos
+ * Fórmula: palabras ÷ 200 palabras por minuto (promedio)
+ */
+function calcularTiempoLectura(texto) {
+    if (!texto) return 0;
+    
+    // Remover HTML tags
+    const textoLimpio = texto.replace(/<[^>]*>/g, '');
+    
+    // Contar palabras
+    const palabras = textoLimpio.trim().split(/\s+/).length;
+    
+    // Calcular minutos (200 palabras por minuto es el promedio)
+    const minutos = Math.ceil(palabras / 200);
+    
+    return Math.max(1, minutos); // Mínimo 1 minuto
+}
+
+/**
+ * Mostrar tiempo de lectura estimado
+ */
+function mostrarTiempoLectura(contenido, elementId) {
+    const minutos = calcularTiempoLectura(contenido);
+    const elemento = document.getElementById(elementId);
+    
+    if (elemento) {
+        elemento.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 6px; color: #1e40af; font-weight: 600;">
+                <i class="fas fa-hourglass-half"></i>
+                <span>Tiempo de lectura: ~${minutos} min</span>
+            </div>
+        `;
+    }
+    
+    return minutos;
+}
+
+/**
+ * Exportar contenido a PDF
+ */
+async function exportarAPDF(titulo, contenido, nombreArchivo = 'documento') {
+    try {
+        // Cargar html2pdf si no está disponible
+        if (typeof html2pdf === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            document.head.appendChild(script);
+            
+            // Esperar a que se cargue
+            await new Promise(resolve => {
+                script.onload = resolve;
+            });
+        }
+
+        // Crear elemento HTML para PDF
+        const element = document.createElement('div');
+        element.innerHTML = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h1 style="color: #1e3a8a; border-bottom: 3px solid #667eea; padding-bottom: 10px;">${titulo}</h1>
+                <div style="margin-top: 20px; line-height: 1.6;">
+                    ${contenido}
+                </div>
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px;">
+                    <p>Generado desde Charlotte - Plataforma Educativa</p>
+                    <p>Fecha: ${new Date().toLocaleString('es-ES')}</p>
+                </div>
+            </div>
+        `;
+
+        // Configurar opciones de PDF
+        const opt = {
+            margin: 10,
+            filename: `${nombreArchivo}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+
+        // Generar PDF
+        html2pdf().set(opt).from(element).save();
+        
+        showToast('PDF exportado exitosamente', 'success');
+        console.log('📄 PDF exportado:', nombreArchivo);
+        
+    } catch (error) {
+        console.error('Error exportando PDF:', error);
+        showToast('Error al exportar PDF', 'error');
+    }
+}
+
+/**
+ * Sistema de Bookmarks/Favoritos
+ */
+function toggleBookmark(itemId, itemType = 'clase') {
+    const isBookmarked = localStorage.getItem(`bookmark-${itemType}-${itemId}`) === 'true';
+    
+    if (isBookmarked) {
+        localStorage.removeItem(`bookmark-${itemType}-${itemId}`);
+        analyticsState.bookmarks = analyticsState.bookmarks.filter(b => b.id !== itemId);
+        showToast('Removido de favoritos', 'info');
+    } else {
+        localStorage.setItem(`bookmark-${itemType}-${itemId}`, 'true');
+        analyticsState.bookmarks.push({ id: itemId, type: itemType, fecha: new Date().toISOString() });
+        showToast('Agregado a favoritos', 'success');
+    }
+    
+    // Guardar bookmarks en Firestore
+    guardarBookmarksEnFirestore();
+}
+
+/**
+ * Obtener todos los bookmarks
+ */
+function obtenerBookmarks() {
+    const bookmarks = [];
+    const keys = Object.keys(localStorage);
+    
+    keys.forEach(key => {
+        if (key.startsWith('bookmark-')) {
+            const [, type, id] = key.split('-');
+            bookmarks.push({ id, type, key });
+        }
+    });
+    
+    return bookmarks;
+}
+
+/**
+ * Mostrar panel de bookmarks
+ */
+function mostrarPanelBookmarks() {
+    const bookmarks = obtenerBookmarks();
+    
+    const panel = `
+        <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+            <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                <span style="font-weight: 600; color: #333;"><i class="fas fa-bookmark"></i> Favoritos (${bookmarks.length})</span>
+                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+            </div>
+            <div style="flex: 1; overflow-y: auto; padding: 16px;">
+                ${bookmarks.length === 0 ? 
+                    '<div style="padding: 20px; text-align: center; color: #999;">No tienes favoritos aún</div>' :
+                    bookmarks.map(b => `
+                        <div style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; background: #f8fafc;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; color: #333; font-size: 14px;">${b.type}</span>
+                                <button onclick="toggleBookmark('${b.id}', '${b.type}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            <small style="color: #64748b;">ID: ${b.id}</small>
+                        </div>
+                    `).join('')
+                }
+            </div>
+        </div>
+    `;
+    
+    let existing = document.querySelector('[style*="position: fixed"][style*="right: 20px"]');
+    if (existing && existing !== document.body) existing.remove();
+    
+    const container = document.createElement('div');
+    container.innerHTML = panel;
+    document.body.appendChild(container.firstElementChild);
+}
+
+/**
+ * Guardar bookmarks en Firestore
+ */
+async function guardarBookmarksEnFirestore() {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const bookmarks = obtenerBookmarks();
+        const bookmarksRef = doc(db, 'usuarios', currentUser.uid, 'preferencias', 'bookmarks');
+        
+        await setDoc(bookmarksRef, {
+            bookmarks: bookmarks,
+            fechaActualizacion: new Date().toISOString()
+        }, { merge: true });
+        
+        console.log('✅ Bookmarks guardados en Firestore');
+    } catch (error) {
+        console.warn('⚠️ No se pudieron guardar bookmarks en Firestore:', error);
+    }
+}
+
+/**
+ * Dashboard de Analytics para estudiantes
+ */
+function mostrarDashboardAnalytics() {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    
+    // Calcular estadísticas
+    const clasesCompletadas = Object.keys(localStorage)
+        .filter(k => k.startsWith('clase-') && k.endsWith('-completed'))
+        .length;
+    
+    const actividadesCompletadas = Object.keys(localStorage)
+        .filter(k => k.startsWith('actividad-') && k.endsWith('-completed'))
+        .length;
+    
+    const videosVistos = Object.keys(localStorage)
+        .filter(k => k.startsWith('video-') && k.endsWith('-watched'))
+        .length;
+    
+    const bookmarks = obtenerBookmarks().length;
+
+    const dashboard = `
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+            <h2 style="margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-line"></i> Mi Progreso
+            </h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700;">${clasesCompletadas}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Clases Completadas</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700;">${actividadesCompletadas}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Actividades Completadas</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700;">${videosVistos}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Videos Vistos</div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; font-weight: 700;">${bookmarks}</div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Favoritos</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    return dashboard;
+}
+
+/**
+ * Calcular porcentaje de progreso general
+ */
+function calcularProgresoGeneral() {
+    const clasesCompletadas = Object.keys(localStorage)
+        .filter(k => k.startsWith('clase-') && k.endsWith('-completed'))
+        .length;
+    
+    const actividadesCompletadas = Object.keys(localStorage)
+        .filter(k => k.startsWith('actividad-') && k.endsWith('-completed'))
+        .length;
+    
+    const videosVistos = Object.keys(localStorage)
+        .filter(k => k.startsWith('video-') && k.endsWith('-watched'))
+        .length;
+    
+    const totalItems = (clasesCompletadas + actividadesCompletadas + videosVistos) || 1;
+    const completados = clasesCompletadas + actividadesCompletadas + videosVistos;
+    
+    return Math.round((completados / Math.max(totalItems, 1)) * 100);
+}
+
+/**
+ * Registrar actividad del usuario
+ */
+function registrarActividad(tipo, datos) {
+    try {
+        const actividad = {
+            tipo: tipo, // 'clase_vista', 'actividad_completada', 'video_visto', etc.
+            datos: datos,
+            timestamp: Date.now(),
+            fecha: new Date().toISOString()
+        };
+        
+        // Guardar en localStorage
+        const actividades = JSON.parse(localStorage.getItem('actividades_usuario') || '[]');
+        actividades.push(actividad);
+        
+        // Mantener solo últimas 100 actividades
+        if (actividades.length > 100) {
+            actividades.shift();
+        }
+        
+        localStorage.setItem('actividades_usuario', JSON.stringify(actividades));
+        
+        // Guardar en Firestore si es posible
+        guardarActividadEnFirestore(actividad);
+        
+        console.log(`📊 Actividad registrada: ${tipo}`);
+    } catch (error) {
+        console.warn('⚠️ Error registrando actividad:', error);
+    }
+}
+
+/**
+ * Guardar actividad en Firestore
+ */
+async function guardarActividadEnFirestore(actividad) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const actividadesRef = collection(db, 'usuarios', currentUser.uid, 'actividades');
+        await addDoc(actividadesRef, actividad);
+        
+    } catch (error) {
+        console.warn('⚠️ No se pudo guardar actividad en Firestore:', error);
+    }
+}
+
+/**
+ * Obtener estadísticas de uso
+ */
+function obtenerEstadisticasUso() {
+    const actividades = JSON.parse(localStorage.getItem('actividades_usuario') || '[]');
+    
+    const estadisticas = {
+        totalActividades: actividades.length,
+        ultimaActividad: actividades[actividades.length - 1]?.fecha || null,
+        actividadesPorTipo: {},
+        actividadesUltimas24h: 0
+    };
+    
+    const hace24h = Date.now() - (24 * 60 * 60 * 1000);
+    
+    actividades.forEach(act => {
+        // Contar por tipo
+        estadisticas.actividadesPorTipo[act.tipo] = (estadisticas.actividadesPorTipo[act.tipo] || 0) + 1;
+        
+        // Contar últimas 24h
+        if (act.timestamp > hace24h) {
+            estadisticas.actividadesUltimas24h++;
+        }
+    });
+    
+    return estadisticas;
+}
+
+/**
+ * Exponer funciones globalmente
+ */
+window.calcularTiempoLectura = calcularTiempoLectura;
+window.mostrarTiempoLectura = mostrarTiempoLectura;
+window.exportarAPDF = exportarAPDF;
+window.toggleBookmark = toggleBookmark;
+window.obtenerBookmarks = obtenerBookmarks;
+window.mostrarPanelBookmarks = mostrarPanelBookmarks;
+window.mostrarDashboardAnalytics = mostrarDashboardAnalytics;
+window.calcularProgresoGeneral = calcularProgresoGeneral;
+window.registrarActividad = registrarActividad;
+window.obtenerEstadisticasUso = obtenerEstadisticasUso;
+
+// =================== FIN BLOQUE 8: ANALYTICS + EXTRAS ===================
+
 async function loadActividadDetail(id) {
     try {
         const docRef = doc(db, 'activities', id);
