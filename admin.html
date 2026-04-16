@@ -4423,6 +4423,75 @@
                             </div>
                         </div>
 
+                        <!-- BLOQUE 1: CONTROL Y PROGRAMACIÓN -->
+                        <div class="quiz-form-grid" style="margin-top: 20px; margin-bottom: 20px;">
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-calendar-alt"></i> Programación y Visibilidad</h4>
+                                
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseEstado">Estado de la Clase</label>
+                                    <select id="claseEstado" required>
+                                        <option value="borrador">🔵 Borrador</option>
+                                        <option value="revision">🟡 Revisión</option>
+                                        <option value="publicada">🟢 Publicada</option>
+                                        <option value="archivada">⚫ Archivada</option>
+                                    </select>
+                                    <small style="color: #666; display: block; margin-top: 5px;">Borrador: Solo editable | Revisión: Esperando aprobación | Publicada: Visible a estudiantes | Archivada: Oculta</small>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                        <input type="checkbox" id="claseVisible" checked style="width: 20px; height: 20px;">
+                                        <span style="font-weight: 500;">Visible para estudiantes</span>
+                                    </label>
+                                    <small style="color: #666; display: block; margin-top: 5px;">Si desactivas, la clase no será visible aunque el estado sea "Publicada"</small>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseFechaPublicacion">Publicar desde (fecha y hora)</label>
+                                    <input type="datetime-local" id="claseFechaPublicacion" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <small style="color: #666; display: block; margin-top: 5px;">La clase será visible automáticamente a esta hora</small>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseFechaFinalizacion">Despublicar desde (fecha y hora)</label>
+                                    <input type="datetime-local" id="claseFechaFinalizacion" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <small style="color: #666; display: block; margin-top: 5px;">La clase dejará de ser visible a esta hora (opcional)</small>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseDificultad">Nivel de Dificultad</label>
+                                    <select id="claseDificultad" required>
+                                        <option value="basico">🟢 Básico</option>
+                                        <option value="intermedio">🟡 Intermedio</option>
+                                        <option value="avanzado">🔴 Avanzado</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="quiz-form-card">
+                                <h4><i class="fas fa-sitemap"></i> Estructura de Aprendizaje</h4>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="clasePrerrequisitos">Clase(s) Prerequisito</label>
+                                    <select id="clasePrerrequisitos" multiple style="min-height: 100px;">
+                                        <option value="">Cargando clases...</option>
+                                    </select>
+                                    <small style="color: #666; display: block; margin-top: 5px;">Mantén Ctrl (Cmd en Mac) para seleccionar múltiples. Estudiante debe completar antes de esta clase</small>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseObjetivos">Objetivos de Aprendizaje (uno por línea)</label>
+                                    <textarea id="claseObjetivos" placeholder="- Comprender conceptos básicos&#10;- Aplicar técnicas correctas&#10;- Evaluar resultados" style="min-height: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;"></textarea>
+                                </div>
+
+                                <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                                    <label for="claseMateriales">Materiales Requeridos (uno por línea)</label>
+                                    <textarea id="claseMateriales" placeholder="- Material 1&#10;- Material 2&#10;- Recurso PDF" style="min-height: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="submit-section">
                             <button type="submit" class="btn-submit-quiz">
                                 <i class="fas fa-upload"></i> Subir Clase
@@ -9039,6 +9108,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     const duracion = document.getElementById('claseDuracion').value;
                     const content = claseEditor ? claseEditor.getData() : document.getElementById('claseContent').value;
                     
+                    // === NUEVOS CAMPOS: CONTROL Y PROGRAMACIÓN ===
+                    const estado = document.getElementById('claseEstado').value;
+                    const visible = document.getElementById('claseVisible').checked;
+                    const fechaPublicacion = document.getElementById('claseFechaPublicacion').value;
+                    const fechaFinalizacion = document.getElementById('claseFechaFinalizacion').value;
+                    const dificultad = document.getElementById('claseDificultad').value;
+                    const objetivos = document.getElementById('claseObjetivos').value.split('\n').filter(o => o.trim());
+                    const materiales = document.getElementById('claseMateriales').value.split('\n').filter(m => m.trim());
+                    const prerequisitos = Array.from(document.getElementById('clasePrerrequisitos').selectedOptions).map(o => o.value).filter(v => v);
+                    
                     // Recoger horarios seleccionados
                     const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="claseHorarios"]:checked')).map(cb => cb.value);
                     // Recoger sedes seleccionadas
@@ -9052,10 +9131,27 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     try {
                         const isEditing = window.editingClaseId;
                         let claseRef;
+                        const ahora = new Date().toISOString();
+                        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
 
                         if (isEditing) {
-                            // Actualizar clase existente
+                            // Actualizar clase existente - guardar historial
                             claseRef = doc(db, 'classes', isEditing);
+                            
+                            // Obtener versión anterior para historial
+                            const docAnterior = await getDoc(claseRef);
+                            const versionAnterior = docAnterior.data();
+                            const historial = versionAnterior.historialCambios || [];
+                            
+                            // Agregar cambio actual al historial
+                            historial.push({
+                                fecha: ahora,
+                                usuario: currentUser.email,
+                                cambios: 'Edición de clase',
+                                estadoAnterior: versionAnterior.estado,
+                                estadoNuevo: estado
+                            });
+                            
                             await updateDoc(claseRef, {
                                 titulo: title,
                                 descripcion: desc,
@@ -9064,7 +9160,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 duracion: parseInt(duracion),
                                 horarios: horariosSeleccionados,
                                 sedes: sedesSeleccionadas,
-                                fechaActualizacion: new Date().toISOString()
+                                estado: estado,
+                                visible: visible,
+                                fechaPublicacion: fechaPublicacion ? new Date(fechaPublicacion).getTime() : null,
+                                fechaFinalizacion: fechaFinalizacion ? new Date(fechaFinalizacion).getTime() : null,
+                                dificultad: dificultad,
+                                objetivos: objetivos,
+                                materiales: materiales,
+                                prerequisitos: prerequisitos,
+                                fechaActualizacion: ahora,
+                                historialCambios: historial.slice(-50) // Mantener últimos 50 cambios
                             });
                         } else {
                             // Crear nueva clase
@@ -9076,8 +9181,23 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 duracion: parseInt(duracion),
                                 horarios: horariosSeleccionados,
                                 sedes: sedesSeleccionadas,
-                                fechaCreacion: new Date().toISOString(),
-                                hasChunks: false // Por defecto, asumimos que no necesita chunks
+                                estado: estado,
+                                visible: visible,
+                                fechaPublicacion: fechaPublicacion ? new Date(fechaPublicacion).getTime() : null,
+                                fechaFinalizacion: fechaFinalizacion ? new Date(fechaFinalizacion).getTime() : null,
+                                dificultad: dificultad,
+                                objetivos: objetivos,
+                                materiales: materiales,
+                                prerequisitos: prerequisitos,
+                                fechaCreacion: ahora,
+                                hasChunks: false,
+                                creadoPor: currentUser.email,
+                                historialCambios: [{
+                                    fecha: ahora,
+                                    usuario: currentUser.email,
+                                    cambios: 'Creación inicial',
+                                    estadoNuevo: estado
+                                }]
                             });
                         }
 

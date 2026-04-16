@@ -2242,12 +2242,46 @@ async function loadClasesByModulo(selectedModulo) {
         ]);
 
         allClases = [];
+        const ahora = Date.now();
+        
         clasesData.forEach(clase => {
+            // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
+            const esVisible = clase.visible !== false; // Por defecto visible
+            const estadoPublicada = clase.estado === 'publicada';
+            const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
+            const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
+            
+            // Si no es visible o no está publicada, excluir
+            if (!esVisible || !estadoPublicada) {
+                console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
+                return; // Saltar esta clase
+            }
+            
+            // Si el tiempo actual está fuera del rango de fechas, excluir
+            if (ahora < fechaPublicacion) {
+                console.log(`⏳ Clase "${clase.titulo}" se publicará a las ${new Date(fechaPublicacion).toLocaleString()}`);
+                return; // No ha llegado la hora aún
+            }
+            
+            if (ahora > fechaFinalizacion) {
+                console.log(`❌ Clase "${clase.titulo}" fue despublicada el ${new Date(fechaFinalizacion).toLocaleString()}`);
+                return; // Ha pasado la fecha límite
+            }
+            
             // Agregar campos calculados desde localStorage
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
             clase.isRead = localStorage.getItem(`clase-${clase.id}-read`) === 'true';
             clase.lastRead = localStorage.getItem(`clase-${clase.id}-lastRead`);
             clase.progress = parseInt(localStorage.getItem(`clase-${clase.id}-progress`) || '0');
+            
+            // === VALIDACIÓN DE PREREQUISITOS (BLOQUE 2) ===
+            clase.prerequisitosCompletos = true;
+            if (clase.prerequisitos && clase.prerequisitos.length > 0) {
+                clase.prerequisitosCompletos = clase.prerequisitos.every(prereqId => 
+                    localStorage.getItem(`clase-${prereqId}-completed`) === 'true'
+                );
+            }
+            
             allClases.push(clase);
         });
 
