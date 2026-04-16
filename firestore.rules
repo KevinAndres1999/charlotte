@@ -92,5 +92,18 @@ service cloud.firestore {
     match /usuarios/{userId}/preferencias/{document} { 
       allow read, write: if isAuthenticated() && request.auth.uid == userId; 
     }
+
+    // ASISTENCIAS Y PAGOS
+    // Estudiantes pueden leer sus propias asistencias y pagos
+    // Admins pueden escribir y leer todo
+    match /asistencias/{document} { 
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.token.rol == 'admin';
+    }
+
+    match /pagos/{document} { 
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.token.rol == 'admin';
+    }
   }
 }
