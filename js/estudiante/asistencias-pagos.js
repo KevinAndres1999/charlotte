@@ -24,11 +24,10 @@ async function loadAsistencias() {
     try {
         showToastNotification('Cargando asistencias...', 'info');
 
-        // Consultar asistencias del estudiante
+        // Consultar asistencias del estudiante SIN orderBy (evitar requerimiento de índice)
         const asistenciasQuery = window.query(
             window.collection(window.db, 'asistencias'),
-            window.where('estudianteEmail', '==', currentUser.email),
-            window.orderBy('fecha', 'desc')
+            window.where('estudianteEmail', '==', currentUser.email)
         );
 
         const asistenciasSnapshot = await window.getDocs(asistenciasQuery);
@@ -39,6 +38,13 @@ async function loadAsistencias() {
                 id: doc.id,
                 ...doc.data()
             });
+        });
+
+        // Ordenar por fecha descendente en JavaScript
+        asistencias.sort((a, b) => {
+            const fechaA = new Date(a.fecha || 0).getTime();
+            const fechaB = new Date(b.fecha || 0).getTime();
+            return fechaB - fechaA;  // Descendente (más reciente primero)
         });
 
         // Calcular estadísticas
@@ -132,11 +138,10 @@ async function loadPagos() {
     try {
         showToastNotification('Cargando información de pagos...', 'info');
 
-        // Consultar pagos del estudiante
+        // Consultar pagos del estudiante SIN orderBy (evitar requerimiento de índice)
         const pagosQuery = window.query(
             window.collection(window.db, 'pagos'),
-            window.where('estudianteEmail', '==', currentUser.email),
-            window.orderBy('fecha', 'desc')
+            window.where('estudianteEmail', '==', currentUser.email)
         );
 
         const pagosSnapshot = await window.getDocs(pagosQuery);
@@ -147,6 +152,13 @@ async function loadPagos() {
                 id: doc.id,
                 ...doc.data()
             });
+        });
+
+        // Ordenar por fecha descendente en JavaScript
+        pagos.sort((a, b) => {
+            const fechaA = new Date(a.fecha || 0).getTime();
+            const fechaB = new Date(b.fecha || 0).getTime();
+            return fechaB - fechaA;  // Descendente (más reciente primero)
         });
 
         // Calcular totales
