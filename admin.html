@@ -4355,8 +4355,8 @@
                             <div class="quiz-form-card">
                                 <h4><i class="fas fa-cogs"></i> Configuración</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
-                                    <label for="clasePrograma">Programa</label>
-                                    <select id="clasePrograma" required onchange="populateModuloSelect('claseModulo', 'clasePrograma')">
+                                    <label for="clasePrograma">Programa <small style="color: #999;">(opcional)</small></label>
+                                    <select id="clasePrograma" onchange="populateModuloSelect('claseModulo', 'clasePrograma')">
                                         <option value="">Seleccionar programa</option>
                                         <option value="Belleza Integral">Belleza Integral</option>
                                         <option value="Panadería y Pastelería">Panadería y Pastelería</option>
@@ -9176,8 +9176,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     // Recoger sedes seleccionadas
                     const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="claseSedes"]:checked')).map(cb => cb.value);
 
-                    if (!programa) return alert('Selecciona un programa');
-                    if (!modulo) return alert('Selecciona un módulo');
+                    // Nota: programa es opcional ahora
+                    // if (!programa) return alert('Selecciona un programa');
+                    // Módulo es opcional si no hay programa
                     if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
 
@@ -13158,6 +13159,9 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                                             <button onclick="mostrarHistorialClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" title="Ver cambios y auditoría de la clase">
                                                 <i class="fas fa-history"></i> Historial
                                             </button>
+                                            <button onclick="toggleClaseVisibilidad('${clase.id}')" style="padding: 0.5rem 1rem; background: ${clase.visible ? '#10b981' : '#9ca3af'}; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" title="Toggle visibilidad">
+                                                <i class="fas ${clase.visible ? 'fa-eye' : 'fa-eye-slash'}"></i> ${clase.visible ? 'Visible' : 'Oculta'}
+                                            </button>
                                             <button onclick="editClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                                                 <i class="fas fa-edit"></i> Editar
                                             </button>
@@ -13574,6 +13578,54 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             }
             
             alert('Edición cancelada. El formulario ha sido limpiado.');
+        }
+
+        // ============================================
+        // FUNCIÓN RÁPIDA: CAMBIAR VISIBILIDAD DE CLASE
+        // ============================================
+        async function toggleClaseVisibilidad(claseId) {
+            try {
+                const claseRef = doc(db, 'classes', claseId);
+                const claseSnap = await getDoc(claseRef);
+                
+                if (!claseSnap.exists()) {
+                    alert('Clase no encontrada');
+                    return;
+                }
+                
+                const claseActual = claseSnap.data();
+                const nuevoEstado = !claseActual.visible;
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+                
+                // Actualizar historial
+                const historial = claseActual.historialCambios || [];
+                historial.push({
+                    fecha: new Date().toISOString(),
+                    usuario: currentUser.email,
+                    cambios: `Visibilidad cambiada: ${nuevoEstado ? 'Visible' : 'Oculta'}`,
+                    estadoAnterior: claseActual.visible,
+                    estadoNuevo: nuevoEstado
+                });
+                
+                // Guardar cambio
+                await updateDoc(claseRef, {
+                    visible: nuevoEstado,
+                    fechaActualizacion: new Date().toISOString(),
+                    historialCambios: historial.slice(-50)
+                });
+                
+                // Mostrar toast de éxito
+                const icon = nuevoEstado ? '👁️' : '👁️‍🗨️';
+                const mensaje = nuevoEstado ? 'Clase ahora visible' : 'Clase ahora oculta';
+                showToast(mensaje, 'success');
+                
+                // Recargar lista
+                loadClasesList();
+                
+            } catch (error) {
+                console.error('Error cambiando visibilidad:', error);
+                showToast('Error al cambiar visibilidad', 'error');
+            }
         }
 
         async function viewEvaluacion(evaluacionId) {
