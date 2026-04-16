@@ -526,8 +526,11 @@ async function loadDashboardStats() {
             return localStorage.getItem(`${type}-${id}-${suffix}`) === 'true';
         }
 
-        // Función helper para filtrar items por sede y horario
+        // Función helper para filtrar items por sede, horario y visibilidad
         function shouldIncludeItem(itemData) {
+            // Verificar visibilidad (oculto por admin)
+            if (itemData.visible === false) return false;
+            
             // Verificar sede
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
@@ -2256,16 +2259,12 @@ async function loadClasesByModulo(selectedModulo) {
         
         clasesData.forEach(clase => {
             // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
-            // Permitir mostrar clases sin importar estado o visibilidad (para testing)
-            // En producción, descomentar los filtros si es necesario
-            
-            // const esVisible = clase.visible !== false; // Por defecto visible
-            // const estadoPublicada = clase.estado === 'publicada';
-            // Si no es visible o no está publicada, excluir
-            // if (!esVisible || !estadoPublicada) {
-            //     console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
-            //     return; // Saltar esta clase
-            // }
+            // Filtrar clases ocultas por el admin
+            const esVisible = clase.visible !== false; // Por defecto visible
+            if (!esVisible) {
+                console.log(`⏳ Clase "${clase.titulo}" está oculta por el administrador`);
+                return; // Saltar esta clase
+            }
             
             // COMENTADO: Filtro de fechas (mostrar todas las clases por ahora)
             // const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
