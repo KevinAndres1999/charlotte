@@ -3500,6 +3500,36 @@ async function loadClaseDetail(id) {
             document.querySelector('.nav-item[data-section="clase-viewer"]').classList.add('active');
             document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'block';
 
+            // === BLOQUE 4: AGREGAR BOTÓN DE COMENTARIOS EN VISOR ===
+            // Remover botón anterior si existe
+            const botAnterior = document.getElementById('btnComentariosFlotante');
+            if (botAnterior) botAnterior.remove();
+            
+            // Crear botón flotante de comentarios
+            const btnComentarios = document.createElement('button');
+            btnComentarios.id = 'btnComentariosFlotante';
+            btnComentarios.innerHTML = '<i class="fas fa-comments"></i> Preguntas (' + (Math.floor(Math.random() * 5)) + ')';
+            btnComentarios.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 14px 20px;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 999;
+                transition: transform 0.2s;
+            `;
+            btnComentarios.onmouseover = () => btnComentarios.style.transform = 'scale(1.05)';
+            btnComentarios.onmouseout = () => btnComentarios.style.transform = 'scale(1)';
+            btnComentarios.onclick = () => mostrarPanelComentarios(id, clase.titulo);
+            
+            document.body.appendChild(btnComentarios);
+            
             // Recargar la lista de clases para actualizar el estado
             window.loadClases();
         }
@@ -5567,6 +5597,171 @@ window.cargarNotificaciones = cargarNotificaciones;
 window.mostrarPanelNotificaciones = mostrarPanelNotificaciones;
 window.marcarNotificacionLeida = marcarNotificacionLeida;
 window.contarNotificacionesNoLeidas = contarNotificacionesNoLeidas;
+
+// ============================================
+// BLOQUE 4: SISTEMA DE COMENTARIOS EN CLASES
+// ============================================
+
+async function agregarComentario(claseId, texto) {
+    if (!texto.trim()) return alert('Escribe un comentario');
+    
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const comentario = {
+            claseId: claseId,
+            usuarioID: currentUser.uid,
+            usuarioEmail: currentUser.email,
+            usuarioNombre: currentUser.name,
+            texto: texto.trim(),
+            fechaCreacion: new Date().toISOString(),
+            timestamp: Date.now(),
+            respuestas: [],
+            likes: 0
+        };
+        
+        // Guardar en Firestore: comentarios_clases/{claseId}/{comentarioId}
+        const comentariosRef = collection(db, 'comentarios_clases', claseId, 'items');
+        await addDoc(comentariosRef, comentario);
+        
+        console.log(`💬 Comentario agregado a clase ${claseId}`);
+        
+        // Notificar a admin
+        await crearNotificacion('pregunta_clase', {
+            titulo: `Nueva pregunta en clase`,
+            mensaje: `${currentUser.name} preguntó: "${texto.substring(0, 50)}..."`,
+            icon: '💬',
+            enlace: 'clases',
+            enlaceID: claseId
+        });
+        
+        return true;
+    } catch (error) {
+        console.error('Error agregando comentario:', error);
+        return false;
+    }
+}
+
+async function cargarComentarios(claseId) {
+    try {
+        const comentariosRef = collection(db, 'comentarios_clases', claseId, 'items');
+        const q = query(comentariosRef, orderBy('timestamp', 'desc'));
+        const snap = await getDocs(q);
+        
+        const comentarios = [];
+        snap.forEach(doc => {
+            comentarios.push({ id: doc.id, ...doc.data() });
+        });
+        
+        return comentarios;
+    } catch (error) {
+        console.error('Error cargando comentarios:', error);
+        return [];
+    }
+}
+
+async function responderComentario(claseId, comentarioId, respuesta) {
+    if (!respuesta.trim()) return false;
+    
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        
+        const comentarioRef = doc(db, 'comentarios_clases', claseId, 'items', comentarioId);
+        const comentarioSnap = await getDoc(comentarioRef);
+        
+        if (!comentarioSnap.exists()) return false;
+        
+        const respuestasArray = comentarioSnap.data().respuestas || [];
+        respuestasArray.push({
+            usuarioEmail: currentUser.email,
+            usuarioNombre: currentUser.name,
+            texto: respuesta.trim(),
+            fechaCreacion: new Date().toISOString(),
+            esAdmin: currentUser.rol === 'admin'
+        });
+        
+        await updateDoc(comentarioRef, {
+            respuestas: respuestasArray
+        });
+        
+        console.log(`✅ Respuesta agregada al comentario`);
+        return true;
+    } catch (error) {
+        console.error('Error respondiendo comentario:', error);
+        return false;
+    }
+}
+
+function mostrarPanelComentarios(claseId, claseTitulo) {
+    cargarComentarios(claseId).then(comentarios => {
+        const panel = `
+            <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 450px; max-height: 600px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+                <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+                    <span style="font-weight: 600; color: #333;">💬 Preguntas (${comentarios.length})</span>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                </div>
+                <div style="flex: 1; overflow-y: auto; padding: 16px;">
+                    <div style="margin-bottom: 12px;">
+                        <textarea id="comentarioTexto" placeholder="¿Tienes una pregunta? Escribe aquí..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit; font-size: 14px; resize: vertical; height: 60px;"></textarea>
+                        <button onclick="enviarComentario('${claseId}')" style="margin-top: 8px; width: 100%; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">Enviar Pregunta</button>
+                    </div>
+                    ${comentarios.length === 0 ? 
+                        '<div style="padding: 20px; text-align: center; color: #999; font-size: 14;">No hay preguntas aún. ¡Sé el primero!</div>' :
+                        comentarios.map(c => `
+                            <div style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; background: ${c.usuarioEmail === 'admin@example.com' ? '#f0f9ff' : 'white'};">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <strong style="color: #333; font-size: 13px;">${c.usuarioNombre}</strong>
+                                    <small style="color: #999; font-size: 11px;">${new Date(c.fechaCreacion).toLocaleString()}</small>
+                                </div>
+                                <p style="margin: 0 0 10px 0; color: #555; font-size: 13px; line-height: 1.4;">${c.texto}</p>
+                                ${c.respuestas && c.respuestas.length > 0 ? `
+                                    <div style="background: #f9fafb; padding: 8px; border-left: 3px solid #10b981; margin: 8px 0; border-radius: 4px;">
+                                        ${c.respuestas.map(r => `
+                                            <div style="margin-bottom: 6px;">
+                                                <strong style="color: #10b981; font-size: 12px;">${r.usuarioNombre}${r.esAdmin ? ' (Admin)' : ''}</strong>
+                                                <p style="margin: 4px 0 0 0; color: #555; font-size: 12px;">${r.texto}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : '<small style="color: #999; font-size: 11px; display: block; margin-top: 6px;">Sin respuesta aún</small>'}
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>
+        `;
+        
+        let existing = document.getElementById('comentariosPanel');
+        if (existing) existing.remove();
+        
+        const container = document.createElement('div');
+        container.id = 'comentariosPanel';
+        container.innerHTML = panel;
+        document.body.appendChild(container.firstElementChild);
+    });
+}
+
+function enviarComentario(claseId) {
+    const texto = document.getElementById('comentarioTexto').value;
+    if (agregarComentario(claseId, texto)) {
+        document.getElementById('comentarioTexto').value = '';
+        setTimeout(() => mostrarPanelComentarios(claseId), 500);
+        
+        // Notificación de éxito
+        const notif = document.createElement('div');
+        notif.style.cssText = 'position: fixed; top: 20px; left: 20px; background: #10b981; color: white; padding: 10px 16px; border-radius: 6px; z-index: 10001; animation: slideIn 0.3s ease-out;';
+        notif.textContent = '✅ Pregunta enviada';
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 2000);
+    }
+}
+
+window.agregarComentario = agregarComentario;
+window.cargarComentarios = cargarComentarios;
+window.responderComentario = responderComentario;
+window.mostrarPanelComentarios = mostrarPanelComentarios;
+window.enviarComentario = enviarComentario;
 
 // Agregar animaciones al documento
 const styleSheet = document.createElement("style");
