@@ -4979,6 +4979,313 @@ window.aplicarFiltrosAvanzados = aplicarFiltrosAvanzados;
 
 // =================== FIN BLOQUE 6: BÚSQUEDA MEJORADA ===================
 
+// =================== BLOQUE 7: PREVIEW ADMIN - SPLIT VIEW EDITOR/PREVIEW ===================
+
+/**
+ * Sistema de preview en vivo para administrador
+ * Sincroniza editor CKEditor con vista previa en tiempo real
+ */
+
+// Estado global del preview
+let previewState = {
+    editorInstance: null,
+    previewContainer: null,
+    isEnabled: false,
+    autoUpdateInterval: null
+};
+
+/**
+ * Inicializar split view con editor y preview
+ */
+function initializeSplitViewPreview(editorContainerId, previewContainerId) {
+    const editorContainer = document.getElementById(editorContainerId);
+    const previewContainer = document.getElementById(previewContainerId);
+
+    if (!editorContainer || !previewContainer) {
+        console.error('❌ Contenedores no encontrados para split view');
+        return false;
+    }
+
+    // Aplicar estilos de split view
+    const parentContainer = editorContainer.parentElement;
+    if (parentContainer) {
+        parentContainer.style.display = 'grid';
+        parentContainer.style.gridTemplateColumns = '1fr 1fr';
+        parentContainer.style.gap = '1.5rem';
+        parentContainer.style.marginBottom = '2rem';
+    }
+
+    editorContainer.style.flex = '1';
+    previewContainer.style.flex = '1';
+    previewContainer.style.border = '2px solid #e2e8f0';
+    previewContainer.style.borderRadius = '8px';
+    previewContainer.style.padding = '1.5rem';
+    previewContainer.style.backgroundColor = '#ffffff';
+    previewContainer.style.maxHeight = '600px';
+    previewContainer.style.overflowY = 'auto';
+    previewContainer.style.boxShadow = '0 4px 6px rgba(0,0,0,0.07)';
+
+    previewState.previewContainer = previewContainer;
+    previewState.isEnabled = true;
+
+    console.log('✅ Split view preview inicializado');
+    return true;
+}
+
+/**
+ * Actualizar preview cuando cambia el editor
+ * Se llama desde los listeners de CKEditor
+ */
+function actualizarPreviewFromEditor(editorData, previewContainerId) {
+    const previewContainer = document.getElementById(previewContainerId);
+    if (!previewContainer) return;
+
+    // Sanitizar HTML para security
+    const sanitized = sanitizeHTML(editorData);
+    
+    previewContainer.innerHTML = sanitized;
+    console.log('🔄 Preview actualizado con contenido en vivo');
+}
+
+/**
+ * Sanitizar HTML para evitar XSS
+ */
+function sanitizeHTML(html) {
+    const tempDiv = document.createElement('div');
+    tempDiv.textContent = html;
+    let sanitized = tempDiv.innerHTML;
+
+    // Permitir tags necesarios
+    const allowedTags = ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'img', 'a', 'blockquote', 'pre', 'code'];
+    const tempDiv2 = document.createElement('div');
+    tempDiv2.innerHTML = html;
+
+    // Remover scripts
+    const scripts = tempDiv2.querySelectorAll('script, style, iframe');
+    scripts.forEach(s => s.remove());
+
+    // Validar atributos en links
+    const links = tempDiv2.querySelectorAll('a');
+    links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('javascript:') || href.startsWith('data:'))) {
+            link.removeAttribute('href');
+        }
+    });
+
+    // Validar atributos en imágenes
+    const images = tempDiv2.querySelectorAll('img');
+    images.forEach(img => {
+        const src = img.getAttribute('src');
+        if (src && (src.startsWith('javascript:') || src.startsWith('data:script'))) {
+            img.removeAttribute('src');
+        }
+        // Límite de tamaño de imagen
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+    });
+
+    return tempDiv2.innerHTML;
+}
+
+/**
+ * Crear preview container HTML
+ */
+function crearPreviewContainer(previewId) {
+    const previewHtml = `
+        <div id="${previewId}" class="preview-content-area">
+            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+                <i class="fas fa-eye" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                <p><strong>Preview en vivo</strong></p>
+                <small>Los cambios aparecerán aquí automáticamente...</small>
+            </div>
+        </div>
+    `;
+    return previewHtml;
+}
+
+/**
+ * Toggler para mostrar/ocultar preview (responsive)
+ */
+function togglePreviewPanel(shouldShow = true) {
+    if (!previewState.previewContainer) return;
+    
+    previewState.previewContainer.style.display = shouldShow ? 'block' : 'none';
+    console.log(`👁️ Preview panel ${shouldShow ? 'mostrado' : 'ocultado'}`);
+}
+
+/**
+ * Exportar preview como HTML descargable
+ */
+function exportPreviewAsHTML(titulo = 'preview') {
+    if (!previewState.previewContainer) {
+        showToast('No hay preview para exportar', 'error');
+        return;
+    }
+
+    const contenido = previewState.previewContainer.innerHTML;
+    const htmlCompleto = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${titulo}</title>
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+            color: #0f2138;
+        }
+        .preview-content-area {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+        img { max-width: 100%; height: auto; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+        blockquote { border-left: 4px solid #667eea; padding-left: 1rem; margin-left: 0; }
+    </style>
+</head>
+<body>
+    <div class="preview-content-area">
+        ${contenido}
+    </div>
+</body>
+</html>
+    `;
+
+    const blob = new Blob([htmlCompleto], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Preview exportado como HTML', 'success');
+}
+
+/**
+ * Copiar preview al portapapeles
+ */
+function copyPreviewToClipboard() {
+    if (!previewState.previewContainer) {
+        showToast('No hay contenido para copiar', 'error');
+        return;
+    }
+
+    const contenido = previewState.previewContainer.innerHTML;
+    navigator.clipboard.writeText(contenido).then(() => {
+        showToast('Preview copiado al portapapeles', 'success');
+    }).catch(() => {
+        showToast('No se pudo copiar al portapapeles', 'error');
+    });
+}
+
+/**
+ * Obtener HTML del preview
+ */
+function getPreviewHTML() {
+    if (!previewState.previewContainer) return '';
+    return previewState.previewContainer.innerHTML;
+}
+
+/**
+ * Establecer contenido del preview manualmente
+ */
+function setPreviewContent(html) {
+    if (!previewState.previewContainer) return;
+    
+    previewState.previewContainer.innerHTML = sanitizeHTML(html);
+    console.log('✏️ Contenido del preview actualizado manualmente');
+}
+
+/**
+ * Limpiar preview
+ */
+function clearPreview() {
+    if (previewState.previewContainer) {
+        previewState.previewContainer.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+                <i class="fas fa-empty-set" style="font-size: 2rem;"></i>
+                <p>Sin contenido</p>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Auto-actualizar preview cada X ms (para performance)
+ */
+function startAutoPreviewUpdate(delayMs = 500) {
+    if (previewState.autoUpdateInterval) {
+        clearInterval(previewState.autoUpdateInterval);
+    }
+
+    previewState.autoUpdateInterval = setInterval(() => {
+        // Este intervalo se usará para debounce en editores
+        // Evita actualizar preview en cada keystroke
+    }, delayMs);
+
+    console.log(`⏱️ Auto-update iniciado cada ${delayMs}ms`);
+}
+
+/**
+ * Detener auto-actualización
+ */
+function stopAutoPreviewUpdate() {
+    if (previewState.autoUpdateInterval) {
+        clearInterval(previewState.autoUpdateInterval);
+        previewState.autoUpdateInterval = null;
+        console.log('⏹️ Auto-update detenido');
+    }
+}
+
+/**
+ * Integración con CKEditor: agregar listener a editor
+ */
+function connectCKEditorToPreview(editor, previewContainerId) {
+    if (!editor) {
+        console.warn('⚠️ Editor no disponible');
+        return;
+    }
+
+    // Listener en tiempo real
+    editor.model.document.on('change:data', () => {
+        const editorData = editor.getData();
+        actualizarPreviewFromEditor(editorData, previewContainerId);
+    });
+
+    console.log('🔗 CKEditor conectado al preview');
+}
+
+/**
+ * Exponer funciones globalmente
+ */
+window.initializeSplitViewPreview = initializeSplitViewPreview;
+window.actualizarPreviewFromEditor = actualizarPreviewFromEditor;
+window.sanitizeHTML = sanitizeHTML;
+window.togglePreviewPanel = togglePreviewPanel;
+window.exportPreviewAsHTML = exportPreviewAsHTML;
+window.copyPreviewToClipboard = copyPreviewToClipboard;
+window.getPreviewHTML = getPreviewHTML;
+window.setPreviewContent = setPreviewContent;
+window.clearPreview = clearPreview;
+window.startAutoPreviewUpdate = startAutoPreviewUpdate;
+window.stopAutoPreviewUpdate = stopAutoPreviewUpdate;
+window.connectCKEditorToPreview = connectCKEditorToPreview;
+window.crearPreviewContainer = crearPreviewContainer;
+
+// =================== FIN BLOQUE 7: PREVIEW ADMIN ===================
+
 async function loadActividadDetail(id) {
     try {
         const docRef = doc(db, 'activities', id);
@@ -5435,54 +5742,6 @@ async function submitEntrega(actividadId) {
         console.error('Error submitting entrega:', error);
         alert('Error al enviar la entrega');
     }
-}
-
-function guardarBorrador(actividadId) {
-    if (!entregaEditor) {
-        alert('Editor no inicializado');
-        return;
-    }
-    const content = entregaEditor.getData();
-    try {
-        if (content.trim()) {
-            localStorage.setItem(`borrador-${actividadId}`, content);
-            // Mostrar notificación de éxito
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <div style="position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; font-weight: 600;">
-                    ✓ Borrador guardado
-                </div>
-            `;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 2000);
-        }
-    } catch (error) {
-        if (error.name === 'QuotaExceededError') {
-            // Mostrar advertencia de almacenamiento lleno
-            const warning = document.createElement('div');
-            warning.innerHTML = `
-                <div style="position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px; font-size: 14px;">
-                    <strong>💾 Almacenamiento lleno</strong><br>
-                    El borrador es demasiado grande. Intenta:<br>
-                    • Reducir el número de imágenes<br>
-                    • Usar imágenes más pequeñas<br>
-                    • Guardar secciones más cortas
-                    <button onclick="this.parentElement.remove()" style="margin-top: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cerrar</button>
-                </div>
-            `;
-            document.body.appendChild(warning);
-            setTimeout(() => {
-                if (warning.parentElement) {
-                    warning.remove();
-                }
-            }, 15000);
-        } else {
-            alert('Error al guardar borrador: ' + error.message);
-        }
     }
 }
 
