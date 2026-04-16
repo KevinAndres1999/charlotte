@@ -3667,22 +3667,7 @@ async function printClase(id) {
         
         // Crear ventana de impresión con estilos completos + watermark
         const printWindow = window.open('', '_blank');
-        
-        // Cargar logo como base64 para la marca de agua
-        let logoBase64 = '';
-        try {
-            const logoResponse = await fetch('/mesa%20de%20trabajo%203.png');
-            if (logoResponse.ok) {
-                const logoBlob = await logoResponse.blob();
-                logoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(logoBlob);
-                });
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar el logo:', error);
-        }
+        const logoUrl = '/logo-ece.png';
         printWindow.document.write(`
             <!DOCTYPE html>
             <html lang="es">
@@ -3714,7 +3699,7 @@ async function printClase(id) {
                         left: 50%;
                         width: 500px;
                         height: 500px;
-                        background: url('${logoBase64}') no-repeat center;
+                        background: url('${logoUrl}') no-repeat center;
                         background-size: contain;
                         opacity: 0.08;
                         pointer-events: none;
@@ -3959,7 +3944,7 @@ async function downloadClaseFromViewer() {
         // Cargar logo como base64 para la marca de agua
         let logoBase64 = '';
         try {
-            const logoResponse = await fetch('/mesa%20de%20trabajo%203.png');
+            const logoResponse = await fetch('/logo-ece.png');
             if (logoResponse.ok) {
                 const logoBlob = await logoResponse.blob();
                 logoBase64 = await new Promise((resolve) => {
@@ -4004,7 +3989,7 @@ async function downloadClaseFromViewer() {
                         left: 50%;
                         width: 500px;
                         height: 500px;
-                        background: url('${logoBase64}') no-repeat center;
+                        background: url('${logoBase64 || '/logo-ece.png'}') no-repeat center;
                         background-size: contain;
                         opacity: 0.08;
                         pointer-events: none;
