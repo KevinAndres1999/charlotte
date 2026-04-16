@@ -798,6 +798,7 @@ function showSectionV2(sectionId, noPush = false) {
 }
 
 window.showSection = showSectionV2;
+window.showSectionV2 = showSectionV2;
 window.volverDesdeClaseViewer = volverDesdeClaseViewer;
 
 function toggleMenu() {
