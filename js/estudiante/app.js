@@ -2104,6 +2104,23 @@ function volverAModulosActividades() {
     loadActividades();
 }
 
+function volverDesdeClaseViewer() {
+    // Recuperar la sección anterior (que debería ser 'clases')
+    const previousSection = sessionStorage.getItem('activeSection') || 'clases';
+    
+    // Volver a la sección anterior (usualmente 'clases')
+    showSectionV2('clases', true);
+    sessionStorage.setItem('activeSection', 'clases');
+    sessionStorage.removeItem('currentClaseId');
+    
+    // Actualizar el menú de navegación
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelector('.nav-item[data-section="clases"]').classList.add('active');
+    document.querySelector('.nav-item[data-section="clase-viewer"]').style.display = 'none';
+    
+    console.log('✅ Volviendo desde visor de clase');
+}
+
 function getModuloName(moduloKey) {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     const programa = currentUser.programa || '';
@@ -6813,6 +6830,7 @@ window.toggleClaseCompletedFromModal = toggleClaseCompletedFromModal;
 window.toggleClaseCompletedFromViewer = toggleClaseCompletedFromViewer;
 window.shareClase = shareClase;
 window.printClase = printClase;
+window.volverDesdeClaseViewer = volverDesdeClaseViewer;
 
 // Actividades interactivas
 window.calificarActividadInteractiva = calificarActividadInteractiva;
