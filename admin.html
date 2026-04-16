@@ -13601,18 +13601,18 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
                 const historial = claseActual.historialCambios || [];
                 historial.push({
                     fecha: new Date().toISOString(),
-                    usuario: currentUser.email,
+                    usuario: currentUser.email || 'Sistema',
                     cambios: `Visibilidad cambiada: ${nuevoEstado ? 'Visible' : 'Oculta'}`,
                     estadoAnterior: claseActual.visible,
                     estadoNuevo: nuevoEstado
                 });
                 
                 // Guardar cambio
-                await updateDoc(claseRef, {
+                await updateDoc(claseRef, cleanObjectForFirestore({
                     visible: nuevoEstado,
                     fechaActualizacion: new Date().toISOString(),
                     historialCambios: historial.slice(-50)
-                });
+                }));
                 
                 // Mostrar toast de éxito
                 const icon = nuevoEstado ? '👁️' : '👁️‍🗨️';
