@@ -316,6 +316,7 @@
                     telefono: document.getElementById('telefono').value,
                     programa: document.getElementById('programa').value,
                     sede: document.getElementById('sede').value,
+                    role: 'student', // Definir rol por defecto
                     // NO guardamos la contraseña - Firebase Auth la maneja de forma segura
                     // Marcamos como usuario nuevo con autenticación segura
                     authMethod: 'firebase', // Nuevo sistema de autenticación
@@ -325,6 +326,15 @@
                 
                 // Guardar en colección users con el UID de Firebase como ID del documento
                 await setDoc(doc(db, 'users', firebaseUID), userDoc);
+                
+                // También guardar en pendingStudents para que aparezca en la lista del admin
+                const pendingDoc = {
+                    ...userDoc,
+                    id: firebaseUID, // ID para compatibilidad
+                    email: email
+                };
+                await setDoc(doc(db, 'pendingStudents', firebaseUID), pendingDoc);
+                
                 console.log('Usuario creado con Firebase Auth - UID:', firebaseUID);
                 showMessage('¡Cuenta creada exitosamente! Espera la aprobación del administrador.', 'success');
                 

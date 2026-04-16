@@ -574,6 +574,19 @@
                         const endTime = performance.now();
                         console.log('Total login time:', (endTime - startTime).toFixed(2), 'ms');
 
+                        // Asegurar que userData tiene rol (backwards compatibility para usuarios antiguos)
+                        if (!userData.role) {
+                            userData.role = userData.status === 'admin' ? 'admin' : 'student';
+                            // Actualizar en Firestore también
+                            try {
+                                await updateDoc(doc(db, 'users', userDoc.id), { role: userData.role });
+                            } catch (e) {
+                                console.warn('No se pudo actualizar el rol en Firestore:', e);
+                            }
+                        }
+
+                        console.log('User role:', userData.role, 'Status:', userData.status);
+
                         // Mostrar mensaje de éxito antes de redirigir
                         submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
                         submitBtn.style.background = '#10b981';
@@ -591,12 +604,19 @@
                                     submitBtn.disabled = false;
                                     submitBtn.innerHTML = 'Iniciar Sesión';
                                     submitBtn.style.background = '';
+                                } else if (status === 'pending') {
+                                    // Usuario pendiente de aprobación
+                                    showMessage('Tu registro está pendiente de aprobación. El administrador lo revisará pronto.', 'warning');
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = 'Iniciar Sesión';
+                                    submitBtn.style.background = '';
                                 } else {
                                     // 'cursando' o 'active' (compatibilidad) → acceso normal
                                     window.location.href = 'estudiante.html';
                                 }
                             } else {
-                                showMessage('Rol no reconocido', 'error');
+                                console.error('Rol desconocido:', userData.role);
+                                showMessage('Rol no reconocido. Por favor contacta al administrador.', 'error');
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = 'Iniciar Sesión';
                                 submitBtn.style.background = '';
