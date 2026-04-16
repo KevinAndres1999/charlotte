@@ -3665,7 +3665,7 @@ async function printClase(id) {
             content = '<p style="color: #dc2626; text-align: center;">Sin contenido disponible</p>';
         }
         
-        // Crear ventana de impresión con estilos completos
+        // Crear ventana de impresión con estilos completos + watermark
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
             <!DOCTYPE html>
@@ -3688,11 +3688,29 @@ async function printClase(id) {
                         padding: 40px;
                         max-width: 900px;
                         margin: 0 auto;
+                        position: relative;
+                    }
+                    /* Watermark */
+                    body::before {
+                        content: '';
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        width: 400px;
+                        height: 400px;
+                        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="none" stroke="%23e2e8f0" stroke-width="2"/><text x="100" y="100" font-family="Arial" font-size="16" fill="%23cbd5e1" text-anchor="middle" dominant-baseline="middle">ECE CHARLOTTE</text><circle cx="100" cy="80" r="20" fill="none" stroke="%23cbd5e1" stroke-width="1.5"/></svg>') no-repeat center;
+                        background-size: contain;
+                        opacity: 0.08;
+                        pointer-events: none;
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                        z-index: -1;
                     }
                     .header {
                         border-bottom: 3px solid #3b82f6;
                         padding-bottom: 20px;
                         margin-bottom: 30px;
+                        position: relative;
+                        z-index: 1;
                     }
                     h1 { 
                         color: #1e3a8a;
@@ -3725,6 +3743,8 @@ async function printClase(id) {
                     }
                     .content {
                         padding: 20px 0;
+                        position: relative;
+                        z-index: 1;
                     }
                     .content h2 {
                         color: #1e40af;
@@ -3783,12 +3803,15 @@ async function printClase(id) {
                         text-align: center;
                         color: #94a3b8;
                         font-size: 12px;
+                        position: relative;
+                        z-index: 1;
                     }
                     @media print {
                         body { padding: 20px; }
                         .header { page-break-after: avoid; }
                         .content h2, .content h3 { page-break-after: avoid; }
                         .content img { page-break-inside: avoid; }
+                        body::before { display: block !important; }
                     }
                 </style>
             </head>
@@ -3881,53 +3904,245 @@ async function downloadClaseFromViewer() {
         return;
     }
     
-    // Obtener la clase actual (asumiendo que está en filteredClases o buscarla)
-    const clase = filteredClases ? filteredClases.find(c => c.id === currentClaseId) : null;
-    if (!clase) {
-        showToast('Clase no encontrada', 'error');
-        return;
-    }
-    
-    // Cargar contenido usando la misma lógica que loadClaseDetail
-    let content = clase.contenido;
-    if (clase.hasChunks) {
-        try {
-            content = await loadContentFromChunks(currentClaseId);
-        } catch (error) {
-            console.error('Error cargando contenido desde chunks:', error);
-            content = clase.contenido || 'Error al cargar el contenido desde chunks.';
+    try {
+        showToast('Preparando descarga...', 'info');
+        
+        // Obtener documento completo de Firestore
+        const docRef = doc(db, 'classes', currentClaseId);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+            showToast('Clase no encontrada', 'error');
+            return;
         }
+        
+        const clase = docSnap.data();
+        
+        // Validar acceso
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.programa || clase.programa.toLowerCase() !== currentUser.programa.toLowerCase()) {
+            showToast('No tienes permiso para descargar esta clase', 'error');
+            return;
+        }
+        
+        // Cargar contenido desde chunks si es necesario
+        let content = clase.contenido;
+        if (clase.hasChunks) {
+            try {
+                content = await loadContentFromChunks(currentClaseId);
+            } catch (error) {
+                console.error('Error cargando contenido desde chunks:', error);
+            }
+        }
+        
+        // Si aún no hay contenido, usar mensaje por defecto
+        if (!content || content.trim().length === 0) {
+            content = 'No hay contenido disponible para esta clase.';
+        }
+        
+        // Crear contenido HTML para descargar con watermark
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${clase.titulo} - ECE CHARLOTTE</title>
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        line-height: 1.6;
+                        color: #0f2138;
+                        background: white;
+                        padding: 40px;
+                        max-width: 900px;
+                        margin: 0 auto;
+                        position: relative;
+                    }
+                    /* Watermark */
+                    body::before {
+                        content: 'ECE CHARLOTTE';
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        width: 400px;
+                        height: 400px;
+                        font-size: 48px;
+                        font-weight: bold;
+                        color: rgba(100, 116, 139, 0.08);
+                        text-align: center;
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                        z-index: 0;
+                        pointer-events: none;
+                        white-space: nowrap;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .header {
+                        border-bottom: 3px solid #3b82f6;
+                        padding-bottom: 20px;
+                        margin-bottom: 30px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    h1 { 
+                        color: #1e3a8a;
+                        font-size: 28px;
+                        margin-bottom: 15px;
+                    }
+                    .meta {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 15px;
+                        font-size: 14px;
+                        color: #64748b;
+                        margin-bottom: 20px;
+                    }
+                    .meta-item {
+                        display: flex;
+                        gap: 8px;
+                    }
+                    .meta-label {
+                        font-weight: 600;
+                        color: #334155;
+                    }
+                    .descripcion {
+                        background: #f8fafc;
+                        border-left: 4px solid #3b82f6;
+                        padding: 15px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                        font-style: italic;
+                    }
+                    .content {
+                        padding: 20px 0;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .content h2 {
+                        color: #1e40af;
+                        font-size: 22px;
+                        margin: 25px 0 15px 0;
+                        border-bottom: 2px solid #e2e8f0;
+                        padding-bottom: 10px;
+                    }
+                    .content h3 {
+                        color: #3b82f6;
+                        font-size: 18px;
+                        margin: 20px 0 10px 0;
+                    }
+                    .content p {
+                        margin-bottom: 15px;
+                        text-align: justify;
+                    }
+                    .content ul, .content ol {
+                        margin-left: 30px;
+                        margin-bottom: 15px;
+                    }
+                    .content li {
+                        margin-bottom: 8px;
+                    }
+                    .content img {
+                        max-width: 100%;
+                        height: auto;
+                        margin: 20px 0;
+                        border-radius: 8px;
+                        border: 1px solid #e2e8f0;
+                    }
+                    .content blockquote {
+                        border-left: 4px solid #3b82f6;
+                        margin: 20px 0;
+                        padding-left: 20px;
+                        color: #475569;
+                        font-style: italic;
+                    }
+                    .content code {
+                        background: #f1f5f9;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-family: 'Courier New', monospace;
+                    }
+                    .content pre {
+                        background: #f1f5f9;
+                        padding: 15px;
+                        border-radius: 4px;
+                        overflow-x: auto;
+                        margin: 15px 0;
+                    }
+                    .footer {
+                        border-top: 1px solid #e2e8f0;
+                        padding-top: 20px;
+                        margin-top: 40px;
+                        text-align: center;
+                        color: #94a3b8;
+                        font-size: 12px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clase.titulo}</h1>
+                    <div class="meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Programa:</span>
+                            <span>${clase.programa || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Módulo:</span>
+                            <span>${clase.modulo || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duración:</span>
+                            <span>${clase.duracion ? clase.duracion + ' min' : 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Fecha:</span>
+                            <span>${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${clase.descripcion ? `<div class="descripcion"><strong>Descripción:</strong> ${clase.descripcion}</div>` : ''}
+                
+                <div class="content">
+                    ${content}
+                </div>
+                
+                <div class="footer">
+                    <p>Documento generado desde ECE CHARLOTTE - Plataforma Educativa</p>
+                    <p>Fecha de descarga: ${new Date().toLocaleString('es-ES')}</p>
+                    <p style="margin-top: 10px; font-weight: 600;">Documento protegido - Uso exclusivo del estudiante</p>
+                </div>
+            </body>
+            </html>
+        `;
+        
+        // Convertir a blob y descargar
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=UTF-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${clase.titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ece_charlotte.html`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showToast('Clase descargada correctamente', 'success');
+        
+    } catch (error) {
+        console.error('Error al descargar clase:', error);
+        showToast('Error al preparar la descarga', 'error');
     }
-    
-    // Si aún no hay contenido, usar mensaje por defecto
-    if (!content || content.trim().length === 0) {
-        content = 'No hay contenido disponible para esta clase.';
-    }
-    
-    // Crear contenido HTML para descargar
-    const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${clase.titulo} - ECE CHARLOTTE</title>
-            <meta charset="UTF-8">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
-                h1 { color: #3b82f6; }
-                .meta { color: #64748b; margin-bottom: 20px; }
-                .content { margin-top: 20px; }
-            </style>
-        </head>
-        <body>
-            <h1>${clase.titulo}</h1>
-            <div class="meta">
-                <p><strong>Programa:</strong> ${clase.programa}</p>
-                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
-                <p><strong>Duración:</strong> ${clase.duracion || 'N/A'}</p>
-            </div>
-            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
-            <div class="content">
-                ${content}
+}
             </div>
         </body>
         </html>
