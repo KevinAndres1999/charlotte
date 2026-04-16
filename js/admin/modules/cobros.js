@@ -1065,22 +1065,28 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <button onclick="cobrosModule.guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado')" 
+                        <button onclick="
+                            const montoInput = document.getElementById('modal-pago-monto');
+                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado', montoInput ? parseFloat(montoInput.value) : ${montoActual});
+                        " 
                                 style="padding: 1rem; background: ${estadoActual === 'pagado' ? '#059669' : '#10b981'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="fas fa-check-circle"></i> ${estadoActual === 'pagado' ? 'PAGADO ✓' : 'Marcar como Pagado'}
                         </button>
                         
-                        <button onclick="cobrosModule.guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente')" 
+                        <button onclick="
+                            const montoInput = document.getElementById('modal-pago-monto');
+                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente', montoInput ? parseFloat(montoInput.value) : ${montoActual});
+                        " 
                                 style="padding: 1rem; background: ${estadoActual === 'pendiente' ? '#b45309' : '#f59e0b'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                             <i class="fas fa-clock"></i> ${estadoActual === 'pendiente' ? 'PENDIENTE ⏳' : 'Marcar como Pendiente'}
                         </button>
                         
                         ${pagoExistente ? `
-                            <button onclick="cobrosModule.eliminarPagoTabla('${userId}', '${fechaStr}')" 
+                            <button onclick="eliminarPagoTabla('${userId}', '${fechaStr}')" 
                                     style="padding: 0.75rem; background: #dc2626; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
                                 <i class="fas fa-trash"></i> Eliminar Registro
                             </button>
-                        ` : ''}
+                        ` : ''
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: right; padding: 1rem; border-top: 1px solid #eee;">
@@ -1093,9 +1099,8 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
 }
 
 // Guardar pago desde modal de tabla
-async function guardarPagoTabla(userId, fechaStr, claseNum, estado) {
-    const montoInput = document.getElementById('modal-pago-monto');
-    const monto = parseFloat(montoInput?.value) || 16;
+async function guardarPagoTabla(userId, fechaStr, claseNum, estado, montoParam) {
+    const monto = montoParam || (parseFloat(document.getElementById('modal-pago-monto')?.value) || 16);
     const key = `${cobrosSedeActual}_${cobrosHorarioActual}`;
     const temas = temasClasesGuardados[key] || {};
     const tema = temas[fechaStr] || `Clase ${claseNum}`;
@@ -1124,7 +1129,7 @@ async function guardarPagoTabla(userId, fechaStr, claseNum, estado) {
             window.allApprovedUsers[userIndex].historialPagos = historialPagos;
         }
         
-        if (typeof showNotification === 'function') showNotification(`Marcado como ${estado}`, 'success');
+        if (typeof showNotification === 'function') showNotification(`Marcado como ${estado} por $${monto}`, 'success');
         document.getElementById('pagoTablaModal')?.remove();
         cargarEstudiantesCobros();
     } catch (error) {
