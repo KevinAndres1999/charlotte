@@ -4687,7 +4687,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
                             <div class="form-group" style="border: 1px solid #e2e8f0; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
                                 <label>Contenido de la Clase</label>
-                                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                                <!-- BLOQUE 7: Split View Toggle -->
+                                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;">
+                                    <button type="button" class="split-view-toggle active" id="toggleSplitView" onclick="toggleSplitViewMode()" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                                        <i class="fas fa-columns"></i> Split View
+                                    </button>
                                     <button type="button" onclick="insertarImagenEnClaseIA()" style="padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-image"></i> Insertar Imagen
                                     </button>
@@ -4697,9 +4701,42 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     <button type="button" onclick="insertarEnlaceEnClaseIA()" style="padding: 8px 15px; background: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                         <i class="fas fa-link"></i> Insertar Enlace
                                     </button>
+                                    <div class="sync-indicator" id="syncIndicator" style="display: none;">
+                                        <i class="fas fa-check-circle"></i> Sincronizado
+                                    </div>
                                 </div>
-                                <div id="claseContentGeneradaEditor" style="min-height: 400px; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white;"></div>
-                                <textarea id="claseContentGenerada" style="display: none;"></textarea>
+                                <!-- BLOQUE 7: Split View Container -->
+                                <div class="split-view-container" id="splitViewContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                    <!-- Editor Panel -->
+                                    <div class="editor-panel">
+                                        <div id="claseContentGeneradaEditor" style="min-height: 400px; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white;"></div>
+                                        <textarea id="claseContentGenerada" style="display: none;"></textarea>
+                                    </div>
+                                    <!-- Preview Panel -->
+                                    <div class="preview-panel">
+                                        <div class="preview-label">
+                                            <i class="fas fa-eye"></i> Vista Previa en Vivo
+                                        </div>
+                                        <div class="preview-toolbar">
+                                            <button type="button" class="preview-btn" onclick="exportPreviewAsHTML('clase-preview')" title="Descargar como HTML">
+                                                <i class="fas fa-download"></i> Descargar
+                                            </button>
+                                            <button type="button" class="preview-btn" onclick="copyPreviewToClipboard()" title="Copiar al portapapeles">
+                                                <i class="fas fa-copy"></i> Copiar
+                                            </button>
+                                            <button type="button" class="preview-btn" onclick="clearPreview()" title="Limpiar preview">
+                                                <i class="fas fa-trash"></i> Limpiar
+                                            </button>
+                                        </div>
+                                        <div id="clasePreviewContainer" class="preview-content-area">
+                                            <div style="text-align: center; padding: 2rem; color: #a0aec0;">
+                                                <i class="fas fa-eye" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                                                <p><strong>Preview en vivo</strong></p>
+                                                <small>Los cambios aparecerán aquí automáticamente...</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="submit-section" style="display: flex; gap: 1rem; flex-wrap: wrap;">
@@ -15736,6 +15773,10 @@ REGLAS:
                     initialData: contenido
                 });
                 console.log('Editor de clase generada inicializado');
+                
+                // === BLOQUE 7: Conectar preview ===
+                setupPreviewSync();
+                showSyncIndicator();
             } catch (error) {
                 console.error('Error inicializando editor:', error);
                 editorContainer.innerHTML = contenido;
@@ -15787,6 +15828,63 @@ REGLAS:
                 claseEditorIA.model.insertContent(modelFragment);
             }
         }
+
+        // =================== BLOQUE 7: FUNCIONES DE SPLIT VIEW PREVIEW ===================
+        
+        let splitViewEnabled = true;
+        let claseEditorPreviewConnected = false;
+
+        // Alternar modo split view
+        function toggleSplitViewMode() {
+            splitViewEnabled = !splitViewEnabled;
+            const container = document.getElementById('splitViewContainer');
+            const toggle = document.getElementById('toggleSplitView');
+            
+            if (splitViewEnabled) {
+                container.style.gridTemplateColumns = '1fr 1fr';
+                toggle.classList.add('active');
+                toggle.style.background = '#667eea';
+                console.log('✅ Split view activado');
+                
+                // Conectar editor al preview si no está conectado
+                if (claseEditorIA && !claseEditorPreviewConnected) {
+                    connectCKEditorToPreview(claseEditorIA, 'clasePreviewContainer');
+                    claseEditorPreviewConnected = true;
+                }
+            } else {
+                container.style.gridTemplateColumns = '1fr';
+                toggle.classList.remove('active');
+                toggle.style.background = '#f1f5f9';
+                toggle.style.color = '#334155';
+                console.log('❌ Split view desactivado');
+            }
+        }
+
+        // Mostrar indicador de sincronización
+        function showSyncIndicator() {
+            const indicator = document.getElementById('syncIndicator');
+            if (indicator) {
+                indicator.style.display = 'inline-flex';
+                indicator.classList.add('syncing');
+                setTimeout(() => {
+                    indicator.classList.remove('syncing');
+                    setTimeout(() => {
+                        indicator.style.display = 'none';
+                    }, 1000);
+                }, 500);
+            }
+        }
+
+        // Actualizar preview cuando se crea el editor
+        function setupPreviewSync() {
+            if (claseEditorIA && splitViewEnabled && !claseEditorPreviewConnected) {
+                connectCKEditorToPreview(claseEditorIA, 'clasePreviewContainer');
+                claseEditorPreviewConnected = true;
+                console.log('🔗 Preview sincronizado con editor');
+            }
+        }
+
+        // =================== FIN BLOQUE 7 ===================
 
         // Regenerar clase
         function regenerarClaseIA() {

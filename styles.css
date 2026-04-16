@@ -2629,7 +2629,226 @@ img.lazy-loading.error {
   border-radius: 8px;
 }
 
-/* ===== FIN BLOQUE 6: ESTILOS PARA BÚSQUEDA MEJORADA ===== */
+/* ===== BLOQUE 7: ESTILOS PARA PREVIEW ADMIN (SPLIT VIEW) ===== */
+
+.split-view-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editor-panel label {
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preview-label {
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preview-content-area {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+  font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  color: #1e293b;
+}
+
+.preview-content-area img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.preview-content-area p {
+  margin: 0.75rem 0;
+}
+
+.preview-content-area h1,
+.preview-content-area h2,
+.preview-content-area h3,
+.preview-content-area h4,
+.preview-content-area h5,
+.preview-content-area h6 {
+  margin: 1.5rem 0 0.5rem 0;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.preview-content-area h1 { font-size: 2rem; }
+.preview-content-area h2 { font-size: 1.75rem; }
+.preview-content-area h3 { font-size: 1.5rem; }
+
+.preview-content-area ul,
+.preview-content-area ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.preview-content-area li {
+  margin: 0.5rem 0;
+}
+
+.preview-content-area code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.preview-content-area pre {
+  background: #1e293b;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.preview-content-area pre code {
+  background: transparent;
+  color: #e2e8f0;
+  padding: 0;
+}
+
+.preview-content-area blockquote {
+  border-left: 4px solid #667eea;
+  padding-left: 1rem;
+  margin-left: 0;
+  margin-right: 0;
+  color: #64748b;
+  font-style: italic;
+}
+
+.preview-content-area a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.preview-content-area a:hover {
+  text-decoration: underline;
+}
+
+.preview-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.preview-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.preview-btn:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.preview-btn i {
+  font-size: 1rem;
+}
+
+.split-view-toggle {
+  padding: 0.5rem 1rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #334155;
+  transition: all 0.2s;
+}
+
+.split-view-toggle:hover {
+  background: #e0e7ff;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.split-view-toggle.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.sync-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sync-indicator.syncing {
+  background: #dbeafe;
+  color: #1e40af;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Responsive - Stack en mobile */
+@media (max-width: 1024px) {
+  .split-view-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .preview-content-area {
+    max-height: 400px;
+  }
+}
+
+/* ===== FIN BLOQUE 7: ESTILOS PREVIEW ADMIN ===== */
 
 /* ===== FIN MEDIA QUERIES ===== */
 
