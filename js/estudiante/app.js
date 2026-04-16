@@ -3633,41 +3633,214 @@ function shareClase(id) {
     }
 }
 
-function printClase(id) {
-    const clase = filteredClases.find(c => c.id === id);
-    if (!clase) {
-        showToast('Clase no encontrada o no disponible para tu programa', 'error');
-        return;
-    }
-
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${clase.titulo} - ECE CHARLOTTE</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { color: #3b82f6; }
-                .meta { color: #64748b; margin-bottom: 20px; }
-                .content { line-height: 1.6; }
-            </style>
-        </head>
-        <body>
-            <h1>${clase.titulo}</h1>
-            <div class="meta">
-                <p><strong>Programa:</strong> ${clase.programa}</p>
-                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
-            </div>
-            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
-            <div class="content">
-                ${clase.contenido || 'Sin contenido'}
-            </div>
-        </body>
+async function printClase(id) {
+    try {
+        showToast('Preparando impresión...', 'info');
+        
+        // Obtener documento completo de Firestore (con contenido completo)
+        const docRef = doc(db, 'classes', id);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) {
+            showToast('Clase no encontrada', 'error');
+            return;
+        }
+        
+        const clase = docSnap.data();
+        
+        // Validar acceso
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.programa || clase.programa.toLowerCase() !== currentUser.programa.toLowerCase()) {
+            showToast('No tienes permiso para imprimir esta clase', 'error');
+            return;
+        }
+        
+        // Cargar contenido desde chunks si es necesario
+        let content = clase.contenido;
+        if (clase.hasChunks) {
+            content = await loadContentFromChunks(id);
+        }
+        
+        if (!content) {
+            content = '<p style="color: #dc2626; text-align: center;">Sin contenido disponible</p>';
+        }
+        
+        // Crear ventana de impresión con estilos completos
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${clase.titulo} - ECE CHARLOTTE</title>
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        line-height: 1.6;
+                        color: #0f2138;
+                        background: white;
+                        padding: 40px;
+                        max-width: 900px;
+                        margin: 0 auto;
+                    }
+                    .header {
+                        border-bottom: 3px solid #3b82f6;
+                        padding-bottom: 20px;
+                        margin-bottom: 30px;
+                    }
+                    h1 { 
+                        color: #1e3a8a;
+                        font-size: 28px;
+                        margin-bottom: 15px;
+                    }
+                    .meta {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 15px;
+                        font-size: 14px;
+                        color: #64748b;
+                        margin-bottom: 20px;
+                    }
+                    .meta-item {
+                        display: flex;
+                        gap: 8px;
+                    }
+                    .meta-label {
+                        font-weight: 600;
+                        color: #334155;
+                    }
+                    .descripcion {
+                        background: #f8fafc;
+                        border-left: 4px solid #3b82f6;
+                        padding: 15px;
+                        margin: 20px 0;
+                        border-radius: 4px;
+                        font-style: italic;
+                    }
+                    .content {
+                        padding: 20px 0;
+                    }
+                    .content h2 {
+                        color: #1e40af;
+                        font-size: 22px;
+                        margin: 25px 0 15px 0;
+                        border-bottom: 2px solid #e2e8f0;
+                        padding-bottom: 10px;
+                    }
+                    .content h3 {
+                        color: #3b82f6;
+                        font-size: 18px;
+                        margin: 20px 0 10px 0;
+                    }
+                    .content p {
+                        margin-bottom: 15px;
+                        text-align: justify;
+                    }
+                    .content ul, .content ol {
+                        margin-left: 30px;
+                        margin-bottom: 15px;
+                    }
+                    .content li {
+                        margin-bottom: 8px;
+                    }
+                    .content img {
+                        max-width: 100%;
+                        height: auto;
+                        margin: 20px 0;
+                        border-radius: 8px;
+                        border: 1px solid #e2e8f0;
+                    }
+                    .content blockquote {
+                        border-left: 4px solid #3b82f6;
+                        margin: 20px 0;
+                        padding-left: 20px;
+                        color: #475569;
+                        font-style: italic;
+                    }
+                    .content code {
+                        background: #f1f5f9;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-family: 'Courier New', monospace;
+                    }
+                    .content pre {
+                        background: #f1f5f9;
+                        padding: 15px;
+                        border-radius: 4px;
+                        overflow-x: auto;
+                        margin: 15px 0;
+                    }
+                    .footer {
+                        border-top: 1px solid #e2e8f0;
+                        padding-top: 20px;
+                        margin-top: 40px;
+                        text-align: center;
+                        color: #94a3b8;
+                        font-size: 12px;
+                    }
+                    @media print {
+                        body { padding: 20px; }
+                        .header { page-break-after: avoid; }
+                        .content h2, .content h3 { page-break-after: avoid; }
+                        .content img { page-break-inside: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>${clase.titulo}</h1>
+                    <div class="meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Programa:</span>
+                            <span>${clase.programa || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Módulo:</span>
+                            <span>${clase.modulo || 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Duración:</span>
+                            <span>${clase.duracion ? clase.duracion + ' min' : 'N/A'}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Fecha:</span>
+                            <span>${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                ${clase.descripcion ? `<div class="descripcion"><strong>Descripción:</strong> ${clase.descripcion}</div>` : ''}
+                
+                <div class="content">
+                    ${content}
+                </div>
+                
+                <div class="footer">
+                    <p>Documento generado desde ECE CHARLOTTE - Plataforma Educativa</p>
+                    <p>Fecha de impresión: ${new Date().toLocaleString('es-ES')}</p>
+                </div>
+            </body>
         </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+        `);
+        printWindow.document.close();
+        
+        // Esperar a que se renderice antes de imprimir
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+            showToast('Impresión lista', 'success');
+        }, 500);
+        
+    } catch (error) {
+        console.error('Error al imprimir clase:', error);
+        showToast('Error al preparar la impresión', 'error');
+    }
 }
 
 // Funciones auxiliares para la interfaz premium
