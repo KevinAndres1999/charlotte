@@ -9133,21 +9133,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
             }
 
-            // Helper para limpiar objetos de undefined y NaN (para Firestore)
-            function cleanObjectForFirestore(obj) {
-                const cleaned = {};
-                for (const key in obj) {
-                    const value = obj[key];
-                    // Evitar undefined, NaN, y convertir NaN a 0 para duracion
-                    if (value !== undefined && !Number.isNaN(value)) {
-                        cleaned[key] = value;
-                    } else if (Number.isNaN(value) && key === 'duracion') {
-                        // Si es duracion y es NaN, asignar 0
-                        cleaned[key] = 0;
-                    }
-                }
-                return cleaned;
-            }
 
             // Formulario de clases
             const claseForm = document.getElementById('claseForm');
@@ -13003,6 +12988,22 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
             } catch (error) {
                 console.error('Error loading clases:', error);
             }
+        }
+        
+        // ============================================
+        // HELPER: LIMPIAR OBJETOS PARA FIRESTORE
+        // ============================================
+        function cleanObjectForFirestore(obj) {
+            const cleaned = {};
+            for (const key in obj) {
+                const value = obj[key];
+                if (value !== undefined && !Number.isNaN(value)) {
+                    cleaned[key] = value;
+                } else if (Number.isNaN(value) && key === 'duracion') {
+                    cleaned[key] = 0;
+                }
+            }
+            return cleaned;
         }
         
         function mostrarResumenClases() {
