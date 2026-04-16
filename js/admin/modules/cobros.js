@@ -312,11 +312,9 @@ async function marcarPendiente(userId) {
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
-        // Calcular monto según tipo de pago
+        // Calcular monto según configuración del usuario
         const tipoPago = userData.tipoPago || 'semanal';
-        let monto = 16; // default
-        if (tipoPago === 'quincenal') monto = 35;
-        else if (tipoPago === 'mensual') monto = 70;
+        let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -382,69 +380,71 @@ function editarTipoPagoUsuario(userId) {
     const user = window.allApprovedUsers.find(u => u.id === userId);
     if (!user) return;
     
-    const tipoActual = user.tipoPago || 'semanal';
+    const montoActual = user.montoPersonalizado || user.tipoPago || '';
     
     const modalHtml = `
         <div id="tipoPagoModal" class="modal" style="display: block;">
-            <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-content" style="max-width: 450px;">
                 <div class="modal-header">
-                    <h2><i class="fas fa-calendar-alt"></i> Tipo de Pago</h2>
+                    <h2><i class="fas fa-dollar-sign"></i> Configurar Monto de Pago</h2>
                     <span class="close" onclick="document.getElementById('tipoPagoModal').remove()">&times;</span>
                 </div>
                 <div class="modal-body">
                     <p><strong>${user.name}</strong></p>
-                    <div class="form-group" style="margin: 1rem 0;">
-                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid ${tipoActual === 'semanal' ? '#8b5cf6' : '#e5e7eb'}; border-radius: 10px; cursor: pointer; margin-bottom: 0.75rem; background: ${tipoActual === 'semanal' ? '#f5f3ff' : 'white'};">
-                            <input type="radio" name="tipoPago" value="semanal" ${tipoActual === 'semanal' ? 'checked' : ''} style="width: 20px; height: 20px;">
-                            <div>
-                                <strong style="color: #8b5cf6;">Pago Semanal</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$16 por clase (cada sábado/domingo)</p>
-                            </div>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid ${tipoActual === 'quincenal' ? '#06b6d4' : '#e5e7eb'}; border-radius: 10px; cursor: pointer; margin-bottom: 0.75rem; background: ${tipoActual === 'quincenal' ? '#ecf0ff' : 'white'};">
-                            <input type="radio" name="tipoPago" value="quincenal" ${tipoActual === 'quincenal' ? 'checked' : ''} style="width: 20px; height: 20px;">
-                            <div>
-                                <strong style="color: #06b6d4;">Pago Quincenal</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$35 cada 15 días (2 clases)</p>
-                            </div>
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border: 2px solid ${tipoActual === 'mensual' ? '#f59e0b' : '#e5e7eb'}; border-radius: 10px; cursor: pointer; background: ${tipoActual === 'mensual' ? '#fffbeb' : 'white'};">
-                            <input type="radio" name="tipoPago" value="mensual" ${tipoActual === 'mensual' ? 'checked' : ''} style="width: 20px; height: 20px;">
-                            <div>
-                                <strong style="color: #f59e0b;">Pago Mensual</strong>
-                                <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">$70 por mes (4 clases)</p>
-                            </div>
-                        </label>
+                    <div class="form-group" style="margin: 1.5rem 0;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">¿Cuánto paga este estudiante?</label>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem; color: #3b82f6;">$</span>
+                            <input 
+                                type="number" 
+                                id="montoPago" 
+                                value="${montoActual}" 
+                                placeholder="Ingresa el monto" 
+                                min="1" 
+                                step="0.01"
+                                style="flex: 1; padding: 0.75rem; border: 2px solid #3b82f6; border-radius: 8px; font-size: 1rem; outline: none;"
+                            >
+                        </div>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #6b7280;">Ingresa el valor exacto que el estudiante debe pagar por clase, quincena o mes.</p>
                     </div>
                 </div>
                 <div class="modal-footer" style="text-align: right; padding: 1rem; border-top: 1px solid #eee;">
                     <button onclick="document.getElementById('tipoPagoModal').remove()" style="margin-right: 10px; padding: 0.75rem 1.25rem; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
-                    <button onclick="cobrosModule.guardarTipoPago('${userId}')" style="padding: 0.75rem 1.25rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;"><i class="fas fa-save"></i> Guardar</button>
+                    <button onclick="cobrosModule.guardarMontoPago('${userId}')" style="padding: 0.75rem 1.25rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;"><i class="fas fa-save"></i> Guardar</button>
                 </div>
             </div>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.getElementById('montoPago').focus();
 }
 
-// Guardar tipo de pago
-async function guardarTipoPago(userId) {
-    const tipoPago = document.querySelector('input[name="tipoPago"]:checked')?.value;
-    if (!tipoPago) return;
+// Guardar monto personalizado de pago
+async function guardarMontoPago(userId) {
+    const monto = parseFloat(document.getElementById('montoPago')?.value);
+    
+    if (!monto || monto <= 0 || isNaN(monto)) {
+        if (typeof showNotification === 'function') showNotification('Ingresa un monto válido mayor a 0', 'warning');
+        return;
+    }
     
     try {
-        await db.collection('users').doc(userId).update({ tipoPago });
+        await db.collection('users').doc(userId).update({ 
+            montoPersonalizado: monto,
+            tipoPago: 'personalizado'
+        });
         
         const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
         if (userIndex !== -1) {
-            window.allApprovedUsers[userIndex].tipoPago = tipoPago;
+            window.allApprovedUsers[userIndex].montoPersonalizado = monto;
+            window.allApprovedUsers[userIndex].tipoPago = 'personalizado';
         }
         
-        if (typeof showNotification === 'function') showNotification(`Tipo de pago cambiado a: ${tipoPago}`, 'success');
-        document.getElementById('tipoPagoModal')?.remove();
+        if (typeof showNotification === 'function') showNotification(`Monto de pago configurado: $${monto}`, 'success');
+        document.getElementById('tipoPagoModal').remove();
         cargarEstudiantesCobros();
     } catch (error) {
-        console.error('Error guardando tipo de pago:', error);
+        console.error('Error guardando monto:', error);
         if (typeof showNotification === 'function') showNotification('Error al guardar', 'error');
     }
 }
@@ -535,11 +535,9 @@ async function cobrarIndividual(userId) {
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
-        // Calcular monto según tipo de pago
+        // Calcular monto según configuración del usuario
         const tipoPago = userData.tipoPago || 'semanal';
-        let monto = 16; // default
-        if (tipoPago === 'quincenal') monto = 35;
-        else if (tipoPago === 'mensual') monto = 70;
+        let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -602,11 +600,9 @@ async function cobrarSeleccionados() {
             const userDoc = await userRef.get();
             const userData = userDoc.data();
             
-            // Calcular monto según tipo de pago
+            // Calcular monto según configuración del usuario
             const tipoPago = userData.tipoPago || 'semanal';
-            let monto = 16; // default
-            if (tipoPago === 'quincenal') monto = 35;
-            else if (tipoPago === 'mensual') monto = 70;
+            let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
             
             const historialPagos = userData.historialPagos || [];
             historialPagos.push({
