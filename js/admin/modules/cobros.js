@@ -312,9 +312,11 @@ async function marcarPendiente(userId) {
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
-        // Calcular monto según configuración del usuario
-        const tipoPago = userData.tipoPago || 'semanal';
-        let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+        // Obtener monto: primero del campo personalizado del formulario, sino del estudiante
+        let monto = parseFloat(document.getElementById('cobros-monto')?.value);
+        if (!monto || isNaN(monto) || monto <= 0) {
+            monto = userData.montoPersonalizado || 16;
+        }
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -535,9 +537,11 @@ async function cobrarIndividual(userId) {
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
-        // Calcular monto según configuración del usuario
-        const tipoPago = userData.tipoPago || 'semanal';
-        let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+        // Obtener monto: primero del campo personalizado del formulario, sino del estudiante
+        let monto = parseFloat(document.getElementById('cobros-monto')?.value);
+        if (!monto || isNaN(monto) || monto <= 0) {
+            monto = userData.montoPersonalizado || 16;
+        }
         
         const historialPagos = userData.historialPagos || [];
         historialPagos.push({
@@ -578,16 +582,18 @@ async function cobrarSeleccionados() {
     
     const fechaInput = document.getElementById('cobros-fecha');
     const temaInput = document.getElementById('cobros-tema');
+    const montoInput = document.getElementById('cobros-monto');
     
     const fecha = fechaInput?.value;
     const tema = temaInput?.value || 'Clase semanal';
+    const montoFormulario = parseFloat(montoInput?.value);
     
     if (!fecha) {
         if (typeof showNotification === 'function') showNotification('Selecciona una fecha', 'warning');
         return;
     }
     
-    const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto se aplicará según el tipo de pago de cada estudiante.`);
+    const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto será: ${montoFormulario && montoFormulario > 0 ? '$' + montoFormulario + ' (personalizado)' : 'el configurado de cada estudiante'}`);
     if (!confirmacion) return;
     
     let cobrados = 0;
@@ -600,9 +606,11 @@ async function cobrarSeleccionados() {
             const userDoc = await userRef.get();
             const userData = userDoc.data();
             
-            // Calcular monto según configuración del usuario
-            const tipoPago = userData.tipoPago || 'semanal';
-            let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+            // Prioridad: monto del formulario > monto del estudiante > default 16
+            let monto = montoFormulario;
+            if (!monto || isNaN(monto) || monto <= 0) {
+                monto = userData.montoPersonalizado || 16;
+            }
             
             const historialPagos = userData.historialPagos || [];
             historialPagos.push({

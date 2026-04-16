@@ -4101,16 +4101,20 @@
                 <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.5rem;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
                         <div>
-                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Fecha de la Clase</label>
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;"><i class="fas fa-calendar-alt"></i> Fecha de la Clase</label>
                             <input type="date" id="cobros-fecha" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Tema de la Clase</label>
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;"><i class="fas fa-bookmark"></i> Tema de la Clase</label>
                             <input type="text" id="cobros-tema" placeholder="Ej: Pan de Yema, Corte Bob..." style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Monto ($)</label>
-                            <input type="number" id="cobros-monto" value="16" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                            <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;"><i class="fas fa-money-bill-wave" style="color: #10b981;"></i> Monto a Cobrar ($)</label>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.1rem; color: #10b981; font-weight: 600;">$</span>
+                                <input type="number" id="cobros-monto" placeholder="0" step="0.01" min="0" style="flex: 1; padding: 0.75rem; border: 2px solid #10b981; border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #10b981;">
+                            </div>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; color: #6b7280;">Deja vacío para usar el monto del estudiante</p>
                         </div>
                         <div>
                             <button onclick="cargarClasesHistorial()" style="width: 100%; padding: 0.75rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 500;">
@@ -11338,9 +11342,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const userDoc = await userRef.get();
                 const userData = userDoc.data();
                 
-                // Calcular monto según configuración del usuario
-                const tipoPago = userData.tipoPago || 'semanal';
-                let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+                // Obtener monto: primero del campo personalizado del formulario, sino del estudiante
+                let monto = parseFloat(document.getElementById('cobros-monto')?.value);
+                if (!monto || isNaN(monto) || monto <= 0) {
+                    monto = userData.montoPersonalizado || 16;
+                }
                 
                 const historialPagos = userData.historialPagos || [];
                 historialPagos.push({
@@ -11554,9 +11560,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 const userDoc = await userRef.get();
                 const userData = userDoc.data();
                 
-                // Calcular monto según configuración del usuario
-                const tipoPago = userData.tipoPago || 'semanal';
-                let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+                // Obtener monto: primero del campo personalizado del formulario, sino del estudiante
+                let monto = parseFloat(document.getElementById('cobros-monto')?.value);
+                if (!monto || isNaN(monto) || monto <= 0) {
+                    monto = userData.montoPersonalizado || 16;
+                }
                 
                 const historialPagos = userData.historialPagos || [];
                 historialPagos.push({
@@ -11597,13 +11605,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             
             const fecha = document.getElementById('cobros-fecha').value;
             const tema = document.getElementById('cobros-tema').value || 'Clase semanal';
+            const montoFormulario = parseFloat(document.getElementById('cobros-monto')?.value);
             
             if (!fecha) {
                 showNotification('Selecciona una fecha', 'warning');
                 return;
             }
             
-            const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto se aplicará según el tipo de pago de cada estudiante.`);
+            const confirmacion = confirm(`¿Registrar cobros a ${cobrosSeleccionados.size} estudiantes?\n\nFecha: ${fecha}\nTema: ${tema}\n\nEl monto será: ${montoFormulario && montoFormulario > 0 ? '$' + montoFormulario + ' (personalizado)' : 'el configurado de cada estudiante'}`);
             if (!confirmacion) return;
             
             let cobrados = 0;
@@ -11616,9 +11625,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     const userDoc = await userRef.get();
                     const userData = userDoc.data();
                     
-                    // Calcular monto según tipo de pago
-                    const tipoPago = userData.tipoPago || 'semanal';
-                    let monto = userData.montoPersonalizado || 16; // usar monto personalizado si existe
+                    // Prioridad: monto del formulario > monto del estudiante > default 16
+                    let monto = montoFormulario;
+                    if (!monto || isNaN(monto) || monto <= 0) {
+                        monto = userData.montoPersonalizado || 16;
+                    }
                     
                     const historialPagos = userData.historialPagos || [];
                     historialPagos.push({
