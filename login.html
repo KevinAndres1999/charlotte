@@ -487,6 +487,17 @@
                                     userCache.delete(email);
                                 }
                                 console.log('✅ Usuario migrado a Firebase Auth');
+                            } else if (!userData.migrationConflict) {
+                                // Si la migración falló y no es por conflicto, para admins forzar el signIn
+                                // para que puedan obtener el ID token
+                                if (userData.role === 'admin') {
+                                    try {
+                                        await signInWithEmailAndPassword(auth, email, password);
+                                        console.log('ℹ️ Admin sign-in en Firebase Auth para obtener ID token');
+                                    } catch (adminSignInErr) {
+                                        console.warn('⚠️ No se pudo hacer sign-in de admin en Firebase Auth:', adminSignInErr.code);
+                                    }
+                                }
                             }
                         } catch (migErr) {
                             console.warn('⚠️ No se pudo migrar usuario a Firebase Auth:', migErr.message);
@@ -510,9 +521,22 @@
                         // Para admins, guardar el ID token de Firebase para operaciones privilegiadas
                         if (userData.role === 'admin') {
                             try {
-                                const idToken = await auth.currentUser.getIdToken();
-                                sessionStorage.setItem('adminIdToken', idToken);
-                                console.log('✅ Firebase ID token guardado para admin');
+                                if (auth.currentUser) {
+                                    const idToken = await auth.currentUser.getIdToken();
+                                    sessionStorage.setItem('adminIdToken', idToken);
+                                    console.log('✅ Firebase ID token guardado para admin');
+                                } else {
+                                    console.warn('⚠️ No hay usuario autenticado en Firebase Auth. Intentando autenticar admin...');
+                                    try {
+                                        // Intentar signIn directo como último recurso
+                                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                                        const idToken = await userCredential.user.getIdToken();
+                                        sessionStorage.setItem('adminIdToken', idToken);
+                                        console.log('✅ Admin autenticado y token guardado en segundo intento');
+                                    } catch (signInErr) {
+                                        console.warn('⚠️ No se pudo obtener token de Firebase Auth:', signInErr.code);
+                                    }
+                                }
                             } catch (e) {
                                 console.warn('⚠️ No se pudo guardar ID token:', e);
                             }

@@ -8640,11 +8640,22 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             window.location.href = 'login.html';
         }
 
-        // Verificar que Firebase Auth también tenga sesión activa
+        // Verificar que Firebase Auth tenga sesión activa (si es posible)
+        // Para admins legados, permite acceso si tiene sesión de Firestore válida
+        let firebaseAuthReady = false;
         window.auth.onAuthStateChanged(function(firebaseUser) {
+            firebaseAuthReady = true;
             if (!firebaseUser) {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
+                console.warn('⚠️ Usuario no autenticado en Firebase Auth. Puede ser admin legado.');
+                // NO redirigir inmediatamente - permitir acceso si tiene sesión Firestore válida
+                console.log('Sesión Firestore válida para:', currentUser?.email);
+                // Solo redirigir si además tampoco hay sesión de Firestore
+                if (!currentUser) {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            } else {
+                console.log('✅ Usuario autenticado en Firebase Auth:', firebaseUser.email);
             }
         });
         
