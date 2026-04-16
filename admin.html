@@ -9737,7 +9737,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 // Procesar usuarios con más detalle
                 let activeUsers = usuariosSnapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
-                    .filter(user => user.status === 'active');
+                    .filter(user => user.status === 'cursando' || user.status === 'active');
 
                 const uniqueUsers = {};
                 activeUsers.forEach(user => {
