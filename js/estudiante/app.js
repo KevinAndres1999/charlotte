@@ -24,6 +24,7 @@ try {
     window.collection = collection;
     window.query = query;
     window.where = where;
+    window.orderBy = orderBy;
     window.doc = doc;
     window.getDoc = getDoc;
     window.setDoc = setDoc;
@@ -799,6 +800,7 @@ function showSectionV2(sectionId, noPush = false) {
 
 window.showSection = showSectionV2;
 window.showSectionV2 = showSectionV2;
+window.showToast = showToast;
 window.volverDesdeClaseViewer = volverDesdeClaseViewer;
 
 function toggleMenu() {

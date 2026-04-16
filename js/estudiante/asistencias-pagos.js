@@ -1,9 +1,20 @@
+// Utilidades para acceder a Firebase desde window (inicializado en app.js)
+
+// Helper para mostrar notificaciones
+function showToastNotification(message, type = 'info') {
+    if (window.showToast && typeof window.showToast === 'function') {
+        window.showToast(message, type);
+    } else {
+        console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+}
+
 // =================== ASISTENCIAS ===================
 
 async function loadAsistencias() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) {
-        showToast('Usuario no autenticado', 'error');
+        showToastNotification('Usuario no autenticado', 'error');
         return;
     }
 
@@ -11,16 +22,16 @@ async function loadAsistencias() {
     if (!tableBody) return;
 
     try {
-        showToast('Cargando asistencias...', 'info');
+        showToastNotification('Cargando asistencias...', 'info');
 
         // Consultar asistencias del estudiante
-        const asistenciasQuery = query(
-            collection(db, 'asistencias'),
-            where('estudianteEmail', '==', currentUser.email),
-            orderBy('fecha', 'desc')
+        const asistenciasQuery = window.query(
+            window.collection(window.db, 'asistencias'),
+            window.where('estudianteEmail', '==', currentUser.email),
+            window.orderBy('fecha', 'desc')
         );
 
-        const asistenciasSnapshot = await getDocs(asistenciasQuery);
+        const asistenciasSnapshot = await window.getDocs(asistenciasQuery);
         const asistencias = [];
 
         asistenciasSnapshot.forEach(doc => {
@@ -93,7 +104,7 @@ async function loadAsistencias() {
             progressFill.style.strokeDashoffset = offset;
         }
 
-        showToast('Asistencias cargadas', 'success');
+        showToastNotification('Asistencias cargadas', 'success');
 
     } catch (error) {
         console.error('Error cargando asistencias:', error);
@@ -102,7 +113,7 @@ async function loadAsistencias() {
                 <td colspan="4">Error al cargar asistencias: ${error.message}</td>
             </tr>
         `;
-        showToast('Error al cargar asistencias', 'error');
+        showToastNotification('Error al cargar asistencias', 'error');
     }
 }
 
@@ -111,7 +122,7 @@ async function loadAsistencias() {
 async function loadPagos() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
     if (!currentUser) {
-        showToast('Usuario no autenticado', 'error');
+        showToastNotification('Usuario no autenticado', 'error');
         return;
     }
 
@@ -119,16 +130,16 @@ async function loadPagos() {
     if (!tableBody) return;
 
     try {
-        showToast('Cargando información de pagos...', 'info');
+        showToastNotification('Cargando información de pagos...', 'info');
 
         // Consultar pagos del estudiante
-        const pagosQuery = query(
-            collection(db, 'pagos'),
-            where('estudianteEmail', '==', currentUser.email),
-            orderBy('fecha', 'desc')
+        const pagosQuery = window.query(
+            window.collection(window.db, 'pagos'),
+            window.where('estudianteEmail', '==', currentUser.email),
+            window.orderBy('fecha', 'desc')
         );
 
-        const pagosSnapshot = await getDocs(pagosQuery);
+        const pagosSnapshot = await window.getDocs(pagosQuery);
         const pagos = [];
 
         pagosSnapshot.forEach(doc => {
@@ -213,7 +224,7 @@ async function loadPagos() {
             }).join('');
         }
 
-        showToast('Pagos cargados', 'success');
+        showToastNotification('Pagos cargados', 'success');
 
     } catch (error) {
         console.error('Error cargando pagos:', error);
@@ -222,7 +233,7 @@ async function loadPagos() {
                 <td colspan="5">Error al cargar pagos: ${error.message}</td>
             </tr>
         `;
-        showToast('Error al cargar pagos', 'error');
+        showToastNotification('Error al cargar pagos', 'error');
     }
 }
 
