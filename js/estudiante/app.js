@@ -783,6 +783,7 @@ function showSectionV2(sectionId, noPush = false) {
 }
 
 window.showSection = showSectionV2;
+window.volverDesdeClaseViewer = volverDesdeClaseViewer;
 
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
