@@ -6,7 +6,7 @@
 
 // Usar db global de admin.html
 const db = window.db;
-const { collection, getDocs, query, where, doc, setDoc, deleteDoc, addDoc } = window;
+const { collection, getDocs, query, where, doc, setDoc, updateDoc, deleteDoc, addDoc } = window;
 
 // Helper para updateDoc: usa window.updateDoc si existe, si no usa setDoc con merge
 const _updateDoc = window.updateDoc ||
@@ -113,9 +113,10 @@ async function aprobarUsuario(id) {
         const user = allPendingUsers.find(u => u.id === id);
         if (!user) return;
 
-        // Mover a users con datos completos
-        await setDoc(doc(db, 'users', user.email), {
-            ...user,
+        // Actualizar el documento existente en users (usamos el ID que es el firebaseUID)
+        const userDocId = user.firebaseUID || user.id || user.email;
+        
+        await updateDoc(doc(db, 'users', userDocId), {
             role: 'student',
             status: 'cursando',
             approvedAt: new Date().toISOString()
@@ -124,12 +125,12 @@ async function aprobarUsuario(id) {
         // Eliminar de pendingStudents
         await deleteDoc(doc(db, 'pendingStudents', id));
 
-        alert('Usuario aprobado correctamente');
+        alert('✅ Usuario aprobado correctamente');
         await loadUsuariosPendientes();
         await loadUsuariosAprobados();
     } catch (error) {
         console.error('Error approving user:', error);
-        alert('Error al aprobar usuario');
+        alert('Error al aprobar usuario: ' + error.message);
     }
 }
 
@@ -251,8 +252,10 @@ async function aprobarTodosPendientes() {
     
     try {
         for (const user of allPendingUsers) {
-            await setDoc(doc(db, 'users', user.email), {
-                ...user,
+            const userDocId = user.firebaseUID || user.id || user.email;
+            
+            // Actualizar el documento existente
+            await updateDoc(doc(db, 'users', userDocId), {
                 role: 'student',
                 status: 'cursando',
                 approvedAt: new Date().toISOString()
@@ -260,12 +263,12 @@ async function aprobarTodosPendientes() {
             await deleteDoc(doc(db, 'pendingStudents', user.id));
         }
         
-        alert('Todos los usuarios han sido aprobados');
+        alert('✅ Todos los usuarios han sido aprobados');
         await loadUsuariosPendientes();
         await loadUsuariosAprobados();
     } catch (error) {
         console.error('Error approving all users:', error);
-        alert('Error al aprobar usuarios');
+        alert('Error al aprobar usuarios: ' + error.message);
     }
 }
 
