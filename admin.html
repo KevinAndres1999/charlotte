@@ -12973,19 +12973,63 @@ ${snapshotClases.size > 0 ? '⚠️ Hay clases en la colección antigua que nece
         // ================== FIN HERRAMIENTAS DE ADMINISTRACIÓN ==================
         
         // ============================================
-        // HELPER GLOBAL: LIMPIAR OBJETOS PARA FIRESTORE
+        // HELPER GLOBAL: LIMPIAR OBJETOS PARA FIRESTORE (RECURSIVO)
         // ============================================
         function cleanObjectForFirestore(obj) {
-            const cleaned = {};
-            for (const key in obj) {
-                const value = obj[key];
-                if (value !== undefined && !Number.isNaN(value)) {
-                    cleaned[key] = value;
-                } else if (Number.isNaN(value) && key === 'duracion') {
-                    cleaned[key] = 0;
-                }
+            // Si es null, undefined o no es un objeto, retornar como está
+            if (obj === null || obj === undefined) {
+                return undefined; // Firestore no acepta null/undefined
             }
-            return cleaned;
+            
+            // Si es un array
+            if (Array.isArray(obj)) {
+                return obj.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return cleanObjectForFirestore(item);
+                    }
+                    // Filtrar valores undefined y NaN del array
+                    if (item === undefined || Number.isNaN(item)) {
+                        return null; // Marcar para filtrar después
+                    }
+                    return item;
+                }).filter(item => item !== null); // Remover nulls (que fueron undefined/NaN)
+            }
+            
+            // Si es un objeto
+            if (typeof obj === 'object') {
+                const cleaned = {};
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        const value = obj[key];
+                        
+                        // Saltar valores undefined
+                        if (value === undefined) {
+                            continue;
+                        }
+                        
+                        // Manejo especial para NaN
+                        if (Number.isNaN(value)) {
+                            if (key === 'duracion') {
+                                cleaned[key] = 0;
+                            }
+                            continue;
+                        }
+                        
+                        // Si es un objeto anidado, limpiar recursivamente
+                        if (typeof value === 'object' && value !== null) {
+                            const cleanedValue = cleanObjectForFirestore(value);
+                            if (cleanedValue !== undefined) {
+                                cleaned[key] = cleanedValue;
+                            }
+                        } else {
+                            cleaned[key] = value;
+                        }
+                    }
+                }
+                return cleaned;
+            }
+            
+            return obj;
         }
 
         async function loadClasesList(selectedModulo = null) {
