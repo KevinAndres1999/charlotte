@@ -4050,7 +4050,7 @@
                 </div>
             </div>
 
-            <!-- Sistema de Cobros del Día -->
+            <!-- Sistema de Cobros del Día y Asistencias -->
             <div id="cobros" class="content-section">
                 <!-- Header Premium -->
                 <div style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%); border-radius: 20px; padding: 2rem; margin-bottom: 2rem; color: white; position: relative; overflow: hidden;">
@@ -4058,11 +4058,24 @@
                     <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
                     <div style="position: relative; z-index: 1;">
                         <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem; font-weight: 700;">
-                            <i class="fas fa-cash-register"></i> Cobros del Día
+                            <i class="fas fa-cash-register"></i> Cobros y Asistencias
                         </h2>
-                        <p style="margin: 0; opacity: 0.9;">Registra los pagos semanales de cada clase</p>
+                        <p style="margin: 0; opacity: 0.9;">Gestiona cobros de clases y registra asistencias</p>
                     </div>
                 </div>
+
+                <!-- Tabs Principales -->
+                <div style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 3px solid #e5e7eb;">
+                    <button onclick="cambiarSeccionCobros('cobros')" id="tab-seccion-cobros" style="flex: 1; padding: 1rem; background: #10b981; color: white; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid #059669;">
+                        <i class="fas fa-dollar-sign"></i> Cobros del Día
+                    </button>
+                    <button onclick="cambiarSeccionCobros('asistencias')" id="tab-seccion-asistencias" style="flex: 1; padding: 1rem; background: #f3f4f6; color: #374151; border: none; font-size: 1rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;">
+                        <i class="fas fa-clipboard-check"></i> Asistencias
+                    </button>
+                </div>
+
+                <!-- SECCIÓN: COBROS DEL DÍA -->
+                <div id="seccion-cobros-content">
 
                 <!-- Resumen del Día -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
@@ -4185,6 +4198,93 @@
                             <h4 style="margin: 0;"><i class="fas fa-history"></i> Historial de Clases y Cobros</h4>
                         </div>
                         <div id="cobros-historial-lista" style="padding: 1rem; max-height: 400px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- SECCIÓN: ASISTENCIAS -->
+                <div id="seccion-asistencias-content" style="display: none;">
+                    <!-- Resumen de Asistencias -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #10b981;">
+                            <p style="margin: 0; font-size: 0.75rem; color: #065f46; font-weight: 600;">TOTAL ESPERADOS</p>
+                            <h3 id="asist-total-esperados" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #064e3b;">0</h3>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #059669;">
+                            <p style="margin: 0; font-size: 0.75rem; color: #065f46; font-weight: 600;">PRESENTES</p>
+                            <h3 id="asist-presentes" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #047857;">0</h3>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #ef4444;">
+                            <p style="margin: 0; font-size: 0.75rem; color: #991b1b; font-weight: 600;">AUSENTES</p>
+                            <h3 id="asist-ausentes" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #7f1d1d;">0</h3>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; padding: 1rem; border-left: 4px solid #f59e0b;">
+                            <p style="margin: 0; font-size: 0.75rem; color: #92400e; font-weight: 600;">JUSTIFICADAS</p>
+                            <h3 id="asist-justificadas" style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #78350f;">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Registro de Asistencia -->
+                    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 1.5rem 0; color: #1e3a8a;"><i class="fas fa-clipboard-check"></i> Registrar Asistencia</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Fecha</label>
+                                <input type="date" id="asist-fecha" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Sede</label>
+                                <select id="asist-sede" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                                    <option value="">Seleccionar sede</option>
+                                    <option value="Carapungo">Carapungo</option>
+                                    <option value="Sangolquí">Sangolquí</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Horario</label>
+                                <select id="asist-horario" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                                    <option value="">Seleccionar horario</option>
+                                    <option value="Sábado Matutina">Sábado Matutina</option>
+                                    <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                    <option value="Domingo Matutina">Domingo Matutina</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Programa</label>
+                                <select id="asist-programa" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                                    <option value="">Seleccionar programa</option>
+                                    <option value="Panadería">Panadería</option>
+                                    <option value="Belleza">Belleza</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #374151; font-weight: 600; margin-bottom: 0.5rem;">Tema de la Clase</label>
+                                <input type="text" id="asist-tema" placeholder="Ej: Pan de Yema" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem;">
+                            </div>
+                            <div style="display: flex; align-items: flex-end;">
+                                <button onclick="cargarEstudiantesParaAsistencia()" style="width: 100%; padding: 0.75rem 1rem; background: #8b5cf6; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600;">
+                                    <i class="fas fa-users"></i> Cargar Estudiantes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Estudiantes para Asistencia -->
+                    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 1rem 1.5rem; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                            <h4 style="margin: 0;"><i class="fas fa-list-check"></i> Estudiantes</h4>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button onclick="marcarTodosPresentes()" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                    <i class="fas fa-check-double"></i> Todos Presentes
+                                </button>
+                                <button onclick="guardarAsistencias()" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                                    <i class="fas fa-save"></i> Guardar Asistencias
+                                </button>
+                            </div>
+                        </div>
+                        <div id="asist-lista-estudiantes" style="padding: 1rem; max-height: 600px; overflow-y: auto;">
+                            <p style="text-align: center; color: #6b7280;">Selecciona fecha, sede, horario y programa para cargar estudiantes</p>
+                        </div>
                     </div>
                 </div>
             </div>

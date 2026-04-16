@@ -1302,6 +1302,412 @@ async function confirmarGuardarTema(fechaStr) {
     }
 }
 
+// =================== ASISTENCIAS ===================
+
+function cambiarSeccionCobros(seccion) {
+    const tabCobros = document.getElementById('tab-seccion-cobros');
+    const tabAsistencias = document.getElementById('tab-seccion-asistencias');
+    const contenidoCobros = document.getElementById('seccion-cobros-content');
+    const contenidoAsistencias = document.getElementById('seccion-asistencias-content');
+
+    if (seccion === 'cobros') {
+        tabCobros.style.background = '#10b981';
+        tabCobros.style.color = 'white';
+        tabCobros.style.borderBottom = '3px solid #059669';
+        
+        tabAsistencias.style.background = '#f3f4f6';
+        tabAsistencias.style.color = '#374151';
+        tabAsistencias.style.borderBottom = '3px solid transparent';
+        
+        contenidoCobros.style.display = 'block';
+        contenidoAsistencias.style.display = 'none';
+    } else if (seccion === 'asistencias') {
+        tabCobros.style.background = '#f3f4f6';
+        tabCobros.style.color = '#374151';
+        tabCobros.style.borderBottom = '3px solid transparent';
+        
+        tabAsistencias.style.background = '#8b5cf6';
+        tabAsistencias.style.color = 'white';
+        tabAsistencias.style.borderBottom = '3px solid #7c3aed';
+        
+        contenidoCobros.style.display = 'none';
+        contenidoAsistencias.style.display = 'block';
+    }
+}
+
+async function cargarEstudiantesParaAsistencia() {
+    const fecha = document.getElementById('asist-fecha')?.value;
+    const sede = document.getElementById('asist-sede')?.value;
+    const horario = document.getElementById('asist-horario')?.value;
+    const programa = document.getElementById('asist-programa')?.value;
+
+    if (!fecha || !sede || !horario || !programa) {
+        showToast('Por favor completa todos los campos', 'error');
+        return;
+    }
+
+    const lista = document.getElementById('asist-lista-estudiantes');
+    lista.innerHTML = '<p style="text-align: center; color: #6b7280;">Cargando estudiantes...</p>';
+
+    try {
+        // Cargar estudiantes de Firestore
+        const estudiantesQuery = query(
+            collection(db, 'estudiantes'),
+            where('programa', '==', programa),
+            where('sede', '==', sede),
+            where('horario', '==', horario)
+        );
+
+        const snapshot = await getDocs(estudiantesQuery);
+        const estudiantes = [];
+
+        snapshot.forEach(doc => {
+            estudiantes.push({
+                id: doc.id,
+                email: doc.data().email,
+                nombre: doc.data().nombre || 'Sin nombre',
+                ...doc.data()
+            });
+        });
+
+        // Actualizar contador
+        document.getElementById('asist-total-esperados').textContent = estudiantes.length;
+
+        // Renderizar lista de asistencia
+        if (estudiantes.length === 0) {
+            lista.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No hay estudiantes con estos criterios</p>';
+            return;
+        }
+
+        lista.innerHTML = estudiantes.map(est => `
+            <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <p style="margin: 0; font-weight: 600; color: #0f2138;">${est.nombre}</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">${est.email}</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select class="asist-estado" data-email="${est.email}" style="padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="presente" style="color: #10b981;">Presente</option>
+                        <option value="ausente" style="color: #ef4444;">Ausente</option>
+                        <option value="justificada" style="color: #f59e0b;">Justificada</option>
+                    </select>
+                    <input type="text" class="asist-observaciones" data-email="${est.email}" placeholder="Observaciones" style="padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; width: 150px;">
+                </div>
+            </div>
+        `).join('');
+
+        // Agregar listeners para actualizar contadores
+        document.querySelectorAll('.asist-estado').forEach(select => {
+            select.addEventListener('change', actualizarContadoresAsistencia);
+        });
+
+    } catch (error) {
+        console.error('Error cargando estudiantes:', error);
+        lista.innerHTML = `<p style="text-align: center; color: #ef4444; padding: 2rem;">Error al cargar estudiantes: ${error.message}</p>`;
+        showToast('Error al cargar estudiantes', 'error');
+    }
+}
+
+function actualizarContadoresAsistencia() {
+    const presentes = document.querySelectorAll('.asist-estado[value="presente"]').length;
+    const ausentes = document.querySelectorAll('.asist-estado[value="ausente"]').length;
+    const justificadas = document.querySelectorAll('.asist-estado[value="justificada"]').length;
+
+    document.getElementById('asist-presentes').textContent = presentes;
+    document.getElementById('asist-ausentes').textContent = ausentes;
+    document.getElementById('asist-justificadas').textContent = justificadas;
+}
+
+function marcarTodosPresentes() {
+    document.querySelectorAll('.asist-estado').forEach(select => {
+        select.value = 'presente';
+    });
+    actualizarContadoresAsistencia();
+}
+
+async function guardarAsistencias() {
+    const fecha = document.getElementById('asist-fecha')?.value;
+    const sede = document.getElementById('asist-sede')?.value;
+    const horario = document.getElementById('asist-horario')?.value;
+    const programa = document.getElementById('asist-programa')?.value;
+    const tema = document.getElementById('asist-tema')?.value;
+
+    if (!fecha || !sede || !horario || !programa) {
+        showToast('Por favor completa todos los campos obligatorios', 'error');
+        return;
+    }
+
+    const selects = document.querySelectorAll('.asist-estado');
+    if (selects.length === 0) {
+        showToast('No hay estudiantes cargados', 'error');
+        return;
+    }
+
+    try {
+        showToast('Guardando asistencias...', 'info');
+
+        // Preparar datos a guardar
+        const asistenciasGuardar = [];
+        selects.forEach(select => {
+            const email = select.getAttribute('data-email');
+            const estado = select.value;
+            const observaciones = document.querySelector(`.asist-observaciones[data-email="${email}"]`)?.value || '';
+
+            if (estado) {
+                asistenciasGuardar.push({
+                    estudianteEmail: email,
+                    fecha: new Date(fecha),
+                    sede: sede,
+                    horario: horario,
+                    programa: programa,
+                    claseNombre: tema || 'Clase',
+                    estado: estado,
+                    observaciones: observaciones,
+                    registradoEn: new Date(),
+                    registradoPor: admin.auth().currentUser?.email || 'admin'
+                });
+            }
+        });
+
+        // Guardar en Firestore
+        const batch = writeBatch(db);
+        asistenciasGuardar.forEach(asistencia => {
+            const docRef = doc(collection(db, 'asistencias'));
+            batch.set(docRef, asistencia);
+        });
+
+        await batch.commit();
+
+        showToast('Asistencias guardadas correctamente', 'success');
+
+        // Limpiar formulario
+        document.getElementById('asist-fecha').value = '';
+        document.getElementById('asist-sede').value = '';
+        document.getElementById('asist-horario').value = '';
+        document.getElementById('asist-programa').value = '';
+        document.getElementById('asist-tema').value = '';
+        document.getElementById('asist-lista-estudiantes').innerHTML = '<p style="text-align: center; color: #6b7280;">Selecciona fecha, sede, horario y programa para cargar estudiantes</p>';
+        document.getElementById('asist-total-esperados').textContent = '0';
+        document.getElementById('asist-presentes').textContent = '0';
+        document.getElementById('asist-ausentes').textContent = '0';
+        document.getElementById('asist-justificadas').textContent = '0';
+
+    } catch (error) {
+        console.error('Error guardando asistencias:', error);
+        showToast('Error al guardar asistencias', 'error');
+    }
+}
+
+// Exponer funciones globalmente
+window.cambiarSeccionCobros = cambiarSeccionCobros;
+window.cargarEstudiantesParaAsistencia = cargarEstudiantesParaAsistencia;
+window.marcarTodosPresentes = marcarTodosPresentes;
+window.guardarAsistencias = guardarAsistencias;
+
+// =================== ASISTENCIAS ===================
+
+function cambiarSeccionCobros(seccion) {
+    const tabCobros = document.getElementById('tab-seccion-cobros');
+    const tabAsistencias = document.getElementById('tab-seccion-asistencias');
+    const contenidoCobros = document.getElementById('seccion-cobros-content');
+    const contenidoAsistencias = document.getElementById('seccion-asistencias-content');
+
+    if (seccion === 'cobros') {
+        tabCobros.style.background = '#10b981';
+        tabCobros.style.color = 'white';
+        tabCobros.style.borderBottom = '3px solid #059669';
+        
+        tabAsistencias.style.background = '#f3f4f6';
+        tabAsistencias.style.color = '#374151';
+        tabAsistencias.style.borderBottom = '3px solid transparent';
+        
+        contenidoCobros.style.display = 'block';
+        contenidoAsistencias.style.display = 'none';
+    } else if (seccion === 'asistencias') {
+        tabCobros.style.background = '#f3f4f6';
+        tabCobros.style.color = '#374151';
+        tabCobros.style.borderBottom = '3px solid transparent';
+        
+        tabAsistencias.style.background = '#8b5cf6';
+        tabAsistencias.style.color = 'white';
+        tabAsistencias.style.borderBottom = '3px solid #7c3aed';
+        
+        contenidoCobros.style.display = 'none';
+        contenidoAsistencias.style.display = 'block';
+    }
+}
+
+async function cargarEstudiantesParaAsistencia() {
+    const fecha = document.getElementById('asist-fecha')?.value;
+    const sede = document.getElementById('asist-sede')?.value;
+    const horario = document.getElementById('asist-horario')?.value;
+    const programa = document.getElementById('asist-programa')?.value;
+
+    if (!fecha || !sede || !horario || !programa) {
+        showToast('Por favor completa todos los campos', 'error');
+        return;
+    }
+
+    const lista = document.getElementById('asist-lista-estudiantes');
+    lista.innerHTML = '<p style="text-align: center; color: #6b7280;">Cargando estudiantes...</p>';
+
+    try {
+        // Cargar estudiantes de Firestore
+        const estudiantesQuery = query(
+            collection(db, 'estudiantes'),
+            where('programa', '==', programa),
+            where('sede', '==', sede),
+            where('horario', '==', horario)
+        );
+
+        const snapshot = await getDocs(estudiantesQuery);
+        const estudiantes = [];
+
+        snapshot.forEach(doc => {
+            estudiantes.push({
+                id: doc.id,
+                email: doc.data().email,
+                nombre: doc.data().nombre || 'Sin nombre',
+                ...doc.data()
+            });
+        });
+
+        // Actualizar contador
+        document.getElementById('asist-total-esperados').textContent = estudiantes.length;
+
+        // Renderizar lista de asistencia
+        if (estudiantes.length === 0) {
+            lista.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No hay estudiantes con estos criterios</p>';
+            return;
+        }
+
+        lista.innerHTML = estudiantes.map(est => `
+            <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <p style="margin: 0; font-weight: 600; color: #0f2138;">${est.nombre}</p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">${est.email}</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <select class="asist-estado" data-email="${est.email}" style="padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="presente" style="color: #10b981;">Presente</option>
+                        <option value="ausente" style="color: #ef4444;">Ausente</option>
+                        <option value="justificada" style="color: #f59e0b;">Justificada</option>
+                    </select>
+                    <input type="text" class="asist-observaciones" data-email="${est.email}" placeholder="Observaciones" style="padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; width: 150px;">
+                </div>
+            </div>
+        `).join('');
+
+        // Agregar listeners para actualizar contadores
+        document.querySelectorAll('.asist-estado').forEach(select => {
+            select.addEventListener('change', actualizarContadoresAsistencia);
+        });
+
+    } catch (error) {
+        console.error('Error cargando estudiantes:', error);
+        lista.innerHTML = `<p style="text-align: center; color: #ef4444; padding: 2rem;">Error al cargar estudiantes: ${error.message}</p>`;
+        showToast('Error al cargar estudiantes', 'error');
+    }
+}
+
+function actualizarContadoresAsistencia() {
+    const presentes = document.querySelectorAll('.asist-estado[value="presente"]').length;
+    const ausentes = document.querySelectorAll('.asist-estado[value="ausente"]').length;
+    const justificadas = document.querySelectorAll('.asist-estado[value="justificada"]').length;
+
+    document.getElementById('asist-presentes').textContent = presentes;
+    document.getElementById('asist-ausentes').textContent = ausentes;
+    document.getElementById('asist-justificadas').textContent = justificadas;
+}
+
+function marcarTodosPresentes() {
+    document.querySelectorAll('.asist-estado').forEach(select => {
+        select.value = 'presente';
+    });
+    actualizarContadoresAsistencia();
+}
+
+async function guardarAsistencias() {
+    const fecha = document.getElementById('asist-fecha')?.value;
+    const sede = document.getElementById('asist-sede')?.value;
+    const horario = document.getElementById('asist-horario')?.value;
+    const programa = document.getElementById('asist-programa')?.value;
+    const tema = document.getElementById('asist-tema')?.value;
+
+    if (!fecha || !sede || !horario || !programa) {
+        showToast('Por favor completa todos los campos obligatorios', 'error');
+        return;
+    }
+
+    const selects = document.querySelectorAll('.asist-estado');
+    if (selects.length === 0) {
+        showToast('No hay estudiantes cargados', 'error');
+        return;
+    }
+
+    try {
+        showToast('Guardando asistencias...', 'info');
+
+        // Preparar datos a guardar
+        const asistenciasGuardar = [];
+        selects.forEach(select => {
+            const email = select.getAttribute('data-email');
+            const estado = select.value;
+            const observaciones = document.querySelector(`.asist-observaciones[data-email="${email}"]`)?.value || '';
+
+            if (estado) {
+                asistenciasGuardar.push({
+                    estudianteEmail: email,
+                    fecha: new Date(fecha),
+                    sede: sede,
+                    horario: horario,
+                    programa: programa,
+                    claseNombre: tema || 'Clase',
+                    estado: estado,
+                    observaciones: observaciones,
+                    registradoEn: new Date(),
+                    registradoPor: admin.auth().currentUser?.email || 'admin'
+                });
+            }
+        });
+
+        // Guardar en Firestore
+        const batch = writeBatch(db);
+        asistenciasGuardar.forEach(asistencia => {
+            const docRef = doc(collection(db, 'asistencias'));
+            batch.set(docRef, asistencia);
+        });
+
+        await batch.commit();
+
+        showToast('Asistencias guardadas correctamente', 'success');
+
+        // Limpiar formulario
+        document.getElementById('asist-fecha').value = '';
+        document.getElementById('asist-sede').value = '';
+        document.getElementById('asist-horario').value = '';
+        document.getElementById('asist-programa').value = '';
+        document.getElementById('asist-tema').value = '';
+        document.getElementById('asist-lista-estudiantes').innerHTML = '<p style="text-align: center; color: #6b7280;">Selecciona fecha, sede, horario y programa para cargar estudiantes</p>';
+        document.getElementById('asist-total-esperados').textContent = '0';
+        document.getElementById('asist-presentes').textContent = '0';
+        document.getElementById('asist-ausentes').textContent = '0';
+        document.getElementById('asist-justificadas').textContent = '0';
+
+    } catch (error) {
+        console.error('Error guardando asistencias:', error);
+        showToast('Error al guardar asistencias', 'error');
+    }
+}
+
+// Exponer funciones globalmente
+window.cambiarSeccionCobros = cambiarSeccionCobros;
+window.cargarEstudiantesParaAsistencia = cargarEstudiantesParaAsistencia;
+window.marcarTodosPresentes = marcarTodosPresentes;
+window.guardarAsistencias = guardarAsistencias;
+
 // Exportar el módulo
 const cobrosModule = {
     // Estado
