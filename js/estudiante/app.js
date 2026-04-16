@@ -3305,6 +3305,7 @@ function openModal(type, id, esInteractiva = false) {
 }
 
 function closeModal() {
+    detenerAutoguardado(); // BLOQUE 2: Detener autoguardado al cerrar
     document.getElementById('detailModal').style.display = 'none';
 }
 
@@ -3312,6 +3313,7 @@ function closeModal() {
 window.onclick = function(event) {
     const modal = document.getElementById('detailModal');
     if (event.target == modal) {
+        detenerAutoguardado(); // BLOQUE 2: Detener autoguardado
         modal.style.display = 'none';
     }
 }
@@ -4645,7 +4647,8 @@ async function loadActividadDetail(id) {
                             ${!actividad.entrega || !actividad.entrega.calificada ? '<button class="btn-modal btn-primary-modal" onclick="submitEntrega(\'' + id + '\')"><i class="fas fa-paper-plane"></i> Entregar Actividad</button>' : '<div class="entrega-calificada-msg"><i class="fas fa-check-circle"></i> Esta actividad ya ha sido calificada y no se puede modificar.</div>'}
                         </div>
                         <div class="entrega-info">
-                            <small><i class="fas fa-info-circle"></i> Tu entrega se guardará automáticamente como borrador cada 30 segundos</small>
+                            <small><i class="fas fa-info-circle"></i> Tu entrega se guardará automáticamente cada 10 segundos</small>
+                            <small id="autoguardado-indicator" style="display: block; margin-top: 5px; color: #666; font-weight: 500;">⏳ Preparando autoguardado...</small>
                         </div>
                     </div>
 
@@ -4740,48 +4743,43 @@ async function loadActividadDetail(id) {
                             toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
                             extraPlugins: [Base64UploadAdapterPlugin]
                         })
-                        .then(editor => {
+                        .then(async editor => {
                             entregaEditor = editor;
                             
-                            // Método para mostrar advertencia de almacenamiento
-                            editor.showStorageWarning = () => {
-                                const warning = document.createElement('div');
-                                warning.innerHTML = `
-                                    <div style="position: fixed; top: 20px; right: 20px; background: #f59e0b; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; max-width: 300px; font-size: 14px;">
-                                        <strong>⚠️ Almacenamiento lleno</strong><br>
-                                        El borrador es muy grande. Considera reducir el número de imágenes o guardar manualmente.
-                                        <button onclick="this.parentElement.remove()" style="margin-top: 10px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Cerrar</button>
-                                    </div>
-                                `;
-                                document.body.appendChild(warning);
-                                setTimeout(() => {
-                                    if (warning.parentElement) {
-                                        warning.remove();
-                                    }
-                                }, 10000);
-                            };
+                            // === BLOQUE 2: AUTOGUARDADO FIRESTORE ===
+                            console.log(`📝 Inicializando editor para actividad ${id}`);
                             
-                            // Cargar borrador guardado
-                            const borrador = localStorage.getItem(`borrador-${id}`);
+                            // VALIDAR PREREQUISITOS
+                            const prereqsCumplidos = await validarPrerrequisitos(id);
+                            if (!prereqsCumplidos) {
+                                console.warn(`❌ Prerequisitos no cumplidos para actividad ${id}`);
+                                // Bloquear editor si faltan prerrequisitos
+                                editor.isReadOnly = true;
+                                const indicador = document.getElementById('autoguardado-indicator');
+                                if (indicador) {
+                                    indicador.innerHTML = '<span style="color: #ef4444;">❌ <strong>Debes completar las clases prerequisito antes de esta actividad</strong></span>';
+                                }
+                            }
+                            
+                            // RECUPERAR BORRADOR
+                            const borrador = await recuperarBorrador(id);
                             if (borrador) {
+                                console.log(`✅ Cargando borrador guardado previamente`);
                                 editor.setData(borrador);
                             }
                             
-                            // Auto-guardado cada 30 segundos
-                            setInterval(() => {
-                                try {
-                                    const content = editor.getData();
-                                    if (content.trim()) {
-                                        localStorage.setItem(`borrador-${id}`, content);
-                                    }
-                                } catch (error) {
-                                    if (error.name === 'QuotaExceededError') {
-                                        console.warn('Contenido del borrador demasiado grande. Considera reducir imágenes o guardar manualmente.');
-                                        // Mostrar notificación de advertencia
-                                        editor.showStorageWarning();
-                                    }
+                            // INICIAR AUTOGUARDADO CADA 10 SEGUNDOS
+                            iniciarAutoguardado(id);
+                            
+                            // Guardar manualmente cuando el usuario abandone el editor
+                            editor.editing.view.document.on('change:data', () => {
+                                // Actualizar indicador cada que escribe
+                                const indicador = document.getElementById('autoguardado-indicator');
+                                if (indicador && ultimoGuardado && (Date.now() - ultimoGuardado > 5000)) {
+                                    indicador.textContent = '⏳ Último guardado hace ' + Math.round((Date.now() - ultimoGuardado) / 1000) + ' segundos';
+                                    indicador.style.color = '#666';
                                 }
-                            }, 30000);
+                            });
                         })
                         .catch(error => {
                             console.error('Error inicializando editor:', error);
@@ -5037,8 +5035,11 @@ async function submitEntrega(actividadId) {
             tiempoEstimado: actividadData.tiempoEstimado || null
         });
         
-        // Limpiar borrador
+        // === BLOQUE 2: LIMPIAR AUTOGUARDADO ===
+        detenerAutoguardado();
+        await limpiarBorrador(actividadId);
         localStorage.removeItem(`borrador-${actividadId}`);
+        
         alert('Entrega enviada exitosamente');
         closeModal();
         // Recargar actividades para actualizar estado
@@ -5213,6 +5214,186 @@ window.filterMaterialesByCategory = filterMaterialesByCategory;
 window.filterMateriales = filterMateriales;
 window.markAsDownloaded = markAsDownloaded;
 window.isValidUrl = isValidUrl;
+
+// ============================================
+// BLOQUE 2: AUTOGUARDADO EN FIRESTORE + VALIDACIÓN PRERREQUISITOS
+// ============================================
+
+// Estado global para autoguardado
+let autoguardadoInterval = null;
+let ultimoGuardado = null;
+let actividadEnEdicion = null;
+
+async function iniciarAutoguardado(actividadId) {
+    actividadEnEdicion = actividadId;
+    ultimoGuardado = Date.now();
+    
+    // Limpiar intervalo anterior si existe
+    if (autoguardadoInterval) clearInterval(autoguardadoInterval);
+    
+    // Autoguardar cada 10 segundos
+    autoguardadoInterval = setInterval(() => {
+        guardarBorrador(actividadId, true); // true = es autoguardado
+    }, 10000);
+    
+    console.log(`✅ Autoguardado iniciado para actividad: ${actividadId}`);
+}
+
+function detenerAutoguardado() {
+    if (autoguardadoInterval) {
+        clearInterval(autoguardadoInterval);
+        autoguardadoInterval = null;
+    }
+    console.log(`⏹️ Autoguardado detenido`);
+}
+
+async function guardarBorrador(actividadId, esAutoguardado = false) {
+    if (!entregaEditor) {
+        console.warn('Editor no inicializado');
+        return;
+    }
+    
+    const content = entregaEditor.getData();
+    if (!content.trim()) return; // No guardar si está vacío
+    
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        // Mostrar indicador de guardando
+        const indicador = document.getElementById('autoguardado-indicator');
+        if (indicador) {
+            indicador.textContent = '💾 Guardando...';
+            indicador.style.color = '#f59e0b';
+        }
+        
+        // Guardar en Firestore bajo /borradores/{userId}/{actividadId}
+        const borradorRef = doc(db, 'borradores', currentUser.uid, 'actividades', actividadId);
+        await setDoc(borradorRef, {
+            contenido: content,
+            actividadId: actividadId,
+            usuarioID: currentUser.uid,
+            usuarioEmail: currentUser.email,
+            fechaGuardado: new Date().toISOString(),
+            esAutoguardado: esAutoguardado
+        }, { merge: true }); // merge=true para no sobrescribir otros campos
+        
+        ultimoGuardado = Date.now();
+        
+        // Actualizar indicador
+        if (indicador) {
+            indicador.textContent = '✅ Guardado hace unos segundos';
+            indicador.style.color = '#10b981';
+        }
+        
+        // Ocultar después de 3 segundos
+        if (!esAutoguardado) {
+            setTimeout(() => {
+                if (indicador) indicador.textContent = '';
+            }, 3000);
+        }
+        
+        console.log(`✅ Borrador guardado en Firestore (${esAutoguardado ? 'automático' : 'manual'})`);
+        
+    } catch (error) {
+        console.error('Error al guardar borrador:', error);
+        
+        const indicador = document.getElementById('autoguardado-indicator');
+        if (indicador) {
+            indicador.textContent = '❌ Error al guardar';
+            indicador.style.color = '#ef4444';
+        }
+        
+        // Si es QuotaExceededError del navegador, intentar con localStorage como backup
+        if (error.message.includes('Quota')) {
+            try {
+                localStorage.setItem(`borrador-${actividadId}`, content);
+                console.warn('⚠️ Guardado en localStorage como backup');
+            } catch(e) {
+                console.error('No se pudo guardar ni en Firestore ni en localStorage');
+            }
+        }
+    }
+}
+
+async function recuperarBorrador(actividadId) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return null;
+        
+        // Intentar obtener de Firestore  
+        const borradorRef = doc(db, 'borradores', currentUser.uid, 'actividades', actividadId);
+        const borradorSnap = await getDoc(borradorRef);
+        
+        if (borradorSnap.exists()) {
+            const borrador = borradorSnap.data();
+            const fechaGuardado = new Date(borrador.fechaGuardado);
+            console.log(`📝 Borrador recuperado (guardado: ${fechaGuardado.toLocaleString()})`);
+            return borrador.contenido;
+        }
+        
+        // Fallback a localStorage
+        const borradorLocal = localStorage.getItem(`borrador-${actividadId}`);
+        if (borradorLocal) {
+            console.log(`📝 Borrador recuperado de localStorage`);
+            return borradorLocal;
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Error al recuperar borrador:', error);
+        return null;
+    }
+}
+
+async function validarPrerrequisitos(actividadId) {
+    try {
+        // Obtener la actividad para ver qué clase requiere
+        const docRef = doc(db, 'activities', actividadId);
+        const docSnap = await getDoc(docRef);
+        
+        if (!docSnap.exists()) return true;
+        
+        const actividad = docSnap.data();
+        
+        // Si la actividad tiene una clase asociada, validar ese prerequisito
+        if (actividad.claseId) {
+            const claseCompletada = localStorage.getItem(`clase-${actividad.claseId}-completed`) === 'true';
+            
+            if (!claseCompletada) {
+                console.warn(`⚠️ Prerequisito no cumplido: Debes completar la clase antes`);
+                return false;
+            }
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error validando prerequisitos:', error);
+        return true; // Por la duda, permitir
+    }
+}
+
+async function limpiarBorrador(actividadId) {
+    try {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+        if (!currentUser.uid) return;
+        
+        const borradorRef = doc(db, 'borradores', currentUser.uid, 'actividades', actividadId);
+        await deleteDoc(borradorRef);
+        
+        localStorage.removeItem(`borrador-${actividadId}`);
+        
+        console.log(`🗑️ Borrador eliminado`);
+    } catch (error) {
+        console.error('Error limpiando borrador:', error);
+    }
+}
+
+window.iniciarAutoguardado = iniciarAutoguardado;
+window.detenerAutoguardado = detenerAutoguardado;
+window.recuperarBorrador = recuperarBorrador;
+window.validarPrerrequisitos = validarPrerrequisitos;
+window.limpiarBorrador = limpiarBorrador;
 window.validateAndFixMaterialUrls = validateAndFixMaterialUrls;
 window.navigateClase = navigateClase;
 window.getClaseIndex = getClaseIndex;
