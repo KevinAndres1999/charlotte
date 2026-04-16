@@ -271,9 +271,12 @@ function renderCobrosEstudiantes() {
                             <i class="fas fa-times"></i>
                         </button>
                     ` : `
-                        <button onclick="cobrosModule.cobrarIndividual('${user.id}')" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;" title="Marcar como pagado">
-                            <i class="fas fa-dollar-sign"></i> Cobrar
-                        </button>
+                        <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                            <button onclick="cobrarMonto('${user.id}', '16')" style="padding: 0.4rem 0.6rem; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;" title="Cobrar $16">$16</button>
+                            <button onclick="cobrarMonto('${user.id}', '35')" style="padding: 0.4rem 0.6rem; background: #06b6d4; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;" title="Cobrar $35">$35</button>
+                            <button onclick="cobrarMonto('${user.id}', '70')" style="padding: 0.4rem 0.6rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;" title="Cobrar $70">$70</button>
+                            <button onclick="abrirModalMontoPersonalizado('${user.id}')" style="padding: 0.4rem 0.6rem; background: #8b5cf6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: 600;" title="Monto personalizado"><i class="fas fa-plus"></i></button>
+                        </div>
                         <button onclick="cobrosModule.marcarPendiente('${user.id}')" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;" title="Marcar como pendiente">
                             <i class="fas fa-clock"></i> Pendiente
                         </button>
@@ -292,6 +295,93 @@ function renderCobrosEstudiantes() {
     }).join('');
     
     actualizarContadorCobrosSeleccionados();
+}
+
+// Cobrar con monto específico (botones rápidos desde lista)
+async function cobrarMonto(userId, montoFijo) {
+    const fecha = document.getElementById('cobros-fecha')?.value;
+    const tema = document.getElementById('cobros-tema')?.value || 'Clase semanal';
+    
+    if (!fecha) {
+        if (typeof showNotification === 'function') showNotification('Selecciona una fecha', 'warning');
+        return;
+    }
+    
+    try {
+        const userRef = db.collection('users').doc(userId);
+        const userDoc = await userRef.get();
+        const userData = userDoc.data();
+        
+        const monto = parseFloat(montoFijo);
+        
+        const historialPagos = userData.historialPagos || [];
+        historialPagos.push({
+            concepto: tema,
+            monto: monto,
+            estado: 'pagado',
+            fecha: new Date(fecha + 'T12:00:00').toISOString(),
+            registradoPor: 'admin',
+            sede: cobrosSedeActual,
+            horario: cobrosHorarioActual
+        });
+        
+        await userRef.update({ 
+            historialPagos,
+            estadoPagos: 'pagos_al_dia'
+        });
+        
+        // Actualizar datos locales
+        const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
+        if (userIndex !== -1) {
+            window.allApprovedUsers[userIndex].historialPagos = historialPagos;
+        }
+        
+        if (typeof showNotification === 'function') showNotification(`Cobro registrado: $${monto}`, 'success');
+        cargarEstudiantesCobros();
+    } catch (error) {
+        console.error('Error cobrando:', error);
+        if (typeof showNotification === 'function') showNotification('Error al registrar cobro', 'error');
+    }
+}
+
+// Abrir modal de monto personalizado desde lista
+function abrirModalMontoPersonalizado(userId) {
+    const user = window.allApprovedUsers.find(u => u.id === userId);
+    if (!user) return;
+    
+    const modalHtml = `
+        <div id="montoPersonalizadoModal" class="modal" style="display: block;">
+            <div class="modal-content" style="max-width: 350px;">
+                <div class="modal-header">
+                    <h2><i class="fas fa-dollar-sign"></i> Monto Personalizado</h2>
+                    <span class="close" onclick="document.getElementById('montoPersonalizadoModal').remove()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p><strong>${user.name}</strong></p>
+                    <div class="form-group" style="margin: 1.5rem 0;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Ingresa el monto a cobrar:</label>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-size: 1.25rem; color: #3b82f6;">$</span>
+                            <input 
+                                type="number" 
+                                id="montoPersonalizadoInput" 
+                                placeholder="0" 
+                                min="1" 
+                                step="0.01"
+                                style="flex: 1; padding: 0.75rem; border: 2px solid #3b82f6; border-radius: 8px; font-size: 1rem; outline: none;"
+                            >
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="text-align: right; padding: 1rem; border-top: 1px solid #eee;">
+                    <button onclick="document.getElementById('montoPersonalizadoModal').remove()" style="margin-right: 10px; padding: 0.75rem 1.25rem; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                    <button onclick="cobrarMonto('${userId}', document.getElementById('montoPersonalizadoInput').value); document.getElementById('montoPersonalizadoModal').remove();" style="padding: 0.75rem 1.25rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;"><i class="fas fa-save"></i> Cobrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.getElementById('montoPersonalizadoInput').focus();
 }
 
 // Marcar como pendiente
@@ -1730,6 +1820,27 @@ async function guardarAsistencias() {
     }
 }
 
+
+
+// Exponer funciones globalmente para acceso desde HTML
+window.cambiarSedeCobros = cambiarSedeCobros;
+window.cambiarHorarioCobros = cambiarHorarioCobros;
+window.cambiarProgramaCobros = cambiarProgramaCobros;
+window.cargarEstudiantesCobros = cargarEstudiantesCobros;
+window.cobrarIndividual = cobrarIndividual;
+window.cobrarMonto = cobrarMonto;
+window.abrirModalMontoPersonalizado = abrirModalMontoPersonalizado;
+window.cobrarSeleccionados = cobrarSeleccionados;
+window.marcarPendiente = marcarPendiente;
+window.quitarPago = quitarPagoFecha;
+window.editarTipoPagoUsuario = editarTipoPagoUsuario;
+window.guardarMontoPago = guardarMontoPago;
+window.renderTabla40Clases = renderTabla40Clases;
+window.toggleCobroSeleccion = toggleCobroSeleccion;
+window.abrirModalPagoTabla = abrirModalPagoTabla;
+window.guardarPagoTabla = guardarPagoTabla;
+window.eliminarPagoTabla = eliminarPagoTabla;
+window.verHistorialCobrosUsuario = verHistorialCobrosUsuario;
 
 // Exportar el módulo
 const cobrosModule = {
