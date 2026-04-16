@@ -242,9 +242,26 @@
 
         const firebaseConfig = window.FIREBASE_CONFIG;
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        let app, db, auth;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            // Si hay error en inicialización, intentar reinicializar sin persistencia
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                console.log('✅ Firebase re-initialized');
+            } catch (retryError) {
+                console.error('❌ Firebase re-initialization also failed:', retryError);
+                alert('Error al conectar con el servidor. Por favor recarga la página.');
+            }
+        }
 
         const registerForm = document.getElementById('registerForm');
         const messageDiv = document.getElementById('message');
