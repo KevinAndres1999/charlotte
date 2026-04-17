@@ -1906,4 +1906,5 @@ const cobrosModule = {
     temas: () => temasClasesGuardados
 };
 
-export default cobrosModule;
+// Exponer módulo globalmente
+window.cobrosModule = cobrosModule;
