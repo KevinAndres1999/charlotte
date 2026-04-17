@@ -22,12 +22,26 @@ let vistaTablaActiva = false;
 let temasClasesGuardados = {};
 
 // Inicializar sección de cobros
-function initCobrosSection() {
+async function initCobrosSection() {
     const fechaInput = document.getElementById('cobros-fecha');
     if (fechaInput) {
         const hoy = new Date();
         fechaInput.value = hoy.toISOString().split('T')[0];
     }
+    
+    // Esperar a que los usuarios estén disponibles
+    let intentos = 0;
+    while ((!window.allApprovedUsers || window.allApprovedUsers.length === 0) && intentos < 10) {
+        console.log(`Esperando usuarios... intento ${intentos + 1}/10`);
+        if (typeof loadUsuariosAprobados === 'function') {
+            await loadUsuariosAprobados();
+        }
+        if (!window.allApprovedUsers || window.allApprovedUsers.length === 0) {
+            await new Promise(resolve => setTimeout(resolve, 500)); // Esperar 500ms
+        }
+        intentos++;
+    }
+    
     cargarEstudiantesCobros();
 }
 
@@ -127,7 +141,16 @@ async function cargarEstudiantesCobros() {
         if (!window.allApprovedUsers || window.allApprovedUsers.length === 0) {
             if (typeof loadUsuariosAprobados === 'function') {
                 await loadUsuariosAprobados();
+            } else {
+                console.warn('loadUsuariosAprobados no está disponible');
             }
+        }
+        
+        // Verificar que window.allApprovedUsers está disponible
+        if (!window.allApprovedUsers || !Array.isArray(window.allApprovedUsers)) {
+            if (typeof showNotification === 'function') showNotification('No hay estudiantes cargados', 'warning');
+            container.innerHTML = '<p style="text-align: center; color: #6b7280;">No hay estudiantes disponibles. Por favor recarga la página.</p>';
+            return;
         }
         
         // Filtrar por sede, horario y programa
