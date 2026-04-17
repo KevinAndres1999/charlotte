@@ -5,12 +5,12 @@
  * Migrado desde admin.html (líneas 10456-11720)
  * 
  * Dependencias:
- * - Firebase Firestore (db)
+ * - Firebase Firestore (db - global desde admin.html)
  * - Variables globales: allApprovedUsers, temasClasesGuardados, showNotification
  */
 
-// Usar db global de admin.html
-const db = window.db;
+// Referencia a db global declarada en admin.html
+// No redeclarar aquí para evitar conflicto de variables
 
 // Estado del módulo
 let cobrosSedeActual = 'Carapungo';
@@ -308,7 +308,7 @@ async function cobrarMonto(userId, montoFijo) {
     }
     
     try {
-        const userRef = db.collection('users').doc(userId);
+        const userRef = window.window.db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
@@ -398,7 +398,7 @@ async function marcarPendiente(userId) {
     }
     
     try {
-        const userRef = db.collection('users').doc(userId);
+        const userRef = window.db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
@@ -451,7 +451,7 @@ async function quitarPagoFecha(userId, fechaStr) {
         const historial = user.historialPagos || [];
         const nuevoHistorial = historial.filter(p => !(p.fecha && p.fecha.split('T')[0] === fechaStr));
         
-        await db.collection('users').doc(userId).update({ historialPagos: nuevoHistorial });
+        await window.window.db.collection('users').doc(userId).update({ historialPagos: nuevoHistorial });
         
         // Actualizar local
         const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
@@ -521,7 +521,7 @@ async function guardarMontoPago(userId) {
     }
     
     try {
-        await db.collection('users').doc(userId).update({ 
+        await window.window.db.collection('users').doc(userId).update({ 
             montoPersonalizado: monto,
             tipoPago: 'personalizado'
         });
@@ -623,7 +623,7 @@ async function cobrarIndividual(userId) {
     }
     
     try {
-        const userRef = db.collection('users').doc(userId);
+        const userRef = window.db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
@@ -692,7 +692,7 @@ async function cobrarSeleccionados() {
     
     for (const userId of cobrosSeleccionados) {
         try {
-            const userRef = db.collection('users').doc(userId);
+            const userRef = window.db.collection('users').doc(userId);
             const userDoc = await userRef.get();
             const userData = userDoc.data();
             
@@ -1243,7 +1243,7 @@ async function guardarPagoTabla(userId, fechaStr, claseNum, estado, montoParam) 
     const tema = temas[fechaStr] || `Clase ${claseNum}`;
     
     try {
-        const userRef = db.collection('users').doc(userId);
+        const userRef = window.db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
@@ -1281,7 +1281,7 @@ async function eliminarPagoTabla(userId, fechaStr) {
     if (!confirmar) return;
     
     try {
-        const userRef = db.collection('users').doc(userId);
+        const userRef = window.db.collection('users').doc(userId);
         const userDoc = await userRef.get();
         const userData = userDoc.data();
         
@@ -1371,7 +1371,7 @@ function exportarTablaCompleta() {
 // Cargar temas de clases desde Firestore
 async function cargarTemasClases() {
     try {
-        const doc = await db.collection('config').doc('temasClases').get();
+        const doc = await window.window.db.collection('config').doc('temasClases').get();
         if (doc.exists) {
             temasClasesGuardados = doc.data() || {};
         }
@@ -1389,7 +1389,7 @@ async function guardarTemaClase(fechaStr, tema) {
     temasClasesGuardados[key][fechaStr] = tema;
     
     try {
-        await db.collection('config').doc('temasClases').set(temasClasesGuardados, { merge: true });
+        await window.window.db.collection('config').doc('temasClases').set(temasClasesGuardados, { merge: true });
         if (typeof showNotification === 'function') showNotification('Tema guardado', 'success');
     } catch (error) {
         console.error('Error guardando tema:', error);
@@ -1908,3 +1908,4 @@ const cobrosModule = {
 
 // Exponer módulo globalmente
 window.cobrosModule = cobrosModule;
+
