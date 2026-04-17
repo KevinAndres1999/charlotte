@@ -1875,7 +1875,7 @@ const cobrosModule = {
     
     // Tipo de pago
     editarTipoPago: editarTipoPagoUsuario,
-    guardarTipoPago: guardarTipoPago,
+    guardarTipoPago: guardarMontoPago,
     
     // Selección
     toggleSeleccion: toggleCobroSeleccion,
