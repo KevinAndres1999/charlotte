@@ -11022,7 +11022,20 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
         }
 
-                    }
+        // Cobros module loaded from cobros.js - no local variables needed
+
+        // ============================================
+        // HELPER GLOBAL: LIMPIAR OBJETOS PARA FIRESTORE (RECURSIVO)
+        // ============================================
+        
+        function cleanObjectForFirestore(obj) {
+            // Si es null, undefined o no es un objeto primitivo, retornar como está
+            if (obj === null || obj === undefined) return obj;
+            if (typeof obj !== 'object') return obj;
+            
+            // Si es un array
+            if (Array.isArray(obj)) {
+                return obj.map(item => {
                     // Filtrar valores undefined y NaN del array
                     if (item === undefined || Number.isNaN(item)) {
                         return null; // Marcar para filtrar después
