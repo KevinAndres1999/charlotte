@@ -1174,39 +1174,6 @@ Responde ONLY con las 3 nuevas opciones.`;
         }
     }
 
-    function showWelcomeMessage() {
-        // Obtener información del usuario registrado
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        if (currentUser && currentUser.programa) {
-            // Determinar automáticamente el programa basado en el registro del usuario
-            const programa = currentUser.programa.toLowerCase();
-            if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
-                userProgram = 'panaderia';
-            } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
-                userProgram = 'belleza';
-            } else {
-                userProgram = 'belleza'; // default
-            }
-
-            const programName = userProgram === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral';
-            addChatMessage(`¡Hola ${currentUser.name}! Soy Charlotte, tu tutora especializada en ${programName}. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Comenzaremos creando juntos el proyecto perfecto para tu emprendimiento.`, 'ai');
-            
-            // Guardar el programa determinado inmediatamente
-            saveProjectProgress();
-        } else {
-            // Fallback si no hay información del usuario
-            addChatMessage('¡Hola! Soy Charlotte, tu tutora para este proyecto. Estoy aquí para ayudarte a transformar tu idea en un plan de negocio claro y profesional. Para comenzar, ¿me podrías decir tu nombre?', 'ai');
-        }
-
-        // Mostrar primera pregunta después de un breve delay
-        setTimeout(() => {
-            // Iniciar con el Módulo 1, primer campo
-            currentModule = 1;
-            currentField = null;
-            showNextField();
-        }, 2000);
-    }
-
     function showProgressSummary() {
         // Asegurar que userProgram esté determinado si no se cargó
         if (!userProgram) {
@@ -1300,38 +1267,6 @@ Responde ONLY con las 3 nuevas opciones.`;
         });
     }
 
-    function handleNavigationCommand(command) {
-        const input = document.getElementById('projectInput');
-        const message = input.value.trim();
-        input.value = '';
-
-        if (command === 'siguiente' || command === 'continuar' || command === 'ok' || command === 'sí' || command === 'si' ||
-            command === 'claro' || command === 'por supuesto' || command === 'adelante' || command === 'siguiente módulo') {
-            if (currentModule < 7) {
-                currentModule++;
-                setProjectStep(currentModule);
-
-                const moduleNames = {
-                    1: 'PRESENTACIÓN',
-                    2: 'LA IDEA Y SU CORAZÓN',
-                    3: 'QUIÉN Y DÓNDE',
-                    4: 'CÓMO SE HARÁ',
-                    5: 'CÓMO SE DARÁ A CONOCER',
-                    6: 'NÚMEROS CLAVE',
-                    7: 'ARMADO DEL PROYECTO FINAL'
-                };
-
-                const moduleName = moduleNames[currentModule] || `MÓDULO ${currentModule}`;
-                addChatMessage(`✅ Avanzando al ${moduleName}...`, 'ai');
-            } else {
-                addChatMessage('🎉 ¡Felicitaciones! Has completado todos los módulos de tu proyecto empresarial. Tu proyecto está listo para ser presentado.', 'ai');
-                addChatMessage('Recuerda organizar toda la información en un documento formal con portada, índice, introducción, desarrollo por capítulos, conclusión y anexos.', 'ai');
-            }
-        } else if (command === 'no' || command === 'detener' || command === 'parar' || command === 'terminar') {
-            addChatMessage('Entendido. Puedes continuar cuando estés listo escribiendo "siguiente" o "continuar".', 'ai');
-        }
-    }
-
     async function sendProjectMessage() {
         const input = document.getElementById('projectInput');
         const message = input.value.trim();
@@ -1373,8 +1308,8 @@ Responde ONLY con las 3 nuevas opciones.`;
             return;
         }
 
-        // Manejar comandos del sistema de consultoría
-        handleConsultationCommand(message);
+        // Si no estamos esperando nada, ignorar el mensaje
+        console.log('Mensaje ignorado (no se esperaba respuesta):', message);
     }
 
     function processModifiedResponse(newResponse) {
@@ -4778,7 +4713,6 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.resetProject = resetProject;
     window.goToModule = goToModule;
     window.setProjectStep = setProjectStep;
-    window.handleNavigationCommand = handleNavigationCommand;
     window.saveProjectProgress = saveProjectProgress;
 
     // Exponer funciones de generación de plan de negocio al window (requerido por js/estudiante/modules/proyecto.js)
@@ -4805,19 +4739,11 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
         sendBtn.addEventListener('click', sendProjectMessage);
     }
 
-    // Configurar input del chat con navegación especial
+    // Configurar input del chat
     const input = document.getElementById('projectInput');
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            const message = input.value.trim().toLowerCase();
-            if (message === 'siguiente' || message === 'continuar' || message === 'ok' || message === 'sí' || message === 'si' ||
-                message === 'claro' || message === 'por supuesto' || message === 'adelante' || message === 'siguiente módulo' ||
-                message === 'no' || message === 'detener' || message === 'parar' || message === 'terminar') {
-                e.preventDefault();
-                handleNavigationCommand(message);
-                return;
-            }
-            // Si no es un comando especial, enviar mensaje normal
+            e.preventDefault();
             sendProjectMessage();
         }
     });
