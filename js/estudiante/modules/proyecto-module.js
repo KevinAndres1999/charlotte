@@ -4825,6 +4825,8 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.loadProjectData = loadProjectData;
     window.getStepDescription = getStepDescription;
     window.resetProject = resetProject;
+    window.goToModule = goToModule;
+    window.setProjectStep = setProjectStep;
 
     // Exponer funciones de generación de plan de negocio al window (requerido por js/estudiante/modules/proyecto.js)
     window.generateProjectWithAI = generateProjectWithAI;
