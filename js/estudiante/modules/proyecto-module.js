@@ -1333,13 +1333,6 @@ Responde ONLY con las 3 nuevas opciones.`;
     }
 
     async function sendProjectMessage() {
-        // Mostrar mensaje temporal en el chat para debug
-        const debugDiv = document.createElement('div');
-        debugDiv.className = 'chat-message system';
-        debugDiv.textContent = '🔧 DEBUG: sendProjectMessage iniciada...';
-        document.getElementById('projectChat').appendChild(debugDiv);
-        
-        console.log('DEBUG sendProjectMessage: Iniciando...');
         const input = document.getElementById('projectInput');
         const message = input.value.trim();
 
@@ -1374,72 +1367,10 @@ Responde ONLY con las 3 nuevas opciones.`;
 
         // Si estamos esperando decisión sobre mejora
         if (awaitingImprovement) {
-            // Analizar el mensaje del estudiante para entender su intención
-            showTypingIndicator();
-            try {
-                const apiKey = await getOpenRouterApiKey();
-                const intentPrompt = `Eres un analizador de intenciones de mensajes. Analiza el siguiente mensaje del estudiante y determina qué está pidiendo.
-
-Mensaje del estudiante: "${message}"
-
-Opciones de intención (responde SOLO con una):
-1. NUMERO - Si es una elección de opción (1, 2, 3)
-2. CONTINUAR - Si quiere guardar su respuesta original y continuar
-3. ORIGINAL - Si escribe "original" para mantener su respuesta escrita sin cambios
-4. REVISAR - Si quiere ver o revisar su respuesta original
-5. MODIFICAR - Si quiere cambiar o modificar su respuesta
-6. MAS_OPCIONES - Si pide más opciones, opciones diferentes, o similares
-7. OTRO - Si es cualquier otra petición o pregunta
-
-Responde SOLO con una palabra: NUMERO, CONTINUAR, ORIGINAL, REVISAR, MODIFICAR, MAS_OPCIONES, u OTRO.`;
-
-                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'google/gemini-2.0-flash-001',
-                        messages: [{ role: 'user', content: intentPrompt }],
-                        max_tokens: 50,
-                        temperature: 0.3
-                    })
-                });
-
-                const data = await response.json();
-                const intent = data.choices[0].message.content.trim().toUpperCase();
-
-                hideTypingIndicator();
-                console.log('Intención detectada:', intent);
-
-                // Procesar según la intención detectada
-                if (intent.includes('NUMERO')) {
-                    // Es un número - procesar como elección de opción
-                    handleConsultationCommand(message);
-                } else if (intent.includes('MAS_OPCIONES')) {
-                    // Pide más opciones
-                    await showMoreOptions();
-                } else if (intent.includes('CONTINUAR') || intent.includes('ORIGINAL')) {
-                    // Guardar respuesta original y continuar
-                    handleConsultationCommand('continuar');
-                } else if (intent.includes('REVISAR')) {
-                    // Revisar respuesta original
-                    handleConsultationCommand('revisar');
-                } else if (intent.includes('MODIFICAR')) {
-                    // Modificar respuesta
-                    handleConsultationCommand('modificar');
-                } else {
-                    // Es otro tipo de mensaje - intentar procesar como comando o responder
-                    handleConsultationCommand(message);
-                }
-                return;
-            } catch (error) {
-                hideTypingIndicator();
-                // En caso de error, procesar como comando normal
-                handleConsultationCommand(message);
-                return;
-            }
+            // El usuario ha elegido una opción (1, 2, 3), "original", "modificar", etc.
+            // Procesar directamente sin análisis de IA
+            handleConsultationCommand(message);
+            return;
         }
 
         // Manejar comandos del sistema de consultoría
