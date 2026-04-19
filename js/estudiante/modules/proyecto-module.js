@@ -206,28 +206,26 @@ export function init(db) {
         currentModule = 1;
         currentField = null;
 
-        // Solo mostrar mensaje de bienvenida si es una conversación nueva (sin mensajes previos)
-        if (!projectConversations || projectConversations.length === 0) {
-            const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-            
-            // Determinar el programa basado en el usuario actual
-            let programName = 'Belleza Integral'; // default
-            if (currentUser && currentUser.programa) {
-                const programa = currentUser.programa.toLowerCase();
-                if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
-                    programName = 'Panadería y Pastelería';
-                } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
-                    programName = 'Belleza Integral';
-                }
+        // Mostrar mensaje de bienvenida SIN PREGUNTA
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+        
+        // Determinar el programa basado en el usuario actual
+        let programName = 'Belleza Integral'; // default
+        if (currentUser && currentUser.programa) {
+            const programa = currentUser.programa.toLowerCase();
+            if (programa.includes('panader') || programa.includes('pasteler') || programa.includes('panadería') || programa.includes('pastelería')) {
+                programName = 'Panadería y Pastelería';
+            } else if (programa.includes('bellez') || programa.includes('estetic') || programa.includes('belleza')) {
+                programName = 'Belleza Integral';
             }
-
-            addChatMessage(`¡Hola ${currentUser?.name || 'estudiante'}! Soy Charlotte, tu consultora especializada en emprendimiento para ${programName}. Vamos a crear juntos tu proyecto de negocio paso a paso. Te haré preguntas específicas y te daré consejos profesionales para que desarrolles un plan sólido. Comenzaremos con el Módulo 1: Identificación del Negocio. ¿Estás listo para empezar?`, 'ai');
         }
 
-        // Mostrar el primer campo
+        addChatMessage(`¡Hola ${currentUser?.name || 'estudiante'}! Soy Charlotte, tu consultora especializada en emprendimiento para ${programName}. Vamos a crear juntos tu proyecto de negocio paso a paso, desarrollando un plan sólido y profesional.`, 'ai');
+
+        // Mostrar el primer campo INMEDIATAMENTE sin delay
         setTimeout(() => {
             showNextField();
-        }, 2000);
+        }, 1000);
     }
 
     function showNextField() {
