@@ -4827,6 +4827,8 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.resetProject = resetProject;
     window.goToModule = goToModule;
     window.setProjectStep = setProjectStep;
+    window.handleNavigationCommand = handleNavigationCommand;
+    window.saveProjectProgress = saveProjectProgress;
 
     // Exponer funciones de generación de plan de negocio al window (requerido por js/estudiante/modules/proyecto.js)
     window.generateProjectWithAI = generateProjectWithAI;
@@ -4883,4 +4885,6 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.startConsultation = startConsultation;
     window.showNextField = showNextField;
     window.processStudentResponse = processStudentResponse;
+    window.saveResponseAndContinue = saveResponseAndContinue;
+    window.getUserProgram = getUserProgram;
 }
