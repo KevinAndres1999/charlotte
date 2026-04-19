@@ -1184,7 +1184,10 @@ Responde ONLY con las 3 nuevas opciones.`;
 
         // Mostrar primera pregunta después de un breve delay
         setTimeout(() => {
-            askCurrentQuestion();
+            // Iniciar con el Módulo 1, primer campo
+            currentModule = 1;
+            currentField = null;
+            showNextField();
         }, 2000);
     }
 
@@ -1846,7 +1849,8 @@ Sé constructivo pero EXIGENTE - tu objetivo es crear proyectos PROFESIONALES de
             } else if (currentStep.type === 'question') {
                 // Mostrar la pregunta
                 addChatMessage(currentStep.message, 'ai');
-                // Esperar respuesta del estudiante
+                // Marcar que estamos esperando respuesta del estudiante
+                awaitingStudentResponse = true;
             } else if (currentStep.type === 'analysis') {
                 // Este step se maneja después de recibir la respuesta del estudiante
                 // No debería llegar aquí en askCurrentQuestion
