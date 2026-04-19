@@ -1,8 +1,14 @@
 import { getDoc, setDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
 export function init(db) {
-    // Alias para API key del core
-    const getOpenRouterApiKey = () => window.getOpenRouterApiKey ? window.getOpenRouterApiKey() : Promise.resolve('');
+    // Usar getOpenRouterApiKey de window (definida en app.js)
+    // Si no está disponible, retornar vacío
+    const getOpenRouterApiKey = async () => {
+        if (window.getOpenRouterApiKey && typeof window.getOpenRouterApiKey === 'function') {
+            return await window.getOpenRouterApiKey();
+        }
+        return '';
+    };
 
     // =================== SISTEMA DE CHAT CONVERSACIONAL ===================
     let projectData = {};
@@ -483,7 +489,13 @@ Responde ONLY con las 3 mejoras de la respuesta original.`;
 
             if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
                 hideTypingIndicator();
-                addChatMessage('❌ La IA no está configurada. Tu respuesta será guardada.', 'ai');
+                addChatMessage('✅ Tu respuesta ha sido guardada correctamente.', 'ai');
+                awaitingImprovement = false;
+                currentSuggestion = null;
+                // Continuar al siguiente campo después de un delay
+                setTimeout(() => {
+                    showNextField();
+                }, 1500);
                 return;
             }
 
@@ -542,7 +554,13 @@ Responde ONLY con las 3 mejoras de la respuesta original.`;
         } catch (error) {
             console.error('Error analizando respuesta:', error);
             hideTypingIndicator();
-            addChatMessage('❌ Error al analizar. Tu respuesta ha sido guardada.', 'ai');
+            addChatMessage('✅ Tu respuesta ha sido guardada correctamente.', 'ai');
+            awaitingImprovement = false;
+            currentSuggestion = null;
+            // Continuar al siguiente campo después de un delay
+            setTimeout(() => {
+                showNextField();
+            }, 1500);
         }
     }
     
