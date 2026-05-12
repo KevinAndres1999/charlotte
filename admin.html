@@ -15223,7 +15223,7 @@ GENERA MÍNIMO 8-10 SECCIONES SIMILARES CON TODO EL CONTENIDO DEL TEMA"
 7. USA colores específicos (#667eea, #3b82f6, #10b981, #f59e0b, etc.)
 8. NUNCA generes texto plano sin HTML
 9. COPIA exactamente el estilo de los ejemplos
-10. Responde SOLO JSON válido sin markdown`;`
+10. Responde SOLO JSON válido sin markdown`;
 
             console.log('Enviando prompt personalizado a OpenRouter...');
 
@@ -15625,43 +15625,6 @@ REGLAS CRÍTICAS:
             // === BLOQUE 7: Conectar preview ===
             setupPreviewSync();
             showSyncIndicator();
-            
-            return; // No inicializar CKEditor
-            
-            /* CÓDIGO ANTERIOR CON CKEDITOR (deshabilitado)
-            // Verificar si CKEditor está disponible
-            if (typeof ClassicEditor === 'undefined') {
-                editorContainer.innerHTML = contenido;
-                console.warn('CKEditor no disponible, mostrando HTML plano');
-                return;
-            }
-
-            try {
-                claseEditorIA = await ClassicEditor.create(editorContainer, {
-                    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo', '|', 'sourceEditing'],
-                    extraPlugins: [Base64UploadAdapterPlugin],
-                    initialData: contenido,
-                    htmlSupport: {
-                        allow: [
-                            {
-                                name: /.*/,
-                                attributes: true,
-                                classes: true,
-                                styles: true
-                            }
-                        ]
-                    }
-                });
-                console.log('Editor de clase generada inicializado');
-                
-                // === BLOQUE 7: Conectar preview ===
-                setupPreviewSync();
-                showSyncIndicator();
-            } catch (error) {
-                console.error('Error inicializando editor:', error);
-                editorContainer.innerHTML = contenido;
-            }
-            */
         }
 
         // Funciones para insertar multimedia
