@@ -110,46 +110,133 @@ function actualizarDashboardUsuarios() {
 // Función para aprobar usuario
 async function aprobarUsuario(id) {
     try {
+        console.log('Aprobando usuario con ID:', id);
         const user = allPendingUsers.find(u => u.id === id);
         if (!user) {
-            alert('Usuario no encontrado');
+            alert('Error: Usuario no encontrado en solicitudes pendientes');
             return;
         }
 
-        // Pedir confirmación y permitir editar datos antes de aprobar
-        const nombre = prompt('Nombre del estudiante:', user.name || '');
-        if (nombre === null) return; // Canceló
-        
-        const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
-        if (programa === null) return;
-        
-        const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
-        if (sede === null) return;
-        
-        const horario = prompt('Horario (ej: Lunes a Viernes 8am-12pm):', user.horario || '');
-        if (horario === null) return;
-        
-        const telefono = prompt('Teléfono:', user.telefono || '');
-        if (telefono === null) return;
+        const data = user;
+        console.log('Datos del usuario a aprobar:', data);
 
-        // Validar que los campos requeridos no estén vacíos
-        if (!nombre.trim() || !programa.trim() || !sede.trim() || !horario.trim()) {
-            alert('Por favor completa todos los campos obligatorios (nombre, programa, sede, horario)');
+        // Mostrar modal para seleccionar sede y horario
+        const modalHtml = `
+            <div id="approvalModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+                <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-user-check"></i> Aprobar Usuario</h3>
+                            <button onclick="document.getElementById('approvalModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 2rem;">
+                        <div style="background: #ecfdf5; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #a7f3d0;">
+                            <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: #1f2937;">${data.name}</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${data.email}</p>
+                            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #059669;"><strong>Programa:</strong> ${data.programa}</p>
+                        </div>
+
+                        <div style="margin-bottom: 1.25rem;">
+                            <label for="userSede" style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt"></i> Seleccionar Sede</label>
+                            <select id="userSede" required style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Seleccionar sede</option>
+                                <option value="Carapungo">Carapungo</option>
+                                <option value="Sangolquí">Sangolquí</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.25rem;">
+                            <label for="userHorario" style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Seleccionar Horario</label>
+                            <select id="userHorario" required style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Seleccionar horario</option>
+                                <option value="Sábado Matutina">Sábado Matutina</option>
+                                <option value="Sábado Vespertina">Sábado Vespertina</option>
+                                <option value="Domingo Matutina">Domingo Matutina</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="estadoPagos" style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-money-bill-wave"></i> Estado de Pagos</label>
+                            <select id="estadoPagos" required style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="pagos_al_dia">Pagos al día</option>
+                                <option value="pagos_pendientes">Pagos pendientes</option>
+                            </select>
+                            <small style="color: #6b7280; font-size: 0.9rem; margin-top: 0.5rem; display: block;">Los estudiantes con pagos pendientes no podrán acceder a cuestionarios ni evaluaciones</small>
+                        </div>
+                    </div>
+                    <div style="padding: 1.5rem 2rem; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem;">
+                        <button onclick="document.getElementById('approvalModal').remove()" style="flex: 1; padding: 0.875rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            Cancelar
+                        </button>
+                        <button onclick="confirmarAprobacion('${id}')" style="flex: 2; padding: 0.875rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            <i class="fas fa-check"></i> Aprobar Usuario
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar el modal al body
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    } catch (error) {
+        console.error('Error approving user:', error);
+        alert('Error al aprobar usuario: ' + error.message);
+    }
+}
+
+async function confirmarAprobacion(id) {
+    const sede = document.getElementById('userSede').value;
+    const horario = document.getElementById('userHorario').value;
+    const estadoPagos = document.getElementById('estadoPagos').value;
+
+    if (!sede || !horario || !estadoPagos) {
+        alert('Por favor completa todos los campos (sede, horario y estado de pagos)');
+        return;
+    }
+
+    try {
+        console.log('Confirmando aprobación de usuario con ID:', id);
+        const user = allPendingUsers.find(u => u.id === id);
+        if (!user) {
+            alert('Error: Usuario no encontrado');
             return;
         }
 
-        // Confirmar aprobación
-        if (!confirm(`¿Aprobar a ${nombre} para el programa ${programa}?`)) return;
+        const data = user;
 
-        // Actualizar el documento existente en users (usamos el ID que es el firebaseUID)
-        const userDocId = user.firebaseUID || user.id || user.email;
-        
-        await updateDoc(doc(db, 'users', userDocId), {
-            name: nombre,
-            programa: programa,
+        // Verificar si el usuario ya existe en la colección users
+        const existingUserQuery = await getDocs(query(collection(db, 'users'),
+            where('email', '==', data.email),
+            where('role', '==', 'student')
+        ));
+
+        if (!existingUserQuery.empty) {
+            await deleteDoc(doc(db, 'pendingStudents', id));
+            await loadUsuariosPendientes();
+            await loadUsuariosAprobados();
+            alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
+            document.getElementById('approvalModal').remove();
+            return;
+        }
+
+        // Usar la contraseña registrada por el estudiante
+        const password = data.password;
+        if (!password || password.length < 6) {
+            alert('La contraseña del estudiante no es válida');
+            return;
+        }
+
+        // Guardar en users con sede, horario y estado de pagos
+        await addDoc(collection(db, 'users'), {
+            ...data,
             sede: sede,
             horario: horario,
-            telefono: telefono,
+            estadoPagos: estadoPagos,
+            password: password,
             role: 'student',
             status: 'cursando',
             approvedAt: new Date().toISOString(),
@@ -159,11 +246,14 @@ async function aprobarUsuario(id) {
         // Eliminar de pendingStudents
         await deleteDoc(doc(db, 'pendingStudents', id));
 
-        alert('✅ Usuario aprobado correctamente');
+        // Cerrar modal y recargar listas
+        document.getElementById('approvalModal').remove();
         await loadUsuariosPendientes();
         await loadUsuariosAprobados();
+        alert('✅ Usuario aprobado exitosamente');
+
     } catch (error) {
-        console.error('Error approving user:', error);
+        console.error('Error confirming approval:', error);
         alert('Error al aprobar usuario: ' + error.message);
     }
 }
@@ -763,6 +853,7 @@ function getProgramColor(program) {
 window.loadUsuariosPendientes = loadUsuariosPendientes;
 window.loadUsuariosAprobados = loadUsuariosAprobados;
 window.aprobarUsuario = aprobarUsuario;
+window.confirmarAprobacion = confirmarAprobacion;
 window.rechazarUsuario = rechazarUsuario;
 window.editarUsuarioPendiente = editarUsuarioPendiente;
 window.guardarEdicionUsuarioPendiente = guardarEdicionUsuarioPendiente;
@@ -780,6 +871,7 @@ window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
 console.log('✅ Módulo de Usuarios cargado completamente');
 console.log('✅ Funciones expuestas globalmente:', {
     aprobarUsuario: typeof window.aprobarUsuario,
+    confirmarAprobacion: typeof window.confirmarAprobacion,
     rechazarUsuario: typeof window.rechazarUsuario,
     editarUsuarioPendiente: typeof window.editarUsuarioPendiente,
     editarUsuarioAprobado: typeof window.editarUsuarioAprobado
@@ -791,6 +883,7 @@ const usuariosModule = {
     loadUsuariosPendientes,
     loadUsuariosAprobados,
     aprobarUsuario,
+    confirmarAprobacion,
     rechazarUsuario,
     editarUsuarioPendiente,
     guardarEdicionUsuarioPendiente,
@@ -809,6 +902,7 @@ const usuariosModule = {
         window.loadUsuariosPendientes = loadUsuariosPendientes;
         window.loadUsuariosAprobados = loadUsuariosAprobados;
         window.aprobarUsuario = aprobarUsuario;
+        window.confirmarAprobacion = confirmarAprobacion;
         window.rechazarUsuario = rechazarUsuario;
         window.editarUsuarioPendiente = editarUsuarioPendiente;
         window.guardarEdicionUsuarioPendiente = guardarEdicionUsuarioPendiente;
