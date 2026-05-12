@@ -3946,6 +3946,165 @@
             from { transform: translateX(0); opacity: 1; }
             to { transform: translateX(100%); opacity: 0; }
         }
+
+        /* === ESTILOS PARA CONTENIDO TIPO GAMMA.APP === */
+        .preview-content-area,
+        #clasePreviewContainer,
+        .clase-content-viewer,
+        #clase-viewer-content,
+        .ck-content {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Asegurar que los divs con estilos se vean correctamente */
+        .preview-content-area div[style*="background"],
+        #clasePreviewContainer div[style*="background"],
+        .clase-content-viewer div[style*="background"],
+        #clase-viewer-content div[style*="background"],
+        .ck-content div[style*="background"] {
+            margin: 1rem 0;
+            padding: 1.5rem;
+        }
+
+        /* Mejorar visualización de grids */
+        .preview-content-area div[style*="grid"],
+        #clasePreviewContainer div[style*="grid"],
+        .clase-content-viewer div[style*="grid"],
+        #clase-viewer-content div[style*="grid"],
+        .ck-content div[style*="grid"] {
+            display: grid !important;
+            gap: 1.5rem;
+        }
+
+        /* Responsive para grids de 2 columnas */
+        @media (max-width: 768px) {
+            .preview-content-area div[style*="grid-template-columns: 1fr 1fr"],
+            #clasePreviewContainer div[style*="grid-template-columns: 1fr 1fr"],
+            .clase-content-viewer div[style*="grid-template-columns: 1fr 1fr"],
+            #clase-viewer-content div[style*="grid-template-columns: 1fr 1fr"],
+            .ck-content div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Mejorar legibilidad de texto en fondos oscuros */
+        .preview-content-area div[style*="color: white"],
+        #clasePreviewContainer div[style*="color: white"],
+        .clase-content-viewer div[style*="color: white"],
+        #clase-viewer-content div[style*="color: white"],
+        .ck-content div[style*="color: white"] {
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Asegurar que los box-shadows se vean */
+        .preview-content-area div[style*="box-shadow"],
+        #clasePreviewContainer div[style*="box-shadow"],
+        .clase-content-viewer div[style*="box-shadow"],
+        #clase-viewer-content div[style*="box-shadow"],
+        .ck-content div[style*="box-shadow"] {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        }
+
+        /* Mejorar iconos/emojis en títulos */
+        .preview-content-area h2,
+        .preview-content-area h3,
+        #clasePreviewContainer h2,
+        #clasePreviewContainer h3,
+        .clase-content-viewer h2,
+        .clase-content-viewer h3,
+        #clase-viewer-content h2,
+        #clase-viewer-content h3,
+        .ck-content h2,
+        .ck-content h3 {
+            line-height: 1.4;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Panel de preview mejorado */
+        .preview-panel {
+            background: #f8fafc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-label {
+            background: #334155;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .preview-toolbar {
+            background: #475569;
+            padding: 0.5rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .preview-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .preview-content-area {
+            background: white;
+            padding: 2rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Scroll suave para preview */
+        .preview-content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .preview-content-area::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .preview-content-area::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        .preview-content-area::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Sync indicator */
+        .sync-indicator {
+            color: #10b981;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 
     <!-- PWA Manifest -->
@@ -14976,25 +15135,56 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         // Función para generar clase con prompt personalizado
         async function generarClaseConPromptPersonalizado(titulo, promptUsuario, textoBase, duracion, apiKey) {
-            const promptCompleto = `${promptUsuario}
+            const promptCompleto = `Eres un diseñador pedagógico experto que crea contenido educativo VISUAL y MODERNO estilo Gamma.app/Canva.
+
+INSTRUCCIÓN DEL USUARIO:
+${promptUsuario}
 
 TÍTULO DE LA CLASE: ${titulo}
 DURACIÓN ESTIMADA: ${duracion} minutos
-${textoBase ? `\nCONTENIDO/INFORMACIÓN BASE:\n${textoBase}` : ''}
+${textoBase ? `CONTENIDO/INFORMACIÓN BASE:\n${textoBase}` : ''}
 
 FORMATO DE RESPUESTA OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
 {
-    "titulo": "Título de la clase",
-    "descripcion": "Descripción breve de la clase (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML completo de la clase. Usa etiquetas HTML como <h2>, <h3>, <p>, <ul>, <li>, <strong>, etc. para estructurar el contenido de forma clara y visualmente atractiva."
+    "titulo": "Título atractivo de la clase",
+    "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
+    "contenido": "CONTENIDO HTML CON DISEÑO VISUAL TIPO GAMMA.APP usando DIVS con estilos inline:
+    
+    Ejemplo de estructura visual:
+    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 16px; margin: 2rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
+        <h2 style='font-size: 2.5rem;'>🎯 TÍTULO DE SECCIÓN</h2>
+        <p style='font-size: 1.3rem;'>Descripción</p>
+    </div>
+    
+    <div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-left: 5px solid #3b82f6;'>
+        <h3 style='color: #1e40af; font-size: 1.8rem;'>📚 Concepto</h3>
+        <p style='font-size: 1.2rem; line-height: 1.8;'>Contenido explicativo...</p>
+    </div>
+    
+    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;'>
+        <div style='background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 2rem; border-radius: 12px; border: 2px solid #3b82f6;'>
+            <h4>💡 Item 1</h4>
+            <p>Contenido...</p>
+        </div>
+        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 2rem; border-radius: 12px; border: 2px solid #10b981;'>
+            <h4>✨ Item 2</h4>
+            <p>Contenido...</p>
+        </div>
+    </div>"
 }
 
-REGLAS:
-- El contenido debe ser educativo, claro y bien estructurado
-- Usa emojis apropiados para hacer el contenido más visual
-- Incluye ejemplos prácticos si es apropiado
-- El HTML debe estar correctamente formateado
-- Responde SOLO con JSON válido, sin texto adicional`;
+REGLAS CRÍTICAS PARA DISEÑO VISUAL:
+- USA DIVS CON ESTILOS INLINE (background, padding, border-radius, box-shadow, margin, etc.)
+- DISEÑO TIPO TARJETAS con colores vibrantes y degradados
+- ICONOS/EMOJIS grandes y prominentes (font-size: 2rem)
+- LAYOUTS EN GRID/FLEXBOX (display: grid; grid-template-columns; gap;)
+- COLORES VIBRANTES: degradados lineales, sombras, bordes coloridos
+- TEXTO GRANDE (font-size: 1.2rem mínimo para párrafos, 1.8rem+ para títulos)
+- ESPACIADO GENEROSO (padding: 2rem+, margin: 2rem+)
+- BOX-SHADOWS para profundidad (box-shadow: 0 8px 30px rgba(0,0,0,0.12))
+- BORDER-RADIUS para suavidad (12px-16px)
+- Sigue EXACTAMENTE la instrucción del usuario adaptándola a diseño visual
+- Responde SOLO con JSON válido, sin markdown ni texto adicional`;
 
             console.log('Enviando prompt personalizado a OpenRouter...');
 
@@ -15053,66 +15243,124 @@ REGLAS:
 
         // Función para generar el contenido de la clase con IA (Constructivista)
         async function generarContenidoClaseIA(titulo, textoBase, duracion, apiKey) {
-            const prompt = `Eres un experto pedagogo especializado en metodología constructivista. Genera una clase estructurada basada en el siguiente contenido.
+            const prompt = `Eres un diseñador pedagógico experto que crea contenido educativo VISUAL y MODERNO estilo Gamma.app/Canva. Genera una clase visualmente atractiva.
 
 TÍTULO DE LA CLASE: ${titulo}
 DURACIÓN ESTIMADA: ${duracion} minutos
+CONTENIDO/TEMA BASE: ${textoBase}
 
-CONTENIDO/TEMA BASE:
-${textoBase}
-
-INSTRUCCIONES:
-Genera una clase completa siguiendo la metodología constructivista con las tres fases:
-1. ANTICIPACIÓN (${Math.round(duracion * 0.2)} minutos): Activar conocimientos previos, motivar al estudiante
-2. CONSTRUCCIÓN (${Math.round(duracion * 0.6)} minutos): Desarrollo del contenido principal con ejemplos prácticos
-3. CONSOLIDACIÓN (${Math.round(duracion * 0.2)} minutos): Resumen, reflexión y aplicación práctica
+INSTRUCCIONES IMPORTANTES:
+Genera una clase VISUAL con metodología constructivista (Anticipación, Construcción, Consolidación).
+El contenido DEBE ser tipo PRESENTACIÓN MODERNA con diseño atractivo, NO texto plano.
 
 FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
 {
-    "titulo": "Título mejorado de la clase",
-    "descripcion": "Descripción breve de la clase (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML completo de la clase estructurado así:
-        <h2>🎯 ANTICIPACIÓN</h2>
-        <p><strong>Objetivo:</strong> Descripción del objetivo de esta fase</p>
-        <h3>Pregunta Inicial</h3>
-        <p>Pregunta para activar conocimientos previos</p>
-        <h3>Reflexión</h3>
-        <p>Espacio para que el estudiante reflexione</p>
-        
-        <h2>🔨 CONSTRUCCIÓN</h2>
-        <p><strong>Objetivo:</strong> Descripción del objetivo de esta fase</p>
-        <h3>Concepto 1</h3>
-        <p>Explicación detallada...</p>
-        <h3>Concepto 2</h3>
-        <p>Explicación detallada...</p>
-        <h3>Ejemplo Práctico</h3>
-        <p>Ejemplo aplicado...</p>
-        
-        <h2>✅ CONSOLIDACIÓN</h2>
-        <p><strong>Objetivo:</strong> Descripción del objetivo de esta fase</p>
-        <h3>Resumen</h3>
-        <ul><li>Punto clave 1</li><li>Punto clave 2</li></ul>
-        <h3>Actividad de Cierre</h3>
-        <p>Actividad práctica sugerida</p>
-        <h3>Recursos Adicionales</h3>
-        <p>Sugerencias de recursos (espacio para agregar imágenes/videos)</p>
-        
-        <!-- ESPACIO PARA MULTIMEDIA -->
-        <div style='background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;'>
-            <p><strong>📷 Espacio para Imágenes:</strong> El docente puede agregar imágenes ilustrativas aquí</p>
+    "titulo": "Título atractivo y mejorado",
+    "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
+    "contenido": "CONTENIDO HTML CON DISEÑO VISUAL TIPO GAMMA.APP:
+
+<!-- SLIDE 1: PORTADA/ANTICIPACIÓN -->
+<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 16px; margin: 2rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
+    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>🎯 ANTICIPACIÓN</h2>
+    <p style='font-size: 1.3rem; opacity: 0.95; margin-bottom: 2rem;'>Activando conocimientos previos</p>
+</div>
+
+<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;'>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #fbbf24;'>
+        <h3 style='color: #f59e0b; font-size: 1.5rem; margin-bottom: 1rem;'>💡 Pregunta Inicial</h3>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #374151;'>¿Qué sabes sobre [TEMA]? ¿Dónde lo has visto en tu vida diaria?</p>
+    </div>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #f59e0b;'>
+        <h3 style='color: #ea580c; font-size: 1.5rem; margin-bottom: 1rem;'>🤔 Reflexiona</h3>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #374151;'>Piensa en situaciones donde has aplicado o visto este concepto...</p>
+    </div>
+</div>
+
+<!-- SLIDE 2: CONSTRUCCIÓN -->
+<div style='background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
+    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>🔨 CONSTRUCCIÓN DEL CONOCIMIENTO</h2>
+    <p style='font-size: 1.3rem; opacity: 0.95;'>Desarrollando conceptos clave</p>
+</div>
+
+<!-- Concepto 1 -->
+<div style='background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #3b82f6;'>
+    <div style='display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;'>
+        <div style='background: #3b82f6; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);'>📚</div>
+        <h3 style='color: #1e40af; font-size: 1.8rem; margin: 0;'>Concepto Principal 1</h3>
+    </div>
+    <p style='font-size: 1.2rem; line-height: 1.8; color: #1e3a8a; margin-bottom: 1rem;'>Explicación clara y detallada del primer concepto fundamental...</p>
+    <ul style='font-size: 1.1rem; line-height: 1.8; color: #1e40af; margin-left: 2rem;'>
+        <li>Punto clave 1</li>
+        <li>Punto clave 2</li>
+        <li>Punto clave 3</li>
+    </ul>
+</div>
+
+<!-- Concepto 2 -->
+<div style='background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #14b8a6;'>
+    <div style='display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;'>
+        <div style='background: #14b8a6; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 10px rgba(20, 184, 166, 0.4);'>🔍</div>
+        <h3 style='color: #0f766e; font-size: 1.8rem; margin: 0;'>Concepto Principal 2</h3>
+    </div>
+    <p style='font-size: 1.2rem; line-height: 1.8; color: #115e59; margin-bottom: 1rem;'>Explicación del segundo concepto con ejemplos prácticos...</p>
+</div>
+
+<!-- Ejemplo Práctico -->
+<div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 3px dashed #8b5cf6;'>
+    <h3 style='color: #7c3aed; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>⚡ EJEMPLO PRÁCTICO</h3>
+    <div style='background: #f5f3ff; padding: 2rem; border-radius: 8px; border-left: 5px solid #8b5cf6;'>
+        <p style='font-size: 1.2rem; line-height: 1.8; color: #5b21b6;'>Caso práctico detallado mostrando cómo aplicar lo aprendido en situaciones reales...</p>
+    </div>
+</div>
+
+<!-- SLIDE 3: CONSOLIDACIÓN -->
+<div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
+    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>✅ CONSOLIDACIÓN</h2>
+    <p style='font-size: 1.3rem; opacity: 0.95;'>Integrando y aplicando conocimientos</p>
+</div>
+
+<!-- Resumen Visual -->
+<div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12);'>
+    <h3 style='color: #059669; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>📋 RESUMEN DE PUNTOS CLAVE</h3>
+    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;'>
+        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
+            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>✨</div>
+            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 1</p>
         </div>
-        <div style='background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;'>
-            <p><strong>🎥 Espacio para Videos:</strong> El docente puede agregar videos explicativos aquí</p>
-        </div>"
+        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
+            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>🎯</div>
+            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 2</p>
+        </div>
+        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
+            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>💪</div>
+            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 3</p>
+        </div>
+    </div>
+</div>
+
+<!-- Actividad de Cierre -->
+<div style='background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #f59e0b;'>
+    <h3 style='color: #92400e; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>🎨 ACTIVIDAD PRÁCTICA</h3>
+    <p style='font-size: 1.2rem; line-height: 1.8; color: #78350f; text-align: center;'>Ahora te toca: Aplica lo aprendido realizando [actividad específica]...</p>
+</div>
+
+<!-- Espacio para Multimedia -->
+<div style='background: #f9fafb; padding: 2rem; border-radius: 12px; margin: 2rem 0; border: 2px dashed #9ca3af;'>
+    <p style='text-align: center; color: #6b7280; font-size: 1.1rem;'>📷 <strong>Espacio para agregar imágenes y videos</strong> - El docente puede insertar recursos multimedia aquí</p>
+</div>
+"
 }
 
-REGLAS:
-- El contenido debe ser educativo, claro y bien estructurado
-- Usa emojis apropiados para hacer el contenido más visual
-- Incluye ejemplos prácticos relacionados con el tema
-- El HTML debe estar correctamente formateado
-- Incluye espacios marcados para que el docente agregue imágenes/videos
-- Responde SOLO con JSON válido, sin texto adicional`;
+REGLAS CRÍTICAS:
+- USA DIVS CON ESTILOS INLINE (background, padding, border-radius, box-shadow, etc.)
+- DISEÑO TIPO TARJETAS con colores vibrantes y degradados
+- ICONOS/EMOJIS grandes y prominentes
+- LAYOUTS EN GRID/FLEXBOX para organización visual
+- COLORES: Morado/azul para anticipación, azul para construcción, verde para consolidación
+- TEXTO GRANDE Y LEGIBLE (font-size: 1.2rem mínimo para contenido)
+- ESPACIADO GENEROSO (padding, margin)
+- Adapta TODO el contenido al tema específico proporcionado
+- Responde SOLO con JSON válido, sin markdown ni texto adicional`;
 
             console.log('Enviando solicitud a OpenRouter para generar clase...');
 
