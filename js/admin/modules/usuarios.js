@@ -266,10 +266,32 @@ async function editarUsuarioAprobado(id) {
 
 // Función para ver historial de pagos
 async function verHistorialPagos(userId) {
-    // Esta función debería abrir un modal o redirigir a la sección de pagos
-    // Por ahora, mostraremos una alerta simple
-    alert('Función de historial de pagos en desarrollo. Por favor, ve a la sección de Cobros para gestionar pagos.');
-    // TODO: Implementar modal de historial de pagos
+    const user = allApprovedUsers.find(u => u.id === userId);
+    if (!user) {
+        alert('Usuario no encontrado');
+        return;
+    }
+
+    // Mostrar información básica del usuario y redirigir a la sección de cobros
+    const mensaje = `Usuario: ${user.name || user.email}\n\nPara gestionar pagos, serás redirigido a la sección de Cobros.`;
+    
+    if (confirm(mensaje + '\n\n¿Ir a la sección de Cobros ahora?')) {
+        // Redirigir a la sección de cobros
+        if (typeof window.showSection === 'function') {
+            window.showSection('cobros');
+            
+            // Si existe función para filtrar por usuario, usarla
+            setTimeout(() => {
+                const searchInput = document.querySelector('#cobros input[type="search"], #cobros input[placeholder*="Buscar"]');
+                if (searchInput) {
+                    searchInput.value = user.name || user.email;
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 300);
+        } else {
+            alert('No se pudo abrir la sección de Cobros. Por favor, navega manualmente.');
+        }
+    }
 }
 
 // Función para cambiar el estado de un estudiante
