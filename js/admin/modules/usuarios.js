@@ -148,6 +148,96 @@ async function rechazarUsuario(id) {
     }
 }
 
+// Función para editar usuario pendiente
+async function editarUsuarioPendiente(id) {
+    const user = allPendingUsers.find(u => u.id === id);
+    if (!user) {
+        alert('Usuario no encontrado');
+        return;
+    }
+
+    const nombre = prompt('Nombre del estudiante:', user.name || '');
+    if (nombre === null) return; // Canceló
+    
+    const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
+    if (programa === null) return;
+    
+    const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
+    if (sede === null) return;
+    
+    const horario = prompt('Horario:', user.horario || '');
+    if (horario === null) return;
+    
+    const telefono = prompt('Teléfono:', user.telefono || '');
+    if (telefono === null) return;
+
+    try {
+        await updateDoc(doc(db, 'pendingStudents', id), {
+            name: nombre,
+            programa: programa,
+            sede: sede,
+            horario: horario,
+            telefono: telefono,
+            updatedAt: new Date().toISOString()
+        });
+        
+        alert('✅ Usuario actualizado correctamente');
+        await loadUsuariosPendientes();
+    } catch (error) {
+        console.error('Error updating user:', error);
+        alert('Error al actualizar usuario: ' + error.message);
+    }
+}
+
+// Función para editar usuario aprobado
+async function editarUsuarioAprobado(id) {
+    const user = allApprovedUsers.find(u => u.id === id);
+    if (!user) {
+        alert('Usuario no encontrado');
+        return;
+    }
+
+    const nombre = prompt('Nombre del estudiante:', user.name || '');
+    if (nombre === null) return;
+    
+    const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
+    if (programa === null) return;
+    
+    const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
+    if (sede === null) return;
+    
+    const horario = prompt('Horario:', user.horario || '');
+    if (horario === null) return;
+    
+    const telefono = prompt('Teléfono:', user.telefono || '');
+    if (telefono === null) return;
+
+    try {
+        await updateDoc(doc(db, 'users', id), {
+            name: nombre,
+            programa: programa,
+            sede: sede,
+            horario: horario,
+            telefono: telefono,
+            updatedAt: new Date().toISOString()
+        });
+        
+        alert('✅ Usuario actualizado correctamente');
+        await loadUsuariosAprobados();
+    } catch (error) {
+        console.error('Error updating user:', error);
+        alert('Error al actualizar usuario: ' + error.message);
+    }
+}
+
+// Función para ver historial de pagos
+async function verHistorialPagos(userId) {
+    // Esta función debería abrir un modal o redirigir a la sección de pagos
+    // Por ahora, mostraremos una alerta simple
+    alert('Función de historial de pagos en desarrollo. Por favor, ve a la sección de Cobros para gestionar pagos.');
+    // TODO: Implementar modal de historial de pagos
+}
+
 // Función para cambiar el estado de un estudiante
 async function cambiarEstadoEstudiante(userId, nuevoEstado) {
     const estadoConfig = ESTADOS_ESTUDIANTE[nuevoEstado];
@@ -475,6 +565,15 @@ if (!window.aprobarUsuario) {
 }
 if (!window.rechazarUsuario) {
     window.rechazarUsuario = rechazarUsuario;
+}
+if (!window.editarUsuarioPendiente) {
+    window.editarUsuarioPendiente = editarUsuarioPendiente;
+}
+if (!window.editarUsuarioAprobado) {
+    window.editarUsuarioAprobado = editarUsuarioAprobado;
+}
+if (!window.verHistorialPagos) {
+    window.verHistorialPagos = verHistorialPagos;
 }
 if (!window.eliminarUsuario) {
     window.eliminarUsuario = eliminarUsuario;
