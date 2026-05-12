@@ -111,15 +111,49 @@ function actualizarDashboardUsuarios() {
 async function aprobarUsuario(id) {
     try {
         const user = allPendingUsers.find(u => u.id === id);
-        if (!user) return;
+        if (!user) {
+            alert('Usuario no encontrado');
+            return;
+        }
+
+        // Pedir confirmación y permitir editar datos antes de aprobar
+        const nombre = prompt('Nombre del estudiante:', user.name || '');
+        if (nombre === null) return; // Canceló
+        
+        const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
+        if (programa === null) return;
+        
+        const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
+        if (sede === null) return;
+        
+        const horario = prompt('Horario (ej: Lunes a Viernes 8am-12pm):', user.horario || '');
+        if (horario === null) return;
+        
+        const telefono = prompt('Teléfono:', user.telefono || '');
+        if (telefono === null) return;
+
+        // Validar que los campos requeridos no estén vacíos
+        if (!nombre.trim() || !programa.trim() || !sede.trim() || !horario.trim()) {
+            alert('Por favor completa todos los campos obligatorios (nombre, programa, sede, horario)');
+            return;
+        }
+
+        // Confirmar aprobación
+        if (!confirm(`¿Aprobar a ${nombre} para el programa ${programa}?`)) return;
 
         // Actualizar el documento existente en users (usamos el ID que es el firebaseUID)
         const userDocId = user.firebaseUID || user.id || user.email;
         
         await updateDoc(doc(db, 'users', userDocId), {
+            name: nombre,
+            programa: programa,
+            sede: sede,
+            horario: horario,
+            telefono: telefono,
             role: 'student',
             status: 'cursando',
-            approvedAt: new Date().toISOString()
+            approvedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         });
 
         // Eliminar de pendingStudents
