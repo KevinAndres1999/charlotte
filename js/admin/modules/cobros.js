@@ -129,7 +129,7 @@ async function cargarEstudiantesCobros() {
     const container = document.getElementById('cobros-lista-estudiantes');
     if (!container) return;
     
-    container.innerHTML = '<p style="text-align: center; color: #6b7280;"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
+    container.innerHTML = '<p style="text-align: center; color: #6b7280;"><i class="fas fa-spinner fa-spin"></i> Cargando estudiantes...</p>';
     
     try {
         // Cargar temas de clases si no están cargados
@@ -137,21 +137,44 @@ async function cargarEstudiantesCobros() {
             await cargarTemasClases();
         }
         
-        // Si no tenemos usuarios cargados, cargarlos
-        if (!window.allApprovedUsers || window.allApprovedUsers.length === 0) {
+        // Intentar cargar usuarios con reintentos
+        let intentos = 0;
+        const maxIntentos = 5;
+        
+        while ((!window.allApprovedUsers || window.allApprovedUsers.length === 0) && intentos < maxIntentos) {
+            console.log(`⏳ Intento ${intentos + 1}/${maxIntentos} de cargar usuarios...`);
+            
             if (typeof loadUsuariosAprobados === 'function') {
                 await loadUsuariosAprobados();
-            } else {
-                console.warn('loadUsuariosAprobados no está disponible');
             }
+            
+            // Esperar un momento antes de verificar
+            if (!window.allApprovedUsers || window.allApprovedUsers.length === 0) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            intentos++;
         }
         
         // Verificar que window.allApprovedUsers está disponible
-        if (!window.allApprovedUsers || !Array.isArray(window.allApprovedUsers)) {
-            if (typeof showNotification === 'function') showNotification('No hay estudiantes cargados', 'warning');
-            container.innerHTML = '<p style="text-align: center; color: #6b7280;">No hay estudiantes disponibles. Por favor recarga la página.</p>';
+        if (!window.allApprovedUsers || !Array.isArray(window.allApprovedUsers) || window.allApprovedUsers.length === 0) {
+            console.error('❌ No se pudieron cargar los estudiantes después de', maxIntentos, 'intentos');
+            if (typeof showNotification === 'function') {
+                showNotification('Error cargando estudiantes. Intenta recargar la sección de Usuarios primero.', 'error');
+            }
+            container.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #dc2626;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="margin: 0 0 1rem 0; font-weight: 600;">No se pudieron cargar los estudiantes</p>
+                    <button onclick="window.location.reload()" style="padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-sync"></i> Recargar Página
+                    </button>
+                </div>
+            `;
             return;
         }
+        
+        console.log(`✅ ${window.allApprovedUsers.length} estudiantes cargados`);
         
         // Filtrar por sede, horario y programa
         cobrosEstudiantesFiltrados = window.allApprovedUsers.filter(u => {
@@ -359,8 +382,21 @@ async function cobrarMonto(userId, montoFijo) {
             window.allApprovedUsers[userIndex].historialPagos = historialPagos;
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = historialPagos;
+        }
+        
         if (typeof showNotification === 'function') showNotification(`Cobro registrado: $${monto}`, 'success');
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error cobrando:', error);
         if (typeof showNotification === 'function') showNotification('Error al registrar cobro', 'error');
@@ -454,8 +490,22 @@ async function marcarPendiente(userId) {
             window.allApprovedUsers[userIndex].estadoPagos = 'pagos_pendientes';
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = historialPagos;
+            cobrosEstudiantesFiltrados[filteredUserIndex].estadoPagos = 'pagos_pendientes';
+        }
+        
         if (typeof showNotification === 'function') showNotification('Marcado como pendiente', 'warning');
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error marcando pendiente:', error);
         if (typeof showNotification === 'function') showNotification('Error al marcar pendiente', 'error');
@@ -476,14 +526,27 @@ async function quitarPagoFecha(userId, fechaStr) {
         
         await window.window.db.collection('users').doc(userId).update({ historialPagos: nuevoHistorial });
         
-        // Actualizar local
+        // Actualizar datos locales
         const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
         if (userIndex !== -1) {
             window.allApprovedUsers[userIndex].historialPagos = nuevoHistorial;
         }
         
-        if (typeof showNotification === 'function') showNotification('Registro eliminado', 'success');
-        cargarEstudiantesCobros();
+        // Actualizar en cobrosEstudiantesFiltrados
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = nuevoHistorial;
+        }
+        
+        if (typeof showNotification === 'function') showNotification('Pago eliminado', 'success');
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error eliminando registro:', error);
         if (typeof showNotification === 'function') showNotification('Error al eliminar registro', 'error');
@@ -555,9 +618,22 @@ async function guardarMontoPago(userId) {
             window.allApprovedUsers[userIndex].tipoPago = 'personalizado';
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].montoPersonalizado = monto;
+            cobrosEstudiantesFiltrados[filteredUserIndex].tipoPago = 'personalizado';
+        }
+        
         if (typeof showNotification === 'function') showNotification(`Monto de pago configurado: $${monto}`, 'success');
         document.getElementById('tipoPagoModal').remove();
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
     } catch (error) {
         console.error('Error guardando monto:', error);
         if (typeof showNotification === 'function') showNotification('Error al guardar', 'error');
@@ -678,8 +754,21 @@ async function cobrarIndividual(userId) {
             window.allApprovedUsers[userIndex].historialPagos = historialPagos;
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = historialPagos;
+        }
+        
         if (typeof showNotification === 'function') showNotification(`Cobro registrado: $${monto}`, 'success');
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error cobrando:', error);
         if (typeof showNotification === 'function') showNotification('Error al registrar cobro', 'error');
@@ -757,7 +846,14 @@ async function cobrarSeleccionados() {
     
     if (typeof showNotification === 'function') showNotification(`Cobrados: ${cobrados}, Errores: ${errores}. Total: $${montoTotal}`, cobrados > 0 ? 'success' : 'error');
     cobrosSeleccionados.clear();
-    cargarEstudiantesCobros();
+    
+    // Re-renderizar la vista activa
+    if (vistaTablaActiva) {
+        renderTabla40Clases();
+    } else {
+        renderCobrosEstudiantes();
+    }
+    actualizarResumenCobros();
 }
 
 // Actualizar resumen de cobros
@@ -1020,7 +1116,7 @@ function renderTabla40Clases() {
         const tema = temas[clase.fechaStr] || '';
         const temaCorto = tema.length > 8 ? tema.substring(0, 6) + '..' : (tema || '—');
         headerHtml += `<th style="padding: 0.2rem; font-size: 0.6rem; color: #4338ca; cursor: pointer; max-width: 45px; overflow: hidden;" 
-                           onclick="editarTemaClase('${clase.fechaStr}', ${i + 1})" 
+                           onclick="window.editarTemaClase('${clase.fechaStr}', ${i + 1})" 
                            title="${tema || 'Click para agregar tema'}">${temaCorto}</th>`;
     });
     headerHtml += '</tr>';
@@ -1113,7 +1209,7 @@ function renderTabla40Clases() {
             }
             
             bodyHtml += `<td style="${cellStyle}" 
-                             onclick="cobrosModule.abrirModalPagoTabla('${user.id}', '${clase.fechaStr}', ${clase.numero})" 
+                             onclick="window.abrirModalPagoTabla('${user.id}', '${clase.fechaStr}', ${clase.numero})" 
                              title="Clase ${clase.numero}: ${clase.fechaStr}">${cellContent}</td>`;
         });
         
@@ -1200,39 +1296,80 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
                     </div>
                     
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label><strong>Monto:</strong></label>
-                        <input type="number" id="modal-pago-monto" value="${montoActual}" min="0" step="1"
-                               style="width: 100%; padding: 0.75rem; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; box-sizing: border-box;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #1f2937;">
+                            <i class="fas fa-dollar-sign" style="color: #3b82f6;"></i> <strong>Monto a Cobrar:</strong>
+                        </label>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <button onclick="document.getElementById('modal-pago-monto').value = 16; document.getElementById('modal-pago-monto').focus();" 
+                                    style="flex: 1; padding: 0.75rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                                $16
+                            </button>
+                            <button onclick="document.getElementById('modal-pago-monto').value = 35; document.getElementById('modal-pago-monto').focus();" 
+                                    style="flex: 1; padding: 0.75rem; background: #06b6d4; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#0891b2'" onmouseout="this.style.background='#06b6d4'">
+                                $35
+                            </button>
+                            <button onclick="document.getElementById('modal-pago-monto').value = 70; document.getElementById('modal-pago-monto').focus();" 
+                                    style="flex: 1; padding: 0.75rem; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;"
+                                    onmouseover="this.style.background='#d97706'" onmouseout="this.style.background='#f59e0b'">
+                                $70
+                            </button>
+                        </div>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 1.25rem; color: #3b82f6; font-weight: 600;">$</span>
+                            <input type="number" id="modal-pago-monto" value="${montoActual}" min="0" step="0.01" placeholder="Escribe el monto"
+                                   style="width: 100%; padding: 0.85rem 0.85rem 0.85rem 2.25rem; font-size: 1.1rem; font-weight: 600; border: 2px solid #3b82f6; border-radius: 10px; box-sizing: border-box; outline: none; transition: all 0.2s;"
+                                   onfocus="this.style.borderColor='#2563eb'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                                   onblur="this.style.borderColor='#3b82f6'; this.style.boxShadow='none'">
+                        </div>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #6b7280;">
+                            <i class="fas fa-info-circle"></i> Usa los botones rápidos o escribe el monto directamente
+                        </p>
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <button onclick="
+                            event.preventDefault();
+                            event.stopPropagation();
                             const input = document.getElementById('modal-pago-monto');
                             let monto = ${montoActual};
                             if (input && input.value && !isNaN(input.value)) {
                                 monto = parseFloat(input.value);
                             }
-                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado', monto);
+                            console.log('Guardando pago:', '${userId}', '${fechaStr}', ${claseNum}, 'pagado', monto);
+                            window.guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pagado', monto);
                         " 
-                                style="padding: 1rem; background: ${estadoActual === 'pagado' ? '#059669' : '#10b981'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                style="padding: 1rem; background: ${estadoActual === 'pagado' ? '#059669' : '#10b981'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;"
+                                onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <i class="fas fa-check-circle"></i> ${estadoActual === 'pagado' ? 'PAGADO ✓' : 'Marcar como Pagado'}
                         </button>
                         
                         <button onclick="
+                            event.preventDefault();
+                            event.stopPropagation();
                             const input = document.getElementById('modal-pago-monto');
                             let monto = ${montoActual};
                             if (input && input.value && !isNaN(input.value)) {
                                 monto = parseFloat(input.value);
                             }
-                            guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente', monto);
+                            console.log('Guardando pendiente:', '${userId}', '${fechaStr}', ${claseNum}, 'pendiente', monto);
+                            window.guardarPagoTabla('${userId}', '${fechaStr}', ${claseNum}, 'pendiente', monto);
                         " 
-                                style="padding: 1rem; background: ${estadoActual === 'pendiente' ? '#b45309' : '#f59e0b'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                style="padding: 1rem; background: ${estadoActual === 'pendiente' ? '#b45309' : '#f59e0b'}; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;"
+                                onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                             <i class="fas fa-clock"></i> ${estadoActual === 'pendiente' ? 'PENDIENTE ⏳' : 'Marcar como Pendiente'}
                         </button>
                         
                         ${pagoExistente ? `
-                            <button onclick="eliminarPagoTabla('${userId}', '${fechaStr}')" 
-                                    style="padding: 0.75rem; background: #dc2626; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <button onclick="
+                                event.preventDefault();
+                                event.stopPropagation();
+                                console.log('Eliminando pago:', '${userId}', '${fechaStr}');
+                                window.eliminarPagoTabla('${userId}', '${fechaStr}');
+                            " 
+                                    style="padding: 0.75rem; background: #dc2626; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;"
+                                    onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                                 <i class="fas fa-trash"></i> Eliminar Registro
                             </button>
                         ` : ''}
@@ -1245,6 +1382,15 @@ function abrirModalPagoTabla(userId, fechaStr, claseNum) {
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Enfocar el input automáticamente y seleccionar el texto
+    setTimeout(() => {
+        const input = document.getElementById('modal-pago-monto');
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }, 100);
 }
 
 // Guardar pago desde modal de tabla
@@ -1284,14 +1430,28 @@ async function guardarPagoTabla(userId, fechaStr, claseNum, estado, montoParam) 
         
         await userRef.update({ historialPagos });
         
+        // Actualizar en allApprovedUsers
         const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
         if (userIndex !== -1) {
             window.allApprovedUsers[userIndex].historialPagos = historialPagos;
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados para reflejar cambios inmediatamente
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = historialPagos;
+        }
+        
         if (typeof showNotification === 'function') showNotification(`Marcado como ${estado} por $${monto}`, 'success');
         document.getElementById('pagoTablaModal')?.remove();
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error guardando pago:', error);
         if (typeof showNotification === 'function') showNotification('Error al guardar', 'error');
@@ -1312,14 +1472,28 @@ async function eliminarPagoTabla(userId, fechaStr) {
         
         await userRef.update({ historialPagos });
         
+        // Actualizar en allApprovedUsers
         const userIndex = window.allApprovedUsers.findIndex(u => u.id === userId);
         if (userIndex !== -1) {
             window.allApprovedUsers[userIndex].historialPagos = historialPagos;
         }
         
+        // Actualizar en cobrosEstudiantesFiltrados para reflejar cambios inmediatamente
+        const filteredUserIndex = cobrosEstudiantesFiltrados.findIndex(u => u.id === userId);
+        if (filteredUserIndex !== -1) {
+            cobrosEstudiantesFiltrados[filteredUserIndex].historialPagos = historialPagos;
+        }
+        
         if (typeof showNotification === 'function') showNotification('Registro eliminado', 'success');
         document.getElementById('pagoTablaModal')?.remove();
-        cargarEstudiantesCobros();
+        
+        // Re-renderizar la vista activa
+        if (vistaTablaActiva) {
+            renderTabla40Clases();
+        } else {
+            renderCobrosEstudiantes();
+        }
+        actualizarResumenCobros();
     } catch (error) {
         console.error('Error eliminando:', error);
         if (typeof showNotification === 'function') showNotification('Error al eliminar', 'error');
@@ -1671,180 +1845,6 @@ async function guardarAsistencias() {
     }
 }
 
-// Exponer funciones globalmente
-window.cambiarSeccionCobros = cambiarSeccionCobros;
-window.cargarEstudiantesParaAsistencia = cargarEstudiantesParaAsistencia;
-window.marcarTodosPresentes = marcarTodosPresentes;
-window.guardarAsistencias = guardarAsistencias;
-
-// =================== ASISTENCIAS ===================
-
-async function cargarEstudiantesParaAsistencia() {
-    const fecha = document.getElementById('asist-fecha')?.value;
-    const sede = document.getElementById('asist-sede')?.value;
-    const horario = document.getElementById('asist-horario')?.value;
-    const programa = document.getElementById('asist-programa')?.value;
-
-    if (!fecha || !sede || !horario || !programa) {
-        showToast('Por favor completa todos los campos', 'error');
-        return;
-    }
-
-    const lista = document.getElementById('asist-lista-estudiantes');
-    lista.innerHTML = '<p style="text-align: center; color: #6b7280;">Cargando estudiantes...</p>';
-
-    try {
-        // Cargar estudiantes de Firestore
-        const estudiantesQuery = query(
-            collection(db, 'estudiantes'),
-            where('programa', '==', programa),
-            where('sede', '==', sede),
-            where('horario', '==', horario)
-        );
-
-        const snapshot = await getDocs(estudiantesQuery);
-        const estudiantes = [];
-
-        snapshot.forEach(doc => {
-            estudiantes.push({
-                id: doc.id,
-                email: doc.data().email,
-                nombre: doc.data().nombre || 'Sin nombre',
-                ...doc.data()
-            });
-        });
-
-        // Actualizar contador
-        document.getElementById('asist-total-esperados').textContent = estudiantes.length;
-
-        // Renderizar lista de asistencia
-        if (estudiantes.length === 0) {
-            lista.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">No hay estudiantes con estos criterios</p>';
-            return;
-        }
-
-        lista.innerHTML = estudiantes.map(est => `
-            <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between;">
-                <div>
-                    <p style="margin: 0; font-weight: 600; color: #0f2138;">${est.nombre}</p>
-                    <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">${est.email}</p>
-                </div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                    <select class="asist-estado" data-email="${est.email}" style="padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; cursor: pointer;">
-                        <option value="">-- Seleccionar --</option>
-                        <option value="presente" style="color: #10b981;">Presente</option>
-                        <option value="ausente" style="color: #ef4444;">Ausente</option>
-                        <option value="justificada" style="color: #f59e0b;">Justificada</option>
-                    </select>
-                    <input type="text" class="asist-observaciones" data-email="${est.email}" placeholder="Observaciones" style="padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 0.85rem; width: 150px;">
-                </div>
-            </div>
-        `).join('');
-
-        // Agregar listeners para actualizar contadores
-        document.querySelectorAll('.asist-estado').forEach(select => {
-            select.addEventListener('change', actualizarContadoresAsistencia);
-        });
-
-    } catch (error) {
-        console.error('Error cargando estudiantes:', error);
-        lista.innerHTML = `<p style="text-align: center; color: #ef4444; padding: 2rem;">Error al cargar estudiantes: ${error.message}</p>`;
-        showToast('Error al cargar estudiantes', 'error');
-    }
-}
-
-function actualizarContadoresAsistencia() {
-    const presentes = document.querySelectorAll('.asist-estado[value="presente"]').length;
-    const ausentes = document.querySelectorAll('.asist-estado[value="ausente"]').length;
-    const justificadas = document.querySelectorAll('.asist-estado[value="justificada"]').length;
-
-    document.getElementById('asist-presentes').textContent = presentes;
-    document.getElementById('asist-ausentes').textContent = ausentes;
-    document.getElementById('asist-justificadas').textContent = justificadas;
-}
-
-function marcarTodosPresentes() {
-    document.querySelectorAll('.asist-estado').forEach(select => {
-        select.value = 'presente';
-    });
-    actualizarContadoresAsistencia();
-}
-
-async function guardarAsistencias() {
-    const fecha = document.getElementById('asist-fecha')?.value;
-    const sede = document.getElementById('asist-sede')?.value;
-    const horario = document.getElementById('asist-horario')?.value;
-    const programa = document.getElementById('asist-programa')?.value;
-    const tema = document.getElementById('asist-tema')?.value;
-
-    if (!fecha || !sede || !horario || !programa) {
-        showToast('Por favor completa todos los campos obligatorios', 'error');
-        return;
-    }
-
-    const selects = document.querySelectorAll('.asist-estado');
-    if (selects.length === 0) {
-        showToast('No hay estudiantes cargados', 'error');
-        return;
-    }
-
-    try {
-        showToast('Guardando asistencias...', 'info');
-
-        // Preparar datos a guardar
-        const asistenciasGuardar = [];
-        selects.forEach(select => {
-            const email = select.getAttribute('data-email');
-            const estado = select.value;
-            const observaciones = document.querySelector(`.asist-observaciones[data-email="${email}"]`)?.value || '';
-
-            if (estado) {
-                asistenciasGuardar.push({
-                    estudianteEmail: email,
-                    fecha: new Date(fecha),
-                    sede: sede,
-                    horario: horario,
-                    programa: programa,
-                    claseNombre: tema || 'Clase',
-                    estado: estado,
-                    observaciones: observaciones,
-                    registradoEn: new Date(),
-                    registradoPor: admin.auth().currentUser?.email || 'admin'
-                });
-            }
-        });
-
-        // Guardar en Firestore
-        const batch = writeBatch(db);
-        asistenciasGuardar.forEach(asistencia => {
-            const docRef = doc(collection(db, 'asistencias'));
-            batch.set(docRef, asistencia);
-        });
-
-        await batch.commit();
-
-        showToast('Asistencias guardadas correctamente', 'success');
-
-        // Limpiar formulario
-        document.getElementById('asist-fecha').value = '';
-        document.getElementById('asist-sede').value = '';
-        document.getElementById('asist-horario').value = '';
-        document.getElementById('asist-programa').value = '';
-        document.getElementById('asist-tema').value = '';
-        document.getElementById('asist-lista-estudiantes').innerHTML = '<p style="text-align: center; color: #6b7280;">Selecciona fecha, sede, horario y programa para cargar estudiantes</p>';
-        document.getElementById('asist-total-esperados').textContent = '0';
-        document.getElementById('asist-presentes').textContent = '0';
-        document.getElementById('asist-ausentes').textContent = '0';
-        document.getElementById('asist-justificadas').textContent = '0';
-
-    } catch (error) {
-        console.error('Error guardando asistencias:', error);
-        showToast('Error al guardar asistencias', 'error');
-    }
-}
-
-
-
 // Exponer funciones globalmente para acceso desde HTML
 window.cambiarSedeCobros = cambiarSedeCobros;
 window.cambiarHorarioCobros = cambiarHorarioCobros;
@@ -1856,14 +1856,24 @@ window.abrirModalMontoPersonalizado = abrirModalMontoPersonalizado;
 window.cobrarSeleccionados = cobrarSeleccionados;
 window.marcarPendiente = marcarPendiente;
 window.quitarPago = quitarPagoFecha;
+window.quitarPagoFecha = quitarPagoFecha; // Alias para compatibilidad
 window.editarTipoPagoUsuario = editarTipoPagoUsuario;
 window.guardarMontoPago = guardarMontoPago;
 window.renderTabla40Clases = renderTabla40Clases;
 window.toggleCobroSeleccion = toggleCobroSeleccion;
 window.abrirModalPagoTabla = abrirModalPagoTabla;
 window.guardarPagoTabla = guardarPagoTabla;
+window.cambiarSeccionCobros = cambiarSeccionCobros;
+window.cargarEstudiantesParaAsistencia = cargarEstudiantesParaAsistencia;
+window.marcarTodosPresentes = marcarTodosPresentes;
+window.guardarAsistencias = guardarAsistencias;
 window.eliminarPagoTabla = eliminarPagoTabla;
 window.verHistorialCobrosUsuario = verHistorialCobrosUsuario;
+window.cargarClaseEspecifica = cargarClaseEspecifica;
+window.confirmarGuardarTema = confirmarGuardarTema;
+window.editarTemaClase = editarTemaClase;
+window.guardarTemaClase = guardarTemaClase;
+window.toggleVistaTabla = toggleVistaTabla;
 
 // Exportar el módulo
 const cobrosModule = {
@@ -1894,26 +1904,26 @@ const cobrosModule = {
     cobrarIndividual: cobrarIndividual,
     cobrarSeleccionados: cobrarSeleccionados,
     marcarPendiente: marcarPendiente,
-    quitarPago: quitarPagoFecha,
+    quitarPagoFecha: quitarPagoFecha,
     
     // Tipo de pago
-    editarTipoPago: editarTipoPagoUsuario,
-    guardarTipoPago: guardarMontoPago,
+    editarTipoPagoUsuario: editarTipoPagoUsuario,
+    guardarMontoPago: guardarMontoPago,
     
     // Selección
-    toggleSeleccion: toggleCobroSeleccion,
+    toggleCobroSeleccion: toggleCobroSeleccion,
     seleccionarTodos: seleccionarTodosCobros,
     
     // Historial
-    verHistorial: verHistorialCobrosUsuario,
+    verHistorialCobrosUsuario: verHistorialCobrosUsuario,
     cargarHistorial: cargarClasesHistorial,
-    cargarClase: cargarClaseEspecifica,
+    cargarClaseEspecifica: cargarClaseEspecifica,
     
     // Temas
     obtenerTema: obtenerTemaClase,
     editarTema: editarTemaClase,
     guardarTema: guardarTemaClase,
-    confirmarTema: confirmarGuardarTema,
+    confirmarGuardarTema: confirmarGuardarTema,
     
     // Utilidades
     toggleVista: toggleVistaTabla,
@@ -1921,7 +1931,7 @@ const cobrosModule = {
     exportarTabla: exportarTablaCompleta,
     
     // Pagos desde tabla
-    abrirModalPago: abrirModalPagoTabla,
+    abrirModalPagoTabla: abrirModalPagoTabla,
     guardarPagoTabla: guardarPagoTabla,
     eliminarPagoTabla: eliminarPagoTabla,
     
@@ -1931,4 +1941,7 @@ const cobrosModule = {
 
 // Exponer módulo globalmente
 window.cobrosModule = cobrosModule;
+
+// Exportar como módulo ES6
+export default cobrosModule;
 
