@@ -15280,44 +15280,42 @@ GENERA MÍNIMO 8-10 SECCIONES SIMILARES CON TODO EL CONTENIDO DEL TEMA"
             }
         }
 
-        // Función para generar el contenido de la clase con IA (Constructivista)
+        // Función para generar el contenido de la clase con IA (Estilo Gamma.app)
         async function generarContenidoClaseIA(titulo, textoBase, duracion, apiKey) {
-            const prompt = `Eres un diseñador web y pedagógico experto. Debes crear contenido HTML CON ESTILOS INLINE COMPLETOS.
+            const prompt = `Eres un diseñador de presentaciones educativas profesional. Tu misión es transformar contenido educativo en una presentación visual IMPACTANTE estilo GAMMA.APP.
 
-⚠️ ADVERTENCIA CRÍTICA: NO generes texto plano. TODO debe ser HTML con atributo style='...'
-⚠️ PROHIBIDO: Generar contenido sin <div>, sin style='', sin gradientes, sin colores
-⚠️ OBLIGATORIO: Usar DIVS con estilos inline EN CADA ELEMENTO
+📚 TEMA: ${titulo}
+⏱️ DURACIÓN: ${duracion} minutos
+📝 CONTENIDO BASE: ${textoBase}
 
-TÍTULO: ${titulo}
-DURACIÓN: ${duracion} minutos
-CONTENIDO BASE: ${textoBase}
+🎯 OBJETIVO: Crear una presentación con 8-10 SLIDES visuales profesionales, cada una con HTML+CSS inline.
 
-USA METODOLOGÍA: Anticipación, Construcción, Consolidación
+ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
 
-FORMATO JSON OBLIGATORIO:
 {
-    "titulo": "Título atractivo",
-    "descripcion": "Descripción (2-3 oraciones)",
-    "contenido": "TODO EL CONTENIDO DEBE SER HTML CON ESTILOS INLINE:
+    "titulo": "${titulo}",
+    "descripcion": "Descripción atractiva del tema en 2-3 oraciones que motiva al estudiante",
+    "contenido": "
 
-<!-- ========== SLIDE 1: PORTADA ========== -->
+<!-- 🎨 SLIDE 1: PORTADA IMPACTANTE -->
 <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4); min-height: 400px; display: flex; flex-direction: column; justify-content: center;'>
     <h1 style='font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 800; text-shadow: 2px 4px 8px rgba(0,0,0,0.3); line-height: 1.2;'>[TÍTULO PRINCIPAL ATRACTIVO]</h1>
-    <p style='font-size: 1.5rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;'>Descripción breve y motivadora que captura la esencia de lo que aprenderás en esta clase</p>
+    <p style='font-size: 1.5rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;'>[Descripción motivadora del tema]</p>
     <div style='display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;'>
-        <span style='background: rgba(255,255,255,0.25); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📚 Empezar la clase</span>
-        <span style='background: rgba(255,255,255,0.15); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📑 Ver índice</span>
+        <span style='background: rgba(255,255,255,0.25); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📚 Empezar</span>
+        <span style='background: rgba(255,255,255,0.15); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📑 Índice</span>
     </div>
 </div>
 
-<!-- ========== SLIDE 2: INTRODUCCIÓN ========== -->
+<!-- 📖 SLIDE 2: INTRODUCCIÓN -->
 <div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
-    <h2 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>[Título de Introducción - ¿Qué vamos a aprender?]</h2>
-    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>Texto introductorio explicando el contexto del tema. Este párrafo debe ser claro, motivador y establecer por qué este contenido es importante y relevante para el estudiante.</p>
-    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563;'>Continúa desarrollando la introducción con más detalles, contexto histórico o aplicaciones prácticas del tema.</p>
+    <h2 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>[Título: ¿Qué es X y por qué importa?]</h2>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>[Párrafo 1: Definición clara y contexto histórico/práctico del tema]</p>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>[Párrafo 2: Por qué es importante para el estudiante]</p>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563;'>[Párrafo 3: Aplicaciones prácticas del conocimiento]</p>
 </div>
 
-<!-- ========== TARJETAS NUMERADAS: COMPONENTES CLAVE ========== -->
+<!-- 🔢 SLIDE 3: COMPONENTES/PARTES NUMERADAS -->
 <div style='background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0;'>
     <h3 style='font-size: 2.2rem; color: #1f2937; margin-bottom: 2.5rem; text-align: center; font-weight: 700;'>[Título: Componentes/Partes/Elementos Clave]</h3>
     <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;'>
@@ -15522,16 +15520,17 @@ FORMATO JSON OBLIGATORIO:
 "
 }
 
-REGLAS CRÍTICAS:
-- USA DIVS CON ESTILOS INLINE (background, padding, border-radius, box-shadow, etc.)
-- DISEÑO TIPO TARJETAS con colores vibrantes y degradados
-- ICONOS/EMOJIS grandes y prominentes
-- LAYOUTS EN GRID/FLEXBOX para organización visual
-- COLORES: Morado/azul para anticipación, azul para construcción, verde para consolidación
-- TEXTO GRANDE Y LEGIBLE (font-size: 1.2rem mínimo para contenido)
-- ESPACIADO GENEROSO (padding, margin)
-- Adapta TODO el contenido al tema específico proporcionado
-- Responde SOLO con JSON válido, sin markdown ni texto adicional`;
+
+
+⚠️ INSTRUCCIONES CRÍTICAS:
+1. ADAPTA TODO EL CONTENIDO al tema "${titulo}"
+2. REEMPLAZA TODOS los [corchetes] con contenido real y específico
+3. USA los emojis apropiados para el tema (cambiar si es necesario)
+4. MANTÉN todos los estilos inline exactamente como están
+5. GENERA 8-10 slides mínimo con contenido sustancial
+6. Cada slide debe tener MÍNIMO 2-3 párrafos de contenido real
+7. NO inventes datos falsos - usa información general educativa
+8. Responde SOLO con JSON válido sin bloques de código markdown`;
 
             console.log('Enviando solicitud a OpenRouter para generar clase...');
 
@@ -15548,7 +15547,7 @@ REGLAS CRÍTICAS:
                     messages: [
                         {
                             role: 'system',
-                            content: 'Eres un experto pedagogo que crea contenido educativo siguiendo metodología constructivista. Siempre respondes en JSON válido.'
+                            content: 'Eres un diseñador experto de presentaciones educativas tipo Gamma.app. Respondes SOLO en JSON válido con HTML visualmente impactante usando estilos inline.'
                         },
                         {
                             role: 'user',
