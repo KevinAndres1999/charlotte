@@ -15135,65 +15135,95 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         // Función para generar clase con prompt personalizado
         async function generarClaseConPromptPersonalizado(titulo, promptUsuario, textoBase, duracion, apiKey) {
-            const promptCompleto = `Eres un diseñador pedagógico experto que crea PRESENTACIONES EDUCATIVAS PROFESIONALES estilo Gamma.app. 
+            const promptCompleto = `Eres un diseñador web y pedagógico experto. Debes crear contenido HTML CON ESTILOS INLINE COMPLETOS.
+
+⚠️ ADVERTENCIA CRÍTICA: NO generes texto plano. TODO debe ser HTML con atributo style='...'
+⚠️ PROHIBIDO: Generar contenido sin <div>, sin style='', sin gradientes, sin colores
+⚠️ OBLIGATORIO: Usar DIVS con estilos inline EN CADA ELEMENTO
 
 INSTRUCCIÓN DEL USUARIO:
 ${promptUsuario}
 
-TÍTULO DE LA CLASE: ${titulo}
-DURACIÓN ESTIMADA: ${duracion} minutos
-${textoBase ? `CONTENIDO/INFORMACIÓN BASE:\n${textoBase}` : ''}
+TÍTULO: ${titulo}
+DURACIÓN: ${duracion} minutos
+${textoBase ? `BASE:\n${textoBase}` : ''}
 
-FORMATO DE RESPUESTA OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
+FORMATO JSON OBLIGATORIO:
 {
-    "titulo": "Título atractivo de la clase",
-    "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML ESTILO GAMMA.APP - PRESENTACIÓN TIPO SLIDE DECK CON:
+    "titulo": "Título de la clase",
+    "descripcion": "Descripción (2-3 oraciones)",
+    "contenido": "TODO EL CONTENIDO DEBE SER HTML CON ESTILOS INLINE COMO ESTOS EJEMPLOS:
 
-<!-- SLIDE DE PORTADA -->
 <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4); min-height: 400px; display: flex; flex-direction: column; justify-content: center;'>
-    <h1 style='font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 800;'>[TÍTULO]</h1>
-    <p style='font-size: 1.5rem; opacity: 0.95;'>Descripción motivadora</p>
+    <h1 style='font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 800; text-shadow: 2px 4px 8px rgba(0,0,0,0.3);'>Tu Título Aquí</h1>
+    <p style='font-size: 1.5rem; opacity: 0.95; font-weight: 300;'>Descripción motivadora aquí</p>
 </div>
 
-<!-- TARJETAS NUMERADAS (01, 02, 03) -->
+<div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
+    <h2 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>Sección Principal</h2>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>Texto explicativo con estilos.</p>
+</div>
+
 <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin: 3rem 0;'>
     <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #3b82f6;'>
         <div style='background: #3b82f6; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>01</div>
-        <h4 style='font-size: 1.5rem; color: #1f2937;'>Concepto 1</h4>
-        <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción</p>
+        <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>Primer Punto</h4>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción del primer punto.</p>
+    </div>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #10b981;'>
+        <div style='background: #10b981; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>02</div>
+        <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>Segundo Punto</h4>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción del segundo punto.</p>
+    </div>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f59e0b;'>
+        <div style='background: #f59e0b; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>03</div>
+        <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>Tercer Punto</h4>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción del tercer punto.</p>
     </div>
 </div>
 
-<!-- TARJETAS CON EMOJI -->
-<div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #8b5cf6;'>
-    <div style='display: flex; align-items: flex-start; gap: 1.5rem;'>
-        <div style='background: #8b5cf6; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;'>💪</div>
-        <div><h4 style='font-size: 1.8rem; font-weight: 700;'>Título</h4><p style='font-size: 1.2rem;'>Descripción</p></div>
+<div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #8b5cf6; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);'>
+    <div style='display: flex; align-items: flex-start; gap: 1.5rem; margin-bottom: 1.5rem;'>
+        <div style='background: #8b5cf6; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);'>💪</div>
+        <div>
+            <h4 style='color: #6b21a8; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 700;'>Título con Emoji</h4>
+            <p style='color: #7c3aed; font-size: 1.2rem; margin: 0; font-weight: 600;'>Subtítulo o dato</p>
+        </div>
     </div>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #5b21b6;'>Descripción detallada con estilos.</p>
 </div>
 
-<!-- SLIDE DE RESUMEN FINAL CON GRID -->
+<div style='background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 2rem; border-radius: 12px; margin: 2.5rem 0; border-left: 6px solid #f59e0b; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);'>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #92400e; margin: 0;'><strong>💡 Dato clave:</strong> Información importante destacada.</p>
+</div>
+
 <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0;'>
     <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #8b5cf6; text-align: center;'>
         <div style='font-size: 3rem; margin-bottom: 1rem;'>📚</div>
-        <h4 style='font-size: 1.4rem; font-weight: 700;'>Aprendizaje 1</h4>
-        <p style='font-size: 1.1rem; color: #6b7280;'>Resumen</p>
+        <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700;'>Resumen 1</h4>
+        <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7;'>Descripción breve.</p>
     </div>
-</div>"
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #3b82f6; text-align: center;'>
+        <div style='font-size: 3rem; margin-bottom: 1rem;'>🎯</div>
+        <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700;'>Resumen 2</h4>
+        <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7;'>Descripción breve.</p>
+    </div>
+</div>
+
+GENERA MÍNIMO 8-10 SECCIONES SIMILARES CON TODO EL CONTENIDO DEL TEMA"
 }
 
-REGLAS CRÍTICAS:
-- Crea SLIDES COMPLETAS tipo presentación Gamma
-- TARJETAS NUMERADAS (01, 02, 03) con números en círculos
-- TARJETAS CON EMOJI destacado (💪, 🍪, 🍰, etc.)
-- CAJAS DE INFORMACIÓN con íconos (💡, ⚠️)
-- SLIDE DE RESUMEN FINAL con grid de tarjetas
-- USA ESTILOS INLINE: gradientes, sombras, borders, padding generoso
-- TEXTO GRANDE: 1.2rem+ para contenido, 1.8rem+ para títulos
-- LAYOUTS EN GRID/FLEXBOX
-- Sigue EXACTAMENTE la instrucción del usuario
-- Responde SOLO con JSON válido`;
+⚠️ REGLAS ABSOLUTAS:
+1. CADA elemento debe tener style='...'
+2. USA linear-gradient para fondos coloridos
+3. USA box-shadow en todas las tarjetas
+4. USA border-radius (12px-20px)
+5. USA padding generoso (2rem-4rem)
+6. USA font-size grande (1.2rem-3.5rem)
+7. USA colores específicos (#667eea, #3b82f6, #10b981, #f59e0b, etc.)
+8. NUNCA generes texto plano sin HTML
+9. COPIA exactamente el estilo de los ejemplos
+10. Responde SOLO JSON válido sin markdown`;`
 
             console.log('Enviando prompt personalizado a OpenRouter...');
 
@@ -15252,23 +15282,23 @@ REGLAS CRÍTICAS:
 
         // Función para generar el contenido de la clase con IA (Constructivista)
         async function generarContenidoClaseIA(titulo, textoBase, duracion, apiKey) {
-            const prompt = `Eres un diseñador pedagógico experto que crea PRESENTACIONES EDUCATIVAS PROFESIONALES estilo Gamma.app. Genera una clase visualmente impactante tipo SLIDE DECK.
+            const prompt = `Eres un diseñador web y pedagógico experto. Debes crear contenido HTML CON ESTILOS INLINE COMPLETOS.
 
-TÍTULO DE LA CLASE: ${titulo}
-DURACIÓN ESTIMADA: ${duracion} minutos
-CONTENIDO/TEMA BASE: ${textoBase}
+⚠️ ADVERTENCIA CRÍTICA: NO generes texto plano. TODO debe ser HTML con atributo style='...'
+⚠️ PROHIBIDO: Generar contenido sin <div>, sin style='', sin gradientes, sin colores
+⚠️ OBLIGATORIO: Usar DIVS con estilos inline EN CADA ELEMENTO
 
-INSTRUCCIONES CRÍTICAS:
-- Crea una PRESENTACIÓN COMPLETA tipo Gamma.app con múltiples slides
-- Usa metodología constructivista (Anticipación, Construcción, Consolidación)
-- DISEÑO VISUAL PROFESIONAL: tarjetas, gradientes, iconos grandes, layouts en grid
-- Cada sección debe parecer una SLIDE de presentación
+TÍTULO: ${titulo}
+DURACIÓN: ${duracion} minutos
+CONTENIDO BASE: ${textoBase}
 
-FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
+USA METODOLOGÍA: Anticipación, Construcción, Consolidación
+
+FORMATO JSON OBLIGATORIO:
 {
-    "titulo": "Título atractivo y mejorado",
-    "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML ESTILO GAMMA.APP - DISEÑO TIPO PRESENTACIÓN:
+    "titulo": "Título atractivo",
+    "descripcion": "Descripción (2-3 oraciones)",
+    "contenido": "TODO EL CONTENIDO DEBE SER HTML CON ESTILOS INLINE:
 
 <!-- ========== SLIDE 1: PORTADA ========== -->
 <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4); min-height: 400px; display: flex; flex-direction: column; justify-content: center;'>
