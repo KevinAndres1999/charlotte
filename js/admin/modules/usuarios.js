@@ -804,11 +804,34 @@ function renderApprovedUsers() {
     const container = document.getElementById('usuarios-aprobados');
     if (!container) return;
     
-    if (allApprovedUsers.length === 0) {
+    // Aplicar filtros
+    const programaFilterEl = document.getElementById('filterPrograma');
+    const sedeFilterEl = document.getElementById('filterSedeAprobados');
+    const horarioFilterEl = document.getElementById('filterHorarioAprobados');
+    
+    const programaFilter = programaFilterEl ? programaFilterEl.value : '';
+    const sedeFilter = sedeFilterEl ? sedeFilterEl.value : '';
+    const horarioFilter = horarioFilterEl ? horarioFilterEl.value : '';
+    
+    let filtered = allApprovedUsers.filter(user => {
+        const matchesPrograma = !programaFilter || user.programa === programaFilter;
+        const matchesSede = !sedeFilter || user.sede === sedeFilter;
+        const matchesHorario = !horarioFilter || user.horario === horarioFilter;
+        return matchesPrograma && matchesSede && matchesHorario;
+    });
+    
+    // Ordenar por fecha de aprobación descendente
+    filtered.sort((a, b) => {
+        const aDate = a.approvedAt ? new Date(a.approvedAt) : new Date(0);
+        const bDate = b.approvedAt ? new Date(b.approvedAt) : new Date(0);
+        return bDate - aDate;
+    });
+    
+    if (filtered.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 3rem; color: #6b7280;">
-                <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p style="margin: 0; font-size: 1.1rem;">No hay usuarios aprobados</p>
+                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p style="margin: 0; font-size: 1.1rem;">No hay usuarios aprobados que coincidan con los filtros</p>
             </div>`;
         return;
     }
@@ -821,7 +844,7 @@ function renderApprovedUsers() {
     
     container.innerHTML = `
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; padding: 0.5rem;">
-            ${allApprovedUsers.map(user => {
+            ${filtered.map(user => {
                 const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user', color: '#374151' };
                 const estadoPago = user.estadoPagos === 'pagos_pendientes';
                 const restriccionActiva = user.restriccion && new Date(user.restriccion.fechaFin) > new Date();
