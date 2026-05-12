@@ -105,6 +105,55 @@ function actualizarDashboardUsuarios() {
     
     setText('total-carapungo', carapungo);
     setText('total-sangolqui', sangolqui);
+    
+    // Calcular distribución por programa
+    const usersByProgram = {};
+    allApprovedUsers.forEach(user => {
+        const programa = user.programa || 'Sin programa';
+        usersByProgram[programa] = (usersByProgram[programa] || 0) + 1;
+    });
+    
+    // Renderizar distribución por programa
+    renderProgramDistribution(usersByProgram);
+}
+
+// Función para renderizar distribución por programa
+function renderProgramDistribution(usersByProgram) {
+    const container = document.getElementById('program-distribution');
+    if (!container) return;
+    
+    const totalUsers = Object.values(usersByProgram).reduce((sum, count) => sum + count, 0);
+    if (totalUsers === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;"><i class="fas fa-chart-pie" style="font-size: 2rem; opacity: 0.5;"></i><p>No hay datos de distribución disponibles</p></div>';
+        return;
+    }
+    
+    const programs = Object.entries(usersByProgram)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 6);
+    
+    let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+    
+    programs.forEach(([program, count]) => {
+        const percentage = Math.round((count / totalUsers) * 100);
+        const colorClass = getProgramColor(program);
+        
+        html += `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="flex: 0 0 150px;">
+                    <div style="font-weight: 600; font-size: 0.9rem; color: #1f2937;">${program}</div>
+                    <div style="font-size: 0.75rem; color: #6b7280;">${count} estudiantes</div>
+                </div>
+                <div style="flex: 1; background: #e5e7eb; border-radius: 8px; height: 24px; overflow: hidden;">
+                    <div style="width: ${percentage}%; height: 100%; background: ${getColorByProgram(program)}; transition: width 0.3s;"></div>
+                </div>
+                <div style="flex: 0 0 50px; text-align: right; font-weight: 600; color: #1f2937;">${percentage}%</div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
 }
 
 // Función para aprobar usuario
@@ -660,11 +709,32 @@ function renderPendingUsers() {
     const container = document.getElementById('usuarios-pendientes');
     if (!container) return;
     
-    if (allPendingUsers.length === 0) {
+    // Aplicar filtros
+    const searchInput = document.getElementById('usuariosSearch');
+    const programaFilterEl = document.getElementById('filterProgramaPendientes');
+    const sedeFilterEl = document.getElementById('filterSedePendientes');
+    const horarioFilterEl = document.getElementById('filterHorarioPendientes');
+    
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const programaFilter = programaFilterEl ? programaFilterEl.value : '';
+    const sedeFilter = sedeFilterEl ? sedeFilterEl.value : '';
+    const horarioFilter = horarioFilterEl ? horarioFilterEl.value : '';
+    
+    let filtered = allPendingUsers.filter(user => {
+        const matchesSearch = !searchTerm ||
+            (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+            (user.email && user.email.toLowerCase().includes(searchTerm));
+        const matchesPrograma = !programaFilter || user.programa === programaFilter;
+        const matchesSede = !sedeFilter || user.sede === sedeFilter;
+        const matchesHorario = !horarioFilter || user.horario === horarioFilter;
+        return matchesSearch && matchesPrograma && matchesSede && matchesHorario;
+    });
+    
+    if (filtered.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 3rem; color: #6b7280;">
-                <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                <p style="margin: 0; font-size: 1.1rem;">No hay usuarios pendientes</p>
+                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p style="margin: 0; font-size: 1.1rem;">No hay usuarios pendientes que coincidan con los filtros</p>
             </div>`;
         return;
     }
@@ -677,7 +747,7 @@ function renderPendingUsers() {
     
     container.innerHTML = `
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1rem; padding: 0.5rem;">
-            ${allPendingUsers.map(user => {
+            ${filtered.map(user => {
                 const colores = programaColores[user.programa] || { bg: '#f8fafc', border: '#6b7280', icon: 'fa-user', color: '#374151' };
                 return `
                     <div style="background: white; border: 2px solid ${colores.border}; border-radius: 16px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s;"
@@ -837,16 +907,31 @@ function renderApprovedUsers() {
 // Filtrar usuarios
 function filterUsuarios() {
     renderPendingUsers();
+    renderApprovedUsers();
 }
 
 // Obtener color del programa
 function getProgramColor(program) {
     const colors = {
         'Panadería': 'panaderia',
+        'Panadería y Pastelería': 'panaderia',
         'Belleza': 'belleza',
+        'Belleza Integral': 'belleza',
+        'Asesoría Técnica': 'asesoria',
         'Sin programa': 'default'
     };
     return colors[program] || 'default';
+}
+
+// Obtener color HEX por programa
+function getColorByProgram(program) {
+    const colors = {
+        'Panadería y Pastelería': '#f59e0b',
+        'Belleza Integral': '#ec4899',
+        'Asesoría Técnica': '#8b5cf6',
+        'Sin programa': '#6b7280'
+    };
+    return colors[program] || '#6b7280';
 }
 
 // Exportar funciones globalmente - Ejecutar inmediatamente sin condicionales
