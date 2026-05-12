@@ -15615,6 +15615,20 @@ REGLAS CRÍTICAS:
             // Limpiar el contenedor
             editorContainer.innerHTML = '';
 
+            // SOLUCIÓN: Mostrar HTML directamente SIN CKEditor para preservar todos los estilos inline
+            // CKEditor elimina los estilos inline del HTML generado por la IA
+            editorContainer.innerHTML = contenido;
+            editorContainer.style.overflow = 'auto';
+            editorContainer.style.maxHeight = '800px';
+            console.log('Contenido HTML mostrado directamente (sin CKEditor para preservar estilos)');
+            
+            // === BLOQUE 7: Conectar preview ===
+            setupPreviewSync();
+            showSyncIndicator();
+            
+            return; // No inicializar CKEditor
+            
+            /* CÓDIGO ANTERIOR CON CKEDITOR (deshabilitado)
             // Verificar si CKEditor está disponible
             if (typeof ClassicEditor === 'undefined') {
                 editorContainer.innerHTML = contenido;
@@ -15624,9 +15638,19 @@ REGLAS CRÍTICAS:
 
             try {
                 claseEditorIA = await ClassicEditor.create(editorContainer, {
-                    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
+                    toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo', '|', 'sourceEditing'],
                     extraPlugins: [Base64UploadAdapterPlugin],
-                    initialData: contenido
+                    initialData: contenido,
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ]
+                    }
                 });
                 console.log('Editor de clase generada inicializado');
                 
@@ -15637,6 +15661,7 @@ REGLAS CRÍTICAS:
                 console.error('Error inicializando editor:', error);
                 editorContainer.innerHTML = contenido;
             }
+            */
         }
 
         // Funciones para insertar multimedia
@@ -15737,6 +15762,14 @@ REGLAS CRÍTICAS:
                 connectCKEditorToPreview(claseEditorIA, 'clasePreviewContainer');
                 claseEditorPreviewConnected = true;
                 console.log('🔗 Preview sincronizado con editor');
+            } else if (!claseEditorIA && splitViewEnabled) {
+                // Si no hay CKEditor (contenido mostrado directamente), actualizar preview manualmente
+                const contenido = document.getElementById('claseContentGeneradaEditor').innerHTML;
+                const previewContainer = document.getElementById('clasePreviewContainer');
+                if (previewContainer) {
+                    previewContainer.innerHTML = contenido;
+                    console.log('🔗 Preview actualizado con contenido HTML directo');
+                }
             }
         }
 
