@@ -553,36 +553,66 @@ function getProgramColor(program) {
     return colors[program] || 'default';
 }
 
+// Exportar funciones globalmente (solo si no existen para evitar sobrescribir versiones más completas)
+if (!window.loadUsuariosPendientes) {
+    window.loadUsuariosPendientes = loadUsuariosPendientes;
+}
+if (!window.loadUsuariosAprobados) {
+    window.loadUsuariosAprobados = loadUsuariosAprobados;
+}
+if (!window.aprobarUsuario) {
+    window.aprobarUsuario = aprobarUsuario;
+}
+if (!window.rechazarUsuario) {
+    window.rechazarUsuario = rechazarUsuario;
+}
+if (!window.editarUsuarioPendiente) {
+    window.editarUsuarioPendiente = editarUsuarioPendiente;
+}
+if (!window.editarUsuarioAprobado) {
+    window.editarUsuarioAprobado = editarUsuarioAprobado;
+}
+if (!window.verHistorialPagos) {
+    window.verHistorialPagos = verHistorialPagos;
+}
+if (!window.eliminarUsuario) {
+    window.eliminarUsuario = eliminarUsuario;
+}
+if (!window.cambiarEstadoEstudiante) {
+    window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
+}
+if (!window.aprobarTodosPendientes) {
+    window.aprobarTodosPendientes = aprobarTodosPendientes;
+}
+if (!window.renderPendingUsers) {
+    window.renderPendingUsers = renderPendingUsers;
+}
+if (!window.renderApprovedUsers) {
+    window.renderApprovedUsers = renderApprovedUsers;
+}
+if (!window.filterUsuarios) {
+    window.filterUsuarios = filterUsuarios;
+}
+if (!window.actualizarDashboardUsuarios) {
+    window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
+}
+
 // Exportar como módulo ES6 para compatibilidad
-const usuariosModule = {
+export default {
     name: 'usuarios',
     init: function() {
         console.log('Usuarios module initialized');
         this.exposeToGlobal();
     },
     exposeToGlobal: function() {
-        // Exponer TODAS las funciones al ámbito global
-        window.loadUsuariosPendientes = loadUsuariosPendientes;
-        window.loadUsuariosAprobados = loadUsuariosAprobados;
-        window.aprobarUsuario = aprobarUsuario;
-        window.rechazarUsuario = rechazarUsuario;
-        window.editarUsuarioPendiente = editarUsuarioPendiente;
-        window.editarUsuarioAprobado = editarUsuarioAprobado;
-        window.verHistorialPagos = verHistorialPagos;
-        window.eliminarUsuario = eliminarUsuario;
-        window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
-        window.aprobarTodosPendientes = aprobarTodosPendientes;
-        window.renderPendingUsers = renderPendingUsers;
-        window.renderApprovedUsers = renderApprovedUsers;
-        window.filterUsuarios = filterUsuarios;
-        window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
+        if (typeof window.loadUsuariosPendientes !== 'function') {
+            window.loadUsuariosPendientes = loadUsuariosPendientes;
+        }
+        if (typeof window.loadUsuariosAprobados !== 'function') {
+            window.loadUsuariosAprobados = loadUsuariosAprobados;
+        }
         console.log('✅ Funciones de Usuarios expuestas al ámbito global');
     }
 };
-
-// Ejecutar init automáticamente
-usuariosModule.init();
-
-export default usuariosModule;
 
 console.log('✅ Módulo de Usuarios cargado completamente');
