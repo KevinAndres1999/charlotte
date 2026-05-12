@@ -1,6 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+import { getStorage, ref, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 import { init as initForos } from './modules/foros-module.js';
 import { init as initProyecto } from './modules/proyecto-module.js';
 
@@ -17,9 +18,12 @@ try {
     const db = getFirestore(app);
     window.db = db;
     const auth = getAuth(app);
+    const storage = getStorage(app);
+    window.storage = storage;
     
     // Asignar funciones globales para compatibilidad
     window.db = db;
+    window.storage = storage;
     window.getDocs = getDocs;
     window.collection = collection;
     window.query = query;
@@ -4166,6 +4170,29 @@ async function downloadClaseFromViewer() {
     } catch (error) {
         console.error('Error al descargar clase:', error);
         showToast('Error al preparar la descarga', 'error');
+    }
+}
+
+// Función para abrir vista Gamma desde el visor de clases
+function openGammaViewFromClaseViewer() {
+    if (!currentClaseId) {
+        showToast('No hay clase cargada', 'error');
+        return;
+    }
+
+    const claseData = {
+        titulo: document.getElementById('clase-viewer-title').textContent,
+        descripcion: document.getElementById('clase-viewer-description').innerHTML,
+        contenido: document.getElementById('clase-viewer-content').innerHTML,
+        programa: document.getElementById('clase-viewer-programa').textContent,
+        modulo: '', // Se puede agregar si está disponible
+        duracion: document.getElementById('clase-viewer-duracion').textContent.replace(' min', '')
+    };
+
+    if (typeof openGammaView === 'function') {
+        openGammaView(claseData);
+    } else {
+        showToast('Error: El visor Gamma no está disponible', 'error');
     }
 }
 

@@ -6,6 +6,7 @@
     <meta http-equiv="Permissions-Policy" content="accelerometer=(), gyroscope=(), magnetometer=(), microphone=(self https://meet.jit.si), camera=(self https://meet.jit.si), display-capture=(self https://meet.jit.si), speaker=*, usb=(), bluetooth=(), geolocation=(), payment=(), interest-cohort=(), autoplay=(self https://meet.jit.si), encrypted-media=(self https://meet.jit.si), fullscreen=*, picture-in-picture=*, sync-xhr=(), cross-origin-isolated=(), disabled-depth=(), disabled-width=(), disabled-height=(), unload=(), browsing-topics=()" />
     <title>Portal Estudiante | Charlotte</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/gamma-viewer.css">
     <script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/classic/ckeditor.js"></script>
 
 
@@ -5170,6 +5171,9 @@
         .new-grade-card:nth-child(3) { animation-delay: 0.3s; }
         .new-grade-card:nth-child(4) { animation-delay: 0.4s; }
     </style>
+    
+    <!-- Gamma Viewer -->
+    <script src="js/gamma-viewer.js"></script>
 </head>
 <body>
     <header class="header">
@@ -5699,9 +5703,6 @@
                                 </div>
                             </div>
                             <div class="chat-messages" id="projectChat">
-                                <div class="chat-message ai">
-                                    <strong>Charlotte:</strong> ¡Hola! Soy tu tutora para el proyecto empresarial. Vamos a crear un plan de negocio paso a paso. ¿Estás listo para comenzar?
-                                </div>
                             </div>
                             <div class="chat-input-container" id="projectInputContainer">
                                 <textarea id="projectInput" placeholder="Escribe tu respuesta aquí..." rows="2"></textarea>
@@ -5995,15 +5996,15 @@
                 <div class="content-card">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
                         <div style="padding: 1.5rem; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0.5rem;">
-                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Saldo Actual</p>
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.85rem;">Total que debería ser pagado hasta la clase de hoy</p>
                             <p style="color: #1e3a8a; margin: 0; font-size: 1.8rem; font-weight: bold;" id="saldoActual">-</p>
                         </div>
                         <div style="padding: 1.5rem; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 0.5rem;">
-                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Pagado</p>
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.85rem;">Total cancelado hasta la clase de hoy</p>
                             <p style="color: #166534; margin: 0; font-size: 1.8rem; font-weight: bold;" id="totalPagado">-</p>
                         </div>
                         <div style="padding: 1.5rem; background: #fef2f2; border-left: 4px solid #ef4444; border-radius: 0.5rem;">
-                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.9rem;">Pendiente</p>
+                            <p style="color: #64748b; margin: 0 0 0.5rem 0; font-size: 0.85rem;">Total adeudado hasta la clase de hoy</p>
                             <p style="color: #b91c1c; margin: 0; font-size: 1.8rem; font-weight: bold;" id="totalPendiente">-</p>
                         </div>
                     </div>
@@ -6102,7 +6103,12 @@
 
                         <!-- Contenido principal -->
                         <div class="content-card clase-main-content-card">
-                            <h3><i class="fas fa-book-open"></i> Contenido de la Clase</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                                <h3><i class="fas fa-book-open"></i> Contenido de la Clase</h3>
+                                <button class="open-gamma-view-btn" onclick="openGammaViewFromClaseViewer()">
+                                    <i class="fas fa-presentation"></i> Ver como Presentación
+                                </button>
+                            </div>
                             <div class="clase-content-viewer" id="clase-viewer-content">
                                 Cargando contenido...
                             </div>

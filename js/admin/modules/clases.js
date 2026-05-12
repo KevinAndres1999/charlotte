@@ -119,19 +119,22 @@ export default {
         
         const modulos = {
             'Panadería y Pastelería': {
-                'modulo1': 'Módulo 1: Fundamentos de Panadería',
-                'modulo2': 'Módulo 2: Masas Especiales',
-                'modulo3': 'Módulo 3: Repostería y Decoración'
+                'modulo1': 'Módulo 1: Panadería',
+                'modulo2': 'Módulo 2: Galletaría',
+                'modulo3': 'Módulo 3: Pastelería',
+                'modulo4': 'Módulo 4: Repostería'
             },
             'Belleza Integral': {
-                'modulo1': 'Módulo 1: Cuidado Facial',
-                'modulo2': 'Módulo 2: Cuidado Capilar',
-                'modulo3': 'Módulo 3: Maquillaje Profesional'
+                'modulo1': 'Módulo 1: Diseño de Mirada',
+                'modulo2': 'Módulo 2: Maquillaje',
+                'modulo3': 'Módulo 3: Estilismo',
+                'modulo4': 'Módulo 4: Nails Designer'
             },
             'Asesoría Técnica': {
                 'modulo1': 'Módulo 1: Fundamentos',
-                'modulo2': 'Módulo 2: Aplicación Práctica',
-                'modulo3': 'Módulo 3: Proyecto Final'
+                'modulo2': 'Módulo 2: Estrategias',
+                'modulo3': 'Módulo 3: Gestión',
+                'modulo4': 'Módulo 4: Especialización'
             }
         };
         
