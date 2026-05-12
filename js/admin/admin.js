@@ -79,6 +79,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadAdminModule('videoconferencia')
     ]);
     
+    // Inicializar módulo de usuarios
+    const usuariosModule = window.ADMIN_CONFIG.modules['usuarios'];
+    if (usuariosModule && typeof usuariosModule.init === 'function') {
+        usuariosModule.init();
+        console.log('✅ Módulo de usuarios inicializado');
+    }
+    
     // Inicializar módulo de videoconferencia
     const videoModule = window.ADMIN_CONFIG.modules['videoconferencia'];
     if (videoModule && typeof videoModule.init === 'function') {

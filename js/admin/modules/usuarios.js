@@ -578,7 +578,7 @@ console.log('✅ Funciones expuestas globalmente:', {
 });
 
 // Exportar como módulo ES6 para compatibilidad
-export default {
+const usuariosModule = {
     name: 'usuarios',
     loadUsuariosPendientes,
     loadUsuariosAprobados,
@@ -593,5 +593,25 @@ export default {
     renderPendingUsers,
     renderApprovedUsers,
     filterUsuarios,
-    actualizarDashboardUsuarios
+    actualizarDashboardUsuarios,
+    init: function() {
+        // Re-exponer funciones al ámbito global al llamar init()
+        window.loadUsuariosPendientes = loadUsuariosPendientes;
+        window.loadUsuariosAprobados = loadUsuariosAprobados;
+        window.aprobarUsuario = aprobarUsuario;
+        window.rechazarUsuario = rechazarUsuario;
+        window.editarUsuarioPendiente = editarUsuarioPendiente;
+        window.editarUsuarioAprobado = editarUsuarioAprobado;
+        window.verHistorialPagos = verHistorialPagos;
+        window.eliminarUsuario = eliminarUsuario;
+        window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
+        window.aprobarTodosPendientes = aprobarTodosPendientes;
+        window.renderPendingUsers = renderPendingUsers;
+        window.renderApprovedUsers = renderApprovedUsers;
+        window.filterUsuarios = filterUsuarios;
+        window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
+        console.log('✅ Módulo usuarios inicializado - funciones disponibles globalmente');
+    }
 };
+
+export default usuariosModule;
