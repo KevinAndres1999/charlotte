@@ -418,6 +418,9 @@ function renderPendingUsers() {
                                 ${user.telefono ? `<span style="margin-left: 0.75rem;"><i class="fas fa-phone"></i> ${user.telefono}</span>` : ''}
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button onclick="editarUsuarioPendiente('${user.id}')" style="flex: 1; padding: 0.5rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
                                 <button onclick="aprobarUsuario('${user.id}')" style="flex: 1; padding: 0.5rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
                                     <i class="fas fa-check"></i> Aprobar
                                 </button>
