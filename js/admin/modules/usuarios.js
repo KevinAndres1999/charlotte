@@ -224,74 +224,167 @@ async function editarUsuarioPendiente(id) {
 }
 
 // Función para editar usuario aprobado
-async function editarUsuarioAprobado(id) {
-    const user = allApprovedUsers.find(u => u.id === id);
-    if (!user) {
-        alert('Usuario no encontrado');
-        return;
-    }
-
-    const nombre = prompt('Nombre del estudiante:', user.name || '');
-    if (nombre === null) return;
-    
-    const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
-    if (programa === null) return;
-    
-    const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
-    if (sede === null) return;
-    
-    const horario = prompt('Horario:', user.horario || '');
-    if (horario === null) return;
-    
-    const telefono = prompt('Teléfono:', user.telefono || '');
-    if (telefono === null) return;
-
+async function editarUsuarioAprobado(userId) {
     try {
-        await updateDoc(doc(db, 'users', id), {
-            name: nombre,
+        const user = allApprovedUsers.find(u => u.id === userId);
+        if (!user) {
+            alert('Usuario no encontrado');
+            return;
+        }
+
+        const modalHtml = `
+            <div id="editUserAprobadoModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+                <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-user-edit"></i> Editar Estudiante Aprobado</h3>
+                            <button onclick="document.getElementById('editUserAprobadoModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 2rem;">
+                        <div style="background: #ecfdf5; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px solid #a7f3d0;">
+                            <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: #1f2937;">${user.name}</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${user.email}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                            <select id="editUserAprobadoPrograma" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="Panadería y Pastelería" ${user.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                <option value="Belleza Integral" ${user.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                <option value="Asesoría Técnica" ${user.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt"></i> Sede</label>
+                            <select id="editUserAprobadoSede" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="Carapungo" ${user.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
+                                <option value="Sangolquí" ${user.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Horario</label>
+                            <select id="editUserAprobadoHorario" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Sin horario asignado</option>
+                                <option value="Sábado Matutina" ${user.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
+                                <option value="Sábado Vespertina" ${user.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
+                                <option value="Domingo Matutina" ${user.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button onclick="document.getElementById('editUserAprobadoModal').remove()" style="flex: 1; padding: 0.875rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                Cancelar
+                            </button>
+                            <button onclick="guardarEdicionUsuarioAprobado('${userId}')" style="flex: 2; padding: 0.875rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar usuario: ' + error.message);
+    }
+}
+
+async function guardarEdicionUsuarioAprobado(userId) {
+    const programa = document.getElementById('editUserAprobadoPrograma').value;
+    const sede = document.getElementById('editUserAprobadoSede').value;
+    const horario = document.getElementById('editUserAprobadoHorario').value;
+    
+    try {
+        await updateDoc(doc(db, 'users', userId), {
             programa: programa,
             sede: sede,
             horario: horario,
-            telefono: telefono,
             updatedAt: new Date().toISOString()
         });
         
-        alert('✅ Usuario actualizado correctamente');
+        document.getElementById('editUserAprobadoModal').remove();
         await loadUsuariosAprobados();
+        alert('✅ Usuario actualizado exitosamente');
     } catch (error) {
-        console.error('Error updating user:', error);
-        alert('Error al actualizar usuario: ' + error.message);
+        console.error('Error:', error);
+        alert('Error al guardar: ' + error.message);
     }
 }
 
 // Función para ver historial de pagos
 async function verHistorialPagos(userId) {
     const user = allApprovedUsers.find(u => u.id === userId);
-    if (!user) {
-        alert('Usuario no encontrado');
-        return;
-    }
-
-    // Mostrar información básica del usuario y redirigir a la sección de cobros
-    const mensaje = `Usuario: ${user.name || user.email}\n\nPara gestionar pagos, serás redirigido a la sección de Cobros.`;
+    if (!user) return;
     
-    if (confirm(mensaje + '\n\n¿Ir a la sección de Cobros ahora?')) {
-        // Redirigir a la sección de cobros
-        if (typeof window.showSection === 'function') {
-            window.showSection('cobros');
-            
-            // Si existe función para filtrar por usuario, usarla
-            setTimeout(() => {
-                const searchInput = document.querySelector('#cobros input[type="search"], #cobros input[placeholder*="Buscar"]');
-                if (searchInput) {
-                    searchInput.value = user.name || user.email;
-                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }, 300);
-        } else {
-            alert('No se pudo abrir la sección de Cobros. Por favor, navega manualmente.');
-        }
-    }
+    // Obtener historial de pagos del usuario
+    const historialPagos = user.historialPagos || [];
+    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    
+    let historialHtml = historialPagos.length > 0 ? 
+        historialPagos.map(p => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: ${p.estado === 'pagado' ? '#ecfdf5' : '#fef2f2'}; border-radius: 8px; margin-bottom: 0.5rem;">
+                <div>
+                    <strong>${p.concepto}</strong>
+                    <p style="margin: 0; font-size: 0.8rem; color: #6b7280;">${p.fecha ? new Date(p.fecha).toLocaleDateString() : 'Sin fecha'}</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-weight: 600; color: ${p.estado === 'pagado' ? '#059669' : '#dc2626'};">$${p.monto || 0}</span>
+                    <p style="margin: 0; font-size: 0.75rem; color: ${p.estado === 'pagado' ? '#059669' : '#dc2626'};">
+                        <i class="fas fa-${p.estado === 'pagado' ? 'check-circle' : 'clock'}"></i> ${p.estado === 'pagado' ? 'Pagado' : 'Pendiente'}
+                    </p>
+                </div>
+            </div>
+        `).join('') : '<p style="text-align: center; color: #6b7280;">No hay registros de pagos</p>';
+    
+    const modalHtml = `
+        <div id="historialPagosModal" class="modal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; border-radius: 20px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-history"></i> Historial de Pagos</h2>
+                        <button onclick="document.getElementById('historialPagosModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div style="padding: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">
+                        <div>
+                            <h4 style="margin: 0;">${user.name}</h4>
+                            <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">${user.email}</p>
+                        </div>
+                        <div style="padding: 0.5rem 1rem; border-radius: 8px; background: ${user.estadoPagos === 'pagos_pendientes' ? '#fef2f2' : '#ecfdf5'}; color: ${user.estadoPagos === 'pagos_pendientes' ? '#dc2626' : '#059669'}; font-weight: 600;">
+                            ${user.estadoPagos === 'pagos_pendientes' ? 'Pagos Pendientes' : 'Al Día'}
+                        </div>
+                    </div>
+                    
+                    <h5 style="margin: 0 0 0.75rem 0;"><i class="fas fa-list"></i> Historial:</h5>
+                    <div style="max-height: 250px; overflow-y: auto;">
+                        ${historialHtml}
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; text-align: center;">
+                        <button onclick="window.showSection && window.showSection('cobros'); document.getElementById('historialPagosModal').remove();" style="padding: 0.875rem 2rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                            <i class="fas fa-money-bill-wave"></i> Ir a Cobros
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
 // Función para cambiar el estado de un estudiante
@@ -619,6 +712,7 @@ window.aprobarUsuario = aprobarUsuario;
 window.rechazarUsuario = rechazarUsuario;
 window.editarUsuarioPendiente = editarUsuarioPendiente;
 window.editarUsuarioAprobado = editarUsuarioAprobado;
+window.guardarEdicionUsuarioAprobado = guardarEdicionUsuarioAprobado;
 window.verHistorialPagos = verHistorialPagos;
 window.eliminarUsuario = eliminarUsuario;
 window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
@@ -645,6 +739,7 @@ const usuariosModule = {
     rechazarUsuario,
     editarUsuarioPendiente,
     editarUsuarioAprobado,
+    guardarEdicionUsuarioAprobado,
     verHistorialPagos,
     eliminarUsuario,
     cambiarEstadoEstudiante,
@@ -661,6 +756,7 @@ const usuariosModule = {
         window.rechazarUsuario = rechazarUsuario;
         window.editarUsuarioPendiente = editarUsuarioPendiente;
         window.editarUsuarioAprobado = editarUsuarioAprobado;
+        window.guardarEdicionUsuarioAprobado = guardarEdicionUsuarioAprobado;
         window.verHistorialPagos = verHistorialPagos;
         window.eliminarUsuario = eliminarUsuario;
         window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
