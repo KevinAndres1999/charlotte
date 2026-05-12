@@ -183,43 +183,97 @@ async function rechazarUsuario(id) {
 }
 
 // Función para editar usuario pendiente
-async function editarUsuarioPendiente(id) {
-    const user = allPendingUsers.find(u => u.id === id);
-    if (!user) {
-        alert('Usuario no encontrado');
-        return;
-    }
-
-    const nombre = prompt('Nombre del estudiante:', user.name || '');
-    if (nombre === null) return; // Canceló
-    
-    const programa = prompt('Programa (Panadería y Pastelería / Belleza Integral):', user.programa || '');
-    if (programa === null) return;
-    
-    const sede = prompt('Sede (Carapungo / Sangolquí):', user.sede || '');
-    if (sede === null) return;
-    
-    const horario = prompt('Horario:', user.horario || '');
-    if (horario === null) return;
-    
-    const telefono = prompt('Teléfono:', user.telefono || '');
-    if (telefono === null) return;
-
+async function editarUsuarioPendiente(userId) {
     try {
-        await updateDoc(doc(db, 'pendingStudents', id), {
-            name: nombre,
+        const user = allPendingUsers.find(u => u.id === userId);
+        if (!user) {
+            alert('Usuario no encontrado');
+            return;
+        }
+
+        const modalHtml = `
+            <div id="editUserModal" class="modal" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+                <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+                    <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 1.5rem 2rem; border-radius: 20px 20px 0 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="margin: 0; color: white; font-size: 1.25rem;"><i class="fas fa-user-edit"></i> Editar Estudiante</h3>
+                            <button onclick="document.getElementById('editUserModal').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 2rem;">
+                        <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                            <p style="margin: 0 0 0.25rem 0; font-weight: 600; color: #1f2937;">${user.name}</p>
+                            <p style="margin: 0; font-size: 0.9rem; color: #6b7280;">${user.email}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-graduation-cap"></i> Programa</label>
+                            <select id="editUserPrograma" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="Panadería y Pastelería" ${user.programa === 'Panadería y Pastelería' ? 'selected' : ''}>Panadería y Pastelería</option>
+                                <option value="Belleza Integral" ${user.programa === 'Belleza Integral' ? 'selected' : ''}>Belleza Integral</option>
+                                <option value="Asesoría Técnica" ${user.programa === 'Asesoría Técnica' ? 'selected' : ''}>Asesoría Técnica</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.25rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt"></i> Sede</label>
+                            <select id="editUserSede" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="Carapungo" ${user.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
+                                <option value="Sangolquí" ${user.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Horario</label>
+                            <select id="editUserHorario" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="">Sin horario asignado</option>
+                                <option value="Sábado Matutina" ${user.horario === 'Sábado Matutina' ? 'selected' : ''}>Sábado Matutina</option>
+                                <option value="Sábado Vespertina" ${user.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
+                                <option value="Domingo Matutina" ${user.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button onclick="document.getElementById('editUserModal').remove()" style="flex: 1; padding: 0.875rem; background: #6b7280; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                Cancelar
+                            </button>
+                            <button onclick="guardarEdicionUsuarioPendiente('${userId}')" style="flex: 2; padding: 0.875rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar usuario: ' + error.message);
+    }
+}
+
+async function guardarEdicionUsuarioPendiente(userId) {
+    const programa = document.getElementById('editUserPrograma').value;
+    const sede = document.getElementById('editUserSede').value;
+    const horario = document.getElementById('editUserHorario').value;
+    
+    try {
+        await updateDoc(doc(db, 'pendingStudents', userId), {
             programa: programa,
             sede: sede,
-            horario: horario,
-            telefono: telefono,
-            updatedAt: new Date().toISOString()
+            horario: horario
         });
         
-        alert('✅ Usuario actualizado correctamente');
+        document.getElementById('editUserModal').remove();
         await loadUsuariosPendientes();
+        alert('✅ Usuario actualizado exitosamente');
     } catch (error) {
-        console.error('Error updating user:', error);
-        alert('Error al actualizar usuario: ' + error.message);
+        console.error('Error:', error);
+        alert('Error al guardar: ' + error.message);
     }
 }
 
@@ -711,6 +765,7 @@ window.loadUsuariosAprobados = loadUsuariosAprobados;
 window.aprobarUsuario = aprobarUsuario;
 window.rechazarUsuario = rechazarUsuario;
 window.editarUsuarioPendiente = editarUsuarioPendiente;
+window.guardarEdicionUsuarioPendiente = guardarEdicionUsuarioPendiente;
 window.editarUsuarioAprobado = editarUsuarioAprobado;
 window.guardarEdicionUsuarioAprobado = guardarEdicionUsuarioAprobado;
 window.verHistorialPagos = verHistorialPagos;
@@ -738,6 +793,7 @@ const usuariosModule = {
     aprobarUsuario,
     rechazarUsuario,
     editarUsuarioPendiente,
+    guardarEdicionUsuarioPendiente,
     editarUsuarioAprobado,
     guardarEdicionUsuarioAprobado,
     verHistorialPagos,
@@ -755,6 +811,7 @@ const usuariosModule = {
         window.aprobarUsuario = aprobarUsuario;
         window.rechazarUsuario = rechazarUsuario;
         window.editarUsuarioPendiente = editarUsuarioPendiente;
+        window.guardarEdicionUsuarioPendiente = guardarEdicionUsuarioPendiente;
         window.editarUsuarioAprobado = editarUsuarioAprobado;
         window.guardarEdicionUsuarioAprobado = guardarEdicionUsuarioAprobado;
         window.verHistorialPagos = verHistorialPagos;
