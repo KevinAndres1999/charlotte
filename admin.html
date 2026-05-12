@@ -11164,6 +11164,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         }
 
         // Usuarios aprobados
+        // Función loadUsuariosAprobados ahora viene del módulo usuarios.js
+        /* COMENTADO - USAR FUNCIÓN DEL MÓDULO usuarios.js
         async function loadUsuariosAprobados() {
             try {
                 console.log('🔄 Iniciando carga de usuarios aprobados...');
@@ -11208,6 +11210,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 console.error('❌ Stack trace:', error.stack);
             }
         }
+        FIN COMENTARIO DE FUNCIÓN DUPLICADA */
 
         // Variable para modo de selección masiva
         let modoSeleccionMasiva = false;
@@ -11257,6 +11260,18 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             document.getElementById('bar-panaderia').style.width = ((panaderia / maxPrograma) * 100) + '%';
             document.getElementById('bar-belleza').style.width = ((belleza / maxPrograma) * 100) + '%';
             document.getElementById('bar-asesoria').style.width = ((asesoria / maxPrograma) * 100) + '%';
+            
+            // Calcular distribución por programa para el widget
+            const usersByProgram = {};
+            allApprovedUsers.forEach(user => {
+                const programa = user.programa || 'Sin programa';
+                usersByProgram[programa] = (usersByProgram[programa] || 0) + 1;
+            });
+            
+            // Llamar a la función del módulo para renderizar el dashboard de distribución
+            if (typeof renderProgramDistribution === 'function') {
+                renderProgramDistribution(usersByProgram);
+            }
         }
 
         // Función para exportar usuarios a CSV

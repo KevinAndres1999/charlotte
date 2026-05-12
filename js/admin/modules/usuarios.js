@@ -82,15 +82,24 @@ async function loadUsuariosAprobados() {
 
 // Función para actualizar el dashboard de estadísticas
 function actualizarDashboardUsuarios() {
+    console.log('📊 Actualizando dashboard - allApprovedUsers:', allApprovedUsers.length);
+    
     const cursando = allApprovedUsers.filter(u => u.status === 'cursando' || u.status === 'active').length;
     const graduados = allApprovedUsers.filter(u => u.status === 'graduado').length;
     const retirados = allApprovedUsers.filter(u => u.status === 'retirado').length;
     const total = allApprovedUsers.length + (allPendingUsers ? allPendingUsers.length : 0);
     const pagosPendientes = allApprovedUsers.filter(u => u.estadoPagos === 'pagos_pendientes').length;
     
+    console.log('📊 Estadísticas:', { cursando, graduados, retirados, total, pagosPendientes });
+    
     const setText = (id, value) => {
         const el = document.getElementById(id);
-        if (el) el.textContent = value;
+        if (el) {
+            el.textContent = value;
+            console.log(`✅ Actualizado ${id} = ${value}`);
+        } else {
+            console.warn(`⚠️ Elemento ${id} no encontrado`);
+        }
     };
     
     setText('total-todos-usuarios', total);
@@ -103,6 +112,8 @@ function actualizarDashboardUsuarios() {
     const carapungo = allApprovedUsers.filter(u => u.sede === 'Carapungo').length;
     const sangolqui = allApprovedUsers.filter(u => u.sede === 'Sangolquí').length;
     
+    console.log('📊 Por sede:', { carapungo, sangolqui });
+    
     setText('total-carapungo', carapungo);
     setText('total-sangolqui', sangolqui);
     
@@ -113,16 +124,27 @@ function actualizarDashboardUsuarios() {
         usersByProgram[programa] = (usersByProgram[programa] || 0) + 1;
     });
     
+    console.log('📊 Distribución por programa:', usersByProgram);
+    
     // Renderizar distribución por programa
     renderProgramDistribution(usersByProgram);
 }
 
 // Función para renderizar distribución por programa
 function renderProgramDistribution(usersByProgram) {
+    console.log('📊 renderProgramDistribution llamada con:', usersByProgram);
+    
     const container = document.getElementById('program-distribution');
-    if (!container) return;
+    console.log('📊 Container program-distribution:', container);
+    
+    if (!container) {
+        console.error('❌ Container program-distribution no encontrado');
+        return;
+    }
     
     const totalUsers = Object.values(usersByProgram).reduce((sum, count) => sum + count, 0);
+    console.log('📊 Total usuarios para distribución:', totalUsers);
+    
     if (totalUsers === 0) {
         container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #6b7280;"><i class="fas fa-chart-pie" style="font-size: 2rem; opacity: 0.5;"></i><p>No hay datos de distribución disponibles</p></div>';
         return;
@@ -131,6 +153,8 @@ function renderProgramDistribution(usersByProgram) {
     const programs = Object.entries(usersByProgram)
         .sort(([,a], [,b]) => b - a)
         .slice(0, 6);
+    
+    console.log('📊 Programas a renderizar:', programs);
     
     let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
     
@@ -154,6 +178,7 @@ function renderProgramDistribution(usersByProgram) {
     
     html += '</div>';
     container.innerHTML = html;
+    console.log('✅ Dashboard de distribución renderizado');
 }
 
 // Función para aprobar usuario
@@ -975,6 +1000,7 @@ window.renderPendingUsers = renderPendingUsers;
 window.renderApprovedUsers = renderApprovedUsers;
 window.filterUsuarios = filterUsuarios;
 window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
+window.renderProgramDistribution = renderProgramDistribution;
 
 console.log('✅ Módulo de Usuarios cargado completamente');
 console.log('✅ Funciones expuestas globalmente:', {
@@ -1005,6 +1031,7 @@ const usuariosModule = {
     renderApprovedUsers,
     filterUsuarios,
     actualizarDashboardUsuarios,
+    renderProgramDistribution,
     init: function() {
         // Re-exponer funciones al ámbito global al llamar init()
         window.loadUsuariosPendientes = loadUsuariosPendientes;
@@ -1024,6 +1051,7 @@ const usuariosModule = {
         window.renderApprovedUsers = renderApprovedUsers;
         window.filterUsuarios = filterUsuarios;
         window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
+        window.renderProgramDistribution = renderProgramDistribution;
         console.log('✅ Módulo usuarios inicializado - funciones disponibles globalmente');
     }
 };
