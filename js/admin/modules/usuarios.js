@@ -597,22 +597,23 @@ if (!window.actualizarDashboardUsuarios) {
     window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
 }
 
+console.log('✅ Módulo de Usuarios cargado completamente');
+
 // Exportar como módulo ES6 para compatibilidad
 export default {
     name: 'usuarios',
-    init: function() {
-        console.log('Usuarios module initialized');
-        this.exposeToGlobal();
-    },
-    exposeToGlobal: function() {
-        if (typeof window.loadUsuariosPendientes !== 'function') {
-            window.loadUsuariosPendientes = loadUsuariosPendientes;
-        }
-        if (typeof window.loadUsuariosAprobados !== 'function') {
-            window.loadUsuariosAprobados = loadUsuariosAprobados;
-        }
-        console.log('✅ Funciones de Usuarios expuestas al ámbito global');
-    }
+    loadUsuariosPendientes,
+    loadUsuariosAprobados,
+    aprobarUsuario,
+    rechazarUsuario,
+    editarUsuarioPendiente,
+    editarUsuarioAprobado,
+    verHistorialPagos,
+    eliminarUsuario,
+    cambiarEstadoEstudiante,
+    aprobarTodosPendientes,
+    renderPendingUsers,
+    renderApprovedUsers,
+    filterUsuarios,
+    actualizarDashboardUsuarios
 };
-
-console.log('✅ Módulo de Usuarios cargado completamente');
