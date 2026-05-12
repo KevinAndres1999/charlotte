@@ -553,51 +553,29 @@ function getProgramColor(program) {
     return colors[program] || 'default';
 }
 
-// Exportar funciones globalmente (solo si no existen para evitar sobrescribir versiones más completas)
-if (!window.loadUsuariosPendientes) {
-    window.loadUsuariosPendientes = loadUsuariosPendientes;
-}
-if (!window.loadUsuariosAprobados) {
-    window.loadUsuariosAprobados = loadUsuariosAprobados;
-}
-if (!window.aprobarUsuario) {
-    window.aprobarUsuario = aprobarUsuario;
-}
-if (!window.rechazarUsuario) {
-    window.rechazarUsuario = rechazarUsuario;
-}
-if (!window.editarUsuarioPendiente) {
-    window.editarUsuarioPendiente = editarUsuarioPendiente;
-}
-if (!window.editarUsuarioAprobado) {
-    window.editarUsuarioAprobado = editarUsuarioAprobado;
-}
-if (!window.verHistorialPagos) {
-    window.verHistorialPagos = verHistorialPagos;
-}
-if (!window.eliminarUsuario) {
-    window.eliminarUsuario = eliminarUsuario;
-}
-if (!window.cambiarEstadoEstudiante) {
-    window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
-}
-if (!window.aprobarTodosPendientes) {
-    window.aprobarTodosPendientes = aprobarTodosPendientes;
-}
-if (!window.renderPendingUsers) {
-    window.renderPendingUsers = renderPendingUsers;
-}
-if (!window.renderApprovedUsers) {
-    window.renderApprovedUsers = renderApprovedUsers;
-}
-if (!window.filterUsuarios) {
-    window.filterUsuarios = filterUsuarios;
-}
-if (!window.actualizarDashboardUsuarios) {
-    window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
-}
+// Exportar funciones globalmente - Ejecutar inmediatamente sin condicionales
+window.loadUsuariosPendientes = loadUsuariosPendientes;
+window.loadUsuariosAprobados = loadUsuariosAprobados;
+window.aprobarUsuario = aprobarUsuario;
+window.rechazarUsuario = rechazarUsuario;
+window.editarUsuarioPendiente = editarUsuarioPendiente;
+window.editarUsuarioAprobado = editarUsuarioAprobado;
+window.verHistorialPagos = verHistorialPagos;
+window.eliminarUsuario = eliminarUsuario;
+window.cambiarEstadoEstudiante = cambiarEstadoEstudiante;
+window.aprobarTodosPendientes = aprobarTodosPendientes;
+window.renderPendingUsers = renderPendingUsers;
+window.renderApprovedUsers = renderApprovedUsers;
+window.filterUsuarios = filterUsuarios;
+window.actualizarDashboardUsuarios = actualizarDashboardUsuarios;
 
 console.log('✅ Módulo de Usuarios cargado completamente');
+console.log('✅ Funciones expuestas globalmente:', {
+    aprobarUsuario: typeof window.aprobarUsuario,
+    rechazarUsuario: typeof window.rechazarUsuario,
+    editarUsuarioPendiente: typeof window.editarUsuarioPendiente,
+    editarUsuarioAprobado: typeof window.editarUsuarioAprobado
+});
 
 // Exportar como módulo ES6 para compatibilidad
 export default {
