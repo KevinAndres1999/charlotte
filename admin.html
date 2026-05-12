@@ -15135,7 +15135,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
 
         // Función para generar clase con prompt personalizado
         async function generarClaseConPromptPersonalizado(titulo, promptUsuario, textoBase, duracion, apiKey) {
-            const promptCompleto = `Eres un diseñador pedagógico experto que crea contenido educativo VISUAL y MODERNO estilo Gamma.app/Canva.
+            const promptCompleto = `Eres un diseñador pedagógico experto que crea PRESENTACIONES EDUCATIVAS PROFESIONALES estilo Gamma.app. 
 
 INSTRUCCIÓN DEL USUARIO:
 ${promptUsuario}
@@ -15148,43 +15148,52 @@ FORMATO DE RESPUESTA OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
 {
     "titulo": "Título atractivo de la clase",
     "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML CON DISEÑO VISUAL TIPO GAMMA.APP usando DIVS con estilos inline:
-    
-    Ejemplo de estructura visual:
-    <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 16px; margin: 2rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
-        <h2 style='font-size: 2.5rem;'>🎯 TÍTULO DE SECCIÓN</h2>
-        <p style='font-size: 1.3rem;'>Descripción</p>
+    "contenido": "CONTENIDO HTML ESTILO GAMMA.APP - PRESENTACIÓN TIPO SLIDE DECK CON:
+
+<!-- SLIDE DE PORTADA -->
+<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4); min-height: 400px; display: flex; flex-direction: column; justify-content: center;'>
+    <h1 style='font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 800;'>[TÍTULO]</h1>
+    <p style='font-size: 1.5rem; opacity: 0.95;'>Descripción motivadora</p>
+</div>
+
+<!-- TARJETAS NUMERADAS (01, 02, 03) -->
+<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin: 3rem 0;'>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #3b82f6;'>
+        <div style='background: #3b82f6; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>01</div>
+        <h4 style='font-size: 1.5rem; color: #1f2937;'>Concepto 1</h4>
+        <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción</p>
     </div>
-    
-    <div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border-left: 5px solid #3b82f6;'>
-        <h3 style='color: #1e40af; font-size: 1.8rem;'>📚 Concepto</h3>
-        <p style='font-size: 1.2rem; line-height: 1.8;'>Contenido explicativo...</p>
+</div>
+
+<!-- TARJETAS CON EMOJI -->
+<div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #8b5cf6;'>
+    <div style='display: flex; align-items: flex-start; gap: 1.5rem;'>
+        <div style='background: #8b5cf6; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;'>💪</div>
+        <div><h4 style='font-size: 1.8rem; font-weight: 700;'>Título</h4><p style='font-size: 1.2rem;'>Descripción</p></div>
     </div>
-    
-    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;'>
-        <div style='background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 2rem; border-radius: 12px; border: 2px solid #3b82f6;'>
-            <h4>💡 Item 1</h4>
-            <p>Contenido...</p>
-        </div>
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 2rem; border-radius: 12px; border: 2px solid #10b981;'>
-            <h4>✨ Item 2</h4>
-            <p>Contenido...</p>
-        </div>
-    </div>"
+</div>
+
+<!-- SLIDE DE RESUMEN FINAL CON GRID -->
+<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin: 3rem 0;'>
+    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #8b5cf6; text-align: center;'>
+        <div style='font-size: 3rem; margin-bottom: 1rem;'>📚</div>
+        <h4 style='font-size: 1.4rem; font-weight: 700;'>Aprendizaje 1</h4>
+        <p style='font-size: 1.1rem; color: #6b7280;'>Resumen</p>
+    </div>
+</div>"
 }
 
-REGLAS CRÍTICAS PARA DISEÑO VISUAL:
-- USA DIVS CON ESTILOS INLINE (background, padding, border-radius, box-shadow, margin, etc.)
-- DISEÑO TIPO TARJETAS con colores vibrantes y degradados
-- ICONOS/EMOJIS grandes y prominentes (font-size: 2rem)
-- LAYOUTS EN GRID/FLEXBOX (display: grid; grid-template-columns; gap;)
-- COLORES VIBRANTES: degradados lineales, sombras, bordes coloridos
-- TEXTO GRANDE (font-size: 1.2rem mínimo para párrafos, 1.8rem+ para títulos)
-- ESPACIADO GENEROSO (padding: 2rem+, margin: 2rem+)
-- BOX-SHADOWS para profundidad (box-shadow: 0 8px 30px rgba(0,0,0,0.12))
-- BORDER-RADIUS para suavidad (12px-16px)
-- Sigue EXACTAMENTE la instrucción del usuario adaptándola a diseño visual
-- Responde SOLO con JSON válido, sin markdown ni texto adicional`;
+REGLAS CRÍTICAS:
+- Crea SLIDES COMPLETAS tipo presentación Gamma
+- TARJETAS NUMERADAS (01, 02, 03) con números en círculos
+- TARJETAS CON EMOJI destacado (💪, 🍪, 🍰, etc.)
+- CAJAS DE INFORMACIÓN con íconos (💡, ⚠️)
+- SLIDE DE RESUMEN FINAL con grid de tarjetas
+- USA ESTILOS INLINE: gradientes, sombras, borders, padding generoso
+- TEXTO GRANDE: 1.2rem+ para contenido, 1.8rem+ para títulos
+- LAYOUTS EN GRID/FLEXBOX
+- Sigue EXACTAMENTE la instrucción del usuario
+- Responde SOLO con JSON válido`;
 
             console.log('Enviando prompt personalizado a OpenRouter...');
 
@@ -15243,110 +15252,242 @@ REGLAS CRÍTICAS PARA DISEÑO VISUAL:
 
         // Función para generar el contenido de la clase con IA (Constructivista)
         async function generarContenidoClaseIA(titulo, textoBase, duracion, apiKey) {
-            const prompt = `Eres un diseñador pedagógico experto que crea contenido educativo VISUAL y MODERNO estilo Gamma.app/Canva. Genera una clase visualmente atractiva.
+            const prompt = `Eres un diseñador pedagógico experto que crea PRESENTACIONES EDUCATIVAS PROFESIONALES estilo Gamma.app. Genera una clase visualmente impactante tipo SLIDE DECK.
 
 TÍTULO DE LA CLASE: ${titulo}
 DURACIÓN ESTIMADA: ${duracion} minutos
 CONTENIDO/TEMA BASE: ${textoBase}
 
-INSTRUCCIONES IMPORTANTES:
-Genera una clase VISUAL con metodología constructivista (Anticipación, Construcción, Consolidación).
-El contenido DEBE ser tipo PRESENTACIÓN MODERNA con diseño atractivo, NO texto plano.
+INSTRUCCIONES CRÍTICAS:
+- Crea una PRESENTACIÓN COMPLETA tipo Gamma.app con múltiples slides
+- Usa metodología constructivista (Anticipación, Construcción, Consolidación)
+- DISEÑO VISUAL PROFESIONAL: tarjetas, gradientes, iconos grandes, layouts en grid
+- Cada sección debe parecer una SLIDE de presentación
 
 FORMATO JSON OBLIGATORIO (responde ÚNICAMENTE con JSON válido):
 {
     "titulo": "Título atractivo y mejorado",
     "descripcion": "Descripción breve y llamativa (2-3 oraciones)",
-    "contenido": "CONTENIDO HTML CON DISEÑO VISUAL TIPO GAMMA.APP:
+    "contenido": "CONTENIDO HTML ESTILO GAMMA.APP - DISEÑO TIPO PRESENTACIÓN:
 
-<!-- SLIDE 1: PORTADA/ANTICIPACIÓN -->
-<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 16px; margin: 2rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
-    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>🎯 ANTICIPACIÓN</h2>
-    <p style='font-size: 1.3rem; opacity: 0.95; margin-bottom: 2rem;'>Activando conocimientos previos</p>
-</div>
-
-<div style='display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;'>
-    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #fbbf24;'>
-        <h3 style='color: #f59e0b; font-size: 1.5rem; margin-bottom: 1rem;'>💡 Pregunta Inicial</h3>
-        <p style='font-size: 1.1rem; line-height: 1.8; color: #374151;'>¿Qué sabes sobre [TEMA]? ¿Dónde lo has visto en tu vida diaria?</p>
-    </div>
-    <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #f59e0b;'>
-        <h3 style='color: #ea580c; font-size: 1.5rem; margin-bottom: 1rem;'>🤔 Reflexiona</h3>
-        <p style='font-size: 1.1rem; line-height: 1.8; color: #374151;'>Piensa en situaciones donde has aplicado o visto este concepto...</p>
+<!-- ========== SLIDE 1: PORTADA ========== -->
+<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4); min-height: 400px; display: flex; flex-direction: column; justify-content: center;'>
+    <h1 style='font-size: 3.5rem; margin-bottom: 1.5rem; font-weight: 800; text-shadow: 2px 4px 8px rgba(0,0,0,0.3); line-height: 1.2;'>[TÍTULO PRINCIPAL ATRACTIVO]</h1>
+    <p style='font-size: 1.5rem; opacity: 0.95; margin-bottom: 2.5rem; font-weight: 300; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto;'>Descripción breve y motivadora que captura la esencia de lo que aprenderás en esta clase</p>
+    <div style='display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;'>
+        <span style='background: rgba(255,255,255,0.25); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📚 Empezar la clase</span>
+        <span style='background: rgba(255,255,255,0.15); padding: 0.8rem 2rem; border-radius: 50px; font-size: 1.1rem; backdrop-filter: blur(10px);'>📑 Ver índice</span>
     </div>
 </div>
 
-<!-- SLIDE 2: CONSTRUCCIÓN -->
-<div style='background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
-    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>🔨 CONSTRUCCIÓN DEL CONOCIMIENTO</h2>
-    <p style='font-size: 1.3rem; opacity: 0.95;'>Desarrollando conceptos clave</p>
+<!-- ========== SLIDE 2: INTRODUCCIÓN ========== -->
+<div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
+    <h2 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>[Título de Introducción - ¿Qué vamos a aprender?]</h2>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>Texto introductorio explicando el contexto del tema. Este párrafo debe ser claro, motivador y establecer por qué este contenido es importante y relevante para el estudiante.</p>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563;'>Continúa desarrollando la introducción con más detalles, contexto histórico o aplicaciones prácticas del tema.</p>
 </div>
 
-<!-- Concepto 1 -->
-<div style='background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #3b82f6;'>
-    <div style='display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;'>
-        <div style='background: #3b82f6; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);'>📚</div>
-        <h3 style='color: #1e40af; font-size: 1.8rem; margin: 0;'>Concepto Principal 1</h3>
-    </div>
-    <p style='font-size: 1.2rem; line-height: 1.8; color: #1e3a8a; margin-bottom: 1rem;'>Explicación clara y detallada del primer concepto fundamental...</p>
-    <ul style='font-size: 1.1rem; line-height: 1.8; color: #1e40af; margin-left: 2rem;'>
-        <li>Punto clave 1</li>
-        <li>Punto clave 2</li>
-        <li>Punto clave 3</li>
-    </ul>
-</div>
-
-<!-- Concepto 2 -->
-<div style='background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #14b8a6;'>
-    <div style='display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;'>
-        <div style='background: #14b8a6; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 10px rgba(20, 184, 166, 0.4);'>🔍</div>
-        <h3 style='color: #0f766e; font-size: 1.8rem; margin: 0;'>Concepto Principal 2</h3>
-    </div>
-    <p style='font-size: 1.2rem; line-height: 1.8; color: #115e59; margin-bottom: 1rem;'>Explicación del segundo concepto con ejemplos prácticos...</p>
-</div>
-
-<!-- Ejemplo Práctico -->
-<div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12); border: 3px dashed #8b5cf6;'>
-    <h3 style='color: #7c3aed; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>⚡ EJEMPLO PRÁCTICO</h3>
-    <div style='background: #f5f3ff; padding: 2rem; border-radius: 8px; border-left: 5px solid #8b5cf6;'>
-        <p style='font-size: 1.2rem; line-height: 1.8; color: #5b21b6;'>Caso práctico detallado mostrando cómo aplicar lo aprendido en situaciones reales...</p>
-    </div>
-</div>
-
-<!-- SLIDE 3: CONSOLIDACIÓN -->
-<div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2);'>
-    <h2 style='font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);'>✅ CONSOLIDACIÓN</h2>
-    <p style='font-size: 1.3rem; opacity: 0.95;'>Integrando y aplicando conocimientos</p>
-</div>
-
-<!-- Resumen Visual -->
-<div style='background: white; padding: 2.5rem; border-radius: 12px; margin: 2rem 0; box-shadow: 0 8px 30px rgba(0,0,0,0.12);'>
-    <h3 style='color: #059669; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>📋 RESUMEN DE PUNTOS CLAVE</h3>
-    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;'>
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
-            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>✨</div>
-            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 1</p>
+<!-- ========== TARJETAS NUMERADAS: COMPONENTES CLAVE ========== -->
+<div style='background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0;'>
+    <h3 style='font-size: 2.2rem; color: #1f2937; margin-bottom: 2.5rem; text-align: center; font-weight: 700;'>[Título: Componentes/Partes/Elementos Clave]</h3>
+    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;'>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #3b82f6;'>
+            <div style='background: #3b82f6; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>01</div>
+            <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>[Componente 1]</h4>
+            <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción detallada del primer componente o elemento fundamental.</p>
         </div>
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
-            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>🎯</div>
-            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 2</p>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #10b981;'>
+            <div style='background: #10b981; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>02</div>
+            <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>[Componente 2]</h4>
+            <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción detallada del segundo componente o elemento fundamental.</p>
         </div>
-        <div style='background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); padding: 1.5rem; border-radius: 8px; text-align: center; border: 2px solid #10b981;'>
-            <div style='font-size: 2rem; margin-bottom: 0.5rem;'>💪</div>
-            <p style='color: #065f46; font-weight: 600; font-size: 1.1rem;'>Punto clave 3</p>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-top: 4px solid #f59e0b;'>
+            <div style='background: #f59e0b; color: white; font-size: 1.8rem; font-weight: 700; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;'>03</div>
+            <h4 style='font-size: 1.5rem; color: #1f2937; margin-bottom: 1rem; font-weight: 600;'>[Componente 3]</h4>
+            <p style='font-size: 1.1rem; line-height: 1.8; color: #6b7280;'>Descripción detallada del tercer componente o elemento fundamental.</p>
         </div>
     </div>
 </div>
 
-<!-- Actividad de Cierre -->
-<div style='background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 2.5rem; border-radius: 12px; margin: 2rem 0; border: 2px solid #f59e0b;'>
-    <h3 style='color: #92400e; font-size: 1.8rem; margin-bottom: 1.5rem; text-align: center;'>🎨 ACTIVIDAD PRÁCTICA</h3>
-    <p style='font-size: 1.2rem; line-height: 1.8; color: #78350f; text-align: center;'>Ahora te toca: Aplica lo aprendido realizando [actividad específica]...</p>
+<!-- ========== SLIDE 3: SECCIÓN DE CONTENIDO PRINCIPAL ========== -->
+<div style='background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); padding: 3.5rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);'>
+    <h2 style='font-size: 3rem; margin-bottom: 1rem; font-weight: 800; text-shadow: 2px 4px 8px rgba(0,0,0,0.3);'>[Título de Sección Principal]</h2>
+    <p style='font-size: 1.4rem; opacity: 0.95; font-weight: 300;'>Subtítulo o descripción breve de esta sección</p>
+</div>
+
+<!-- ========== SLIDE 4: CONCEPTO CON EMOJI DESTACADO ========== -->
+<div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
+    <h2 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>[Título del Concepto Importante]</h2>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 3rem;'>Explicación detallada del concepto. Este debe ser un párrafo sustancial que desarrolla la idea principal con claridad y profundidad.</p>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 3rem;'>Continúa desarrollando el concepto con más detalles, ejemplos o contexto adicional.</p>
+</div>
+
+<!-- ========== TARJETAS CON EMOJI: TIPOS/CATEGORÍAS ========== -->
+<div style='margin: 3rem 0;'>
+    <h3 style='font-size: 2.2rem; color: #1f2937; margin-bottom: 2.5rem; font-weight: 700;'>[Título: Tipos/Categorías/Clasificaciones]</h3>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 3rem;'>Texto introductorio explicando los diferentes tipos o categorías que se presentarán.</p>
+    
+    <!-- Tipo 1 -->
+    <div style='background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #8b5cf6; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);'>
+        <div style='display: flex; align-items: flex-start; gap: 1.5rem; margin-bottom: 1.5rem;'>
+            <div style='background: #8b5cf6; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);'>💪</div>
+            <div>
+                <h4 style='color: #6b21a8; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 700;'>[Nombre del Tipo/Categoría 1]</h4>
+                <p style='color: #7c3aed; font-size: 1.2rem; margin: 0; font-weight: 600;'>Proteínas: XX–XX% (o dato característico)</p>
+            </div>
+        </div>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #5b21b6; margin-bottom: 1rem;'>Descripción detallada de este tipo. Explica sus características principales, cuándo se usa, y por qué es importante.</p>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #5b21b6;'>Continúa con más detalles sobre aplicaciones, beneficios o consideraciones especiales.</p>
+    </div>
+    
+    <!-- Tipo 2 -->
+    <div style='background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #f59e0b; box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);'>
+        <div style='display: flex; align-items: flex-start; gap: 1.5rem; margin-bottom: 1.5rem;'>
+            <div style='background: #f59e0b; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);'>🍪</div>
+            <div>
+                <h4 style='color: #92400e; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 700;'>[Nombre del Tipo/Categoría 2]</h4>
+                <p style='color: #b45309; font-size: 1.2rem; margin: 0; font-weight: 600;'>Proteínas: XX–XX% (o dato característico)</p>
+            </div>
+        </div>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #78350f; margin-bottom: 1rem;'>Descripción detallada de este segundo tipo con sus características distintivas.</p>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #78350f;'>Información adicional sobre cuándo y cómo usar este tipo.</p>
+    </div>
+    
+    <!-- Tipo 3 -->
+    <div style='background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); padding: 2.5rem; border-radius: 16px; margin: 2.5rem 0; border: 2px solid #ec4899; box-shadow: 0 8px 30px rgba(236, 72, 153, 0.15);'>
+        <div style='display: flex; align-items: flex-start; gap: 1.5rem; margin-bottom: 1.5rem;'>
+            <div style='background: #ec4899; color: white; min-width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);'>🍰</div>
+            <div>
+                <h4 style='color: #9f1239; font-size: 1.8rem; margin: 0 0 0.5rem 0; font-weight: 700;'>[Nombre del Tipo/Categoría 3]</h4>
+                <p style='color: #be123c; font-size: 1.2rem; margin: 0; font-weight: 600;'>Proteínas: XX–XX% (o dato característico)</p>
+            </div>
+        </div>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #831843; margin-bottom: 1rem;'>Descripción completa del tercer tipo con detalles relevantes.</p>
+        <p style='font-size: 1.2rem; line-height: 1.9; color: #831843;'>Contexto adicional y aplicaciones prácticas.</p>
+    </div>
+</div>
+
+<!-- ========== CAJA DE INFORMACIÓN DESTACADA ========== -->
+<div style='background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 2rem; border-radius: 12px; margin: 2.5rem 0; border-left: 6px solid #f59e0b; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);'>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #92400e; margin: 0;'><strong>💡 Dato clave:</strong> Información importante, nota técnica o consejo profesional que el estudiante debe recordar.</p>
+</div>
+
+<!-- ========== SLIDE 5: OTRA SECCIÓN IMPORTANTE ========== -->
+<div style='background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 3.5rem 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(16, 185, 129, 0.4);'>
+    <h2 style='font-size: 3rem; margin-bottom: 1rem; font-weight: 800; text-shadow: 2px 4px 8px rgba(0,0,0,0.3);'>[Título de Otra Sección Clave]</h2>
+    <p style='font-size: 1.4rem; opacity: 0.95; font-weight: 300;'>Descripción de esta sección</p>
+</div>
+
+<!-- ========== CONTENIDO DE SECCIÓN CON PROCESO/PASOS ========== -->
+<div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
+    <h3 style='font-size: 2.2rem; color: #1f2937; margin-bottom: 2rem; font-weight: 700;'>[Título: Proceso/Metodología/Cómo Funciona]</h3>
+    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;'>
+        <div style='text-align: center; padding: 1.5rem;'>
+            <div style='background: #eff6ff; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border: 2px solid #3b82f6;'>
+                <div style='font-size: 2.5rem; margin-bottom: 0.5rem;'>💧</div>
+                <h4 style='color: #1e40af; font-size: 1.3rem; margin: 0; font-weight: 700;'>[Paso 1]</h4>
+            </div>
+            <p style='color: #4b5563; font-size: 1.1rem; line-height: 1.6;'>Descripción breve del paso</p>
+        </div>
+        <div style='text-align: center; padding: 1.5rem;'>
+            <div style='background: #f0fdf4; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border: 2px solid #10b981;'>
+                <div style='font-size: 2.5rem; margin-bottom: 0.5rem;'>🔄</div>
+                <h4 style='color: #047857; font-size: 1.3rem; margin: 0; font-weight: 700;'>[Paso 2]</h4>
+            </div>
+            <p style='color: #4b5563; font-size: 1.1rem; line-height: 1.6;'>Descripción breve del paso</p>
+        </div>
+        <div style='text-align: center; padding: 1.5rem;'>
+            <div style='background: #fef3c7; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border: 2px solid #f59e0b;'>
+                <div style='font-size: 2.5rem; margin-bottom: 0.5rem;'>🔥</div>
+                <h4 style='color: #92400e; font-size: 1.3rem; margin: 0; font-weight: 700;'>[Paso 3]</h4>
+            </div>
+            <p style='color: #4b5563; font-size: 1.1rem; line-height: 1.6;'>Descripción breve del paso</p>
+        </div>
+        <div style='text-align: center; padding: 1.5rem;'>
+            <div style='background: #fce7f3; padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border: 2px solid #ec4899;'>
+                <div style='font-size: 2.5rem; margin-bottom: 0.5rem;'>✨</div>
+                <h4 style='color: #9f1239; font-size: 1.3rem; margin: 0; font-weight: 700;'>[Paso 4]</h4>
+            </div>
+            <p style='color: #4b5563; font-size: 1.1rem; line-height: 1.6;'>Descripción breve del paso</p>
+        </div>
+    </div>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #6b7280; margin-top: 2rem; text-align: center;'>Texto explicativo del proceso completo y su importancia.</p>
+</div>
+
+<!-- ========== CAJA DE ADVERTENCIA ========== -->
+<div style='background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 2rem; border-radius: 12px; margin: 2.5rem 0; border-left: 6px solid #ef4444; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2);'>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #991b1b; margin: 0;'><strong>⚠️ Advertencia:</strong> Información importante de seguridad, precaución o consideración crítica que el estudiante debe tener en cuenta.</p>
+</div>
+
+<!-- ========== EJEMPLO/COMPARATIVA ========== -->
+<div style='background: white; padding: 3rem; border-radius: 16px; margin: 3rem 0; box-shadow: 0 10px 40px rgba(0,0,0,0.08);'>
+    <h3 style='font-size: 2.2rem; color: #1f2937; margin-bottom: 2rem; text-align: center; font-weight: 700;'>[Título: Ejemplo Práctico / Comparativa]</h3>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; margin-bottom: 2rem;'>Introducción al ejemplo o comparativa que se va a presentar.</p>
+    <div style='background: #f9fafb; padding: 2rem; border-radius: 12px; border: 2px dashed #9ca3af; text-align: center; margin: 2rem 0;'>
+        <p style='color: #6b7280; font-size: 1.2rem;'>📷 [Aquí iría una imagen ilustrativa]</p>
+    </div>
+    <p style='font-size: 1.2rem; line-height: 1.9; color: #4b5563;'>Explicación detallada del ejemplo, caso práctico o comparativa.</p>
+</div>
+
+<!-- ========== SLIDE FINAL: RESUMEN DE APRENDIZAJES ========== -->
+<div style='background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); padding: 3rem; border-radius: 16px; margin: 3rem 0;'>
+    <h3 style='font-size: 2.5rem; color: #1f2937; margin-bottom: 1.5rem; text-align: center; font-weight: 700;'>Lo que has aprendido hoy</h3>
+    <p style='font-size: 1.3rem; line-height: 2; color: #4b5563; text-align: center; margin-bottom: 3rem; max-width: 900px; margin-left: auto; margin-right: auto;'>Has completado esta clase fundamental. El conocimiento adquirido es la base para continuar tu formación profesional.</p>
+    
+    <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;'>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #8b5cf6;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>📚</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 1]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del primer aprendizaje clave.</p>
+        </div>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #3b82f6;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>🎯</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 2]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del segundo aprendizaje clave.</p>
+        </div>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #10b981;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>💡</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 3]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del tercer aprendizaje clave.</p>
+        </div>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #f59e0b;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>⚙️</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 4]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del cuarto aprendizaje clave.</p>
+        </div>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #ec4899;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>🔧</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 5]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del quinto aprendizaje clave.</p>
+        </div>
+        <div style='background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border-top: 4px solid #14b8a6;'>
+            <div style='text-align: center; margin-bottom: 1rem;'>
+                <div style='font-size: 3rem;'>✅</div>
+            </div>
+            <h4 style='color: #1f2937; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700; text-align: center;'>[Aprendizaje 6]</h4>
+            <p style='color: #6b7280; font-size: 1.1rem; line-height: 1.7; text-align: center;'>Resumen conciso del sexto aprendizaje clave.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== CALL TO ACTION FINAL ========== -->
+<div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem; border-radius: 20px; margin: 3rem 0; color: white; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);'>
+    <p style='font-size: 1.5rem; margin: 0; font-weight: 300; line-height: 1.8;'>👨‍🍳 <strong style='font-weight: 700;'>¡Enhorabuena!</strong> Ahora estás preparado para aplicar estos conocimientos. En la próxima clase profundizaremos en [tema siguiente]. ¡Hasta entonces, sigue practicando!</p>
 </div>
 
 <!-- Espacio para Multimedia -->
 <div style='background: #f9fafb; padding: 2rem; border-radius: 12px; margin: 2rem 0; border: 2px dashed #9ca3af;'>
-    <p style='text-align: center; color: #6b7280; font-size: 1.1rem;'>📷 <strong>Espacio para agregar imágenes y videos</strong> - El docente puede insertar recursos multimedia aquí</p>
+    <p style='text-align: center; color: #6b7280; font-size: 1.1rem;'>📷 <strong>Espacio para agregar imágenes y videos</strong> - El docente puede insertar recursos multimedia en cualquier punto de la presentación</p>
 </div>
 "
 }
