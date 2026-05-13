@@ -37,6 +37,11 @@ async function loadUsuariosPendientes() {
             id: doc.id,
             ...doc.data()
         }));
+        
+        // Exponer globalmente para que otros módulos puedan acceder
+        window.allPendingUsers = allPendingUsers;
+        
+        console.log('✅ allPendingUsers cargados y expuestos:', allPendingUsers.length);
 
         const totalEl = document.getElementById('total-pendientes');
         if (totalEl) totalEl.textContent = allPendingUsers.length;
@@ -69,6 +74,11 @@ async function loadUsuariosAprobados() {
         });
 
         allApprovedUsers = Object.values(uniqueUsers);
+        
+        // Exponer globalmente para que otros módulos (como cobros.js) puedan acceder
+        window.allApprovedUsers = allApprovedUsers;
+        
+        console.log('✅ allApprovedUsers cargados y expuestos:', allApprovedUsers.length);
 
         const totalEl = document.getElementById('total-aprobados');
         if (totalEl) totalEl.textContent = allApprovedUsers.length;

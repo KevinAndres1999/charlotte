@@ -1846,6 +1846,7 @@ async function guardarAsistencias() {
 }
 
 // Exponer funciones globalmente para acceso desde HTML
+window.initCobrosSection = initCobrosSection;
 window.cambiarSedeCobros = cambiarSedeCobros;
 window.cambiarHorarioCobros = cambiarHorarioCobros;
 window.cambiarProgramaCobros = cambiarProgramaCobros;

@@ -86,6 +86,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Módulo de usuarios inicializado');
     }
     
+    // Inicializar módulo de cobros
+    const cobrosModule = window.ADMIN_CONFIG.modules['cobros'];
+    if (cobrosModule && typeof cobrosModule.init === 'function') {
+        await cobrosModule.init();
+        console.log('✅ Módulo de cobros inicializado');
+    }
+    
     // Inicializar módulo de videoconferencia
     const videoModule = window.ADMIN_CONFIG.modules['videoconferencia'];
     if (videoModule && typeof videoModule.init === 'function') {
