@@ -102,6 +102,7 @@ function actualizarDashboardUsuarios() {
         }
     };
     
+    // Actualizar contadores principales
     setText('total-todos-usuarios', total);
     setText('total-pagos-pendientes', pagosPendientes);
     setText('total-cursando', cursando);
@@ -111,11 +112,57 @@ function actualizarDashboardUsuarios() {
     // Estadísticas por sede
     const carapungo = allApprovedUsers.filter(u => u.sede === 'Carapungo').length;
     const sangolqui = allApprovedUsers.filter(u => u.sede === 'Sangolquí').length;
+    const maxSede = Math.max(carapungo, sangolqui, 1);
     
     console.log('📊 Por sede:', { carapungo, sangolqui });
     
+    setText('count-carapungo', carapungo);
+    setText('count-sangolqui', sangolqui);
     setText('total-carapungo', carapungo);
     setText('total-sangolqui', sangolqui);
+    
+    const barCarapungo = document.getElementById('bar-carapungo');
+    const barSangolqui = document.getElementById('bar-sangolqui');
+    if (barCarapungo) barCarapungo.style.width = ((carapungo / maxSede) * 100) + '%';
+    if (barSangolqui) barSangolqui.style.width = ((sangolqui / maxSede) * 100) + '%';
+    
+    // Estadísticas por horario
+    const sabMat = allApprovedUsers.filter(u => u.horario === 'Sábado Matutina').length;
+    const sabVesp = allApprovedUsers.filter(u => u.horario === 'Sábado Vespertina').length;
+    const domMat = allApprovedUsers.filter(u => u.horario === 'Domingo Matutina').length;
+    const maxHorario = Math.max(sabMat, sabVesp, domMat, 1);
+    
+    console.log('📊 Por horario:', { sabMat, sabVesp, domMat });
+    
+    setText('count-sab-mat', sabMat);
+    setText('count-sab-vesp', sabVesp);
+    setText('count-dom-mat', domMat);
+    
+    const barSabMat = document.getElementById('bar-sab-mat');
+    const barSabVesp = document.getElementById('bar-sab-vesp');
+    const barDomMat = document.getElementById('bar-dom-mat');
+    if (barSabMat) barSabMat.style.width = ((sabMat / maxHorario) * 100) + '%';
+    if (barSabVesp) barSabVesp.style.width = ((sabVesp / maxHorario) * 100) + '%';
+    if (barDomMat) barDomMat.style.width = ((domMat / maxHorario) * 100) + '%';
+    
+    // Estadísticas por programa
+    const panaderia = allApprovedUsers.filter(u => u.programa === 'Panadería y Pastelería').length;
+    const belleza = allApprovedUsers.filter(u => u.programa === 'Belleza Integral').length;
+    const asesoria = allApprovedUsers.filter(u => u.programa === 'Asesoría Técnica').length;
+    const maxPrograma = Math.max(panaderia, belleza, asesoria, 1);
+    
+    console.log('📊 Por programa:', { panaderia, belleza, asesoria });
+    
+    setText('count-panaderia', panaderia);
+    setText('count-belleza', belleza);
+    setText('count-asesoria', asesoria);
+    
+    const barPanaderia = document.getElementById('bar-panaderia');
+    const barBelleza = document.getElementById('bar-belleza');
+    const barAsesoria = document.getElementById('bar-asesoria');
+    if (barPanaderia) barPanaderia.style.width = ((panaderia / maxPrograma) * 100) + '%';
+    if (barBelleza) barBelleza.style.width = ((belleza / maxPrograma) * 100) + '%';
+    if (barAsesoria) barAsesoria.style.width = ((asesoria / maxPrograma) * 100) + '%';
     
     // Calcular distribución por programa
     const usersByProgram = {};

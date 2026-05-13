@@ -11216,64 +11216,6 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
         let modoSeleccionMasiva = false;
         let usuariosSeleccionados = new Set();
 
-        // Función para actualizar el dashboard de estadísticas
-        function actualizarDashboardUsuarios() {
-            const total = allApprovedUsers.length + (allPendingUsers ? allPendingUsers.length : 0);
-            const pagosPendientes = allApprovedUsers.filter(u => u.estadoPagos === 'pagos_pendientes').length;
-            
-            // Actualizar contadores principales
-            document.getElementById('total-todos-usuarios').textContent = total;
-            document.getElementById('total-pagos-pendientes').textContent = pagosPendientes;
-            
-            // Estadísticas por sede
-            const carapungo = allApprovedUsers.filter(u => u.sede === 'Carapungo').length;
-            const sangolqui = allApprovedUsers.filter(u => u.sede === 'Sangolquí').length;
-            const maxSede = Math.max(carapungo, sangolqui, 1);
-            
-            document.getElementById('count-carapungo').textContent = carapungo;
-            document.getElementById('count-sangolqui').textContent = sangolqui;
-            document.getElementById('bar-carapungo').style.width = ((carapungo / maxSede) * 100) + '%';
-            document.getElementById('bar-sangolqui').style.width = ((sangolqui / maxSede) * 100) + '%';
-            
-            // Estadísticas por horario
-            const sabMat = allApprovedUsers.filter(u => u.horario === 'Sábado Matutina').length;
-            const sabVesp = allApprovedUsers.filter(u => u.horario === 'Sábado Vespertina').length;
-            const domMat = allApprovedUsers.filter(u => u.horario === 'Domingo Matutina').length;
-            const maxHorario = Math.max(sabMat, sabVesp, domMat, 1);
-            
-            document.getElementById('count-sab-mat').textContent = sabMat;
-            document.getElementById('count-sab-vesp').textContent = sabVesp;
-            document.getElementById('count-dom-mat').textContent = domMat;
-            document.getElementById('bar-sab-mat').style.width = ((sabMat / maxHorario) * 100) + '%';
-            document.getElementById('bar-sab-vesp').style.width = ((sabVesp / maxHorario) * 100) + '%';
-            document.getElementById('bar-dom-mat').style.width = ((domMat / maxHorario) * 100) + '%';
-            
-            // Estadísticas por programa
-            const panaderia = allApprovedUsers.filter(u => u.programa === 'Panadería y Pastelería').length;
-            const belleza = allApprovedUsers.filter(u => u.programa === 'Belleza Integral').length;
-            const asesoria = allApprovedUsers.filter(u => u.programa === 'Asesoría Técnica').length;
-            const maxPrograma = Math.max(panaderia, belleza, asesoria, 1);
-            
-            document.getElementById('count-panaderia').textContent = panaderia;
-            document.getElementById('count-belleza').textContent = belleza;
-            document.getElementById('count-asesoria').textContent = asesoria;
-            document.getElementById('bar-panaderia').style.width = ((panaderia / maxPrograma) * 100) + '%';
-            document.getElementById('bar-belleza').style.width = ((belleza / maxPrograma) * 100) + '%';
-            document.getElementById('bar-asesoria').style.width = ((asesoria / maxPrograma) * 100) + '%';
-            
-            // Calcular distribución por programa para el widget
-            const usersByProgram = {};
-            allApprovedUsers.forEach(user => {
-                const programa = user.programa || 'Sin programa';
-                usersByProgram[programa] = (usersByProgram[programa] || 0) + 1;
-            });
-            
-            // Llamar a la función del módulo para renderizar el dashboard de distribución
-            if (typeof renderProgramDistribution === 'function') {
-                renderProgramDistribution(usersByProgram);
-            }
-        }
-
         // Función para exportar usuarios a CSV
         function exportarUsuariosCSV() {
             const headers = ['Nombre', 'Email', 'Programa', 'Sede', 'Horario', 'Estado Pagos', 'Fecha Aprobación'];
