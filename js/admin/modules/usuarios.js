@@ -38,6 +38,38 @@ async function loadUsuariosPendientes() {
             ...doc.data()
         }));
         
+        // Verificar y limpiar duplicados (usuarios que ya están aprobados)
+        if (allPendingUsers.length > 0) {
+            console.log('🔍 Verificando duplicados en pendientes...');
+            const duplicadosEliminados = [];
+            
+            for (const pendingUser of allPendingUsers) {
+                if (pendingUser.email) {
+                    const existingQuery = await getDocs(query(
+                        collection(db, 'users'),
+                        where('email', '==', pendingUser.email),
+                        where('role', '==', 'student')
+                    ));
+                    
+                    if (!existingQuery.empty) {
+                        console.log(`⚠️ Usuario duplicado encontrado: ${pendingUser.name} (${pendingUser.email})`);
+                        await deleteDoc(doc(db, 'pendingStudents', pendingUser.id));
+                        duplicadosEliminados.push(pendingUser.name);
+                    }
+                }
+            }
+            
+            if (duplicadosEliminados.length > 0) {
+                console.log(`🧹 ${duplicadosEliminados.length} solicitud(es) duplicada(s) eliminada(s):`, duplicadosEliminados);
+                // Recargar después de limpiar
+                const newSnapshot = await getDocs(query(collection(db, 'pendingStudents')));
+                allPendingUsers = newSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+            }
+        }
+        
         // Exponer globalmente para que otros módulos puedan acceder
         window.allPendingUsers = allPendingUsers;
         
@@ -346,10 +378,17 @@ async function confirmarAprobacion(id) {
         ));
 
         if (!existingUserQuery.empty) {
+            console.log('⚠️ Usuario ya existe en la colección users con email:', data.email);
+            console.log('📋 Eliminando solicitud duplicada de pendientes...');
             await deleteDoc(doc(db, 'pendingStudents', id));
             await loadUsuariosPendientes();
             await loadUsuariosAprobados();
-            alert('Este usuario ya estaba aprobado anteriormente. Solicitud eliminada de pendientes.');
+            
+            // Mostrar notificación en lugar de alert
+            if (typeof showNotification === 'function') {
+                showNotification(`El usuario ${data.name} ya está aprobado. Solicitud duplicada eliminada.`, 'info');
+            }
+            
             document.getElementById('approvalModal').remove();
             return;
         }
