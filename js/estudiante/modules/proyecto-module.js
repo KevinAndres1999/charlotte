@@ -1,5 +1,84 @@
 import { getDoc, setDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
+// =================== FUNCIÓN AUXILIAR PARA LLAMADAS A IA VÍA PROXY NETLIFY ===================
+/**
+ * Realiza una llamada a la IA usando el proxy serverless de Netlify
+ * Esto evita exponer la API key y maneja mejor los límites de tasa
+ * @param {string} prompt - El prompt/mensaje para la IA
+ * @param {string} model - Modelo a usar (default: google/gemini-2.0-flash-001)
+ * @param {number} maxTokens - Tokens máximos (default: 600)
+ * @param {number} temperature - Temperatura (default: 0.7)
+ * @param {number} maxRetries - Número máximo de reintentos (default: 2)
+ * @returns {Promise<string>} - Respuesta de la IA
+ */
+async function callAIViaProxy(prompt, model = 'google/gemini-2.0-flash-001', maxTokens = 600, temperature = 0.7, maxRetries = 2) {
+    let retryCount = 0;
+    
+    // Obtener API key desde Firebase/localStorage (igual que el chatbot)
+    let apiKey = '';
+    if (window.getOpenRouterApiKey && typeof window.getOpenRouterApiKey === 'function') {
+        apiKey = await window.getOpenRouterApiKey();
+    }
+    
+    if (!apiKey) {
+        throw new Error('No se pudo obtener la API key de OpenRouter. Por favor, configúrala en el panel de administración.');
+    }
+    
+    while (retryCount <= maxRetries) {
+        try {
+            const response = await fetch('/.netlify/functions/ai-proxy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    model: model,
+                    maxTokens: maxTokens,
+                    temperature: temperature,
+                    apiKey: apiKey  // Enviar la API key al proxy
+                })
+            });
+
+            // Si la respuesta es exitosa
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.response) {
+                    return data.response;
+                } else {
+                    throw new Error('La IA no generó una respuesta válida');
+                }
+            }
+
+            // Si es error 429 y aún hay reintentos disponibles
+            if (response.status === 429 && retryCount < maxRetries) {
+                retryCount++;
+                const waitTime = Math.pow(2, retryCount) * 2000; // 4s, 8s, 16s
+                console.log(`⏳ Error 429. Reintento ${retryCount}/${maxRetries} en ${waitTime/1000} segundos...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                continue;
+            }
+
+            // Si no es exitosa, intentar obtener el error
+            const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
+            throw new Error(`Error de IA: ${response.status} - ${errorData.error || errorData.message || 'Error desconocido'}`);
+
+        } catch (fetchError) {
+            // Si es un error de red o timeout, reintentar
+            if (retryCount < maxRetries && !fetchError.message.includes('Error de IA:')) {
+                retryCount++;
+                const waitTime = Math.pow(2, retryCount) * 1000;
+                console.log(`⚠️ Error de conexión. Reintentando ${retryCount}/${maxRetries}...`);
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+                continue;
+            }
+            throw fetchError;
+        }
+    }
+    
+    throw new Error('Se agotaron los reintentos para la llamada a la IA');
+}
+
 export function init(db) {
     // Usar getOpenRouterApiKey de window (definida en app.js)
     // Si no está disponible, retornar vacío
@@ -206,7 +285,7 @@ export function init(db) {
         currentModule = 1;
         currentField = null;
 
-        // Mostrar mensaje de bienvenida SIN PREGUNTA
+        // Mostrar mensaje de bienvenida personalizado
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
         
         // Determinar el programa basado en el usuario actual
@@ -326,8 +405,16 @@ export function init(db) {
             timestamp: new Date().toISOString()
         };
 
-        // Analizar respuesta con IA para sugerencias de mejora (opcional)
-        analyzeResponseWithAI(response, field);
+        // Analizar respuesta con IA para sugerencias de mejora (ESPERANDO LA FUNCIÓN)
+        analyzeResponseWithAI(response, field).catch(err => {
+            console.error('Error en análisis de IA:', err);
+            addChatMessage('✅ Tu respuesta ha sido guardada correctamente.', 'ai');
+            awaitingImprovement = false;
+            currentSuggestion = null;
+            setTimeout(() => {
+                showNextField();
+            }, 1500);
+        });
 
         saveProjectProgress();
     }
@@ -457,6 +544,12 @@ export function init(db) {
 
             const prompt = `Eres Charlotte, consultora especializada en emprendimiento para ${programName}.
 
+⚠️ RESTRICCIÓN CRÍTICA DE IDIOMA:
+- Responde EXCLUSIVAMENTE en español latinoamericano
+- Está PROHIBIDO usar caracteres de otros idiomas: chino (更衣, 卸妆, etc), japonés, árabe, etc.
+- Si necesitas palabras técnicas, usa SOLO español: "cambio de ropa", "desmaquillaje", etc.
+- VERIFICA tu respuesta antes de enviarla: NO debe tener ningún carácter no-latino
+
 ${historyContext ? `CONVERSACIÓN RECIENTE:\n${historyContext}\n` : ''}
 === INFORMACIÓN DEL ESTUDIANTE ===
 - Nombre: ${studentName}
@@ -480,40 +573,24 @@ MEJORA 1: [primera versión mejorada de "${response}"]
 MEJORA 2: [segunda versión mejorada de "${response}"]
 MEJORA 3: [tercera versión mejorada de "${response}"]
 
-Responde ONLY con las 3 mejoras de la respuesta original.`;
+IMPORTANTE: Responde ÚNICAMENTE en español (sin caracteres de otros idiomas). Solo incluye las 3 mejoras de la respuesta original.`;
 
-            // Obtener API key de forma unificada
-            let apiKey = await getOpenRouterApiKey();
+            // Obtener API key desde Firebase (config/openrouter)
+            console.log('🔑 Obteniendo API key desde Firebase...');
+            let apiKey = '';
+            // Ya no necesitamos obtener la API key aquí, el proxy de Netlify la maneja
+            console.log('📡 Preparando análisis con IA...');
 
-            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
-                hideTypingIndicator();
-                addChatMessage('✅ Tu respuesta ha sido guardada correctamente.', 'ai');
-                awaitingImprovement = false;
-                currentSuggestion = null;
-                // Continuar al siguiente campo después de un delay
-                setTimeout(() => {
-                    showNextField();
-                }, 1500);
-                return;
+            // Llamar a la IA vía proxy de Netlify (más seguro y sin límites estrictos)
+            console.log('📡 Llamando a la IA...');
+            
+            const analysis = await callAIViaProxy(prompt, 'google/gemini-2.0-flash-001', 600, 0.7);
+            
+            if (!analysis) {
+                throw new Error('Respuesta vacía de la IA');
             }
-
-            const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'X-Title': 'Charlotte Educational Platform'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [{ role: 'user', content: prompt }],
-                    max_tokens: 600,
-                    temperature: 0.7
-                })
-            });
-
-            const data = await aiResponse.json();
-            const analysis = data.choices[0].message.content;
+            
+            console.log('✅ Análisis de IA recibido:', analysis.substring(0, 100) + '...');
 
             // Guardar en historial
             aiChatHistory.push({ role: 'user', content: response, field: field.label });
@@ -550,15 +627,28 @@ Responde ONLY con las 3 mejoras de la respuesta original.`;
             }
 
         } catch (error) {
-            console.error('Error analizando respuesta:', error);
+            console.error('❌ Error analizando respuesta:', error);
             hideTypingIndicator();
-            addChatMessage('✅ Tu respuesta ha sido guardada correctamente.', 'ai');
+            
+            // Manejar diferentes tipos de errores
+            let errorMessage = '';
+            
+            if (error.message.includes('429')) {
+                errorMessage = '⚠️ El servicio de IA ha alcanzado su límite de uso temporalmente. Por favor, espera unos minutos e intenta nuevamente escribiendo tu respuesta.';
+            } else if (error.message.includes('API key')) {
+                errorMessage = '⚠️ La IA no está configurada correctamente. Por favor, contacta al administrador para resolver este problema.';
+            } else {
+                errorMessage = '⚠️ Hubo un error al analizar tu respuesta con la IA. Por favor, intenta de nuevo escribiendo tu respuesta.';
+            }
+            
+            addChatMessage(errorMessage, 'ai');
+            
+            // Mantener el estado para que el estudiante pueda intentar de nuevo
+            awaitingStudentResponse = true;
             awaitingImprovement = false;
             currentSuggestion = null;
-            // Continuar al siguiente campo después de un delay
-            setTimeout(() => {
-                showNextField();
-            }, 1500);
+            
+            // No avanzar automáticamente - esperar a que el estudiante vuelva a intentar
         }
     }
     
@@ -726,22 +816,8 @@ NUEVA OPCIÓN 3: [nueva opción]
 
 Responde ONLY con las 3 nuevas opciones.`;
 
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [{ role: 'user', content: newOptionsPrompt }],
-                    max_tokens: 500,
-                    temperature: 0.9
-                })
-            });
-
-            const data = await response.json();
-            const newOptionsResponse = data.choices[0].message.content;
+            // Usar proxy de Netlify para generar nuevas opciones
+            const newOptionsResponse = await callAIViaProxy(newOptionsPrompt, 'google/gemini-2.0-flash-001', 500, 0.9);
 
             // Extraer las nuevas opciones y actualizar currentSuggestion
             const newOptions = extractOptionsFromAnalysis(newOptionsResponse);
@@ -810,12 +886,10 @@ Responde ONLY con las 3 nuevas opciones.`;
                     const module = projectStructure[currentModule];
                     const field = module.fields[currentField];
                     
-                    addChatMessage(`✏️ Editando: ${field.label}`, 'ai');
-                    addChatMessage('Tu respuesta anterior era:', 'ai');
-                    addChatMessage('"' + selectedField.answer + '"', 'ai');
-                    addChatMessage('\n' + field.question, 'ai');
+                    addChatMessage(`✏️ Perfecto, vamos a revisar: ${field.label}`, 'ai');
+                    addChatMessage(field.question, 'ai');
                     
-                    // Mostrar ejemplo
+                    // Mostrar ejemplo si existe
                     if (field.example) {
                         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
                         let program = 'belleza';
@@ -828,8 +902,13 @@ Responde ONLY con las 3 nuevas opciones.`;
                             }
                         }
                         const example = field.example(program);
-                        addChatMessage(`💡 ${example}`, 'ai');
+                        addChatMessage(example, 'ai');
                     }
+                    
+                    // Activar modo de espera de respuesta para que pase por el flujo normal
+                    awaitingStudentResponse = true;
+                    awaitingImprovement = false;
+                    awaitingModification = false;
                     
                     // Habilitar input
                     showInputForField(field);
@@ -1216,7 +1295,6 @@ Responde ONLY con las 3 nuevas opciones.`;
         const progressPercent = totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
 
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        addChatMessage(`¡Bienvenido de vuelta, ${currentUser?.name || 'estudiante'}!`, 'ai');
         addChatMessage(`📊 Progreso actual: ${completedFields}/${totalFields} campos completados (${progressPercent}%)`, 'ai');
 
         if (completedFields === totalFields) {
@@ -1308,6 +1386,12 @@ Responde ONLY con las 3 nuevas opciones.`;
             return;
         }
 
+        // Si estamos en modo de revisión de campos
+        if (window.moduleFieldsToReview && window.moduleFieldsToReview.length > 0) {
+            handleConsultationCommand(message);
+            return;
+        }
+
         // Si no estamos esperando nada, ignorar el mensaje
         console.log('Mensaje ignorado (no se esperaba respuesta):', message);
     }
@@ -1377,42 +1461,25 @@ Responde ONLY con las 3 nuevas opciones.`;
             const prompt = analysisStep.aiPrompt
                 .replace('{sector}', (userProgram || 'belleza') === 'panaderia' ? 'Panadería y Pastelería' : 'Belleza Integral');
 
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'X-Title': 'Charlotte Educational Platform'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `Eres Charlotte, tutora especializada en emprendimiento. Analiza respuestas de estudiantes y decide si son excelentes o necesitan mejoras.`
-                        },
-                        {
-                            role: 'user',
-                            content: `Pregunta: "${question.conversationFlow[currentConversationStep].message}"
+            // Usar proxy de Netlify para análisis de respuesta
+            const fullAnalysisPrompt = `CONTEXTO: Eres Charlotte, tutora especializada en emprendimiento. Analiza respuestas de estudiantes y decide si son excelentes o necesitan mejoras.
+
+Pregunta: "${question.conversationFlow[currentConversationStep].message}"
 Respuesta del estudiante: "${userResponse}"
 
-${prompt}`
-                        }
-                    ],
-                    max_tokens: 300,
-                    temperature: 0.7
-                })
-            });
-
-            hideTypingIndicator();
-
-            if (!response.ok) {
+${prompt}`;
+            
+            let analysis;
+            try {
+                analysis = await callAIViaProxy(fullAnalysisPrompt, 'google/gemini-2.0-flash-001', 300, 0.7);
+            } catch (error) {
+                console.error('Error en análisis de IA:', error);
+                hideTypingIndicator();
                 saveResponseAndContinue(userResponse, question);
                 return;
             }
 
-            const data = await response.json();
-            const analysis = data.choices[0].message.content;
+            hideTypingIndicator();
 
             // Procesar el análisis
             await processAIAnalysisResult(analysis, userResponse, question);
@@ -1511,22 +1578,8 @@ INSTRUCCIONES:
 
 Responde con la confirmación y la respuesta final mejorada.`;
 
-                    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${apiKey}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            model: 'google/gemini-2.0-flash-001',
-                            messages: [{ role: 'user', content: improvementPrompt }],
-                            max_tokens: 400,
-                            temperature: 0.7
-                        })
-                    });
-
-                    const data = await response.json();
-                    const finalResponse = data.choices[0].message.content;
+                    // Usar proxy de Netlify para generar respuesta final mejorada
+                    const finalResponse = await callAIViaProxy(improvementPrompt, 'google/gemini-2.0-flash-001', 400, 0.7);
 
                     hideTypingIndicator();
                     addChatMessage(finalResponse, 'ai');
@@ -1608,39 +1661,18 @@ FORMATO DE RESPUESTA:
 
 Sé constructivo pero EXIGENTE - tu objetivo es crear proyectos PROFESIONALES de calidad.`;
 
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'X-Title': 'Charlotte Educational Platform'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'Eres Charlotte, tutora de emprendimiento嚴格审核回复。'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    max_tokens: 500,
-                    temperature: 0.7
-                })
-            });
-
-            hideTypingIndicator();
-
-            if (!response.ok) {
+            // Usar proxy de Netlify para revisión de respuesta
+            let review;
+            try {
+                review = await callAIViaProxy(prompt, 'google/gemini-2.0-flash-001', 500, 0.7);
+            } catch (error) {
+                console.error('Error en revisión de IA:', error);
+                hideTypingIndicator();
                 saveResponseAndContinue(userResponse, question);
                 return;
             }
 
-            const data = await response.json();
-            const review = data.choices[0].message.content;
+            hideTypingIndicator();
 
             // Procesar la revisión
             if (review.toUpperCase().includes('APROBADO:')) {
@@ -1947,31 +1979,14 @@ ${projectConversations.map(msg => `${msg.role === 'user' ? 'Estudiante' : 'Tú'}
 
 Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
 
-            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [
-                        { role: 'system', content: 'Eres Charlotte, un tutor especializado en emprendimiento práctico para estudiantes de formación técnica en Panadería/Pastelería y Belleza Integral. Tu rol es guiar a cada estudiante, paso a paso, en la creación de un documento de proyecto de negocio completo y viable (su "tesis" práctica), que será el entregable final de su capacitación. Debes adaptar tu guía a cada sector específico (Panadería o Belleza). Sé académica, paciente, motivadora y muy estructurada. Incluye ejemplos específicos del sector correspondiente.' },
-                        { role: 'user', content: prompt }
-                    ],
-                    max_tokens: 800,
-                    temperature: 0.7
-                })
-            });
+            // Usar proxy de Netlify para respuesta conversacional
+            const fullPrompt = `CONTEXTO: Eres Charlotte, un tutor especializado en emprendimiento práctico para estudiantes de formación técnica en Panadería/Pastelería y Belleza Integral. Tu rol es guiar a cada estudiante, paso a paso, en la creación de un documento de proyecto de negocio completo y viable (su "tesis" práctica), que será el entregable final de su capacitación. Debes adaptar tu guía a cada sector específico (Panadería o Belleza). Sé académica, paciente, motivadora y muy estructurada. Incluye ejemplos específicos del sector correspondiente.
+
+${prompt}`;
+            
+            const aiResponse = await callAIViaProxy(fullPrompt, 'google/gemini-2.0-flash-001', 800, 0.7);
 
             hideTypingIndicator();
-
-            if (!response.ok) {
-                throw new Error('Error en la API de IA');
-            }
-
-            const data = await response.json();
-            const aiResponse = data.choices[0].message.content;
 
             // Reemplazar mensaje de loading
             replaceLastMessage(aiResponse, 'ai');
@@ -2556,13 +2571,10 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         // Limpiar Firebase - eliminar documento completo
         if (window.db && user.email) {
             try {
-                const { doc: docFn, deleteDoc } = window.firebaseFirestore;
-                if (docFn && deleteDoc) {
-                    const docRef = docFn(window.db, 'projects', user.email);
-                    deleteDoc(docRef)
-                        .then(() => console.log('✅ Proyecto eliminado de Firebase'))
-                        .catch(error => console.warn('⚠️ Error eliminando proyecto de Firebase:', error.message));
-                }
+                const docRef = doc(window.db, 'projects', user.email);
+                deleteDoc(docRef)
+                    .then(() => console.log('✅ Proyecto eliminado de Firebase'))
+                    .catch(error => console.warn('⚠️ Error eliminando proyecto de Firebase:', error.message));
             } catch (error) {
                 console.warn('⚠️ Error al preparar eliminación en Firebase:', error.message);
             }
@@ -2611,6 +2623,9 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         alert('✅ Proyecto reiniciado exitosamente. Puedes comenzar de nuevo.');
         
         console.log('✅ Proceso de reinicio completado');
+        
+        // Reiniciar la consultoría para comenzar desde el principio
+        startConsultation();
     }
 
     function updateProjectChat() {
@@ -2778,61 +2793,6 @@ Responde de manera útil y motivadora, guiando al estudiante paso a paso.`;
         const loadingModal = showPlanLoadingModal('Charlotte está elaborando tu Plan de Negocio...');
 
         try {
-            // Obtener API key de Firebase primero
-            let apiKeyFromFirebase = '';
-            console.log('🔍 Intentando obtener API key de Firebase...');
-            console.log('window.db disponible:', !!window.db);
-            
-            // Mostrar qué proyecto de Firebase se está usando
-            if (window.db && window.db.app) {
-                console.log('🔥 Proyecto Firebase:', window.db.app.options.projectId);
-            }
-            
-            if (window.db) {
-                try {
-                    console.log('📡 Consultando Firestore...');
-                    
-                    // Intentar primero en coleccion 'config'
-                    let configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
-                    console.log('📄 raw configDoc:', configDoc);
-                    console.log('📄 configDoc.type:', configDoc?.constructor?.name);
-                    console.log('📄 configDoc.exists():', configDoc?.exists());
-                    
-                    // Método alternativo: verificar si tiene datos
-                    const hasData = configDoc && configDoc.exists && configDoc.exists();
-                    console.log('📄 hasData:', hasData);
-                    
-                    if (hasData) {
-                        const data = configDoc.data();
-                        console.log('📄 data:', data);
-                        if (data && data.apiKey) {
-                            apiKeyFromFirebase = data.apiKey;
-                            console.log('✅ API key cargada desde Firebase');
-                        }
-                    }
-                    
-                    // Si no existe, intentar en coleccion 'configuracion'
-                    if (!apiKeyFromFirebase) {
-                        console.log('📄 Intentando en configuracion...');
-                        let configDoc2 = await window.getDoc(window.doc(window.db, 'configuracion', 'openrouter'));
-                        console.log('📄 configDoc2.exists():', configDoc2?.exists());
-                        
-                        if (configDoc2 && configDoc2.exists && configDoc2.exists()) {
-                            const data2 = configDoc2.data();
-                            console.log('📄 data2:', data2);
-                            if (data2 && data2.apiKey) {
-                                apiKeyFromFirebase = data2.apiKey;
-                                console.log('✅ API key cargada desde configuracion');
-                            }
-                        }
-                    }
-                } catch(e) {
-                    console.error('❌ Error completo:', e);
-                }
-            } else {
-                console.log('⚠️ Firebase no está disponible (window.db es undefined)');
-            }
-
             // 1. Recopilar TODAS las respuestas del estudiante
             updatePlanLoadingProgress(10, 'Recopilando tus 17 respuestas...');
 
@@ -3033,18 +2993,8 @@ REGLAS OBLIGATORIAS:
 9. Las tablas deben usar formato Markdown: | Col1 | Col2 |
 10. Escribe en español profesional pero accesible.`;
 
-            // 3. Llamar a la IA
+            // 3. Llamar a la IA vía proxy de Netlify (sin necesidad de API key en cliente)
             updatePlanLoadingProgress(30, 'La IA está analizando tu negocio...');
-
-            const apiKey = apiKeyFromFirebase || localStorage.getItem('openrouter_api_key') || window.OPENROUTER_API_KEY || '';
-            console.log('API Key disponible:', apiKey ? 'Sí' : 'No');
-            console.log('API Key primeros 20 chars:', apiKey ? apiKey.substring(0, 20) + '...' : 'N/A');
-            
-            if (!apiKey || apiKey === 'sk-or-v1-fake-key') {
-                removePlanLoadingModal();
-                alert('❌ La IA no está configurada. Pide al administrador que configure la API key de OpenRouter en el panel de admin.');
-                return;
-            }
 
             // Simular progreso mientras la IA trabaja
             let aiProgress = 30;
@@ -3066,42 +3016,22 @@ REGLAS OBLIGATORIAS:
                 updatePlanLoadingProgress(aiProgress, messages[msgIdx]);
             }, 2000);
 
-            const aiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    'HTTP-Referer': window.location.href,
-                    'X-Title': 'Cursos Charlotte'
-                },
-                body: JSON.stringify({
-                    model: 'google/gemini-2.0-flash-001',
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'Eres Charlotte, una consultora empresarial experta en crear planes de negocio detallados, profesionales y únicos. Generas documentos extensos y bien estructurados en formato Markdown. Cada plan que creas es completamente diferente porque se basa exclusivamente en los datos específicos de cada estudiante.'
-                        },
-                        { role: 'user', content: megaPrompt }
-                    ],
-                    max_tokens: 16000,
-                    temperature: 0.7
-                })
-            });
+            // Construir el prompt completo con contexto del sistema
+            const fullPrompt = `INSTRUCCIONES DEL SISTEMA: Eres Charlotte, una consultora empresarial experta en crear planes de negocio detallados, profesionales y únicos. Generas documentos extensos y bien estructurados en formato Markdown. Cada plan que creas es completamente diferente porque se basa exclusivamente en los datos específicos de cada estudiante.
 
-            console.log('Respuesta de IA - Status:', aiResponse.status);
-            console.log('Respuesta de IA - OK:', aiResponse.ok);
+${megaPrompt}`;
+
+            console.log('📡 Llamando a la IA vía proxy Netlify...');
+            const planMarkdown = await callAIViaProxy(fullPrompt, 'google/gemini-2.0-flash-001', 16000, 0.7, 3);
 
             clearInterval(progressTimer);
 
-            if (!aiResponse.ok) {
-                const errorData = await aiResponse.json().catch(() => ({}));
-                throw new Error(`Error de IA: ${aiResponse.status} - ${errorData.error?.message || 'Error desconocido'}`);
+            if (!planMarkdown || planMarkdown.trim().length < 100) {
+                throw new Error('La IA no generó un plan completo');
             }
 
+            console.log('✅ Plan generado, longitud:', planMarkdown.length);
             updatePlanLoadingProgress(90, 'Formateando tu documento profesional...');
-
-            const data = await aiResponse.json();
-            const planMarkdown = data.choices[0].message.content;
 
             // 4. Convertir Markdown a HTML profesional
             updatePlanLoadingProgress(95, 'Aplicando diseño profesional...');
@@ -3130,7 +3060,27 @@ REGLAS OBLIGATORIAS:
         } catch (error) {
             console.error('Error generando plan de negocio:', error);
             removePlanLoadingModal();
-            alert('Error al generar el plan: ' + error.message);
+            
+            // Mensaje personalizado según el tipo de error
+            let errorMessage = 'Error al generar el plan';
+            
+            if (error.message.includes('429')) {
+                errorMessage = `⚠️ El servicio de IA está temporalmente ocupado
+
+Por favor, espera 2-3 minutos e intenta nuevamente.
+
+Esto puede ocurrir cuando varios estudiantes están usando la plataforma simultáneamente.`;
+            } else if (error.message.includes('API key') || error.message.includes('IA no disponible')) {
+                errorMessage = '❌ La IA no está configurada correctamente.\n\nContacta al administrador para verificar la configuración en Netlify.';
+            } else if (error.message.includes('401') || error.message.includes('403')) {
+                errorMessage = '❌ Error de autenticación con el servicio de IA.\n\nContacta al administrador para verificar la API key.';
+            } else if (error.message.includes('fetch') || error.message.includes('red')) {
+                errorMessage = '⚠️ Error de conexión.\n\nVerifica tu internet e intenta nuevamente.';
+            } else {
+                errorMessage = `Error al generar el plan:\n${error.message}`;
+            }
+            
+            alert(errorMessage);
         }
     }
 
@@ -4719,6 +4669,8 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.generateProjectWithAI = generateProjectWithAI;
     window.showPlanLoadingModal = showPlanLoadingModal;
     window.updatePlanLoadingProgress = updatePlanLoadingProgress;
+    window.showProgressSummary = showProgressSummary;
+    window.loadApiKeyFromFirebase = loadApiKeyFromFirebase;
     window.removePlanLoadingModal = removePlanLoadingModal;
 
     // Configurar event listeners después de que todas las funciones estén disponibles
@@ -4764,4 +4716,5 @@ Las proyecciones han sido elaboradas considerando el análisis de mercado, la ca
     window.processStudentResponse = processStudentResponse;
     window.saveResponseAndContinue = saveResponseAndContinue;
     window.getUserProgram = getUserProgram;
+    window.initProjectWizard = initProjectWizard;
 }
