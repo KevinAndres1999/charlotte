@@ -16403,31 +16403,56 @@ REGLAS IMPORTANTES:
 4. Para "ordenar": items es el array desordenado, ordenCorrecto son los índices en orden correcto
 5. Para "completar": [BLANK] marca cada espacio, respuestas contiene las palabras en orden
 6. Para "relacionar": genera 4-6 pares únicos sin repetir términos
-7. Para "crucigrama": PROCESO OBLIGATORIO EN 3 PASOS:
+7. Para "crucigrama": ALGORITMO SIMPLE Y CLARO:
    
-   PASO 1 - SELECCIONAR PALABRAS: Busca 3-4 palabras del tema (3-5 letras, MAYÚSCULAS, sin tildes) que compartan letras entre sí.
-   Ejemplo: PAN, AGUA, SAL, MASA → comparten: A (en PAN-AGUA-SAL-MASA), S (en SAL-MASA)
+   **REGLAS:**
+   - Palabras: 3-4 palabras del tema, 3-5 letras, MAYÚSCULAS, sin tildes
+   - Deben compartir letras para poder cruzarse
+   - Alterna orientaciones: horizontal → vertical → horizontal → vertical
    
-   PASO 2 - PLANIFICAR CRUCES: Identifica qué palabras cruzarás y en qué letra común.
-   Ejemplo: 
-   - PAN (horizontal) cruza con AGUA (vertical) en la letra A
-   - AGUA (vertical) cruza con SAL (horizontal) en la letra A
-   - SAL (horizontal) cruza con MASA (vertical) en la letra S
+   **FÓRMULAS DE POSICIONAMIENTO:**
    
-   PASO 3 - CALCULAR COORDENADAS: 
-   a) Coloca la primera palabra horizontal en fila:0, columna:0
-   b) Para cada palabra que cruza: encuentra el índice de la letra compartida en AMBAS palabras
-   c) Calcula la posición del cruce:
-      - Si palabra1 es horizontal y palabra2 vertical: palabra2 va en fila:fila_palabra1, columna:(columna_palabra1 + índice_letra_en_palabra1)
-      - Si palabra1 es vertical y palabra2 horizontal: palabra2 va en fila:(fila_palabra1 + índice_letra_en_palabra1), columna:columna_palabra1
+   🔹 Primera palabra (SIEMPRE horizontal):
+      fila: 0, columna: 0
    
-   Ejemplo completo:
-   - PAN horizontal: fila:0, columna:0 → índice de A es 1
-   - AGUA vertical cruza en A: fila:0, columna:(0+1)=1 → índice de A en AGUA es 0 ✓
-   - SAL horizontal cruza con última A de AGUA: AGUA tiene A en índice 3, entonces SAL en fila:(0+3)=3, columna:1 → índice de A en SAL es 1 ✓
-   - MASA vertical cruza con S de SAL: SAL está en fila 3, S está en índice 0, entonces MASA en fila:3, columna:(0+0)=0 → índice de S en MASA es 2 ✓
+   🔹 Vertical que cruza con horizontal:
+      Letra común en índice i de horizontal (que está en fila F, columna C)
+      Letra común en índice j de la nueva vertical
+      → Posición de la vertical: fila: F - j, columna: C + i
    
-   IMPORTANTE: El grid se ajusta automáticamente al tamaño necesario según las palabras elegidas. No hay límite fijo de casilleros.
+   🔹 Horizontal que cruza con vertical:
+      Letra común en índice i de vertical (que está en fila F, columna C)
+      Letra común en índice j de la nueva horizontal
+      → Posición de la horizontal: fila: F + i, columna: C - j
+   
+   **EJEMPLO COMPLETO (aplica las fórmulas):**
+   
+   Tema: Panadería → Palabras: PAN, AGUA, SAL
+   
+   1️⃣ PAN (horizontal):
+      {"palabra": "PAN", "orientacion": "horizontal", "fila": 0, "columna": 0}
+      Grid: P(0,0) A(0,1) N(0,2)
+   
+   2️⃣ AGUA (vertical) cruza con PAN en la letra A:
+      - A está en índice i=1 de PAN (fila 0, columna 0)
+      - A está en índice j=0 de AGUA
+      - Aplicar fórmula: fila = 0 - 0 = 0, columna = 0 + 1 = 1
+      {"palabra": "AGUA", "orientacion": "vertical", "fila": 0, "columna": 1}
+      Grid: A(0,1) G(1,1) U(2,1) A(3,1)
+      ✅ Verificación: PAN.A(0,1) = AGUA.A(0,1)
+   
+   3️⃣ SAL (horizontal) cruza con AGUA en la última A:
+      - A está en índice i=3 de AGUA (fila 0, columna 1)
+      - A está en índice j=1 de SAL
+      - Aplicar fórmula: fila = 0 + 3 = 3, columna = 1 - 1 = 0
+      {"palabra": "SAL", "orientacion": "horizontal", "fila": 3, "columna": 0}
+      Grid: S(3,0) A(3,1) L(3,2)
+      ✅ Verificación: AGUA.A(3,1) = SAL.A(3,1)
+   
+   **IMPORTANTE:** 
+   - NO copies este ejemplo - genera TUS PROPIAS palabras del tema
+   - VALIDA que cada cruce tenga la misma letra en la misma posición
+   - Si una fórmula da coordenada negativa, elige otra letra común
    VALIDACIÓN: Verifica que cada cruce comparte LA MISMA LETRA en las coordenadas calculadas.
 8. Para "clasificar": genera 2-3 categorías con al menos 3 elementos cada una
 9. Para "sopa_letras": las palabras deben ser en MAYÚSCULAS, sin tildes ni espacios. Genera 5-7 palabras de máximo 10 letras cada una
