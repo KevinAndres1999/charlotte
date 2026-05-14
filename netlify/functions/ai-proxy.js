@@ -26,9 +26,6 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Obtener API key desde variables de entorno o del body del request
-    let apiKey = process.env.OPENROUTER_API_KEY;
-    
     console.log('🔑 Verificando API key...');
     
     // Parsear request
@@ -43,16 +40,11 @@ exports.handler = async (event) => {
       };
     }
 
-    // Si viene API key en el body, usarla (prioridad alta)
-    if (body.apiKey) {
-      apiKey = body.apiKey;
-      console.log('✅ Usando API key del request (desde Firebase/localStorage)');
-    } else if (apiKey) {
-      console.log('✅ Usando API key de variables de entorno de Netlify');
-    }
+    // Obtener API key ÚNICAMENTE desde el body del request (desde Firebase/localStorage)
+    const apiKey = body.apiKey;
     
     if (!apiKey) {
-      console.error('❌ API key no existe ni en el request ni en variables de entorno');
+      console.error('❌ API key no recibida en el request');
       return {
         statusCode: 503,
         body: JSON.stringify({ 
@@ -73,7 +65,7 @@ exports.handler = async (event) => {
       };
     }
 
-    console.log('✅ API key presente:', apiKey.substring(0, 15) + '...');
+    console.log('✅ API key recibida desde Firebase/localStorage:', apiKey.substring(0, 15) + '...');
 
     const { prompt, model = 'google/gemini-2.0-flash-001', maxTokens = 600, temperature = 0.7, systemPrompt } = body;
 
