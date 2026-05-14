@@ -4608,6 +4608,8 @@ function renderCrucigramaHTML(p, i) {
                     data-correcta="${cell.letra}" data-fila="${f}" data-col="${c}"
                     oninput="this.value=this.value.toUpperCase(); actualizarCrucigrama(${i})"
                     style="grid-column: ${c+1}; grid-row: ${f+1};">`;
+            } else {
+                html += `<div class="crucigrama-vacio" style="grid-column: ${c+1}; grid-row: ${f+1};"></div>`;
             }
         }
     }
