@@ -147,9 +147,10 @@ function actualizarDashboardUsuarios() {
     // Actualizar contadores principales
     setText('total-todos-usuarios', total);
     setText('total-pagos-pendientes', pagosPendientes);
-    setText('total-cursando', cursando);
-    setText('total-graduados', graduados);
-    setText('total-retirados', retirados);
+    // Los siguientes elementos no existen en el HTML actual, comentados para evitar warnings
+    // setText('total-cursando', cursando);
+    // setText('total-graduados', graduados);
+    // setText('total-retirados', retirados);
     
     // Estadísticas por sede
     const carapungo = allApprovedUsers.filter(u => u.sede === 'Carapungo').length;
