@@ -16322,12 +16322,12 @@ GENERA una actividad interactiva con EXACTAMENTE este formato JSON:
             "tipo": "crucigrama",
             "pregunta": "Completa el crucigrama con los conceptos del tema:",
             "palabras": [
-                {"palabra": "HARINA", "pista": "Ingrediente base de la panificación", "orientacion": "horizontal", "fila": 0, "columna": 0},
+                {"palabra": "PAN", "pista": "Producto básico de panadería", "orientacion": "horizontal", "fila": 0, "columna": 0},
                 {"palabra": "AGUA", "pista": "Líquido esencial para hidratar", "orientacion": "vertical", "fila": 0, "columna": 1},
-                {"palabra": "SAL", "pista": "Da sabor y controla fermentación", "orientacion": "horizontal", "fila": 3, "columna": 0},
-                {"palabra": "LEVADURA", "pista": "Agente que hace crecer la masa", "orientacion": "horizontal", "fila": 3, "columna": 2}
+                {"palabra": "HORNO", "pista": "Equipo para cocción", "orientacion": "vertical", "fila": 0, "columna": 2},
+                {"palabra": "SAL", "pista": "Da sabor a la masa", "orientacion": "vertical", "fila": 1, "columna": 1}
             ],
-            "explicacion": "Ingredientes fundamentales de la panadería"
+            "explicacion": "Explicación del tema tratado en el crucigrama"
         },
         {
             "tipo": "clasificar",
@@ -16365,12 +16365,11 @@ REGLAS IMPORTANTES:
 4. Para "ordenar": items es el array desordenado, ordenCorrecto son los índices en orden correcto
 5. Para "completar": [BLANK] marca cada espacio, respuestas contiene las palabras en orden
 6. Para "relacionar": genera 4-6 pares únicos sin repetir términos
-7. Para "crucigrama": CRÍTICO - Las palabras DEBEN compartir la MISMA LETRA en las intersecciones. Ejemplo matemático correcto:
-   - HARINA horizontal fila 0, columna 0: H(0,0) A(0,1) R(0,2) I(0,3) N(0,4) A(0,5)
-   - AGUA vertical fila 0, columna 1: A(0,1) G(1,1) U(2,1) A(3,1) ← La A inicial DEBE estar en (0,1) donde está la A de HARINA
-   - SAL horizontal fila 3, columna 0: S(3,0) A(3,1) L(3,2) ← La A DEBE estar en (3,1) donde está la A final de AGUA
-   - LEVADURA horizontal fila 3, columna 2: L(3,2) E(3,3) V(3,4) ... ← La L inicial DEBE estar en (3,2) donde está la L de SAL
-   REGLAS: Palabras en MAYÚSCULAS sin tildes. Máximo 5 palabras de 4-7 letras. Fila/columna máximo 9. TODAS las palabras deben cruzarse con al menos otra palabra compartiendo una letra común.
+7. Para "crucigrama": las palabras DEBEN ser en MAYÚSCULAS sin tildes ni espacios. IMPORTANTE: Las palabras deben cruzarse compartiendo letras comunes para crear un crucigrama compacto. Ejemplo:
+   - "PAN" horizontal en fila:0, columna:0 (ocupa columnas 0,1,2)
+   - "SAL" vertical en fila:0, columna:1 (ocupa filas 0,1,2, columna 1 - compartiendo la "A" con PAN)
+   - "HARINA" horizontal en fila:2, columna:0 (ocupa columnas 0,1,2,3,4,5)
+   Verifica que fila/columna no sobrepasen 8. Máximo 4 palabras de 3-6 letras. Prioriza palabras cortas que se crucen bien.
 8. Para "clasificar": genera 2-3 categorías con al menos 3 elementos cada una
 9. Para "sopa_letras": las palabras deben ser en MAYÚSCULAS, sin tildes ni espacios. Genera 5-7 palabras de máximo 10 letras cada una
 10. Para "escritura_libre": la rúbrica debe ser clara con porcentajes que sumen 100%
