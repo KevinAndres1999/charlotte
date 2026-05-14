@@ -1,9 +1,9 @@
 import { getDoc, setDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 
-// =================== FUNCIÓN AUXILIAR PARA LLAMADAS A IA VÍA PROXY NETLIFY ===================
+// =================== FUNCIÓN AUXILIAR PARA LLAMADAS A IA VÍA OPENROUTER ===================
 /**
- * Realiza una llamada a la IA usando el proxy serverless de Netlify
- * Esto evita exponer la API key y maneja mejor los límites de tasa
+ * Realiza una llamada directa a OpenRouter API
+ * Obtiene la API key desde Firebase/localStorage (configurada por el admin)
  * @param {string} prompt - El prompt/mensaje para la IA
  * @param {string} model - Modelo a usar (default: google/gemini-2.0-flash-001)
  * @param {number} maxTokens - Tokens máximos (default: 600)
@@ -26,25 +26,32 @@ async function callAIViaProxy(prompt, model = 'google/gemini-2.0-flash-001', max
     
     while (retryCount <= maxRetries) {
         try {
-            const response = await fetch('/.netlify/functions/ai-proxy', {
+            // Llamar directamente a OpenRouter (igual que el chatbot)
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'Charlotte Educational Platform'
                 },
                 body: JSON.stringify({
-                    prompt: prompt,
                     model: model,
-                    maxTokens: maxTokens,
-                    temperature: temperature,
-                    apiKey: apiKey  // Enviar la API key al proxy
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }],
+                    max_tokens: parseInt(maxTokens),
+                    temperature: parseFloat(temperature)
                 })
             });
 
             // Si la respuesta es exitosa
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.response) {
-                    return data.response;
+                const aiResponse = data.choices?.[0]?.message?.content;
+                if (aiResponse) {
+                    return aiResponse;
                 } else {
                     throw new Error('La IA no generó una respuesta válida');
                 }
@@ -61,7 +68,7 @@ async function callAIViaProxy(prompt, model = 'google/gemini-2.0-flash-001', max
 
             // Si no es exitosa, intentar obtener el error
             const errorData = await response.json().catch(() => ({ error: 'Error desconocido' }));
-            throw new Error(`Error de IA: ${response.status} - ${errorData.error || errorData.message || 'Error desconocido'}`);
+            throw new Error(`Error de IA: ${response.status} - ${errorData.error?.message || errorData.message || 'Error desconocido'}`);
 
         } catch (fetchError) {
             // Si es un error de red o timeout, reintentar
@@ -3021,7 +3028,7 @@ REGLAS OBLIGATORIAS:
 
 ${megaPrompt}`;
 
-            console.log('📡 Llamando a la IA vía proxy Netlify...');
+            console.log('📡 Llamando a la IA (OpenRouter)...');
             const planMarkdown = await callAIViaProxy(fullPrompt, 'google/gemini-2.0-flash-001', 16000, 0.7, 3);
 
             clearInterval(progressTimer);
