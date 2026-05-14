@@ -4600,7 +4600,7 @@ function renderCrucigramaHTML(p, i) {
     });
 
     let html = `<div class="crucigrama-wrapper">
-        <div class="crucigrama-grid" id="crucigrama-${i}">`;
+        <div class="crucigrama-grid" id="crucigrama-${i}" style="grid-template-columns: repeat(${maxCol + 1}, 36px); grid-template-rows: repeat(${maxFila + 1}, 36px);">`;
     for (let f = 0; f <= maxFila; f++) {
         for (let c = 0; c <= maxCol; c++) {
             const cell = grid[f][c];

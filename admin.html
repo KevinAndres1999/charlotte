@@ -6076,6 +6076,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     </select>
                                 </div>
                                 <div>
+                                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Nivel de Dificultad</label>
+                                    <select id="actividadIADificultad" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
+                                        <option value="fácil">Fácil</option>
+                                        <option value="intermedio" selected>Intermedio</option>
+                                        <option value="difícil">Difícil</option>
+                                    </select>
+                                </div>
+                                <div>
                                     <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">Clase</label>
                                     <select id="actividadIAClase" style="width: 100%; padding: 0.875rem; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1rem;">
                                         <option value="">Seleccionar clase</option>
@@ -6095,11 +6103,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     <h3 style="margin: 0; color: #1e3a8a;">Vista Previa de la Actividad</h3>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="seleccionarTodasPreguntas()" style="padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
+                                        <i class="fas fa-check-double"></i> Seleccionar Todas
+                                    </button>
                                     <button onclick="regenerarActividad()" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer;">
                                         <i class="fas fa-redo"></i> Regenerar
                                     </button>
                                     <button onclick="guardarActividadInteractiva()" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
-                                        <i class="fas fa-save"></i> Guardar Actividad
+                                        <i class="fas fa-save"></i> Guardar Seleccionadas
                                     </button>
                                 </div>
                             </div>
@@ -16207,6 +16218,7 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
         // Generar actividad con IA
         async function generarActividadConIA() {
             const claseId = document.getElementById('actividadIAClase').value;
+            const dificultad = document.getElementById('actividadIADificultad').value || 'intermedio';
             
             if (!claseId) {
                 alert('Por favor, selecciona una clase');
@@ -16241,6 +16253,13 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
                 // Limpiar HTML del contenido para el prompt
                 const contenidoTexto = stripHtml(claseData.contenido || claseData.descripcion || '');
                 
+                // Definir instrucciones según dificultad
+                const instruccionesDificultad = {
+                    'fácil': 'Las preguntas deben ser directas y evaluar comprensión básica. Evita ambigüedades.',
+                    'intermedio': 'Las preguntas deben requerir análisis y aplicación de conceptos. Balance entre directas y desafiantes.',
+                    'difícil': 'Las preguntas deben requerir pensamiento crítico y aplicación avanzada. Incluye escenarios complejos.'
+                };
+                
                 // Crear prompt para la IA
                 const prompt = `Eres un experto pedagogo. Analiza el siguiente contenido de una clase y genera una ACTIVIDAD INTERACTIVA para evaluar el aprendizaje del estudiante.
 
@@ -16249,6 +16268,9 @@ INFORMACIÓN DE LA CLASE:
 - Programa: ${claseData.programa}
 - Módulo: ${claseData.modulo}
 - Descripción: ${claseData.descripcion || ''}
+- Nivel de dificultad: ${dificultad.toUpperCase()}
+
+⚠️ INSTRUCCIONES DE DIFICULTAD: ${instruccionesDificultad[dificultad]}
 
 CONTENIDO DE LA CLASE:
 ${contenidoTexto.substring(0, 6000)}
@@ -16300,8 +16322,10 @@ GENERA una actividad interactiva con EXACTAMENTE este formato JSON:
             "tipo": "crucigrama",
             "pregunta": "Completa el crucigrama con los conceptos del tema:",
             "palabras": [
-                {"palabra": "TERMINO", "pista": "Descripción o pista de la palabra", "orientacion": "horizontal", "fila": 0, "columna": 0},
-                {"palabra": "CONCEPTO", "pista": "Descripción o pista de la palabra", "orientacion": "vertical", "fila": 0, "columna": 2}
+                {"palabra": "HARINA", "pista": "Ingrediente base de la panificación", "orientacion": "horizontal", "fila": 0, "columna": 0},
+                {"palabra": "AGUA", "pista": "Líquido esencial para hidratar", "orientacion": "vertical", "fila": 0, "columna": 1},
+                {"palabra": "LEVADURA", "pista": "Agente que hace crecer la masa", "orientacion": "horizontal", "fila": 3, "columna": 1},
+                {"palabra": "SAL", "pista": "Da sabor y controla fermentación", "orientacion": "vertical", "fila": 0, "columna": 3}
             ],
             "explicacion": "Explicación del tema tratado en el crucigrama"
         },
@@ -16341,7 +16365,7 @@ REGLAS IMPORTANTES:
 4. Para "ordenar": items es el array desordenado, ordenCorrecto son los índices en orden correcto
 5. Para "completar": [BLANK] marca cada espacio, respuestas contiene las palabras en orden
 6. Para "relacionar": genera 4-6 pares únicos sin repetir términos
-7. Para "crucigrama": las palabras DEBEN ser en MAYÚSCULAS sin tildes ni espacios. Coloca las palabras de forma que se crucen (usa letras compartidas). Verifica que fila/columna no sobrepasen 12. Máximo 6 palabras.
+7. Para "crucigrama": las palabras DEBEN ser en MAYÚSCULAS sin tildes ni espacios. IMPORTANTE: Las palabras deben cruzarse compartiendo letras comunes. Ejemplo: Si tienes "HARINA" horizontal en fila 0, columna 0, y quieres cruzarla con "AGUA" vertical, coloca "AGUA" en la columna donde esté la letra "A" de "HARINA" (columna 1). Verifica que fila/columna no sobrepasen 10. Máximo 5 palabras de 4-8 letras.
 8. Para "clasificar": genera 2-3 categorías con al menos 3 elementos cada una
 9. Para "sopa_letras": las palabras deben ser en MAYÚSCULAS, sin tildes ni espacios. Genera 5-7 palabras de máximo 10 letras cada una
 10. Para "escritura_libre": la rúbrica debe ser clara con porcentajes que sumen 100%
@@ -16606,7 +16630,13 @@ REGLAS IMPORTANTES:
                 const tipoInfo = tipoLabels[p.tipo] || { icon: 'fa-question', label: p.tipo };
                 
                 return `
-                    <div class="pregunta-preview">
+                    <div class="pregunta-preview" style="position: relative; border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; background: white;">
+                        <div style="position: absolute; top: 1rem; right: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; background: #f0fdf4; padding: 0.5rem 1rem; border-radius: 8px; border: 2px solid #10b981;">
+                                <input type="checkbox" class="pregunta-checkbox" data-index="${i}" checked style="width: 18px; height: 18px; cursor: pointer;">
+                                <span style="font-weight: 600; color: #166534; font-size: 0.9rem;">Incluir</span>
+                            </label>
+                        </div>
                         <span class="pregunta-tipo-badge ${p.tipo}">
                             <i class="fas ${tipoInfo.icon}"></i> ${tipoInfo.label}
                         </span>
@@ -16631,6 +16661,13 @@ REGLAS IMPORTANTES:
             generarActividadConIA();
         }
 
+        // Seleccionar/deseleccionar todas las preguntas
+        function seleccionarTodasPreguntas() {
+            const checkboxes = document.querySelectorAll('.pregunta-checkbox');
+            const algunaMarcada = Array.from(checkboxes).some(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !algunaMarcada);
+        }
+
         // Guardar actividad interactiva
         async function guardarActividadInteractiva() {
             if (!actividadGeneradaActual) {
@@ -16638,10 +16675,25 @@ REGLAS IMPORTANTES:
                 return;
             }
             
+            // Obtener preguntas seleccionadas
+            const checkboxes = document.querySelectorAll('.pregunta-checkbox:checked');
+            const indicesSeleccionados = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index));
+            
+            if (indicesSeleccionados.length === 0) {
+                alert('⚠️ Debes seleccionar al menos una pregunta para guardar');
+                return;
+            }
+            
+            // Filtrar solo las preguntas seleccionadas
+            const preguntasSeleccionadas = actividadGeneradaActual.preguntas.filter((_, index) => 
+                indicesSeleccionados.includes(index)
+            );
+            
             try {
                 const { id: _strippedId, ...actividadSinId } = actividadGeneradaActual;
                 const actividadData = {
                     ...actividadSinId,
+                    preguntas: preguntasSeleccionadas,
                     fechaCreacion: new Date().toISOString(),
                     activa: true,
                     sedes: claseSeleccionadaParaActividad?.sedes || ['Carapungo', 'Sangolquí'],
@@ -16666,7 +16718,7 @@ REGLAS IMPORTANTES:
                 
                 await addDoc(collection(db, 'actividades_interactivas'), actividadData);
                 
-                alert('✅ Actividad guardada exitosamente!');
+                alert(`✅ Actividad guardada exitosamente con ${preguntasSeleccionadas.length} pregunta(s)!`);
                 
                 // Limpiar
                 actividadGeneradaActual = null;
