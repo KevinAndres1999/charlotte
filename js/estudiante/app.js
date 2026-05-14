@@ -4855,27 +4855,30 @@ async function calificarActividadInteractiva(actividadId) {
 
         switch(p.tipo) {
             case 'quiz':
-                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; break; }
+                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 correcto = resp === p.respuestaCorrecta;
+                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `Incorrecto. La respuesta correcta es: ${p.opciones[p.respuestaCorrecta]}`;
                 break;
 
             case 'verdadero_falso':
-                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; break; }
+                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 correcto = resp === p.respuestaCorrecta;
+                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `Incorrecto. La respuesta correcta es: ${p.respuestaCorrecta ? 'Verdadero' : 'Falso'}`;
                 break;
 
             case 'ordenar': {
-                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; break; }
+                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 const correcto2 = p.ordenCorrecto || p.items.map((_, idx) => idx);
                 correcto = resp.length === correcto2.length && resp.every((v, idx) => v === correcto2[idx]);
+                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `El orden correcto era: ${correcto2.map(idx => p.items[idx]).join(' → ')}`;
                 break;
             }
 
             case 'completar': {
-                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; break; }
+                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 const correctas = p.respuestas || [];
                 const aciertos = resp.filter((r, idx) => r.toLowerCase().trim() === (correctas[idx] || '').toLowerCase().trim()).length;
                 correcto = aciertos === correctas.length;
@@ -4885,7 +4888,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'relacionar': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 const pares = p.pares || [];
                 let match = 0;
                 for (let j = 0; j < pares.length; j++) {
@@ -4898,7 +4901,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'crucigrama': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 const cells = Object.values(resp);
                 const total2 = cells.length;
                 const correctas2 = cells.filter(c => c.valor === c.correcta).length;
@@ -4909,7 +4912,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'clasificar': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
                 const elementos = p.elementos || [];
                 const correctas3 = elementos.filter(el => resp[el.texto] === el.categoria).length;
                 correcto = correctas3 === elementos.length;
