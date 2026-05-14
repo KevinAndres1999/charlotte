@@ -10405,13 +10405,13 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             const versionAnterior = docAnterior.data();
                             const historial = versionAnterior.historialCambios || [];
                             
-                            // Agregar cambio actual al historial
+                            // Agregar cambio actual al historial (asegurar que no haya undefined)
                             historial.push({
                                 fecha: ahora,
-                                usuario: currentUser.email,
+                                usuario: currentUser.email || 'Sistema',
                                 cambios: 'Edición de clase',
-                                estadoAnterior: versionAnterior.estado,
-                                estadoNuevo: estado
+                                estadoAnterior: versionAnterior.estado || 'borrador',
+                                estadoNuevo: estado || 'borrador'
                             });
                             
                             await updateDoc(claseRef, cleanObjectForFirestore({
@@ -10453,12 +10453,12 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 prerequisitos: prerequisitos,
                                 fechaCreacion: ahora,
                                 hasChunks: false,
-                                creadoPor: currentUser.email,
+                                creadoPor: currentUser.email || 'Sistema',
                                 historialCambios: [{
                                     fecha: ahora,
-                                    usuario: currentUser.email,
+                                    usuario: currentUser.email || 'Sistema',
                                     cambios: 'Creación inicial',
-                                    estadoNuevo: estado
+                                    estadoNuevo: estado || 'borrador'
                                 }]
                             }));
                         }
@@ -13074,7 +13074,9 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 }
                 
                 const claseActual = claseSnap.data();
-                const nuevoEstado = !claseActual.visible;
+                // Si visible es undefined, tratarlo como false (oculto por defecto)
+                const estadoActual = claseActual.visible === true;
+                const nuevoEstado = !estadoActual;
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
                 
                 // Actualizar historial
@@ -13083,7 +13085,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     fecha: new Date().toISOString(),
                     usuario: currentUser.email || 'Sistema',
                     cambios: `Visibilidad cambiada: ${nuevoEstado ? 'Visible' : 'Oculta'}`,
-                    estadoAnterior: claseActual.visible,
+                    estadoAnterior: estadoActual,  // Siempre será true o false
                     estadoNuevo: nuevoEstado
                 });
                 
