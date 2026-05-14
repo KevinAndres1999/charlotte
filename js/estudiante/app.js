@@ -4584,8 +4584,7 @@ function renderCrucigramaHTML(p, i) {
             maxCol = Math.max(maxCol, (pw.columna || 0));
         }
     });
-    maxFila = Math.min(maxFila, 14);
-    maxCol = Math.min(maxCol, 14);
+    // Sin límite fijo - el grid se ajusta dinámicamente a las palabras
 
     const grid = Array.from({ length: maxFila + 1 }, () => Array(maxCol + 1).fill(null));
     palabras.forEach((pw, wi) => {

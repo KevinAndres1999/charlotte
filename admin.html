@@ -16324,9 +16324,10 @@ GENERA una actividad interactiva con EXACTAMENTE este formato JSON:
             "palabras": [
                 {"palabra": "PAN", "pista": "Producto básico de panadería", "orientacion": "horizontal", "fila": 0, "columna": 0},
                 {"palabra": "AGUA", "pista": "Líquido esencial para hidratar", "orientacion": "vertical", "fila": 0, "columna": 1},
-                {"palabra": "SAL", "pista": "Da sabor a la masa", "orientacion": "horizontal", "fila": 3, "columna": 0}
+                {"palabra": "SAL", "pista": "Da sabor a la masa", "orientacion": "horizontal", "fila": 3, "columna": 0},
+                {"palabra": "MASA", "pista": "Mezcla de ingredientes", "orientacion": "vertical", "fila": 1, "columna": 0}
             ],
-            "explicacion": "Explicación del tema tratado en el crucigrama - El crucigrama debe formar: PAN horizontal en fila 0, AGUA vertical cruza con la A de PAN en columna 1, SAL horizontal cruza con la última A de AGUA en fila 3"
+            "explicacion": "Conceptos fundamentales de panadería que se relacionan entre sí"
         },
         {
             "tipo": "clasificar",
@@ -16364,13 +16365,32 @@ REGLAS IMPORTANTES:
 4. Para "ordenar": items es el array desordenado, ordenCorrecto son los índices en orden correcto
 5. Para "completar": [BLANK] marca cada espacio, respuestas contiene las palabras en orden
 6. Para "relacionar": genera 4-6 pares únicos sin repetir términos
-7. Para "crucigrama": las palabras DEBEN ser en MAYÚSCULAS sin tildes ni espacios. CRÍTICO: Calcula correctamente las posiciones para que las palabras se crucen compartiendo LA MISMA LETRA.
-   Ejemplo CORRECTO:
-   - "PAN" horizontal en fila:0, columna:0 → P en (0,0), A en (0,1), N en (0,2)
-   - "AGUA" vertical en fila:0, columna:1 → A en (0,1) [COMPARTE con PAN], G en (1,1), U en (2,1), A en (3,1)
-   - "SAL" horizontal en fila:3, columna:0 → S en (3,0), A en (3,1) [COMPARTE con AGUA], L en (3,2)
-   Verifica matemáticamente: si palabra vertical empieza en (fila_inicio, col) y quieres cruzar con horizontal en su letra N (índice N), la horizontal debe estar en fila:(fila_inicio + N), y la letra compartida en columna:col.
-   Máximo 3-4 palabras de 3-5 letras. Grid no debe superar 6×6.
+7. Para "crucigrama": PROCESO OBLIGATORIO EN 3 PASOS:
+   
+   PASO 1 - SELECCIONAR PALABRAS: Busca 3-4 palabras del tema (3-5 letras, MAYÚSCULAS, sin tildes) que compartan letras entre sí.
+   Ejemplo: PAN, AGUA, SAL, MASA → comparten: A (en PAN-AGUA-SAL-MASA), S (en SAL-MASA)
+   
+   PASO 2 - PLANIFICAR CRUCES: Identifica qué palabras cruzarás y en qué letra común.
+   Ejemplo: 
+   - PAN (horizontal) cruza con AGUA (vertical) en la letra A
+   - AGUA (vertical) cruza con SAL (horizontal) en la letra A
+   - SAL (horizontal) cruza con MASA (vertical) en la letra S
+   
+   PASO 3 - CALCULAR COORDENADAS: 
+   a) Coloca la primera palabra horizontal en fila:0, columna:0
+   b) Para cada palabra que cruza: encuentra el índice de la letra compartida en AMBAS palabras
+   c) Calcula la posición del cruce:
+      - Si palabra1 es horizontal y palabra2 vertical: palabra2 va en fila:fila_palabra1, columna:(columna_palabra1 + índice_letra_en_palabra1)
+      - Si palabra1 es vertical y palabra2 horizontal: palabra2 va en fila:(fila_palabra1 + índice_letra_en_palabra1), columna:columna_palabra1
+   
+   Ejemplo completo:
+   - PAN horizontal: fila:0, columna:0 → índice de A es 1
+   - AGUA vertical cruza en A: fila:0, columna:(0+1)=1 → índice de A en AGUA es 0 ✓
+   - SAL horizontal cruza con última A de AGUA: AGUA tiene A en índice 3, entonces SAL en fila:(0+3)=3, columna:1 → índice de A en SAL es 1 ✓
+   - MASA vertical cruza con S de SAL: SAL está en fila 3, S está en índice 0, entonces MASA en fila:3, columna:(0+0)=0 → índice de S en MASA es 2 ✓
+   
+   IMPORTANTE: El grid se ajusta automáticamente al tamaño necesario según las palabras elegidas. No hay límite fijo de casilleros.
+   VALIDACIÓN: Verifica que cada cruce comparte LA MISMA LETRA en las coordenadas calculadas.
 8. Para "clasificar": genera 2-3 categorías con al menos 3 elementos cada una
 9. Para "sopa_letras": las palabras deben ser en MAYÚSCULAS, sin tildes ni espacios. Genera 5-7 palabras de máximo 10 letras cada una
 10. Para "escritura_libre": la rúbrica debe ser clara con porcentajes que sumen 100%
