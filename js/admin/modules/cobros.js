@@ -647,9 +647,16 @@ function obtenerTemaClase(fechaStr) {
     return temas[fechaStr] || '';
 }
 
-// Calcular clases desde el 31 de mayo 2025
+// Calcular clases desde las fechas de inicio (9 de mayo 2026 para sábados, 10 de mayo 2026 para domingos)
 function calcularClasesDesdeInicio(horario) {
-    const fechaInicio = new Date('2025-05-31');
+    // Fechas de inicio según el día de la semana
+    let fechaInicio;
+    if (horario && horario.toLowerCase().includes('domingo')) {
+        fechaInicio = new Date('2026-05-10'); // Domingo 10 de mayo 2026
+    } else {
+        fechaInicio = new Date('2026-05-09'); // Sábado 9 de mayo 2026
+    }
+    
     const hoy = new Date();
     let clases = 0;
     
@@ -1049,9 +1056,18 @@ function toggleVistaTabla() {
     }
 }
 
-// Generar las 40 fechas de clases desde el 31 de mayo 2025
+// Generar las 40 fechas de clases (Sábados desde 9 de mayo 2026, Domingos desde 10 de mayo 2026)
 function generarFechasClases(horario) {
-    const fechaInicio = new Date('2025-05-31');
+    // Fechas de inicio según el día de la semana
+    // Sábados: 9 de mayo de 2026
+    // Domingos: 10 de mayo de 2026
+    let fechaInicio;
+    if (horario && horario.toLowerCase().includes('domingo')) {
+        fechaInicio = new Date('2026-05-10'); // Domingo 10 de mayo 2026
+    } else {
+        fechaInicio = new Date('2026-05-09'); // Sábado 9 de mayo 2026
+    }
+    
     const clases = [];
     const totalClases = 40;
     
