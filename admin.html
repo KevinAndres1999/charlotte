@@ -5286,7 +5286,7 @@
                                 <h4><i class="fas fa-edit"></i> Contenido de la Clase</h4>
                                 <div class="form-group" style="border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 10px; border-radius: 8px;">
                                     <label for="claseContent">Contenido Detallado</label>
-                                    <textarea id="claseContent" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; resize: vertical; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                                    <div id="claseContent" contenteditable="true" placeholder="Ingresa el contenido detallado, material de estudio o apuntes de la clase..." style="min-height: 300px; overflow: auto; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: white;"></div>
                                     <button type="button" onclick="initializeClaseEditor()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Inicializar Editor</button>
                                 </div>
                             </div>
@@ -10367,7 +10367,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     const programa = document.getElementById('clasePrograma').value;
                     const modulo = document.getElementById('claseModulo').value;
                     const duracion = document.getElementById('claseDuracion').value;
-                    const content = claseEditor ? claseEditor.getData() : document.getElementById('claseContent').value;
+                    const content = document.getElementById('claseContent').innerHTML || document.getElementById('claseContent').textContent;
                     
                     // === NUEVOS CAMPOS: CONTROL Y PROGRAMACIÓN ===
                     const estado = document.getElementById('claseEstado').value;
@@ -10554,9 +10554,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         
                         // Limpiar formulario y resetear modo edición
                         claseForm.reset();
-                        if (claseEditor) {
-                            claseEditor.setData('');
-                        }
+                        document.getElementById('claseContent').innerHTML = '';
                         window.editingClaseId = null;
                         
                         // Resetear texto del botón y ocultar botón de cancelar
@@ -13026,12 +13024,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     cb.checked = clase.sedes && clase.sedes.includes(cb.value);
                 });
 
-                // Llenar el editor con el contenido
-                if (claseEditor) {
-                    claseEditor.setData(contenido);
-                } else {
-                    document.getElementById('claseContent').value = contenido;
-                }
+                // Llenar el contenido directamente (sin CKEditor para preservar estilos)
+                document.getElementById('claseContent').innerHTML = contenido;
 
                 // Establecer modo edición
                 window.editingClaseId = claseId;
@@ -13064,9 +13058,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             // Limpiar formulario
             const claseForm = document.getElementById('claseForm');
             claseForm.reset();
-            if (claseEditor) {
-                claseEditor.setData('');
-            }
+            // Limpiar contenido del div editable
+            document.getElementById('claseContent').innerHTML = '';
             
             // Resetear modo edición
             window.editingClaseId = null;
@@ -16765,18 +16758,10 @@ REGLAS IMPORTANTES:
                 return;
             }
 
-            ClassicEditor
-                .create(claseContentElement, {
-                    toolbar: ['heading', '|', 'bold', 'italic', '|', 'bulletedList', 'numberedList', 'outdent', 'indent', '|', 'link', 'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', 'undo', 'redo'],
-                    extraPlugins: [Base64UploadAdapterPlugin]
-                })
-                .then(editor => {
-                    claseEditor = editor;
-                    console.log('Editor de clases inicializado correctamente');
-                })
-                .catch(error => {
-                    console.error('Error inicializando editor de clases:', error);
-                });
+            // CKEditor DESACTIVADO para preservar estilos inline del HTML generado por IA
+            // El campo #claseContent ahora es un div contenteditable que mantiene todos los estilos
+            console.log('Editor de clases: usando contenteditable (sin CKEditor) para preservar estilos');
+            claseEditor = null; // No usar CKEditor
         }
 
         function initializeActividadEditor() {
