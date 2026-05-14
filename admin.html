@@ -9929,6 +9929,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     const horariosSeleccionados = Array.from(document.querySelectorAll('input[name="videoHorarios"]:checked')).map(cb => cb.value);
                     const sedesSeleccionadas = Array.from(document.querySelectorAll('input[name="videoSedes"]:checked')).map(cb => cb.value);
 
+                    // Generar array visiblePara con combinaciones Sede-Horario
+                    let visiblePara = [];
+                    if (sedesSeleccionadas.length > 0 && horariosSeleccionados.length > 0) {
+                        sedesSeleccionadas.forEach(sede => {
+                            horariosSeleccionados.forEach(horario => {
+                                visiblePara.push(`${sede}-${horario}`);
+                            });
+                        });
+                    }
+
                     // Validaciones
                     if (!selectedVideoFile) {
                         alert('❌ Por favor selecciona un video primero.\n\n1. Arrastra el video al área azul\n2. O haz clic para seleccionar');
@@ -10004,6 +10014,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             duracion: parseInt(duracion) || 0,
                             horarios: horariosSeleccionados,
                             sedes: sedesSeleccionadas,
+                            visiblePara: visiblePara.length > 0 ? visiblePara : null,
+                            visible: true,
                             fechaSubida: new Date().toISOString(),
                             tipo: 'video-github',
                             fileName: fileName,
@@ -10606,6 +10618,16 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     if (!modulo) return alert('Selecciona un módulo');
                     if (!title.trim()) return alert('Ingresa un título para la actividad');
 
+                    // Generar array visiblePara con combinaciones Sede-Horario
+                    let visiblePara = [];
+                    if (sedes.length > 0 && horarios.length > 0) {
+                        sedes.forEach(sede => {
+                            horarios.forEach(horario => {
+                                visiblePara.push(`${sede}-${horario}`);
+                            });
+                        });
+                    }
+
                     try {
                         await addDoc(collection(db, 'activities'), {
                             titulo: title,
@@ -10619,6 +10641,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             modulo: modulo,
                             sedes: sedes.length > 0 ? sedes : null,
                             horarios: horarios.length > 0 ? horarios : null,
+                            visiblePara: visiblePara.length > 0 ? visiblePara : null,
+                            visible: true,
                             fechaRegistro: new Date().toISOString(),
                             tipo: 'actividad'
                         });
@@ -10668,6 +10692,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
 
+                    // Generar array visiblePara con combinaciones Sede-Horario
+                    let visiblePara = [];
+                    sedesSeleccionadas.forEach(sede => {
+                        horariosSeleccionados.forEach(horario => {
+                            visiblePara.push(`${sede}-${horario}`);
+                        });
+                    });
+
                     try {
                         await addDoc(collection(db, 'materials'), {
                             titulo: title,
@@ -10677,6 +10709,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             programa: programa,
                             horarios: horariosSeleccionados,
                             sedes: sedesSeleccionadas,
+                            visiblePara: visiblePara,
+                            visible: true,
                             fecha: new Date().toISOString().split('T')[0],
                             tamano: tamano ? parseFloat(tamano) : 0
                         });
@@ -10771,6 +10805,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                     if (sedesSeleccionadas.length === 0) return alert('Selecciona al menos una sede');
                     if (horariosSeleccionados.length === 0) return alert('Selecciona al menos un horario');
 
+                    // Generar array visiblePara con combinaciones Sede-Horario
+                    let visiblePara = [];
+                    sedesSeleccionadas.forEach(sede => {
+                        horariosSeleccionados.forEach(horario => {
+                            visiblePara.push(`${sede}-${horario}`);
+                        });
+                    });
+
                     let questions = [];
                     if (currentEvaluationMode === 'manual') {
                         questions = collectQuestions('evaluacion');
@@ -10809,6 +10851,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         programa: programa,
                         sedes: sedesSeleccionadas,
                         horarios: horariosSeleccionados,
+                        visiblePara: visiblePara,
+                        visible: true,
                         tiempoLimite: tiempo ? parseInt(tiempo) : null,
                         fechaInicio: fechaInicio || null,
                         fechaFin: fechaFin || null,

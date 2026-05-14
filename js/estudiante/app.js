@@ -550,6 +550,13 @@ async function loadDashboardStats() {
                 return itemData.visiblePara.includes(userCombo);
             }
             
+            // Sistema específico de cuestionarios (combinacionesPermitidas)
+            if (itemData.combinacionesPermitidas && Array.isArray(itemData.combinacionesPermitidas) && itemData.combinacionesPermitidas.length > 0) {
+                return itemData.combinacionesPermitidas.some(combo => 
+                    combo.sede === currentUser.sede && combo.horario === currentUser.horario
+                );
+            }
+            
             // Sistema legacy: Verificar sede
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
