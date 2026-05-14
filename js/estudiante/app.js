@@ -4600,7 +4600,7 @@ function renderCrucigramaHTML(p, i) {
     });
 
     let html = `<div class="crucigrama-wrapper">
-        <div class="crucigrama-grid" id="crucigrama-${i}" style="grid-template-columns: repeat(${maxCol + 1}, 36px); grid-template-rows: repeat(${maxFila + 1}, 36px);">`;
+        <div class="crucigrama-grid" id="crucigrama-${i}" style="display: grid; grid-template-columns: repeat(${maxCol + 1}, 36px); grid-template-rows: repeat(${maxFila + 1}, 36px); gap: 2px; width: fit-content;">`;
     for (let f = 0; f <= maxFila; f++) {
         for (let c = 0; c <= maxCol; c++) {
             const cell = grid[f][c];
@@ -4608,9 +4608,7 @@ function renderCrucigramaHTML(p, i) {
                 html += `<input type="text" maxlength="1" class="crucigrama-cell" id="cc-${i}-${f}-${c}"
                     data-correcta="${cell.letra}" data-fila="${f}" data-col="${c}"
                     oninput="this.value=this.value.toUpperCase(); actualizarCrucigrama(${i})"
-                    style="grid-column:${c+1}; grid-row:${f+1};">`;
-            } else {
-                html += `<div class="crucigrama-vacio" style="grid-column:${c+1}; grid-row:${f+1};"></div>`;
+                    style="grid-column: ${c+1}; grid-row: ${f+1};">`;
             }
         }
     }
