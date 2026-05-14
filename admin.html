@@ -10414,6 +10414,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 estadoNuevo: estado || 'borrador'
                             });
                             
+                            // Calcular visiblePara basado en visible checkbox y sedes/horarios
+                            let visiblePara = [];
+                            if (visible) {
+                                // Generar todas las combinaciones de sedes y horarios seleccionados
+                                sedesSeleccionadas.forEach(sede => {
+                                    horariosSeleccionados.forEach(horario => {
+                                        visiblePara.push(`${sede}-${horario}`);
+                                    });
+                                });
+                            }
+                            
                             await updateDoc(claseRef, cleanObjectForFirestore({
                                 titulo: title,
                                 descripcion: desc,
@@ -10424,6 +10435,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 sedes: sedesSeleccionadas,
                                 estado: estado,
                                 visible: visible,
+                                visiblePara: visiblePara,  // Nuevo campo granular
                                 fechaPublicacion: fechaPublicacion ? new Date(fechaPublicacion).getTime() : null,
                                 fechaFinalizacion: fechaFinalizacion ? new Date(fechaFinalizacion).getTime() : null,
                                 dificultad: dificultad,
@@ -10434,6 +10446,17 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 historialCambios: historial.slice(-50) // Mantener últimos 50 cambios
                             }));
                         } else {
+                            // Calcular visiblePara basado en visible checkbox y sedes/horarios
+                            let visiblePara = [];
+                            if (visible) {
+                                // Generar todas las combinaciones de sedes y horarios seleccionados
+                                sedesSeleccionadas.forEach(sede => {
+                                    horariosSeleccionados.forEach(horario => {
+                                        visiblePara.push(`${sede}-${horario}`);
+                                    });
+                                });
+                            }
+                            
                             // Crear nueva clase
                             claseRef = await addDoc(collection(db, 'classes'), cleanObjectForFirestore({
                                 titulo: title,
@@ -10445,6 +10468,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                 sedes: sedesSeleccionadas,
                                 estado: estado,
                                 visible: visible,
+                                visiblePara: visiblePara,  // Nuevo campo granular
                                 fechaPublicacion: fechaPublicacion ? new Date(fechaPublicacion).getTime() : null,
                                 fechaFinalizacion: fechaFinalizacion ? new Date(fechaFinalizacion).getTime() : null,
                                 dificultad: dificultad,
@@ -12639,8 +12663,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                             <button onclick="mostrarHistorialClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" title="Ver cambios y auditoría de la clase">
                                                 <i class="fas fa-history"></i> Historial
                                             </button>
-                                            <button onclick="toggleClaseVisibilidad('${clase.id}')" style="padding: 0.5rem 1rem; background: ${clase.visible ? '#10b981' : '#9ca3af'}; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" title="Toggle visibilidad">
-                                                <i class="fas ${clase.visible ? 'fa-eye' : 'fa-eye-slash'}"></i> ${clase.visible ? 'Visible' : 'Oculta'}
+                                            <button onclick="toggleClaseVisibilidad('${clase.id}')" style="padding: 0.5rem 1rem; background: ${(clase.visiblePara && clase.visiblePara.length > 0) || clase.visible ? '#10b981' : '#9ca3af'}; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;" title="${clase.visiblePara && clase.visiblePara.length > 0 ? 'Visible para: ' + clase.visiblePara.join(', ') : 'Configurar visibilidad'}">
+                                                <i class="fas ${(clase.visiblePara && clase.visiblePara.length > 0) || clase.visible ? 'fa-eye' : 'fa-eye-slash'}"></i> ${clase.visiblePara && clase.visiblePara.length > 0 ? `Visible (${clase.visiblePara.length})` : clase.visible ? 'Visible' : 'Oculta'}
                                             </button>
                                             <button onclick="editClase('${clase.id}')" style="padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                                                 <i class="fas fa-edit"></i> Editar
@@ -13074,39 +13098,138 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 }
                 
                 const claseActual = claseSnap.data();
-                // Si visible es undefined, tratarlo como false (oculto por defecto)
-                const estadoActual = claseActual.visible === true;
-                const nuevoEstado = !estadoActual;
+                
+                // Obtener visibilidad actual (migrar de booleano a array si es necesario)
+                let visiblePara = [];
+                if (Array.isArray(claseActual.visiblePara)) {
+                    visiblePara = claseActual.visiblePara;
+                } else if (claseActual.visible === true) {
+                    // Migración: si era visible globalmente, hacerlo visible para todos
+                    visiblePara = [
+                        'Carapungo-Sábado Matutina',
+                        'Carapungo-Sábado Vespertina',
+                        'Carapungo-Domingo Matutina',
+                        'Sangolquí-Sábado Matutina',
+                        'Sangolquí-Sábado Vespertina',
+                        'Sangolquí-Domingo Matutina'
+                    ];
+                }
+                
+                // Crear modal con checkboxes para cada combinación
+                const sedes = ['Carapungo', 'Sangolquí'];
+                const horarios = ['Sábado Matutina', 'Sábado Vespertina', 'Domingo Matutina'];
+                
+                let checkboxesHTML = '<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px;">';
+                
+                sedes.forEach(sede => {
+                    checkboxesHTML += `<div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">${sede}</div>`;
+                    
+                    horarios.forEach(horario => {
+                        const combinacion = `${sede}-${horario}`;
+                        const checked = visiblePara.includes(combinacion) ? 'checked' : '';
+                        checkboxesHTML += `
+                            <label style="display: flex; align-items: center; gap: 8px; margin: 4px 0; cursor: pointer; font-size: 0.9rem;">
+                                <input type="checkbox" value="${combinacion}" ${checked} 
+                                    style="cursor: pointer; width: 16px; height: 16px;">
+                                <span>${horario}</span>
+                            </label>`;
+                    });
+                    
+                    checkboxesHTML += '</div>';
+                });
+                
+                checkboxesHTML += '</div>';
+                
+                // Botón de seleccionar/deseleccionar todos
+                const modalHTML = `
+                    <div id="visibilidadModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                            <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 1.3rem;">
+                                <i class="fas fa-eye"></i> Configurar Visibilidad
+                            </h3>
+                            <p style="color: #64748b; margin: 0 0 16px 0; font-size: 0.9rem;">
+                                Selecciona las combinaciones de sede y horario que pueden ver esta clase
+                            </p>
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <button onclick="seleccionarTodosVisibilidad()" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                    <i class="fas fa-check-double"></i> Todos
+                                </button>
+                                <button onclick="deseleccionarTodosVisibilidad()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                    <i class="fas fa-times"></i> Ninguno
+                                </button>
+                            </div>
+                            ${checkboxesHTML}
+                            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end;">
+                                <button onclick="cerrarModalVisibilidad()" style="padding: 10px 20px; background: #94a3af; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    Cancelar
+                                </button>
+                                <button onclick="guardarVisibilidad('${claseId}')" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                
+            } catch (error) {
+                console.error('Error abriendo configuración de visibilidad:', error);
+                showToast('Error al abrir configuración', 'error');
+            }
+        }
+        
+        function seleccionarTodosVisibilidad() {
+            document.querySelectorAll('#visibilidadModal input[type="checkbox"]').forEach(cb => cb.checked = true);
+        }
+        
+        function deseleccionarTodosVisibilidad() {
+            document.querySelectorAll('#visibilidadModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+        
+        function cerrarModalVisibilidad() {
+            const modal = document.getElementById('visibilidadModal');
+            if (modal) modal.remove();
+        }
+        
+        async function guardarVisibilidad(claseId) {
+            try {
+                // Obtener combinaciones seleccionadas
+                const checkboxes = document.querySelectorAll('#visibilidadModal input[type="checkbox"]:checked');
+                const visiblePara = Array.from(checkboxes).map(cb => cb.value);
+                
+                const claseRef = doc(db, 'classes', claseId);
                 const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
                 
-                // Actualizar historial
+                // Obtener historial actual
+                const claseSnap = await getDoc(claseRef);
+                const claseActual = claseSnap.data();
                 const historial = claseActual.historialCambios || [];
+                
                 historial.push({
                     fecha: new Date().toISOString(),
                     usuario: currentUser.email || 'Sistema',
-                    cambios: `Visibilidad cambiada: ${nuevoEstado ? 'Visible' : 'Oculta'}`,
-                    estadoAnterior: estadoActual,  // Siempre será true o false
-                    estadoNuevo: nuevoEstado
+                    cambios: `Visibilidad configurada: ${visiblePara.length > 0 ? visiblePara.join(', ') : 'Oculto para todos'}`,
+                    estadoAnterior: claseActual.visiblePara || [],
+                    estadoNuevo: visiblePara
                 });
                 
-                // Guardar cambio
+                // Guardar cambios
                 await updateDoc(claseRef, cleanObjectForFirestore({
-                    visible: nuevoEstado,
+                    visiblePara: visiblePara,
+                    visible: visiblePara.length > 0,  // Mantener compatible con código antiguo
                     fechaActualizacion: new Date().toISOString(),
                     historialCambios: historial.slice(-50)
                 }));
                 
-                // Mostrar toast de éxito
-                const icon = nuevoEstado ? '👁️' : '👁️‍🗨️';
-                const mensaje = nuevoEstado ? 'Clase ahora visible' : 'Clase ahora oculta';
-                showToast(mensaje, 'success');
-                
-                // Recargar lista
+                showToast(visiblePara.length > 0 ? 'Visibilidad actualizada' : 'Clase oculta para todos', 'success');
+                cerrarModalVisibilidad();
                 loadClasesList();
                 
             } catch (error) {
-                console.error('Error cambiando visibilidad:', error);
-                showToast('Error al cambiar visibilidad', 'error');
+                console.error('Error guardando visibilidad:', error);
+                showToast('Error al guardar visibilidad', 'error');
             }
         }
 
@@ -15779,6 +15902,14 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
             btnGuardar.disabled = true;
 
             try {
+                // Calcular visiblePara basado en sedes y horarios seleccionados
+                let visiblePara = [];
+                sedes.forEach(sede => {
+                    horarios.forEach(horario => {
+                        visiblePara.push(`${sede}-${horario}`);
+                    });
+                });
+                
                 const claseData = {
                     titulo: titulo,
                     descripcion: descripcion,
@@ -15791,7 +15922,10 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
                     fechaCreacion: new Date().toISOString(),
                     generadaConIA: true,
                     metodologia: 'constructivista',
-                    hasChunks: hasChunks
+                    hasChunks: hasChunks,
+                    visible: true,  // Por defecto visible
+                    visiblePara: visiblePara,  // Granularidad por sede-horario
+                    estado: 'publicado'
                 };
 
                 const claseRef = await addDoc(collection(db, 'classes'), claseData);

@@ -2278,11 +2278,22 @@ async function loadClasesByModulo(selectedModulo) {
         
         clasesData.forEach(clase => {
             // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
-            // Filtrar clases ocultas por el admin
-            const esVisible = clase.visible !== false; // Por defecto visible
-            if (!esVisible) {
-                console.log(`⏳ Clase "${clase.titulo}" está oculta por el administrador`);
-                return; // Saltar esta clase
+            // Verificar visibilidad granular por sede y horario
+            const sedeHorario = `${currentUser.sede}-${currentUser.horario}`;
+            
+            // Soporte para migración: si existe visiblePara (nuevo sistema), usarlo
+            if (clase.visiblePara && Array.isArray(clase.visiblePara)) {
+                if (!clase.visiblePara.includes(sedeHorario)) {
+                    console.log(`⏳ Clase "${clase.titulo}" no visible para ${sedeHorario}`);
+                    return; // Saltar esta clase
+                }
+            } else {
+                // Fallback al sistema antiguo
+                const esVisible = clase.visible !== false; // Por defecto visible
+                if (!esVisible) {
+                    console.log(`⏳ Clase "${clase.titulo}" está oculta por el administrador`);
+                    return; // Saltar esta clase
+                }
             }
             
             // COMENTADO: Filtro de fechas (mostrar todas las clases por ahora)
