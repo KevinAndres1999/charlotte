@@ -161,8 +161,9 @@ function actualizarDashboardUsuarios() {
     
     setText('count-carapungo', carapungo);
     setText('count-sangolqui', sangolqui);
-    setText('total-carapungo', carapungo);
-    setText('total-sangolqui', sangolqui);
+    // Elementos total-carapungo y total-sangolqui no existen en el HTML
+    // setText('total-carapungo', carapungo);
+    // setText('total-sangolqui', sangolqui);
     
     const barCarapungo = document.getElementById('bar-carapungo');
     const barSangolqui = document.getElementById('bar-sangolqui');
