@@ -544,12 +544,18 @@ async function loadDashboardStats() {
             // Verificar visibilidad (oculto por admin)
             if (itemData.visible === false) return false;
             
-            // Verificar sede
+            // Sistema de visibilidad granular (visiblePara tiene prioridad)
+            if (itemData.visiblePara && Array.isArray(itemData.visiblePara) && itemData.visiblePara.length > 0) {
+                const userCombo = `${currentUser.sede}-${currentUser.horario}`;
+                return itemData.visiblePara.includes(userCombo);
+            }
+            
+            // Sistema legacy: Verificar sede
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
             }
 
-            // Verificar horario
+            // Sistema legacy: Verificar horario
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 if (!itemData.horarios.includes(currentUser.horario)) return false;
             }
