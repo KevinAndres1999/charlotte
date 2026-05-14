@@ -6125,6 +6125,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                             </div>
                             <p style="margin-top: 1rem; font-size: 1.1rem; color: #374151;">La IA está analizando la clase y generando preguntas...</p>
                             <p style="color: #64748b; font-size: 0.9rem;">Esto puede tomar unos segundos</p>
+                            <p id="actividadRetryStatus" style="color: #f59e0b; font-size: 0.85rem; margin-top: 0.5rem; display: none;"></p>
                         </div>
 
                         <!-- Lista de Actividades Interactivas Creadas -->
@@ -16236,6 +16237,43 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
                 return;
             }
             
+            // Función auxiliar para fetch con retry
+            async function fetchWithRetry(url, options, maxRetries = 2) {
+                const retryStatusEl = document.getElementById('actividadRetryStatus');
+                for (let i = 0; i <= maxRetries; i++) {
+                    try {
+                        if (i > 0 && retryStatusEl) {
+                            retryStatusEl.style.display = 'block';
+                            retryStatusEl.textContent = `⚠️ Reintentando... (${i}/${maxRetries})`;
+                        }
+                        
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 60000);
+                        
+                        const response = await fetch(url, {
+                            ...options,
+                            signal: controller.signal
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        if (retryStatusEl) {
+                            retryStatusEl.style.display = 'none';
+                        }
+                        
+                        return response;
+                    } catch (error) {
+                        if (i === maxRetries) throw error;
+                        if (error.name === 'AbortError' || error.message.includes('fetch')) {
+                            console.log(`Reintento ${i + 1}/${maxRetries}...`);
+                            await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            }
+            
             // Mostrar loading
             document.getElementById('actividadGeneradaCard').style.display = 'none';
             document.getElementById('actividadLoadingCard').style.display = 'block';
@@ -16397,32 +16435,33 @@ REGLAS IMPORTANTES:
 11. Cada pregunta DEBE tener una explicación educativa
 12. Responde ÚNICAMENTE con JSON válido, sin texto antes ni después`;
 
-                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`,
-                        'Content-Type': 'application/json',
-                        'HTTP-Referer': window.location.origin,
-                        'X-Title': 'Charlotte Educational Platform'
-                    },
-                    body: JSON.stringify({
-                        model: 'google/gemini-2.0-flash-001',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'Eres un experto pedagogo especializado en crear actividades interactivas de aprendizaje. Siempre respondes en JSON válido.'
-                            },
-                            {
-                                role: 'user',
-                                content: prompt
-                            }
-                        ],
-                        max_tokens: 4000,
-                        temperature: 0.7
-                    })
-                });
+                try {
+                    const response = await fetchWithRetry('https://openrouter.ai/api/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${apiKey}`,
+                            'Content-Type': 'application/json',
+                            'HTTP-Referer': window.location.origin,
+                            'X-Title': 'Charlotte Educational Platform'
+                        },
+                        body: JSON.stringify({
+                            model: 'google/gemini-2.0-flash-001',
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: 'Eres un experto pedagogo especializado en crear actividades interactivas de aprendizaje. Siempre respondes en JSON válido.'
+                                },
+                                {
+                                    role: 'user',
+                                    content: prompt
+                                }
+                            ],
+                            max_tokens: 4000,
+                            temperature: 0.7
+                        })
+                    });
 
-                if (!response.ok) {
+                    if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(`Error de OpenRouter (${response.status}): ${errorData.error?.message || 'Error desconocido'}`);
                 }
@@ -16478,9 +16517,21 @@ REGLAS IMPORTANTES:
                 // Mostrar vista previa
                 mostrarVistaPreviewActividad(actividadGeneradaActual);
                 
+                } catch (fetchError) {
+                    if (fetchError.name === 'AbortError') {
+                        throw new Error('La generación tomó demasiado tiempo (más de 60 segundos). Intenta con un tema más específico.');
+                    }
+                    throw fetchError;
+                }
+                
             } catch (error) {
                 console.error('Error generando actividad:', error);
-                alert('Error al generar la actividad: ' + error.message);
+                const errorMsg = error.name === 'AbortError' 
+                    ? 'La generación tomó demasiado tiempo. Intenta con un tema más específico.'
+                    : error.message.includes('Failed to fetch') || error.message.includes('ERR_CONNECTION')
+                        ? 'Error de conexión con OpenRouter. Se intentó 3 veces sin éxito. Verifica tu conexión a internet.'
+                        : error.message;
+                alert('Error al generar la actividad: ' + errorMsg);
             } finally {
                 document.getElementById('actividadLoadingCard').style.display = 'none';
                 document.getElementById('btnGenerarActividad').disabled = false;
