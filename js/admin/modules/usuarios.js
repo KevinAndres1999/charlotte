@@ -310,6 +310,7 @@ async function aprobarUsuario(id) {
                                 <option value="">Seleccionar sede</option>
                                 <option value="Carapungo">Carapungo</option>
                                 <option value="Sangolquí">Sangolquí</option>
+                                <option value="Saquisilí">Saquisilí</option>
                             </select>
                         </div>
 

@@ -438,21 +438,21 @@ function filterByUserAccess(items, reintentosDisponibles = []) {
         else {
             console.log('🔍 Usando sistema anterior (sedes/horarios separados)');
 
-            // Filtrar por sede (solo si el item tiene sedes definidas)
+            // Filtrar por sede (solo si el item tiene sedes definidas Y el estudiante tiene sede asignada)
             if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
                 const userSede = (currentUser.sede || '').toString().trim();
-                console.log('🔍 Sedes del item:', item.sedes, 'Sede usuario:', userSede);
-                if (!userSede || !item.sedes.includes(userSede)) {
+                console.log('🔍 Sedes del item:', item.sedes, 'Sede usuario:', userSede || '(sin sede)');
+                if (userSede && !item.sedes.includes(userSede)) {
                     console.log('❌ Rechazado por sede no incluida');
                     return false;
                 }
             }
 
-            // Filtrar por horario (solo si el item tiene horarios definidos)
+            // Filtrar por horario (solo si el item tiene horarios definidos Y el estudiante tiene horario asignado)
             if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').toString().trim();
-                console.log('🔍 Horarios del item:', item.horarios, 'Horario usuario:', userHorario);
-                if (!userHorario || !item.horarios.includes(userHorario)) {
+                console.log('🔍 Horarios del item:', item.horarios, 'Horario usuario:', userHorario || '(sin horario)');
+                if (userHorario && !item.horarios.includes(userHorario)) {
                     console.log('❌ Rechazado por horario no incluido');
                     return false;
                 }
@@ -554,14 +554,16 @@ async function loadDashboardStats() {
                 }
             }
             
-            // 4. Verificar sede
+            // 4. Verificar sede (solo si el estudiante tiene sede asignada)
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
-                if (!itemData.sedes.includes(currentUser.sede)) return false;
+                const userSede = (currentUser.sede || '').trim();
+                if (userSede && !itemData.sedes.includes(userSede)) return false;
             }
 
-            // 5. Verificar horario
+            // 5. Verificar horario (solo si el estudiante tiene horario asignado)
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
-                if (!itemData.horarios.includes(currentUser.horario)) return false;
+                const userHorario = (currentUser.horario || '').trim();
+                if (userHorario && !itemData.horarios.includes(userHorario)) return false;
             }
 
             return true;
