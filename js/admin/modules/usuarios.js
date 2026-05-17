@@ -589,10 +589,11 @@ async function editarUsuarioAprobado(userId) {
                             <select id="editUserAprobadoSede" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
                                 <option value="Carapungo" ${user.sede === 'Carapungo' ? 'selected' : ''}>Carapungo</option>
                                 <option value="Sangolquí" ${user.sede === 'Sangolquí' ? 'selected' : ''}>Sangolquí</option>
+                                <option value="Saquisilí" ${user.sede === 'Saquisilí' ? 'selected' : ''}>Saquisilí</option>
                             </select>
                         </div>
                         
-                        <div style="margin-bottom: 1.5rem;">
+                        <div style="margin-bottom: 1.25rem;">
                             <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-clock"></i> Horario</label>
                             <select id="editUserAprobadoHorario" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
                                 <option value="">Sin horario asignado</option>
@@ -600,6 +601,15 @@ async function editarUsuarioAprobado(userId) {
                                 <option value="Sábado Vespertina" ${user.horario === 'Sábado Vespertina' ? 'selected' : ''}>Sábado Vespertina</option>
                                 <option value="Domingo Matutina" ${user.horario === 'Domingo Matutina' ? 'selected' : ''}>Domingo Matutina</option>
                             </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem;"><i class="fas fa-money-bill-wave"></i> Estado de Pagos</label>
+                            <select id="editUserAprobadoEstadoPagos" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                                <option value="pagos_al_dia" ${(user.estadoPagos || 'pagos_al_dia') === 'pagos_al_dia' ? 'selected' : ''}>✅ Pagos al día</option>
+                                <option value="pagos_pendientes" ${user.estadoPagos === 'pagos_pendientes' ? 'selected' : ''}>⚠️ Pagos pendientes</option>
+                            </select>
+                            <small style="color: #6b7280; font-size: 0.85rem; margin-top: 0.4rem; display: block;">Los estudiantes con pagos pendientes no pueden acceder a cuestionarios ni evaluaciones.</small>
                         </div>
                         
                         <div style="display: flex; gap: 1rem;">
@@ -627,17 +637,29 @@ async function guardarEdicionUsuarioAprobado(userId) {
     const programa = document.getElementById('editUserAprobadoPrograma').value;
     const sede = document.getElementById('editUserAprobadoSede').value;
     const horario = document.getElementById('editUserAprobadoHorario').value;
+    const estadoPagos = document.getElementById('editUserAprobadoEstadoPagos').value;
     
     try {
         await updateDoc(doc(db, 'users', userId), {
             programa: programa,
             sede: sede,
             horario: horario,
+            estadoPagos: estadoPagos,
             updatedAt: new Date().toISOString()
         });
         
+        // Actualizar también en la cache local
+        const idx = allApprovedUsers.findIndex(u => u.id === userId);
+        if (idx !== -1) {
+            allApprovedUsers[idx].programa = programa;
+            allApprovedUsers[idx].sede = sede;
+            allApprovedUsers[idx].horario = horario;
+            allApprovedUsers[idx].estadoPagos = estadoPagos;
+        }
+        
         document.getElementById('editUserAprobadoModal').remove();
-        await loadUsuariosAprobados();
+        renderApprovedUsers();
+        actualizarDashboardUsuarios();
         alert('✅ Usuario actualizado exitosamente');
     } catch (error) {
         console.error('Error:', error);
