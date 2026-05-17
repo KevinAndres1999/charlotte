@@ -408,7 +408,7 @@ async function confirmarAprobacion(id) {
             horario: horario,
             estadoPagos: estadoPagos,
             role: 'student',
-            status: 'cursando',  // Cambiar de 'pending' a 'cursando' al aprobar
+            status: 'active',  // Status activo al aprobar
             authMethod: data.authMethod || 'firebase',  // Mantener método de autenticación
             registeredDate: data.registeredDate,
             approvedAt: new Date().toISOString(),
@@ -844,7 +844,7 @@ async function aprobarTodosPendientes() {
             // Actualizar el documento existente
             await updateDoc(doc(db, 'users', userDocId), {
                 role: 'student',
-                status: 'cursando',
+                status: 'active',
                 approvedAt: new Date().toISOString()
             });
             await deleteDoc(doc(db, 'pendingStudents', user.id));

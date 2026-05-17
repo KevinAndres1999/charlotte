@@ -3317,7 +3317,7 @@ async function sincronizarDatosUsuario() {
             const userData = userDoc.data();
 
             // Verificar si el estado ha cambiado a graduado o retirado
-            const nuevoEstado = userData.status || 'cursando';
+            const nuevoEstado = userData.status || 'active';
             if (nuevoEstado !== 'cursando' && nuevoEstado !== 'active') {
                 console.warn('⛔ Estado del estudiante bloqueado:', nuevoEstado);
                 sessionStorage.clear();
