@@ -438,21 +438,21 @@ function filterByUserAccess(items, reintentosDisponibles = []) {
         else {
             console.log('🔍 Usando sistema anterior (sedes/horarios separados)');
 
-            // Filtrar por sede (solo si el item tiene sedes definidas Y el estudiante tiene sede asignada)
+            // Filtrar por sede: si la clase tiene sedes definidas, el estudiante debe tener una que coincida
             if (item.sedes && Array.isArray(item.sedes) && item.sedes.length > 0) {
                 const userSede = (currentUser.sede || '').toString().trim();
                 console.log('🔍 Sedes del item:', item.sedes, 'Sede usuario:', userSede || '(sin sede)');
-                if (userSede && !item.sedes.includes(userSede)) {
+                if (!userSede || !item.sedes.includes(userSede)) {
                     console.log('❌ Rechazado por sede no incluida');
                     return false;
                 }
             }
 
-            // Filtrar por horario (solo si el item tiene horarios definidos Y el estudiante tiene horario asignado)
+            // Filtrar por horario: si la clase tiene horarios definidos, el estudiante debe tener uno que coincida
             if (item.horarios && Array.isArray(item.horarios) && item.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').toString().trim();
                 console.log('🔍 Horarios del item:', item.horarios, 'Horario usuario:', userHorario || '(sin horario)');
-                if (userHorario && !item.horarios.includes(userHorario)) {
+                if (!userHorario || !item.horarios.includes(userHorario)) {
                     console.log('❌ Rechazado por horario no incluido');
                     return false;
                 }
@@ -543,16 +543,16 @@ async function loadDashboardStats() {
                 }
             }
             
-            // 4. Verificar sede (solo si el estudiante tiene sede asignada)
+            // 4. Verificar sede: si el item tiene sedes definidas, el estudiante debe tener una que coincida
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 const userSede = (currentUser.sede || '').trim();
-                if (userSede && !itemData.sedes.includes(userSede)) return false;
+                if (!userSede || !itemData.sedes.includes(userSede)) return false;
             }
 
-            // 5. Verificar horario (solo si el estudiante tiene horario asignado)
+            // 5. Verificar horario: si el item tiene horarios definidos, el estudiante debe tener uno que coincida
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').trim();
-                if (userHorario && !itemData.horarios.includes(userHorario)) return false;
+                if (!userHorario || !itemData.horarios.includes(userHorario)) return false;
             }
 
             return true;
