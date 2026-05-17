@@ -534,8 +534,12 @@ async function loadDashboardStats() {
             }
             
             // 2. Verificar estado de publicación (solo para clases)
-            if (type === 'clase' && itemData.estado !== 'publicada') {
-                return false;
+            // Acepta: 'publicada', 'publicado', o vacío (clases creadas antes del campo)
+            if (type === 'clase') {
+                const estado = (itemData.estado || '').trim();
+                if (estado && estado !== 'publicada' && estado !== 'publicado') {
+                    return false;
+                }
             }
             
             // 3. Verificar fechas de publicación (si existen)
@@ -2332,11 +2336,13 @@ async function loadClasesByModulo(selectedModulo) {
         clasesData.forEach(clase => {
             // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
             const esVisible = clase.visible !== false; // Por defecto visible
-            const estadoPublicada = clase.estado === 'publicada';
+            // Acepta: 'publicada', 'publicado', o vacío (clases creadas antes del campo estado)
+            const estadoPublicada = !clase.estado || clase.estado === 'publicada' || clase.estado === 'publicado';
             const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
             const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
             
             // Si no es visible o no está publicada, excluir
+            // estadoPublicada = true si: estado vacío (compatibilidad), 'publicada' o 'publicado'
             if (!esVisible || !estadoPublicada) {
                 console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
                 return; // Saltar esta clase
