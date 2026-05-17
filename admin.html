@@ -15163,6 +15163,11 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                 btnManual.style.color = '#667eea';
                 btnIA.style.background = '#10b981';
                 btnIA.style.color = 'white';
+                // Auto-rellenar API key si ya está configurada
+                getAdminApiKey().then(k => {
+                    const campo = document.getElementById('apiKeyClases');
+                    if (campo && !campo.value && k) campo.value = k;
+                });
             }
         }
 
@@ -15191,6 +15196,43 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
         }
 
+        // Helper: obtiene la API key de OpenRouter (campo > localStorage > Firebase)
+        async function getAdminApiKey() {
+            // 1. Campo visible en la página
+            let apiKey = document.getElementById('apiKeyClases')?.value?.trim() || '';
+            if (apiKey && apiKey.startsWith('sk-or-v1-')) return apiKey;
+
+            // 2. Campo de cuestionarios
+            apiKey = document.getElementById('openaiApiKey')?.value?.trim() || '';
+            if (apiKey && apiKey.startsWith('sk-or-v1-')) return apiKey;
+
+            // 3. localStorage
+            apiKey = localStorage.getItem('openrouter_api_key') || '';
+            if (apiKey && apiKey.startsWith('sk-or-v1-')) return apiKey;
+
+            // 4. Firebase
+            try {
+                if (window.db && window.getDoc && window.doc) {
+                    const configDoc = await window.getDoc(window.doc(window.db, 'config', 'openrouter'));
+                    if (configDoc && configDoc.exists && configDoc.exists()) {
+                        apiKey = configDoc.data()?.apiKey || '';
+                        if (apiKey && apiKey.startsWith('sk-or-v1-')) {
+                            // Guardar en localStorage para la próxima vez
+                            localStorage.setItem('openrouter_api_key', apiKey);
+                            // Auto-rellenar el campo para que el admin lo vea
+                            const campoApiKey = document.getElementById('apiKeyClases');
+                            if (campoApiKey && !campoApiKey.value) campoApiKey.value = apiKey;
+                            return apiKey;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudo obtener API key desde Firebase:', e);
+            }
+
+            return '';
+        }
+
         // Función principal para generar clase con IA
         async function generarClaseConIA() {
             const titulo = document.getElementById('claseTitleIA').value.trim();
@@ -15198,11 +15240,8 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             const modulo = document.getElementById('claseModuloIA').value;
             const duracion = document.getElementById('claseDuracionIA').value;
             
-            // Obtener API key - primero del campo local, luego del de cuestionarios
-            let apiKey = document.getElementById('apiKeyClases')?.value || '';
-            if (!apiKey) {
-                apiKey = document.getElementById('openaiApiKey')?.value || '';
-            }
+            // Obtener API key - campo, localStorage o Firebase
+            const apiKey = await getAdminApiKey();
 
             // Determinar el modo de generación
             const modoSeleccionado = document.querySelector('input[name="modoGeneracionClase"]:checked').value;
@@ -15218,7 +15257,7 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
             }
 
             if (!apiKey || !apiKey.startsWith('sk-or-v1-')) {
-                alert('Por favor, ingresa tu API Key de OpenRouter. Puedes obtener una gratuita en openrouter.ai/keys');
+                alert('Por favor, ingresa tu API Key de OpenRouter en el campo de arriba. Puedes obtener una gratuita en openrouter.ai/keys');
                 return;
             }
 
@@ -16234,14 +16273,11 @@ ESTRUCTURA OBLIGATORIA (copia este orden EXACTO):
                 return;
             }
             
-            // Obtener API key
-            let apiKey = document.getElementById('apiKeyClases')?.value || '';
-            if (!apiKey) {
-                apiKey = document.getElementById('openaiApiKey')?.value || '';
-            }
+            // Obtener API key - campo, localStorage o Firebase
+            const apiKey = await getAdminApiKey();
             
             if (!apiKey || !apiKey.startsWith('sk-or-v1-')) {
-                alert('Por favor, configura tu API Key de OpenRouter en la sección de Clases IA para usar esta función.');
+                alert('No se encontró una API Key de OpenRouter configurada. Ve a Configuración → OpenRouter y guarda tu API key.');
                 return;
             }
             
