@@ -164,7 +164,6 @@ try {
           return [];
         });
       }
-      }
 
       // Utilidades de cache
       generateCacheKey(collectionName, constraints) {
