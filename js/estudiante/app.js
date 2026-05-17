@@ -476,21 +476,6 @@ function filterByUserAccess(items, reintentosDisponibles = []) {
 
     console.log('📊 Resultado filtrado:', filtered.length, 'de', items.length);
 
-    // 🔥 RESPALDO TEMPORAL: Si no hay items filtrados, mostrar todos los del programa correcto
-    // Esto permite acceso mientras se diagnostica el problema de permisos
-    if (filtered.length === 0 && items.length > 0) {
-        console.log('🚨 RESPALDO ACTIVADO: Mostrando todos los items del programa por falta de permisos específicos');
-
-        const respaldoFiltered = items.filter(item => {
-            const itemPrograma = (item.programa || '').toString().toLowerCase().trim();
-            const userPrograma = (currentUser.programa || '').toString().toLowerCase().trim();
-            return itemPrograma && itemPrograma === userPrograma;
-        });
-
-        console.log('📊 Items con respaldo:', respaldoFiltered.length);
-        return respaldoFiltered;
-    }
-
     return filtered;
 }
 
@@ -617,13 +602,18 @@ async function loadDashboardStats() {
                 collection: 'evaluaciones',
                 constraints: [where('programa', '==', currentUser.programa)],
                 options: { noLimit: false }
+            },
+            {
+                collection: 'actividades_interactivas',
+                constraints: [where('programa', '==', currentUser.programa)],
+                options: { noLimit: false }
             }
         ];
 
         // Ejecutar todas las consultas en paralelo
-        let clasesData = [], videosData = [], actividadesData = [], materialesData = [], cuestionariosData = [], evaluacionesData = [];
+        let clasesData = [], videosData = [], actividadesData = [], materialesData = [], cuestionariosData = [], evaluacionesData = [], actividadesIAData = [];
         try {
-            [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData] =
+            [clasesData, videosData, actividadesData, materialesData, cuestionariosData, evaluacionesData, actividadesIAData] =
                 await window.parallelQueries(queries);
         } catch (error) {
             console.warn('Error loading dashboard stats, using cached/empty data:', error);
@@ -678,11 +668,12 @@ async function loadDashboardStats() {
                       document.getElementById('progressVideosText'),
                       document.getElementById('progressVideosFill'));
 
-        // Procesar actividades
+        // Procesar actividades (manual + interactivas IA)
+        const todasActividades = [...actividadesData, ...(actividadesIAData || [])];
         let filteredActividadesCount = 0;
         let completedActividadesCount = 0;
-        console.log(`📝 Total actividades en BD para ${currentUser.programa}:`, actividadesData.length);
-        actividadesData.forEach(item => {
+        console.log(`📝 Total actividades en BD para ${currentUser.programa}:`, todasActividades.length, '(manual:', actividadesData.length, '+ IA:', (actividadesIAData || []).length, ')');
+        todasActividades.forEach(item => {
             if (shouldIncludeItem(item, 'actividad')) {
                 filteredActividadesCount++;
                 if (isCompleted('actividad', item.id)) {
