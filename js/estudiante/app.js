@@ -526,14 +526,40 @@ async function loadDashboardStats() {
             return localStorage.getItem(`${type}-${id}-${suffix}`) === 'true';
         }
 
-        // Función helper para filtrar items por sede y horario
-        function shouldIncludeItem(itemData) {
-            // Verificar sede
+        // Función helper para filtrar items por sede, horario y visibilidad
+        function shouldIncludeItem(itemData, type = 'general') {
+            // 1. Verificar visibilidad (aplica a clases, videos, actividades)
+            if (itemData.visible === false) {
+                return false;
+            }
+            
+            // 2. Verificar estado de publicación (solo para clases)
+            if (type === 'clase' && itemData.estado !== 'publicada') {
+                return false;
+            }
+            
+            // 3. Verificar fechas de publicación (si existen)
+            const ahora = Date.now();
+            if (itemData.fechaPublicacion) {
+                const fechaPublicacion = itemData.fechaPublicacion;
+                if (ahora < fechaPublicacion) {
+                    return false; // No ha llegado la fecha de publicación
+                }
+            }
+            
+            if (itemData.fechaFinalizacion) {
+                const fechaFinalizacion = itemData.fechaFinalizacion;
+                if (ahora > fechaFinalizacion) {
+                    return false; // Ha pasado la fecha de finalización
+                }
+            }
+            
+            // 4. Verificar sede
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
             }
 
-            // Verificar horario
+            // 5. Verificar horario
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 if (!itemData.horarios.includes(currentUser.horario)) return false;
             }
@@ -601,14 +627,26 @@ async function loadDashboardStats() {
         // Procesar clases
         let filteredClasesCount = 0;
         let completedClasesCount = 0;
+        console.log(`📚 Total clases en BD para ${currentUser.programa}:`, clasesData.length);
         clasesData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'clase')) {
                 filteredClasesCount++;
                 if (isCompleted('clase', item.id)) {
                     completedClasesCount++;
                 }
+            } else {
+                // Log de clases filtradas para debugging
+                const razones = [];
+                if (item.visible === false) razones.push('no visible');
+                if (item.estado !== 'publicada') razones.push(`estado: ${item.estado}`);
+                if (item.fechaPublicacion && Date.now() < item.fechaPublicacion) razones.push('no publicada aún');
+                if (item.fechaFinalizacion && Date.now() > item.fechaFinalizacion) razones.push('finalizada');
+                if (item.sedes && item.sedes.length > 0 && !item.sedes.includes(currentUser.sede)) razones.push('sede no coincide');
+                if (item.horarios && item.horarios.length > 0 && !item.horarios.includes(currentUser.horario)) razones.push('horario no coincide');
+                console.log(`⏭️ Clase "${item.titulo}" filtrada:`, razones.join(', '));
             }
         });
+        console.log(`✅ Clases visibles para estudiante:`, filteredClasesCount);
 
         updateProgress('Clases', filteredClasesCount, completedClasesCount,
                       document.getElementById('totalClases'),
@@ -620,7 +658,7 @@ async function loadDashboardStats() {
         let filteredVideosCount = 0;
         let completedVideosCount = 0;
         videosData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'video')) {
                 filteredVideosCount++;
                 if (isCompleted('video', item.id)) {
                     completedVideosCount++;
@@ -637,14 +675,25 @@ async function loadDashboardStats() {
         // Procesar actividades
         let filteredActividadesCount = 0;
         let completedActividadesCount = 0;
+        console.log(`📝 Total actividades en BD para ${currentUser.programa}:`, actividadesData.length);
         actividadesData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'actividad')) {
                 filteredActividadesCount++;
                 if (isCompleted('actividad', item.id)) {
                     completedActividadesCount++;
                 }
+            } else {
+                // Log de actividades filtradas para debugging
+                const razones = [];
+                if (item.visible === false) razones.push('no visible');
+                if (item.fechaPublicacion && Date.now() < item.fechaPublicacion) razones.push('no publicada aún');
+                if (item.fechaFinalizacion && Date.now() > item.fechaFinalizacion) razones.push('finalizada');
+                if (item.sedes && item.sedes.length > 0 && !item.sedes.includes(currentUser.sede)) razones.push('sede no coincide');
+                if (item.horarios && item.horarios.length > 0 && !item.horarios.includes(currentUser.horario)) razones.push('horario no coincide');
+                console.log(`⏭️ Actividad "${item.titulo || item.id}" filtrada:`, razones.join(', '));
             }
         });
+        console.log(`✅ Actividades visibles para estudiante:`, filteredActividadesCount);
 
         updateProgress('Actividades', filteredActividadesCount, completedActividadesCount,
                       document.getElementById('totalActividades'),
@@ -656,7 +705,7 @@ async function loadDashboardStats() {
         let filteredMaterialesCount = 0;
         let completedMaterialesCount = 0;
         materialesData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'material')) {
                 filteredMaterialesCount++;
                 if (isCompleted('material', item.id)) {
                     completedMaterialesCount++;
@@ -674,7 +723,7 @@ async function loadDashboardStats() {
         let filteredCuestionariosCount = 0;
         let completedCuestionariosCount = 0;
         cuestionariosData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'cuestionario')) {
                 filteredCuestionariosCount++;
                 if (isCompleted('cuestionario', item.id)) {
                     completedCuestionariosCount++;
@@ -692,7 +741,7 @@ async function loadDashboardStats() {
         let filteredEvaluacionesCount = 0;
         let completedEvaluacionesCount = 0;
         evaluacionesData.forEach(item => {
-            if (shouldIncludeItem(item)) {
+            if (shouldIncludeItem(item, 'evaluacion')) {
                 filteredEvaluacionesCount++;
                 if (isCompleted('evaluacion', item.id)) {
                     completedEvaluacionesCount++;
