@@ -138,24 +138,25 @@ async function loadPagos() {
     try {
         showToastNotification('Cargando información de pagos...', 'info');
 
-        // Consultar pagos del estudiante SIN orderBy (evitar requerimiento de índice)
-        const pagosQuery = window.query(
-            window.collection(window.db, 'pagos'),
-            window.where('estudianteEmail', '==', currentUser.email)
-        );
-
-        const pagosSnapshot = await window.getDocs(pagosQuery);
-        const pagos = [];
-
-        pagosSnapshot.forEach(doc => {
-            pagos.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-
-        // Ordenar por fecha descendente en JavaScript
-        pagos.sort((a, b) => {
+        // Obtener el documento del usuario para acceder a historialPagos
+        // Usar currentUser.id en lugar de currentUser.uid
+        const userId = currentUser.id || currentUser.uid;
+        if (!userId) {
+            throw new Error('ID de usuario no disponible');
+        }
+        
+        const userDocRef = window.doc(window.db, 'users', userId);
+        const userDoc = await window.getDoc(userDocRef);
+        
+        if (!userDoc.exists()) {
+            throw new Error('Usuario no encontrado en la base de datos');
+        }
+        
+        const userData = userDoc.data();
+        const historialPagos = userData.historialPagos || [];
+        
+        // Ordenar por fecha descendente
+        const pagos = historialPagos.sort((a, b) => {
             const fechaA = new Date(a.fecha || 0).getTime();
             const fechaB = new Date(b.fecha || 0).getTime();
             return fechaB - fechaA;  // Descendente (más reciente primero)
@@ -163,27 +164,40 @@ async function loadPagos() {
 
         // Calcular totales
         let totalPagado = 0;
-        let totalPendiente = 0;
-        let saldoActual = 0;
+        let clasesAtrasadas = 0;
 
         pagos.forEach(p => {
             if (p.estado === 'pagado') {
                 totalPagado += p.monto || 0;
             } else if (p.estado === 'pendiente') {
-                totalPendiente += p.monto || 0;
+                // Verificar si es una clase atrasada (fecha en el pasado)
+                const fechaPago = new Date(p.fecha);
+                if (fechaPago < new Date()) {
+                    clasesAtrasadas++;
+                }
             }
         });
 
-        saldoActual = totalPagado - totalPendiente;
+        // Calcular cuántas clases se han tomado (aproximadamente)
+        const fechaInicio = new Date('2025-05-31');
+        const hoy = new Date();
+        const diasTranscurridos = Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24));
+        const semanasTranscurridas = Math.floor(diasTranscurridos / 7);
+        const numeroClaseActual = Math.max(0, semanasTranscurridas);
+        
+        // Cálculo dinámico del saldo pendiente
+        // Saldo pendiente = (número de clase × $16) - total pagado
+        const COSTO_POR_CLASE = 16;
+        const totalEsperado = numeroClaseActual * COSTO_POR_CLASE;
+        const saldoPendiente = Math.max(0, totalEsperado - totalPagado);
 
         // Actualizar cards de resumen
-        document.getElementById('saldoActual').textContent = `$${saldoActual.toLocaleString('es-CO')}`;
+        document.getElementById('saldoActual').textContent = `$${totalEsperado.toLocaleString('es-CO')}`;
         document.getElementById('totalPagado').textContent = `$${totalPagado.toLocaleString('es-CO')}`;
-        document.getElementById('totalPendiente').textContent = `$${totalPendiente.toLocaleString('es-CO')}`;
+        document.getElementById('totalPendiente').textContent = saldoPendiente > 0 ? `$${saldoPendiente.toLocaleString('es-CO')}` : '$0';
 
         // Calcular porcentaje de pagos
-        const totalTransacciones = totalPagado + totalPendiente;
-        const porcentajePagado = totalTransacciones > 0 ? Math.round((totalPagado / totalTransacciones) * 100) : 0;
+        const porcentajePagado = totalEsperado > 0 ? Math.round((totalPagado / totalEsperado) * 100) : 100;
 
         // Actualizar card de progreso
         const progressPercent = document.getElementById('progressPagosPercent');
@@ -192,8 +206,9 @@ async function loadPagos() {
 
         if (progressPercent) progressPercent.textContent = porcentajePagado + '%';
         if (progressText) {
-            if (totalPendiente > 0) {
-                progressText.textContent = `$${totalPendiente.toLocaleString('es-CO')} pendiente`;
+            if (saldoPendiente > 0) {
+                const clasesRestantes = Math.ceil(saldoPendiente / COSTO_POR_CLASE);
+                progressText.textContent = `$${saldoPendiente.toLocaleString('es-CO')} pendiente (${clasesRestantes} clase${clasesRestantes > 1 ? 's' : ''})`;
             } else {
                 progressText.textContent = 'Todos los pagos al día';
             }
@@ -215,28 +230,29 @@ async function loadPagos() {
             `;
         } else {
             tableBody.innerHTML = pagos.map(p => {
-                const fecha = p.fecha ? new Date(p.fecha.toDate ? p.fecha.toDate() : p.fecha).toLocaleDateString('es-ES') : 'N/A';
+                const fecha = p.fecha ? new Date(p.fecha).toLocaleDateString('es-ES') : 'N/A';
                 const estado = p.estado || 'Sin especificar';
-                const estadoColor = estado === 'pagado' ? '#10b981' : '#ef4444';
+                const estadoColor = estado === 'pagado' ? '#10b981' : estado === 'pendiente' ? '#f59e0b' : '#ef4444';
+                const estadoIcon = estado === 'pagado' ? '✓' : estado === 'pendiente' ? '⏳' : '✗';
                 const monto = p.monto || 0;
                 
                 return `
                     <tr style="border-bottom: 1px solid #e2e8f0;">
                         <td style="padding: 1rem;">${fecha}</td>
-                        <td style="padding: 1rem;">${p.concepto || 'Pago'}</td>
+                        <td style="padding: 1rem;">${p.concepto || 'Clase'}</td>
                         <td style="padding: 1rem; text-align: right; font-weight: 600;">$${monto.toLocaleString('es-CO')}</td>
                         <td style="padding: 1rem; text-align: center;">
                             <span style="background-color: ${estadoColor}20; color: ${estadoColor}; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.85rem; font-weight: 600; text-transform: capitalize;">
-                                ${estado}
+                                ${estadoIcon} ${estado}
                             </span>
                         </td>
-                        <td style="padding: 1rem; color: #64748b; font-size: 0.9rem;">${p.referencia || '-'}</td>
+                        <td style="padding: 1rem; color: #64748b; font-size: 0.9rem;">${p.sede || '-'} / ${p.horario || '-'}</td>
                     </tr>
                 `;
             }).join('');
         }
 
-        showToastNotification('Pagos cargados', 'success');
+        showToastNotification('Pagos cargados correctamente', 'success');
 
     } catch (error) {
         console.error('Error cargando pagos:', error);

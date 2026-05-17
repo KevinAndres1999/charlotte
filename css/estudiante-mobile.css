@@ -1,0 +1,481 @@
+/* =================== ESTILOS MÓVILES MEJORADOS PARA ESTUDIANTE =================== */
+
+/* Overlay oscuro cuando el sidebar está abierto */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 98;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Mejoras generales para móvil */
+@media (max-width: 768px) {
+    /* Header optimizado */
+    .header {
+        padding: 0.75rem 1rem !important;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-content {
+        gap: 0.5rem;
+    }
+
+    .header-logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-logo img {
+        height: 36px !important;
+        width: auto;
+    }
+
+    .header h1 {
+        font-size: 1rem !important;
+        display: none; /* Ocultar en móvil muy pequeño */
+    }
+
+    .header-actions {
+        gap: 0.5rem;
+    }
+
+    .header-actions .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-logout {
+        display: none; /* Mostrar solo el ícono de logout en móvil */
+    }
+
+    #notificacionesBtn {
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Botón de menú móvil mejorado */
+    .menu-toggle {
+        position: fixed;
+        bottom: 24px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e63971, #1e3a8a);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 16px rgba(230, 57, 113, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-toggle:active {
+        transform: scale(0.95);
+    }
+
+    .menu-toggle.open {
+        background: linear-gradient(135deg, #dc2626, #7f1d1d);
+    }
+
+    .menu-toggle i {
+        transition: transform 0.3s ease;
+    }
+
+    .menu-toggle.open i::before {
+        content: "\f00d"; /* Ícono de cerrar */
+    }
+
+    /* Sidebar mejorado para móvil */
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .sidebar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    /* Profile section responsive */
+    .profile-section {
+        padding: 1.25rem !important;
+    }
+
+    .profile-section h3 {
+        font-size: 1.1rem;
+    }
+
+    .program-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    /* Nav items touch-friendly */
+    .nav-item {
+        padding: 1rem 1.25rem !important;
+        font-size: 0.95rem !important;
+        min-height: 48px;
+        border-left-width: 4px !important;
+    }
+
+    .nav-item i {
+        font-size: 1.1rem;
+        width: 24px;
+    }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, rgba(230, 57, 113, 0.15), transparent);
+        border-left-color: #e63971 !important;
+        font-weight: 700;
+    }
+
+    /* Main content adjustments */
+    .main-content {
+        padding: 1rem !important;
+        padding-bottom: 80px !important; /* Espacio para el botón flotante */
+    }
+
+    /* Welcome banner móvil */
+    .welcome-banner {
+        padding: 1.25rem !important;
+        border-radius: 12px;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .welcome-banner h2 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-banner p {
+        font-size: 0.875rem;
+    }
+
+    /* Page titles */
+    .page-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stats cards grid mejorado */
+    .stat-cards {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    .stat-card {
+        padding: 1rem !important;
+    }
+
+    .stat-card i {
+        font-size: 1.5rem !important;
+    }
+
+    .stat-card h3 {
+        font-size: 1.5rem !important;
+        margin: 0.5rem 0 0.25rem 0;
+    }
+
+    .stat-card p {
+        font-size: 0.8rem !important;
+    }
+
+    /* Grid de contenidos */
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Content cards mejoradas */
+    .content-card {
+        padding: 1.25rem !important;
+        border-top-width: 4px;
+    }
+
+    .content-card h4 {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .content-card p {
+        font-size: 0.875rem !important;
+        line-height: 1.5;
+    }
+
+    .meta {
+        flex-wrap: wrap;
+        gap: 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Botones touch-friendly */
+    .btn,
+    .btn-view,
+    .btn-primary-modal,
+    .quick-link {
+        min-height: 44px !important;
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Quick links grid */
+    .quick-links {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    .quick-link {
+        padding: 1rem !important;
+    }
+
+    .quick-link i {
+        font-size: 2rem !important;
+    }
+
+    .quick-link h4 {
+        font-size: 0.875rem !important;
+        margin-top: 0.5rem;
+    }
+
+    /* Modal optimizado para móvil */
+    .modal {
+        padding: 0;
+    }
+
+    .modal-content {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        z-index: 10;
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .close {
+        font-size: 2rem;
+        padding: 0.5rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    /* Formularios móviles */
+    input,
+    textarea,
+    select {
+        font-size: 16px !important; /* Previene zoom en iOS */
+        padding: 0.75rem !important;
+        border-radius: 8px;
+    }
+
+    /* Progress cards */
+    .progress-cards {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .progress-card {
+        padding: 1.25rem !important;
+    }
+
+    /* Empty state */
+    .empty-state {
+        padding: 2rem 1rem !important;
+    }
+
+    .empty-state i {
+        font-size: 3rem !important;
+    }
+
+    .empty-state h3 {
+        font-size: 1.1rem;
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+
+    /* Cards de video */
+    .video-card {
+        margin-bottom: 1rem;
+    }
+
+    .video-info {
+        padding: 1rem !important;
+    }
+
+    .video-info h4 {
+        font-size: 0.95rem;
+    }
+}
+
+/* Ajustes para móviles muy pequeños */
+@media (max-width: 480px) {
+    .header h1 {
+        display: none;
+    }
+
+    .header-logo img {
+        height: 32px !important;
+    }
+
+    .stat-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    .quick-links {
+        grid-template-columns: 1fr !important;
+    }
+
+    .sidebar {
+        width: 90%;
+        max-width: 280px;
+    }
+
+    .menu-toggle {
+        width: 52px;
+        height: 52px;
+        bottom: 20px;
+        right: 16px;
+    }
+
+    .main-content {
+        padding: 0.75rem !important;
+        padding-bottom: 72px !important;
+    }
+
+    .content-card,
+    .card {
+        padding: 1rem !important;
+    }
+
+    .btn-logout span {
+        display: none;
+    }
+
+    .btn-logout i {
+        margin: 0;
+    }
+
+    /* Mejorar legibilidad */
+    body {
+        font-size: 14px;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    h4 {
+        font-size: 1rem;
+    }
+}
+
+/* Mejoras de accesibilidad táctil */
+@media (hover: none) and (pointer: coarse) {
+    /* Dispositivos táctiles */
+    .nav-item,
+    .btn,
+    .quick-link,
+    .stat-card {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-item:active {
+        background: #f1f5f9;
+    }
+
+    .btn:active {
+        transform: scale(0.98);
+    }
+
+    .quick-link:active,
+    .stat-card:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Ocultar scrollbars en móvil pero mantener funcionalidad */
+@media (max-width: 768px) {
+    .sidebar {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    .modal-content {
+        scrollbar-width: thin;
+    }
+}
+
+/* Animaciones suaves */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

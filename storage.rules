@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Firebase Storage Security Rules para Charlotte LMS
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Videos - Solo usuarios autenticados pueden escribir, todos pueden leer
+    match /videos/{videoFile} {
+      allow read: if true;  // Público para streaming
+      allow write: if request.auth != null;  // Solo usuarios autenticados
+      allow delete: if request.auth != null;
+    }
+    
+    // Trabajos/entregas de estudiantes
+    match /trabajos/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+    
+    // Materiales del curso
+    match /materiales/{allPaths=**} {
+      allow read: if true;  // Público
+      allow write: if request.auth != null;
+    }
+    
+    // Avatares de usuario
+    match /avatares/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Por defecto: denegar todo lo demás
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

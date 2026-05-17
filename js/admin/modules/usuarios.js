@@ -395,25 +395,34 @@ async function confirmarAprobacion(id) {
             return;
         }
 
-        // Usar la contraseña registrada por el estudiante
-        const password = data.password;
-        if (!password || password.length < 6) {
-            alert('La contraseña del estudiante no es válida');
-            return;
-        }
-
-        // Guardar en users con sede, horario y estado de pagos
-        await addDoc(collection(db, 'users'), {
-            ...data,
+        // Preparar datos del usuario aprobado
+        const approvedUserData = {
+            firebaseUID: data.firebaseUID || id,
+            name: data.name,
+            email: data.email,
+            cedula: data.cedula,
+            telefono: data.telefono,
+            programa: data.programa,
             sede: sede,
             horario: horario,
             estadoPagos: estadoPagos,
-            password: password,
             role: 'student',
-            status: 'cursando',
+            status: 'cursando',  // Cambiar de 'pending' a 'cursando' al aprobar
+            authMethod: data.authMethod || 'firebase',  // Mantener método de autenticación
+            registeredDate: data.registeredDate,
             approvedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
-        });
+        };
+        
+        // Solo incluir password si existe (usuarios legados)
+        // Los nuevos usuarios con authMethod='firebase' NO necesitan password en Firestore
+        if (data.password && data.authMethod !== 'firebase') {
+            approvedUserData.password = data.password;
+        }
+
+        // Guardar en users con el MISMO ID (firebaseUID) usando setDoc
+        // IMPORTANTE: Usar setDoc con el ID del usuario para mantener consistencia con Firebase Auth
+        await setDoc(doc(db, 'users', id), approvedUserData);
 
         // Eliminar de pendingStudents
         await deleteDoc(doc(db, 'pendingStudents', id));

@@ -320,6 +320,73 @@
             }
         }
 
+        // Función para obtener token JWT del backend en segundo plano (sin bloquear login)
+        async function obtenerTokenBackgroundAsync(email, password, userName) {
+            try {
+                console.log('🔐 Obteniendo token JWT en segundo plano...');
+                const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://charlotte-video-server.onrender.com';
+                
+                // Timeout de 8 segundos para no esperar infinitamente
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 8000)
+                );
+                
+                // Intentar login en el backend con timeout
+                let tokenResponse = await Promise.race([
+                    fetch(`${backendUrl}/api/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    }),
+                    timeoutPromise
+                ]);
+                
+                // Si el usuario no existe en el backend (error 401), registrarlo automáticamente
+                if (!tokenResponse.ok && tokenResponse.status === 401) {
+                    console.log('👤 Usuario no existe en backend, registrando automáticamente...');
+                    const registerResponse = await Promise.race([
+                        fetch(`${backendUrl}/api/register`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                name: userName || 'Usuario',
+                                email, 
+                                password 
+                            })
+                        }),
+                        timeoutPromise
+                    ]);
+                    
+                    if (registerResponse.ok) {
+                        console.log('✅ Usuario registrado en backend, obteniendo token...');
+                        // Reintentar login después del registro
+                        tokenResponse = await Promise.race([
+                            fetch(`${backendUrl}/api/login`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email, password })
+                            }),
+                            timeoutPromise
+                        ]);
+                    } else {
+                        console.warn('⚠️ No se pudo registrar usuario en backend');
+                    }
+                }
+                
+                // Guardar el token si el login fue exitoso
+                if (tokenResponse.ok) {
+                    const tokenData = await tokenResponse.json();
+                    localStorage.setItem('authToken', tokenData.token);
+                    console.log('✅ Token JWT obtenido y guardado (en segundo plano)');
+                } else {
+                    console.warn('⚠️ No se pudo obtener token del backend (continuando sin él)');
+                }
+            } catch (tokenError) {
+                // Falla silenciosamente - el token no es crítico para el login
+                console.warn('⚠️ Token backend no disponible:', tokenError.message === 'Timeout' ? 'Servidor no respondió a tiempo' : tokenError.message);
+            }
+        }
+
         // Función auxiliar para crear timeout (legacy)
         function withTimeout(promise, timeoutMs = 15000) {
             return Promise.race([
@@ -403,9 +470,29 @@
                             timestamp: Date.now()
                         });
                     } else {
-                        showMessage('Usuario no encontrado.', 'error');
+                        // Si no se encuentra en users, buscar en pendingStudents
+                        console.log('🔍 User not found in users, checking pendingStudents...');
+                        const pendingQuery = query(collection(db, 'pendingStudents'), where('email', '==', email), limit(1));
+                        const pendingSnapshot = await withRetry(
+                            () => getDocs(pendingQuery),
+                            2,
+                            15000
+                        );
+                        
+                        if (!pendingSnapshot.empty) {
+                            // Usuario existe pero está pendiente de aprobación
+                            console.log('📋 User found in pendingStudents - not approved yet');
+                            showMessage('Tu registro está pendiente de aprobación por el administrador. Te notificaremos cuando puedas acceder.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            return;
+                        }
+                        
+                        // No se encontró en ninguna colección
+                        showMessage('Usuario no encontrado. Por favor regístrate primero.', 'error');
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = 'Iniciar Sesión';
+                        return;
                     }
                 }
 
@@ -524,8 +611,54 @@
                         }
                     }
                     
-                    // Continuar con el login exitoso
+                    // Asegurar que userData tiene rol (backwards compatibility para usuarios antiguos)
+                    if (!userData.role) {
+                        userData.role = userData.status === 'admin' ? 'admin' : 'student';
+                        // Actualizar en Firestore también
+                        try {
+                            await updateDoc(doc(db, 'users', userDoc.id), { role: userData.role });
+                        } catch (e) {
+                            console.warn('No se pudo actualizar el rol en Firestore:', e);
+                        }
+                    }
+
+                    console.log('User role:', userData.role, 'Status:', userData.status);
+                    
+                    // VERIFICACIÓN CRÍTICA: Validar status ANTES de establecer sesión
+                    if (userData.role === 'student') {
+                        const status = userData.status || 'cursando';
+                        
+                        // Bloquear acceso para graduados/retirados
+                        if (status === 'graduado' || status === 'retirado') {
+                            mostrarMensajeEstado(status, userData.name);
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            submitBtn.style.background = '';
+                            return;  // Salir sin establecer sesión
+                        }
+                        
+                        // Bloquear acceso para usuarios pendientes de aprobación
+                        if (status === 'pending') {
+                            sessionStorage.clear();  // Limpiar cualquier dato previo
+                            showMessage('Tu registro está pendiente de aprobación. El administrador lo revisará pronto.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Iniciar Sesión';
+                            submitBtn.style.background = '';
+                            return;  // Salir sin establecer sesión
+                        }
+                    }
+                    
+                    // Solo continuar si el usuario pasó todas las verificaciones
                     console.log('Password verified, preparing user data...');
+                    console.log('📊 UserData completo:', {
+                        id: userDoc.id,
+                        email: userData.email,
+                        role: userData.role,
+                        name: userData.name,
+                        status: userData.status,
+                        programa: userData.programa
+                    });
+                    
                     const currentUser = {
                             id: userDoc.id,  // Usar el ID real del documento
                             email: userData.email,
@@ -536,10 +669,13 @@
                             horario: userData.horario
                             // cedula y telefono NO se guardan en sessionStorage (PII sensible)
                         };
+                        console.log('💾 Guardando en sessionStorage:', currentUser);
                         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        console.log('✅ SessionStorage guardado correctamente');
 
                         // Para admins, guardar el ID token de Firebase para operaciones privilegiadas
                         if (userData.role === 'admin') {
+                            console.log('🔐 Usuario es admin, obteniendo Firebase ID token...');
                             try {
                                 if (auth.currentUser) {
                                     const idToken = await auth.currentUser.getIdToken();
@@ -558,114 +694,83 @@
                                     }
                                 }
                             } catch (e) {
-                                console.warn('⚠️ No se pudo guardar ID token:', e);
+                                console.warn('⚠️ No se pudo guardar ID token:', e.message);
                             }
+                        } else {
+                            console.log('👤 Usuario es estudiante, omitiendo Firebase ID token');
                         }
+                        
+                        console.log('✅ Preparación de tokens completada');
 
                         console.log('User logged in successfully:', currentUser);
                         console.log('User logged in successfully:', currentUser.name);
                         
-                        // Obtener token JWT del backend para videoconferencias
+                        console.log('📍 Checkpoint 1: Preparando redirección...');
+                        
+                        // Obtener token JWT del backend para videoconferencias (en segundo plano, sin bloquear login)
                         try {
-                            console.log('🔐 Obteniendo token JWT del backend...');
-                            const backendUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://charlotte-video-server.onrender.com';
-                            
-                            // Intentar login en el backend
-                            let tokenResponse = await fetch(`${backendUrl}/api/login`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ email: userData.email, password: password })
+                            obtenerTokenBackgroundAsync(userData.email, password, userData.name).catch(err => {
+                                console.warn('⚠️ Error en obtención de token JWT (no bloquea login):', err.message);
                             });
-                            
-                            // Si el usuario no existe en el backend (error 401), registrarlo automáticamente
-                            if (!tokenResponse.ok && tokenResponse.status === 401) {
-                                console.log('👤 Usuario no existe en backend, registrando automáticamente...');
-                                const registerResponse = await fetch(`${backendUrl}/api/register`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ 
-                                        name: userData.name || 'Usuario',
-                                        email: userData.email, 
-                                        password: password 
-                                    })
-                                });
-                                
-                                if (registerResponse.ok) {
-                                    console.log('✅ Usuario registrado en backend, obteniendo token...');
-                                    // Reintentar login después del registro
-                                    tokenResponse = await fetch(`${backendUrl}/api/login`, {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ email: userData.email, password: password })
-                                    });
-                                } else {
-                                    console.warn('⚠️ No se pudo registrar usuario en backend');
-                                }
-                            }
-                            
-                            // Guardar el token si el login fue exitoso
-                            if (tokenResponse.ok) {
-                                const tokenData = await tokenResponse.json();
-                                localStorage.setItem('authToken', tokenData.token);
-                                console.log('✅ Token JWT obtenido y guardado');
-                            } else {
-                                console.warn('⚠️ No se pudo obtener token del backend, continuando sin él');
-                            }
-                        } catch (tokenError) {
-                            console.warn('⚠️ Error obteniendo token del backend:', tokenError.message);
+                        } catch (e) {
+                            console.warn('⚠️ Error al iniciar obtención de token JWT:', e.message);
                         }
+                        
+                        console.log('📍 Checkpoint 2: Token JWT iniciado en segundo plano');
                         
                         const endTime = performance.now();
                         console.log('Total login time:', (endTime - startTime).toFixed(2), 'ms');
 
-                        // Asegurar que userData tiene rol (backwards compatibility para usuarios antiguos)
-                        if (!userData.role) {
-                            userData.role = userData.status === 'admin' ? 'admin' : 'student';
-                            // Actualizar en Firestore también
-                            try {
-                                await updateDoc(doc(db, 'users', userDoc.id), { role: userData.role });
-                            } catch (e) {
-                                console.warn('No se pudo actualizar el rol en Firestore:', e);
-                            }
-                        }
-
-                        console.log('User role:', userData.role, 'Status:', userData.status);
-
+                        console.log('📍 Checkpoint 3: Actualizando botón...');
+                        
                         // Mostrar mensaje de éxito antes de redirigir
                         submitBtn.innerHTML = '<i class="fas fa-check"></i> ¡Éxito!';
                         submitBtn.style.background = '#10b981';
+                        
+                        console.log('📍 Checkpoint 4: Botón actualizado, iniciando timeout...');
 
-                        setTimeout(() => {
+                        // Flag para prevenir múltiples redirecciones
+                        let redirected = false;
+                        
+                        // Función de redirección segura
+                        const performRedirect = () => {
+                            if (redirected) {
+                                console.log('⚠️ Redirección ya ejecutada, omitiendo...');
+                                return;
+                            }
+                            redirected = true;
+                            
+                            console.log('📍 Checkpoint 5: Ejecutando redirección...');
+                            console.log('🔀 Redirigiendo según rol:', userData.role);
+                            
                             // Redirigir según el rol
                             if (userData.role === 'admin') {
+                                console.log('➡️ Redirigiendo a admin.html');
                                 sessionStorage.removeItem('adminActiveSection');
                                 window.location.href = 'admin.html';
                             } else if (userData.role === 'student') {
-                                const status = userData.status || 'cursando';
-                                if (status === 'graduado' || status === 'retirado') {
-                                    // Limpiar sesión y mostrar mensaje de estado
-                                    mostrarMensajeEstado(status, userData.name);
-                                    submitBtn.disabled = false;
-                                    submitBtn.innerHTML = 'Iniciar Sesión';
-                                    submitBtn.style.background = '';
-                                } else if (status === 'pending') {
-                                    // Usuario pendiente de aprobación
-                                    showMessage('Tu registro está pendiente de aprobación. El administrador lo revisará pronto.', 'warning');
-                                    submitBtn.disabled = false;
-                                    submitBtn.innerHTML = 'Iniciar Sesión';
-                                    submitBtn.style.background = '';
-                                } else {
-                                    // 'cursando' o 'active' (compatibilidad) → acceso normal
-                                    window.location.href = 'estudiante.html';
-                                }
+                                console.log('➡️ Redirigiendo a estudiante.html');
+                                // En este punto, solo estudiantes con status 'cursando' o 'active' llegan aquí
+                                window.location.href = 'estudiante.html';
                             } else {
-                                console.error('Rol desconocido:', userData.role);
+                                console.error('❌ Rol desconocido:', userData.role);
                                 showMessage('Rol no reconocido. Por favor contacta al administrador.', 'error');
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = 'Iniciar Sesión';
                                 submitBtn.style.background = '';
                             }
-                        }, 500);
+                        };
+                        
+                        // Redirección principal con setTimeout
+                        setTimeout(performRedirect, 500);
+                        
+                        // Fallback: Redirigir después de 2 segundos si algo falla
+                        setTimeout(() => {
+                            if (!redirected) {
+                                console.warn('⚠️ Timeout principal no ejecutó, usando fallback...');
+                                performRedirect();
+                            }
+                        }, 2000);
                     }
                 } catch (error) {
                 console.error('Error during login:', error);

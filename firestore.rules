@@ -65,6 +65,7 @@ service cloud.firestore {
     match /recursos/{document} { allow read, write: if isAuthenticated(); }
     match /projects/{document} { allow read, write: if isAuthenticated(); }
     match /proyectos/{document} { allow read, write: if isAuthenticated(); }
+    match /project_feedback/{document} { allow read, write: if isAuthenticated(); }
 
     // ESTUDIANTES
     match /approvedStudents/{document} { allow read, write: if isAuthenticated(); }

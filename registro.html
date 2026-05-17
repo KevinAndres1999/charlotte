@@ -324,8 +324,8 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const firebaseUID = userCredential.user.uid;
                 
-                // Guardar datos del usuario en Firestore con referencia al UID de Firebase
-                const userDoc = {
+                // Preparar datos del usuario pendiente
+                const pendingDoc = {
                     firebaseUID: firebaseUID, // Referencia segura a Firebase Auth
                     name: document.getElementById('name').value,
                     email: email,
@@ -334,25 +334,18 @@
                     programa: document.getElementById('programa').value,
                     sede: document.getElementById('sede').value,
                     role: 'student', // Definir rol por defecto
-                    // NO guardamos la contraseña - Firebase Auth la maneja de forma segura
-                    // Marcamos como usuario nuevo con autenticación segura
-                    authMethod: 'firebase', // Nuevo sistema de autenticación
+                    // NO guardamos la contraseña en texto plano - Firebase Auth la maneja de forma segura
+                    authMethod: 'firebase', // Sistema de autenticación segura
                     status: 'pending',
-                    registeredDate: new Date().toISOString()
+                    registeredDate: new Date().toISOString(),
+                    id: firebaseUID // ID para compatibilidad
                 };
                 
-                // Guardar en colección users con el UID de Firebase como ID del documento
-                await setDoc(doc(db, 'users', firebaseUID), userDoc);
-                
-                // También guardar en pendingStudents para que aparezca en la lista del admin
-                const pendingDoc = {
-                    ...userDoc,
-                    id: firebaseUID, // ID para compatibilidad
-                    email: email
-                };
+                // IMPORTANTE: Solo guardar en pendingStudents (NO en users)
+                // El usuario solo se creará en 'users' cuando sea aprobado por el admin
                 await setDoc(doc(db, 'pendingStudents', firebaseUID), pendingDoc);
                 
-                console.log('Usuario creado con Firebase Auth - UID:', firebaseUID);
+                console.log('Usuario registrado y pendiente de aprobación - UID:', firebaseUID);
                 showMessage('¡Cuenta creada exitosamente! Espera la aprobación del administrador.', 'success');
                 
                 setTimeout(() => {

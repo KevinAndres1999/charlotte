@@ -1,7 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
 import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, deleteDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
-import { getStorage, ref, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
 import { init as initForos } from './modules/foros-module.js';
 import { init as initProyecto } from './modules/proyecto-module.js';
 
@@ -18,17 +17,13 @@ try {
     const db = getFirestore(app);
     window.db = db;
     const auth = getAuth(app);
-    const storage = getStorage(app);
-    window.storage = storage;
     
     // Asignar funciones globales para compatibilidad
     window.db = db;
-    window.storage = storage;
     window.getDocs = getDocs;
     window.collection = collection;
     window.query = query;
     window.where = where;
-    window.orderBy = orderBy;
     window.doc = doc;
     window.getDoc = getDoc;
     window.setDoc = setDoc;
@@ -215,14 +210,6 @@ try {
 
 // =================== FUNCIONES GLOBALES ===================
 // Definidas más abajo en el archivo
-
-// Función helper para cerrar modales con position: fixed
-window.cerrarModal = function(element) {
-    const modal = element.closest('[style*="position: fixed"]') || element.closest('[style*="position:fixed"]');
-    if (modal) {
-        modal.remove();
-    }
-};
 
 // Verificar autenticación al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -539,30 +526,14 @@ async function loadDashboardStats() {
             return localStorage.getItem(`${type}-${id}-${suffix}`) === 'true';
         }
 
-        // Función helper para filtrar items por sede, horario y visibilidad
+        // Función helper para filtrar items por sede y horario
         function shouldIncludeItem(itemData) {
-            // Verificar visibilidad (oculto por admin)
-            if (itemData.visible === false) return false;
-            
-            // Sistema de visibilidad granular (visiblePara tiene prioridad)
-            if (itemData.visiblePara && Array.isArray(itemData.visiblePara) && itemData.visiblePara.length > 0) {
-                const userCombo = `${currentUser.sede}-${currentUser.horario}`;
-                return itemData.visiblePara.includes(userCombo);
-            }
-            
-            // Sistema específico de cuestionarios (combinacionesPermitidas)
-            if (itemData.combinacionesPermitidas && Array.isArray(itemData.combinacionesPermitidas) && itemData.combinacionesPermitidas.length > 0) {
-                return itemData.combinacionesPermitidas.some(combo => 
-                    combo.sede === currentUser.sede && combo.horario === currentUser.horario
-                );
-            }
-            
-            // Sistema legacy: Verificar sede
+            // Verificar sede
             if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
                 if (!itemData.sedes.includes(currentUser.sede)) return false;
             }
 
-            // Sistema legacy: Verificar horario
+            // Verificar horario
             if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 if (!itemData.horarios.includes(currentUser.horario)) return false;
             }
@@ -735,14 +706,6 @@ async function loadDashboardStats() {
                       document.getElementById('progressEvaluacionesText'),
                       document.getElementById('progressEvaluacionesFill'));
 
-        // Cargar asistencias y pagos para las nuevas secciones
-        try {
-            loadAsistencias();
-            loadPagos();
-        } catch (error) {
-            console.warn('Error loading attendance and payment data:', error);
-        }
-
     } catch (error) {
         console.error('Error cargando estadísticas:', error);
     }
@@ -786,10 +749,7 @@ function showSectionV2(sectionId, noPush = false) {
     });
     
     if (window.innerWidth <= 768) {
-        const sidebar = document.getElementById('sidebar');
-        const menuToggle = document.getElementById('menuToggle');
-        if (sidebar) sidebar.classList.remove('open');
-        if (menuToggle) menuToggle.classList.remove('open');
+        closeSidebar(); // Cerrar sidebar automáticamente en móvil
     }
     if (sectionId === 'evaluaciones') {
         loadEvaluaciones();
@@ -816,23 +776,37 @@ function showSectionV2(sectionId, noPush = false) {
     } else if (sectionId === 'proyecto') {
         // Inicializar el sistema de proyectos
         window.initProjectWizard?.();
-    } else if (sectionId === 'asistencias') {
-        loadAsistencias();
-    } else if (sectionId === 'pagos') {
-        loadPagos();
     }
 }
 
 window.showSection = showSectionV2;
-window.showSectionV2 = showSectionV2;
-window.showToast = showToast;
-window.volverDesdeClaseViewer = volverDesdeClaseViewer;
 
 function toggleMenu() {
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menuToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    
     if (sidebar) sidebar.classList.toggle('open');
     if (menuBtn) menuBtn.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('active');
+    
+    // Prevenir scroll del body cuando el sidebar está abierto
+    if (sidebar && sidebar.classList.contains('open')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    if (sidebar) sidebar.classList.remove('open');
+    if (menuBtn) menuBtn.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function logout() {
@@ -843,6 +817,7 @@ function logout() {
 
 // Exponer funciones globales
 window.toggleMenu = toggleMenu;
+window.closeSidebar = closeSidebar;
 window.logout = logout;
 
 // Agregar event listeners después de que el DOM esté cargado
@@ -856,6 +831,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const menuToggle = document.getElementById('menuToggle');
         if (menuToggle) {
             menuToggle.addEventListener('click', toggleMenu);
+        }
+
+        // Event listener para el overlay (cerrar sidebar al tocar fuera)
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
         }
 
         // Event listeners para navegación
@@ -2299,35 +2280,27 @@ async function loadClasesByModulo(selectedModulo) {
         
         clasesData.forEach(clase => {
             // === FILTRO DE VISIBILIDAD Y FECHAS (BLOQUE 1) ===
-            // Verificar visibilidad granular por sede y horario
-            const sedeHorario = `${currentUser.sede}-${currentUser.horario}`;
+            const esVisible = clase.visible !== false; // Por defecto visible
+            const estadoPublicada = clase.estado === 'publicada';
+            const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
+            const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
             
-            // Soporte para migración: si existe visiblePara (nuevo sistema), usarlo
-            if (clase.visiblePara && Array.isArray(clase.visiblePara)) {
-                if (!clase.visiblePara.includes(sedeHorario)) {
-                    console.log(`⏳ Clase "${clase.titulo}" no visible para ${sedeHorario}`);
-                    return; // Saltar esta clase
-                }
-            } else {
-                // Fallback al sistema antiguo
-                const esVisible = clase.visible !== false; // Por defecto visible
-                if (!esVisible) {
-                    console.log(`⏳ Clase "${clase.titulo}" está oculta por el administrador`);
-                    return; // Saltar esta clase
-                }
+            // Si no es visible o no está publicada, excluir
+            if (!esVisible || !estadoPublicada) {
+                console.log(`⏳ Clase "${clase.titulo}" no visible aún (estado: ${clase.estado}, visible: ${esVisible})`);
+                return; // Saltar esta clase
             }
             
-            // COMENTADO: Filtro de fechas (mostrar todas las clases por ahora)
-            // const fechaPublicacion = clase.fechaPublicacion ? clase.fechaPublicacion : 0;
-            // const fechaFinalizacion = clase.fechaFinalizacion ? clase.fechaFinalizacion : Infinity;
-            // if (ahora < fechaPublicacion) {
-            //     console.log(`⏳ Clase "${clase.titulo}" se publicará a las ${new Date(fechaPublicacion).toLocaleString()}`);
-            //     return;
-            // }
-            // if (ahora > fechaFinalizacion) {
-            //     console.log(`❌ Clase "${clase.titulo}" fue despublicada el ${new Date(fechaFinalizacion).toLocaleString()}`);
-            //     return;
-            // }
+            // Si el tiempo actual está fuera del rango de fechas, excluir
+            if (ahora < fechaPublicacion) {
+                console.log(`⏳ Clase "${clase.titulo}" se publicará a las ${new Date(fechaPublicacion).toLocaleString()}`);
+                return; // No ha llegado la hora aún
+            }
+            
+            if (ahora > fechaFinalizacion) {
+                console.log(`❌ Clase "${clase.titulo}" fue despublicada el ${new Date(fechaFinalizacion).toLocaleString()}`);
+                return; // Ha pasado la fecha límite
+            }
             
             // Agregar campos calculados desde localStorage
             clase.isCompleted = localStorage.getItem(`clase-${clase.id}-completed`) === 'true';
@@ -3684,237 +3657,41 @@ function shareClase(id) {
     }
 }
 
-async function printClase(id) {
-    try {
-        showToast('Preparando impresión...', 'info');
-        
-        // Obtener documento completo de Firestore (con contenido completo)
-        const docRef = doc(db, 'classes', id);
-        const docSnap = await getDoc(docRef);
-        
-        if (!docSnap.exists()) {
-            showToast('Clase no encontrada', 'error');
-            return;
-        }
-        
-        const clase = docSnap.data();
-        
-        // Validar acceso
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        if (!currentUser.programa || clase.programa.toLowerCase() !== currentUser.programa.toLowerCase()) {
-            showToast('No tienes permiso para imprimir esta clase', 'error');
-            return;
-        }
-        
-        // Cargar contenido desde chunks si es necesario
-        let content = clase.contenido;
-        if (clase.hasChunks) {
-            content = await loadContentFromChunks(id);
-        }
-        
-        if (!content) {
-            content = '<p style="color: #dc2626; text-align: center;">Sin contenido disponible</p>';
-        }
-        
-        // Crear ventana de impresión con estilos completos + watermark
-        const printWindow = window.open('', '_blank');
-        const logoUrl = 'https://cursoscharlotte.com/logo-ece.png';
-        printWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${clase.titulo} - ECE CHARLOTTE</title>
-                <style>
-                    * {
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }
-                    body { 
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        line-height: 1.6;
-                        color: #0f2138;
-                        background: white;
-                        padding: 40px;
-                        max-width: 900px;
-                        margin: 0 auto;
-                        position: relative;
-                    }
-                    .header {
-                        border-bottom: 3px solid #3b82f6;
-                        padding-bottom: 20px;
-                        margin-bottom: 30px;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    h1 { 
-                        color: #1e3a8a;
-                        font-size: 28px;
-                        margin-bottom: 15px;
-                    }
-                    .meta {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                        gap: 15px;
-                        font-size: 14px;
-                        color: #64748b;
-                        margin-bottom: 20px;
-                    }
-                    .meta-item {
-                        display: flex;
-                        gap: 8px;
-                    }
-                    .meta-label {
-                        font-weight: 600;
-                        color: #334155;
-                    }
-                    .descripcion {
-                        background: #f8fafc;
-                        border-left: 4px solid #3b82f6;
-                        padding: 15px;
-                        margin: 20px 0;
-                        border-radius: 4px;
-                        font-style: italic;
-                    }
-                    .content {
-                        padding: 20px 0;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    .content h2 {
-                        color: #1e40af;
-                        font-size: 22px;
-                        margin: 25px 0 15px 0;
-                        border-bottom: 2px solid #e2e8f0;
-                        padding-bottom: 10px;
-                    }
-                    .content h3 {
-                        color: #3b82f6;
-                        font-size: 18px;
-                        margin: 20px 0 10px 0;
-                    }
-                    .content p {
-                        margin-bottom: 15px;
-                        text-align: justify;
-                    }
-                    .content ul, .content ol {
-                        margin-left: 30px;
-                        margin-bottom: 15px;
-                    }
-                    .content li {
-                        margin-bottom: 8px;
-                    }
-                    .content img {
-                        max-width: 100%;
-                        height: auto;
-                        margin: 20px 0;
-                        border-radius: 8px;
-                        border: 1px solid #e2e8f0;
-                    }
-                    .content blockquote {
-                        border-left: 4px solid #3b82f6;
-                        margin: 20px 0;
-                        padding-left: 20px;
-                        color: #475569;
-                        font-style: italic;
-                    }
-                    .content code {
-                        background: #f1f5f9;
-                        padding: 2px 6px;
-                        border-radius: 4px;
-                        font-family: 'Courier New', monospace;
-                    }
-                    .content pre {
-                        background: #f1f5f9;
-                        padding: 15px;
-                        border-radius: 4px;
-                        overflow-x: auto;
-                        margin: 15px 0;
-                    }
-                    .footer {
-                        border-top: 1px solid #e2e8f0;
-                        padding-top: 20px;
-                        margin-top: 40px;
-                        text-align: center;
-                        color: #94a3b8;
-                        font-size: 12px;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    @media print {
-                        body { padding: 20px; }
-                        .header { page-break-after: avoid; }
-                        .content h2, .content h3 { page-break-after: avoid; }
-                        .content img { page-break-inside: avoid; }
-                        body::before { display: block !important; }
-                    }
-                    .watermark {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        width: 600px;
-                        height: 600px;
-                        background: url('${logoUrl}') no-repeat center;
-                        background-size: contain;
-                        opacity: 0.08;
-                        pointer-events: none;
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                        z-index: -1;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="watermark"></div>
-                <div class="header">
-                    <h1>${clase.titulo}</h1>
-                    <div class="meta">
-                        <div class="meta-item">
-                            <span class="meta-label">Programa:</span>
-                            <span>${clase.programa || 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Módulo:</span>
-                            <span>${clase.modulo || 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Duración:</span>
-                            <span>${clase.duracion ? clase.duracion + ' min' : 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Fecha:</span>
-                            <span>${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                ${clase.descripcion ? `<div class="descripcion"><strong>Descripción:</strong> ${clase.descripcion}</div>` : ''}
-                
-                <div class="content">
-                    ${content}
-                </div>
-                
-                <div class="footer">
-                    <p>Documento generado desde ECE CHARLOTTE - Plataforma Educativa</p>
-                    <p>Fecha de impresión: ${new Date().toLocaleString('es-ES')}</p>
-                </div>
-            </body>
-        </html>
-        `);
-        printWindow.document.close();
-        
-        // Esperar a que se renderice antes de imprimir
-        setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
-            showToast('Impresión lista', 'success');
-        }, 500);
-        
-    } catch (error) {
-        console.error('Error al imprimir clase:', error);
-        showToast('Error al preparar la impresión', 'error');
+function printClase(id) {
+    const clase = filteredClases.find(c => c.id === id);
+    if (!clase) {
+        showToast('Clase no encontrada o no disponible para tu programa', 'error');
+        return;
     }
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${clase.titulo} - ECE CHARLOTTE</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1 { color: #3b82f6; }
+                .meta { color: #64748b; margin-bottom: 20px; }
+                .content { line-height: 1.6; }
+            </style>
+        </head>
+        <body>
+            <h1>${clase.titulo}</h1>
+            <div class="meta">
+                <p><strong>Programa:</strong> ${clase.programa}</p>
+                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
+            </div>
+            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
+            <div class="content">
+                ${clase.contenido || 'Sin contenido'}
+            </div>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
 }
 
 // Funciones auxiliares para la interfaz premium
@@ -3955,277 +3732,70 @@ async function downloadClaseFromViewer() {
         return;
     }
     
-    try {
-        showToast('Preparando descarga...', 'info');
-        
-        // Obtener documento completo de Firestore
-        const docRef = doc(db, 'classes', currentClaseId);
-        const docSnap = await getDoc(docRef);
-        
-        if (!docSnap.exists()) {
-            showToast('Clase no encontrada', 'error');
-            return;
-        }
-        
-        const clase = docSnap.data();
-        
-        // Validar acceso
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-        if (!currentUser.programa || clase.programa.toLowerCase() !== currentUser.programa.toLowerCase()) {
-            showToast('No tienes permiso para descargar esta clase', 'error');
-            return;
-        }
-        
-        // Cargar contenido desde chunks si es necesario
-        let content = clase.contenido;
-        if (clase.hasChunks) {
-            try {
-                content = await loadContentFromChunks(currentClaseId);
-            } catch (error) {
-                console.error('Error cargando contenido desde chunks:', error);
-            }
-        }
-        
-        // Si aún no hay contenido, usar mensaje por defecto
-        if (!content || content.trim().length === 0) {
-            content = 'No hay contenido disponible para esta clase.';
-        }
-        
-        // Cargar logo como base64 para la marca de agua
-        let logoBase64 = '';
-        try {
-            const logoResponse = await fetch('/logo-ece.png');
-            if (logoResponse.ok) {
-                const logoBlob = await logoResponse.blob();
-                logoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.readAsDataURL(logoBlob);
-                });
-            }
-        } catch (error) {
-            console.warn('No se pudo cargar el logo:', error);
-        }
-        
-        // Crear contenido HTML para descargar con watermark
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${clase.titulo} - ECE CHARLOTTE</title>
-                <style>
-                    * {
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }
-                    body { 
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        line-height: 1.6;
-                        color: #0f2138;
-                        background: white;
-                        padding: 40px;
-                        max-width: 900px;
-                        margin: 0 auto;
-                        position: relative;
-                    }
-                    .header {
-                        border-bottom: 3px solid #3b82f6;
-                        padding-bottom: 20px;
-                        margin-bottom: 30px;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    h1 { 
-                        color: #1e3a8a;
-                        font-size: 28px;
-                        margin-bottom: 15px;
-                    }
-                    .meta {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                        gap: 15px;
-                        font-size: 14px;
-                        color: #64748b;
-                        margin-bottom: 20px;
-                    }
-                    .meta-item {
-                        display: flex;
-                        gap: 8px;
-                    }
-                    .meta-label {
-                        font-weight: 600;
-                        color: #334155;
-                    }
-                    .descripcion {
-                        background: #f8fafc;
-                        border-left: 4px solid #3b82f6;
-                        padding: 15px;
-                        margin: 20px 0;
-                        border-radius: 4px;
-                        font-style: italic;
-                    }
-                    .content {
-                        padding: 20px 0;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    .content h2 {
-                        color: #1e40af;
-                        font-size: 22px;
-                        margin: 25px 0 15px 0;
-                        border-bottom: 2px solid #e2e8f0;
-                        padding-bottom: 10px;
-                    }
-                    .content h3 {
-                        color: #3b82f6;
-                        font-size: 18px;
-                        margin: 20px 0 10px 0;
-                    }
-                    .content p {
-                        margin-bottom: 15px;
-                        text-align: justify;
-                    }
-                    .content ul, .content ol {
-                        margin-left: 30px;
-                        margin-bottom: 15px;
-                    }
-                    .content li {
-                        margin-bottom: 8px;
-                    }
-                    .content img {
-                        max-width: 100%;
-                        height: auto;
-                        margin: 20px 0;
-                        border-radius: 8px;
-                        border: 1px solid #e2e8f0;
-                    }
-                    .content blockquote {
-                        border-left: 4px solid #3b82f6;
-                        margin: 20px 0;
-                        padding-left: 20px;
-                        color: #475569;
-                        font-style: italic;
-                    }
-                    .content code {
-                        background: #f1f5f9;
-                        padding: 2px 6px;
-                        border-radius: 4px;
-                        font-family: 'Courier New', monospace;
-                    }
-                    .content pre {
-                        background: #f1f5f9;
-                        padding: 15px;
-                        border-radius: 4px;
-                        overflow-x: auto;
-                        margin: 15px 0;
-                    }
-                    .footer {
-                        border-top: 1px solid #e2e8f0;
-                        padding-top: 20px;
-                        margin-top: 40px;
-                        text-align: center;
-                        color: #94a3b8;
-                        font-size: 12px;
-                        position: relative;
-                        z-index: 1;
-                    }
-                    .watermark {
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        width: 600px;
-                        height: 600px;
-                        background: url('https://cursoscharlotte.com/logo-ece.png') no-repeat center;
-                        background-size: contain;
-                        opacity: 0.08;
-                        pointer-events: none;
-                        transform: translate(-50%, -50%) rotate(-45deg);
-                        z-index: -1;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="watermark"></div>
-                <div class="header">
-                    <h1>${clase.titulo}</h1>
-                    <div class="meta">
-                        <div class="meta-item">
-                            <span class="meta-label">Programa:</span>
-                            <span>${clase.programa || 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Módulo:</span>
-                            <span>${clase.modulo || 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Duración:</span>
-                            <span>${clase.duracion ? clase.duracion + ' min' : 'N/A'}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Fecha:</span>
-                            <span>${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</span>
-                        </div>
-                    </div>
-                </div>
-                
-                ${clase.descripcion ? `<div class="descripcion"><strong>Descripción:</strong> ${clase.descripcion}</div>` : ''}
-                
-                <div class="content">
-                    ${content}
-                </div>
-                
-                <div class="footer">
-                    <p>Documento generado desde ECE CHARLOTTE - Plataforma Educativa</p>
-                    <p>Fecha de descarga: ${new Date().toLocaleString('es-ES')}</p>
-                    <p style="margin-top: 10px; font-weight: 600;">Documento protegido - Uso exclusivo del estudiante</p>
-                </div>
-            </body>
-            </html>
-        `;
-        
-        // Convertir a blob y descargar
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=UTF-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${clase.titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_ece_charlotte.html`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        showToast('Clase descargada correctamente', 'success');
-        
-    } catch (error) {
-        console.error('Error al descargar clase:', error);
-        showToast('Error al preparar la descarga', 'error');
-    }
-}
-
-// Función para abrir vista Gamma desde el visor de clases
-function openGammaViewFromClaseViewer() {
-    if (!currentClaseId) {
-        showToast('No hay clase cargada', 'error');
+    // Obtener la clase actual (asumiendo que está en filteredClases o buscarla)
+    const clase = filteredClases ? filteredClases.find(c => c.id === currentClaseId) : null;
+    if (!clase) {
+        showToast('Clase no encontrada', 'error');
         return;
     }
-
-    const claseData = {
-        titulo: document.getElementById('clase-viewer-title').textContent,
-        descripcion: document.getElementById('clase-viewer-description').innerHTML,
-        contenido: document.getElementById('clase-viewer-content').innerHTML,
-        programa: document.getElementById('clase-viewer-programa').textContent,
-        modulo: '', // Se puede agregar si está disponible
-        duracion: document.getElementById('clase-viewer-duracion').textContent.replace(' min', '')
-    };
-
-    if (typeof openGammaView === 'function') {
-        openGammaView(claseData);
-    } else {
-        showToast('Error: El visor Gamma no está disponible', 'error');
+    
+    // Cargar contenido usando la misma lógica que loadClaseDetail
+    let content = clase.contenido;
+    if (clase.hasChunks) {
+        try {
+            content = await loadContentFromChunks(currentClaseId);
+        } catch (error) {
+            console.error('Error cargando contenido desde chunks:', error);
+            content = clase.contenido || 'Error al cargar el contenido desde chunks.';
+        }
     }
+    
+    // Si aún no hay contenido, usar mensaje por defecto
+    if (!content || content.trim().length === 0) {
+        content = 'No hay contenido disponible para esta clase.';
+    }
+    
+    // Crear contenido HTML para descargar
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>${clase.titulo} - ECE CHARLOTTE</title>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+                h1 { color: #3b82f6; }
+                .meta { color: #64748b; margin-bottom: 20px; }
+                .content { margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <h1>${clase.titulo}</h1>
+            <div class="meta">
+                <p><strong>Programa:</strong> ${clase.programa}</p>
+                <p><strong>Fecha:</strong> ${clase.fechaCreacion ? new Date(clase.fechaCreacion).toLocaleDateString('es-ES') : 'N/A'}</p>
+                <p><strong>Duración:</strong> ${clase.duracion || 'N/A'}</p>
+            </div>
+            ${clase.descripcion ? `<h2>Descripción</h2><p>${clase.descripcion}</p>` : ''}
+            <div class="content">
+                ${content}
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Crear blob y descargar
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${clase.titulo.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast('Clase descargada exitosamente', 'success');
 }
 
 function showToast(message, type = 'info') {
@@ -4584,7 +4154,8 @@ function renderCrucigramaHTML(p, i) {
             maxCol = Math.max(maxCol, (pw.columna || 0));
         }
     });
-    // Sin límite fijo - el grid se ajusta dinámicamente a las palabras
+    maxFila = Math.min(maxFila, 14);
+    maxCol = Math.min(maxCol, 14);
 
     const grid = Array.from({ length: maxFila + 1 }, () => Array(maxCol + 1).fill(null));
     palabras.forEach((pw, wi) => {
@@ -4599,7 +4170,7 @@ function renderCrucigramaHTML(p, i) {
     });
 
     let html = `<div class="crucigrama-wrapper">
-        <div class="crucigrama-grid" id="crucigrama-${i}" style="display: grid; grid-template-columns: repeat(${maxCol + 1}, 36px); grid-template-rows: repeat(${maxFila + 1}, 36px); gap: 2px; width: fit-content;">`;
+        <div class="crucigrama-grid" id="crucigrama-${i}">`;
     for (let f = 0; f <= maxFila; f++) {
         for (let c = 0; c <= maxCol; c++) {
             const cell = grid[f][c];
@@ -4607,9 +4178,9 @@ function renderCrucigramaHTML(p, i) {
                 html += `<input type="text" maxlength="1" class="crucigrama-cell" id="cc-${i}-${f}-${c}"
                     data-correcta="${cell.letra}" data-fila="${f}" data-col="${c}"
                     oninput="this.value=this.value.toUpperCase(); actualizarCrucigrama(${i})"
-                    style="grid-column: ${c+1}; grid-row: ${f+1};">`;
+                    style="grid-column:${c+1}; grid-row:${f+1};">`;
             } else {
-                html += `<div class="crucigrama-vacio" style="grid-column: ${c+1}; grid-row: ${f+1};"></div>`;
+                html += `<div class="crucigrama-vacio" style="grid-column:${c+1}; grid-row:${f+1};"></div>`;
             }
         }
     }
@@ -4854,30 +4425,27 @@ async function calificarActividadInteractiva(actividadId) {
 
         switch(p.tipo) {
             case 'quiz':
-                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; break; }
                 correcto = resp === p.respuestaCorrecta;
-                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `Incorrecto. La respuesta correcta es: ${p.opciones[p.respuestaCorrecta]}`;
                 break;
 
             case 'verdadero_falso':
-                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (resp === undefined) { feedbackTexto = 'Sin respuesta'; break; }
                 correcto = resp === p.respuestaCorrecta;
-                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `Incorrecto. La respuesta correcta es: ${p.respuestaCorrecta ? 'Verdadero' : 'Falso'}`;
                 break;
 
             case 'ordenar': {
-                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; break; }
                 const correcto2 = p.ordenCorrecto || p.items.map((_, idx) => idx);
                 correcto = resp.length === correcto2.length && resp.every((v, idx) => v === correcto2[idx]);
-                puntosPreg = correcto ? 1 : 0;
                 feedbackTexto = correcto ? '¡Correcto!' : `El orden correcto era: ${correcto2.map(idx => p.items[idx]).join(' → ')}`;
                 break;
             }
 
             case 'completar': {
-                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (!resp || !Array.isArray(resp)) { feedbackTexto = 'Sin respuesta'; break; }
                 const correctas = p.respuestas || [];
                 const aciertos = resp.filter((r, idx) => r.toLowerCase().trim() === (correctas[idx] || '').toLowerCase().trim()).length;
                 correcto = aciertos === correctas.length;
@@ -4887,7 +4455,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'relacionar': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
                 const pares = p.pares || [];
                 let match = 0;
                 for (let j = 0; j < pares.length; j++) {
@@ -4900,7 +4468,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'crucigrama': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
                 const cells = Object.values(resp);
                 const total2 = cells.length;
                 const correctas2 = cells.filter(c => c.valor === c.correcta).length;
@@ -4911,7 +4479,7 @@ async function calificarActividadInteractiva(actividadId) {
             }
 
             case 'clasificar': {
-                if (!resp) { feedbackTexto = 'Sin respuesta'; puntosPreg = 0; break; }
+                if (!resp) { feedbackTexto = 'Sin respuesta'; break; }
                 const elementos = p.elementos || [];
                 const correctas3 = elementos.filter(el => resp[el.texto] === el.categoria).length;
                 correcto = correctas3 === elementos.length;
@@ -5884,7 +5452,7 @@ function mostrarPanelBookmarks() {
         <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
             <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                 <span style="font-weight: 600; color: #333;"><i class="fas fa-bookmark"></i> Favoritos (${bookmarks.length})</span>
-                <button onclick="cerrarModal(this)" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
             </div>
             <div style="flex: 1; overflow-y: auto; padding: 16px;">
                 ${bookmarks.length === 0 ? 
@@ -6984,7 +6552,7 @@ function mostrarPanelNotificaciones() {
             <div style="position: fixed; top: 60px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow-y: auto; z-index: 9999; border: 1px solid #e2e8f0;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
                     <span>🔔 Notificaciones (${notificaciones.length})</span>
-                    <button onclick="cerrarModal(this)" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div>
                     ${notificaciones.length === 0 ? 
@@ -7122,7 +6690,7 @@ function mostrarPanelComentarios(claseId, claseTitulo) {
             <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 450px; max-height: 600px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                     <span style="font-weight: 600; color: #333;">💬 Preguntas (${comentarios.length})</span>
-                    <button onclick="cerrarModal(this)" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div style="flex: 1; overflow-y: auto; padding: 16px;">
                     <div style="margin-bottom: 12px;">
@@ -7204,7 +6772,7 @@ async function mostrarHistorialClase(claseId) {
             <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 600px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; z-index: 10000;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 600; color: #333;">📋 Historial de Cambios</span>
-                    <button onclick="cerrarModal(this)" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div style="overflow-y: auto; max-height: 400px; padding: 16px;">
                     ${historial.length === 0 ? 
@@ -8977,76 +8545,75 @@ function openImageModal(imageUrl, title) {
                 } else {
                     // Ya tiene respuestas - verificar pagos para reintento
                     console.log('🔄 Reintento detectado - verificando pagos');
-                    const userQuery = query(collection(db, 'users'), where('email', '==', currentUser.email));
-                    const userDoc = await getDocs(userQuery);
-                    const userData = userDoc.docs[0]?.data() || {};
+                    const userData = userDoc.docs[0].data();
                     const estadoPagos = userData.estadoPagos || 'pagos_al_dia';
 
                     if (estadoPagos === 'pagos_pendientes') {
-                        // Mostrar modal de advertencia
-                        const modalHtml = `
-                            <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
-                                <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-                                    <div style="padding: 2rem; text-align: center;">
-                                        <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                        </div>
-                                        <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
-                                        <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
-                                            Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
-                                        </p>
-                                        <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
-                                            Por favor, contacta a tu docente para resolver esta situación.
-                                        </p>
-                                        <button onclick="document.getElementById('pagosPendientesModal').remove()"
-                                                style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
-                                            Entendido
-                                        </button>
+                    // Mostrar modal de advertencia
+                    const modalHtml = `
+                        <div id="pagosPendientesModal" class="modal-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                            <div class="modal-content" style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                                <div style="padding: 2rem; text-align: center;">
+                                    <div style="color: #ef4444; font-size: 3rem; margin-bottom: 1rem;">
+                                        <i class="fas fa-exclamation-triangle"></i>
                                     </div>
+                                    <h2 style="color: #1e3a8a; margin-bottom: 1rem;">Acceso Restringido</h2>
+                                    <p style="color: #64748b; margin-bottom: 2rem; line-height: 1.6;">
+                                        Tienes valores pendientes por cancelar. No puedes acceder a cuestionarios ni evaluaciones hasta que regularices tu situación financiera.
+                                    </p>
+                                    <p style="color: #374151; font-weight: 600; margin-bottom: 2rem;">
+                                        Por favor, contacta a tu docente para resolver esta situación.
+                                    </p>
+                                    <button onclick="document.getElementById('pagosPendientesModal').remove()"
+                                            style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                        Entendido
+                                    </button>
                                 </div>
                             </div>
-                        `;
-                        document.body.insertAdjacentHTML('beforeend', modalHtml);
-                        return;
-                    } else {
-                        // Verificar que la actividad existe en la colección correcta
-                        let actualTipo = tipo;
-                        try {
-                            const collectionName = tipo === 'evaluacion' ? 'evaluaciones' : 'cuestionarios';
-                            const docSnap = await getDoc(doc(db, collectionName, id));
-                            if (!docSnap.exists()) {
-                                console.error('Documento no encontrado en', collectionName, ':', id);
-                                alert('Actividad no encontrada');
-                                return;
-                            }
-                            console.log('Actividad encontrado en', collectionName);
-                        } catch (error) {
-                            console.error('Error verificando existencia de la actividad:', error);
-                            alert('Error al verificar la actividad');
-                            return;
-                        }
-
-                        // Si los pagos están al día, proceder con el acceso normal
-                        const url = tipo === 'cuestionario' 
-                            ? `responder-cuestionario.html?id=${id}` 
-                            : `responder-evaluacion.html?id=${id}`;
-                        console.log('Tipo recibido:', tipo, 'URL generada:', url);
-                        window.location.href = url;
-                    }
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    return;
                 }
-            } catch (error) {
-                console.error('Error verificando pagos:', error);
-                alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
-            }
-        }
 
-        // Exponer funciones globales
-        window.loadMisLogros = loadMisLogros;
-        window.printClaseFromViewer = printClaseFromViewer;
-        window.shareClaseFromViewer = shareClaseFromViewer;
-        window.toggleBookmarkFromViewer = toggleBookmarkFromViewer;
-        window.downloadClaseFromViewer = downloadClaseFromViewer;
-        window.verificarPagosYAcceder = verificarPagosYAcceder;
+                // Verificar que la actividad existe en la colección correcta
+                let actualTipo = tipo;
+                try {
+                    const collectionName = tipo === 'evaluacion' ? 'evaluaciones' : 'cuestionarios';
+                    const docSnap = await getDoc(doc(db, collectionName, id));
+                    if (!docSnap.exists()) {
+                        console.error('Documento no encontrado en', collectionName, ':', id);
+                        alert('Actividad no encontrada');
+                        return;
+                    }
+                    console.log('Actividad encontrada en', collectionName);
+                } catch (error) {
+                    console.error('Error verificando existencia de la actividad:', error);
+                    alert('Error al verificar la actividad');
+                    return;
+                }
+
+                // Si los pagos están al día, proceder con el acceso normal
+                const url = tipo === 'cuestionario' 
+                    ? `responder-cuestionario.html?id=${id}` 
+                    : `responder-evaluacion.html?id=${id}`;
+                console.log('Tipo recibido:', tipo, 'URL generada:', url);
+                window.location.href = url;
+            }
+        } catch (error) {
+            console.error('Error verificando pagos:', error);
+            alert('Error al verificar estado de pagos. Inténtalo de nuevo.');
+        }
+    }
+
+    // Exponer funciones globales
+    window.loadMisLogros = loadMisLogros;
+    window.printClaseFromViewer = printClaseFromViewer;
+    window.shareClaseFromViewer = shareClaseFromViewer;
+    window.toggleBookmarkFromViewer = toggleBookmarkFromViewer;
+    window.downloadClaseFromViewer = downloadClaseFromViewer;
+    window.verificarPagosYAcceder = verificarPagosYAcceder;
+        
     } catch (error) {
-        console.error('Error initializing student app:', error);
+        console.error('Error initializing Firebase:', error);
     }
