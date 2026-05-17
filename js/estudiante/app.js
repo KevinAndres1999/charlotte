@@ -207,6 +207,7 @@ try {
 
     // Variable global para el ID de la clase actual en el viewer
     let currentClaseId = null;
+    let currentClaseData = null; // Datos completos de la clase abierta (fallback cuando filteredClases está vacío)
 
 // =================== FUNCIONES GLOBALES ===================
 // Definidas más abajo en el archivo
@@ -3431,6 +3432,9 @@ async function loadClaseDetail(id) {
                 return;
             }
 
+            // Guardar datos completos de la clase para uso de share/print/download
+            currentClaseData = { id, ...clase };
+
             // Marcar como leída automáticamente al abrir
             localStorage.setItem(`clase-${id}-read`, 'true');
             localStorage.setItem(`clase-${id}-lastRead`, new Date().toISOString());
@@ -3685,7 +3689,8 @@ function toggleClaseCompletedFromViewer(id) {
 }
 
 function shareClase(id) {
-    const clase = filteredClases.find(c => c.id === id);
+    const clase = (filteredClases && filteredClases.find(c => c.id === id))
+        || (currentClaseData && currentClaseData.id === id ? currentClaseData : null);
     if (!clase) {
         showToast('Clase no encontrada o no disponible para tu programa', 'error');
         return;
@@ -3708,7 +3713,8 @@ function shareClase(id) {
 }
 
 function printClase(id) {
-    const clase = filteredClases.find(c => c.id === id);
+    const clase = (filteredClases && filteredClases.find(c => c.id === id))
+        || (currentClaseData && currentClaseData.id === id ? currentClaseData : null);
     if (!clase) {
         showToast('Clase no encontrada o no disponible para tu programa', 'error');
         return;
@@ -3783,7 +3789,8 @@ async function downloadClaseFromViewer() {
     }
     
     // Obtener la clase actual (asumiendo que está en filteredClases o buscarla)
-    const clase = filteredClases ? filteredClases.find(c => c.id === currentClaseId) : null;
+    const clase = (filteredClases && filteredClases.find(c => c.id === currentClaseId))
+        || (currentClaseData && currentClaseData.id === currentClaseId ? currentClaseData : null);
     if (!clase) {
         showToast('Clase no encontrada', 'error');
         return;
