@@ -5499,10 +5499,10 @@ function mostrarPanelBookmarks() {
     const bookmarks = obtenerBookmarks();
     
     const panel = `
-        <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+        <div class="panel-flotante" style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
             <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                 <span style="font-weight: 600; color: #333;"><i class="fas fa-bookmark"></i> Favoritos (${bookmarks.length})</span>
-                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                <button onclick="this.closest('.panel-flotante').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
             </div>
             <div style="flex: 1; overflow-y: auto; padding: 16px;">
                 ${bookmarks.length === 0 ? 
@@ -6599,10 +6599,10 @@ async function contarNotificacionesNoLeidas() {
 function mostrarPanelNotificaciones() {
     cargarNotificaciones().then(notificaciones => {
         const panel = `
-            <div style="position: fixed; top: 60px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow-y: auto; z-index: 9999; border: 1px solid #e2e8f0;">
+            <div class="panel-flotante" style="position: fixed; top: 60px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 400px; max-height: 500px; overflow-y: auto; z-index: 9999; border: 1px solid #e2e8f0;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
                     <span>🔔 Notificaciones (${notificaciones.length})</span>
-                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('.panel-flotante').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div>
                     ${notificaciones.length === 0 ? 
@@ -6737,10 +6737,10 @@ async function responderComentario(claseId, comentarioId, respuesta) {
 function mostrarPanelComentarios(claseId, claseTitulo) {
     cargarComentarios(claseId).then(comentarios => {
         const panel = `
-            <div style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 450px; max-height: 600px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
+            <div class="panel-flotante" style="position: fixed; top: 80px; right: 20px; background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 450px; max-height: 600px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; display: flex; flex-direction: column;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
                     <span style="font-weight: 600; color: #333;">💬 Preguntas (${comentarios.length})</span>
-                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('.panel-flotante').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div style="flex: 1; overflow-y: auto; padding: 16px;">
                     <div style="margin-bottom: 12px;">
@@ -6819,10 +6819,10 @@ async function mostrarHistorialClase(claseId) {
         const historial = clase.historialCambios || [];
         
         const panel = `
-            <div style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 600px; max-height: 500px; overflow: hidden; z-index: 9998; border: 1px solid #e2e8f0; z-index: 10000;">
+            <div class="panel-flotante" style="position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); max-width: 600px; max-height: 500px; overflow: hidden; border: 1px solid #e2e8f0; z-index: 10000;">
                 <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-weight: 600; color: #333;">📋 Historial de Cambios</span>
-                    <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
+                    <button onclick="this.closest('.panel-flotante').remove()" style="background: none; border: none; font-size: 18px; cursor: pointer;">×</button>
                 </div>
                 <div style="overflow-y: auto; max-height: 400px; padding: 16px;">
                     ${historial.length === 0 ? 
