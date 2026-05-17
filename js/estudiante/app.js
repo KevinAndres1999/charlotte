@@ -146,7 +146,7 @@ try {
           return data;
         } catch (error) {
           console.error(`Error querying ${collectionName}:`, error);
-          throw error;
+          return []; // Devolver vacío en lugar de relanzar (evita que falle todo el dashboard)
         }
       }
 
@@ -156,13 +156,14 @@ try {
           this.queryWithCache(collectionName, constraints, options)
         );
 
-        try {
-          const results = await Promise.all(promises);
-          return results;
-        } catch (error) {
-          console.error('Error in parallel queries:', error);
-          throw error;
-        }
+        // Promise.allSettled: si una query falla, las demás siguen adelante
+        const results = await Promise.allSettled(promises);
+        return results.map((r, i) => {
+          if (r.status === 'fulfilled') return r.value;
+          console.warn(`Query ${queries[i]?.collection} falló:`, r.reason);
+          return [];
+        });
+      }
       }
 
       // Utilidades de cache
