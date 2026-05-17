@@ -416,25 +416,18 @@ function filterByUserAccess(items, reintentosDisponibles = []) {
             return false;
         }
 
-        // Filtrar por combinaciones permitidas (nuevo sistema)
-        if (item.combinacionesPermitidas && Array.isArray(item.combinacionesPermitidas) && item.combinacionesPermitidas.length > 0) {
+        // Filtrar por visiblePara (control granular del admin: "Sede-Horario")
+        if (item.visiblePara && Array.isArray(item.visiblePara) && item.visiblePara.length > 0) {
             const userSede = (currentUser.sede || '').toString().trim();
             const userHorario = (currentUser.horario || '').toString().trim();
-            console.log('🔍 Combinaciones permitidas:', item.combinacionesPermitidas);
-            console.log('🔍 Usuario - Sede:', userSede, 'Horario:', userHorario);
-
-            const combinacionPermitida = item.combinacionesPermitidas.some(combo => {
-                const match = combo.sede === userSede && combo.horario === userHorario;
-                console.log('🔍 Comparando combo:', combo, 'Match:', match);
-                return match;
-            });
-
-            if (!combinacionPermitida) {
-                console.log('❌ Rechazado por combinación no permitida');
+            const clave = `${userSede}-${userHorario}`;
+            console.log('🔍 visiblePara:', item.visiblePara, '| Clave usuario:', clave);
+            if (!userSede || !userHorario || !item.visiblePara.includes(clave)) {
+                console.log('❌ Rechazado por visiblePara');
                 return false;
             }
         }
-        // Compatibilidad con sistema anterior (sedes y horarios separados)
+        // Compatibilidad con sistema anterior (sedes y horarios separados, sin visiblePara)
         else {
             console.log('🔍 Usando sistema anterior (sedes/horarios separados)');
 
@@ -543,16 +536,25 @@ async function loadDashboardStats() {
                 }
             }
             
-            // 4. Verificar sede: si el item tiene sedes definidas, el estudiante debe tener una que coincida
-            if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
+            // 4. Verificar visiblePara (control granular del admin: "Sede-Horario")
+            if (itemData.visiblePara && Array.isArray(itemData.visiblePara) && itemData.visiblePara.length > 0) {
                 const userSede = (currentUser.sede || '').trim();
-                if (!userSede || !itemData.sedes.includes(userSede)) return false;
-            }
-
-            // 5. Verificar horario: si el item tiene horarios definidos, el estudiante debe tener uno que coincida
-            if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
                 const userHorario = (currentUser.horario || '').trim();
-                if (!userHorario || !itemData.horarios.includes(userHorario)) return false;
+                const clave = `${userSede}-${userHorario}`;
+                if (!userSede || !userHorario || !itemData.visiblePara.includes(clave)) return false;
+            }
+            // Compatibilidad: sin visiblePara, usar sedes/horarios separados
+            else {
+                // 4b. Verificar sede
+                if (itemData.sedes && Array.isArray(itemData.sedes) && itemData.sedes.length > 0) {
+                    const userSede = (currentUser.sede || '').trim();
+                    if (!userSede || !itemData.sedes.includes(userSede)) return false;
+                }
+                // 5b. Verificar horario
+                if (itemData.horarios && Array.isArray(itemData.horarios) && itemData.horarios.length > 0) {
+                    const userHorario = (currentUser.horario || '').trim();
+                    if (!userHorario || !itemData.horarios.includes(userHorario)) return false;
+                }
             }
 
             return true;
