@@ -756,72 +756,43 @@ async function cambiarEstadoEstudiante(userId, nuevoEstado) {
 
 // Función para eliminar usuario
 async function eliminarUsuario(id) {
-    if (!confirm('¿Estás seguro de eliminar este usuario? Se eliminará de Firebase Auth y Firestore.')) return;
+    if (!confirm('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.')) return;
     
     try {
-        // Obtener el usuario actual para verificar el firebaseUID y email
+        // Verificar que el usuario existe
         const userDoc = await getDoc(doc(db, 'users', id));
         const docExists = typeof userDoc.exists === 'function' ? userDoc.exists() : userDoc.exists;
         if (!docExists) {
             alert('Usuario no encontrado');
             return;
         }
-        
-        const userData = userDoc.data();
-        const firebaseUID = userData.firebaseUID || id; // Usar firebaseUID si existe, si no usar el ID del doc
-        const email = userData.email;
 
-        // Obtener token de autenticación de Firebase
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
-        if (!currentUser) {
-            alert('No autenticado');
-            return;
-        }
+        const userData = typeof userDoc.data === 'function' ? userDoc.data() : userDoc;
 
-        // Obtener ID token de Firebase
-        let idToken = sessionStorage.getItem('adminIdToken');
-        if (!idToken) {
-            // Si no hay token guardado, intentar obtenerlo del usuario de Firebase
+        // Eliminar de Firestore
+        await deleteDoc(doc(db, 'users', id));
+
+        // Intentar eliminar también de pendingStudents si existe con el mismo email
+        if (userData.email) {
             try {
-                idToken = await window.auth?.currentUser?.getIdToken();
+                const pendingSnap = await getDocs(
+                    window.query(window.collection(db, 'pendingStudents'),
+                        window.where('email', '==', userData.email))
+                );
+                const snapDocs = pendingSnap.docs || (pendingSnap.forEach ? (() => { const arr = []; pendingSnap.forEach(d => arr.push(d)); return arr; })() : []);
+                for (const d of snapDocs) {
+                    await deleteDoc(doc(db, 'pendingStudents', d.id));
+                }
             } catch (e) {
-                console.warn('No se pudo obtener ID token:', e);
+                console.warn('No se pudo limpiar pendingStudents:', e);
             }
         }
 
-        if (!idToken) {
-            alert('Token de autenticación no disponible. Por favor, recarga la página.');
-            return;
-        }
-
-        // Llamar al endpoint para eliminar de Firebase Auth + Firestore
-        const response = await fetch(window.APP_CONFIG.API_BASE + '/admin/delete-user', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + idToken
-            },
-            body: JSON.stringify({
-                firebaseUID: firebaseUID,
-                email: email
-            })
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || 'Error al eliminar usuario');
-        }
-
-        // Eliminar de Firestore (redundante pero seguro)
-        await deleteDoc(doc(db, 'users', id));
-        
         // Remover de la lista local
         const idx = allApprovedUsers.findIndex(u => u.id === id);
-        if (idx !== -1) {
-            allApprovedUsers.splice(idx, 1);
-        }
+        if (idx !== -1) allApprovedUsers.splice(idx, 1);
 
-        alert('✅ Usuario eliminado completamente (Firebase Auth + Firestore)');
+        alert('✅ Usuario eliminado correctamente.');
         await loadUsuariosAprobados();
     } catch (error) {
         console.error('Error deleting user:', error);
