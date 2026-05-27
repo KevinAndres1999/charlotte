@@ -47,7 +47,7 @@
             gap: 12px;
             text-decoration: none;
         }
-        .site-header img { height: 40px; width: auto; }
+        .site-header img { height: 48px; width: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
         .site-header .brand-name {
             color: white;
             font-size: 1.2rem;
@@ -268,10 +268,11 @@
             border-bottom: 2px solid #f1f5f9;
         }
         .cert-logo {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
             border-radius: 12px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.12));
         }
         .cert-title-block h3 {
             font-size: 1.5rem;
@@ -438,11 +439,19 @@
 <header class="site-header">
     <a href="index.html" class="logo-area">
         <img src="fotos/logo.png" alt="Charlotte" onerror="this.style.display='none'">
-        <span class="brand-name">Charlotte</span>
+        <div>
+            <span class="brand-name">Charlotte</span>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.7);letter-spacing:1px;text-transform:uppercase;">Cursos Profesionales</div>
+        </div>
     </a>
-    <a href="index.html" class="home-link">
-        <i class="fas fa-home"></i> Inicio
-    </a>
+    <div style="display:flex;align-items:center;gap:16px;">
+        <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-shield-alt" style="color:#4ade80;"></i> Sistema de Verificación Oficial
+        </span>
+        <a href="index.html" class="home-link">
+            <i class="fas fa-home"></i> Inicio
+        </a>
+    </div>
 </header>
 
 <main>
@@ -661,8 +670,9 @@
                     <div class="cert-header-section">
                         <img src="fotos/logo.png" alt="Charlotte" class="cert-logo" onerror="this.style.display='none'">
                         <div class="cert-title-block">
+                            <div style="font-size:0.75rem;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Charlotte Cursos Profesionales</div>
                             <h3>${escapeHtml(cert.denominacion || cert.programa)}</h3>
-                            <p>${escapeHtml(cert.programa)} · Charlotte Cursos Profesionales</p>
+                            <p>${escapeHtml(cert.programa)} · Certificado de Finalización</p>
                         </div>
                     </div>
 
@@ -800,7 +810,9 @@
     window.resetBusqueda = function() {
         document.getElementById('result-container').style.display = 'none';
         document.getElementById('result-container').innerHTML = '';
-        document.getElementById('search-card').scrollIntoView({ behavior: 'smooth' });
+        const card = document.getElementById('search-card');
+        card.style.display = 'block';
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     window.copiarCodigo = function(codigo) {
