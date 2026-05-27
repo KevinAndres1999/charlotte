@@ -8927,6 +8927,14 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                                     <option value="Asesoría Técnica">Asesoría Técnica</option>
                                 </select>
                             </div>
+                            <div style="grid-column:1/-1;">
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Denominación / Título Otorgado *
+                                </label>
+                                <input type="text" id="cert-denominacion" placeholder="Ej: Maestro de Taller en Panadería y Pastelería, Cake Designer, Técnico en Belleza Integral..."
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                                <small style="color:#94a3b8;font-size:0.8rem;margin-top:4px;display:block;"><i class="fas fa-info-circle"></i> Este texto aparecerá en el certificado como: "Se certifica como <em>[denominación]</em>"</small>
+                            </div>
                             <div>
                                 <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
                                     Total de Horas *
@@ -26089,9 +26097,10 @@ REGLAS ESTRICTAS:
             const fechaInicio = document.getElementById('cert-fecha-inicio').value;
             const fechaFin = document.getElementById('cert-fecha-fin').value;
             const notas = document.getElementById('cert-notas').value.trim();
+            const denominacion = document.getElementById('cert-denominacion').value.trim();
 
-            if (!nombre || !programa || !horas || !fechaInicio || !fechaFin) {
-                alert('Por favor completa los campos obligatorios: nombre, programa, horas, fecha de inicio y fecha de finalización.');
+            if (!nombre || !programa || !horas || !fechaInicio || !fechaFin || !denominacion) {
+                alert('Por favor completa los campos obligatorios: nombre, denominación, programa, horas, fecha de inicio y fecha de finalización.');
                 return;
             }
             if (new Date(fechaFin) < new Date(fechaInicio)) {
@@ -26112,6 +26121,7 @@ REGLAS ESTRICTAS:
                     studentName: nombre,
                     studentId: cedula,
                     programa,
+                    denominacion,
                     totalHoras: parseInt(horas),
                     fechaInicio,
                     fechaFin,
@@ -26183,7 +26193,7 @@ REGLAS ESTRICTAS:
 
         // ─── LIMPIAR FORMULARIO ───────────────────────────────────────────────
         window.certLimpiarFormulario = function() {
-            ['cert-nombre','cert-cedula','cert-horas','cert-fecha-inicio','cert-fecha-fin','cert-notas','cert-search-student'].forEach(id => {
+            ['cert-nombre','cert-cedula','cert-denominacion','cert-horas','cert-fecha-inicio','cert-fecha-fin','cert-notas','cert-search-student'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.value = '';
             });
