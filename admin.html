@@ -26268,6 +26268,10 @@ REGLAS ESTRICTAS:
                                 <i class="fas fa-undo"></i>
                                </button>`
                         }
+                        <button onclick="certEliminar('${cert.id}','${escCert(cert.certCode)}')"
+                            style="padding:7px 12px;background:#1e293b;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;" title="Eliminar permanentemente">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </div>`;
             }).join('');
@@ -26338,7 +26342,7 @@ REGLAS ESTRICTAS:
             };
         };
 
-        // ─── REVOCAR / REACTIVAR ──────────────────────────────────────────────
+        // ─── REVOCAR / REACTIVAR / ELIMINAR ─────────────────────────────────
         window.certRevocar = async function(docId, certCode) {
             if (!confirm(`¿Revocar el certificado ${certCode}?\n\nEsta acción marcará el certificado como REVOCADO. El registro histórico se conserva.`)) return;
             try {
@@ -26353,6 +26357,19 @@ REGLAS ESTRICTAS:
                 await window.db.collection('certificados').doc(docId).update({ estado: 'valido' });
                 await certCargarLista();
             } catch(e) { alert('Error al reactivar: ' + e.message); }
+        };
+
+        window.certEliminar = async function(docId, certCode) {
+            if (!confirm(`¿ELIMINAR permanentemente el certificado ${certCode}?\n\nEsta acción es IRREVERSIBLE. El certificado dejará de existir y el QR dejará de funcionar.\n\nEscribe OK para confirmar.`)) return;
+            const confirmacion = prompt(`Escribe el código del certificado para confirmar la eliminación:\n${certCode}`);
+            if (confirmacion !== certCode) {
+                alert('Código incorrecto. Eliminación cancelada.');
+                return;
+            }
+            try {
+                await window.db.collection('certificados').doc(docId).delete();
+                await certCargarLista();
+            } catch(e) { alert('Error al eliminar: ' + e.message); }
         };
 
         // ─── HELPER XSS ──────────────────────────────────────────────────────
