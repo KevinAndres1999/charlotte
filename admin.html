@@ -4364,6 +4364,7 @@
                 <!-- Recursos y Herramientas -->
                 <div class="nav-item" data-section="recursos"><i class="fas fa-star"></i><span>Recursos</span></div>
                 <div class="nav-item" data-section="videoconferencia"><i class="fas fa-video"></i><span>Videoconferencia</span></div>
+                <div class="nav-item" data-section="certificados"><i class="fas fa-certificate"></i><span>Certificados</span></div>
 
                 <!-- Elementos ocultos -->
                 <div class="nav-item" data-section="clase-viewer" style="display: none;"><i class="fas fa-eye"></i><span>Ver Clase</span></div>
@@ -8845,6 +8846,216 @@ O cualquier estructura que necesites para tu clase..." style="min-height: 250px;
                         <p style="text-align: center; color: #666; padding: 20px;">
                             <i class="fas fa-spinner fa-spin"></i> Haz clic en "Cargar Salas" para ver las salas disponibles
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =================== CERTIFICADOS =================== -->
+            <div id="certificados" class="content-section">
+                <div style="background: linear-gradient(135deg, #0b3460, #1a365d); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; color: white; position: relative; overflow: hidden;">
+                    <div style="position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+                    <div style="position:absolute;bottom:-30px;left:-30px;width:150px;height:150px;background:rgba(216,49,91,0.1);border-radius:50%;"></div>
+                    <div style="position:relative;z-index:1;">
+                        <h2 style="margin:0 0 0.5rem 0;font-size:1.75rem;font-weight:700;">
+                            <i class="fas fa-certificate"></i> Gestión de Certificados
+                        </h2>
+                        <p style="margin:0;opacity:0.9;">Emite certificados digitales con código QR verificable para tus estudiantes</p>
+                    </div>
+                </div>
+
+                <!-- TABS ADMIN CERTS -->
+                <div style="display:flex;gap:8px;margin-bottom:24px;background:#f1f5f9;border-radius:12px;padding:4px;">
+                    <button id="cert-tab-emitir-btn" onclick="certShowTab('emitir')"
+                        style="flex:1;padding:11px;border:none;border-radius:8px;background:white;color:#0b3460;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;">
+                        <i class="fas fa-plus-circle"></i> Emitir Certificado
+                    </button>
+                    <button id="cert-tab-lista-btn" onclick="certShowTab('lista')"
+                        style="flex:1;padding:11px;border:none;border-radius:8px;background:transparent;color:#64748b;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.2s;">
+                        <i class="fas fa-list"></i> Certificados Emitidos
+                    </button>
+                </div>
+
+                <!-- TAB: EMITIR -->
+                <div id="cert-tab-emitir" style="display:block;">
+                    <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 4px 12px rgba(0,0,0,0.08);margin-bottom:24px;">
+                        <h3 style="color:#0b3460;margin:0 0 24px 0;font-size:1.3rem;display:flex;align-items:center;gap:10px;">
+                            <i class="fas fa-user-graduate"></i> Nuevo Certificado
+                        </h3>
+
+                        <!-- Buscar estudiante existente -->
+                        <div style="background:#f0f9ff;border:2px solid #bae6fd;border-radius:12px;padding:20px;margin-bottom:24px;">
+                            <label style="display:block;margin-bottom:8px;font-weight:700;color:#0284c7;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                <i class="fas fa-search"></i> Buscar estudiante registrado (opcional)
+                            </label>
+                            <div style="display:flex;gap:10px;">
+                                <input type="text" id="cert-search-student" placeholder="Nombre o email del estudiante..."
+                                    style="flex:1;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.95rem;">
+                                <button onclick="certBuscarEstudiante()"
+                                    style="padding:12px 20px;background:#0284c7;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap;">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div id="cert-student-results" style="margin-top:12px;"></div>
+                        </div>
+
+                        <!-- Formulario -->
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Nombre Completo del Estudiante *
+                                </label>
+                                <input type="text" id="cert-nombre" placeholder="Ej: María García López"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Número de Identificación (Cédula)
+                                </label>
+                                <input type="text" id="cert-cedula" placeholder="Ej: 1234567890"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Programa / Curso *
+                                </label>
+                                <select id="cert-programa"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;background:white;">
+                                    <option value="">— Selecciona un programa —</option>
+                                    <option value="Panadería y Pastelería">Panadería y Pastelería</option>
+                                    <option value="Belleza Integral">Belleza Integral</option>
+                                    <option value="Repostería Creativa">Repostería Creativa</option>
+                                    <option value="Asesoría Técnica">Asesoría Técnica</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Total de Horas *
+                                </label>
+                                <input type="number" id="cert-horas" placeholder="Ej: 120" min="1"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Fecha de Inicio *
+                                </label>
+                                <input type="date" id="cert-fecha-inicio"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Fecha de Finalización *
+                                </label>
+                                <input type="date" id="cert-fecha-fin"
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;">
+                            </div>
+                            <div style="grid-column:1/-1;">
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+                                    Observaciones / Notas Adicionales
+                                </label>
+                                <textarea id="cert-notas" placeholder="Ej: Mención de honor, calificación sobresaliente..."
+                                    style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;box-sizing:border-box;resize:vertical;min-height:80px;font-family:inherit;"></textarea>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+                            <button onclick="certEmitir()"
+                                style="padding:14px 32px;background:linear-gradient(135deg,#0b3460,#1a5276);color:white;border:none;border-radius:12px;cursor:pointer;font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(11,52,96,0.3);transition:all 0.2s;"
+                                onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <i class="fas fa-certificate"></i> Emitir Certificado
+                            </button>
+                            <button onclick="certLimpiarFormulario()"
+                                style="padding:14px 24px;background:#f1f5f9;color:#64748b;border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:1rem;transition:all 0.2s;">
+                                <i class="fas fa-eraser"></i> Limpiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Vista previa QR -->
+                    <div id="cert-qr-preview" style="display:none;background:white;border-radius:16px;padding:32px;box-shadow:0 4px 12px rgba(0,0,0,0.08);text-align:center;">
+                        <div style="display:inline-flex;align-items:center;gap:8px;background:#d1fae5;color:#065f46;padding:10px 20px;border-radius:20px;font-weight:700;font-size:1rem;margin-bottom:24px;">
+                            <i class="fas fa-check-circle"></i> ¡Certificado emitido exitosamente!
+                        </div>
+                        <h3 style="color:#0b3460;margin:0 0 8px 0;" id="cert-qr-nombre"></h3>
+                        <p style="color:#64748b;margin:0 0 8px 0;" id="cert-qr-programa"></p>
+                        <p style="font-family:monospace;color:#0284c7;font-size:1.2rem;font-weight:700;margin:0 0 24px 0;letter-spacing:2px;" id="cert-qr-code"></p>
+                        <div id="cert-qr-canvas" style="margin:0 auto 24px;display:inline-block;padding:16px;background:white;border:2px solid #e2e8f0;border-radius:12px;"></div>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="certDescargarQR()"
+                                style="padding:12px 24px;background:#0b3460;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-download"></i> Descargar QR
+                            </button>
+                            <button onclick="certVerificarURL()"
+                                style="padding:12px 24px;background:#059669;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-external-link-alt"></i> Ver certificado público
+                            </button>
+                            <button onclick="certCopiarURL()"
+                                style="padding:12px 24px;background:#0284c7;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-link"></i> Copiar URL
+                            </button>
+                            <button onclick="certShowTab('lista')"
+                                style="padding:12px 24px;background:#f1f5f9;color:#374151;border:none;border-radius:10px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:8px;">
+                                <i class="fas fa-list"></i> Ver todos los certificados
+                            </button>
+                        </div>
+                        <p style="color:#94a3b8;font-size:0.85rem;margin-top:16px;">
+                            <i class="fas fa-info-circle"></i> Descarga el QR e imprímelo en el certificado físico del estudiante
+                        </p>
+                    </div>
+                </div>
+
+                <!-- TAB: LISTA -->
+                <div id="cert-tab-lista" style="display:none;">
+                    <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+                        <!-- Filtros -->
+                        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end;">
+                            <div style="flex:1;min-width:200px;">
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.8rem;text-transform:uppercase;">Buscar</label>
+                                <input type="text" id="cert-filter-texto" placeholder="Nombre, cédula o código..."
+                                    oninput="certFiltrarLista()"
+                                    style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-weight:700;color:#374151;font-size:0.8rem;text-transform:uppercase;">Estado</label>
+                                <select id="cert-filter-estado" onchange="certFiltrarLista()"
+                                    style="padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;font-size:0.95rem;background:white;">
+                                    <option value="todos">Todos</option>
+                                    <option value="valido">Válidos</option>
+                                    <option value="revocado">Revocados</option>
+                                </select>
+                            </div>
+                            <button onclick="certCargarLista()"
+                                style="padding:10px 20px;background:#0b3460;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;display:flex;align-items:center;gap:6px;">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+
+                        <!-- Estadísticas rápidas -->
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px;">
+                            <div style="background:#dbeafe;border-radius:10px;padding:14px;text-align:center;">
+                                <div style="font-size:1.5rem;font-weight:800;color:#1d4ed8;" id="cert-stat-total">—</div>
+                                <div style="font-size:0.8rem;color:#1d4ed8;font-weight:600;">Total</div>
+                            </div>
+                            <div style="background:#d1fae5;border-radius:10px;padding:14px;text-align:center;">
+                                <div style="font-size:1.5rem;font-weight:800;color:#065f46;" id="cert-stat-validos">—</div>
+                                <div style="font-size:0.8rem;color:#065f46;font-weight:600;">Válidos</div>
+                            </div>
+                            <div style="background:#fee2e2;border-radius:10px;padding:14px;text-align:center;">
+                                <div style="font-size:1.5rem;font-weight:800;color:#991b1b;" id="cert-stat-revocados">—</div>
+                                <div style="font-size:0.8rem;color:#991b1b;font-weight:600;">Revocados</div>
+                            </div>
+                            <div style="background:#fef9c3;border-radius:10px;padding:14px;text-align:center;">
+                                <div style="font-size:1.5rem;font-weight:800;color:#854d0e;" id="cert-stat-verificaciones">—</div>
+                                <div style="font-size:0.8rem;color:#854d0e;font-weight:600;">Verificaciones</div>
+                            </div>
+                        </div>
+
+                        <!-- Lista -->
+                        <div id="cert-lista-container">
+                            <p style="text-align:center;color:#94a3b8;padding:40px;">
+                                <i class="fas fa-certificate" style="font-size:2rem;display:block;margin-bottom:12px;"></i>
+                                Haz clic en "Actualizar" para cargar los certificados
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -25761,6 +25972,401 @@ REGLAS ESTRICTAS:
                 });
             }
         });
+    </script>
+
+    <!-- =================== CERTIFICADOS =================== -->
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        const BASE_URL = 'https://cursoscharlotte.com/verificar-certificado?id=';
+        let certAllDocs = [];
+        let certCurrentCode = '';
+
+        // ─── TABS ────────────────────────────────────────────────────────────
+        window.certShowTab = function(tab) {
+            document.getElementById('cert-tab-emitir').style.display = tab === 'emitir' ? 'block' : 'none';
+            document.getElementById('cert-tab-lista').style.display = tab === 'lista' ? 'block' : 'none';
+            const btnEmitir = document.getElementById('cert-tab-emitir-btn');
+            const btnLista = document.getElementById('cert-tab-lista-btn');
+            if (tab === 'emitir') {
+                btnEmitir.style.background = 'white';
+                btnEmitir.style.color = '#0b3460';
+                btnEmitir.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                btnLista.style.background = 'transparent';
+                btnLista.style.color = '#64748b';
+                btnLista.style.boxShadow = 'none';
+            } else {
+                btnLista.style.background = 'white';
+                btnLista.style.color = '#0b3460';
+                btnLista.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                btnEmitir.style.background = 'transparent';
+                btnEmitir.style.color = '#64748b';
+                btnEmitir.style.boxShadow = 'none';
+                certCargarLista();
+            }
+        };
+
+        // ─── GENERAR CÓDIGO ÚNICO ─────────────────────────────────────────────
+        async function certGenerarCodigo() {
+            const snap = await window.db.collection('certificados')
+                .orderBy('certCode', 'desc').limit(1).get();
+            let nextNum = 1;
+            if (!snap.empty) {
+                const last = snap.docs[0].data().certCode || '';
+                const match = last.match(/(\d+)$/);
+                if (match) nextNum = parseInt(match[1]) + 1;
+            }
+            const year = new Date().getFullYear();
+            return `CC-${year}-${String(nextNum).padStart(5, '0')}`;
+        }
+
+        // ─── BUSCAR ESTUDIANTE ────────────────────────────────────────────────
+        window.certBuscarEstudiante = async function() {
+            const texto = document.getElementById('cert-search-student').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('cert-student-results');
+            if (!texto) return;
+            resultDiv.innerHTML = '<span style="color:#94a3b8;font-size:0.9rem;"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+            try {
+                const snap = await window.db.collection('users').get();
+                const matches = snap.docs.filter(d => {
+                    const data = d.data();
+                    const name = (data.nombre || data.name || data.displayName || '').toLowerCase();
+                    const email = (data.email || '').toLowerCase();
+                    return name.includes(texto) || email.includes(texto);
+                }).slice(0, 8);
+
+                if (matches.length === 0) {
+                    resultDiv.innerHTML = '<span style="color:#f59e0b;font-size:0.9rem;"><i class="fas fa-exclamation-triangle"></i> No se encontraron estudiantes. Puedes ingresar los datos manualmente.</span>';
+                    return;
+                }
+                const items = matches.map(d => {
+                    const data = d.data();
+                    const name = data.nombre || data.name || data.displayName || data.email || 'Sin nombre';
+                    const email = data.email || '';
+                    const cedula = data.cedula || data.documento || '';
+                    const programa = data.programa || '';
+                    return `<div onclick="certSeleccionarEstudiante(${JSON.stringify({ name, email, cedula, programa }).replace(/</g,'&lt;')})"
+                        style="padding:10px 14px;background:white;border-radius:8px;cursor:pointer;border:2px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;transition:all 0.15s;"
+                        onmouseover="this.style.borderColor='#0b3460'" onmouseout="this.style.borderColor='#e2e8f0'">
+                        <div>
+                            <div style="font-weight:600;color:#1e293b;">${escCert(name)}</div>
+                            <div style="font-size:0.8rem;color:#64748b;">${escCert(email)}${cedula ? ' · CC: ' + escCert(cedula) : ''}</div>
+                        </div>
+                        <i class="fas fa-arrow-right" style="color:#94a3b8;"></i>
+                    </div>`;
+                }).join('');
+                resultDiv.innerHTML = `<div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">${items}</div>`;
+            } catch(e) {
+                resultDiv.innerHTML = '<span style="color:#ef4444;font-size:0.9rem;">Error al buscar estudiantes.</span>';
+            }
+        };
+
+        window.certSeleccionarEstudiante = function(data) {
+            if (data.name) document.getElementById('cert-nombre').value = data.name;
+            if (data.cedula) document.getElementById('cert-cedula').value = data.cedula;
+            if (data.programa) {
+                const sel = document.getElementById('cert-programa');
+                for (let opt of sel.options) {
+                    if (opt.value.toLowerCase().includes(data.programa.toLowerCase().split(' ')[0])) {
+                        sel.value = opt.value;
+                        break;
+                    }
+                }
+            }
+            document.getElementById('cert-student-results').innerHTML =
+                `<span style="color:#059669;font-size:0.9rem;"><i class="fas fa-check-circle"></i> Estudiante seleccionado: <strong>${escCert(data.name)}</strong></span>`;
+        };
+
+        // ─── EMITIR CERTIFICADO ───────────────────────────────────────────────
+        window.certEmitir = async function() {
+            const nombre = document.getElementById('cert-nombre').value.trim();
+            const cedula = document.getElementById('cert-cedula').value.trim();
+            const programa = document.getElementById('cert-programa').value;
+            const horas = document.getElementById('cert-horas').value.trim();
+            const fechaInicio = document.getElementById('cert-fecha-inicio').value;
+            const fechaFin = document.getElementById('cert-fecha-fin').value;
+            const notas = document.getElementById('cert-notas').value.trim();
+
+            if (!nombre || !programa || !horas || !fechaInicio || !fechaFin) {
+                alert('Por favor completa los campos obligatorios: nombre, programa, horas, fecha de inicio y fecha de finalización.');
+                return;
+            }
+            if (new Date(fechaFin) < new Date(fechaInicio)) {
+                alert('La fecha de finalización no puede ser anterior a la fecha de inicio.');
+                return;
+            }
+
+            const btn = document.querySelector('[onclick="certEmitir()"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Emitiendo...';
+
+            try {
+                const certCode = await certGenerarCodigo();
+                const adminEmail = firebase.auth().currentUser?.email || 'admin';
+
+                const certData = {
+                    certCode,
+                    studentName: nombre,
+                    studentId: cedula,
+                    programa,
+                    totalHoras: parseInt(horas),
+                    fechaInicio,
+                    fechaFin,
+                    fechaEmision: new Date().toISOString(),
+                    notasAdicionales: notas,
+                    estado: 'valido',
+                    emitidoPor: adminEmail,
+                    verificaciones: 0,
+                    ultimaVerificacion: null
+                };
+
+                await window.db.collection('certificados').add(certData);
+
+                certCurrentCode = certCode;
+                certMostrarQR(certData);
+
+            } catch(e) {
+                console.error(e);
+                alert('Error al emitir el certificado: ' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-certificate"></i> Emitir Certificado';
+            }
+        };
+
+        // ─── MOSTRAR QR ───────────────────────────────────────────────────────
+        function certMostrarQR(cert) {
+            const preview = document.getElementById('cert-qr-preview');
+            document.getElementById('cert-qr-nombre').textContent = cert.studentName;
+            document.getElementById('cert-qr-programa').textContent = cert.programa + ' · ' + cert.totalHoras + ' horas';
+            document.getElementById('cert-qr-code').textContent = cert.certCode;
+
+            const canvas = document.getElementById('cert-qr-canvas');
+            canvas.innerHTML = '';
+
+            const url = BASE_URL + encodeURIComponent(cert.certCode);
+            new QRCode(canvas, {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark: '#0b3460',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            preview.style.display = 'block';
+            preview.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // ─── DESCARGAR QR ─────────────────────────────────────────────────────
+        window.certDescargarQR = function() {
+            const canvas = document.querySelector('#cert-qr-canvas canvas');
+            if (!canvas) { alert('Espera a que se genere el QR.'); return; }
+            const link = document.createElement('a');
+            link.download = `QR-${certCurrentCode}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        };
+
+        window.certVerificarURL = function() {
+            window.open(BASE_URL + encodeURIComponent(certCurrentCode), '_blank');
+        };
+
+        window.certCopiarURL = function() {
+            const url = BASE_URL + encodeURIComponent(certCurrentCode);
+            navigator.clipboard.writeText(url).then(() => alert('URL copiada:\n' + url))
+                .catch(() => prompt('Copia esta URL:', url));
+        };
+
+        // ─── LIMPIAR FORMULARIO ───────────────────────────────────────────────
+        window.certLimpiarFormulario = function() {
+            ['cert-nombre','cert-cedula','cert-horas','cert-fecha-inicio','cert-fecha-fin','cert-notas','cert-search-student'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('cert-programa').value = '';
+            document.getElementById('cert-student-results').innerHTML = '';
+            document.getElementById('cert-qr-preview').style.display = 'none';
+        };
+
+        // ─── CARGAR LISTA ─────────────────────────────────────────────────────
+        window.certCargarLista = async function() {
+            const container = document.getElementById('cert-lista-container');
+            container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:30px;"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
+            try {
+                const snap = await window.db.collection('certificados').orderBy('fechaEmision', 'desc').get();
+                certAllDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                certActualizarEstadisticas(certAllDocs);
+                certRenderizarLista(certAllDocs);
+            } catch(e) {
+                container.innerHTML = `<p style="color:#ef4444;text-align:center;padding:20px;">Error al cargar: ${escCert(e.message)}</p>`;
+            }
+        };
+
+        function certActualizarEstadisticas(docs) {
+            const validos = docs.filter(d => d.estado === 'valido').length;
+            const revocados = docs.filter(d => d.estado === 'revocado').length;
+            const totalVer = docs.reduce((acc, d) => acc + (d.verificaciones || 0), 0);
+            document.getElementById('cert-stat-total').textContent = docs.length;
+            document.getElementById('cert-stat-validos').textContent = validos;
+            document.getElementById('cert-stat-revocados').textContent = revocados;
+            document.getElementById('cert-stat-verificaciones').textContent = totalVer;
+        }
+
+        function certRenderizarLista(docs) {
+            const container = document.getElementById('cert-lista-container');
+            if (docs.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#94a3b8;padding:40px;">No hay certificados que coincidan con los filtros.</p>';
+                return;
+            }
+            const rows = docs.map(cert => {
+                const esValido = cert.estado === 'valido';
+                const fechaEmision = cert.fechaEmision ? new Date(cert.fechaEmision).toLocaleDateString('es-CO') : '—';
+                const badgeColor = esValido ? '#d1fae5' : '#fee2e2';
+                const badgeText = esValido ? '#065f46' : '#991b1b';
+                const estadoLabel = esValido ? 'VÁLIDO' : 'REVOCADO';
+                return `<div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;background:#fafafa;">
+                    <div style="flex:1;min-width:200px;">
+                        <div style="font-weight:700;color:#1e293b;font-size:1rem;">${escCert(cert.studentName)}</div>
+                        <div style="color:#64748b;font-size:0.85rem;margin-top:3px;">${escCert(cert.programa)} · ${cert.totalHoras || '—'} horas</div>
+                        <div style="font-family:monospace;color:#0284c7;font-size:0.85rem;margin-top:3px;letter-spacing:1px;">${escCert(cert.certCode)}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <span style="font-size:0.8rem;color:#94a3b8;">${fechaEmision}</span>
+                        <span style="background:${badgeColor};color:${badgeText};padding:4px 12px;border-radius:20px;font-size:0.75rem;font-weight:700;">${estadoLabel}</span>
+                        <span style="background:#dbeafe;color:#1d4ed8;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;" title="Verificaciones">
+                            <i class="fas fa-eye"></i> ${cert.verificaciones || 0}
+                        </span>
+                        <button onclick="certVerCodigo('${escCert(cert.certCode)}')"
+                            style="padding:7px 12px;background:#0b3460;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;" title="Ver QR">
+                            <i class="fas fa-qrcode"></i> QR
+                        </button>
+                        <button onclick="window.open('${BASE_URL}${encodeURIComponent(cert.certCode)}','_blank')"
+                            style="padding:7px 12px;background:#059669;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;" title="Ver certificado público">
+                            <i class="fas fa-external-link-alt"></i>
+                        </button>
+                        ${esValido
+                            ? `<button onclick="certRevocar('${cert.id}','${escCert(cert.certCode)}')"
+                                style="padding:7px 12px;background:#ef4444;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;" title="Revocar">
+                                <i class="fas fa-ban"></i>
+                               </button>`
+                            : `<button onclick="certReactivar('${cert.id}','${escCert(cert.certCode)}')"
+                                style="padding:7px 12px;background:#f59e0b;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;" title="Reactivar">
+                                <i class="fas fa-undo"></i>
+                               </button>`
+                        }
+                    </div>
+                </div>`;
+            }).join('');
+            container.innerHTML = rows;
+        }
+
+        // ─── FILTRAR LISTA ────────────────────────────────────────────────────
+        window.certFiltrarLista = function() {
+            const texto = (document.getElementById('cert-filter-texto').value || '').toLowerCase();
+            const estado = document.getElementById('cert-filter-estado').value;
+            const filtrados = certAllDocs.filter(cert => {
+                const matchTexto = !texto ||
+                    (cert.studentName || '').toLowerCase().includes(texto) ||
+                    (cert.studentId || '').includes(texto) ||
+                    (cert.certCode || '').toLowerCase().includes(texto);
+                const matchEstado = estado === 'todos' || cert.estado === estado;
+                return matchTexto && matchEstado;
+            });
+            certRenderizarLista(filtrados);
+        };
+
+        // ─── VER QR EN MODAL ──────────────────────────────────────────────────
+        window.certVerCodigo = function(certCode) {
+            const existente = document.getElementById('cert-qr-modal-overlay');
+            if (existente) existente.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'cert-qr-modal-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+            const modal = document.createElement('div');
+            modal.style.cssText = 'background:white;border-radius:20px;padding:36px;text-align:center;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
+            modal.innerHTML = `
+                <h3 style="color:#0b3460;margin:0 0 8px 0;">Código QR</h3>
+                <p style="font-family:monospace;color:#0284c7;font-weight:700;font-size:1.1rem;letter-spacing:2px;margin-bottom:20px;">${escCert(certCode)}</p>
+                <div id="cert-modal-qr-canvas" style="display:inline-block;padding:16px;background:white;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:20px;"></div>
+                <p style="color:#64748b;font-size:0.85rem;margin-bottom:20px;">Escanea para verificar o descarga para pegar en el certificado físico</p>
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button id="cert-modal-download-btn" style="padding:10px 20px;background:#0b3460;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+                        <i class="fas fa-download"></i> Descargar
+                    </button>
+                    <button onclick="document.getElementById('cert-qr-modal-overlay').remove()" style="padding:10px 20px;background:#f1f5f9;color:#374151;border:none;border-radius:8px;cursor:pointer;font-weight:600;">
+                        Cerrar
+                    </button>
+                </div>`;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            const qrDiv = document.getElementById('cert-modal-qr-canvas');
+            const url = BASE_URL + encodeURIComponent(certCode);
+            new QRCode(qrDiv, {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark: '#0b3460',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('cert-modal-download-btn').onclick = function() {
+                const cv = qrDiv.querySelector('canvas');
+                if (!cv) return;
+                const a = document.createElement('a');
+                a.download = `QR-${certCode}.png`;
+                a.href = cv.toDataURL('image/png');
+                a.click();
+            };
+        };
+
+        // ─── REVOCAR / REACTIVAR ──────────────────────────────────────────────
+        window.certRevocar = async function(docId, certCode) {
+            if (!confirm(`¿Revocar el certificado ${certCode}?\n\nEsta acción marcará el certificado como REVOCADO. El registro histórico se conserva.`)) return;
+            try {
+                await window.db.collection('certificados').doc(docId).update({ estado: 'revocado' });
+                await certCargarLista();
+            } catch(e) { alert('Error al revocar: ' + e.message); }
+        };
+
+        window.certReactivar = async function(docId, certCode) {
+            if (!confirm(`¿Reactivar el certificado ${certCode}?`)) return;
+            try {
+                await window.db.collection('certificados').doc(docId).update({ estado: 'valido' });
+                await certCargarLista();
+            } catch(e) { alert('Error al reactivar: ' + e.message); }
+        };
+
+        // ─── HELPER XSS ──────────────────────────────────────────────────────
+        function escCert(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;')
+                .replace(/'/g,'&#039;');
+        }
+
+        // ─── AUTO-CARGAR AL ABRIR LA SECCIÓN ─────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function() {
+            const certNav = document.querySelector('[data-section="certificados"]');
+            if (certNav) {
+                certNav.addEventListener('click', function() {
+                    setTimeout(() => certShowTab('emitir'), 100);
+                });
+            }
+        });
+
+    })();
     </script>
 
 </body>

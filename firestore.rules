@@ -106,5 +106,12 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && request.auth.token.rol == 'admin';
     }
+
+    // CERTIFICADOS
+    // Lectura pública (verificación sin login) · Escritura solo admins autenticados
+    match /certificados/{document} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
   }
 }
