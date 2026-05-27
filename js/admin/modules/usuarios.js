@@ -761,7 +761,8 @@ async function eliminarUsuario(id) {
     try {
         // Obtener el usuario actual para verificar el firebaseUID y email
         const userDoc = await getDoc(doc(db, 'users', id));
-        if (!userDoc.exists()) {
+        const docExists = typeof userDoc.exists === 'function' ? userDoc.exists() : userDoc.exists;
+        if (!docExists) {
             alert('Usuario no encontrado');
             return;
         }
