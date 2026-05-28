@@ -3,6 +3,18 @@
 // Solo permite ver y unirse a salas
 // ============================================
 
+// Obtiene el token: primero JWT almacenado, luego Firebase ID token
+async function getVideoAuthToken() {
+  const stored = localStorage.getItem('authToken');
+  if (stored) return stored;
+  try {
+    if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+      return await firebase.auth().currentUser.getIdToken();
+    }
+  } catch(e) {}
+  return null;
+}
+
 export default {
   init
 };
@@ -68,7 +80,7 @@ function stopAutoRefresh() {
 // ============================================
 
 async function loadRooms(silent = false) {
-  const token = localStorage.getItem('authToken');
+  const token = await getVideoAuthToken();
   if (!token) {
     console.error('❌ No hay token de autenticación');
     if (!silent) showMessage('No estás autenticado. Por favor, cierra sesión e inicia sesión nuevamente.', 'error');

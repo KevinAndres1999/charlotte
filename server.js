@@ -511,10 +511,16 @@ async function verifyFirebaseToken(req, res, next) {
     }
     
     const decodedToken = await admin.auth().verifyIdToken(token);
+    let fbRole = 'student';
+    try {
+      const dbUser = db.prepare('SELECT role FROM users WHERE email = ?').get(decodedToken.email);
+      if (dbUser) fbRole = dbUser.role;
+    } catch(e) {}
     req.user = {
       uid: decodedToken.uid,
       email: decodedToken.email,
-      role: decodedToken.role || 'user'
+      name: decodedToken.name || decodedToken.email,
+      role: fbRole
     };
     next();
   } catch (error) {
@@ -653,17 +659,32 @@ const activeRooms = new Map(); // roomId -> { participants: Map(socketId -> user
 
 // --- Middleware de autenticación para Socket.io ---
 // Verifica el JWT en el handshake para que socket.user siempre sea fiable
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   const token = socket.handshake.auth && socket.handshake.auth.token;
   if (!token) {
     return next(new Error('Token de autenticación requerido'));
   }
+  // Intentar JWT primero (usuarios con login del servidor)
   try {
     const payload = jwt.verify(token, JWT_SECRET);
     socket.user = payload; // { email, name, role }
-    next();
-  } catch (err) {
-    next(new Error('Token inválido o expirado. Por favor inicia sesión nuevamente.'));
+    return next();
+  } catch (jwtErr) { /* no es JWT, intentar Firebase */ }
+  // Intentar Firebase ID token (admin y estudiantes Firebase)
+  try {
+    if (!admin.apps || !admin.apps.length) {
+      return next(new Error('Token inválido'));
+    }
+    const decoded = await admin.auth().verifyIdToken(token);
+    let fbRole = 'student';
+    try {
+      const dbUser = db.prepare('SELECT role FROM users WHERE email = ?').get(decoded.email);
+      if (dbUser) fbRole = dbUser.role;
+    } catch(e) {}
+    socket.user = { email: decoded.email, name: decoded.name || decoded.email, role: fbRole };
+    return next();
+  } catch (fbErr) {
+    return next(new Error('Token inválido o expirado. Por favor inicia sesión nuevamente.'));
   }
 });
 
@@ -863,7 +884,7 @@ io.on('connection', (socket) => {
 // ============================================
 
 // Crear sala (solo admin)
-app.post('/api/rooms', requireAuth, (req, res) => {
+app.post('/api/rooms', verifyFirebaseToken, (req, res) => {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Acceso restringido' });
   }
@@ -893,7 +914,7 @@ app.post('/api/rooms', requireAuth, (req, res) => {
 });
 
 // Listar salas
-app.get('/api/rooms', requireAuth, (req, res) => {
+app.get('/api/rooms', verifyFirebaseToken, (req, res) => {
   try {
     const rooms = db.prepare(
       'SELECT id, roomId, name, description, createdAt, isActive, maxParticipants FROM rooms WHERE isActive = 1 ORDER BY createdAt DESC'
@@ -913,7 +934,7 @@ app.get('/api/rooms', requireAuth, (req, res) => {
 });
 
 // Obtener información de una sala
-app.get('/api/rooms/:roomId', requireAuth, (req, res) => {
+app.get('/api/rooms/:roomId', verifyFirebaseToken, (req, res) => {
   try {
     const room = db.prepare(
       'SELECT * FROM rooms WHERE roomId = ? AND isActive = 1'
@@ -942,7 +963,7 @@ app.get('/api/rooms/:roomId', requireAuth, (req, res) => {
 });
 
 // Actualizar sala (solo admin)
-app.patch('/api/rooms/:roomId', requireAuth, (req, res) => {
+app.patch('/api/rooms/:roomId', verifyFirebaseToken, (req, res) => {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Acceso restringido' });
   }
@@ -989,7 +1010,7 @@ app.patch('/api/rooms/:roomId', requireAuth, (req, res) => {
 });
 
 // Eliminar sala (solo admin)
-app.delete('/api/rooms/:roomId', requireAuth, (req, res) => {
+app.delete('/api/rooms/:roomId', verifyFirebaseToken, (req, res) => {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Acceso restringido' });
   }

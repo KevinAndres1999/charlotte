@@ -49,23 +49,53 @@ let isRecording = false;
 let _recordingCanvas = null;
 let _recordingAudioCtx = null;  // AudioContext para mezclar audio local + remoto
 
+// Información de autenticación (cargada en DOMContentLoaded)
+let _authInfo = { token: null, name: 'Usuario', email: null, role: null };
+
+// Obtiene el token: primero JWT almacenado, luego Firebase ID token
+async function getAuthToken() {
+  const stored = localStorage.getItem('authToken');
+  if (stored) return stored;
+  try {
+    if (window.firebase && firebase.auth) {
+      const user = firebase.auth().currentUser;
+      if (user) return await user.getIdToken();
+      // Esperar a que cargue el estado de auth
+      return await new Promise((resolve) => {
+        const timeout = setTimeout(() => resolve(null), 5000);
+        const unsub = firebase.auth().onAuthStateChanged(u => {
+          clearTimeout(timeout);
+          unsub();
+          if (u) u.getIdToken().then(resolve).catch(() => resolve(null));
+          else resolve(null);
+        });
+      });
+    }
+  } catch(e) {}
+  return null;
+}
+
 // ============================================
 // INICIALIZACIÓN
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Verificar autenticación
-  const token = localStorage.getItem('authToken');
+  // Obtener token (JWT almacenado o Firebase ID token)
+  const token = await getAuthToken();
   if (!token) {
     window.location.href = '/login.html';
     return;
   }
 
-  // Decodificar token para obtener información del usuario
+  // Cachear token y decodificar info del usuario
+  _authInfo.token = token;
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    currentUserName = payload.name || 'Usuario';
-    currentUserId = payload.email;
+    currentUserName = payload.name || payload.email || 'Usuario';
+    currentUserId = payload.email || payload.sub;
+    _authInfo.name = currentUserName;
+    _authInfo.email = currentUserId;
+    _authInfo.role = payload.role || null;
   } catch (err) {
     console.error('Error decodificando token:', err);
     currentUserName = 'Usuario';
@@ -83,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ============================================
 
 async function loadRooms() {
-  const token = localStorage.getItem('authToken');
+  const token = _authInfo.token;
   const roomsList = document.getElementById('roomsList');
   const errorContainer = document.getElementById('errorContainer');
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
@@ -142,7 +172,7 @@ function initializeSocket() {
   
   socket = io(backendURL, {
     auth: {
-      token: localStorage.getItem('authToken')
+      token: _authInfo.token
     },
     transports: ['websocket', 'polling'],
     reconnection: true,
@@ -1174,15 +1204,8 @@ function updateParticipantsList() {
   const list = document.getElementById('participantsList');
   if (!list) return;
   
-  // Verificar si el usuario actual es admin decodificando el token
-  let isAdmin = false;
-  try {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      isAdmin = payload.role === 'admin';
-    }
-  } catch (e) {}
+  // Verificar si el usuario actual es admin
+  let isAdmin = _authInfo.role === 'admin';
 
   const totalCount = peerConnections.size + 1;
   
@@ -1359,8 +1382,7 @@ function setLayoutMode(mode, forcedTargetId = null) {
       } else {
         // ¿Soy yo el admin?
         try {
-          const payload = JSON.parse(atob(localStorage.getItem('authToken').split('.')[1]));
-          if (payload.role === 'admin') targetId = 'local';
+          if (_authInfo.role === 'admin') targetId = 'local';
         } catch (e) {}
       }
       if (!targetId) {

@@ -3,6 +3,18 @@
 // Para el panel de administración
 // ============================================
 
+// Obtiene el token: primero JWT almacenado, luego Firebase ID token
+async function getAuthToken() {
+  const stored = localStorage.getItem('authToken');
+  if (stored) return stored;
+  try {
+    if (window.firebase && firebase.auth && firebase.auth().currentUser) {
+      return await firebase.auth().currentUser.getIdToken();
+    }
+  } catch(e) {}
+  return null;
+}
+
 export default {
   init
 };
@@ -53,7 +65,7 @@ export async function init() {
 // ============================================
 
 async function loadRooms() {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) {
     console.error('❌ No hay token de autenticación');
     showError('No estás autenticado');
@@ -226,7 +238,7 @@ function showCreateModal() {
 }
 
 async function createRoom(formData) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) {
     showError('No hay token de autenticación');
     return;
@@ -277,7 +289,7 @@ async function createRoom(formData) {
 // ============================================
 
 async function editRoom(roomId) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) return;
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
 
@@ -351,7 +363,7 @@ function showEditModal(room) {
 }
 
 async function updateRoom(formData) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) return;
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
 
@@ -389,7 +401,7 @@ async function updateRoom(formData) {
 // ============================================
 
 async function toggleActive(roomId, isActive) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) return;
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
 
@@ -425,7 +437,7 @@ async function toggleActive(roomId, isActive) {
 // ============================================
 
 async function deleteRoom(roomId) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) return;
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
 
@@ -458,7 +470,7 @@ async function deleteRoom(roomId) {
 // ============================================
 
 async function viewRoom(roomId) {
-  const token = localStorage.getItem('authToken');
+  const token = await getAuthToken();
   if (!token) return;
   const apiBase = window.APP_CONFIG ? window.APP_CONFIG.API_BASE : '/api';
 
