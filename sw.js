@@ -1,6 +1,6 @@
 // Service Worker para PWA Charlotte
-const CACHE_NAME = 'charlotte-v1.2.4';
-const STATIC_CACHE = 'charlotte-static-v1.2.4';
+const CACHE_NAME = 'charlotte-v1.2.5';
+const STATIC_CACHE = 'charlotte-static-v1.2.5';
 
 // Recursos críticos para cachear
 const CRITICAL_RESOURCES = [
